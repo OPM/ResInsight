@@ -38,10 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewSimWellIntersectionFeature, "RicNewSimWellIntersectio
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellIntersectionFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSimWellInView*> simWells;
-    caf::SelectionManager::instance()->objectsByType( &simWells );
-
-    for ( auto simWell : simWells )
+    for ( auto simWell : caf::SelectionManager::instance()->objectsByType<RimSimWellInView>() )
     {
         RimEclipseView* eclView = simWell->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 

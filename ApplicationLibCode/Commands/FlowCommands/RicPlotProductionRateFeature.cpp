@@ -54,10 +54,7 @@ CAF_CMD_SOURCE_INIT( RicPlotProductionRateFeature, "RicPlotProductionRateFeature
 //--------------------------------------------------------------------------------------------------
 bool RicPlotProductionRateFeature::isCommandEnabled() const
 {
-    std::vector<RimSimWellInView*> collection;
-    caf::SelectionManager::instance()->objectsByType( &collection );
-
-    for ( RimSimWellInView* well : collection )
+    for ( RimSimWellInView* well : caf::SelectionManager::instance()->objectsByType<RimSimWellInView>() )
     {
         auto summaryCase = RimSimWellInViewTools::summaryCaseForWell( well );
         if ( summaryCase )
@@ -80,12 +77,9 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
     RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if ( !sumCaseColl ) return;
 
-    std::vector<RimSimWellInView*> collection;
-    caf::SelectionManager::instance()->objectsByType( &collection );
-
     RimSummaryPlot* summaryPlotToSelect = nullptr;
 
-    for ( RimSimWellInView* well : collection )
+    for ( RimSimWellInView* well : caf::SelectionManager::instance()->objectsByType<RimSimWellInView>() )
     {
         auto summaryCase = RimSimWellInViewTools::summaryCaseForWell( well );
         if ( !summaryCase ) continue;

@@ -99,11 +99,8 @@ void RicCloseObservedDataFeature::deleteObservedRmuRftData( const std::vector<Ri
 //--------------------------------------------------------------------------------------------------
 bool RicCloseObservedDataFeature::isCommandEnabled() const
 {
-    std::vector<RimObservedSummaryData*> summarySelection;
-    caf::SelectionManager::instance()->objectsByType( &summarySelection );
-
-    std::vector<RimObservedFmuRftData*> fmuRftSelection;
-    caf::SelectionManager::instance()->objectsByType( &fmuRftSelection );
+    const auto summarySelection = caf::SelectionManager::instance()->objectsByType<RimObservedSummaryData>();
+    const auto fmuRftSelection  = caf::SelectionManager::instance()->objectsByType<RimObservedFmuRftData>();
 
     if ( summarySelection.empty() && fmuRftSelection.empty() )
     {
@@ -125,11 +122,8 @@ bool RicCloseObservedDataFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimObservedSummaryData*> summarySelection;
-    caf::SelectionManager::instance()->objectsByType( &summarySelection );
-
-    std::vector<RimObservedFmuRftData*> fmuRftSelection;
-    caf::SelectionManager::instance()->objectsByType( &fmuRftSelection );
+    const auto summarySelection = caf::SelectionManager::instance()->objectsByType<RimObservedSummaryData>();
+    const auto fmuRftSelection  = caf::SelectionManager::instance()->objectsByType<RimObservedFmuRftData>();
 
     CVF_ASSERT( !( summarySelection.empty() && fmuRftSelection.empty() ) );
 

@@ -56,17 +56,7 @@ bool RicNewSeismicViewFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewSeismicViewFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-
-    RimSeismicData* selectedData = nullptr;
-
-    if ( !uiItems.empty() )
-    {
-        selectedData = dynamic_cast<RimSeismicData*>( uiItems[0] );
-    }
-
-    createSeismicView( selectedData );
+    createSeismicView( caf::SelectionManager::instance()->selectedItemOfType<RimSeismicData>() );
 }
 
 //--------------------------------------------------------------------------------------------------

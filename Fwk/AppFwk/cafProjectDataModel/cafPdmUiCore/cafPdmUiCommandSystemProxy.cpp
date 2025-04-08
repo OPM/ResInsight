@@ -162,7 +162,7 @@ std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( PdmFi
           candidateSelectionLevel != SelectionManager::UNDEFINED;
           candidateSelectionLevel-- )
     {
-        SelectionManager::instance()->selectedItems( items, candidateSelectionLevel );
+        items = SelectionManager::instance()->selectedItems( candidateSelectionLevel );
         if ( !items.empty() ) break;
     }
 

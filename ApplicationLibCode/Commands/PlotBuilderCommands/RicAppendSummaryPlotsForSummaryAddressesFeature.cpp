@@ -92,8 +92,5 @@ void RicAppendSummaryPlotsForSummaryAddressesFeature::setupActionLook( QAction* 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryAddress*> RicAppendSummaryPlotsForSummaryAddressesFeature::selectedAddresses()
 {
-    std::vector<RimSummaryAddress*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
+    return caf::SelectionManager::instance()->objectsByType<RimSummaryAddress>();
 }

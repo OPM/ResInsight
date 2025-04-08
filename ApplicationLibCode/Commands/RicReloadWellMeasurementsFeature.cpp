@@ -36,8 +36,7 @@ CAF_CMD_SOURCE_INIT( RicReloadWellMeasurementsFeature, "RicReloadWellMeasurement
 //--------------------------------------------------------------------------------------------------
 bool RicReloadWellMeasurementsFeature::isCommandEnabled() const
 {
-    std::vector<RimWellMeasurementFilePath*> filePaths;
-    caf::SelectionManager::instance()->objectsByType( &filePaths );
+    const auto filePaths = caf::SelectionManager::instance()->objectsByType<RimWellMeasurementFilePath>();
     return !filePaths.empty();
 }
 
@@ -46,8 +45,7 @@ bool RicReloadWellMeasurementsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicReloadWellMeasurementsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimWellMeasurementFilePath*> filePaths;
-    caf::SelectionManager::instance()->objectsByType( &filePaths );
+    const auto filePaths = caf::SelectionManager::instance()->objectsByType<RimWellMeasurementFilePath>();
     if ( filePaths.empty() ) return;
 
     RicWellMeasurementImportTools::removeWellMeasurementsFromFiles( filePaths );

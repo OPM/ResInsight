@@ -33,9 +33,7 @@ CAF_CMD_SOURCE_INIT( RicCreateSummaryEnsembleFeature, "RicCreateSummaryEnsembleF
 //--------------------------------------------------------------------------------------------------
 bool RicCreateSummaryEnsembleFeature::isCommandEnabled() const
 {
-    std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimSummaryCase>();
     return !selection.empty();
 }
 
@@ -44,8 +42,7 @@ bool RicCreateSummaryEnsembleFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCreateSummaryEnsembleFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimSummaryCase>();
     if ( selection.empty() ) return;
 
     RicImportEnsembleFeature::createSummaryEnsemble( selection );

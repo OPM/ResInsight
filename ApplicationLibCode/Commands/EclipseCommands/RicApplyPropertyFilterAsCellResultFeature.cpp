@@ -40,9 +40,7 @@ CAF_CMD_SOURCE_INIT( RicApplyPropertyFilterAsCellResultFeature, "RicApplyPropert
 bool RicApplyPropertyFilterAsCellResultFeature::isCommandEnabled() const
 {
     {
-        std::vector<RimEclipsePropertyFilter*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
-
+        const auto objects = caf::SelectionManager::instance()->objectsByType<RimEclipsePropertyFilter>();
         if ( objects.size() == 1 )
         {
             return true;
@@ -50,9 +48,7 @@ bool RicApplyPropertyFilterAsCellResultFeature::isCommandEnabled() const
     }
 
     {
-        std::vector<RimGeoMechPropertyFilter*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
-
+        const auto objects = caf::SelectionManager::instance()->objectsByType<RimGeoMechPropertyFilter>();
         if ( objects.size() == 1 )
         {
             return true;
@@ -68,9 +64,7 @@ bool RicApplyPropertyFilterAsCellResultFeature::isCommandEnabled() const
 void RicApplyPropertyFilterAsCellResultFeature::onActionTriggered( bool isChecked )
 {
     {
-        std::vector<RimEclipsePropertyFilter*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
-
+        const auto objects = caf::SelectionManager::instance()->objectsByType<RimEclipsePropertyFilter>();
         if ( objects.size() == 1 )
         {
             RimEclipsePropertyFilter* propertyFilter = objects[0];
@@ -89,9 +83,7 @@ void RicApplyPropertyFilterAsCellResultFeature::onActionTriggered( bool isChecke
     }
 
     {
-        std::vector<RimGeoMechPropertyFilter*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
-
+        const auto objects = caf::SelectionManager::instance()->objectsByType<RimGeoMechPropertyFilter>();
         if ( objects.size() == 1 )
         {
             RimGeoMechPropertyFilter* propertyFilter = objects[0];

@@ -34,10 +34,8 @@ CAF_CMD_SOURCE_INIT( RicReloadFormationNamesFeature, "RicReloadFormationNamesFea
 //--------------------------------------------------------------------------------------------------
 bool RicReloadFormationNamesFeature::isCommandEnabled() const
 {
-    std::vector<RimFormationNames*> selectedFormationNamesObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesObjs );
-    std::vector<RimFormationNamesCollection*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
+    const auto selectedFormationNamesObjs     = caf::SelectionManager::instance()->objectsByType<RimFormationNames>();
+    const auto selectedFormationNamesCollObjs = caf::SelectionManager::instance()->objectsByType<RimFormationNamesCollection>();
 
     return ( !selectedFormationNamesObjs.empty() || !selectedFormationNamesCollObjs.empty() );
 }
@@ -47,9 +45,7 @@ bool RicReloadFormationNamesFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicReloadFormationNamesFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimFormationNamesCollection*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
-
+    const auto selectedFormationNamesCollObjs = caf::SelectionManager::instance()->objectsByType<RimFormationNamesCollection>();
     if ( !selectedFormationNamesCollObjs.empty() )
     {
         selectedFormationNamesCollObjs[0]->readAllFormationNames();
@@ -61,8 +57,7 @@ void RicReloadFormationNamesFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    std::vector<RimFormationNames*> selectedFormationNamesObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesObjs );
+    const auto selectedFormationNamesObjs = caf::SelectionManager::instance()->objectsByType<RimFormationNames>();
     for ( RimFormationNames* fnames : selectedFormationNamesObjs )
     {
         QString errorMessage;

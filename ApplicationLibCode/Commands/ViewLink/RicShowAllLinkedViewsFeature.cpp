@@ -42,11 +42,9 @@ bool RicShowAllLinkedViewsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicShowAllLinkedViewsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimViewLinker*> linkedViews;
-    caf::SelectionManager::instance()->objectsByType( &linkedViews );
+    auto linkedViews  = caf::SelectionManager::instance()->objectsByType<RimViewLinker>();
+    auto managedViews = caf::SelectionManager::instance()->objectsByType<RimViewController>();
 
-    std::vector<RimViewController*> managedViews;
-    caf::SelectionManager::instance()->objectsByType( &managedViews );
     for ( auto& managedView : managedViews )
     {
         RimViewLinker* rimLinked = managedView->firstAncestorOrThisOfTypeAsserted<RimViewLinker>();

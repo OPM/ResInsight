@@ -84,8 +84,7 @@ void RicNewPerforationIntervalFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationCollection()
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( selectedItems.size() != 1u ) return nullptr;
 
     caf::PdmUiItem* pdmUiItem = selectedItems.front();

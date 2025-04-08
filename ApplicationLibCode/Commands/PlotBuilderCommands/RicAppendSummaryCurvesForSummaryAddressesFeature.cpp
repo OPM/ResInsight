@@ -71,12 +71,5 @@ void RicAppendSummaryCurvesForSummaryAddressesFeature::setupActionLook( QAction*
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObjectHandle*> RicAppendSummaryCurvesForSummaryAddressesFeature::selectedAddresses()
 {
-    std::vector<RimSummaryAddress*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    // Make the object type general to match the expected type for handleDroppedObjects();
-    std::vector<caf::PdmObjectHandle*> generalObjects;
-    generalObjects.insert( generalObjects.begin(), objects.begin(), objects.end() );
-
-    return generalObjects;
+    return caf::SelectionManager::instance()->objectsByType<caf::PdmObjectHandle>();
 }

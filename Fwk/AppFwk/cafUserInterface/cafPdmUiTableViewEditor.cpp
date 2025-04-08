@@ -364,11 +364,8 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<in
 
     if ( isSelectionRoleDefined() && ( changedSelectionLevels.count( m_rowSelectionLevel ) ) )
     {
-        std::vector<PdmUiItem*> items;
-        SelectionManager::instance()->selectedItems( items, m_rowSelectionLevel );
-
         QItemSelection totalSelection;
-        for ( auto item : items )
+        for ( auto item : SelectionManager::instance()->selectedItems( m_rowSelectionLevel ) )
         {
             PdmObject*     pdmObj        = dynamic_cast<PdmObject*>( item );
             QItemSelection itemSelection = m_tableModelPdm->modelIndexFromPdmObject( pdmObj );

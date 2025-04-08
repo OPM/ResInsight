@@ -67,10 +67,7 @@ void RicCopyReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 
     std::vector<QString> referenceList;
 
-    std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
-
-    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
+    for ( caf::PdmObject* pdmObject : caf::SelectionManager::instance()->objectsByType<caf::PdmObject>() )
     {
         if ( RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( pdmObject ) )
         {
@@ -106,10 +103,7 @@ void RicCopyReferencesToClipboardFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
 {
-    std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
-    caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
-
-    for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
+    for ( caf::PdmObject* pdmObject : caf::SelectionManager::instance()->objectsByType<caf::PdmObject>() )
     {
         if ( RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( pdmObject ) )
         {

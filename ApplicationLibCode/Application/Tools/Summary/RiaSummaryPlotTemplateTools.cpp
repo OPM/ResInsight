@@ -486,10 +486,7 @@ std::vector<QString> RicSummaryPlotTemplateTools::selectDefaultPlotTemplates( st
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RicSummaryPlotTemplateTools::selectedSummaryCases()
 {
-    std::vector<RimSummaryCase*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
+    return caf::SelectionManager::instance()->objectsByType<RimSummaryCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -497,10 +494,7 @@ std::vector<RimSummaryCase*> RicSummaryPlotTemplateTools::selectedSummaryCases()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryEnsemble*> RicSummaryPlotTemplateTools::selectedSummaryEnsembles()
 {
-    std::vector<RimSummaryEnsemble*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
+    return caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -508,10 +502,7 @@ std::vector<RimSummaryEnsemble*> RicSummaryPlotTemplateTools::selectedSummaryEns
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryAddressCollection*> RicSummaryPlotTemplateTools::selectedSummaryAddressCollections()
 {
-    std::vector<RimSummaryAddressCollection*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
+    return caf::SelectionManager::instance()->objectsByType<RimSummaryAddressCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

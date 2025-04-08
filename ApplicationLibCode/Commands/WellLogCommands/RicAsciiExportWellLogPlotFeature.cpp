@@ -46,9 +46,8 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
     disableModelChangeContribution();
 
-    std::vector<RimWellLogPlot*> selectedWellLogPlots;
-    caf::SelectionManager::instance()->objectsByType( &selectedWellLogPlots );
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "PLOT_ASCIIEXPORT_DIR" );
+    auto    selectedWellLogPlots = caf::SelectionManager::instance()->objectsByType<RimWellLogPlot>();
+    QString defaultDir           = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "PLOT_ASCIIEXPORT_DIR" );
 
     caf::ProgressInfo pi( selectedWellLogPlots.size(), QString( "Exporting plot data to ASCII" ) );
     size_t            progress = 0;

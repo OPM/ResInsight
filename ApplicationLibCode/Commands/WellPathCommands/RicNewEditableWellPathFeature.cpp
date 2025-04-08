@@ -46,19 +46,15 @@ CAF_CMD_SOURCE_INIT( RicNewEditableWellPathFeature, "RicNewEditableWellPathFeatu
 bool RicNewEditableWellPathFeature::isCommandEnabled() const
 {
     {
-        std::vector<RimWellPath*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
-
-        if ( !objects.empty() )
+        const auto targets = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
+        if ( !targets.empty() )
         {
             return true;
         }
     }
     {
-        std::vector<RimWellPathCollection*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
-
-        if ( !objects.empty() )
+        const auto wellPathColl = caf::SelectionManager::instance()->objectsByType<RimWellPathCollection>();
+        if ( !wellPathColl.empty() )
         {
             return true;
         }

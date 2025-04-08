@@ -82,7 +82,5 @@ void RicNewWellLogPlotTrackFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot* RicNewWellLogPlotTrackFeature::selectedWellLogPlot()
 {
-    std::vector<RimWellLogPlot*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-    return !selection.empty() ? selection[0] : nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimWellLogPlot>();
 }

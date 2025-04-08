@@ -41,9 +41,7 @@ void RicShowDataSourcesForRealization::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicShowDataSourcesForRealization::isCommandChecked() const
 {
-    std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimSummaryCase>();
     if ( !selection.empty() )
     {
         return selection.front()->showVectorItemsInProjectTree();
@@ -57,8 +55,7 @@ bool RicShowDataSourcesForRealization::isCommandChecked() const
 //--------------------------------------------------------------------------------------------------
 bool RicShowDataSourcesForRealization::isCommandEnabled() const
 {
-    std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimSummaryCase>();
 
     for ( RimSummaryCase* summaryCase : selection )
     {
@@ -75,9 +72,7 @@ bool RicShowDataSourcesForRealization::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicShowDataSourcesForRealization::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimSummaryCase>();
     if ( selection.empty() ) return;
 
     bool enableDataSources = !selection.front()->showVectorItemsInProjectTree();

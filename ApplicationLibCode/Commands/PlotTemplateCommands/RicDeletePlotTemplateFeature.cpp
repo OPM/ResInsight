@@ -40,12 +40,8 @@ CAF_CMD_SOURCE_INIT( RicDeletePlotTemplateFeature, "RicDeletePlotTemplateFeature
 //--------------------------------------------------------------------------------------------------
 bool RicDeletePlotTemplateFeature::isCommandEnabled() const
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-    if ( uiItems.size() != 1 ) return false;
-
-    RimPlotTemplateFileItem* file = dynamic_cast<RimPlotTemplateFileItem*>( uiItems[0] );
-    return ( file != nullptr );
+    auto object = caf::SelectionManager::instance()->selectedItemOfType<RimPlotTemplateFileItem>();
+    return object != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,12 +49,7 @@ bool RicDeletePlotTemplateFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeletePlotTemplateFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-
-    if ( uiItems.size() != 1 ) return;
-
-    RimPlotTemplateFileItem* file = dynamic_cast<RimPlotTemplateFileItem*>( uiItems[0] );
+    auto file = caf::SelectionManager::instance()->selectedItemOfType<RimPlotTemplateFileItem>();
     if ( file == nullptr ) return;
 
     QWidget* parent = RiuPlotMainWindow::instance();

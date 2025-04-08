@@ -110,9 +110,7 @@ bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
 
-        std::vector<caf::PdmUiItem*> uiItems;
-        caf::SelectionManager::instance()->selectedItems( uiItems );
-
+        const auto uiItems = caf::SelectionManager::instance()->selectedItems();
         if ( !uiItems.empty() )
         {
             std::vector<caf::CmdFeature*> matches;

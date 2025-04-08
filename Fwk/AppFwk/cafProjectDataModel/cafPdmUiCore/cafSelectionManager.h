@@ -67,8 +67,8 @@ public:
 public:
     static SelectionManager* instance();
 
-    PdmUiItem* selectedItem( int selectionLevel = 0 );
-    void       selectedItems( std::vector<PdmUiItem*>& items, int selectionLevel = 0 );
+    PdmUiItem*              selectedItem( int selectionLevel = 0 ) const;
+    std::vector<PdmUiItem*> selectedItems( int selectionLevel = 0 ) const;
 
     void setSelectedItem( PdmUiItem* item );
     void setSelectedItemAtLevel( PdmUiItem* item, int selectionLevel );
@@ -83,7 +83,7 @@ public:
     };
     void setSelection( const std::vector<SelectionItem> completeSelection );
 
-    void selectionAsReferences( std::vector<QString>& referenceList, int selectionLevel = 0 ) const;
+    std::vector<QString> selectionAsReferences( int selectionLevel = 0 ) const;
     void setSelectionAtLevelFromReferences( const std::vector<QString>& referenceList, int selectionLevel );
 
     bool isSelected( PdmUiItem* item, int selectionLevel ) const;
@@ -93,41 +93,44 @@ public:
     void removeObjectFromAllSelections( PdmObjectHandle* pdmObject );
 
     template <typename T>
-    void objectsByType( std::vector<T*>* typedObjects, int selectionLevel = 0 )
+    std::vector<T*> objectsByType( int selectionLevel = 0 ) const
     {
-        std::vector<PdmUiItem*> items;
-        this->selectedItems( items, selectionLevel );
+        std::vector<PdmUiItem*> items = selectedItems( selectionLevel );
+
+        std::vector<T*> typedObjects;
         for ( size_t i = 0; i < items.size(); i++ )
         {
             T* obj = dynamic_cast<T*>( items[i] );
-            if ( obj ) typedObjects->push_back( obj );
+            if ( obj ) typedObjects.push_back( obj );
         }
+
+        return typedObjects;
     }
 
     /// Returns the selected objects of the requested type if _all_ the selected objects are of the requested type
 
     template <typename T>
-    void objectsByTypeStrict( std::vector<T*>* typedObjects, int selectionLevel = 0 )
+    std::vector<T*> objectsByTypeStrict( int selectionLevel = 0 ) const
     {
-        std::vector<PdmUiItem*> items;
-        this->selectedItems( items, selectionLevel );
+        std::vector<PdmUiItem*> items = selectedItems( selectionLevel );
+
+        std::vector<T*> typedObjects;
         for ( size_t i = 0; i < items.size(); i++ )
         {
             T* obj = dynamic_cast<T*>( items[i] );
             if ( !obj )
             {
-                typedObjects->clear();
-                break;
+                return {};
             }
-            typedObjects->push_back( obj );
+            typedObjects.push_back( obj );
         }
+        return typedObjects;
     }
 
     template <typename T>
-    T* selectedItemOfType( int selectionLevel = 0 )
+    T* selectedItemOfType( int selectionLevel = 0 ) const
     {
-        std::vector<T*> typedObjects;
-        this->objectsByType<T>( &typedObjects, selectionLevel );
+        std::vector<T*> typedObjects = objectsByType<T>( selectionLevel );
         if ( !typedObjects.empty() )
         {
             return typedObjects.front();
@@ -136,7 +139,7 @@ public:
     }
 
     template <typename T>
-    T* selectedItemAncestorOfType( int selectionLevel = 0 )
+    T* selectedItemAncestorOfType( int selectionLevel = 0 ) const
     {
         PdmUiItem*       item           = this->selectedItem( selectionLevel );
         PdmObjectHandle* selectedObject = dynamic_cast<PdmObjectHandle*>( item );

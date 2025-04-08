@@ -51,9 +51,7 @@ std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCur
     std::set<RimWellLogCurve*>    uniqueCurves;
 
     {
-        std::vector<caf::PdmUiItem*> selectedItems;
-        caf::SelectionManager::instance()->selectedItems( selectedItems );
-
+        const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
         for ( caf::PdmUiItem* selectedItem : selectedItems )
         {
             caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( selectedItem );

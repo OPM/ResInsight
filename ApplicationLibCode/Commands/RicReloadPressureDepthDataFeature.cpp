@@ -33,9 +33,7 @@ CAF_CMD_SOURCE_INIT( RicReloadPressureDepthDataFeature, "RicReloadPressureDepthD
 //--------------------------------------------------------------------------------------------------
 void RicReloadPressureDepthDataFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimPressureDepthData*> pressureDepthDataObjects;
-    caf::SelectionManager::instance()->objectsByType( &pressureDepthDataObjects );
-
+    const auto pressureDepthDataObjects = caf::SelectionManager::instance()->objectsByType<RimPressureDepthData>();
     for ( RimPressureDepthData* pressureDepthData : pressureDepthDataObjects )
     {
         pressureDepthData->createRftReaderInterface();

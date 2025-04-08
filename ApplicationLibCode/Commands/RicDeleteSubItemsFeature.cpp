@@ -49,12 +49,10 @@ bool RicDeleteSubItemsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteSubItemsFeature::canCommandBeEnabled()
 {
-    std::vector<caf::PdmUiItem*> items;
-    caf::SelectionManager::instance()->selectedItems( items );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
+    if ( selectedItems.empty() ) return false;
 
-    if ( items.empty() ) return false;
-
-    for ( auto* item : items )
+    for ( auto* item : selectedItems )
     {
         if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) return false;
     }
@@ -134,12 +132,7 @@ bool RicDeleteSubItemsFeature::hasDeletableSubItems( caf::PdmUiItem* uiItem )
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSubItemsFeature::deleteSubItems( bool onlyDeleteUnchecked )
 {
-    std::vector<caf::PdmUiItem*> items;
-    caf::SelectionManager::instance()->selectedItems( items );
-
-    CVF_ASSERT( !items.empty() );
-
-    for ( auto item : items )
+    for ( auto item : caf::SelectionManager::instance()->selectedItems() )
     {
         if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) continue;
 

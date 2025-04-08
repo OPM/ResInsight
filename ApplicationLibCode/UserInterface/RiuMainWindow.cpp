@@ -1963,7 +1963,7 @@ void RiuMainWindow::slotAnimationSliderMoved( int newValue )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::selectedCases( std::vector<RimCase*>& cases )
 {
-    caf::SelectionManager::instance()->objectsByType( &cases );
+    cases = caf::SelectionManager::instance()->objectsByType<RimCase>();
 }
 
 //--------------------------------------------------------------------------------------------------

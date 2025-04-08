@@ -124,14 +124,5 @@ void RicSeismicSectionFromIntersectionFeature::setupActionLook( QAction* actionT
 //--------------------------------------------------------------------------------------------------
 RimExtrudedCurveIntersection* RicSeismicSectionFromIntersectionFeature::getSelectedIntersection() const
 {
-    std::vector<caf::PdmUiItem*> selectedUiItems;
-    caf::SelectionManager::instance()->selectedItems( selectedUiItems );
-
-    RimExtrudedCurveIntersection* intersection = nullptr;
-
-    if ( !selectedUiItems.empty() )
-    {
-        intersection = dynamic_cast<RimExtrudedCurveIntersection*>( selectedUiItems[0] );
-    }
-    return intersection;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimExtrudedCurveIntersection>();
 }

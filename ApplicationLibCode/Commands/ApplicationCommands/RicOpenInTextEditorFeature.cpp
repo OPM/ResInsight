@@ -61,19 +61,17 @@ void RicOpenInTextEditorFeature::openFileInTextEditor( const QString& filePath, 
 //--------------------------------------------------------------------------------------------------
 void RicOpenInTextEditorFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-
     QString filePath;
 
-    if ( !uiItems.empty() )
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
+    if ( !selectedItems.empty() )
     {
-        if ( auto templateFileItem = dynamic_cast<RimPlotTemplateFileItem*>( uiItems.front() ) )
+        if ( auto templateFileItem = dynamic_cast<RimPlotTemplateFileItem*>( selectedItems.front() ) )
         {
             filePath = templateFileItem->absoluteFilePath();
         }
 
-        if ( auto pressureDepthData = dynamic_cast<RimPressureDepthData*>( uiItems.front() ) )
+        if ( auto pressureDepthData = dynamic_cast<RimPressureDepthData*>( selectedItems.front() ) )
         {
             filePath = pressureDepthData->filePath();
         }

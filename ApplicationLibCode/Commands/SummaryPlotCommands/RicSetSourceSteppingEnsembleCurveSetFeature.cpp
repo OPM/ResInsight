@@ -36,9 +36,7 @@ CAF_CMD_SOURCE_INIT( RicSetSourceSteppingEnsembleCurveSetFeature, "RicSetSourceS
 //--------------------------------------------------------------------------------------------------
 bool RicSetSourceSteppingEnsembleCurveSetFeature::isCommandEnabled() const
 {
-    std::vector<RimEnsembleCurveSet*> ensembleCurveSets;
-    caf::SelectionManager::instance()->objectsByType( &ensembleCurveSets );
-
+    const auto ensembleCurveSets = caf::SelectionManager::instance()->objectsByType<RimEnsembleCurveSet>();
     if ( ensembleCurveSets.size() == 1 )
     {
         auto c = ensembleCurveSets[0];
@@ -61,9 +59,7 @@ bool RicSetSourceSteppingEnsembleCurveSetFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicSetSourceSteppingEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimEnsembleCurveSet*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
+    const auto objects = caf::SelectionManager::instance()->objectsByType<RimEnsembleCurveSet>();
     if ( objects.size() == 1 )
     {
         auto c = objects[0];

@@ -167,10 +167,9 @@ RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell( int* branchIndex
     }
     else
     {
-        std::vector<RimSimWellInView*> selection;
-        caf::SelectionManager::instance()->objectsByType( &selection );
         ( *branchIndex ) = 0;
-        return !selection.empty() ? selection[0] : nullptr;
+
+        return caf::SelectionManager::instance()->selectedItemOfType<RimSimWellInView>();
     }
 }
 

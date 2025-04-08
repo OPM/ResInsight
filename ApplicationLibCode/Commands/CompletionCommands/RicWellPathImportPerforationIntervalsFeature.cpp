@@ -124,13 +124,5 @@ void RicWellPathImportPerforationIntervalsFeature::setupActionLook( QAction* act
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RicWellPathImportPerforationIntervalsFeature::selectedWellPathCollection()
 {
-    std::vector<RimWellPathCollection*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    if ( objects.size() == 1 )
-    {
-        return objects[0];
-    }
-
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCollection>();
 }

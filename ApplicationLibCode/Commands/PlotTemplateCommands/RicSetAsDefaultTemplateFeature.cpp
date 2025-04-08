@@ -78,10 +78,5 @@ void RicSetAsDefaultTemplateFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimPlotTemplateFileItem* RicSetAsDefaultTemplateFeature::selectedTemplate() const
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-    if ( uiItems.size() != 1 ) return nullptr;
-
-    RimPlotTemplateFileItem* file = dynamic_cast<RimPlotTemplateFileItem*>( uiItems[0] );
-    return file;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimPlotTemplateFileItem>();
 }

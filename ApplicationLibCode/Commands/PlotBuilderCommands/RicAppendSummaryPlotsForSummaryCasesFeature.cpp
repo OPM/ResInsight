@@ -75,10 +75,7 @@ void RicAppendSummaryPlotsForSummaryCasesFeature::setupActionLook( QAction* acti
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RicAppendSummaryPlotsForSummaryCasesFeature::selectedCases()
 {
-    std::vector<RimSummaryCase*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
+    return caf::SelectionManager::instance()->objectsByType<RimSummaryCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,8 +83,5 @@ std::vector<RimSummaryCase*> RicAppendSummaryPlotsForSummaryCasesFeature::select
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryEnsemble*> RicAppendSummaryPlotsForSummaryCasesFeature::selectedEnsembles()
 {
-    std::vector<RimSummaryEnsemble*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    return objects;
+    return caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
 }

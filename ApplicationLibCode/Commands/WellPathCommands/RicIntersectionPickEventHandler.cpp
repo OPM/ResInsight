@@ -41,9 +41,7 @@ RicIntersectionPickEventHandler* RicIntersectionPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    std::vector<RimExtrudedCurveIntersection*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimExtrudedCurveIntersection>();
     if ( selection.size() != 1 ) return false;
 
     RimExtrudedCurveIntersection* intersection = selection[0];

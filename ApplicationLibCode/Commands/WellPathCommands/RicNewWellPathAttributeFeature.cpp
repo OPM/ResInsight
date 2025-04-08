@@ -35,9 +35,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathAttributeFeature, "RicNewWellPathAttributeFea
 bool RicNewWellPathAttributeFeature::isCommandEnabled() const
 {
     {
-        std::vector<RimWellPathAttribute*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
-
+        const auto objects = caf::SelectionManager::instance()->objectsByType<RimWellPathAttribute>( caf::SelectionManager::FIRST_LEVEL );
         if ( !objects.empty() )
         {
             return true;
@@ -60,9 +58,7 @@ bool RicNewWellPathAttributeFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathAttributeFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimWellPathAttribute*> attributes;
-    caf::SelectionManager::instance()->objectsByType( &attributes, caf::SelectionManager::FIRST_LEVEL );
-
+    const auto attributes = caf::SelectionManager::instance()->objectsByType<RimWellPathAttribute>( caf::SelectionManager::FIRST_LEVEL );
     RimWellPathAttribute* attribute = nullptr;
     if ( attributes.size() == 1u )
     {
@@ -109,8 +105,7 @@ void RicNewWellPathAttributeFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathAttributeFeature::setupActionLook( QAction* actionToSetup )
 {
-    std::vector<RimWellPathAttribute*> attributes;
-    caf::SelectionManager::instance()->objectsByType( &attributes, caf::SelectionManager::FIRST_LEVEL );
+    const auto attributes = caf::SelectionManager::instance()->objectsByType<RimWellPathAttribute>( caf::SelectionManager::FIRST_LEVEL );
     if ( attributes.size() == 1u )
     {
         actionToSetup->setText( QString( "Insert New Attribute before %1" ).arg( attributes[0]->componentTypeLabel() ) );

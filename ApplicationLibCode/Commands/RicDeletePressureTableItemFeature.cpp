@@ -31,8 +31,7 @@ CAF_CMD_SOURCE_INIT( RicDeletePressureTableItemFeature, "RicDeletePressureTableI
 //--------------------------------------------------------------------------------------------------
 bool RicDeletePressureTableItemFeature::isCommandEnabled() const
 {
-    std::vector<RimPressureTableItem*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
+    auto objects = caf::SelectionManager::instance()->objectsByType<RimPressureTableItem>( caf::SelectionManager::FIRST_LEVEL );
     return !objects.empty();
 }
 
@@ -41,12 +40,11 @@ bool RicDeletePressureTableItemFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDeletePressureTableItemFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimPressureTableItem*> items;
-    caf::SelectionManager::instance()->objectsByType( &items, caf::SelectionManager::FIRST_LEVEL );
-    if ( !items.empty() )
+    auto objects = caf::SelectionManager::instance()->objectsByType<RimPressureTableItem>( caf::SelectionManager::FIRST_LEVEL );
+    if ( !objects.empty() )
     {
-        RimPressureTable* pressureTable = items[0]->firstAncestorOrThisOfTypeAsserted<RimPressureTable>();
-        for ( RimPressureTableItem* attributeToDelete : items )
+        RimPressureTable* pressureTable = objects[0]->firstAncestorOrThisOfTypeAsserted<RimPressureTable>();
+        for ( RimPressureTableItem* attributeToDelete : objects )
         {
             pressureTable->deleteItem( attributeToDelete );
         }

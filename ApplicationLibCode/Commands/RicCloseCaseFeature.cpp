@@ -114,9 +114,7 @@ void RicCloseCaseFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCase*> RicCloseCaseFeature::selectedCases() const
 {
-    std::vector<RimCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-    return selection;
+    return caf::SelectionManager::instance()->objectsByType<RimCase>();
 }
 
 //--------------------------------------------------------------------------------------------------

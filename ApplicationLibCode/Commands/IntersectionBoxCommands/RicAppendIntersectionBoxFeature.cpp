@@ -81,11 +81,9 @@ void RicAppendIntersectionBoxFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection* RicAppendIntersectionBoxFeature::intersectionCollection()
 {
-    std::vector<caf::PdmObjectHandle*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
-    if ( selectedObjects.size() == 1 )
+    if ( auto selectedObject = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>() )
     {
-        return selectedObjects[0]->firstAncestorOrThisOfType<RimIntersectionCollection>();
+        return selectedObject->firstAncestorOrThisOfType<RimIntersectionCollection>();
     }
 
     return nullptr;

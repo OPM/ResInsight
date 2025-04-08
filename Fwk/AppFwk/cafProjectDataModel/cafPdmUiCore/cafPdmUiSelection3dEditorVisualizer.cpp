@@ -97,8 +97,7 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
     std::set<PdmUiItem*> totalSelection;
     for ( int selLevel : changedSelectionLevels )
     {
-        std::vector<PdmUiItem*> items;
-        caf::SelectionManager::instance()->selectedItems( items, selLevel );
+        auto items = caf::SelectionManager::instance()->selectedItems( selLevel );
         totalSelection.insert( items.begin(), items.end() );
     }
 

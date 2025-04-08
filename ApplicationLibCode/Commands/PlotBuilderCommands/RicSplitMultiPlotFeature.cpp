@@ -105,10 +105,8 @@ RimSummaryPlot* RicSplitMultiPlotFeature::getSelectedPlot() const
 
     if ( plot == nullptr )
     {
-        std::vector<caf::PdmUiItem*> selectedUiItems;
-        caf::SelectionManager::instance()->selectedItems( selectedUiItems );
-
-        if ( !selectedUiItems.empty() ) plot = dynamic_cast<RimSummaryPlot*>( selectedUiItems[0] );
+        const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
+        if ( !selectedItems.empty() ) plot = dynamic_cast<RimSummaryPlot*>( selectedItems[0] );
     }
 
     return plot;

@@ -40,9 +40,9 @@ CAF_CMD_SOURCE_INIT( RicExportCompletionsForVisibleWellPathsFeature, "RicExportC
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled() const
 {
-    bool                         foundWellPathCollection = false;
-    std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
+    bool foundWellPathCollection = false;
+
+    const auto selectedObjects = caf::SelectionManager::instance()->objectsByType<caf::PdmObject>();
     for ( caf::PdmObject* object : selectedObjects )
     {
         RimWellPathCollection* wellPathCollection = object->firstAncestorOrThisOfType<RimWellPathCollection>();
@@ -97,14 +97,10 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
     }
 
     {
-        std::vector<RimWellPathCollection*> wellPathCollections;
-        caf::SelectionManager::instance()->objectsByType( &wellPathCollections );
-
+        auto wellPathCollections = caf::SelectionManager::instance()->objectsByType<RimWellPathCollection>();
         if ( wellPathCollections.empty() )
         {
-            std::vector<RimWellPath*> selectedWellPaths;
-            caf::SelectionManager::instance()->objectsByType( &selectedWellPaths );
-
+            const auto selectedWellPaths = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
             if ( !selectedWellPaths.empty() )
             {
                 RimWellPathCollection* parent = selectedWellPaths[0]->firstAncestorOrThisOfType<RimWellPathCollection>();

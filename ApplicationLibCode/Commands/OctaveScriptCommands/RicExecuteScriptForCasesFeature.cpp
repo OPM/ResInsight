@@ -39,9 +39,7 @@ CAF_CMD_SOURCE_INIT( RicExecuteScriptForCasesFeature, "RicExecuteScriptForCasesF
 //--------------------------------------------------------------------------------------------------
 bool RicExecuteScriptForCasesFeature::isCommandEnabled() const
 {
-    std::vector<RimCase*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
+    const auto selection = caf::SelectionManager::instance()->objectsByType<RimCase>();
     return !selection.empty();
 }
 
@@ -84,9 +82,7 @@ void RicExecuteScriptForCasesFeature::onActionTriggered( bool isChecked )
         QStringList      arguments = RimCalcScript::createCommandLineArguments( scriptAbsolutePath );
         std::vector<int> caseIdsInSelection;
         {
-            std::vector<RimCase*> selection;
-            caf::SelectionManager::instance()->objectsByType( &selection );
-
+            const auto selection = caf::SelectionManager::instance()->objectsByType<RimCase>();
             for ( RimCase* rimCase : selection )
             {
                 caseIdsInSelection.push_back( rimCase->caseId() );

@@ -81,9 +81,7 @@ std::set<RimWellAllocationPlot*> RicShowTotalAllocationDataFeature::selectedWell
 {
     std::set<RimWellAllocationPlot*> wellAllocPlots;
 
-    std::vector<caf::PdmObject*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-    for ( auto obj : objects )
+    for ( auto obj : caf::SelectionManager::instance()->objectsByType<caf::PdmObject>() )
     {
         CVF_ASSERT( obj );
 

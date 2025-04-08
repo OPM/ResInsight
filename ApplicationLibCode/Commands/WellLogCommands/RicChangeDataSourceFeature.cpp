@@ -57,8 +57,7 @@ bool RicChangeDataSourceFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicChangeDataSourceFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
+    const auto selectedObjects = caf::SelectionManager::instance()->objectsByType<caf::PdmObject>();
 
     std::vector<RimWellLogCurve*> curves;
     std::vector<RimWellLogTrack*> tracks;
@@ -92,9 +91,8 @@ void RicChangeDataSourceFeature::setupActionLook( QAction* actionToSetup )
 bool RicChangeDataSourceFeature::selectedTracksAndCurves( std::vector<RimWellLogCurve*>* curves, std::vector<RimWellLogTrack*>* tracks )
 {
     CVF_ASSERT( curves && tracks );
-    std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
 
+    const auto selectedObjects = caf::SelectionManager::instance()->objectsByType<caf::PdmObject>();
     if ( selectedObjects.empty() ) return false;
 
     for ( caf::PdmObject* selectedObject : selectedObjects )

@@ -18,11 +18,10 @@ CAF_CMD_SOURCE_INIT( RicNewValveFeature, "RicNewValveFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewValveFeature::isCommandEnabled() const
 {
-    std::vector<caf::PdmUiItem*> allSelectedItems;
-    caf::SelectionManager::instance()->selectedItems( allSelectedItems );
-    if ( allSelectedItems.size() != 1u ) return false;
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
+    if ( selectedItems.size() != 1u ) return false;
 
-    const RimPerforationInterval* perfInterval = dynamic_cast<RimPerforationInterval*>( allSelectedItems.front() );
+    const RimPerforationInterval* perfInterval = dynamic_cast<RimPerforationInterval*>( selectedItems.front() );
     return perfInterval != nullptr;
 }
 

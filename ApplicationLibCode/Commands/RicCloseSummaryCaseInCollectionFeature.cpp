@@ -55,11 +55,8 @@ void RicCloseSummaryCaseInCollectionFeature::setupActionLook( QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled() const
 {
-    std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
-    caf::SelectionManager::instance()->objectsByType( &summaryCaseMainCollections );
-
-    std::vector<RimSummaryEnsemble*> summaryCaseCollections;
-    caf::SelectionManager::instance()->objectsByType( &summaryCaseCollections );
+    auto summaryCaseMainCollections = caf::SelectionManager::instance()->objectsByType<RimSummaryCaseMainCollection>();
+    auto summaryCaseCollections     = caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
 
     summaryCaseCollections.erase( std::remove_if( summaryCaseCollections.begin(),
                                                   summaryCaseCollections.end(),
@@ -75,18 +72,14 @@ bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseInCollectionFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
-    caf::SelectionManager::instance()->objectsByType( &summaryCaseMainCollections );
-
+    auto summaryCaseMainCollections = caf::SelectionManager::instance()->objectsByType<RimSummaryCaseMainCollection>();
     if ( !summaryCaseMainCollections.empty() )
     {
         std::vector<RimSummaryCase*> allSummaryCases = summaryCaseMainCollections[0]->allSummaryCases();
         RicCloseSummaryCaseFeature::deleteSummaryCases( allSummaryCases );
     }
 
-    std::vector<RimSummaryEnsemble*> summaryCaseCollections;
-    caf::SelectionManager::instance()->objectsByType( &summaryCaseCollections );
-
+    auto summaryCaseCollections = caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
     for ( RimSummaryEnsemble* summaryCaseCollection : summaryCaseCollections )
     {
         std::vector<RimSummaryCase*> collectionSummaryCases = summaryCaseCollection->allSummaryCases();

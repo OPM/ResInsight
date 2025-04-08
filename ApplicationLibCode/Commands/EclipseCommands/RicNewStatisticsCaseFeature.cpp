@@ -70,17 +70,13 @@ void RicNewStatisticsCaseFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
 {
-    std::vector<RimEclipseStatisticsCaseCollection*> statisticsCaseCollections;
-    caf::SelectionManager::instance()->objectsByType( &statisticsCaseCollections );
-
+    const auto statisticsCaseCollections = caf::SelectionManager::instance()->objectsByType<RimEclipseStatisticsCaseCollection>();
     if ( !statisticsCaseCollections.empty() )
     {
         return statisticsCaseCollections[0];
     }
 
-    std::vector<RimCaseCollection*> caseCollections;
-    caf::SelectionManager::instance()->objectsByType( &caseCollections );
-
+    const auto caseCollections = caf::SelectionManager::instance()->objectsByType<RimCaseCollection>();
     if ( !caseCollections.empty() )
     {
         if ( RimIdenticalGridCaseGroup::isStatisticsCaseCollection( caseCollections[0] ) )

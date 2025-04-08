@@ -44,15 +44,7 @@ bool RicSaveEclipseResultAsInputPropertyFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicSaveEclipseResultAsInputPropertyFeature::selectedEclipseView() const
 {
-    std::vector<RimEclipseView*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    if ( !selection.empty() )
-    {
-        return selection[0];
-    }
-
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,15 +52,7 @@ RimEclipseView* RicSaveEclipseResultAsInputPropertyFeature::selectedEclipseView(
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors* RicSaveEclipseResultAsInputPropertyFeature::selectedEclipseCellColors() const
 {
-    std::vector<RimEclipseCellColors*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
-
-    if ( !selection.empty() )
-    {
-        return selection[0];
-    }
-
-    return nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCellColors>();
 }
 
 //--------------------------------------------------------------------------------------------------

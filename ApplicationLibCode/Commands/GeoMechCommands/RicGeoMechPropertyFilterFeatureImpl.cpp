@@ -38,10 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechPropertyFilter*> RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilters()
 {
-    std::vector<RimGeoMechPropertyFilter*> propertyFilters;
-    caf::SelectionManager::instance()->objectsByType( &propertyFilters );
-
-    return propertyFilters;
+    return caf::SelectionManager::instance()->objectsByType<RimGeoMechPropertyFilter>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,10 +46,7 @@ std::vector<RimGeoMechPropertyFilter*> RicGeoMechPropertyFilterFeatureImpl::sele
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechPropertyFilterCollection*> RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilterCollections()
 {
-    std::vector<RimGeoMechPropertyFilterCollection*> propertyFilterCollections;
-    caf::SelectionManager::instance()->objectsByType( &propertyFilterCollections );
-
-    return propertyFilterCollections;
+    return caf::SelectionManager::instance()->objectsByType<RimGeoMechPropertyFilterCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

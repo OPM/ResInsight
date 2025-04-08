@@ -62,14 +62,15 @@ caf::NotificationCenter* SelectionManager::notificationCenter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::selectedItems( std::vector<PdmUiItem*>& items, int selectionLevel /*= 0*/ )
+std::vector<PdmUiItem*> SelectionManager::selectedItems( int selectionLevel /*= 0*/ ) const
 {
     const auto& levelSelectionPairIt = m_selectionPrLevel.find( selectionLevel );
 
-    if ( levelSelectionPairIt == m_selectionPrLevel.end() ) return;
+    if ( levelSelectionPairIt == m_selectionPrLevel.end() ) return {};
 
-    std::vector<std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*>>& selection = levelSelectionPairIt->second;
+    const auto& selection = levelSelectionPairIt->second;
 
+    std::vector<PdmUiItem*> items;
     for ( size_t i = 0; i < selection.size(); i++ )
     {
         if ( selection[i].first.notNull() )
@@ -77,6 +78,8 @@ void SelectionManager::selectedItems( std::vector<PdmUiItem*>& items, int select
             items.push_back( selection[i].second );
         }
     }
+
+    return items;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,12 +216,12 @@ std::set<int> SelectionManager::findChangedLevels(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* SelectionManager::selectedItem( int selectionLevel /*= 0*/ )
+PdmUiItem* SelectionManager::selectedItem( int selectionLevel /*= 0*/ ) const
 {
     const auto& levelSelectionPairIt = m_selectionPrLevel.find( selectionLevel );
     if ( levelSelectionPairIt == m_selectionPrLevel.end() ) return nullptr;
 
-    std::vector<std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*>>& selection = levelSelectionPairIt->second;
+    const auto& selection = levelSelectionPairIt->second;
 
     if ( selection.size() == 1 )
     {
@@ -264,14 +267,15 @@ SelectionManager::SelectionManager()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::selectionAsReferences( std::vector<QString>& referenceList, int selectionLevel /*= 0*/ ) const
+std::vector<QString> SelectionManager::selectionAsReferences( int selectionLevel /*= 0*/ ) const
 {
     const auto& levelSelectionPairIt = m_selectionPrLevel.find( selectionLevel );
 
-    if ( levelSelectionPairIt == m_selectionPrLevel.end() ) return;
+    if ( levelSelectionPairIt == m_selectionPrLevel.end() ) return {};
 
-    const std::vector<std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*>>& selection = levelSelectionPairIt->second;
+    const auto& selection = levelSelectionPairIt->second;
 
+    std::vector<QString> referenceList;
     for ( size_t i = 0; i < selection.size(); i++ )
     {
         if ( !selection[i].first.isNull() )
@@ -285,6 +289,8 @@ void SelectionManager::selectionAsReferences( std::vector<QString>& referenceLis
             }
         }
     }
+
+    return referenceList;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -667,8 +667,7 @@ void RiuDragDrop::objectGroupFromModelIndexes( caf::PdmUiTreeView* uiTreeView, c
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmPointer<caf::PdmObjectHandle>> RiuDragDrop::objectHandlesFromSelection()
 {
-    std::vector<caf::PdmObjectHandle*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
+    const auto selection = caf::SelectionManager::instance()->objectsByType<caf::PdmObjectHandle>();
 
     std::vector<caf::PdmPointer<caf::PdmObjectHandle>> objectHandles;
 

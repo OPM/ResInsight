@@ -44,9 +44,7 @@ bool RicPasteModeledWellPathFeature::isCommandEnabled() const
 {
     if ( !modeledWellPathsFromClipboard().empty() ) return true;
     {
-        std::vector<RimWellPathCollection*> objects;
-        caf::SelectionManager::instance()->objectsByType( &objects );
-
+        const auto objects = caf::SelectionManager::instance()->objectsByType<RimWellPathCollection>();
         if ( !objects.empty() )
         {
             return true;

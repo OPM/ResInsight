@@ -45,17 +45,12 @@ CAF_CMD_SOURCE_INIT( RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlo
 //--------------------------------------------------------------------------------------------------
 bool RicShowWellAllocationPlotFeature::isCommandEnabled() const
 {
-    std::vector<RimSimWellInView*> simWellCollection;
-    caf::SelectionManager::instance()->objectsByType( &simWellCollection );
-
-    if ( !simWellCollection.empty() )
+    if ( !caf::SelectionManager::instance()->objectsByType<RimSimWellInView>().empty() )
     {
         return true;
     }
 
-    std::vector<RimWellPath*> wellPathCollection;
-    caf::SelectionManager::instance()->objectsByType( &wellPathCollection );
-
+    const auto wellPathCollection = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
     if ( wellPathCollection.empty() ) return false;
 
     Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
@@ -73,11 +68,8 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSimWellInView*> collection;
-    caf::SelectionManager::instance()->objectsByType( &collection );
-
-    std::vector<RimWellPath*> wellPathCollection;
-    caf::SelectionManager::instance()->objectsByType( &wellPathCollection );
+    const auto collection         = caf::SelectionManager::instance()->objectsByType<RimSimWellInView>();
+    const auto wellPathCollection = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
 
     RimSimWellInView* simWell = nullptr;
 

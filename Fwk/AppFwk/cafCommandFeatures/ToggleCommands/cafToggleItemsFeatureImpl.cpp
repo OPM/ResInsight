@@ -56,9 +56,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
-
+    auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( selectedItems.size() == 1 )
     {
         caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
@@ -102,8 +100,7 @@ bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
 //--------------------------------------------------------------------------------------------------
 bool ToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( isToggleCommandsAvailable() && selectedItems.size() == 1 )
     {
         return true;
@@ -116,8 +113,7 @@ bool ToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 //--------------------------------------------------------------------------------------------------
 void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleType state )
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( state != TOGGLE && selectedItems.size() == 1 )
     {
         // If only one item is selected, loop over its children, and toggle them instead of the
