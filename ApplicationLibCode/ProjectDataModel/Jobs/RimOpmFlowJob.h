@@ -75,6 +75,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
     caf::PdmField<bool>               m_delayOpenWell;
     caf::PdmField<int>                m_openTimeStep;
+    caf::PdmField<bool>               m_addNewWell;
 
     caf::PdmField<QString> m_wellOpenKeyword;
     caf::PdmField<QString> m_wellOpenText;
