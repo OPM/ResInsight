@@ -219,5 +219,29 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename 
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::openWellAtStart( std::string filename )
 {
+    Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
+
+    // Use the same default ParseContext as flow.
+    parseContext.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
+    parseContext.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
+    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
+    parseContext.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
+
+    Opm::ErrorGuard errors{};
+
+    // find position of COMPDAT
+    const auto compdat = m_fileDeck->find( "COMPDAT" );
+    if ( !compdat.has_value() ) return false;
+
+    // insert open kw after compdat
+    Opm::FileDeck::Index openPos( *compdat );
+    openPos++;
+
+    auto             deck = Opm::Parser{}.parseFile( filename, parseContext, errors );
+    Opm::FileDeck    wellDeck( deck );
+    Opm::DeckKeyword openWellKw( wellDeck.operator[]( wellDeck.start() ) );
+
+    m_fileDeck->insert( openPos, openWellKw );
+
     return true;
 }
