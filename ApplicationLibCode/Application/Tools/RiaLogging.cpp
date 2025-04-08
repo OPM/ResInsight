@@ -18,6 +18,7 @@
 
 #include "RiaLogging.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
 
 #include <iostream>
@@ -245,8 +246,10 @@ RILogLevel RiaLogging::logLevelBasedOnPreferences()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::error( const QString& message )
+void RiaLogging::error( const QString& message, const QString logKeyword )
 {
+    if ( !RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( logKeyword ) ) return;
+
     if ( isSameMessage( message ) ) return;
 
     for ( const auto& logger : sm_logger )
@@ -264,8 +267,10 @@ void RiaLogging::error( const QString& message )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::warning( const QString& message )
+void RiaLogging::warning( const QString& message, const QString logKeyword )
 {
+    if ( !RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( logKeyword ) ) return;
+
     if ( isSameMessage( message ) ) return;
 
     for ( const auto& logger : sm_logger )
@@ -283,8 +288,10 @@ void RiaLogging::warning( const QString& message )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::info( const QString& message )
+void RiaLogging::info( const QString& message, const QString logKeyword )
 {
+    if ( !RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( logKeyword ) ) return;
+
     if ( isSameMessage( message ) ) return;
 
     for ( const auto& logger : sm_logger )
@@ -302,8 +309,10 @@ void RiaLogging::info( const QString& message )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::debug( const QString& message )
+void RiaLogging::debug( const QString& message, const QString logKeyword )
 {
+    if ( !RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( logKeyword ) ) return;
+
     if ( isSameMessage( message ) ) return;
 
     for ( const auto& logger : sm_logger )

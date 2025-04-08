@@ -19,7 +19,6 @@
 #include "RigCellFaceGeometryTools.h"
 
 #include "RiaLogging.h"
-#include "RiaPreferencesSystem.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCell.h"
@@ -134,8 +133,6 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
     // by Eclipse. Use faults as basis for subset of cells to find NNC connection for. The imported connections from
     // Eclipse are located at the beginning of the connections vector.
 
-    const bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RigCellFaceGeometryTools" );
-
     std::set<std::pair<unsigned, unsigned>> nativeCellPairs;
 
     for ( size_t i = 0; i < nativeConnections.size(); ++i )
@@ -149,7 +146,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
         QString message = QString( "Nnc connection imported from Eclipse are not unique\nNNC count : %1\nUnique : %2" )
                               .arg( nativeConnections.size() )
                               .arg( nativeCellPairs.size() );
-        if ( isLoggingEnabled ) RiaLogging::warning( message );
+        RiaLogging::warning( message, "RigCellFaceGeometryTools" );
     }
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
@@ -205,7 +202,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
                             "inactive cells can be managed from Preferences->Eclipse Grid->Include Inactive Cells" )
                        .arg( otherConnections.size() )
                        .arg( nncCountWarningThreshold );
-        if ( isLoggingEnabled ) RiaLogging::warning( txt );
+        RiaLogging::warning( txt, "RigCellFaceGeometryTools" );
     }
 
     otherConnections.remove_duplicates();
