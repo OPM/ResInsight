@@ -82,7 +82,7 @@ void RicCreateEnsembleFromFilteredCasesFeature::onActionTriggered( bool isChecke
         {
             if ( auto ensemble = excludedCases.front()->ensemble() )
             {
-                auto casesForNewEnsemble = ensemble->allSummaryCases();
+                casesForNewEnsemble = ensemble->allSummaryCases();
                 for ( auto excludedCase : excludedCases )
                 {
                     casesForNewEnsemble.erase( std::remove( casesForNewEnsemble.begin(), casesForNewEnsemble.end(), excludedCase ),
@@ -92,11 +92,14 @@ void RicCreateEnsembleFromFilteredCasesFeature::onActionTriggered( bool isChecke
         }
     }
 
-    if ( auto curveSet = internal::ensembleCurveSet() )
+    if ( casesForNewEnsemble.empty() )
     {
-        if ( auto ensemble = curveSet->summaryEnsemble() )
+        if ( auto curveSet = internal::ensembleCurveSet() )
         {
-            casesForNewEnsemble = curveSet->filterEnsembleCases( ensemble->allSummaryCases() );
+            if ( auto ensemble = curveSet->summaryEnsemble() )
+            {
+                casesForNewEnsemble = curveSet->filterEnsembleCases( ensemble->allSummaryCases() );
+            }
         }
     }
 
