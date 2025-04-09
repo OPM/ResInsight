@@ -45,7 +45,7 @@ public:
     bool mergeWellDeck( std::string filename );
 
     bool openWellAtTimeStep( int timeStep, std::string filename );
-    bool openWellAtStart( std::string filename );
+    bool openWellAtDeckPosition( int deckPosition, std::string filename );
 
     std::vector<std::string> keywords();
     bool                     hasDatesKeyword();
