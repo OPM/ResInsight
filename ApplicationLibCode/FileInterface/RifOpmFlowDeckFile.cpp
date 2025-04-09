@@ -208,25 +208,29 @@ Opm::ParseContext RifOpmFlowDeckFile::defaultParseContext() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::openWellAtStart( std::string filename )
+bool RifOpmFlowDeckFile::openWellAtDeckPosition( int deckPosition, std::string filename )
 {
     Opm::ErrorGuard errors{};
 
-    // find position of COMPDAT
-    const auto compdat = m_fileDeck->find( "COMPDAT" );
-    if ( !compdat.has_value() ) return false;
+    int stepCount = 0;
 
-    // insert open kw after compdat
-    Opm::FileDeck::Index openPos( *compdat );
-    openPos++;
+    // locate dates keyword for the selected step
+    int currentPosition = 0;
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        if ( currentPosition == deckPosition )
+        {
+            auto             deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
+            Opm::FileDeck    wellDeck( deck );
+            Opm::DeckKeyword newKw( wellDeck.operator[]( wellDeck.start() ) );
 
-    auto             deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
-    Opm::FileDeck    wellDeck( deck );
-    Opm::DeckKeyword openWellKw( wellDeck.operator[]( wellDeck.start() ) );
+            m_fileDeck->insert( it, newKw );
 
-    m_fileDeck->insert( openPos, openWellKw );
-
-    return true;
+            return true;
+        }
+        currentPosition++;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,11 +256,6 @@ std::vector<std::string> RifOpmFlowDeckFile::keywords()
 bool RifOpmFlowDeckFile::hasDatesKeyword()
 {
     if ( m_fileDeck.get() == nullptr ) return false;
-
-    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
-    {
-        auto& kw = m_fileDeck->operator[]( it );
-        if ( kw.name() == "DATES" ) return true;
-    }
-    return false;
+    auto pos = m_fileDeck->find( "DATES" );
+    return pos.has_value();
 }

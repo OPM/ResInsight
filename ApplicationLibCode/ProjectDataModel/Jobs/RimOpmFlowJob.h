@@ -74,6 +74,7 @@ private:
     caf::PdmField<caf::FilePath> m_workDir;
     caf::PdmField<bool>          m_runButton;
     caf::PdmField<bool>          m_openSelectButton;
+    caf::PdmField<int>           m_openWellDeckPosition;
 
     caf::PdmField<bool> m_pauseBeforeRun;
 
@@ -89,5 +90,4 @@ private:
     QString                             m_deckName;
     std::unique_ptr<RifOpmFlowDeckFile> m_fileDeck;
     bool                                m_fileDeckHasDates;
-    int                                 m_openWellDeckPosition;
 };
