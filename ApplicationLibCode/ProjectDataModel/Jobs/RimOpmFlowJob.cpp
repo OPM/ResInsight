@@ -58,7 +58,6 @@ CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 //--------------------------------------------------------------------------------------------------
 RimOpmFlowJob::RimOpmFlowJob()
     : m_fileDeckHasDates( false )
-    , m_openWellDeckPosition( -1 )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/gear.svg" );
 
@@ -69,11 +68,13 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
-    CAF_PDM_InitField( &m_delayOpenWell, "DelayOpenWell", true, "Keep well shut until selected time step" );
+    CAF_PDM_InitField( &m_delayOpenWell, "DelayOpenWell", false, "Keep well shut until selected time step" );
     CAF_PDM_InitField( &m_addNewWell, "AddNewWell", true, "Add New Well" );
+    CAF_PDM_InitField( &m_openWellDeckPosition, "OpenWellDeckPosition", -1, "Open Well at Keyword Index" );
 
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_wellOpenKeyword.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_wellOpenText, "WellOpenText", QString( "'GRUP' 5000 4* 100 20 5" ), "Open Well Parameters" );
 
@@ -387,13 +388,6 @@ bool RimOpmFlowJob::onPrepare()
 {
     if ( m_wellPath == nullptr ) return false;
 
-    // export new well settings from resinsight
-    prepareWellSettings();
-    if ( !QFile::exists( wellTempFile() ) ) return false;
-
-    prepareOpenWellText();
-    if ( !QFile::exists( openWellTempFile() ) ) return false;
-
     // reload file deck to make sure we start with the original
     m_fileDeck.reset();
     if ( !openDeckFile() ) return false;
@@ -401,11 +395,18 @@ bool RimOpmFlowJob::onPrepare()
     // add a new well?
     if ( m_addNewWell() )
     {
+        // export new well settings from resinsight
+        prepareWellSettings();
+        if ( !QFile::exists( wellTempFile() ) ) return false;
+
+        prepareOpenWellText();
+        if ( !QFile::exists( openWellTempFile() ) ) return false;
+
         // merge new well settings from resinsight into DATA deck
         if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) ) return false;
 
         // open new well at selected timestep
-        if ( m_delayOpenWell )
+        if ( m_fileDeckHasDates && m_delayOpenWell )
         {
             if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellTempFile().toStdString() ) )
             {
@@ -414,7 +415,7 @@ bool RimOpmFlowJob::onPrepare()
         }
         else
         {
-            if ( !m_fileDeck->openWellAtStart( openWellTempFile().toStdString() ) )
+            if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellTempFile().toStdString() ) )
             {
                 return false;
             }
@@ -423,7 +424,7 @@ bool RimOpmFlowJob::onPrepare()
         QFile::remove( openWellTempFile() );
     }
 
-    // save DATA deck to working folder
+    // save DATA file to working folder
     bool saveOk = m_fileDeck->saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
     m_fileDeck.reset();
 
