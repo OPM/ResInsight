@@ -31,6 +31,7 @@
 #include "RimSummaryEnsemble.h"
 
 #include "RiuContextMenuLauncher.h"
+#include "RiuDockWidgetTools.h"
 #include "RiuPlotCurve.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotRectAnnotation.h"
@@ -338,6 +339,16 @@ void RimParameterResultCrossPlot::createPoints()
 
     bool showEnsembleName = ensembles().size() > 1u;
 
+    std::set<RimSummaryCase*> selectedSummaryCases;
+    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowDataSourceTreeName() );
+    for ( auto item : selectedTreeViewItems )
+    {
+        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( item ) )
+        {
+            selectedSummaryCases.insert( summaryCase );
+        }
+    }
+
     int  idx      = 0;
     auto caseData = createCaseData();
     for ( const auto& [paramValue, closestValue, summaryCase] : caseData )
@@ -346,10 +357,23 @@ void RimParameterResultCrossPlot::createPoints()
         plotCurve->setSamplesValues( { paramValue }, { closestValue } );
         plotCurve->setStyle( QwtPlotCurve::NoCurve );
 
-        RiuQwtSymbol* symbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
-        symbol->setSize( legendFontSize(), legendFontSize() );
-        symbol->setColor( colorTable.cycledQColor( idx++ ) );
-        plotCurve->setSymbol( symbol );
+        if ( selectedSummaryCases.contains( summaryCase ) )
+        {
+            RiuQwtSymbol* symbol   = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
+            auto          fontSize = legendFontSize();
+            symbol->setSize( fontSize, fontSize );
+            symbol->setColor( colorTable.cycledQColor( idx++ ) );
+            plotCurve->setSymbol( symbol );
+        }
+        else
+        {
+            RiuQwtSymbol* symbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
+
+            auto fontSize = legendFontSize();
+            symbol->setSize( fontSize, fontSize );
+            symbol->setColor( colorTable.cycledQColor( idx++ ) );
+            plotCurve->setSymbol( symbol );
+        }
 
         QStringList curveName;
         if ( showEnsembleName && summaryCase->ensemble() )
