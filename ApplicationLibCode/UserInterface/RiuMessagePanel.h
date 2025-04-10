@@ -40,6 +40,7 @@ public:
     void  addMessage( RILogLevel messageLevel, const QString& msg );
     QSize sizeHint() const override;
 
+public slots:
     void slotClearMessages();
 
 private slots:
