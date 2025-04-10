@@ -214,14 +214,14 @@ jobs:
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
 
-      - name: Install clang-16
-        if: contains( matrix.config.cc, 'clang')
+      - name: Install clang-18 - probaly not needed
+        if: contains( matrix.config.cc, 'does-not-exist')
         run: |
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
+          # sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
           sudo apt-get upgrade
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
-          sudo ./llvm.sh 16 all
+          sudo ./llvm.sh 18 all
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
