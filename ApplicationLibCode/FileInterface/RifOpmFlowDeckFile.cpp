@@ -103,51 +103,48 @@ bool RifOpmFlowDeckFile::mergeWellDeck( std::string filename )
 {
     Opm::ErrorGuard errors{};
 
-    auto          deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
-    Opm::FileDeck wellDeck( deck );
+    auto deckToMerge = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
 
     // Insert new well into WELSPECS
     {
-        const auto wellspec2 = wellDeck.find( "WELSPECS" );
-        if ( !wellspec2.has_value() ) return false;
-        auto& wellspec2_deck = wellDeck.operator[]( wellspec2.value() );
+        const auto welspecsIndexes = deckToMerge.index( "WELSPECS" );
+        if ( welspecsIndexes.empty() ) return false;
+        auto&           mergeWelspecsKw = deckToMerge[welspecsIndexes[0]];
+        Opm::DeckRecord newRecToAdd( mergeWelspecsKw.getRecord( 0 ) );
 
-        Opm::DeckRecord newWellRec( wellspec2_deck.getRecord( 0 ) );
+        const auto foundWelspecs = m_fileDeck->find( "WELSPECS" );
+        if ( !foundWelspecs.has_value() ) return false;
+        auto& existing_pos = foundWelspecs.value();
+        auto& welspecs_kw  = m_fileDeck->operator[]( existing_pos );
 
-        const auto wellspec = m_fileDeck->find( "WELSPECS" );
-        if ( !wellspec.has_value() ) return false;
-        auto& wellspec_pos  = wellspec.value();
-        auto& wellspec_deck = m_fileDeck->operator[]( wellspec_pos );
+        Opm::DeckKeyword newWelspecsKw( welspecs_kw );
+        newWelspecsKw.addRecord( std::move( newRecToAdd ) );
 
-        Opm::DeckKeyword newWellspec( wellspec_deck );
-
-        newWellspec.addRecord( std::move( newWellRec ) );
-
-        m_fileDeck->erase( wellspec_pos );
-        m_fileDeck->insert( wellspec_pos, newWellspec );
+        m_fileDeck->erase( existing_pos );
+        m_fileDeck->insert( existing_pos, newWelspecsKw );
     }
 
     // Insert new well data into COMPDAT
     {
-        const auto compdat2 = wellDeck.find( "COMPDAT" );
-        if ( !compdat2.has_value() ) return false;
-        auto& compdat2_kw = wellDeck.operator[]( compdat2.value() );
+        const auto compdatIndexes = deckToMerge.index( "COMPDAT" );
+        if ( compdatIndexes.empty() ) return false;
+        auto& mergeCompdatKw = deckToMerge[compdatIndexes[0]];
 
-        const auto compdat = m_fileDeck->find( "COMPDAT" );
-        if ( !compdat.has_value() ) return false;
-        auto& compdat_pos = compdat.value();
-        auto& compdat_kw  = m_fileDeck->operator[]( compdat_pos );
+        const auto foundCompdat = m_fileDeck->find( "COMPDAT" );
+        if ( !foundCompdat.has_value() ) return false;
+        auto& existing_pos = foundCompdat.value();
+        auto& compdat_kw   = m_fileDeck->operator[]( existing_pos );
 
-        Opm::DeckKeyword newCompdat( compdat_kw );
+        Opm::DeckKeyword newCompdatKw( compdat_kw );
 
-        for ( size_t i = 0; i < compdat2_kw.size(); i++ )
+        for ( size_t i = 0; i < mergeCompdatKw.size(); i++ )
         {
-            Opm::DeckRecord newWellRec( compdat2_kw.getRecord( i ) );
-            newCompdat.addRecord( std::move( newWellRec ) );
+            Opm::DeckRecord newRecToAdd( mergeCompdatKw.getRecord( i ) );
+            newCompdatKw.addRecord( std::move( newRecToAdd ) );
         }
 
-        m_fileDeck->erase( compdat_pos );
-        m_fileDeck->insert( compdat_pos, newCompdat );
+        m_fileDeck->erase( existing_pos );
+        m_fileDeck->insert( existing_pos, newCompdatKw );
     }
 
     return true;
