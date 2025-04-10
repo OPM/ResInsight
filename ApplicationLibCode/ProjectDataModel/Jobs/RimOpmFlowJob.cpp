@@ -399,8 +399,7 @@ bool RimOpmFlowJob::onPrepare()
         prepareWellSettings();
         if ( !QFile::exists( wellTempFile() ) ) return false;
 
-        prepareOpenWellText();
-        if ( !QFile::exists( openWellTempFile() ) ) return false;
+        QString openWellText = prepareOpenWellText();
 
         // merge new well settings from resinsight into DATA deck
         if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) ) return false;
@@ -408,14 +407,14 @@ bool RimOpmFlowJob::onPrepare()
         // open new well at selected timestep
         if ( m_fileDeckHasDates && m_delayOpenWell )
         {
-            if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellTempFile().toStdString() ) )
+            if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
             {
                 return false;
             }
         }
         else
         {
-            if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellTempFile().toStdString() ) )
+            if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
             {
                 return false;
             }
@@ -554,29 +553,23 @@ void RimOpmFlowJob::prepareWellSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::prepareOpenWellText()
+QString RimOpmFlowJob::prepareOpenWellText()
 {
     auto cs = m_wellPath->completionSettings();
 
-    QFile f( openWellTempFile() );
-    if ( f.open( QIODevice::ReadWrite | QIODeviceBase::Truncate ) )
+    QString wellText = m_wellOpenKeyword() + "\n";
+
+    if ( m_wellOpenKeyword() == "WCONPROD" )
     {
-        QTextStream stream( &f );
-
-        stream << m_wellOpenKeyword() << "\n";
-
-        if ( m_wellOpenKeyword() == "WCONPROD" )
-        {
-            stream << QString( "'%1' 'OPEN' %2 /\n" ).arg( cs->wellNameForExport() ).arg( m_wellOpenText );
-        }
-        else if ( m_wellOpenKeyword() == "WCONINJE" )
-        {
-            stream << QString( "'%1' 'WATER' 'OPEN' %2 /\n" ).arg( cs->wellNameForExport() ).arg( m_wellOpenText );
-        }
-        stream << "/\n";
-
-        f.close();
+        wellText += QString( "'%1' 'OPEN' %2 /\n" ).arg( cs->wellNameForExport() ).arg( m_wellOpenText );
     }
+    else if ( m_wellOpenKeyword() == "WCONINJE" )
+    {
+        wellText += QString( "'%1' 'WATER' 'OPEN' %2 /\n" ).arg( cs->wellNameForExport() ).arg( m_wellOpenText );
+    }
+    wellText += "/\n";
+
+    return wellText;
 }
 
 //--------------------------------------------------------------------------------------------------
