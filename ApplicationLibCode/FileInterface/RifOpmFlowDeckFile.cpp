@@ -156,7 +156,7 @@ bool RifOpmFlowDeckFile::mergeWellDeck( std::string filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename )
+bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string openText )
 {
     Opm::ErrorGuard errors{};
 
@@ -173,9 +173,8 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string filename 
         {
             datePos = &it;
 
-            auto             deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
-            Opm::FileDeck    wellDeck( deck );
-            Opm::DeckKeyword newKw( wellDeck.operator[]( wellDeck.start() ) );
+            auto             deck = Opm::Parser{}.parseString( openText, defaultParseContext(), errors );
+            Opm::DeckKeyword newKw( *deck.begin() );
 
             Opm::FileDeck::Index openPos( *datePos );
             openPos--;
@@ -208,7 +207,7 @@ Opm::ParseContext RifOpmFlowDeckFile::defaultParseContext() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::openWellAtDeckPosition( int deckPosition, std::string filename )
+bool RifOpmFlowDeckFile::openWellAtDeckPosition( int deckPosition, std::string openText )
 {
     Opm::ErrorGuard errors{};
 
@@ -218,9 +217,8 @@ bool RifOpmFlowDeckFile::openWellAtDeckPosition( int deckPosition, std::string f
     {
         if ( currentPosition == deckPosition )
         {
-            auto             deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
-            Opm::FileDeck    wellDeck( deck );
-            Opm::DeckKeyword newKw( wellDeck.operator[]( wellDeck.start() ) );
+            auto             deck = Opm::Parser{}.parseString( openText, defaultParseContext(), errors );
+            Opm::DeckKeyword newKw( *deck.begin() );
 
             m_fileDeck->insert( it, newKw );
 
