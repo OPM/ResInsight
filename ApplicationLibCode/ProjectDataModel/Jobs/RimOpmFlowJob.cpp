@@ -54,6 +54,19 @@
 
 CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimOpmFlowJob::WellOpenType>::setUp()
+{
+    addItem( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION, "OpenByPosition", "Select Keyword Position in File" );
+    addItem( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE, "AtSelectedDate", "Select a Date" );
+    addItem( RimOpmFlowJob::WellOpenType::USE_PERFORATION_DATES, "CustomPerforationDate", "Use Custom Dates from Perforations" );
+
+    setDefault( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION );
+}
+} // namespace caf
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -69,9 +82,10 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
-    CAF_PDM_InitField( &m_delayOpenWell, "DelayOpenWell", false, "Keep well shut until selected time step" );
     CAF_PDM_InitField( &m_addNewWell, "AddNewWell", true, "Add New Well" );
     CAF_PDM_InitField( &m_openWellDeckPosition, "OpenWellDeckPosition", -1, "Open Well at Keyword Index" );
+
+    CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_BY_POSITION ), "Open Well" );
 
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -79,14 +93,14 @@ RimOpmFlowJob::RimOpmFlowJob()
 
     CAF_PDM_InitField( &m_wellOpenText, "WellOpenText", QString( "'GRUP' 5000 4* 100 20 5" ), "Open Well Parameters" );
 
-    CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, "Open Well at Time Step" );
+    CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, " " );
 
     CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
     m_runButton.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_openSelectButton, "openSelectButton", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_openSelectButton );
+    CAF_PDM_InitField( &m_openSelectButton, "openSelectButton", false, " " );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_openSelectButton );
     m_openSelectButton.xmlCapability()->disableIO();
 
     setDeletable( true );
@@ -156,14 +170,15 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         wellGrp->add( &m_wellOpenKeyword );
         wellGrp->add( &m_wellOpenText );
 
+        wellGrp->add( &m_wellOpenType );
+
         if ( m_fileDeckHasDates )
         {
-            wellGrp->add( &m_delayOpenWell );
-            if ( m_delayOpenWell() )
+            if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
             {
                 wellGrp->add( &m_openTimeStep );
             }
-            else
+            else if ( m_wellOpenType == WellOpenType::OPEN_BY_POSITION )
             {
                 wellGrp->add( &m_openSelectButton );
             }
@@ -361,10 +376,10 @@ QStringList RimOpmFlowJob::command()
     QStringList cmd;
 
     QString workDir = m_workDir().path();
-    if ( workDir.isEmpty() ) return QStringList();
+    if ( workDir.isEmpty() ) return cmd;
 
     QString dataFile = workDir + "/" + deckName();
-    if ( !QFile::exists( dataFile + deckExtension() ) ) return QStringList();
+    if ( !QFile::exists( dataFile + deckExtension() ) ) return cmd;
 
     auto opmPref = RiaPreferencesOpm::current();
     if ( opmPref->useWsl() )
@@ -408,8 +423,6 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
-        QString openWellText = prepareOpenWellText();
-
         // merge new well settings from resinsight into DATA deck
         if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) )
         {
@@ -417,25 +430,33 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
-        // open new well at selected timestep
-        if ( m_fileDeckHasDates && m_delayOpenWell )
+        QFile::remove( wellTempFile() );
+
+        if ( m_wellOpenType == WellOpenType::USE_PERFORATION_DATES )
         {
-            if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
-            {
-                RiaLogging::error( "Unable to open new well in DATA file." );
-                return false;
-            }
         }
         else
         {
-            if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
+            QString openWellText = prepareOpenWellText();
+
+            // open new well at selected timestep
+            if ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
             {
-                RiaLogging::error( "Unable to open new well at selected position in DATA file." );
-                return false;
+                if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
+                {
+                    RiaLogging::error( "Unable to open new well in DATA file." );
+                    return false;
+                }
+            }
+            else
+            {
+                if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
+                {
+                    RiaLogging::error( "Unable to open new well at selected position in DATA file." );
+                    return false;
+                }
             }
         }
-        QFile::remove( wellTempFile() );
-        QFile::remove( openWellTempFile() );
     }
 
     // save DATA file to working folder

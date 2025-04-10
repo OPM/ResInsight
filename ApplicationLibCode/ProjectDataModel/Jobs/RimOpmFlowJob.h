@@ -35,6 +35,14 @@ class RimOpmFlowJob : public RimGenericJob
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class WellOpenType
+    {
+        OPEN_BY_POSITION,
+        OPEN_AT_DATE,
+        USE_PERFORATION_DATES
+    };
+
+public:
     RimOpmFlowJob();
     ~RimOpmFlowJob() override;
 
@@ -78,11 +86,11 @@ private:
 
     caf::PdmField<bool> m_pauseBeforeRun;
 
-    caf::PdmPtrField<RimWellPath*>    m_wellPath;
-    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
-    caf::PdmField<bool>               m_delayOpenWell;
-    caf::PdmField<int>                m_openTimeStep;
-    caf::PdmField<bool>               m_addNewWell;
+    caf::PdmPtrField<RimWellPath*>            m_wellPath;
+    caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;
+    caf::PdmField<int>                        m_openTimeStep;
+    caf::PdmField<bool>                       m_addNewWell;
+    caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;
 
     caf::PdmField<QString> m_wellOpenKeyword;
     caf::PdmField<QString> m_wellOpenText;
