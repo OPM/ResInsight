@@ -65,9 +65,9 @@ private:
     QString         wellTempFile() const;
     QString         openWellTempFile() const;
 
-    void prepareWellSettings();
-    void prepareOpenWellText();
-    void selectOpenWellPosition();
+    void    prepareWellSettings();
+    QString prepareOpenWellText();
+    void    selectOpenWellPosition();
 
 private:
     caf::PdmField<caf::FilePath> m_deckFileName;
