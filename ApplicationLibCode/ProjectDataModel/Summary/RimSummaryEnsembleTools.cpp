@@ -25,7 +25,10 @@
 
 #include "RigEnsembleParameter.h"
 
+#include "RimCorrelationPlotCollection.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimMainPlotCollection.h"
+#include "RimParameterResultCrossPlot.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
@@ -436,6 +439,16 @@ void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( const std::vector<
             }
 
             plotWidget->replot();
+        }
+    }
+
+    auto plotColl = RimMainPlotCollection::current();
+    if ( auto correlationPlotColl = plotColl->correlationPlotCollection() )
+    {
+        auto crossPlots = correlationPlotColl->descendantsIncludingThisOfType<RimParameterResultCrossPlot>();
+        for ( auto c : crossPlots )
+        {
+            c->loadDataAndUpdate();
         }
     }
 }
