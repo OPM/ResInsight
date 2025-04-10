@@ -44,7 +44,7 @@ bool RicApplyUserDefinedCameraFeature::isCommandEnabled() const
     cvf::Vec3d up  = cvf::Vec3d::UNDEFINED;
 
     readCameraFromSettings( eye, vrp, up );
-    return !(eye.isUndefined() || vrp.isUndefined() || up.isUndefined());
+    return !( eye.isUndefined() || vrp.isUndefined() || up.isUndefined() );
 }
 
 //--------------------------------------------------------------------------------------------------
