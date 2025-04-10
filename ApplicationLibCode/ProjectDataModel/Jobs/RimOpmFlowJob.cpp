@@ -19,6 +19,7 @@
 #include "RimOpmFlowJob.h"
 
 #include "RiaImportEclipseCaseTools.h"
+#include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
 #include "RiaWslTools.h"
 
@@ -390,25 +391,38 @@ bool RimOpmFlowJob::onPrepare()
 
     // reload file deck to make sure we start with the original
     m_fileDeck.reset();
-    if ( !openDeckFile() ) return false;
+    if ( !openDeckFile() )
+    {
+        RiaLogging::error( "Unable to open input DATA file " + m_deckFileName().path() );
+        return false;
+    }
 
     // add a new well?
     if ( m_addNewWell() )
     {
         // export new well settings from resinsight
         prepareWellSettings();
-        if ( !QFile::exists( wellTempFile() ) ) return false;
+        if ( !QFile::exists( wellTempFile() ) )
+        {
+            RiaLogging::error( "Could not find exported well data from ResInsight: " + wellTempFile() );
+            return false;
+        }
 
         QString openWellText = prepareOpenWellText();
 
         // merge new well settings from resinsight into DATA deck
-        if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) ) return false;
+        if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) )
+        {
+            RiaLogging::error( "Unable to merge new well data into DATA file. Are there WELSPECS and COMPDAT keywords?" );
+            return false;
+        }
 
         // open new well at selected timestep
         if ( m_fileDeckHasDates && m_delayOpenWell )
         {
             if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
             {
+                RiaLogging::error( "Unable to open new well in DATA file." );
                 return false;
             }
         }
@@ -416,6 +430,7 @@ bool RimOpmFlowJob::onPrepare()
         {
             if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
             {
+                RiaLogging::error( "Unable to open new well at selected position in DATA file." );
                 return false;
             }
         }
@@ -431,7 +446,7 @@ bool RimOpmFlowJob::onPrepare()
     {
         QString infoText = "Input parameter files can now be found in the working folder:";
         infoText += " \"" + m_workDir().path() + "\"\n";
-        infoText += "\nClick OK to start the Opm Flow simulation or Cancel to stop.";
+        infoText += "\nClick OK to run the Opm Flow simulation.";
 
         auto reply = QMessageBox::information( nullptr, "Opm Flow simulation", infoText, QMessageBox::Ok | QMessageBox::Cancel );
 
@@ -449,7 +464,10 @@ void RimOpmFlowJob::onCompleted( bool success )
     if ( !success ) return;
 
     QString outputEgrid = m_workDir().path() + "/" + deckName() + ".EGRID";
-    if ( !QFile::exists( outputEgrid ) ) return;
+    if ( !QFile::exists( outputEgrid ) )
+    {
+        return;
+    }
 
     if ( auto existingCase = findExistingCase( outputEgrid ) )
     {
