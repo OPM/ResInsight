@@ -30,6 +30,23 @@ class RimSummaryCurveCollection;
 
 class QString;
 
+// Concept to check if a type RangeType is an input range of elements convertible to type ElementType
+// Example usage:
+//
+// Several overloaded functions
+//  myFunction(std::vector<int>....);
+//  myFunciton(std::set<int>....);
+//  myFunction(std::list<int>....);
+//
+// Can be replaced by
+//  template <input_range_of<int> RangeType>
+//  void myFunction(RangeType&& range)
+//
+// This allows you to use the same function for all input ranges of int
+//
+template <typename RangeType, typename ElementType>
+concept input_range_of = std::ranges::input_range<RangeType> && std::convertible_to<std::ranges::range_value_t<RangeType>, ElementType>;
+
 //==================================================================================================
 //
 //==================================================================================================
@@ -38,8 +55,9 @@ class RiaSummaryAddressAnalyzer
 public:
     RiaSummaryAddressAnalyzer();
 
-    void appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
-    void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
+    template <input_range_of<RifEclipseSummaryAddress> AddressRange>
+    void appendAddresses( AddressRange&& addresses );
+
     void appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses );
 
     void clear();
@@ -104,3 +122,15 @@ private:
 
     bool m_onlyCrossPlotCurves;
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <input_range_of<RifEclipseSummaryAddress> AddressRange>
+void RiaSummaryAddressAnalyzer::appendAddresses( AddressRange&& addresses )
+{
+    for ( const auto& adr : addresses )
+    {
+        analyzeSingleAddress( adr );
+    }
+}
