@@ -116,7 +116,7 @@ public:
     using ResponseWriterT = ServerAsyncResponseWriter<ReplyT>;
     using MethodImplT     = std::function<Status( ServiceT&, ServerContext*, const RequestT*, ReplyT* )>;
     using MethodRequestT  = std::function<
-        void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>;
+         void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>;
 
     RiaGrpcUnaryCallback( ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest );
 

@@ -36,6 +36,11 @@ jobs:
           cd Fwk/AppFwk
           find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | grep -v gtest | xargs clang-format-18 -i
           git diff
+      - name: Check format - GrpcInterface
+        run: |
+          cd GrpcInterface
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' -o -name '*.proto' | grep -v gtest | xargs clang-format-18 -i
+          git diff
       - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

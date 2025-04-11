@@ -4,110 +4,87 @@ import "Definitions.proto";
 
 package rips;
 
-service PdmObjectService
-{
-	rpc GetDescendantPdmObjects(PdmDescendantObjectRequest) returns (PdmObjectArray) {}
-	rpc GetChildPdmObjects(PdmChildObjectRequest) returns (PdmObjectArray) {}
-	rpc GetAncestorPdmObject(PdmParentObjectRequest) returns (PdmObject) {}
-	rpc CreateChildPdmObject(CreatePdmChildObjectRequest) returns (PdmObject) {}
-	rpc UpdateExistingPdmObject(PdmObject) returns (Empty) {}
-	rpc CallPdmObjectGetter(PdmObjectGetterRequest) returns (stream PdmObjectGetterReply) {}
-	rpc CallPdmObjectSetter(stream PdmObjectSetterChunk) returns (ClientToServerStreamReply) {}
-	rpc CallPdmObjectMethod(PdmObjectMethodRequest) returns (PdmObject) {}
-	rpc DeleteExistingPdmObject(PdmObject) returns (Empty) {}
+service PdmObjectService {
+  rpc GetDescendantPdmObjects(PdmDescendantObjectRequest)
+      returns (PdmObjectArray) {}
+  rpc GetChildPdmObjects(PdmChildObjectRequest) returns (PdmObjectArray) {}
+  rpc GetAncestorPdmObject(PdmParentObjectRequest) returns (PdmObject) {}
+  rpc CreateChildPdmObject(CreatePdmChildObjectRequest) returns (PdmObject) {}
+  rpc UpdateExistingPdmObject(PdmObject) returns (Empty) {}
+  rpc CallPdmObjectGetter(PdmObjectGetterRequest)
+      returns (stream PdmObjectGetterReply) {}
+  rpc CallPdmObjectSetter(stream PdmObjectSetterChunk)
+      returns (ClientToServerStreamReply) {}
+  rpc CallPdmObjectMethod(PdmObjectMethodRequest) returns (PdmObject) {}
+  rpc DeleteExistingPdmObject(PdmObject) returns (Empty) {}
 }
 
-message PdmDescendantObjectRequest
-{
-	PdmObject            object = 1;
-	string        child_keyword = 2;
+message PdmDescendantObjectRequest {
+  PdmObject object = 1;
+  string child_keyword = 2;
 }
 
-message PdmChildObjectRequest
-{
-	PdmObject                  object = 1;
-	string                child_field = 2;
+message PdmChildObjectRequest {
+  PdmObject object = 1;
+  string child_field = 2;
 }
 
-message CreatePdmChildObjectRequest
-{
-	PdmObject                  object = 1;
-	string                child_field = 2;
-	string              class_keyword = 3;
+message CreatePdmChildObjectRequest {
+  PdmObject object = 1;
+  string child_field = 2;
+  string class_keyword = 3;
 }
 
-message PdmParentObjectRequest
-{
-	PdmObject          object = 1;
-	string     parent_keyword = 2;
+message PdmParentObjectRequest {
+  PdmObject object = 1;
+  string parent_keyword = 2;
 }
 
-message PdmObject
-{
-	string           class_keyword = 1;
-	uint64                 address = 2;
-	map<string, string> parameters = 3;
-	bool                   visible = 4;
-	bool                persistent = 5; // Does this object live on in ResInsight?
+message PdmObject {
+  string class_keyword = 1;
+  uint64 address = 2;
+  map<string, string> parameters = 3;
+  bool visible = 4;
+  bool persistent = 5; // Does this object live on in ResInsight?
 }
 
-message PdmObjectArray
-{
-	repeated PdmObject objects = 1;
+message PdmObjectArray { repeated PdmObject objects = 1; }
+
+message PdmObjectGetterRequest {
+  PdmObject object = 1;
+  string method = 2;
 }
 
-message PdmObjectGetterRequest
-{
-	PdmObject object = 1;
-	string    method = 2;
+message PdmObjectSetterRequest {
+  PdmObjectGetterRequest request = 1;
+  int32 data_count = 2;
 }
 
-message PdmObjectSetterRequest
-{
-	PdmObjectGetterRequest request = 1;
-	int32               data_count = 2;
+message PdmObjectSetterChunk {
+  oneof data {
+    PdmObjectSetterRequest set_request = 1;
+    DoubleArray doubles = 2;
+    IntArray ints = 3;
+    StringArray strings = 4;
+  }
 }
 
-message PdmObjectSetterChunk
-{
-	oneof data
-	{
-		PdmObjectSetterRequest set_request = 1;
-		DoubleArray                doubles = 2;
-		IntArray                   ints    = 3;
-		StringArray                strings = 4;
-	}
+message DoubleArray { repeated double data = 1; }
+
+message IntArray { repeated int32 data = 1; }
+
+message StringArray { repeated string data = 1; }
+
+message PdmObjectGetterReply {
+  oneof data {
+    DoubleArray doubles = 1;
+    IntArray ints = 2;
+    StringArray strings = 3;
+  }
 }
 
-
-message DoubleArray
-{
-	repeated double data = 1;
-}
-
-message IntArray
-{
-	repeated int32 data = 1;
-}
-
-message StringArray
-{
-	repeated string data = 1;
-}
-
-message PdmObjectGetterReply
-{
-	oneof data
-	{
-		DoubleArray doubles = 1;
-		IntArray       ints = 2;
-		StringArray strings = 3;
-	}	
-}
-
-message PdmObjectMethodRequest
-{
-	PdmObject object = 1;
-	string    method = 2;
-	PdmObject params = 3;
+message PdmObjectMethodRequest {
+  PdmObject object = 1;
+  string method = 2;
+  PdmObject params = 3;
 }
