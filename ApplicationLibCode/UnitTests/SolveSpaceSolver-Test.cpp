@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 #include "RiaSCurveCalculator.h"
