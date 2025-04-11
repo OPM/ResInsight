@@ -981,12 +981,8 @@ void RiuMainWindow::slotRefreshViewActions()
 
     {
         QStringList commandIds;
-        commandIds << "RicLinkVisibleViewsFeature"
-                   << "RicTileWindowsFeature"
-                   << "RicTogglePerspectiveViewFeature"
-                   << "RicViewZoomAllFeature"
-                   << "RicApplyUserDefinedCameraFeature"
-                   << "RicStoreUserDefinedCameraFeature";
+        commandIds << "RicLinkVisibleViewsFeature" << "RicTileWindowsFeature" << "RicTogglePerspectiveViewFeature"
+                   << "RicViewZoomAllFeature" << "RicApplyUserDefinedCameraFeature" << "RicStoreUserDefinedCameraFeature";
 
         caf::CmdFeatureManager::instance()->refreshEnabledState( commandIds );
     }

@@ -11,7 +11,7 @@ public:
     virtual ~PdmUiFieldHandleInterface() {}
 
     virtual QVariant toUiBasedQVariant() const { return QVariant(); }
-    virtual void     notifyFieldChanged( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ){};
+    virtual void     notifyFieldChanged( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ) {};
 };
 
 } // End of namespace caf

@@ -61,8 +61,8 @@ public:
     // Access operators
 
     /*Conversion*/ operator DataType*() const { return m_fieldValue; }
-    DataType*      operator->() const { return m_fieldValue; }
-    DataType*      operator()() const { return m_fieldValue; }
+    DataType* operator->() const { return m_fieldValue; }
+    DataType* operator()() const { return m_fieldValue; }
 
     bool operator==( const DataTypePtr& fieldValue ) { return m_fieldValue == fieldValue; }
 

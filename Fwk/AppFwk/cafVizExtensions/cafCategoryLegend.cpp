@@ -410,7 +410,7 @@ void CategoryLegend::renderLegendImmediateMode( OpenGLContext* oglContext, Overl
         int iPx;
         for ( iPx = 0; iPx < legendHeightPixelCount; iPx++ )
         {
-            double normalizedValue = ( iPx + 0.5 ) / legendHeightPixelCount;
+            double normalizedValue         = ( iPx + 0.5 ) / legendHeightPixelCount;
             double invertedNormalizedValue = 1.0 - normalizedValue;
             const Color3ub& clr = m_categoryMapper->mapToColor( m_categoryMapper->domainValue( invertedNormalizedValue ) );
             float y0 = static_cast<float>( layout->colorBarRect.min().y() + iPx );

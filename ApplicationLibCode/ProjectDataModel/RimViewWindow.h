@@ -94,7 +94,7 @@ protected:
 
     QString          windowTitle();
     virtual QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) = 0;
-    virtual void     updateViewWidgetAfterCreation(){};
+    virtual void     updateViewWidgetAfterCreation() {};
     virtual void     deleteViewWidget()    = 0;
     virtual void     onLoadDataAndUpdate() = 0;
     virtual void     onViewNavigationChanged();

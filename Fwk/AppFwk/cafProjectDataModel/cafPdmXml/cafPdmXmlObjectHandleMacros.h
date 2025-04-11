@@ -69,7 +69,7 @@ public:                                                                         
 #define CAF_PDM_XML_SOURCE_INIT( ClassName, keyword, ... )                 \
     CAF_PDM_XML_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )  \
     static bool PDM_OBJECT_STRING_CONCATENATE( my##ClassName, __LINE__ ) = \
-        caf::PdmDefaultObjectFactory::instance()->registerCreator<ClassName>()
+        caf::PdmDefaultObjectFactory::instance() -> registerCreator<ClassName>()
 
 #define CAF_PDM_XML_InitField( field, keyword )                                                                                         \
     {                                                                                                                                   \

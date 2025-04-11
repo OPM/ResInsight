@@ -177,11 +177,7 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
     }
 
     QStringList imageFileExtensions;
-    imageFileExtensions << "*.png"
-                        << "*.jpg"
-                        << "*.bmp"
-                        << "*.pbm"
-                        << "*.pgm";
+    imageFileExtensions << "*.png" << "*.jpg" << "*.bmp" << "*.pbm" << "*.pgm";
     QString fileExtensionFilter = QString( "Images (%1)" ).arg( imageFileExtensions.join( " " ) );
 
     QString pdfFilter = "PDF report( *.pdf )";

@@ -87,8 +87,7 @@ bool RifReaderFmuRft::directoryContainsFmuRftData( const QString& filePath )
     }
 
     QStringList obsFiles;
-    obsFiles << "*.obs"
-             << "*.txt";
+    obsFiles << "*.obs" << "*.txt";
     QFileInfoList fileInfos = dir.entryInfoList( obsFiles, QDir::Files, QDir::Name );
 
     bool foundObsFile = false;

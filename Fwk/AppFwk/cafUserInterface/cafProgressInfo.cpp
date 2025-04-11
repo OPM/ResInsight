@@ -421,18 +421,15 @@ void reportError( const std::string& errorMsg )
         if ( hasMoreProgLevels )
             std::cout << progressStack_v[level] << "\t";
         else
-            std::cout << "--"
-                      << "\t";
+            std::cout << "--" << "\t";
         if ( hasMoreMaxLevels )
             std::cout << maxProgressStack_v[level] << "\t";
         else
-            std::cout << "--"
-                      << "\t";
+            std::cout << "--" << "\t";
         if ( hasMoreSpanLevels )
             std::cout << progressSpanStack_v[level] << "\t";
         else
-            std::cout << "--"
-                      << "\t";
+            std::cout << "--" << "\t";
 
         std::cout << std::endl;
         ++level;

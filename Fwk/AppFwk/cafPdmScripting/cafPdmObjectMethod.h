@@ -44,7 +44,7 @@
 #define CAF_PDM_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
     CAF_PDM_XML_ABSTRACT_SOURCE_INIT( MethodClassName, methodKeyword )                     \
     static bool PDM_OBJECT_STRING_CONCATENATE( method##MethodClassName, __LINE__ ) =       \
-        caf::PdmObjectMethodFactory::instance()->registerMethod<SelfClassName, MethodClassName>()
+        caf::PdmObjectMethodFactory::instance() -> registerMethod<SelfClassName, MethodClassName>()
 
 namespace caf
 {
