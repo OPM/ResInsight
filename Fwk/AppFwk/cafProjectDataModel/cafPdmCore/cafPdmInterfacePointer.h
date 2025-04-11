@@ -74,9 +74,9 @@ public:
         return *this;
     }
 
-    bool                    isNull() const { return m_implementingPdmObject.isNull(); }
-    bool                    notNull() const { return m_implementingPdmObject.notNull(); }
-                            operator T*() const { return p(); }
+    bool isNull() const { return m_implementingPdmObject.isNull(); }
+    bool notNull() const { return m_implementingPdmObject.notNull(); }
+    operator T*() const { return p(); }
     T*                      operator->() const { return p(); }
     PdmInterfacePointer<T>& operator=( const PdmInterfacePointer<T>& other ) { return *this = other.p(); }
 

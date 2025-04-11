@@ -117,8 +117,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
         stream << "\n";
     }
 
-    stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename( exportName ) << "'"
-           << "\n";
+    stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename( exportName ) << "'" << "\n";
 
     auto numberFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 2 );
     formatter.header( { { "X", numberFormat, RIGHT },

@@ -98,7 +98,7 @@ public:
     }
 
     cvf::UniformSet* uniformSet() override { return m_uniformSet.p(); }
-    void             update( cvf::Rendering* rendering ) override{};
+    void             update( cvf::Rendering* rendering ) override {};
 
 private:
     cvf::ref<cvf::UniformSet>   m_uniformSet;

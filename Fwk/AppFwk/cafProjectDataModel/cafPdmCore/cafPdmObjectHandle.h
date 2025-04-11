@@ -101,12 +101,12 @@ public:
     virtual void onChildDeleted( PdmChildArrayFieldHandle*           childArray,
                                  std::vector<caf::PdmObjectHandle*>& referringObjects );
 
-    virtual void onChildAdded( caf::PdmFieldHandle* containerForNewObject ){};
+    virtual void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) {};
     virtual void onChildrenUpdated( PdmChildArrayFieldHandle*           childArray,
-                                    std::vector<caf::PdmObjectHandle*>& updatedObjects ){};
+                                    std::vector<caf::PdmObjectHandle*>& updatedObjects ) {};
 
     virtual void
-        handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ){};
+        handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) {};
 
 protected:
     void addField( PdmFieldHandle* field, const QString& keyword );

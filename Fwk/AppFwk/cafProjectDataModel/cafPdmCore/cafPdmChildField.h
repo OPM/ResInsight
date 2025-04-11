@@ -60,7 +60,7 @@ public:
     // Access operators
 
     /*Conversion*/ operator DataType*() const { return m_fieldValue; }
-    DataType*      operator->() const { return m_fieldValue; }
+    DataType* operator->() const { return m_fieldValue; }
 
     const PdmPointer<DataType>& operator()() const { return m_fieldValue; }
     const PdmPointer<DataType>& v() const { return m_fieldValue; }

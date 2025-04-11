@@ -159,8 +159,7 @@ void CmdUiCommandSystemImpl::populateMenuWithDefaultCommands( const QString& uiC
         menu->addAction( commandManager->action( "PdmListField_DeleteItem" ) );
 
         QStringList commandIdList;
-        commandIdList << "PdmListField_AddItem"
-                      << "PdmListField_DeleteItem";
+        commandIdList << "PdmListField_AddItem" << "PdmListField_DeleteItem";
         commandManager->refreshStates( commandIdList );
     }
 }
