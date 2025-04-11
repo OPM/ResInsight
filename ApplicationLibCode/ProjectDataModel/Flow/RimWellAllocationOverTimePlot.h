@@ -72,13 +72,13 @@ public:
 
     // RimPlot implementations
     RiuPlotWidget* plotWidget() override;
-    void           setAutoScaleXEnabled( bool enabled ) override{};
-    void           setAutoScaleYEnabled( bool enabled ) override{};
-    void           updateAxes() override{};
-    void           updateLegend() override{};
+    void           setAutoScaleXEnabled( bool enabled ) override {};
+    void           setAutoScaleYEnabled( bool enabled ) override {};
+    void           updateAxes() override {};
+    void           updateLegend() override {};
     QString        asciiDataForPlotExport() const override;
-    void           reattachAllCurves() override{};
-    void           detachAllCurves() override{};
+    void           reattachAllCurves() override {};
+    void           detachAllCurves() override {};
 
     // RimPlotWindow implementations
     QString description() const override;
@@ -86,7 +86,7 @@ public:
     // RimViewWindow implementations
     QWidget* viewWidget() override;
     QImage   snapshotWindowContent() override;
-    void     zoomAll() override{};
+    void     zoomAll() override {};
 
 private:
     // RimPlot implementations

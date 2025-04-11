@@ -23,9 +23,8 @@ public:
 
     caf::PdmScriptResponse execute() override
     {
-        std::cout << "TestCommand1::execute("
-                  << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument << ", "
-                  << m_boolArgument << ");" << std::endl;
+        std::cout << "TestCommand1::execute(" << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", "
+                  << m_intArgument << ", " << m_boolArgument << ");" << std::endl;
         return caf::PdmScriptResponse();
     }
 
@@ -52,9 +51,8 @@ public:
 
     caf::PdmScriptResponse execute() override
     {
-        std::cout << "TC2::execute("
-                  << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument() << ", "
-                  << m_boolArgument() << ");" << std::endl;
+        std::cout << "TC2::execute(" << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument()
+                  << ", " << m_boolArgument() << ");" << std::endl;
         return caf::PdmScriptResponse();
     }
 

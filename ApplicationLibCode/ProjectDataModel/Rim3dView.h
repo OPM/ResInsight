@@ -233,8 +233,8 @@ protected:
 
     // Abstract methods to implement in subclasses
 
-    virtual void onUpdateDisplayModelVisibility(){};
-    virtual void onClearReservoirCellVisibilitiesIfNecessary(){};
+    virtual void onUpdateDisplayModelVisibility() {};
+    virtual void onClearReservoirCellVisibilitiesIfNecessary() {};
     virtual void onResetLegendsInViewer();
     virtual void onUpdateScaleTransform();
 

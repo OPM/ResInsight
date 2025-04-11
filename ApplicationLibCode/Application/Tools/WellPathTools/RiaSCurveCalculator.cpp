@@ -422,25 +422,15 @@ void RiaSCurveCalculator::dump() const
     cvf::Vec3d v_P11 = firstArcEndpoint();
     cvf::Vec3d v_P22 = secondArcStartpoint();
 
-    std::cout << "  P1:  "
-              << "[ " << m_p1[0] << "  " << m_p1[1] << "  " << m_p1[2] << " " << std::endl;
-    std::cout << "  P11: "
-              << "[ " << v_P11[0] << "  " << v_P11[1] << "  " << v_P11[2] << " " << std::endl;
-    std::cout << "  P22: "
-              << "[ " << v_P22[0] << "  " << v_P22[1] << "  " << v_P22[2] << " " << std::endl;
-    std::cout << "  P2:  "
-              << "[ " << m_p2[0] << "  " << m_p2[1] << "  " << m_p2[2] << " " << std::endl;
-    std::cout << "  C1:  "
-              << "[ " << v_C1[0] << "  " << v_C1[1] << "  " << v_C1[2] << " " << std::endl;
-    std::cout << "  C2:  "
-              << "[ " << v_C2[0] << "  " << v_C2[1] << "  " << v_C2[2] << " " << std::endl;
-    std::cout << "  N1:  "
-              << "[ " << v_N1[0] << "  " << v_N1[1] << "  " << v_N1[2] << " " << std::endl;
-    std::cout << "  N2:  "
-              << "[ " << v_N2[0] << "  " << v_N2[1] << "  " << v_N2[2] << " " << std::endl;
-    std::cout << "  R1:  "
-              << "[ " << firstRadius() << " ]" << std::endl;
-    std::cout << "  R2:  "
-              << "[ " << secondRadius() << " ]" << std::endl;
+    std::cout << "  P1:  " << "[ " << m_p1[0] << "  " << m_p1[1] << "  " << m_p1[2] << " " << std::endl;
+    std::cout << "  P11: " << "[ " << v_P11[0] << "  " << v_P11[1] << "  " << v_P11[2] << " " << std::endl;
+    std::cout << "  P22: " << "[ " << v_P22[0] << "  " << v_P22[1] << "  " << v_P22[2] << " " << std::endl;
+    std::cout << "  P2:  " << "[ " << m_p2[0] << "  " << m_p2[1] << "  " << m_p2[2] << " " << std::endl;
+    std::cout << "  C1:  " << "[ " << v_C1[0] << "  " << v_C1[1] << "  " << v_C1[2] << " " << std::endl;
+    std::cout << "  C2:  " << "[ " << v_C2[0] << "  " << v_C2[1] << "  " << v_C2[2] << " " << std::endl;
+    std::cout << "  N1:  " << "[ " << v_N1[0] << "  " << v_N1[1] << "  " << v_N1[2] << " " << std::endl;
+    std::cout << "  N2:  " << "[ " << v_N2[0] << "  " << v_N2[1] << "  " << v_N2[2] << " " << std::endl;
+    std::cout << "  R1:  " << "[ " << firstRadius() << " ]" << std::endl;
+    std::cout << "  R2:  " << "[ " << secondRadius() << " ]" << std::endl;
     std::cout << "  CtrPointStatus: " << m_ctrlPpointCurveStatus << " SolveStatus: " << m_solveStatus << std::endl;
 }

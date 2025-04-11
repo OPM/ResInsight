@@ -84,7 +84,7 @@ public:
     bool isBiotCoefficientDependent() const;
 
 protected:
-    virtual void updateLegendCategorySettings(){};
+    virtual void updateLegendCategorySettings() {};
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     friend class RimIntersectionResultDefinition;

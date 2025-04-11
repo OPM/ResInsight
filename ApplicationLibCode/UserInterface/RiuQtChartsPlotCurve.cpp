@@ -380,9 +380,7 @@ void RiuQtChartsPlotCurve::updateScatterSeries()
 //--------------------------------------------------------------------------------------------------
 bool RiuQtChartsPlotCurve::isQtChartObjectsPresent() const
 {
-    if ( !lineSeries() ) return false;
-
-    return true;
+    return lineSeries() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

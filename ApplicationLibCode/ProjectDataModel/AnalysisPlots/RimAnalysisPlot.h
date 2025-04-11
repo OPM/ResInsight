@@ -138,7 +138,7 @@ private:
     void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
     void setAutoScaleXEnabled( bool enabled ) override {}
     void setAutoScaleYEnabled( bool enabled ) override {}
-    void updateLegend() override{};
+    void updateLegend() override {};
 
     // Private methods
 

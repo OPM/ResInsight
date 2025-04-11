@@ -1014,7 +1014,7 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
         {
             for ( auto highlightedCurve : m_hightlightedCurves )
             {
-                if ( toggleItemInSelection && ( highlightedCurve == clickedCurve ) )
+                if ( ( highlightedCurve == clickedCurve ) )
                 {
                     wasToggledOff = true;
                     continue;
