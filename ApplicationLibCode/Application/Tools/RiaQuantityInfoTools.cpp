@@ -30,9 +30,8 @@
 
 #include <unordered_map>
 
-namespace RiaQuantityInfoTools
-{
-namespace internal
+
+namespace RiaQuantityInfoTools::internal
 {
     //--------------------------------------------------------------------------------------------------
     ///
@@ -116,8 +115,8 @@ namespace internal
         RiuSummaryQuantityNameInfoProvider::instance()->setQuantityInfos( quantityInfos );
     }
 
-} // namespace internal
-} // namespace RiaQuantityInfoTools
+} // namespace RiaQuantityInfoTools::internal
+
 
 //--------------------------------------------------------------------------------------------------
 ///
