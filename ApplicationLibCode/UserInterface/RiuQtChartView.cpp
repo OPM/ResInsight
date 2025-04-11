@@ -79,6 +79,7 @@ void RiuQtChartView::mouseReleaseEvent( QMouseEvent* event )
         if ( event->button() == Qt::RightButton )
         {
             // Skip QtCharts::QChartView::mouseReleaseEvent() to avoid zoom on right mouse button
+            // NOLINTNEXTLINE: Suppress clang-tidy for the next line
             return QGraphicsView::mouseReleaseEvent( event );
         }
 

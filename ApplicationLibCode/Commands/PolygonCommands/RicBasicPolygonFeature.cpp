@@ -41,7 +41,7 @@ bool RicBasicPolygonFeature::isCommandEnabled() const
 {
     auto polygons = selectedPolygons();
 
-    return m_multiSelectSupported ? polygons.size() > 0 : polygons.size() == 1;
+    return m_multiSelectSupported ? !polygons.empty() : polygons.size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------

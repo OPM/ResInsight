@@ -626,7 +626,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon( ArrayWrapperConst<Ver
     typedef std::map<IndexType, typename std::vector<IndexType>::const_iterator> VxIdxToPolygonPositionMap;
 
     CVF_ASSERT( m_partiallyFreeCubeFaceHasHoles );
-    CVF_ASSERT( partialFacePolygon != NULL );
+    CVF_ASSERT( partialFacePolygon != nullptr );
 
     // Copy the start polygon
     std::list<IndexType> resultPolygon;

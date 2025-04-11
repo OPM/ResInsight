@@ -260,7 +260,7 @@ std::vector<std::vector<std::pair<size_t, double>>>
     std::vector<std::vector<std::pair<size_t, double>>> projected3dGridIndices( nCells );
 
     const bool isSummationResult = RigContourMapCalculator::isStraightSummationResult( resultAggregation );
-    const bool usePolygonLimits  = limitToPolygons.size() > 0;
+    const bool usePolygonLimits  = !limitToPolygons.empty();
 
 #pragma omp parallel for
     for ( int index = 0; index < nCells; ++index )

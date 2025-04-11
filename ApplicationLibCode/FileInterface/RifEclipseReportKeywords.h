@@ -64,9 +64,10 @@ public:
                 return RiaDefines::ResultDataType::DOUBLE;
             case RifEclipseKeywordValueCount::KeywordDataType::INTEGER:
                 return RiaDefines::ResultDataType::INTEGER;
+            default:
+                return RiaDefines::ResultDataType::UNKNOWN;
         }
 
-        return RiaDefines::ResultDataType::UNKNOWN;
     }
 
 private:

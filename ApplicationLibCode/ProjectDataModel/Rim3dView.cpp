@@ -1661,7 +1661,7 @@ void Rim3dView::appendAnnotationsToModel()
     if ( frameScene )
     {
         cvf::String name = "Annotations";
-        this->removeModelByName( frameScene, name );
+        Rim3dView::removeModelByName( frameScene, name );
 
         cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
         model->setName( name );

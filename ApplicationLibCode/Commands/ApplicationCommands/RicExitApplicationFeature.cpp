@@ -67,7 +67,7 @@ void RicExitApplicationFeature::onActionTriggered( bool isChecked )
     // shutdown. The slot onLastWindowClosed() configured in RiaGuiApplication::RiaGuiApplication is never called. Testing with
     // processEvents() had no effect.
     app->closeProject();
-    app->quit();
+    RiaGuiApplication::quit();
 }
 
 //--------------------------------------------------------------------------------------------------

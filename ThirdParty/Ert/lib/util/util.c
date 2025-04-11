@@ -4639,7 +4639,6 @@ bool util_mkdir_p(const char *_path) {
   int current_pos = 0;
 
   if (!util_is_directory(path)) {
-    int i = 0;
     active_path = (char*)util_calloc(strlen(path) + 1 , sizeof * active_path );
 
     do {
@@ -4647,7 +4646,6 @@ bool util_mkdir_p(const char *_path) {
       if (n < strlen(path))
         n += 1;
       path += n;
-      i++;
       strncpy(active_path , _path , n + current_pos);
       active_path[n+current_pos] = '\0';
       current_pos += n;

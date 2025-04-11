@@ -63,11 +63,11 @@ std::shared_ptr<RifCaseRealizationReader> RifCaseRealizationReader::createReader
 
     if ( fileName.endsWith( parametersFileName() ) )
     {
-        reader.reset( new RifCaseRealizationParametersReader( fileName ) );
+        reader = std::make_shared<RifCaseRealizationParametersReader>( fileName );
     }
     else if ( fileName.endsWith( runSpecificationFileName() ) )
     {
-        reader.reset( new RifCaseRealizationRunspecificationReader( fileName ) );
+        reader = std::make_shared<RifCaseRealizationRunspecificationReader>( fileName );
     }
     return reader;
 }

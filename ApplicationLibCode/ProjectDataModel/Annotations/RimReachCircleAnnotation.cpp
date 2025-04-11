@@ -18,6 +18,8 @@
 
 #include "RimReachCircleAnnotation.h"
 
+#include <memory>
+
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationLineAppearance.h"
@@ -54,7 +56,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     m_appearance = new RimReachCircleLineAppearance();
     m_appearance.uiCapability()->setUiTreeChildrenHidden( true );
 
-    m_centerPointEventHandler.reset( new RicVec3dPickEventHandler( &m_centerPointXyd ) );
+    m_centerPointEventHandler = std::make_shared<RicVec3dPickEventHandler>( &m_centerPointXyd );
 
     setDeletable( true );
 }
