@@ -18,13 +18,9 @@ message Version {
   int32 patch_version = 3;
 }
 
-enum ApplicationTypeEnum
-{
-	GUI_APPLICATION     = 0;
-	CONSOLE_APPLICATION = 1;
+enum ApplicationTypeEnum {
+  GUI_APPLICATION = 0;
+  CONSOLE_APPLICATION = 1;
 }
 
-message RuntimeInfo
-{
-	ApplicationTypeEnum app_type = 1;
-}
+message RuntimeInfo { ApplicationTypeEnum app_type = 1; }
