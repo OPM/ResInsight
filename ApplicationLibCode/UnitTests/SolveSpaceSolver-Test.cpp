@@ -268,8 +268,7 @@ void printQ1Q2R1R2Matrix( cvf::Vec3d p1, double azi1, double inc1, cvf::Vec3d p2
     double step2   = 100;
 
     std::cout << "R1" << std::endl;
-    std::cout << "q1\\q2"
-              << "  ";
+    std::cout << "q1\\q2" << "  ";
 
     for ( double q2 = q2Start; q2 < q2End; q2 += step2 )
     {
@@ -289,8 +288,7 @@ void printQ1Q2R1R2Matrix( cvf::Vec3d p1, double azi1, double inc1, cvf::Vec3d p2
             }
             else
             {
-                std::cout << "NS"
-                          << "  ";
+                std::cout << "NS" << "  ";
             }
         }
 
@@ -299,8 +297,7 @@ void printQ1Q2R1R2Matrix( cvf::Vec3d p1, double azi1, double inc1, cvf::Vec3d p2
 
     std::cout << std::endl;
     std::cout << "R2" << std::endl;
-    std::cout << "q1\\q2"
-              << "  ";
+    std::cout << "q1\\q2" << "  ";
 
     for ( double q2 = q2Start; q2 < q2End; q2 += step2 )
     {
@@ -320,8 +317,7 @@ void printQ1Q2R1R2Matrix( cvf::Vec3d p1, double azi1, double inc1, cvf::Vec3d p2
             }
             else
             {
-                std::cout << "NS"
-                          << "  ";
+                std::cout << "NS" << "  ";
             }
         }
 

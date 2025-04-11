@@ -67,7 +67,6 @@ public:
             default:
                 return RiaDefines::ResultDataType::UNKNOWN;
         }
-
     }
 
 private:

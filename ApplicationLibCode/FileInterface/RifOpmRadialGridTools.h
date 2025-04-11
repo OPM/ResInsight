@@ -24,12 +24,10 @@
 #include <string>
 #include <vector>
 
-
 namespace Opm::EclIO
 {
-    class EGrid;
+class EGrid;
 }
-
 
 class RigMainGrid;
 class RigGridBase;

@@ -75,7 +75,7 @@ RimTextAnnotation::RimTextAnnotation()
     m_nameProxy.xmlCapability()->disableIO();
 
     m_anchorPointPickEventHandler = std::make_shared<RicVec3dPickEventHandler>( &m_anchorPointXyd );
-    m_labelPointPickEventHandler = std::make_shared<RicVec3dPickEventHandler>( &m_labelPointXyd, 0.1 );
+    m_labelPointPickEventHandler  = std::make_shared<RicVec3dPickEventHandler>( &m_labelPointXyd, 0.1 );
 
     setDeletable( true );
 }

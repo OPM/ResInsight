@@ -90,10 +90,10 @@ public:
     void updateIconState();
     void updateActiveState( bool isControlled );
 
-    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ){};
-    virtual void    updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ){};
+    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) {};
+    virtual void    updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) {};
     virtual QString fullName() const;
-    virtual void    onGridChanged(){};
+    virtual void    onGridChanged() {};
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

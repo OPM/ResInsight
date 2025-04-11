@@ -52,7 +52,7 @@ public:
 
     virtual RiuPlotWidget* plotWidget() const = 0;
 
-    virtual void enableCurvePointTracking( bool enable ){};
+    virtual void enableCurvePointTracking( bool enable ) {};
 
 public slots:
     void showContextMenu( QPoint );

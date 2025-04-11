@@ -147,7 +147,7 @@ public:
     bool showOnlyVisibleCategoriesInLegend() const;
 
 protected:
-    virtual void updateLegendCategorySettings(){};
+    virtual void updateLegendCategorySettings() {};
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

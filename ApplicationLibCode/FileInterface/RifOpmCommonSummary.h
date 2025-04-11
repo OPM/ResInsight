@@ -33,13 +33,11 @@
 #include <tuple>
 #include <vector>
 
-
 namespace Opm::EclIO
 {
-    class ESmry;
-    class ExtESmry;
+class ESmry;
+class ExtESmry;
 } // namespace Opm::EclIO
-
 
 class RiaThreadSafeLogger;
 

@@ -84,11 +84,7 @@ RifWellMeasurement RifWellMeasurementReader::parseWellMeasurement( const QString
 
     // Check for unexpected empty tokens
     QStringList nameOfNonEmptyTokens;
-    nameOfNonEmptyTokens << "Well Name"
-                         << "Measured Depth"
-                         << "Date"
-                         << "Value"
-                         << "Kind";
+    nameOfNonEmptyTokens << "Well Name" << "Measured Depth" << "Date" << "Value" << "Kind";
     verifyNonEmptyTokens( tokens, nameOfNonEmptyTokens, lineNumber, filePath );
 
     RifWellMeasurement wellMeasurement;

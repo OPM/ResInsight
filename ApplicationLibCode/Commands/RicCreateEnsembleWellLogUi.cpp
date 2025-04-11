@@ -65,8 +65,7 @@ RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
     CAF_PDM_InitFieldNoDefault( &m_wellFilePath, "WellFilePath", "Well File Path" );
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties" );
 
-    m_tabNames << "Well"
-               << "Properties";
+    m_tabNames << "Well" << "Properties";
 }
 
 //--------------------------------------------------------------------------------------------------

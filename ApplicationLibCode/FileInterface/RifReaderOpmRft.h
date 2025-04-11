@@ -25,12 +25,10 @@
 
 #include <memory>
 
-
 namespace Opm::EclIO
 {
-    class ERft;
+class ERft;
 } // namespace Opm::EclIO
-
 
 class RifReaderOpmRft : public RifReaderRftInterface, public cvf::Object
 {

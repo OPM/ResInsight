@@ -147,8 +147,7 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
 {
     QTextStream textstream( file );
     textstream << "\n";
-    textstream << "-- Exported from ResInsight"
-               << "\n";
+    textstream << "-- Exported from ResInsight" << "\n";
 
     if ( writeEchoKeywords )
     {
@@ -178,8 +177,7 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     }
 
     textstream << "\n"
-               << "/"
-               << "\n";
+               << "/" << "\n";
 
     if ( writeEchoKeywords )
     {

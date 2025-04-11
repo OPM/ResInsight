@@ -30,93 +30,91 @@
 
 #include <unordered_map>
 
-
 namespace RiaQuantityInfoTools::internal
 {
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void writeToFile( const QString& filename, const std::unordered_map<std::string, std::pair<std::string, std::string>>& map )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void writeToFile( const QString& filename, const std::unordered_map<std::string, std::pair<std::string, std::string>>& map )
+{
+    QJsonObject jsonObj;
+
+    for ( const auto& item : map )
     {
-        QJsonObject jsonObj;
-
-        for ( const auto& item : map )
-        {
-            QJsonObject itemObj;
-            itemObj["category"]                           = QString::fromStdString( item.second.first );
-            itemObj["description"]                        = QString::fromStdString( item.second.second );
-            jsonObj[QString::fromStdString( item.first )] = itemObj;
-        }
-
-        QJsonDocument jsonDoc( jsonObj );
-        QFile         file( filename );
-        if ( !file.open( QIODevice::WriteOnly ) )
-        {
-            RiaLogging::error( "Couldn't open file : " + filename );
-            return;
-        }
-        file.write( jsonDoc.toJson() );
+        QJsonObject itemObj;
+        itemObj["category"]                           = QString::fromStdString( item.second.first );
+        itemObj["description"]                        = QString::fromStdString( item.second.second );
+        jsonObj[QString::fromStdString( item.first )] = itemObj;
     }
 
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    std::unordered_map<std::string, std::pair<std::string, std::string>> importFromFile( const QString& filename )
+    QJsonDocument jsonDoc( jsonObj );
+    QFile         file( filename );
+    if ( !file.open( QIODevice::WriteOnly ) )
     {
-        QFile file( filename );
-        if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
-        {
-            RiaLogging::error( "Couldn't open file : " + filename );
-            return {};
-        }
+        RiaLogging::error( "Couldn't open file : " + filename );
+        return;
+    }
+    file.write( jsonDoc.toJson() );
+}
 
-        QByteArray    data = file.readAll();
-        QJsonDocument jsonDoc( QJsonDocument::fromJson( data ) );
-
-        if ( !jsonDoc.isObject() )
-        {
-            RiaLogging::error( "Invalid JSON format in : " + filename );
-            return {};
-        }
-
-        std::unordered_map<std::string, std::pair<std::string, std::string>> map;
-
-        QJsonObject jsonObj = jsonDoc.object();
-        for ( auto it = jsonObj.begin(); it != jsonObj.end(); ++it )
-        {
-            auto        key   = it.key().toStdString();
-            QJsonObject value = it.value().toObject();
-
-            auto category    = value["category"].toString().toStdString();
-            auto description = value["description"].toString().toStdString();
-
-            map.insert( { key, { category, description } } );
-        }
-
-        return map;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unordered_map<std::string, std::pair<std::string, std::string>> importFromFile( const QString& filename )
+{
+    QFile file( filename );
+    if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
+        RiaLogging::error( "Couldn't open file : " + filename );
+        return {};
     }
 
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void importKeywords( const QString& keywordEclipseFilePath, const QString& keyword6XFilePath )
+    QByteArray    data = file.readAll();
+    QJsonDocument jsonDoc( QJsonDocument::fromJson( data ) );
+
+    if ( !jsonDoc.isObject() )
     {
-        auto quantityInfos = internal::importFromFile( keywordEclipseFilePath );
-        auto info6x        = internal::importFromFile( keyword6XFilePath );
-
-        for ( const auto& other : info6x )
-        {
-            if ( !quantityInfos.contains( other.first ) )
-            {
-                quantityInfos.insert( other );
-            }
-        }
-
-        RiuSummaryQuantityNameInfoProvider::instance()->setQuantityInfos( quantityInfos );
+        RiaLogging::error( "Invalid JSON format in : " + filename );
+        return {};
     }
+
+    std::unordered_map<std::string, std::pair<std::string, std::string>> map;
+
+    QJsonObject jsonObj = jsonDoc.object();
+    for ( auto it = jsonObj.begin(); it != jsonObj.end(); ++it )
+    {
+        auto        key   = it.key().toStdString();
+        QJsonObject value = it.value().toObject();
+
+        auto category    = value["category"].toString().toStdString();
+        auto description = value["description"].toString().toStdString();
+
+        map.insert( { key, { category, description } } );
+    }
+
+    return map;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void importKeywords( const QString& keywordEclipseFilePath, const QString& keyword6XFilePath )
+{
+    auto quantityInfos = internal::importFromFile( keywordEclipseFilePath );
+    auto info6x        = internal::importFromFile( keyword6XFilePath );
+
+    for ( const auto& other : info6x )
+    {
+        if ( !quantityInfos.contains( other.first ) )
+        {
+            quantityInfos.insert( other );
+        }
+    }
+
+    RiuSummaryQuantityNameInfoProvider::instance()->setQuantityInfos( quantityInfos );
+}
 
 } // namespace RiaQuantityInfoTools::internal
-
 
 //--------------------------------------------------------------------------------------------------
 ///

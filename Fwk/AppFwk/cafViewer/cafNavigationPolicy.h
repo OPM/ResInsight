@@ -62,7 +62,7 @@ public:
 
 public: // protected: // Should be protected but this friending does not work on gcc 4.1.2
     // Interface to be implement by subclass
-    virtual void       init(){};
+    virtual void       init() {};
     virtual bool       handleInputEvent( QInputEvent* inputEvent )                                = 0;
     virtual void       setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) = 0;
     virtual cvf::Vec3d pointOfInterest();

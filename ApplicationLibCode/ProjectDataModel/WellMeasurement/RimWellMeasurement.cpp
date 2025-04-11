@@ -215,11 +215,7 @@ cvf::Color3f RimWellMeasurement::mapToColor( const QString& measurementKind )
 bool RimWellMeasurement::kindHasValue( const QString& measurementKind )
 {
     QStringList valueLessKind;
-    valueLessKind << "DP"
-                  << "LE"
-                  << "TH"
-                  << "BA"
-                  << "CORE";
+    valueLessKind << "DP" << "LE" << "TH" << "BA" << "CORE";
     return !valueLessKind.contains( measurementKind );
 }
 

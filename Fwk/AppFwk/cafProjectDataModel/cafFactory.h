@@ -62,10 +62,10 @@
 
 #define CAF_FACTORY_REGISTER( BaseType, TypeToCreate, KeyType, key )   \
     static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME( my##TypeToCreate ) = \
-        caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>( key )
+        caf::Factory<BaseType, KeyType>::instance() -> registerCreator<TypeToCreate>( key )
 #define CAF_FACTORY_REGISTER2( BaseType, TypeToCreate, KeyType, key )   \
     static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME( my2##TypeToCreate ) = \
-        caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>( key )
+        caf::Factory<BaseType, KeyType>::instance() -> registerCreator<TypeToCreate>( key )
 
 namespace caf
 {
