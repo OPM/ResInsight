@@ -193,7 +193,7 @@ public:
 
 protected:
     // Method to override if painting directly on the OpenGl Canvas is needed.
-    virtual void paintOverlayItems( QPainter* painter ){};
+    virtual void paintOverlayItems( QPainter* painter ) {};
 
     void onWidgetOpenGLReady() override;
 

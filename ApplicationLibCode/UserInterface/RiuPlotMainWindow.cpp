@@ -416,10 +416,7 @@ void RiuPlotMainWindow::createToolBars()
     CVF_ASSERT( cmdFeatureMgr );
 
     QStringList toolbarNames;
-    toolbarNames << "Standard"
-                 << "Window Management"
-                 << "View Snapshots"
-                 << "View";
+    toolbarNames << "Standard" << "Window Management" << "View Snapshots" << "View";
 
     for ( QString toolbarName : toolbarNames )
     {

@@ -15,14 +15,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
 {
     {
         QStringList faceTexts;
-        faceTexts << "X"
-                  << "X+"
-                  << "I"
-                  << "I+"
-                  << "x"
-                  << "x+"
-                  << "i"
-                  << "i+";
+        faceTexts << "X" << "X+" << "I" << "I+" << "x" << "x+" << "i" << "i+";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )
@@ -34,10 +27,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
 
     {
         QStringList faceTexts;
-        faceTexts << "X-"
-                  << "I-"
-                  << "x-"
-                  << "i-";
+        faceTexts << "X-" << "I-" << "x-" << "i-";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )
@@ -49,14 +39,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
 
     {
         QStringList faceTexts;
-        faceTexts << "Y"
-                  << "Y+"
-                  << "J"
-                  << "J+"
-                  << "y"
-                  << "y+"
-                  << "j"
-                  << "j+";
+        faceTexts << "Y" << "Y+" << "J" << "J+" << "y" << "y+" << "j" << "j+";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )
@@ -68,10 +51,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
 
     {
         QStringList faceTexts;
-        faceTexts << "Y-"
-                  << "J-"
-                  << "y-"
-                  << "j-";
+        faceTexts << "Y-" << "J-" << "y-" << "j-";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )
@@ -83,14 +63,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
 
     {
         QStringList faceTexts;
-        faceTexts << "Z"
-                  << "Z+"
-                  << "K"
-                  << "k+"
-                  << "z"
-                  << "z+"
-                  << "k"
-                  << "k+";
+        faceTexts << "Z" << "Z+" << "K" << "k+" << "z" << "z+" << "k" << "k+";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )
@@ -102,10 +75,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
 
     {
         QStringList faceTexts;
-        faceTexts << "Z-"
-                  << "K-"
-                  << "z-"
-                  << "k-";
+        faceTexts << "Z-" << "K-" << "z-" << "k-";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )
@@ -118,10 +88,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
     // Improved parsing handling some special cases
     {
         QStringList faceTexts;
-        faceTexts << "Z--"
-                  << "z--"
-                  << "z/"
-                  << " y /";
+        faceTexts << "Z--" << "z--" << "z/" << " y /";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )
@@ -134,9 +101,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
     // Invalid faces
     {
         QStringList faceTexts;
-        faceTexts << "-k-"
-                  << " -k "
-                  << "   +k-  ";
+        faceTexts << "-k-" << " -k " << "   +k-  ";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )
@@ -149,10 +114,7 @@ TEST( RifEclipseInputFileToolsTest, FaultFaces )
     // Valid cases with whitespace
     {
         QStringList faceTexts;
-        faceTexts << " X"
-                  << " X+ "
-                  << " I "
-                  << " i+  ";
+        faceTexts << " X" << " X+ " << " I " << " i+  ";
 
         cvf::StructGridInterface::FaceEnum faceType;
         for ( const QString& text : faceTexts )

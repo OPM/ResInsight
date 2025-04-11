@@ -47,7 +47,7 @@ public:
     virtual void setRestartFiles( const QStringList& fileSet ) = 0;
     virtual void close()                                       = 0;
 
-    virtual void             setTimeSteps( const std::vector<QDateTime>& timeSteps ){};
+    virtual void             setTimeSteps( const std::vector<QDateTime>& timeSteps ) {};
     virtual size_t           timeStepCount()                                                                               = 0;
     virtual void             timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart ) = 0;
     virtual std::vector<int> reportNumbers()                                                                               = 0;
@@ -66,5 +66,5 @@ public:
 
     virtual std::set<RiaDefines::PhaseType> availablePhases() const = 0;
 
-    virtual void updateFromGridCount( size_t gridCount ){};
+    virtual void updateFromGridCount( size_t gridCount ) {};
 };

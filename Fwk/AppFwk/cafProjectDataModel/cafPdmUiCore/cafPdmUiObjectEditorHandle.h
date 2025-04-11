@@ -63,7 +63,7 @@ public:
     static void updateUiAllObjectEditors();
 
 protected:
-    virtual void cleanupBeforeSettingPdmObject(){};
+    virtual void cleanupBeforeSettingPdmObject() {};
 
 private:
     static std::set<QPointer<PdmUiObjectEditorHandle>> m_sRegisteredObjectEditors;

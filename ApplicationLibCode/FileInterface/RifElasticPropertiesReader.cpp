@@ -90,18 +90,8 @@ RifElasticProperties
 
     // Check for unexpected empty tokens
     QStringList nameOfNonEmptyTokens;
-    nameOfNonEmptyTokens << "Field Name"
-                         << "Formation Name"
-                         << "Facies Name"
-                         << "Porosity"
-                         << "Young's Modulus"
-                         << "Poisson's Ratio"
-                         << "K-Ic"
-                         << "Proppant Embedment"
-                         << "Biot Coefficient"
-                         << "k0"
-                         << "Fluid Loss Coefficient"
-                         << "Spurt Loss"
+    nameOfNonEmptyTokens << "Field Name" << "Formation Name" << "Facies Name" << "Porosity" << "Young's Modulus" << "Poisson's Ratio"
+                         << "K-Ic" << "Proppant Embedment" << "Biot Coefficient" << "k0" << "Fluid Loss Coefficient" << "Spurt Loss"
                          << "Immobile Fluid Saturation";
     verifyNonEmptyTokens( tokens, nameOfNonEmptyTokens, lineNumber, filePath );
 
