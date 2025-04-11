@@ -244,7 +244,7 @@ bool RimGridStatisticsPlot::hasStatisticsData() const
 RigHistogramData RimGridStatisticsPlot::createStatisticsData() const
 {
     std::unique_ptr<RimHistogramCalculator> histogramCalculator;
-    histogramCalculator = std::make_unique<RimHistogramCalculator>( );
+    histogramCalculator = std::make_unique<RimHistogramCalculator>();
     histogramCalculator->setNumBins( static_cast<size_t>( m_numHistogramBins() ) );
 
     RigHistogramData histogramData;
