@@ -24,11 +24,13 @@
 
 #include "RicImportSummaryCasesFeature.h"
 
+#include "RimCornerPointCase.h"
 #include "RimFileSummaryCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSurfaceCollection.h"
+
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -263,8 +265,7 @@ bool RimProject_createGridFromKeyValues::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimProject_createGridFromKeyValues::defaultResult() const
 {
-    //    return std::unique_ptr<caf::PdmObjectHandle>( new RimCornerPointGrid );
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimCornerPointCase );
 }
 
 //--------------------------------------------------------------------------------------------------

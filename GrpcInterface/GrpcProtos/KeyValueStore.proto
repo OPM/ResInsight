@@ -11,10 +11,17 @@ service KeyValueStore {
 
 message KeyValueStoreInputChunk {
   oneof KeyValueStoreChunkType {
-    // Name needs to be sent in the first message
-    string name = 1;
+    KeyValueInputParameters parameters = 1;
     KeyValueStoreChunk values = 2;
   }
 }
 
+message KeyValueInputParameters {
+    // Name needs to be sent in the first message
+    string name = 1;
+    int64 num_elements = 2;
+}
+
+
 message KeyValueStoreChunk { repeated float values = 1; }
+

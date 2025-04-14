@@ -52,7 +52,6 @@ public:
     RiaKeyValueStoreStateHandler( bool clientStreamer = false )
         : m_streamedValueCount( 0u )
         , m_cellCount( 0u )
-        , m_clientStreamer( clientStreamer )
     {
     }
 
@@ -69,59 +68,13 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    Status init( const std::string& name )
+    Status init( const std::string& name, size_t numElements )
     {
-        m_name = name;
-        printf( "Setting name: %s\n", name.c_str() );
+        printf( "Setting name: %s size: %zu\n", name.c_str(), numElements );
 
+        m_name      = name;
+        m_cellCount = numElements;
         return grpc::Status::OK;
-
-        // int caseId    = request->case_request().id();
-        // m_eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( caseId ) );
-
-        // if ( m_eclipseCase )
-        // {
-        //     m_porosityModel   = static_cast<RiaDefines::PorosityModelType>( request->porosity_model() );
-        //     auto   caseData   = m_eclipseCase->eclipseCaseData();
-        //     auto   resultData = caseData->results( m_porosityModel );
-        //     auto   resultType = static_cast<RiaDefines::ResultCatType>( request->property_type() );
-        //     size_t timeStep   = static_cast<size_t>( request->time_step() );
-
-        //     m_resultAddress = RigEclipseResultAddress( resultType, QString::fromStdString( request->property_name() ) );
-
-        //     if ( resultData->ensureKnownResultLoaded( m_resultAddress ) )
-        //     {
-        //         if ( timeStep < resultData->timeStepCount( m_resultAddress ) )
-        //         {
-        //             initResultAccess( caseData, request->grid_index(), m_porosityModel, timeStep, m_resultAddress );
-        //             return grpc::Status::OK;
-        //         }
-        //         return grpc::Status( grpc::NOT_FOUND, "No such time step" );
-        //     }
-        //     else if ( m_clientStreamer )
-        //     {
-        //         resultData->createResultEntry( m_resultAddress, true );
-        //         RigEclipseResultAddress addrToMaxTimeStepCountResult;
-
-        //         size_t timeStepCount = std::max( (size_t)1, resultData->maxTimeStepCount(
-        //         &addrToMaxTimeStepCountResult ) );
-
-        //         const std::vector<RigEclipseTimeStepInfo> timeStepInfos =
-        //             resultData->timeStepInfos( addrToMaxTimeStepCountResult );
-        //         resultData->setTimeStepInfos( m_resultAddress, timeStepInfos );
-        //         auto scalarResultFrames = resultData->modifiableCellScalarResultTimesteps( m_resultAddress );
-        //         scalarResultFrames->resize( timeStepCount );
-        //         if ( timeStep < resultData->timeStepCount( m_resultAddress ) )
-        //         {
-        //             initResultAccess( caseData, request->grid_index(), m_porosityModel, timeStep, m_resultAddress );
-
-        //             return grpc::Status::OK;
-        //         }
-        //         return grpc::Status( grpc::NOT_FOUND, "No such time step" );
-        //     }
-        //     return grpc::Status( grpc::NOT_FOUND, "No such result" );
-        // }
-        // return grpc::Status( grpc::NOT_FOUND, "Couldn't find an Eclipse case matching the case Id" );
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -129,11 +82,11 @@ public:
     //--------------------------------------------------------------------------------------------------
     Status init( const KeyValueStoreInputChunk* chunk )
     {
-        if ( chunk->has_name() )
+        if ( chunk->has_parameters() )
         {
-            return init( chunk->name() );
+            return init( chunk->parameters().name(), chunk->parameters().num_elements() );
         }
-        return grpc::Status( grpc::INVALID_ARGUMENT, "Need to have name parameter in first message" );
+        return grpc::Status( grpc::INVALID_ARGUMENT, "Need to have parameters in first message" );
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -148,18 +101,8 @@ public:
             {
                 printf( "Getting values: %d\n", values.size() );
 
-                //     size_t currentCellIdx = m_streamedValueCount;
-                //     m_streamedValueCount += values.size();
-
-                //     for ( int i = 0; i < values.size() && currentCellIdx < m_cellCount; ++i, ++currentCellIdx )
-                //     {
-                //         setCellResult( currentCellIdx, values[i] );
-                //     }
-
-                //     if ( m_streamedValueCount > m_cellCount )
-                //     {
-                //         return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
-                //     }
+                size_t currentCellIdx = m_streamedValueCount;
+                m_streamedValueCount += values.size();
 
                 if ( !values.empty() )
                 {
@@ -171,6 +114,12 @@ public:
                     m_data.insert( m_data.end(), values.begin(), values.end() );
                 }
 
+                // if ( m_streamedValueCount > m_cellCount )
+                // {
+                //     return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
+                // }
+
+                printf( "ACCEPTED VALUE COUNT: %zu data size: %zu\n", currentCellIdx, m_data.size() );
                 reply->set_accepted_value_count( static_cast<int64_t>( m_data.size() ) );
                 return Status::OK;
             }
@@ -183,6 +132,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     void finish()
     {
+        printf( "Request finished. name=%s size=%zu!!!!\n", m_name.c_str(), m_data.size() );
         if ( m_name.empty() && m_data.empty() )
         {
             auto convertFromFloatVectorToBytes = []( const std::vector<float>& float_vec ) -> std::vector<char>
@@ -211,7 +161,6 @@ public:
 protected:
     size_t             m_streamedValueCount;
     size_t             m_cellCount;
-    bool               m_clientStreamer;
     std::string        m_name;
     std::vector<float> m_data;
 };

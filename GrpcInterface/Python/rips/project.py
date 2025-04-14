@@ -469,17 +469,6 @@ def set_key_values(
         raise IndexError
 
 
-@add_method(Project)
-def __generate_property_input_iterator(self, values_iterator, name):
-    chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
-    chunk.name = name
-    yield chunk
-
-    for values in values_iterator:
-        valmsg = KeyValueStore_pb2.KeyValueStoreChunk(values=values)
-        chunk.values.CopyFrom(valmsg)
-        yield chunk
-
 
 @add_method(Project)
 def __generate_property_input_chunks(self, array, name):
@@ -487,7 +476,11 @@ def __generate_property_input_chunks(self, array, name):
     while index < len(array):
         chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
         if index == -1:
-            chunk.name = name
+            parameters = KeyValueStore_pb2.KeyValueInputParameters(
+                name=name,
+                num_elements = len(array)
+            )
+            chunk.parameters.CopyFrom(parameters)
             index += 1
         else:
             actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
