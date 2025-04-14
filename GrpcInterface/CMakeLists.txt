@@ -33,6 +33,7 @@ set(SOURCE_GROUP_HEADER_FILES
     RiaGrpcCommandService.h
     RiaGrpcAppService.h
     RiaGrpcPropertiesService.h
+    RiaGrpcKeyValueStoreService.h
     RiaGrpcNNCPropertiesService.h
     RiaGrpcPdmObjectService.h
     RiaGrpcApplicationInterface.h
@@ -49,6 +50,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     RiaGrpcCommandService.cpp
     RiaGrpcAppService.cpp
     RiaGrpcPropertiesService.cpp
+    RiaGrpcKeyValueStoreService.cpp
     RiaGrpcNNCPropertiesService.cpp
     RiaGrpcPdmObjectService.cpp
     RiaGrpcApplicationInterface.cpp)

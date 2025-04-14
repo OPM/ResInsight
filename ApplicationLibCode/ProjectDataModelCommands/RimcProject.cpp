@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include "RicImportSummaryCasesFeature.h"
 
@@ -217,6 +218,59 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_surfaceFolder::defaultResult() 
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimProject_surfaceFolder::isNullptrValidResult() const
+{
+    return true;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridFromKeyValues, "createGridFromKeyValues" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create grid from key values", "", "", "Create Grid From Key Values" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_coordsvKey, "CoordsvKey", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_zcornsvKey, "ZcornsvKey", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_actnumsvKey, "ActnumsvKey", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimProject_createGridFromKeyValues::execute()
+{
+    RiaLogging::info( "Creating grid from key values" );
+    RiaLogging::info( QString( "Coordsv: %1" ).arg( m_coordsvKey() ) );
+    RiaLogging::info( QString( "Zcornsv: %1" ).arg( m_zcornsvKey() ) );
+    RiaLogging::info( QString( "Actnumsv: %1" ).arg( m_actnumsvKey() ) );
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_createGridFromKeyValues::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimProject_createGridFromKeyValues::defaultResult() const
+{
+    //    return std::unique_ptr<caf::PdmObjectHandle>( new RimCornerPointGrid );
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_createGridFromKeyValues::isNullptrValidResult() const
 {
     return true;
 }
