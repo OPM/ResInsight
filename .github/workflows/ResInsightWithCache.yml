@@ -161,7 +161,6 @@ jobs:
       - name: Install clang-18
         if: contains( matrix.config.cc, 'clang')
         run: |
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
           sudo apt-get upgrade
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
