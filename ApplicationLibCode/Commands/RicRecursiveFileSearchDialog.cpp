@@ -590,10 +590,10 @@ QString RicRecursiveFileSearchDialog::extensionFromFileNameFilter() const
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
+    m_filePathModel.clear();
+
     if ( ensembleGroupingMode() != RiaDefines::EnsembleGroupingMode::NONE )
     {
-        m_filePathModel.clear();
-
         if ( m_fileType == RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY ||
              m_fileType == RicRecursiveFileSearchDialog::FileType::REVEAL_SUMMARY )
         {
@@ -612,6 +612,11 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
                 addToTreeView( groupName, fileNames );
             }
         }
+    }
+    else
+    {
+        const auto groupName = "Files";
+        addToTreeView( groupName, m_foundFiles );
     }
 
     QModelIndex index = m_filePathModel.index( 0, 0 );
