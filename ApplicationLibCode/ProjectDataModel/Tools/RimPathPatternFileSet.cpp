@@ -30,9 +30,40 @@ RimPathPatternFileSet::RimPathPatternFileSet()
 {
     CAF_PDM_InitObject( "Automation Settings", ":/gear.svg" );
 
-    CAF_PDM_InitField( &m_templatePath, "TemplatePath", QString(), "Template Path" );
+    CAF_PDM_InitField( &m_pathPattern, "PathPattern", QString(), "Path Pattern" );
+    CAF_PDM_InitField( &m_rangeString, "RangeString", QString(), "Range" );
+}
 
-    CAF_PDM_InitField( &m_variableDefinition, "VariableDefinition", QString(), "Variable Definition" );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPathPatternFileSet::setPathPattern( const QString& pathPattern )
+{
+    m_pathPattern = pathPattern;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPathPatternFileSet::pathPattern() const
+{
+    return m_pathPattern();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPathPatternFileSet::setRangeString( const QString& rangeString )
+{
+    m_rangeString = rangeString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPathPatternFileSet::rangeString() const
+{
+    return m_rangeString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,11 +76,51 @@ std::pair<QString, QString> RimPathPatternFileSet::findPathPattern( const QStrin
         return {};
     }
 
+    std::vector<std::vector<int>> tableOfNumbers;
+
+    QRegularExpression numberRegex( "\\d+" );
+
+    for ( auto f : filePaths )
+    {
+        std::vector<int>                valuesInString;
+        QRegularExpressionMatchIterator matchIterator = numberRegex.globalMatch( f );
+        while ( matchIterator.hasNext() )
+        {
+            QRegularExpressionMatch match    = matchIterator.next();
+            QString                 number   = match.captured( 0 );
+            int                     position = match.capturedStart( 0 );
+            int                     length   = match.capturedLength( 0 );
+
+            valuesInString.push_back( number.toInt() );
+        }
+        tableOfNumbers.push_back( valuesInString );
+    }
+
+    if ( tableOfNumbers.empty() )
+    {
+        return {};
+    }
+
+    auto             valuesFirstRow = tableOfNumbers[0];
+    std::vector<int> valueCountEachIndex;
+    valueCountEachIndex.resize( valuesFirstRow.size(), 1 );
+
+    for ( int rowIndex = 1; rowIndex < tableOfNumbers.size(); ++rowIndex )
+    {
+        auto& values = tableOfNumbers[rowIndex];
+        for ( int j = 0; j < values.size(); ++j )
+        {
+            if ( values[j] != valuesFirstRow[j] )
+            {
+                valueCountEachIndex[j]++;
+            }
+        }
+    }
+
     // Analyze the first path to find number positions
     QString                firstPath = filePaths[0];
     QList<QPair<int, int>> numberPositions; // start pos, length
 
-    QRegularExpression              numberRegex( "\\d+" );
     int                             pos = 0;
     QRegularExpressionMatchIterator i   = numberRegex.globalMatch( firstPath );
     while ( i.hasNext() )
@@ -66,26 +137,12 @@ std::pair<QString, QString> RimPathPatternFileSet::findPathPattern( const QStrin
     // For each number position, check if all paths have the same number at that position
     QList<QPair<int, int>> varyingNumberPositions;
 
-    for ( const auto& posInfo : numberPositions )
+    for ( auto i = 0; i < numberPositions.size(); i++ )
     {
-        int startPos = posInfo.first;
-        int length   = posInfo.second;
-
-        bool    allSame     = true;
-        QString firstNumber = firstPath.mid( startPos, length );
-
-        for ( int i = 1; i < filePaths.size(); i++ )
+        const auto& varyPos = numberPositions[i];
+        if ( i < valueCountEachIndex.size() && valueCountEachIndex[i] == tableOfNumbers.size() )
         {
-            if ( startPos + length > filePaths[i].length() || filePaths[i].mid( startPos, length ) != firstNumber )
-            {
-                allSame = false;
-                break;
-            }
-        }
-
-        if ( !allSame )
-        {
-            varyingNumberPositions.append( posInfo );
+            varyingNumberPositions.push_back( varyPos );
         }
     }
 
@@ -96,20 +153,14 @@ std::pair<QString, QString> RimPathPatternFileSet::findPathPattern( const QStrin
 
     // Extract the varying numbers
     std::vector<int> numbers;
-    const auto&      varyPos  = varyingNumberPositions[0];
-    int              startPos = varyPos.first;
 
-    for ( const QString& path : filePaths )
+    for ( auto i = 0; i < valueCountEachIndex.size(); i++ )
     {
-        QRegularExpression      numRegex( "\\d+" );
-        QRegularExpressionMatch match = numRegex.match( path, startPos );
-        if ( match.hasMatch() && match.capturedStart() == startPos )
+        if ( numbers.empty() && valueCountEachIndex[i] == tableOfNumbers.size() )
         {
-            bool ok;
-            int  num = match.captured( 0 ).toInt( &ok );
-            if ( ok )
+            for ( auto& values : tableOfNumbers )
             {
-                numbers.push_back( num );
+                numbers.push_back( values[i] );
             }
         }
     }
@@ -119,23 +170,18 @@ std::pair<QString, QString> RimPathPatternFileSet::findPathPattern( const QStrin
         return {};
     }
 
-    // Create the pattern by replacing the varying part with placeholder
-    int  endPos             = varyPos.first + varyPos.second;
-    auto basePath           = firstPath.left( varyPos.first );
-    auto patternPlaceholder = basePath + placeHolderText;
-    auto pattern            = patternPlaceholder + firstPath.mid( endPos );
+    auto pattern = filePaths.front();
 
-    // Try to detect repeated values
-    // If the last part of the pattern contains the same number, replace it too
-    QString            remaining = firstPath.mid( endPos );
-    QRegularExpression finalNumberRegex( QString( "\\b%1\\b" ).arg( numbers.front() ) );
-    auto               match = finalNumberRegex.match( remaining );
-    if ( match.hasMatch() )
+    // loop over varying number positions in reverse order
+    // to avoid messing up the positions when replacing
+    // the varying part with a placeholder
+    for ( int i = varyingNumberPositions.size() - 1; i >= 0; --i )
     {
-        int matchPos = match.capturedStart();
-        int matchLen = match.capturedLength();
-
-        pattern = patternPlaceholder + remaining.left( matchPos ) + placeHolderText + remaining.mid( matchPos + matchLen );
+        const auto& varyPos = varyingNumberPositions[i];
+        int         start   = varyPos.first;
+        int         length  = varyPos.second;
+        // Replace the varying part with a placeholder
+        pattern.replace( start, length, placeHolderText );
     }
 
     auto rangeString = QString::fromStdString( RiaStdStringTools::formatRangeSelection( numbers ) );

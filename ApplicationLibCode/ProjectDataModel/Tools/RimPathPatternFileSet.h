@@ -36,16 +36,16 @@ class RimPathPatternFileSet : public caf::PdmObject
 public:
     RimPathPatternFileSet();
 
+    void    setPathPattern( const QString& pathPattern );
+    QString pathPattern() const;
+
+    void    setRangeString( const QString& rangeString );
+    QString rangeString() const;
+
     static std::pair<QString, QString> findPathPattern( const QStringList& filePaths, const QString& placeHolderText );
     static QStringList createPathsFromPattern( const std::pair<QString, QString>& pathPattern, const QString& placeHolderText );
 
 private:
-    /*
-        void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-        QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    */
-
-private:
-    caf::PdmField<QString> m_templatePath;
-    caf::PdmField<QString> m_variableDefinition;
+    caf::PdmField<QString> m_pathPattern;
+    caf::PdmField<QString> m_rangeString;
 };

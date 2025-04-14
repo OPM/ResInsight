@@ -37,11 +37,13 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsembleTools.h"
 #include "RimSummaryPlot.h"
+#include "Tools/RimPathPatternFileSet.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -90,6 +92,13 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     m_dataVectorFolders.uiCapability()->setUiHidden( true );
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_usePathPatternFileSet, "UsePathPatternFileSet", false, "Use Path Pattern File Set" );
+    CAF_PDM_InitFieldNoDefault( &m_pathPatternFileSet, "PathPatternFileSet", "Path Pattern File Set" );
+    m_pathPatternFileSet = new RimPathPatternFileSet();
+
+    CAF_PDM_InitField( &m_populatePathPattern, "PopulatePathPattern", false, "Populate Path Patter" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_populatePathPattern );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleDescription, "Description", "Description" );
     m_ensembleDescription.registerGetMethod( this, &RimSummaryEnsemble::ensembleDescription );
@@ -901,9 +910,28 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         updateIcon();
     }
-    if ( changedField == &m_autoName || changedField == &m_nameTemplateString )
+    else if ( changedField == &m_autoName || changedField == &m_nameTemplateString )
     {
         RiaSummaryTools::updateSummaryEnsembleNames();
+    }
+    else if ( changedField == &m_populatePathPattern )
+    {
+        QStringList filePaths;
+
+        for ( auto sumCase : allSummaryCases() )
+        {
+            auto filePath = sumCase->summaryHeaderFilename();
+            if ( filePath.isEmpty() ) continue;
+            auto fileName = RiaFilePathTools::toInternalSeparator( filePath );
+            filePaths.push_back( fileName );
+        }
+
+        const auto placeholderString = "$(NUMBER)";
+        auto [pattern, rangeString]  = RimPathPatternFileSet::findPathPattern( filePaths, placeholderString );
+        m_pathPatternFileSet->setPathPattern( pattern );
+        m_pathPatternFileSet->setRangeString( rangeString );
+
+        m_populatePathPattern = false;
     }
 }
 
@@ -954,6 +982,11 @@ bool RimSummaryEnsemble::isAutoNameChecked() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    auto group = uiOrdering.addNewGroup( "Path Pattern" );
+    group->add( &m_usePathPatternFileSet );
+    group->add( &m_populatePathPattern );
+    m_pathPatternFileSet->uiOrdering( uiConfigName, *group );
+
     uiOrdering.add( &m_autoName );
 
     if ( !m_autoName() )
