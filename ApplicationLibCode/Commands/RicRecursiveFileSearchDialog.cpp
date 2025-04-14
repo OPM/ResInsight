@@ -912,7 +912,6 @@ void RicRecursiveFileSearchDialog::slotPathFilterChanged( const QString& text )
 {
     updateEffectiveFilter();
     warningIfInvalidCharacters();
-    m_findOrCancelButton->setFocus();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -923,7 +922,6 @@ void RicRecursiveFileSearchDialog::slotFileFilterChanged( const QString& text )
     clearFileList();
     updateEffectiveFilter();
     warningIfInvalidCharacters();
-    m_findOrCancelButton->setFocus();
 }
 
 //--------------------------------------------------------------------------------------------------
