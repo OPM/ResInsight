@@ -37,6 +37,7 @@
 
 #include <QAction>
 #include <QPointer>
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimTextAnnotation, "RimTextAnnotation" );
 
@@ -73,8 +74,8 @@ RimTextAnnotation::RimTextAnnotation()
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.xmlCapability()->disableIO();
 
-    m_anchorPointPickEventHandler.reset( new RicVec3dPickEventHandler( &m_anchorPointXyd ) );
-    m_labelPointPickEventHandler.reset( new RicVec3dPickEventHandler( &m_labelPointXyd, 0.1 ) );
+    m_anchorPointPickEventHandler = std::make_shared<RicVec3dPickEventHandler>( &m_anchorPointXyd );
+    m_labelPointPickEventHandler  = std::make_shared<RicVec3dPickEventHandler>( &m_labelPointXyd, 0.1 );
 
     setDeletable( true );
 }

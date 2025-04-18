@@ -641,7 +641,7 @@ void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
     }
     else
     {
-        RimPlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
+        RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
     }
 }
 
