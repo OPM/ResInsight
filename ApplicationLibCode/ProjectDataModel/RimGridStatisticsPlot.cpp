@@ -43,6 +43,7 @@
 #include "cvfAssert.h"
 
 #include <cmath>
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimGridStatisticsPlot, "GridStatisticsPlot" );
 
@@ -243,7 +244,7 @@ bool RimGridStatisticsPlot::hasStatisticsData() const
 RigHistogramData RimGridStatisticsPlot::createStatisticsData() const
 {
     std::unique_ptr<RimHistogramCalculator> histogramCalculator;
-    histogramCalculator.reset( new RimHistogramCalculator );
+    histogramCalculator = std::make_unique<RimHistogramCalculator>();
     histogramCalculator->setNumBins( static_cast<size_t>( m_numHistogramBins() ) );
 
     RigHistogramData histogramData;

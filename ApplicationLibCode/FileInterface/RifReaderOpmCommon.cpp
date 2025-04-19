@@ -772,7 +772,7 @@ std::vector<RigEclipseTimeStepInfo> RifReaderOpmCommon::createFilteredTimeStepIn
 
     auto timeStepsOnFile = readTimeSteps();
 
-    if ( timeStepsOnFile.size() == 0 ) return timeStepInfos;
+    if ( timeStepsOnFile.empty() ) return timeStepInfos;
 
     auto  startDayOffset = timeStepsOnFile[0].simulationTimeFromStart;
     QDate startDate( timeStepsOnFile[0].year, timeStepsOnFile[0].month, timeStepsOnFile[0].day );
@@ -1026,7 +1026,7 @@ std::vector<QDateTime> RifReaderOpmCommon::timeStepsOnFile( QString gridFileName
     if ( m_restartFile == nullptr ) return {};
 
     auto timeStepsOnFile = readTimeSteps();
-    if ( timeStepsOnFile.size() == 0 ) return {};
+    if ( timeStepsOnFile.empty() ) return {};
 
     auto  startDayOffset = timeStepsOnFile[0].simulationTimeFromStart;
     QDate startDate( timeStepsOnFile[0].year, timeStepsOnFile[0].month, timeStepsOnFile[0].day );

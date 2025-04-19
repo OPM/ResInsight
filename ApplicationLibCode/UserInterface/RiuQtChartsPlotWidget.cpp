@@ -1188,9 +1188,7 @@ void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* wheelEvent )
 //--------------------------------------------------------------------------------------------------
 bool RiuQtChartsPlotWidget::eventFilter( QObject* watched, QEvent* event )
 {
-    if ( RiuPlotWidget::handleDragDropEvent( event ) ) return true;
-
-    return false;
+    return RiuPlotWidget::handleDragDropEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------
