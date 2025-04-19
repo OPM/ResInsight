@@ -41,28 +41,6 @@ RiaSummaryAddressAnalyzer::RiaSummaryAddressAnalyzer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses )
-{
-    for ( const auto& adr : allAddresses )
-    {
-        analyzeSingleAddress( adr );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSummaryAddressAnalyzer::appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses )
-{
-    for ( const auto& adr : allAddresses )
-    {
-        analyzeSingleAddress( adr );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses )
 {
     // RiaSummaryCurveAddress can be used to represent cross plot curves. Count curves, and set the flag m_onlyCrossPlotCurves to true if
