@@ -652,18 +652,6 @@ endif()
 list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 
 # ##############################################################################
-# clipper
-# ##############################################################################
-
-add_subdirectory(ThirdParty/clipper)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(clipper PUBLIC -Wno-deprecated-copy)
-endif()
-
-list(APPEND THIRD_PARTY_LIBRARIES clipper)
-
-# ##############################################################################
 # roffcpp
 # ##############################################################################
 
