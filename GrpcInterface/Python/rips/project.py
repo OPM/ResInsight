@@ -29,10 +29,13 @@ from typing import Optional, List
 @add_method(Project)
 def __custom_init__(self, pb2_object, channel: grpc.Channel) -> None:
     self._project_stub = Project_pb2_grpc.ProjectStub(self._channel)
-    self.__key_value_store_stub = KeyValueStore_pb2_grpc.KeyValueStoreStub(self._channel)
+    self.__key_value_store_stub = KeyValueStore_pb2_grpc.KeyValueStoreStub(
+        self._channel
+    )
 
     # Public properties
     self.chunk_size = 8160
+
 
 @add_static_method(Project)
 def create(channel: grpc.Channel) -> Project:
@@ -433,7 +436,6 @@ def import_formation_names(self, formation_files=None):
     )
 
 
-
 @add_method(Project)
 def create_corner_point_grid(self, nx, ny, nz, coordsv, zcornsv, actnumsv):
     print("Applying values to main grid")
@@ -447,16 +449,18 @@ def create_corner_point_grid(self, nx, ny, nz, coordsv, zcornsv, actnumsv):
     self.set_key_values(coordsv_key, coordsv)
     self.set_key_values(zcornsv_key, zcornsv)
     self.set_key_values(actnumsv_key, actnumsv)
-    return self.create_grid_from_key_values(nx=nx, ny= ny, nz= nz,coordsv_key=coordsv_key, zcornsv_key=zcornsv_key, actnumsv_key=actnumsv_key)
-
+    return self.create_grid_from_key_values(
+        nx=nx,
+        ny=ny,
+        nz=nz,
+        coordsv_key=coordsv_key,
+        zcornsv_key=zcornsv_key,
+        actnumsv_key=actnumsv_key,
+    )
 
 
 @add_method(Project)
-def set_key_values(
-    self,
-    key,
-    values
-):
+def set_key_values(self, key, values):
     """Sets values for a given key in the key-value store.
 
     Arguments:
@@ -469,7 +473,6 @@ def set_key_values(
         raise IndexError
 
 
-
 @add_method(Project)
 def __generate_property_input_chunks(self, array, name):
     index = -1
@@ -477,8 +480,7 @@ def __generate_property_input_chunks(self, array, name):
         chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
         if index == -1:
             parameters = KeyValueStore_pb2.KeyValueInputParameters(
-                name=name,
-                num_elements = len(array)
+                name=name, num_elements=len(array)
             )
             chunk.parameters.CopyFrom(parameters)
             index += 1
