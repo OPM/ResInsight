@@ -99,6 +99,9 @@ public:
     bool                             isNullptrValidResult() const override;
 
 private:
+    caf::PdmField<int>     m_nx;
+    caf::PdmField<int>     m_ny;
+    caf::PdmField<int>     m_nz;
     caf::PdmField<QString> m_coordsvKey;
     caf::PdmField<QString> m_zcornsvKey;
     caf::PdmField<QString> m_actnumsvKey;

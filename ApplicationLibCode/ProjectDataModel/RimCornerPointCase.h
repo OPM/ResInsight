@@ -41,6 +41,21 @@ public:
 
     QString locationOnDisc() const override;
 
+    static std::pair<RimCornerPointCase*, QString> createFromCoordinatesArray( int                       nx,
+                                                                               int                       ny,
+                                                                               int                       nz,
+                                                                               const std::vector<float>& coordsv,
+                                                                               const std::vector<float>& zcornsv,
+                                                                               const std::vector<float>& actnumsv );
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    static void buildGrid( RigEclipseCaseData*       eclipseCase,
+                           const int                 nx,
+                           const int                 ny,
+                           const int                 nz,
+                           const std::vector<float>& cornerLines,
+                           const std::vector<float>& zCorners,
+                           const std::vector<float>& active );
 };

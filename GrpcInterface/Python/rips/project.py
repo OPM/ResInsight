@@ -435,7 +435,7 @@ def import_formation_names(self, formation_files=None):
 
 
 @add_method(Project)
-def create_corner_point_grid(self, coordsv, zcornsv, actnumsv):
+def create_corner_point_grid(self, nx, ny, nz, coordsv, zcornsv, actnumsv):
     print("Applying values to main grid")
 
     # Generate unique keys for three arrays
@@ -447,7 +447,7 @@ def create_corner_point_grid(self, coordsv, zcornsv, actnumsv):
     self.set_key_values(coordsv_key, coordsv)
     self.set_key_values(zcornsv_key, zcornsv)
     self.set_key_values(actnumsv_key, actnumsv)
-    return self.create_grid_from_key_values(coordsv_key=coordsv_key, zcornsv_key=zcornsv_key, actnumsv_key=actnumsv_key)
+    return self.create_grid_from_key_values(nx=nx, ny= ny, nz= nz,coordsv_key=coordsv_key, zcornsv_key=zcornsv_key, actnumsv_key=actnumsv_key)
 
 
 

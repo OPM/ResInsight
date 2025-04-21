@@ -24,6 +24,16 @@ coordsv = np.ascontiguousarray(grid._coordsv, dtype=np.float32).flatten().tolist
 zcornsv = np.ascontiguousarray(grid._zcornsv, dtype=np.float32).flatten().tolist()
 actnumsv = np.ascontiguousarray(grid._actnumsv, dtype=np.float32).flatten().tolist()
 
-print("Length of coordsv: ", len(coordsv), type(coordsv), type(coordsv[0]))
-project.create_corner_point_grid(coordsv, zcornsv, actnumsv)
+
+print("coordsv: ", len(coordsv),  type(coordsv[0]))
+print("zcornsv: ", len(zcornsv),  type(zcornsv[0]))
+print("actnumsv: ", len(actnumsv),  type(actnumsv[0]))
+
+
+print("Grid dimensions: ", grid.dimensions)
+nx = grid.dimensions.ncol
+ny = grid.dimensions.nrow
+nz = grid.dimensions.nlay
+
+project.create_corner_point_grid(nx, ny, nz, coordsv, zcornsv, actnumsv)
 

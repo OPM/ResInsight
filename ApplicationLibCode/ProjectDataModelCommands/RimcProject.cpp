@@ -25,12 +25,17 @@
 #include "RicImportSummaryCasesFeature.h"
 
 #include "RimCornerPointCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSurfaceCollection.h"
 
+#include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -234,6 +239,10 @@ RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::Pdm
 {
     CAF_PDM_InitObject( "Create grid from key values", "", "", "Create Grid From Key Values" );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nx, "Nx", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ny, "Ny", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nz, "Nz", "" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordsvKey, "CoordsvKey", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_zcornsvKey, "ZcornsvKey", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_actnumsvKey, "ActnumsvKey", "" );
@@ -245,11 +254,86 @@ RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::Pdm
 caf::PdmObjectHandle* RimProject_createGridFromKeyValues::execute()
 {
     RiaLogging::info( "Creating grid from key values" );
+
+    int nx = m_nx();
+    int ny = m_ny();
+    int nz = m_nz();
+
+    RiaLogging::info( QString( "Grid dimensions: [%1 %2 %3]" ).arg( nx ).arg( ny ).arg( nz ) );
+
     RiaLogging::info( QString( "Coordsv: %1" ).arg( m_coordsvKey() ) );
     RiaLogging::info( QString( "Zcornsv: %1" ).arg( m_zcornsvKey() ) );
     RiaLogging::info( QString( "Actnumsv: %1" ).arg( m_actnumsvKey() ) );
 
-    return nullptr;
+    auto keyValueStore = RiaApplication::instance()->keyValueStore();
+
+    auto convertToFloatVector = []( const std::optional<std::vector<char>>& input ) -> std::vector<float>
+    {
+        if ( input && !input->empty() )
+        {
+            // Ensure the byte vector size is a multiple of sizeof(float)
+            if ( input->size() % sizeof( float ) != 0 )
+            {
+                throw std::runtime_error( "Invalid byte array size for float conversion" );
+            }
+
+            // Calculate how many floats we'll have
+            size_t float_count = input->size() / sizeof( float );
+
+            // Create a vector of floats with the appropriate size
+            std::vector<float> float_vec( float_count );
+
+            // Copy the binary data from the byte vector to the float vector
+            std::memcpy( float_vec.data(), input->data(), input->size() );
+
+            return float_vec;
+        }
+
+        return {};
+    };
+
+    std::vector<float> coordsv  = convertToFloatVector( keyValueStore->get( m_coordsvKey().toStdString() ) );
+    std::vector<float> zcornsv  = convertToFloatVector( keyValueStore->get( m_zcornsvKey().toStdString() ) );
+    std::vector<float> actnumsv = convertToFloatVector( keyValueStore->get( m_actnumsvKey().toStdString() ) );
+
+    auto [grid, errorMessage] = RimCornerPointCase::createFromCoordinatesArray( nx, ny, nz, coordsv, zcornsv, actnumsv );
+    if ( grid )
+    {
+        // TODO: duplicated from RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl
+
+        RimProject* project = RimProject::current();
+        if ( !project ) return nullptr;
+
+        RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+        if ( !analysisModels ) return nullptr;
+
+        analysisModels->cases.push_back( grid );
+
+        RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
+
+        RimEclipseView* riv = grid->createAndAddReservoirView();
+        riv->loadDataAndUpdate();
+
+        if ( !riv->cellResult()->hasResult() )
+        {
+            riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
+        }
+
+        analysisModels->updateConnectedEditors();
+
+        if ( RiaGuiApplication::isRunning() )
+        {
+            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
+        }
+    }
+    else
+    {
+        RiaLogging::error( QString( "Creating corner point grid failed: %1" ).arg( errorMessage ) );
+    }
+
+    // TODO: clear data from key-value store
+
+    return grid;
 }
 
 //--------------------------------------------------------------------------------------------------
