@@ -20,22 +20,7 @@
 #include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcCaseService.h"
-#include "RiaGrpcHelper.h"
-
-// #include "RigActiveCellInfo.h"
-// #include "RigActiveCellsResultAccessor.h"
-// #include "RigAllGridCellsResultAccessor.h"
-// #include "RigCaseCellResultsData.h"
-// #include "RigEclipseCaseData.h"
-// #include "RigEclipseResultAddress.h"
-// #include "RigEclipseResultInfo.h"
-// #include "RigMainGrid.h"
-// #include "RigResultAccessor.h"
-// #include "RigResultAccessorFactory.h"
-// #include "RigResultModifier.h"
-// #include "RigResultModifierFactory.h"
-
-#include <algorithm>
+#include "RiaLogging.h"
 
 using namespace rips;
 
@@ -70,7 +55,8 @@ public:
     //--------------------------------------------------------------------------------------------------
     Status init( const std::string& name, size_t numElements )
     {
-        printf( "Setting name: %s size: %zu\n", name.c_str(), numElements );
+        RiaLogging::debug(
+            QString( "Initializing stream: %1 size: %2" ).arg( QString::fromStdString( name ) ).arg( numElements ) );
 
         m_name      = name;
         m_cellCount = numElements;
@@ -99,27 +85,22 @@ public:
             auto values = request->values().values();
             if ( !values.empty() )
             {
-                printf( "Getting values: %d\n", values.size() );
-
                 size_t currentCellIdx = m_streamedValueCount;
                 m_streamedValueCount += values.size();
 
                 if ( !values.empty() )
                 {
-                    for ( int i = 0; i < std::min( 10, static_cast<int>( values.size() ) ); i++ )
-                    {
-                        printf( "Values: %f\n", values[i] );
-                    }
-
                     m_data.insert( m_data.end(), values.begin(), values.end() );
                 }
 
-                // if ( m_streamedValueCount > m_cellCount )
-                // {
-                //     return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
-                // }
+                if ( m_streamedValueCount > m_cellCount )
+                {
+                    return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
+                }
 
-                printf( "ACCEPTED VALUE COUNT: %zu data size: %zu\n", currentCellIdx, m_data.size() );
+                RiaLogging::debug( QString( "Received stream request. Start index: %1. Size after request: %2" )
+                                       .arg( currentCellIdx )
+                                       .arg( m_data.size() ) );
                 reply->set_accepted_value_count( static_cast<int64_t>( m_data.size() ) );
                 return Status::OK;
             }
@@ -132,7 +113,8 @@ public:
     //--------------------------------------------------------------------------------------------------
     void finish()
     {
-        printf( "Request finished. name=%s size=%zu!!!!\n", m_name.c_str(), m_data.size() );
+        RiaLogging::debug(
+            QString( "Stream finished: name=%1 size=%2" ).arg( QString::fromStdString( m_name ) ).arg( m_data.size() ) );
         if ( m_name.empty() && m_data.empty() )
         {
             auto convertFromFloatVectorToBytes = []( const std::vector<float>& float_vec ) -> std::vector<char>
