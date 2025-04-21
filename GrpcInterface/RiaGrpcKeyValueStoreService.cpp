@@ -115,7 +115,7 @@ public:
     {
         RiaLogging::debug(
             QString( "Stream finished: name=%1 size=%2" ).arg( QString::fromStdString( m_name ) ).arg( m_data.size() ) );
-        if ( m_name.empty() && m_data.empty() )
+        if ( !m_name.empty() && !m_data.empty() )
         {
             auto convertFromFloatVectorToBytes = []( const std::vector<float>& float_vec ) -> std::vector<char>
             {
