@@ -177,6 +177,7 @@ jobs:
           version: ${{ matrix.config.qt-version }}
           dir: "${{ github.workspace }}/Qt/"
           cache: true
+          setup-python: false
           modules: "qtnetworkauth qtcharts"
 
       - name: vcpkg bootstrap
