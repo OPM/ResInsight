@@ -8,7 +8,7 @@
           83769 83769 77369 77369 83769 83769 83769 83769 83769 83769 83769 70169
         </DataArray>
         <DataArray type="Float32" Name="ReservoirPerm" NumberOfComponents="1" format="ascii">
-          1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13
+          1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-2 1.2e-13 1.2e-13 nan nan 1.2e-13 1.2e-13
           1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13 1.2e-13
         </DataArray>
         <DataArray type="Float32" Name="ReservoirDist" NumberOfComponents="1" format="ascii">

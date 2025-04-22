@@ -42,6 +42,13 @@ TEST( RifVtkSurfaceImporterTest, ImportFromFile )
                                   [expectedProperty]( const QString& name ) { return name == expectedProperty; } ) );
         EXPECT_EQ( triangleMeshData->propertyValues( expectedProperty ).size(), expectedVertexCount );
     }
+
+    // Check that we handled NaN values
+    auto values = triangleMeshData->propertyValues( "ReservoirPerm" );
+    for ( size_t i = 24; i < 30; i++ )
+    {
+        ASSERT_TRUE( std::isnan( triangleMeshData->propertyValues( "ReservoirPerm" )[i] ) );
+    }
 }
 
 // Test parsing a PVD file
