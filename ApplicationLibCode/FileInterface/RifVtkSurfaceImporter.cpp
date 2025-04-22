@@ -174,10 +174,31 @@ std::map<std::string, std::vector<float>> RifVtkSurfaceImporter::readProperties(
             std::vector<float> values;
             std::istringstream iss( dataArray.text().get() );
 
-            float value;
-            while ( iss >> value )
+            std::string token;
+            while ( iss >> token )
             {
-                values.push_back( value );
+                if ( token == "nan" || token == "NaN" || token == "NAN" )
+                {
+                    values.push_back( std::numeric_limits<float>::quiet_NaN() );
+                }
+                else
+                {
+                    try
+                    {
+                        float value = std::stof( token );
+                        values.push_back( value );
+                    }
+                    catch ( const std::invalid_argument& )
+                    {
+                        // Quit parsing when encountering non-numeric tokens
+                        return {};
+                    }
+                    catch ( const std::out_of_range& )
+                    {
+                        // Quit parsing when seeing out-of-range errors
+                        return {};
+                    }
+                }
             }
 
             if ( !values.empty() )
