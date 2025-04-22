@@ -7,11 +7,6 @@ on:
     # Every day at 1am to make sure we have a build cache for the current date
     # build cache is
     - cron: '0 1 * * *'
-env:
-  BUILD_TYPE: Release
-  BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
-  BUILDCACHE_ACCURACY: SLOPPY
-  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
@@ -70,6 +65,15 @@ jobs:
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
             }
+    env:
+      BUILD_TYPE: Release
+      BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
+      BUILDCACHE_ACCURACY: SLOPPY
+      USERNAME: magnesj
+      VCPKG_EXE: ${{ github.workspace }}/ThirdParty/vcpkg/vcpkg${{ matrix.config.os == 'windows-2022' && '.exe' || '' }}
+      FEED_URL: https://nuget.pkg.github.com/ceetronsolutions/index.json
+      VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/ceetronsolutions/index.json,readwrite"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -213,6 +217,7 @@ jobs:
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
+          sudo apt install mono-complete
 
       - name: Install clang-16
         if: contains( matrix.config.cc, 'clang')
@@ -229,18 +234,41 @@ jobs:
           version: ${{ matrix.config.qt-version }}
           dir: "${{ github.workspace }}/Qt/"
           cache: true
+          setup-python: false
           modules: "qtnetworkauth qtcharts"
-
-      - name: Export GitHub Actions cache environment variables
-        uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: vcpkg bootstrap
         run: |
           ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
+
+      - name: Configure NuGet for binary caching (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
+            sources add \
+            -Source "${{ env.FEED_URL }}" \
+            -StorePasswordInClearText \
+            -Name GitHubPackages \
+            -UserName "${{ env.USERNAME }}" \
+            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
+            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" \
+            -Source "${{ env.FEED_URL }}"
+        
+      - name: Configure NuGet for binary caching (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          .$(${{ env.VCPKG_EXE }} fetch nuget) `
+            sources add `
+            -Source "${{ env.FEED_URL }}" `
+            -StorePasswordInClearText `
+            -Name GitHubPackages `
+            -UserName "${{ env.USERNAME }}" `
+            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+          .$(${{ env.VCPKG_EXE }} fetch nuget) `
+            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" `
+            -Source "${{ env.FEED_URL }}"
 
       - name: Configure
         shell: bash
@@ -342,4 +370,3 @@ jobs:
       # uncomment the two lines below to publish to test PyPi
       # with:
       #   repository-url: https://test.pypi.org/legacy/
-
