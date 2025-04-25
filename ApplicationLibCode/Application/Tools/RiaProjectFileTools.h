@@ -20,6 +20,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmXmlFieldHandle.h"
 
 #include <QString>
 
@@ -47,6 +48,10 @@ public:
 
         for ( const auto& field : allFieldsInObject )
         {
+            if ( !field ) continue;
+
+            if ( field->xmlCapability() && !field->xmlCapability()->isIOWritable() ) continue;
+
             caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
             if ( typedField ) fieldContents.push_back( &typedField->v() );
 
