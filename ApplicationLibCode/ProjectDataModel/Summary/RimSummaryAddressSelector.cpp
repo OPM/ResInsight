@@ -255,7 +255,7 @@ auto createOptionsForEnsemble = []() -> QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject*                      proj   = RimProject::current();
+    RimProject*                      proj      = RimProject::current();
     std::vector<RimSummaryEnsemble*> ensembles = proj->summaryEnsembles();
 
     for ( RimSummaryEnsemble* ensemble : ensembles )

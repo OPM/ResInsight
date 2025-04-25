@@ -83,7 +83,7 @@ QList<caf::PdmOptionItemInfo> RicSelectCaseOrEnsembleUi::calculateValueOptions( 
     }
     else if ( fieldNeedingOptions == &m_selectedEnsemble )
     {
-        RimProject*                      proj   = RimProject::current();
+        RimProject*                      proj      = RimProject::current();
         std::vector<RimSummaryEnsemble*> ensembles = proj->summaryEnsembles();
 
         for ( RimSummaryEnsemble* ensemble : ensembles )

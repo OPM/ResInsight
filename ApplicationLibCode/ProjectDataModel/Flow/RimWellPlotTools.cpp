@@ -461,8 +461,7 @@ std::vector<RimSummaryEnsemble*> rftEnsemblesForWell( const QString& simWellName
 
     for ( RimSummaryEnsemble* ensemble : ensembles )
     {
-        if ( ensemble && ensemble->isEnsemble() &&
-             !rftTimeStepsForWell( ensemble->allSummaryCases(), simWellName ).empty() )
+        if ( ensemble && ensemble->isEnsemble() && !rftTimeStepsForWell( ensemble->allSummaryCases(), simWellName ).empty() )
         {
             rftEnsembles.push_back( ensemble );
         }
@@ -483,8 +482,7 @@ std::vector<RimSummaryEnsemble*> rftEnsembles()
 
     for ( RimSummaryEnsemble* ensemble : ensembles )
     {
-        if ( ensemble && ensemble->isEnsemble() &&
-             !RimSummaryEnsembleTools::wellsWithRftData( ensemble->allSummaryCases() ).empty() )
+        if ( ensemble && ensemble->isEnsemble() && !RimSummaryEnsembleTools::wellsWithRftData( ensemble->allSummaryCases() ).empty() )
         {
             rftEnsembles.push_back( ensemble );
         }

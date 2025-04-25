@@ -1546,7 +1546,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
 
     if ( fieldNeedingOptions == &m_yValuesSummaryEnsemble )
     {
-        RimProject*                      proj   = RimProject::current();
+        RimProject*                      proj      = RimProject::current();
         std::vector<RimSummaryEnsemble*> ensembles = proj->summaryEnsembles();
 
         for ( RimSummaryEnsemble* ensemble : ensembles )
