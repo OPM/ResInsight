@@ -18,6 +18,7 @@
 
 #include "RimcProject.h"
 
+#include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 
@@ -64,10 +65,8 @@ caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
 
     QStringList summaryFileNames{ absolutePath };
 
-    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType        = RiaDefines::FileType::SMSPEC,
-                                                             .ensembleOrGroup = false,
-                                                             .allowDialogs    = false };
-    auto [isOk, newCases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, createConfig );
+    RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = RiaDefines::FileType::SMSPEC, .ensembleOrGroup = false, .allowDialogs = false };
+    auto [isOk, newCases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( summaryFileNames, createConfig );
     if ( isOk )
     {
         RicImportSummaryCasesFeature::addSummaryCases( newCases );

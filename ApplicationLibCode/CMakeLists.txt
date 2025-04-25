@@ -90,6 +90,7 @@ list(
   Application/Tools/WellPathTools/CMakeLists_files.cmake
   Application/Tools/Cloud/CMakeLists_files.cmake
   Application/Tools/Summary/CMakeLists_files.cmake
+  Application/Tools/Ensemble/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
