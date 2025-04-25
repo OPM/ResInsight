@@ -455,16 +455,16 @@ std::vector<RimSummaryEnsemble*> rftEnsemblesForWell( const QString& simWellName
 {
     const RimProject* project = RimProject::current();
 
-    std::vector<RimSummaryEnsemble*> allSummaryCaseCollections = project->summaryGroups();
+    std::vector<RimSummaryEnsemble*> ensembles = project->summaryEnsembles();
 
     std::vector<RimSummaryEnsemble*> rftEnsembles;
 
-    for ( RimSummaryEnsemble* summaryCaseColl : allSummaryCaseCollections )
+    for ( RimSummaryEnsemble* ensemble : ensembles )
     {
-        if ( summaryCaseColl && summaryCaseColl->isEnsemble() &&
-             !rftTimeStepsForWell( summaryCaseColl->allSummaryCases(), simWellName ).empty() )
+        if ( ensemble && ensemble->isEnsemble() &&
+             !rftTimeStepsForWell( ensemble->allSummaryCases(), simWellName ).empty() )
         {
-            rftEnsembles.push_back( summaryCaseColl );
+            rftEnsembles.push_back( ensemble );
         }
     }
     return rftEnsembles;
@@ -477,16 +477,16 @@ std::vector<RimSummaryEnsemble*> rftEnsembles()
 {
     const RimProject* project = RimProject::current();
 
-    std::vector<RimSummaryEnsemble*> allSummaryCaseCollections = project->summaryGroups();
+    std::vector<RimSummaryEnsemble*> ensembles = project->summaryEnsembles();
 
     std::vector<RimSummaryEnsemble*> rftEnsembles;
 
-    for ( RimSummaryEnsemble* summaryCaseColl : allSummaryCaseCollections )
+    for ( RimSummaryEnsemble* ensemble : ensembles )
     {
-        if ( summaryCaseColl && summaryCaseColl->isEnsemble() &&
-             !RimSummaryEnsembleTools::wellsWithRftData( summaryCaseColl->allSummaryCases() ).empty() )
+        if ( ensemble && ensemble->isEnsemble() &&
+             !RimSummaryEnsembleTools::wellsWithRftData( ensemble->allSummaryCases() ).empty() )
         {
-            rftEnsembles.push_back( summaryCaseColl );
+            rftEnsembles.push_back( ensemble );
         }
     }
     return rftEnsembles;

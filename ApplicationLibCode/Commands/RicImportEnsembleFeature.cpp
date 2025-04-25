@@ -189,9 +189,9 @@ void RicImportEnsembleFeature::setupActionLook( QAction* actionToSetup )
 QString RicImportEnsembleFeature::askForEnsembleName( const QString& suggestion )
 {
     RimProject*                      project                   = RimProject::current();
-    std::vector<RimSummaryEnsemble*> groups                    = project->summaryGroups();
-    int                              ensemblesStartingWithRoot = std::count_if( groups.begin(),
-                                                   groups.end(),
+    std::vector<RimSummaryEnsemble*> ensembles                    = project->summaryEnsembles();
+    int                              ensemblesStartingWithRoot = std::count_if( ensembles.begin(),
+                                                   ensembles.end(),
                                                    [suggestion]( RimSummaryEnsemble* group )
                                                    { return group->isEnsemble() && group->name().startsWith( suggestion ); } );
 

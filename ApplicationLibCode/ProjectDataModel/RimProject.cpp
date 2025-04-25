@@ -563,9 +563,9 @@ void RimProject::assignIdToEnsemble( RimSummaryEnsemble* summaryCaseCollection )
 {
     if ( summaryCaseCollection )
     {
-        for ( RimSummaryEnsemble* s : RimProject::summaryGroups() )
+        for ( RimSummaryEnsemble* ensemble : summaryEnsembles() )
         {
-            m_nextValidEnsembleId = std::max( m_nextValidEnsembleId, s->ensembleId() + 1 );
+            m_nextValidEnsembleId = std::max( m_nextValidEnsembleId, ensemble->ensembleId() + 1 );
         }
 
         summaryCaseCollection->setEnsembleId( m_nextValidEnsembleId );
@@ -751,7 +751,7 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryEnsemble*> RimProject::summaryGroups() const
+std::vector<RimSummaryEnsemble*> RimProject::summaryEnsembles() const
 {
     std::vector<RimSummaryEnsemble*> ensembles;
 

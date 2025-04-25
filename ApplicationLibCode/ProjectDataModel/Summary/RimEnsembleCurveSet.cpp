@@ -1547,11 +1547,11 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     if ( fieldNeedingOptions == &m_yValuesSummaryEnsemble )
     {
         RimProject*                      proj   = RimProject::current();
-        std::vector<RimSummaryEnsemble*> groups = proj->summaryGroups();
+        std::vector<RimSummaryEnsemble*> ensembles = proj->summaryEnsembles();
 
-        for ( RimSummaryEnsemble* group : groups )
+        for ( RimSummaryEnsemble* ensemble : ensembles )
         {
-            if ( group->isEnsemble() ) options.push_back( caf::PdmOptionItemInfo( group->name(), group ) );
+            if ( ensemble->isEnsemble() ) options.push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble ) );
         }
 
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
