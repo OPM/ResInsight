@@ -159,7 +159,7 @@ bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled() const
     {
         RimProject* project = RimProject::current();
         CVF_ASSERT( project );
-        if ( !project->summaryGroups().empty() )
+        if ( !project->summaryEnsembles().empty() )
         {
             return true;
         }
@@ -178,8 +178,8 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
     RimSummaryPlot* plot = selectedSummaryPlot();
     if ( plot )
     {
-        CVF_ASSERT( !project->summaryGroups().empty() );
-        auto ensemble = project->summaryGroups().back();
+        CVF_ASSERT( !project->summaryEnsembles().empty() );
+        auto ensemble = project->summaryEnsembles().back();
 
         RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 

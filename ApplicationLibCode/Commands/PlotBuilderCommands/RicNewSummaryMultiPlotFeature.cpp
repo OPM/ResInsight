@@ -61,7 +61,7 @@ void RicNewSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
     RimSummaryMultiPlotCollection* coll = selectedCollection( selectedItems );
     if ( coll )
     {
-        auto ensembles = RimProject::current()->summaryGroups();
+        auto ensembles = RimProject::current()->summaryEnsembles();
         if ( !ensembles.empty() )
             selectedEnsembles.push_back( ensembles.front() );
         else
