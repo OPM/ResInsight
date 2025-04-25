@@ -40,6 +40,7 @@
 class RimSummaryCase;
 class RimSummaryAddressCollection;
 class RiaSummaryAddressAnalyzer;
+class RimPathPatternFileSet;
 
 //==================================================================================================
 ///
@@ -146,6 +147,8 @@ private:
 
     QString ensembleDescription() const;
 
+    void populatePathPattern();
+
 protected:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
     caf::PdmField<QString>                   m_name;
@@ -162,6 +165,8 @@ private:
     caf::PdmProxyValueField<QString>                 m_nameAndItemCount;
     caf::PdmField<bool>                              m_isEnsemble;
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
+
+    caf::PdmChildField<RimPathPatternFileSet*> m_pathPatternFileSet;
 
     caf::PdmField<int> m_ensembleId;
 

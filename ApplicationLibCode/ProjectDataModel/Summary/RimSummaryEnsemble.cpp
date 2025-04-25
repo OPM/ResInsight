@@ -18,6 +18,7 @@
 
 #include "RimSummaryEnsemble.h"
 
+#include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaEnsembleNameTools.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
@@ -37,6 +38,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsembleTools.h"
 #include "RimSummaryPlot.h"
+#include "Tools/RimPathPatternFileSet.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -50,6 +52,11 @@
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimSummaryEnsemble, "SummaryCaseSubCollection" );
+
+namespace internal
+{
+const QString pathPatternPlaceholder = "*";
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,10 +98,14 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_pathPatternFileSet, "PathPatternFileSet", "Path Pattern File Set" );
+    m_pathPatternFileSet = new RimPathPatternFileSet();
+
     CAF_PDM_InitFieldNoDefault( &m_ensembleDescription, "Description", "Description" );
     m_ensembleDescription.registerGetMethod( this, &RimSummaryEnsemble::ensembleDescription );
     m_ensembleDescription.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_ensembleDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_ensembleDescription.xmlCapability()->disableIO();
 
     m_commonAddressCount = 0;
 }
@@ -133,6 +144,7 @@ void RimSummaryEnsemble::removeCase( RimSummaryCase* summaryCase, bool notifyCha
     }
 
     clearChildNodes();
+    populatePathPattern();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,6 +179,8 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
     updateReferringCurveSetsZoomAll();
 
     clearChildNodes();
+
+    populatePathPattern();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,10 +218,8 @@ void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summa
 
         // Do what is required to add the case, avoid updates until all cases are added
         summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
-        if ( m_cases.empty() )
-        {
-            summaryCase->setShowVectorItemsInProjectTree( true );
-        }
+        summaryCase->setShowVectorItemsInProjectTree( false );
+
         m_cases.push_back( summaryCase );
     }
 
@@ -890,6 +902,39 @@ void RimSummaryEnsemble::initAfterRead()
     {
         m_nameTemplateString = m_name;
     }
+
+    // Disable write access for the summary cases. This must be done here to make sure the cases for project files with summary cases are
+    // imported correctly. The function RiaProjectFileTools::fieldContentsByType() checks if the field is writable, and it is used to
+    // populate the summary path of summary cases in the project file.
+    m_cases.xmlCapability()->setIOWritable( false );
+
+    // Usually we check for project file version using isProjectFileVersionEqualOrOlderThan, but here we can simplify by checking if any
+    // path pattern is present
+    if ( !m_pathPatternFileSet->pathPattern().isEmpty() )
+    {
+        auto paths = m_pathPatternFileSet->createPaths( internal::pathPatternPlaceholder );
+
+        RiaDefines::FileType fileType = RiaDefines::FileType::SMSPEC;
+
+        RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = false };
+        auto [isOk, newCases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( paths, createConfig );
+        if ( !isOk || newCases.empty() )
+        {
+            RiaLogging::warning( "No new cases are created." );
+            return;
+        }
+
+        replaceCases( newCases );
+
+        // Update name of cases and ensemble after all cases are added
+        for ( auto summaryCase : newCases )
+        {
+            summaryCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
+            summaryCase->updateAutoShortName();
+        }
+    }
+
+    populatePathPattern();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -901,7 +946,7 @@ void RimSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         updateIcon();
     }
-    if ( changedField == &m_autoName || changedField == &m_nameTemplateString )
+    else if ( changedField == &m_autoName || changedField == &m_nameTemplateString )
     {
         RiaSummaryTools::updateSummaryEnsembleNames();
     }
@@ -954,6 +999,9 @@ bool RimSummaryEnsemble::isAutoNameChecked() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    auto group = uiOrdering.addNewGroup( "Path Pattern" );
+    m_pathPatternFileSet->uiOrdering( uiConfigName, *group );
+
     uiOrdering.add( &m_autoName );
 
     if ( !m_autoName() )
@@ -1041,6 +1089,25 @@ QString RimSummaryEnsemble::ensembleDescription() const
     }
 
     return txt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::populatePathPattern()
+{
+    QStringList filePaths;
+
+    for ( auto sumCase : allSummaryCases() )
+    {
+        const auto filePath = sumCase->summaryHeaderFilename();
+        if ( filePath.isEmpty() ) continue;
+
+        const auto fileName = RiaFilePathTools::toInternalSeparator( filePath );
+        filePaths.push_back( fileName );
+    }
+
+    m_pathPatternFileSet->findAndSetPathPatternAndRangeString( filePaths, internal::pathPatternPlaceholder );
 }
 
 //--------------------------------------------------------------------------------------------------
