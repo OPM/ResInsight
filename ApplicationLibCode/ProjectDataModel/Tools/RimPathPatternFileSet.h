@@ -42,8 +42,14 @@ public:
     void    setRangeString( const QString& rangeString );
     QString rangeString() const;
 
+    QStringList createPaths( const QString& placeholderString ) const;
+    void        findAndSetPathPatternAndRangeString( const QStringList& filePaths, const QString& placeholderString );
+
     static std::pair<QString, QString> findPathPattern( const QStringList& filePaths, const QString& placeholderString );
     static QStringList createPathsFromPattern( const QString& basePath, const QString& numberRange, const QString& placeholderString );
+
+private:
+    static QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString );
 
 private:
     caf::PdmField<QString> m_pathPattern;

@@ -19,6 +19,10 @@
 #include "RimPathPatternFileSet.h"
 
 #include "RiaStdStringTools.h"
+
+#include <QDir>
+#include <QDirIterator>
+#include <QFileInfo>
 #include <QRegularExpression>
 
 CAF_PDM_SOURCE_INIT( RimPathPatternFileSet, "PathPatternFileSet" );
@@ -64,6 +68,41 @@ void RimPathPatternFileSet::setRangeString( const QString& rangeString )
 QString RimPathPatternFileSet::rangeString() const
 {
     return m_rangeString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimPathPatternFileSet::createPaths( const QString& placeholderString ) const
+{
+    if ( rangeString().isEmpty() || rangeString().trimmed() == "*" )
+    {
+        return createPathsBySearchingFileSystem( pathPattern(), placeholderString );
+    }
+
+    auto pathsCandidates = RimPathPatternFileSet::createPathsFromPattern( pathPattern(), rangeString(), placeholderString );
+
+    QStringList paths;
+    for ( const auto& path : pathsCandidates )
+    {
+        if ( QFileInfo::exists( path ) )
+        {
+            paths.push_back( path );
+        }
+    }
+
+    return paths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPathPatternFileSet::findAndSetPathPatternAndRangeString( const QStringList& filePaths, const QString& placeholderString )
+{
+    const auto& [pattern, rangeString] = RimPathPatternFileSet::findPathPattern( filePaths, placeholderString );
+
+    setPathPattern( pattern );
+    setRangeString( rangeString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,4 +236,80 @@ QStringList RimPathPatternFileSet::createPathsFromPattern( const QString& basePa
     }
 
     return paths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find all files matching the path pattern in the file system
+//
+// Example:
+// pathPattern = "/myfolder/drogon-varying-grid-geometry/realization-*/iter-0/eclipse/model/DROGON-*.EGRID"
+//
+// basePath will be      "/myfolder/drogon-varying-grid-geometry/"
+//
+// The '*' in the pathPattern is replaced with a regex pattern to capture numbers
+// regexPattern will be  "/myfolder/drogon-varying-grid-geometry/realization-(\\d+)/iter-0/eclipse/model/DROGON-(\\d+).EGRID"
+//
+// The basePath will be traversed recursively to find all files matching the regex pattern
+//
+//--------------------------------------------------------------------------------------------------
+QStringList RimPathPatternFileSet::createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString )
+{
+    auto basePath = pathPattern;
+
+    // Find based path up to "/realization"
+    auto realizationPos = basePath.indexOf( "/realization" );
+    if ( realizationPos != -1 )
+    {
+        basePath = basePath.left( realizationPos );
+    }
+
+    QStringList matchingFiles;
+
+    // Replace placeholder string with a regex pattern to capture numbers
+    QString regexPattern = pathPattern;
+    regexPattern.replace( placeholderString, "(\\d+)" );
+
+    QRegularExpression regex( regexPattern );
+
+    // Use QDirIterator to traverse the directory recursively
+    QDirIterator it( basePath, QDir::Files, QDirIterator::Subdirectories );
+    while ( it.hasNext() )
+    {
+        QString filePath = it.next();
+
+        QRegularExpressionMatch match = regex.match( filePath );
+        if ( match.hasMatch() )
+        {
+            QString index1 = match.captured( 1 );
+            QString index2 = match.captured( 2 );
+
+            if ( index1 == index2 )
+            {
+                matchingFiles << filePath;
+            }
+        }
+    }
+
+    // Sort files by realization number
+    std::sort( matchingFiles.begin(),
+               matchingFiles.end(),
+               []( const QString& a, const QString& b )
+               {
+                   QRegularExpression regex( "realization-(\\d+)" );
+
+                   auto matchA = regex.match( a );
+                   auto matchB = regex.match( b );
+
+                   if ( matchA.hasMatch() && matchB.hasMatch() )
+                   {
+                       int numA = matchA.captured( 1 ).toInt();
+                       int numB = matchB.captured( 1 ).toInt();
+                       return numA < numB;
+                   }
+
+                   // Fallback to alphabetical if regex doesn't match
+                   return a < b;
+               } );
+
+    return matchingFiles;
 }
