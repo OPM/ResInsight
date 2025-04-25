@@ -22,6 +22,7 @@
 #include "Summary/RiaSummaryPlotTools.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 
+#include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -74,7 +75,7 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 
     if ( fileNames.isEmpty() ) return;
 
-    CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
+    RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
     auto [isOk, cases] = createSummaryCasesFromFiles( fileNames, createConfig );
     if ( !isOk ) return;
 
@@ -123,8 +124,8 @@ std::pair<bool, std::vector<RimSummaryCase*>> RicImportSummaryCasesFeature::crea
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
-    CreateConfig createConfig{ .fileType = RiaDefines::FileType::SMSPEC, .ensembleOrGroup = false, .allowDialogs = true };
-    auto [isOk, cases] = createSummaryCasesFromFiles( fileNames, createConfig );
+    RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = RiaDefines::FileType::SMSPEC, .ensembleOrGroup = false, .allowDialogs = true };
+    auto [isOk, cases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
     if ( isOk )
     {
         addSummaryCases( cases );
@@ -158,60 +159,6 @@ std::pair<bool, std::vector<RimSummaryCase*>> RicImportSummaryCasesFeature::crea
     }
 
     return std::make_pair( false, cases );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<bool, std::vector<RimSummaryCase*>> RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringList& fileNames,
-                                                                                                         CreateConfig       createConfig )
-{
-    RiaApplication* app  = RiaApplication::instance();
-    RimProject*     proj = app->project();
-
-    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
-
-    std::vector<RimSummaryCase*> newCases;
-
-    if ( !sumCaseColl ) return std::make_pair( false, newCases );
-
-    std::vector<RifSummaryCaseFileResultInfo> importFileInfos;
-    if ( createConfig.fileType == RiaDefines::FileType::SMSPEC )
-    {
-        RifSummaryCaseRestartSelector fileSelector;
-
-        if ( !RiaGuiApplication::isRunning() || !createConfig.allowDialogs )
-        {
-            fileSelector.showDialog( false );
-        }
-
-        fileSelector.setEnsembleOrGroupMode( createConfig.ensembleOrGroup );
-        fileSelector.determineFilesToImportFromSummaryFiles( fileNames );
-
-        importFileInfos = fileSelector.summaryFileInfos();
-
-        if ( fileSelector.foundErrors() )
-        {
-            QString errorMessage = fileSelector.createCombinedErrorMessage();
-            RiaLogging::error( errorMessage );
-        }
-    }
-    else
-    {
-        // No restart files for these file types: just copy to result info
-        for ( auto f : fileNames )
-        {
-            importFileInfos.push_back( RifSummaryCaseFileResultInfo( f, false, createConfig.fileType ) );
-        }
-    }
-
-    if ( !importFileInfos.empty() )
-    {
-        std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos( importFileInfos, true );
-        newCases.insert( newCases.end(), sumCases.begin(), sumCases.end() );
-    }
-
-    return std::make_pair( true, newCases );
 }
 
 //--------------------------------------------------------------------------------------------------
