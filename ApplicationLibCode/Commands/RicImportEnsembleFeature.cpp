@@ -18,6 +18,7 @@
 
 #include "RicImportEnsembleFeature.h"
 
+#include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaApplication.h"
 #include "RiaEnsembleNameTools.h"
 #include "Summary/RiaSummaryDefines.h"
@@ -123,8 +124,8 @@ RimSummaryEnsemble* RicImportEnsembleFeature::importSingleEnsemble( const QStrin
 
     if ( ensembleName.isEmpty() ) return nullptr;
 
-    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = true, .allowDialogs = true };
-    auto [isOk, cases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
+    RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = true, .allowDialogs = true };
+    auto [isOk, cases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
 
     if ( !isOk || cases.empty() ) return nullptr;
 
