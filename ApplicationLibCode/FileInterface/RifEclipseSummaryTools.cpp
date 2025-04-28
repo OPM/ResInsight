@@ -291,28 +291,43 @@ void RifEclipseSummaryTools::findSummaryHeaderFileInfo( const QString& inputFile
 //--------------------------------------------------------------------------------------------------
 QString RifEclipseSummaryTools::getRestartFileName( const QString& headerFileName )
 {
-    ecl_sum_type* ecl_sum = openEclSum( headerFileName, true );
-
-    const ecl_smspec_type* smspec  = ecl_sum ? ecl_sum_get_smspec( ecl_sum ) : nullptr;
-    const char*            rstCase = smspec ? ecl_smspec_get_restart_case( smspec ) : nullptr;
-    QString restartCase            = rstCase ? RiaFilePathTools::canonicalPath( RiaStringEncodingTools::fromNativeEncoded( rstCase ) ) : "";
-    closeEclSum( ecl_sum );
-
-    if ( !restartCase.isEmpty() )
+    QString        restartCaseNameFromFile;
+    ecl_file_type* header = ecl_file_open( headerFileName.toStdString().data(), 0 );
+    if ( header )
     {
-        QString path        = QFileInfo( restartCase ).dir().path();
-        QString restartBase = QDir( restartCase ).dirName();
+        // Code taken from ecl_smspec_load_restart() in ecl_smspec.cpp
+        if ( ecl_file_has_kw( header, RESTART_KW ) )
+        {
+            if ( const ecl_kw_type* restart_kw = ecl_file_iget_named_kw( header, RESTART_KW, 0 ) )
+            {
+                char tmp_base[137];
 
-        char*   smspec_header   = ecl_util_alloc_exfilename( path.toStdString().data(),
-                                                         restartBase.toStdString().data(),
-                                                         ECL_SUMMARY_HEADER_FILE,
-                                                         false /*unformatted*/,
-                                                         0 );
-        QString restartFileName = RiaFilePathTools::toInternalSeparator( RiaStringEncodingTools::fromNativeEncoded( smspec_header ) );
-        free( smspec_header );
+                tmp_base[0] = '\0';
+                for ( int i = 0; i < ecl_kw_get_size( restart_kw ); i++ )
+                    strcat( tmp_base, (const char*)ecl_kw_iget_ptr( restart_kw, i ) );
 
-        return restartFileName;
+                // The case name is a relative path without the .SMSPEC extension
+                restartCaseNameFromFile = tmp_base;
+                restartCaseNameFromFile = restartCaseNameFromFile.trimmed();
+            }
+        }
+
+        ecl_file_close( header );
     }
+
+    if ( !restartCaseNameFromFile.isEmpty() )
+    {
+        QFileInfo fi( headerFileName );
+
+        // Find the absolute path to the restart file
+
+        auto candidateFilename = fi.absolutePath();
+        candidateFilename += "/" + restartCaseNameFromFile + ".SMSPEC";
+        candidateFilename = RiaFilePathTools::canonicalPath( candidateFilename );
+
+        return candidateFilename;
+    }
+
     return {};
 }
 
