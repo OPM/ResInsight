@@ -18,7 +18,7 @@ print("coord: ", grid.coord.shape, grid.coord.dtype)
 print("zcorn:", grid.zcorn.shape, grid.zcorn.dtype)
 print("actnum: ", grid.actnum.shape, grid.actnum.dtype)
 
-print("zcorn", grid.zcorn.shape);
+print("zcorn", grid.zcorn.shape)
 
 resinsight = rips.Instance.find()
 
