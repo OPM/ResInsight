@@ -5,6 +5,7 @@ The ResInsight project module
 """
 import builtins
 import grpc
+import uuid
 
 from .case import Case
 from .gridcasegroup import GridCaseGroup
@@ -16,6 +17,9 @@ import Commands_pb2
 from Definitions_pb2 import Empty
 import Project_pb2_grpc
 import Project_pb2
+import KeyValueStore_pb2_grpc
+import KeyValueStore_pb2
+
 import PdmObject_pb2
 from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase, Reservoir
 
@@ -25,6 +29,12 @@ from typing import Optional, List
 @add_method(Project)
 def __custom_init__(self, pb2_object, channel: grpc.Channel) -> None:
     self._project_stub = Project_pb2_grpc.ProjectStub(self._channel)
+    self.__key_value_store_stub = KeyValueStore_pb2_grpc.KeyValueStoreStub(
+        self._channel
+    )
+
+    # Public properties
+    self.chunk_size = 8160
 
 
 @add_static_method(Project)
@@ -424,3 +434,66 @@ def import_formation_names(self, formation_files=None):
             formationFiles=formation_files, applyToCaseId=-1
         )
     )
+
+
+@add_method(Project)
+def create_corner_point_grid(self, nx, ny, nz, coordsv, zcornsv, actnumsv):
+    print("Applying values to main grid")
+
+    # Generate unique keys for three arrays
+    coordsv_key = "{}_{}".format(uuid.uuid4(), "coordsv")
+    zcornsv_key = "{}_{}".format(uuid.uuid4(), "zcornsv")
+    actnumsv_key = "{}_{}".format(uuid.uuid4(), "actnumsv")
+    print("COORDS: ", coordsv_key)
+
+    self.set_key_values(coordsv_key, coordsv)
+    self.set_key_values(zcornsv_key, zcornsv)
+    self.set_key_values(actnumsv_key, actnumsv)
+    return self.create_grid_from_key_values(
+        nx=nx,
+        ny=ny,
+        nz=nz,
+        coordsv_key=coordsv_key,
+        zcornsv_key=zcornsv_key,
+        actnumsv_key=actnumsv_key,
+    )
+
+
+@add_method(Project)
+def set_key_values(self, key, values):
+    """Sets values for a given key in the key-value store.
+
+    Arguments:
+        key(str): The key (should be unique).
+        values(list): a list of double precision floating point numbers
+    """
+    request_iterator = self.__generate_property_input_chunks(values, key)
+    reply = self.__key_value_store_stub.SetValue(request_iterator)
+    if reply.accepted_value_count < len(values):
+        raise IndexError
+
+
+@add_method(Project)
+def __generate_property_input_chunks(self, array, name):
+    index = -1
+    while index < len(array):
+        chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
+        if index == -1:
+            parameters = KeyValueStore_pb2.KeyValueInputParameters(
+                name=name, num_elements=len(array)
+            )
+            chunk.parameters.CopyFrom(parameters)
+            index += 1
+        else:
+            actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
+            chunk.values.CopyFrom(
+                KeyValueStore_pb2.KeyValueStoreChunk(
+                    values=array[index : index + actual_chunk_size]
+                )
+            )
+            index += actual_chunk_size
+
+        yield chunk
+    # Final empty message to signal completion
+    chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
+    yield chunk
