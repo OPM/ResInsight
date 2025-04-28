@@ -31,7 +31,6 @@ jobs:
               unity-build: true,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
-              vcpkg-triplet: x64-windows-release,
               qt-version: 6.6.3,
               ri-unit-test-path: "ResInsight-tests",
             }
@@ -46,7 +45,6 @@ jobs:
               unity-build: false,
               publish-to-pypi: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
-              vcpkg-triplet: x64-linux-release,
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
             }
@@ -61,7 +59,6 @@ jobs:
               unity-build: false,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
-              vcpkg-triplet: x64-linux-release,
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
             }
@@ -221,7 +218,6 @@ jobs:
         run: >
           cmake -S . -B cmakebuild
           -DVCPKG_BUILD_TYPE=release
-          -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=true
