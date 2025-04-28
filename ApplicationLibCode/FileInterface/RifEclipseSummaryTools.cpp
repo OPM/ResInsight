@@ -156,7 +156,8 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RifEclipseSummaryTools::getRestartFileNames( const QString& headerFileName, std::vector<QString>& warnings )
 {
-    return getRestartFileNames( headerFileName, false, warnings );
+    const bool useOpmReader = false;
+    return getRestartFileNames( headerFileName, useOpmReader, warnings );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,15 +200,25 @@ std::vector<QString>
                     break;
                 }
             }
-            QString prevFileName = currentFileName;
 
+            QString relativeFilePathFromFile;
             if ( useOpmReader )
             {
-                currentFileName = getRestartFileNameOpm( currentFileName );
+                relativeFilePathFromFile = getRestartRelativeFilePathOpm( currentFileName );
             }
             else
             {
-                currentFileName = getRestartFileName( currentFileName );
+                relativeFilePathFromFile = getRestartRelativeFilePathResdata( currentFileName );
+            }
+
+            QString prevFileName = currentFileName;
+            if ( !relativeFilePathFromFile.isEmpty() )
+            {
+                currentFileName = getRestartFilePath( currentFileName, relativeFilePathFromFile );
+            }
+            else
+            {
+                currentFileName.clear();
             }
 
             // Fix to stop potential infinite loop
@@ -226,6 +237,22 @@ std::vector<QString>
         if ( !currentFileName.isEmpty() ) restartFiles.push_back( currentFileName );
     }
     return restartFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifEclipseSummaryTools::getRestartFilePath( const QString& headerFileName, const QString& restartCaseNameFromFile )
+{
+    QFileInfo sourceFileInfo( headerFileName );
+    QString   suffix = sourceFileInfo.suffix();
+
+    QString filePath = sourceFileInfo.absolutePath() + RiaFilePathTools::separator() + restartCaseNameFromFile + "." + suffix;
+
+    QFileInfo restartFileInfo( filePath );
+    QString   restartFileName = RiaFilePathTools::toInternalSeparator( restartFileInfo.absoluteFilePath() );
+
+    return restartFileName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,11 +316,10 @@ void RifEclipseSummaryTools::findSummaryHeaderFileInfo( const QString& inputFile
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseSummaryTools::getRestartFileName( const QString& headerFileName )
+QString RifEclipseSummaryTools::getRestartRelativeFilePathResdata( const QString& headerFileName )
 {
-    QString        restartCaseNameFromFile;
-    ecl_file_type* header = ecl_file_open( headerFileName.toStdString().data(), 0 );
-    if ( header )
+    QString restartCaseNameFromFile;
+    if ( ecl_file_type* header = ecl_file_open( headerFileName.toStdString().data(), 0 ) )
     {
         // Code taken from ecl_smspec_load_restart() in ecl_smspec.cpp
         if ( ecl_file_has_kw( header, RESTART_KW ) )
@@ -315,52 +341,28 @@ QString RifEclipseSummaryTools::getRestartFileName( const QString& headerFileNam
         ecl_file_close( header );
     }
 
-    if ( !restartCaseNameFromFile.isEmpty() )
-    {
-        QFileInfo fi( headerFileName );
-
-        // Find the absolute path to the restart file
-
-        auto candidateFilename = fi.absolutePath();
-        candidateFilename += "/" + restartCaseNameFromFile + ".SMSPEC";
-        candidateFilename = RiaFilePathTools::canonicalPath( candidateFilename );
-
-        return candidateFilename;
-    }
-
-    return {};
+    return restartCaseNameFromFile;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseSummaryTools::getRestartFileNameOpm( const QString& headerFileName )
+QString RifEclipseSummaryTools::getRestartRelativeFilePathOpm( const QString& headerFileName )
 {
     try
     {
         Opm::EclIO::EclFile eclFile( headerFileName.toStdString() );
         eclFile.loadData( "RESTART" );
 
-        std::string fullRestartFileName;
+        std::string restartCaseNameFromFile;
 
         auto restartData = eclFile.get<std::string>( "RESTART" );
         for ( const auto& string : restartData )
         {
-            fullRestartFileName += string;
+            restartCaseNameFromFile += string;
         }
 
-        if ( fullRestartFileName.empty() ) return {};
-
-        QFileInfo sourceFileInfo( headerFileName );
-        QString   suffix = sourceFileInfo.suffix();
-
-        QString filePath = sourceFileInfo.absolutePath() + RiaFilePathTools::separator() + QString::fromStdString( fullRestartFileName ) +
-                           "." + suffix;
-
-        QFileInfo restartFileInfo( filePath );
-        QString   restartFileName = RiaFilePathTools::toInternalSeparator( restartFileInfo.absoluteFilePath() );
-
-        return restartFileName;
+        return QString::fromStdString( restartCaseNameFromFile );
     }
     catch ( ... )
     {
