@@ -83,9 +83,10 @@ public:
 
 private:
     static void                 findSummaryFiles( const QString& inputFile, QString* headerFile, QStringList* dataFiles );
-    static QString              getRestartFileName( const QString& headerFileName );
-    static QString              getRestartFileNameOpm( const QString& headerFileName );
+    static QString              getRestartRelativeFilePathResdata( const QString& headerFileName );
+    static QString              getRestartRelativeFilePathOpm( const QString& headerFileName );
     static std::vector<QString> getRestartFileNames( const QString& headerFileName, bool useOpmReader, std::vector<QString>& warnings );
+    static QString              getRestartFilePath( const QString& headerFileName, const QString& restartCaseNameFromFile );
 
     static void findSummaryHeaderFileInfo( const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted );
 };
