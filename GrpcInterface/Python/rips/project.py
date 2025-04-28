@@ -3,8 +3,10 @@
 """
 The ResInsight project module
 """
+
 import builtins
 import grpc
+import uuid
 
 from .case import Case
 from .gridcasegroup import GridCaseGroup
@@ -16,6 +18,9 @@ import Commands_pb2
 from Definitions_pb2 import Empty
 import Project_pb2_grpc
 import Project_pb2
+import KeyValueStore_pb2_grpc
+import KeyValueStore_pb2
+
 import PdmObject_pb2
 from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase, Reservoir
 
@@ -25,6 +30,12 @@ from typing import Optional, List
 @add_method(Project)
 def __custom_init__(self, pb2_object, channel: grpc.Channel) -> None:
     self._project_stub = Project_pb2_grpc.ProjectStub(self._channel)
+    self.__key_value_store_stub = KeyValueStore_pb2_grpc.KeyValueStoreStub(
+        self._channel
+    )
+
+    # Public properties
+    self.chunk_size = 8160
 
 
 @add_static_method(Project)
@@ -424,3 +435,89 @@ def import_formation_names(self, formation_files=None):
             formationFiles=formation_files, applyToCaseId=-1
         )
     )
+
+
+@add_method(Project)
+def create_corner_point_grid(
+    self,
+    name: str,
+    nx: int,
+    ny: int,
+    nz: int,
+    coord: List[float],
+    zcorn: List[float],
+    actnum: List[int],
+):
+    """Creates a corner point grid from given parameters.
+
+    Arguments:
+        name(str): Name of the grid.
+        nx(int): Number of cells in x direction
+        ny(int): Number of cells in y direction
+        nz(int): Number of cells in z direction
+        coord(list[float]): Coordinate lines as COORD keyword in Eclipse.
+          Each coordinate line is defined by two points (top and bottom).
+          Size: (nx+1) * (ny+1) * 2 * 3. Points are ordered as in Eclipse.
+        zcorn(list[float]): Corner depths as defined by the Eclipse keyword ZCORN.
+          Size: nx * ny * nz * 8
+        actnum(list[int]): Active cell info: cells with values > 0 are active.
+          Size: nx * ny * nz
+    """
+
+    # Generate unique keys for three arrays
+    coord_key = "{}_{}".format(uuid.uuid4(), "coord")
+    zcorn_key = "{}_{}".format(uuid.uuid4(), "zcorn")
+    actnum_key = "{}_{}".format(uuid.uuid4(), "actnum")
+
+    self.set_key_values(coord_key, coord)
+    self.set_key_values(zcorn_key, zcorn)
+    self.set_key_values(actnum_key, actnum)
+    return self.create_grid_from_key_values(
+        name=name,
+        nx=nx,
+        ny=ny,
+        nz=nz,
+        coord_key=coord_key,
+        zcorn_key=zcorn_key,
+        actnum_key=actnum_key,
+    )
+
+
+@add_method(Project)
+def set_key_values(self, key, values):
+    """Sets values for a given key in the key-value store.
+
+    Arguments:
+        key(str): The key (should be unique).
+        values(list): a list of double precision floating point numbers
+    """
+    request_iterator = self.__generate_key_value_store_input_chunks(values, key)
+    reply = self.__key_value_store_stub.SetValue(request_iterator)
+    if reply.accepted_value_count < len(values):
+        raise IndexError
+
+
+@add_method(Project)
+def __generate_key_value_store_input_chunks(self, array, name):
+    index = -1
+    while index < len(array):
+        chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
+        if index == -1:
+            parameters = KeyValueStore_pb2.KeyValueInputParameters(
+                name=name, num_elements=len(array)
+            )
+            chunk.parameters.CopyFrom(parameters)
+            index += 1
+        else:
+            actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
+            chunk.values.CopyFrom(
+                KeyValueStore_pb2.KeyValueStoreChunk(
+                    values=array[index : index + actual_chunk_size]
+                )
+            )
+            index += actual_chunk_size
+
+        yield chunk
+    # Final empty message to signal completion
+    chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
+    yield chunk

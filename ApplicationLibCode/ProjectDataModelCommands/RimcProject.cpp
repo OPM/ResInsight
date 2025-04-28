@@ -20,14 +20,22 @@
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include "RicImportSummaryCasesFeature.h"
 
+#include "RimCornerPointCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSurfaceCollection.h"
+
+#include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -217,6 +225,153 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_surfaceFolder::defaultResult() 
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimProject_surfaceFolder::isNullptrValidResult() const
+{
+    return true;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridFromKeyValues, "createGridFromKeyValues" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create grid from key values", "", "", "Create Grid From Key Values" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nx, "Nx", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ny, "Ny", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nz, "Nz", "" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_coordKey, "CoordKey", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_zcornKey, "ZcornKey", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_actnumKey, "ActnumKey", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimProject_createGridFromKeyValues::execute()
+{
+    RiaLogging::info( "Creating grid from key values" );
+
+    QString name = m_name();
+    if ( name.isEmpty() )
+    {
+        RiaLogging::error( "Empty name not allowed" );
+        return nullptr;
+    }
+
+    int nx = m_nx();
+    int ny = m_ny();
+    int nz = m_nz();
+
+    RiaLogging::info( QString( "Grid dimensions: [%1 %2 %3]" ).arg( nx ).arg( ny ).arg( nz ) );
+    RiaLogging::info( QString( "Coord: %1" ).arg( m_coordKey() ) );
+    RiaLogging::info( QString( "Zcorn: %1" ).arg( m_zcornKey() ) );
+    RiaLogging::info( QString( "Actnum: %1" ).arg( m_actnumKey() ) );
+
+    auto keyValueStore = RiaApplication::instance()->keyValueStore();
+
+    auto convertToFloatVector = []( const std::optional<std::vector<char>>& input ) -> std::vector<float>
+    {
+        if ( input && !input->empty() )
+        {
+            // Ensure the byte vector size is a multiple of sizeof(float)
+            if ( input->size() % sizeof( float ) != 0 )
+            {
+                return {};
+            }
+
+            // Calculate how many floats we'll have
+            size_t float_count = input->size() / sizeof( float );
+
+            // Create a vector of floats with the appropriate size
+            std::vector<float> float_vec( float_count );
+
+            // Copy the binary data from the byte vector to the float vector
+            std::memcpy( float_vec.data(), input->data(), input->size() );
+
+            return float_vec;
+        }
+
+        return {};
+    };
+
+    std::vector<float> coord  = convertToFloatVector( keyValueStore->get( m_coordKey().toStdString() ) );
+    std::vector<float> zcorn  = convertToFloatVector( keyValueStore->get( m_zcornKey().toStdString() ) );
+    std::vector<float> actnum = convertToFloatVector( keyValueStore->get( m_actnumKey().toStdString() ) );
+    if ( coord.empty() || zcorn.empty() || actnum.empty() )
+    {
+        RiaLogging::error( "Found unexcepted empty coord, zcorn or actnum array." );
+        return nullptr;
+    }
+
+    auto [grid, errorMessage] = RimCornerPointCase::createFromCoordinatesArray( nx, ny, nz, coord, zcorn, actnum );
+    if ( grid )
+    {
+        RimProject* project = RimProject::current();
+        if ( !project ) return nullptr;
+
+        grid->setCustomCaseName( name );
+        project->assignCaseIdToCase( grid );
+
+        RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+        if ( !analysisModels ) return nullptr;
+
+        analysisModels->cases.push_back( grid );
+
+        RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
+
+        RimEclipseView* riv = grid->createAndAddReservoirView();
+        riv->loadDataAndUpdate();
+
+        if ( !riv->cellResult()->hasResult() )
+        {
+            riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
+        }
+
+        analysisModels->updateConnectedEditors();
+
+        if ( RiaGuiApplication::isRunning() )
+        {
+            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
+        }
+    }
+    else
+    {
+        RiaLogging::error( QString( "Creating corner point grid failed: %1" ).arg( errorMessage ) );
+    }
+
+    keyValueStore->remove( m_coordKey().toStdString() );
+    keyValueStore->remove( m_zcornKey().toStdString() );
+    keyValueStore->remove( m_actnumKey().toStdString() );
+
+    return grid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_createGridFromKeyValues::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimProject_createGridFromKeyValues::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimCornerPointCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_createGridFromKeyValues::isNullptrValidResult() const
 {
     return true;
 }

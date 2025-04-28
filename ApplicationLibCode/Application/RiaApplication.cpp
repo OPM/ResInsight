@@ -21,6 +21,7 @@
 #include "Cloud/RiaOsduConnector.h"
 #include "Cloud/RiaSumoConnector.h"
 #include "Cloud/RiaSumoDefines.h"
+#include "KeyValueStore/RiaKeyValueStore.h"
 #include "RiaOsduDefines.h"
 
 #include "RiaBaseDefs.h"
@@ -178,6 +179,8 @@ RiaApplication::RiaApplication()
     m_commandRouter = std::make_unique<RimCommandRouter>();
     m_osduConnector = nullptr;
     m_sumoConnector = nullptr;
+
+    m_keyValueStore = std::make_unique<RiaKeyValueStore<char>>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1757,4 +1760,12 @@ void RiaApplication::initializeDataLoadController()
                                             std::make_unique<RimWellLogFileDataLoader>() );
     dataLoadController->registerDataLoader( RimWellLogFile::classKeywordStatic(), wellLogKeyword, std::make_unique<RimWellLogFileDataLoader>() );
     dataLoadController->registerDataLoader( RimOsduWellLog::classKeywordStatic(), wellLogKeyword, std::make_unique<RimOsduWellLogDataLoader>() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaKeyValueStore<char>* RiaApplication::keyValueStore() const
+{
+    return m_keyValueStore.get();
 }
