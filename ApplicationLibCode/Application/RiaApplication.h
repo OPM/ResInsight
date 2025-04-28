@@ -19,6 +19,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "KeyValueStore/RiaKeyValueStore.h"
 #include "RiaDefines.h"
 
 #include "cafPdmPointer.h"
@@ -199,6 +200,8 @@ public:
     RiaOsduConnector* makeOsduConnector();
     RiaSumoConnector* makeSumoConnector();
 
+    RiaKeyValueStore<char>* keyValueStore() const;
+
 protected:
     // Protected implementation specific overrides
     virtual void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) = 0;
@@ -236,6 +239,8 @@ protected:
 
     QPointer<RiaSocketServer>       m_socketServer;
     std::unique_ptr<caf::UiProcess> m_workerProcess;
+
+    std::unique_ptr<RiaKeyValueStore<char>> m_keyValueStore;
 
     // Execute for all settings
     std::list<int>                  m_scriptCaseIds;

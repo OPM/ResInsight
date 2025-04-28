@@ -56,14 +56,6 @@ public:
 
     static bool hasGridData( const QString& filename );
 
-private:
-    static void interpretSplitenzData( int                       nz,
-                                       float                     zoffset,
-                                       float                     zscale,
-                                       const std::vector<char>&  splitenz,
-                                       const std::vector<float>& zdata,
-                                       std::vector<float>&       zcornsv );
-
     static size_t computeActiveCellMatrixIndex( std::vector<int>& activeCells );
 
     static cvf::Vec3d getCorner( const RigMainGrid&        grid,
@@ -73,6 +65,14 @@ private:
                                  int                       cornerIdx,
                                  const cvf::Vec3d&         offset,
                                  const cvf::Vec3d&         scale );
+
+private:
+    static void interpretSplitenzData( int                       nz,
+                                       float                     zoffset,
+                                       float                     zscale,
+                                       const std::vector<char>&  splitenz,
+                                       const std::vector<float>& zdata,
+                                       std::vector<float>&       zcornsv );
 
     static double interpolate( const cvf::Vec3d& top, const cvf::Vec3d& bottom, double z, int idx );
 

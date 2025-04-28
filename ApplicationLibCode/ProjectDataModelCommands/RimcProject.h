@@ -82,3 +82,28 @@ public:
 private:
     caf::PdmField<QString> m_folderName;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimProject_createGridFromKeyValues : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_createGridFromKeyValues( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    bool                             isNullptrValidResult() const override;
+
+private:
+    caf::PdmField<QString> m_name;
+    caf::PdmField<int>     m_nx;
+    caf::PdmField<int>     m_ny;
+    caf::PdmField<int>     m_nz;
+    caf::PdmField<QString> m_coordKey;
+    caf::PdmField<QString> m_zcornKey;
+    caf::PdmField<QString> m_actnumKey;
+};
