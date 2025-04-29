@@ -54,6 +54,8 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
+    static std::string normalizeCompletionAddress( const std::string& address );
+
 private:
     int  indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
     void buildMetaData() override;

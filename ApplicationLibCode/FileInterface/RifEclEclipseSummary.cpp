@@ -320,21 +320,6 @@ void RifEclEclipseSummary::buildMetaData()
 
     if ( m_ecl_SmSpec )
     {
-        auto transformString = []( const std::string& input ) -> std::string
-        {
-            // Pattern 1: Handle "WGPRL__2:MY-WELL1-A5" format
-            // Matches text followed by __, number, colon, alphanumeric text, hyphen, alphanumeric
-            std::regex  pattern1( "([A-Za-z]+)__([0-9]+):([A-Za-z0-9]+)-([A-Za-z0-9]+)" );
-            std::smatch matches;
-
-            if ( std::regex_search( input, matches, pattern1 ) )
-            {
-                return matches[1].str() + ":" + matches[3].str() + "-" + matches[4].str() + ":" + matches[2].str();
-            }
-
-            return input; // Return original string if pattern doesn't match
-        };
-
         int varCount = ecl_smspec_num_nodes( m_ecl_SmSpec );
         for ( int i = 0; i < varCount; i++ )
         {
@@ -342,12 +327,12 @@ void RifEclEclipseSummary::buildMetaData()
 
             RifEclipseSummaryAddress addr = addressFromErtSmSpecNode( ertSumVarNode );
 
-            if ( ertSumVarNode.get_gen_key1() )
+            if ( addr.category() == SummaryCategory::SUMMARY_WELL && ertSumVarNode.get_gen_key1() )
             {
-                std::string completeVectorName = std::string( ertSumVarNode.get_gen_key1() );
-                completeVectorName             = transformString( completeVectorName );
+                auto nativeAddress     = std::string( ertSumVarNode.get_gen_key1() );
+                auto normalizedAddress = normalizeCompletionAddress( nativeAddress );
 
-                auto adrFromTextParsing = RifEclipseSummaryAddress::fromEclipseTextAddress( completeVectorName );
+                auto adrFromTextParsing = RifEclipseSummaryAddress::fromEclipseTextAddress( normalizedAddress );
 
                 bool debugOutput = false;
                 if ( debugOutput )
@@ -359,7 +344,7 @@ void RifEclEclipseSummary::buildMetaData()
 
                         QString detectedInconsiteny =
                             QString( "Full text from ERT: %1, Address from ERT: %2, Address from text parsing: %3 " )
-                                .arg( QString::fromStdString( completeVectorName ) )
+                                .arg( QString::fromStdString( nativeAddress ) )
                                 .arg( QString::fromStdString( ertAdrText ) )
                                 .arg( QString::fromStdString( adrFromText ) );
 
@@ -400,4 +385,20 @@ std::string RifEclEclipseSummary::unitName( const RifEclipseSummaryAddress& resu
 RiaDefines::EclipseUnitSystem RifEclEclipseSummary::unitSystem() const
 {
     return m_unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Convert "WGPRL__2:MY-WELL1-A5" to "WGPRL:MY-WELL1-A5:2"
+// Matches text followed by _ or __, number, colon, alphanumeric text
+// If the completion number is larger than 9, a single underscore is used due to maximum keyword length of 8 characters
+//--------------------------------------------------------------------------------------------------
+std::string RifEclEclipseSummary::normalizeCompletionAddress( const std::string& address )
+{
+    std::regex pattern( R"((\w+?)(?:_{1,2})(\d+):(\w[\w-]*))" );
+    if ( std::regex_match( address, pattern ) )
+    {
+        return std::regex_replace( address, pattern, "$1:$3:$2" );
+    }
+
+    return address; // Return original string if pattern doesn't match
 }

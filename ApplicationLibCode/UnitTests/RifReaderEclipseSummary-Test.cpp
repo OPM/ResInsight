@@ -20,6 +20,7 @@
 
 #include "RiaTestDataDirectory.h"
 
+#include "RifEclEclipseSummary.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderMultipleFiles.h"
@@ -28,6 +29,28 @@
 #include <QDir>
 
 #include <memory>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclEclipseSummary, TestConversionFromNativeCompletionSyntax )
+{
+    std::vector<std::pair<std::string, std::string>> nativeAndExpected;
+    nativeAndExpected.push_back( { "WOPRL__0:WELL-1", "WOPRL:WELL-1:0" } );
+    nativeAndExpected.push_back( { "WOPRL__10:WELL-1", "WOPRL:WELL-1:10" } );
+    nativeAndExpected.push_back( { "WOPRL_10:WELL-1", "WOPRL:WELL-1:10" } );
+    nativeAndExpected.push_back( { "WOPRL_99:WELL-1", "WOPRL:WELL-1:99" } );
+    nativeAndExpected.push_back( { "WOPRL_999:WELL-1", "WOPRL:WELL-1:999" } );
+    nativeAndExpected.push_back( { "WOPRL_3:ABC", "WOPRL:ABC:3" } );
+    nativeAndExpected.push_back( { "WOPR:ABC", "WOPR:ABC" } );
+    nativeAndExpected.push_back( { "FOPT", "FOPT" } );
+
+    for ( const auto& [native, expected] : nativeAndExpected )
+    {
+        std::string result = RifEclEclipseSummary::normalizeCompletionAddress( native );
+        EXPECT_EQ( result, expected ) << "Expected: " << expected << " but got: " << result;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
