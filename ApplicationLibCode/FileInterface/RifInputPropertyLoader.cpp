@@ -39,6 +39,8 @@ void RifInputPropertyLoader::loadAndSynchronizeInputProperties( RimEclipseInputP
                                                                 const std::vector<QString>&        filenames,
                                                                 bool                               allowImportOfFaults )
 {
+    if ( !inputPropertyCollection || !eclipseCaseData || filenames.empty() ) return;
+
     std::vector<RimEclipseInputProperty*> existingProperties = inputPropertyCollection->inputProperties.childrenByType();
 
     caf::ProgressInfo progInfo( static_cast<int>( filenames.size() ), "Reading Input properties" );

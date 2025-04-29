@@ -240,6 +240,18 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             return false;
         }
 
+        if ( eclipseCase->mainGrid() == nullptr )
+        {
+            RiaLogging::error( "Eclipse grid file does not contain a valid grid." );
+            return false;
+        }
+
+        if ( eclipseCase->mainGrid()->cellCount() == 0 )
+        {
+            RiaLogging::error( "Eclipse grid file does not contain any cells." );
+            return false;
+        }
+
         setFilesContainingFaults( readerInterface->filenamesWithFaults() );
 
         setReservoirData( eclipseCase.p() );
