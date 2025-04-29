@@ -704,18 +704,12 @@ void RimEclipseCase::loadAndSynchronizeInputProperties( bool importGridOrFaultDa
 {
     // Make sure we actually have reservoir data
 
-    CVF_ASSERT( eclipseCaseData() );
-    CVF_ASSERT( eclipseCaseData()->mainGrid()->cellCount() != 0 );
+    if ( !eclipseCaseData() || !eclipseCaseData()->mainGrid() || ( eclipseCaseData()->mainGrid()->cellCount() == 0 ) ) return;
 
-    // Then read the properties from all the files referenced by the InputReservoir
-
-    std::vector<QString> filenames;
-    for ( const QString& fileName : additionalFiles() )
-    {
-        filenames.push_back( fileName );
-    }
-
-    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(), eclipseCaseData(), filenames, importGridOrFaultData );
+    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(),
+                                                               eclipseCaseData(),
+                                                               additionalFiles(),
+                                                               importGridOrFaultData );
 }
 
 //--------------------------------------------------------------------------------------------------
