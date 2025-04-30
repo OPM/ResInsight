@@ -318,7 +318,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         currentFileInfos.push_back( currentFileInfo );
         for ( const auto& fileName : restartFileNames )
         {
-            originSummaryFileInfos.push_back( RifRestartFileInfo( fileName, 0, 0 ) );
+            auto fileInfo = RifEclipseSummaryTools::getFileInfoAndTimeSteps( fileName );
+            originSummaryFileInfos.push_back( fileInfo );
         }
 
         if ( hideSplitCases )
