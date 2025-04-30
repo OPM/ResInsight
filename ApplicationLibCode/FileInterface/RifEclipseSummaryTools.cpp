@@ -260,16 +260,19 @@ QString RifEclipseSummaryTools::getRestartFilePath( const QString& headerFileNam
 //--------------------------------------------------------------------------------------------------
 RifRestartFileInfo RifEclipseSummaryTools::getFileInfoAndTimeSteps( const QString& headerFileName )
 {
-    RifRestartFileInfo  fileInfo;
-    ecl_sum_type*       ecl_sum   = openEclSum( headerFileName, false );
-    std::vector<time_t> timeSteps = getTimeSteps( ecl_sum );
-    if ( !timeSteps.empty() )
+    RifRestartFileInfo fileInfo;
+    fileInfo.fileName = headerFileName;
+
+    if ( ecl_sum_type* ecl_sum = openEclSum( headerFileName, false ) )
     {
-        fileInfo.fileName  = headerFileName;
-        fileInfo.startDate = timeSteps.front();
-        fileInfo.endDate   = timeSteps.back();
+        std::vector<time_t> timeSteps = getTimeSteps( ecl_sum );
+        if ( !timeSteps.empty() )
+        {
+            fileInfo.startDate = timeSteps.front();
+            fileInfo.endDate   = timeSteps.back();
+        }
+        closeEclSum( ecl_sum );
     }
-    closeEclSum( ecl_sum );
 
     return fileInfo;
 }
