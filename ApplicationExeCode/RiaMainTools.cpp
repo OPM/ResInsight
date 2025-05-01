@@ -30,6 +30,24 @@
 
 #include <QDir>
 
+#include <stacktrace>
+
+namespace internal
+{
+// Custom formatter for stacktrace
+std::string formatStacktrace( const std::stacktrace& st )
+{
+    std::stringstream ss;
+    int               frame = 0;
+    for ( const auto& entry : st )
+    {
+        ss << "  [" << frame++ << "] " << entry.description() << " at " << entry.source_file() << ":"
+           << entry.source_line() << "\n";
+    }
+    return ss.str();
+}
+} // namespace internal
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -48,6 +66,10 @@ void manageSegFailure( int signalCode )
         if ( auto fileLogger = dynamic_cast<RiaFileLogger*>( logger ) )
         {
             fileLogger->error( str.toStdString().data() );
+
+            auto        st      = std::stacktrace::current();
+            std::string message = "Stack trace:\n" + internal::formatStacktrace( st );
+            logger->error( message.data() );
 
             fileLogger->flush();
         }

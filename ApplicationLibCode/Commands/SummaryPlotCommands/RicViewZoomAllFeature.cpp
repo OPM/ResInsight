@@ -18,6 +18,7 @@
 
 #include "RicViewZoomAllFeature.h"
 
+#include "RiaFileLogger.h"
 #include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
@@ -37,6 +38,8 @@ CAF_CMD_SOURCE_INIT( RicViewZoomAllFeature, "RicViewZoomAllFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicViewZoomAllFeature::onActionTriggered( bool isChecked )
 {
+    TRIGGER_SEGFAULT();
+
     disableModelChangeContribution();
 
     QWidget* topLevelWidget = RiaGuiApplication::activeWindow();
