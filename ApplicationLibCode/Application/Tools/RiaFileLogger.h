@@ -49,4 +49,4 @@ private:
 // Helper macro used to trigger a segmentation fault for testing purposes
 #define TRIGGER_SEGFAULT() \
     int* ptr = nullptr;    \
-    *ptr     = 42;\
+    *ptr     = 42;
