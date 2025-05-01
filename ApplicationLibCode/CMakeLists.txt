@@ -308,20 +308,9 @@ set(LINK_LIBRARIES
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 
-  message(STATUS "Searching for backtrace library ...")
-
   if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    find_library(BACKTRACE_LIBRARY backtrace)
-    if(BACKTRACE_LIBRARY)
-      message(STATUS "  Found backtrace library: ${BACKTRACE_LIBRARY}")
-      list(APPEND EXTERNAL_LINK_LIBRARIES ${BACKTRACE_LIBRARY} )
-    else()
-      find_library(STDCPP_BACKTRACE stdc++_libbacktrace)
-      if(STDCPP_BACKTRACE)
-        message(STATUS "  Found stdc++_libbacktrace library: ${STDCPP_BACKTRACE}")
-        list(APPEND EXTERNAL_LINK_LIBRARIES ${STDCPP_BACKTRACE} )
-      endif()
-    endif()
+    message(STATUS "  Adding stdc++_libbacktrace")
+    list(APPEND EXTERNAL_LINK_LIBRARIES stdc++_libbacktrace)
   endif()
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
