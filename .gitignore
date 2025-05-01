@@ -61,7 +61,7 @@ ipch/
 Ankh.NoLoad
 .vs
 out
-build
+build*
 CMakeSettings.json
 enc_temp_folder
 CMakeUserPresets.json
