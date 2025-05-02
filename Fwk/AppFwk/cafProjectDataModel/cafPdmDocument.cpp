@@ -142,6 +142,14 @@ QString PdmDocument::documentAsString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caf::PdmFieldHandle* PdmDocument::fileNameHandle() const
+{
+    return dynamic_cast<const caf::PdmFieldHandle*>( &m_fileName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
 {
     if ( object == nullptr ) return;

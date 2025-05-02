@@ -136,8 +136,7 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::writeFields( QXmlStreamWriter& xmlStream ) const
 {
-    std::vector<PdmFieldHandle*> fields = m_owner->fields();
-    for ( const auto& fieldHandle : fields )
+    for ( const auto& fieldHandle : fieldsForExport() )
     {
         const PdmXmlFieldHandle* field = fieldHandle->xmlCapability();
         if ( field && field->isIOWritable() )
@@ -309,6 +308,16 @@ bool PdmXmlObjectHandle::isValidXmlElementName( const QString& name )
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> PdmXmlObjectHandle::fieldsForExport() const
+{
+    if ( !m_owner ) return {};
+
+    return m_owner->fields();
 }
 
 //--------------------------------------------------------------------------------------------------
