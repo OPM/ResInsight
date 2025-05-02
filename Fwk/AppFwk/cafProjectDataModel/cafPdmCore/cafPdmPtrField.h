@@ -43,28 +43,20 @@ public:
     explicit PdmPtrField( const DataTypePtr& fieldValue );
     ~PdmPtrField() override;
 
-    //  Assignment
-
     PdmPtrField& operator=( const DataTypePtr& fieldValue );
     PdmPtrField& operator=( const FieldDataType& fieldValue );
-
-    // Basic access
 
     DataType* value() const { return m_fieldValue; }
     void      setValue( const DataTypePtr& fieldValue );
 
-    // QVariant access
     QVariant toQVariant() const override;
     void     setFromQVariant( const QVariant& variant ) override;
     bool     isReadOnly() const override { return false; }
 
-    // Access operators
-
-    /*Conversion*/ operator DataType*() const { return m_fieldValue; }
+    operator DataType*() const { return m_fieldValue; }
     DataType* operator->() const { return m_fieldValue; }
     DataType* operator()() const { return m_fieldValue; }
-
-    bool operator==( const DataTypePtr& fieldValue ) { return m_fieldValue == fieldValue; }
+    bool      operator==( const DataTypePtr& fieldValue ) { return m_fieldValue == fieldValue; }
 
     std::vector<PdmObjectHandle*> ptrReferencedObjects() const override;
 
@@ -75,9 +67,6 @@ private:
     void setRawPtr( PdmObjectHandle* obj );
 
     PdmPointer<DataType> m_fieldValue;
-
-    // Resolving
-    QString m_referenceString;
 };
 
 } // End of namespace caf
