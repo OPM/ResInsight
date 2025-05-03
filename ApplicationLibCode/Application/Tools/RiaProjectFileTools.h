@@ -20,6 +20,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmXmlFieldHandle.h"
 
 #include <QString>
 
@@ -37,16 +38,19 @@ public:
     static void decodeVersionString( const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch, int* developmentId );
 
     template <typename T>
-    static void fieldContentsByType( const caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
+    static std::vector<T*> writableFieldContent( const caf::PdmObjectHandle* object )
     {
-        if ( !object ) return;
+        if ( !object ) return {};
 
-        std::vector<caf::PdmFieldHandle*> allFieldsInObject = object->fields();
+        std::vector<T*> fieldContents;
 
         std::vector<caf::PdmObjectHandle*> children;
-
-        for ( const auto& field : allFieldsInObject )
+        for ( const auto& field : object->fields() )
         {
+            if ( !field ) continue;
+
+            if ( field->xmlCapability() && !field->xmlCapability()->isIOWritable() ) continue;
+
             caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
             if ( typedField ) fieldContents.push_back( &typedField->v() );
 
@@ -65,8 +69,11 @@ public:
 
         for ( const auto& child : children )
         {
-            fieldContentsByType( child, fieldContents );
+            auto childObjects = writableFieldContent<T>( child );
+            fieldContents.insert( fieldContents.end(), childObjects.begin(), childObjects.end() );
         }
+
+        return fieldContents;
     }
 
 private:
