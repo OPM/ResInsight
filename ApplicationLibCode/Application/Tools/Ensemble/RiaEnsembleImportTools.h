@@ -34,4 +34,7 @@ struct CreateConfig
 };
 std::pair<bool, std::vector<RimSummaryCase*>> createSummaryCasesFromFiles( const QStringList& fileNames, CreateConfig createConfig );
 
+std::pair<QString, QString> findPathPattern( const QStringList& filePaths, const QString& placeholderString );
+QStringList                 createPathsFromPattern( const QString& basePath, const QString& numberRange, const QString& placeholderString );
+QStringList                 createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString );
 } // namespace RiaEnsembleImportTools
