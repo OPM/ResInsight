@@ -302,22 +302,13 @@ set(LINK_LIBRARIES
     ${RI_LIBRARIES}
 )
 
-# According to ivarun rt is needed on OpenSuse, and Fedora. See:
-# https://github.com/OPM/ResInsight/pull/7 stdc++_libbacktrace is required for
-# stacktrace
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  # According to ivarun rt is needed on OpenSuse, and Fedora. See:
+  # https://github.com/OPM/ResInsight/pull/7
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
-
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    message(STATUS "  Adding stdc++_libbacktrace")
-    list(APPEND EXTERNAL_LINK_LIBRARIES stdc++_libbacktrace)
-  endif()
-
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    message(STATUS "  Adding stdc++_libbacktrace")
-    list(APPEND EXTERNAL_LINK_LIBRARIES stdc++_libbacktrace)
-  endif()
-
+  
+  #  stdc++exp is required for std::stacktrace
+  list(APPEND EXTERNAL_LINK_LIBRARIES stdc++exp)
 endif()
 
 target_link_libraries(
