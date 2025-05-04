@@ -21,6 +21,7 @@
 #include "RiuMainWindow.h"
 
 #include "RiaBaseDefs.h"
+#include "RiaFileLogger.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
@@ -563,6 +564,16 @@ void RiuMainWindow::createMenus()
 
     testMenu->addSeparator();
     testMenu->addAction( cmdFeatureMgr->action( "RicThemeColorEditorFeature" ) );
+
+    {
+        testMenu->addSeparator();
+
+        // create an action to show a message dialog in a lambda function
+        QAction* showMessageAction = new QAction( "Trigger Segmentation Fault", testMenu );
+        connect( showMessageAction, &QAction::triggered, []() { TRIGGER_SEGFAULT(); } );
+
+        testMenu->addAction( showMessageAction );
+    }
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu( "&Windows" );
