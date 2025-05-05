@@ -550,7 +550,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                         }
                         setCategoryNamesAndValues( ctNamesAndValues );
                     }
-                    else
+                    else if ( results->hasResultEntry( scalarIndex ) )
                     {
                         setCategoryValues( results->uniqueCellScalarValues( scalarIndex ) );
                     }
