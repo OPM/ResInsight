@@ -9,7 +9,7 @@ import rips
 import dataroot
 
 
-def test_well_log_plots(rips_instance, initialize_test):
+def test_create_polygon(rips_instance, initialize_test):
     project = rips_instance.project.open(
         dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
     )
