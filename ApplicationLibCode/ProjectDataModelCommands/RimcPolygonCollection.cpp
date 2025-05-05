@@ -48,7 +48,7 @@ caf::PdmObjectHandle* RimcPolygonCollection_createPolygon::execute()
     QString                 name   = m_name();
     std::vector<cvf::Vec3d> coords = m_coordinates();
 
-    RimPolygon* polygon = polygonCollection->appendUserDefinedPolygon();
+    RimPolygon* polygon = new RimPolygon();
     if ( !name.isEmpty() )
     {
         polygon->setName( name );
@@ -56,6 +56,7 @@ caf::PdmObjectHandle* RimcPolygonCollection_createPolygon::execute()
 
     polygon->setPointsInDomainCoords( coords );
 
+    polygonCollection->addUserDefinedPolygon( polygon );
     polygonCollection->updateConnectedEditors();
 
     return polygon;
