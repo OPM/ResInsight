@@ -555,26 +555,15 @@ void RimOpmFlowJob::prepareWellSettings()
     std::vector<RimFishbones*>           wellPathFishbones;
     std::vector<RimPerforationInterval*> wellPathPerforations;
 
-    std::vector<RimWellPath*> topLevelWells;
-    topLevelWells.push_back( m_wellPath->topLevelWellPath() );
+    auto topLevelWell = m_wellPath->topLevelWellPath();
 
-    std::vector<RimWellPath*> allLaterals;
+    std::set<RimWellPath*> uniquePaths;
+    for ( auto w : topLevelWell->allWellPathLaterals() )
     {
-        std::set<RimWellPath*> lateralSet;
-
-        for ( auto t : topLevelWells )
-        {
-            auto laterals = t->allWellPathLaterals();
-            for ( auto l : laterals )
-            {
-                lateralSet.insert( l );
-            }
-        }
-
-        allLaterals.assign( lateralSet.begin(), lateralSet.end() );
+        uniquePaths.insert( w );
     }
 
-    for ( auto w : allLaterals )
+    for ( auto w : uniquePaths )
     {
         auto fractures = w->descendantsIncludingThisOfType<RimWellPathFracture>();
         wellPathFractures.insert( wellPathFractures.end(), fractures.begin(), fractures.end() );
@@ -586,7 +575,7 @@ void RimOpmFlowJob::prepareWellSettings()
         wellPathPerforations.insert( wellPathPerforations.end(), perforations.begin(), perforations.end() );
     }
 
-    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( topLevelWells, exportSettings );
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( { topLevelWell }, exportSettings );
 }
 
 //--------------------------------------------------------------------------------------------------
