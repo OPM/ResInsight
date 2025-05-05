@@ -51,8 +51,7 @@ bool RicNewOpmFlowJobFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimEclipseCase*> selectedEclipseCases;
-    caf::SelectionManager::instance()->objectsByType( &selectedEclipseCases );
+    std::vector<RimEclipseCase*> selectedEclipseCases = caf::SelectionManager::instance()->objectsByType<RimEclipseCase>();
 
     QString inDataFile;
     if ( selectedEclipseCases.empty() )
