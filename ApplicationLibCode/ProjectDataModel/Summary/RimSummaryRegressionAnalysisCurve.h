@@ -77,7 +77,6 @@ public:
     };
 
     RimSummaryRegressionAnalysisCurve();
-    ~RimSummaryRegressionAnalysisCurve() override;
 
     void setEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet );
 
@@ -92,6 +91,8 @@ public:
         getOutputTimeSteps( const std::vector<time_t>& timeSteps, int forecastBackward, int forecastForward, ForecastUnit forecastUnit );
 
     bool isRegressionCurve() const override;
+
+    std::vector<RimTimeAxisAnnotation*> createTimeAnnotations() const;
 
 protected:
     void updateTimeAnnotations() override;
@@ -158,11 +159,10 @@ private:
     caf::PdmField<caf::AppEnum<RangeType>>   m_yRangeSelection;
     caf::PdmField<std::pair<double, double>> m_valueRangeY;
 
-    caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;
-    std::vector<double>                    m_valuesX;
-    std::vector<time_t>                    m_timeStepsX;
-    std::vector<double>                    m_valuesY;
-    std::vector<time_t>                    m_timeStepsY;
+    std::vector<double> m_valuesX;
+    std::vector<time_t> m_timeStepsX;
+    std::vector<double> m_valuesY;
+    std::vector<time_t> m_timeStepsY;
 
     // Source curve data
     std::vector<double> m_sourceValuesX;

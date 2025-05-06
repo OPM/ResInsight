@@ -45,7 +45,6 @@ public:
     };
 
     RimSummaryDeclineCurve();
-    ~RimSummaryDeclineCurve() override;
 
     void setDeclineCurveType( DeclineCurveType declineCurveType );
 
@@ -55,6 +54,8 @@ public:
 
     // X Axis functions
     std::vector<double> valuesX() const override;
+
+    std::vector<RimTimeAxisAnnotation*> createTimeAnnotations() const;
 
 protected:
     void updateTimeAnnotations() override;
@@ -107,6 +108,4 @@ private:
     caf::PdmField<int> m_maxTimeSliderPosition;
 
     caf::PdmField<bool> m_showTimeSelectionInPlot;
-
-    caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;
 };

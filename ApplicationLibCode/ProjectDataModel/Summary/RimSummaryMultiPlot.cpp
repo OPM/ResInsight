@@ -1487,7 +1487,13 @@ void RimSummaryMultiPlot::updateReadOutSettings()
 {
     for ( auto plot : summaryPlots() )
     {
-        if ( !m_readOutSettings->enableVerticalLine() ) plot->removeAllTimeAnnotations();
+        if ( !m_readOutSettings->enableVerticalLine() )
+        {
+            if ( auto axisProps = plot->timeAxisProperties() )
+            {
+                axisProps->removeAllAnnotations();
+            }
+        }
 
         if ( !m_readOutSettings->enableHorizontalLine() )
         {
@@ -1499,7 +1505,7 @@ void RimSummaryMultiPlot::updateReadOutSettings()
 
         plot->enableCurvePointTracking( m_readOutSettings->enableCurvePointTracking() );
 
-        plot->updateAxes();
+        plot->updateAndRedrawTimeAnnotations();
     }
 }
 
@@ -1769,15 +1775,11 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
         {
             plot->timeAxisProperties()->removeAllAnnotations();
 
-            auto anno = new RimTimeAxisAnnotation;
-
-            anno->setTime( timeTValue, dateFormatString );
-
             auto lineAppearance = m_readOutSettings->lineAppearance();
+            auto anno           = RimTimeAxisAnnotation::createTimeAnnotation( timeTValue, lineAppearance->color() );
 
             Qt::PenStyle style = lineAppearance->isDashed() ? Qt::PenStyle::DashLine : Qt::PenStyle::SolidLine;
             anno->setPenStyle( style );
-            anno->setColor( lineAppearance->color() );
             anno->setAlignment( m_readOutSettings->verticalLineLabelAlignment() );
 
             plot->timeAxisProperties()->appendAnnotation( anno );
