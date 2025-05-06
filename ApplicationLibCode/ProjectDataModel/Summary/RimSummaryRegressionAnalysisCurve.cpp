@@ -135,15 +135,6 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryRegressionAnalysisCurve::~RimSummaryRegressionAnalysisCurve()
-{
-    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
-    if ( plot && m_timeRangeAnnotation ) plot->removeTimeAnnotation( m_timeRangeAnnotation );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::setEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet )
 {
     m_dataSourceForRegression = DataSource::ENSEMBLE;
@@ -855,6 +846,21 @@ bool RimSummaryRegressionAnalysisCurve::isRegressionCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimTimeAxisAnnotation*> RimSummaryRegressionAnalysisCurve::createTimeAnnotations() const
+{
+    if ( m_showTimeSelectionInPlot && isChecked() )
+    {
+        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+
+        return { RimTimeAxisAnnotation::createTimeRangeAnnotation( minTimeStep, maxTimeStep, color() ) };
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryRegressionAnalysisCurve::convertToDouble( const std::vector<time_t>& timeSteps )
 {
     std::vector<double> doubleVector( timeSteps.size() );
@@ -925,14 +931,9 @@ std::pair<std::vector<time_t>, std::vector<double>> RimSummaryRegressionAnalysis
 //--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::updateTimeAnnotations()
 {
-    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-    if ( m_timeRangeAnnotation ) plot->removeTimeAnnotation( m_timeRangeAnnotation );
-
-    if ( m_showTimeSelectionInPlot && isChecked() )
+    if ( auto plot = firstAncestorOrThisOfType<RimSummaryPlot>() )
     {
-        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
-        m_timeRangeAnnotation           = plot->addTimeRangeAnnotation( minTimeStep, maxTimeStep );
-        m_timeRangeAnnotation->setColor( color() );
+        plot->updateAndRedrawTimeAnnotations();
     }
 }
 

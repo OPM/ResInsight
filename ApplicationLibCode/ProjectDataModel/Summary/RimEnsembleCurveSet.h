@@ -65,6 +65,7 @@ class RiuPlotWidget;
 class RiuPlotCurve;
 class RimPlotAxisPropertiesInterface;
 class RimSummaryAddressSelector;
+class RimTimeAxisAnnotation;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -196,6 +197,8 @@ public:
     bool                           isXAxisSummaryVector() const;
     RiaDefines::HorizontalAxisType xAxisType() const;
     void                           findOrAssignBottomAxisX( RiuPlotAxis plotAxis );
+
+    std::vector<RimTimeAxisAnnotation*> createTimeAnnotations() const;
 
 protected:
     void initAfterRead() override;

@@ -124,11 +124,8 @@ public:
     void reattachAllCurves() override;
     void updateCaseNameHasChanged();
 
-    RimTimeAxisAnnotation* addTimeAnnotation( time_t time );
-    RimTimeAxisAnnotation* addTimeRangeAnnotation( time_t startTime, time_t endTime );
-    void                   removeTimeAnnotation( RimTimeAxisAnnotation* annotation );
-    void                   removeAllTimeAnnotations();
-    void                   updateAnnotationsInPlotWidget();
+    void updateAndRedrawTimeAnnotations();
+    void updateAnnotationsInPlotWidget();
 
     void updateAxes() override;
 
