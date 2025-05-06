@@ -529,14 +529,13 @@ void RimEnsembleCurveSet::appendTimeGroup( caf::PdmUiOrdering& uiOrdering )
 {
     std::vector<caf::PdmFieldHandle*> timeFields;
 
+    bool showTimeRangeFields = false;
+
     if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION && m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F1 ) ||
          ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
            m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
     {
-        timeFields.push_back( &m_minDateRange );
-        timeFields.push_back( &m_minTimeSliderPosition );
-        timeFields.push_back( &m_maxDateRange );
-        timeFields.push_back( &m_maxTimeSliderPosition );
+        showTimeRangeFields = true;
     }
     if ( m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F2 ||
          ( m_customObjectiveFunction() && m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
@@ -549,11 +548,16 @@ void RimEnsembleCurveSet::appendTimeGroup( caf::PdmUiOrdering& uiOrdering )
     {
         if ( filter->isActive() && filter->filterMode() == RimEnsembleCurveFilter::FilterMode::SUMMARY_VALUE )
         {
-            timeFields.push_back( &m_minDateRange );
-            timeFields.push_back( &m_minTimeSliderPosition );
-            timeFields.push_back( &m_maxDateRange );
-            timeFields.push_back( &m_maxTimeSliderPosition );
+            showTimeRangeFields = true;
         }
+    }
+
+    if ( showTimeRangeFields )
+    {
+        timeFields.push_back( &m_minDateRange );
+        timeFields.push_back( &m_minTimeSliderPosition );
+        timeFields.push_back( &m_maxDateRange );
+        timeFields.push_back( &m_maxTimeSliderPosition );
     }
 
     if ( !timeFields.empty() )
