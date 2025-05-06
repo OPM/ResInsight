@@ -553,9 +553,8 @@ void RimEnsembleCurveFilter::defineEditorAttribute( const caf::PdmFieldHandle* f
     {
         if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
-            attr->m_minimum  = m_lowerLimit;
-            attr->m_maximum  = m_upperLimit;
-            attr->m_decimals = 2;
+            attr->m_minimum = m_lowerLimit;
+            attr->m_maximum = m_upperLimit;
         }
     }
     else if ( field == &m_objectiveValuesSelectSummaryAddressPushButton )
