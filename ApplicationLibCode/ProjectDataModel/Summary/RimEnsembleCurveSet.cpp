@@ -222,13 +222,15 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Text Box in Plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From" );
+    const QString formatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
+
+    CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From", "", formatString );
     m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_minTimeSliderPosition, "MinTimeSliderPosition", 0, "" );
     m_minTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To" );
+    CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To", "", formatString );
     m_maxDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_maxTimeSliderPosition, "MaxTimeSliderPosition", 100, "" );
@@ -1589,6 +1591,15 @@ void RimEnsembleCurveSet::defineEditorAttribute( const caf::PdmFieldHandle* fiel
             myAttr->m_minimum  = 0.001;
             myAttr->m_maximum  = 1.0;
             myAttr->m_decimals = 2;
+        }
+    }
+
+    if ( field == &m_minDateRange || field == &m_maxDateRange )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute ) )
+        {
+            QString formatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
+            attrib->dateFormat   = formatString;
         }
     }
 }
