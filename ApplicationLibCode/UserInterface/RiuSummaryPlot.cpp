@@ -72,7 +72,16 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
         menuBuilder.addSeparator();
         menuBuilder.addCmdFeatureWithUserData( "RicDeleteSubPlotCtxFeature", "Delete Plot", plotVariant );
         menuBuilder.addSeparator();
-        menuBuilder.addCmdFeature( "RicCreateEnsembleFromFilteredCasesFeature" );
+
+        for ( auto curveSet : plot->curveSets() )
+        {
+            if ( curveSet->isFiltered() )
+            {
+                auto curveSetVariant = QVariant::fromValue( caf::PdmPointer<RimEnsembleCurveSet>( curveSet ) );
+                auto name            = "Create Ensemble from Filtered Cases: " + curveSet->name();
+                menuBuilder.addCmdFeatureWithUserData( "RicCreateEnsembleFromFilteredCasesFeature", name, curveSetVariant );
+            }
+        }
     }
     menuBuilder.addSeparator();
 
