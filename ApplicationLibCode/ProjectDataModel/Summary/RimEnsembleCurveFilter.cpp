@@ -536,6 +536,11 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         uiOrdering.add( &m_categories );
     }
 
+    if ( auto curveSet = parentCurveSet() )
+    {
+        curveSet->appendTimeGroup( uiOrdering );
+    }
+
     uiOrdering.skipRemainingFields( true );
 }
 
