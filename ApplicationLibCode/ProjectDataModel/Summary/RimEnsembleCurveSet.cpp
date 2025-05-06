@@ -53,6 +53,7 @@
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimTimeAxisAnnotation.h"
 #include "RimTimeStepFilter.h"
 
 #include "RiuAbstractLegendFrame.h"
@@ -520,6 +521,57 @@ std::pair<time_t, time_t> RimEnsembleCurveSet::selectedTimeStepRange() const
     auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeSliderPosition / 100.0 ) );
 
     return { selectedMin, selectedMax };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimTimeAxisAnnotation*> RimEnsembleCurveSet::createTimeAnnotations() const
+{
+    if ( !m_showCurves() ) return {};
+
+    bool showTimeRange         = false;
+    bool showSelectedTimeSteps = false;
+
+    if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
+           m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F1 ) ||
+         ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
+           m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
+    {
+        showTimeRange = true;
+    }
+
+    if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
+           m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F2 ) ||
+         ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
+           m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
+    {
+        showSelectedTimeSteps = true;
+    }
+
+    for ( auto filter : m_curveFilters->filters() )
+    {
+        if ( filter->isActive() && filter->filterMode() == RimEnsembleCurveFilter::FilterMode::SUMMARY_VALUE ) showTimeRange = true;
+    }
+
+    std::vector<RimTimeAxisAnnotation*> timeAnnotations;
+    if ( showTimeRange )
+    {
+        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+
+        timeAnnotations.push_back( RimTimeAxisAnnotation::createTimeRangeAnnotation( minTimeStep, maxTimeStep, m_colorForRealizations ) );
+    }
+
+    if ( showSelectedTimeSteps )
+    {
+        for ( QDateTime timeStep : m_selectedTimeSteps() )
+        {
+            timeAnnotations.push_back(
+                RimTimeAxisAnnotation::createTimeAnnotation( RiaTimeTTools::fromQDateTime( timeStep ), m_colorForRealizations ) );
+        }
+    }
+
+    return timeAnnotations;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2067,48 +2119,10 @@ void RimEnsembleCurveSet::updateCurveColors()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateTimeAnnotations()
 {
-    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-    plot->removeAllTimeAnnotations();
-
-    bool showTimeRange         = false;
-    bool showSelectedTimeSteps = false;
-
-    if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
-           m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F1 ) ||
-         ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
-           m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
+    if ( auto plot = firstAncestorOrThisOfType<RimSummaryPlot>() )
     {
-        showTimeRange = true;
+        plot->updateAndRedrawTimeAnnotations();
     }
-
-    if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
-           m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F2 ) ||
-         ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
-           m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
-    {
-        showSelectedTimeSteps = true;
-    }
-
-    for ( auto filter : m_curveFilters->filters() )
-    {
-        if ( filter->isActive() && filter->filterMode() == RimEnsembleCurveFilter::FilterMode::SUMMARY_VALUE ) showTimeRange = true;
-    }
-
-    if ( showTimeRange )
-    {
-        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
-        plot->addTimeRangeAnnotation( minTimeStep, maxTimeStep );
-    }
-
-    if ( showSelectedTimeSteps )
-    {
-        for ( QDateTime timeStep : m_selectedTimeSteps() )
-        {
-            plot->addTimeAnnotation( RiaTimeTTools::fromQDateTime( timeStep ) );
-        }
-    }
-
-    plot->updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------

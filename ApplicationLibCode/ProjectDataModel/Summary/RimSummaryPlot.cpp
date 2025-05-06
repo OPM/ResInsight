@@ -37,6 +37,7 @@
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
+#include "Annotations/RimTimeAxisAnnotationUpdater.h"
 #include "RimAsciiDataCurve.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -1348,54 +1349,11 @@ void RimSummaryPlot::updateCaseNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimTimeAxisAnnotation* RimSummaryPlot::addTimeAnnotation( time_t time )
+void RimSummaryPlot::updateAndRedrawTimeAnnotations()
 {
-    RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
-    CAF_ASSERT( axisProps );
+    RimTimeAxisAnnotationUpdater::updateTimeAnnotationObjects( this );
 
-    auto*         annotation = new RimTimeAxisAnnotation;
-    const QString formatString;
-    annotation->setTime( time, formatString );
-    annotation->setDefaultColor();
-
-    axisProps->appendAnnotation( annotation );
-    return annotation;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimTimeAxisAnnotation* RimSummaryPlot::addTimeRangeAnnotation( time_t startTime, time_t endTime )
-{
-    RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
-    CAF_ASSERT( axisProps );
-
-    auto* annotation = new RimTimeAxisAnnotation;
-    annotation->setTimeRange( startTime, endTime );
-    annotation->setDefaultColor();
-
-    axisProps->appendAnnotation( annotation );
-    return annotation;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::removeAllTimeAnnotations()
-{
-    RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
-    if ( axisProps ) axisProps->removeAllAnnotations();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::removeTimeAnnotation( RimTimeAxisAnnotation* annotation )
-{
-    RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
-    CAF_ASSERT( axisProps );
-
-    axisProps->removeAnnotation( annotation );
+    updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2980,6 +2938,7 @@ void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     curvesChanged.send();
 
+    updateAndRedrawTimeAnnotations();
     updateStackedCurveData();
     scheduleReplotIfVisible();
 

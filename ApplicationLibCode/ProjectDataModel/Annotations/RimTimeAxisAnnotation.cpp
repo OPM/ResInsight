@@ -33,6 +33,21 @@
 
 CAF_PDM_SOURCE_INIT( RimTimeAxisAnnotation, "RimTimeAxisAnnotation" );
 
+namespace internal
+{
+
+QString defaultDateTimeFormatString()
+{
+    auto dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+
+    auto timeFormatString = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+
+    return QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+}
+} // namespace internal
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -47,22 +62,36 @@ RimTimeAxisAnnotation::RimTimeAxisAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimTimeAxisAnnotation* RimTimeAxisAnnotation::createTimeAnnotation( time_t time, const cvf::Color3f& color, const QString& dateTimeFormatString )
+{
+    RimTimeAxisAnnotation* annotation = new RimTimeAxisAnnotation();
+    annotation->setTime( time, dateTimeFormatString );
+    annotation->setColor( color );
+    return annotation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimTimeAxisAnnotation* RimTimeAxisAnnotation::createTimeRangeAnnotation( time_t              startTime,
+                                                                         time_t              endTime,
+                                                                         const cvf::Color3f& color,
+                                                                         const QString&      dateTimeFormatString )
+{
+    RimTimeAxisAnnotation* annotation = new RimTimeAxisAnnotation();
+    annotation->setTimeRange( startTime, endTime, dateTimeFormatString );
+    annotation->setColor( color );
+    return annotation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimTimeAxisAnnotation::setTime( time_t time, const QString& dateTimeFormatString )
 {
     m_value = RiaTimeTTools::toDouble( time );
 
-    QString formatString = dateTimeFormatString;
-
-    if ( formatString.isEmpty() )
-    {
-        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
-
-        QString timeFormatString = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                                        RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
-
-        QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
-    }
+    QString formatString = dateTimeFormatString.isEmpty() ? internal::defaultDateTimeFormatString() : dateTimeFormatString;
 
     m_name = RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( time ), formatString );
 
@@ -72,22 +101,16 @@ void RimTimeAxisAnnotation::setTime( time_t time, const QString& dateTimeFormatS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime )
+void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime, const QString& dateTimeFormatString )
 {
     m_rangeStart = RiaTimeTTools::toDouble( startTime );
     m_rangeEnd   = RiaTimeTTools::toDouble( endTime );
 
-    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
-
-    QString timeFormatString = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                                    RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
-
-    QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+    QString formatString = dateTimeFormatString.isEmpty() ? internal::defaultDateTimeFormatString() : dateTimeFormatString;
 
     m_name = QString( "%0 - %1" )
-                 .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( startTime ), dateTimeFormatString ) )
-                 .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( endTime ), dateTimeFormatString ) );
+                 .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( startTime ), formatString ) )
+                 .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( endTime ), formatString ) );
 
     setAnnotationType( AnnotationType::RANGE );
 }

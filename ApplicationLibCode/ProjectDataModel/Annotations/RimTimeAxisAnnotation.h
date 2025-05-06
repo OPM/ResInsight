@@ -38,12 +38,20 @@ class RimTimeAxisAnnotation : public RimPlotAxisAnnotation
 public:
     RimTimeAxisAnnotation();
 
-    void setTime( time_t time, const QString& dateTimeFormatString );
-    void setTimeRange( time_t startTime, time_t endTime );
+    static RimTimeAxisAnnotation*
+        createTimeAnnotation( time_t time, const cvf::Color3f& color, const QString& dateTimeFormatString = QString() );
+
+    static RimTimeAxisAnnotation* createTimeRangeAnnotation( time_t              startTime,
+                                                             time_t              endTime,
+                                                             const cvf::Color3f& color,
+                                                             const QString&      dateTimeFormatString = QString() );
+
+private:
+    void setTime( time_t time, const QString& dateTimeFormatString = QString() );
+    void setTimeRange( time_t startTime, time_t endTime, const QString& dateTimeFormatString = QString() );
 
     void setDefaultColor();
 
-protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
 
