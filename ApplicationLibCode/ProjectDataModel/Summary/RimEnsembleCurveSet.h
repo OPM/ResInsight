@@ -176,8 +176,8 @@ public:
     const RimEnsembleStatistics* statisticsOptions() const;
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
-
     void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryEnsemble* summaryCaseGroup );
+    void appendTimeGroup( caf::PdmUiOrdering& uiOrdering );
 
     const RimEnsembleCurveFilterCollection* curveFilters() const;
 
@@ -243,8 +243,6 @@ private:
 
     std::pair<time_t, time_t> fullTimeStepRange() const;
     std::pair<time_t, time_t> selectedTimeStepRange() const;
-
-    void appendTimeGroup( caf::PdmUiOrdering& uiOrdering );
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
