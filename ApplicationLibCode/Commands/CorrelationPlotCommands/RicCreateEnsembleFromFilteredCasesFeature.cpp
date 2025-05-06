@@ -30,6 +30,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 
+#include "cafPdmPointer.h"
 #include "cafSelectionManager.h"
 #include "cafSelectionManagerTools.h"
 
@@ -54,7 +55,17 @@ RimParameterResultCrossPlot* selectedCrossPlot()
 
 RimEnsembleCurveSet* ensembleCurveSet()
 {
-    return caf::firstAncestorOfTypeFromSelectedObject<RimEnsembleCurveSet>();
+    auto ancestor = caf::firstAncestorOfTypeFromSelectedObject<RimEnsembleCurveSet>();
+    if ( ancestor != nullptr ) return ancestor;
+
+    auto selectedObject = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObject>();
+    if ( selectedObject != nullptr )
+    {
+        auto ensembleCurveSet = selectedObject->descendantsIncludingThisOfType<RimEnsembleCurveSet>();
+        if ( !ensembleCurveSet.empty() ) return ensembleCurveSet.front();
+    }
+
+    return nullptr;
 }
 } // namespace internal
 
@@ -87,6 +98,21 @@ void RicCreateEnsembleFromFilteredCasesFeature::onActionTriggered( bool isChecke
                 {
                     casesForNewEnsemble.erase( std::remove( casesForNewEnsemble.begin(), casesForNewEnsemble.end(), excludedCase ),
                                                casesForNewEnsemble.end() );
+                }
+            }
+        }
+    }
+
+    if ( casesForNewEnsemble.empty() )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<caf::PdmPointer<RimEnsembleCurveSet>>() )
+        {
+            if ( auto ensembleCurveSet = userData.value<caf::PdmPointer<RimEnsembleCurveSet>>() )
+            {
+                if ( auto ensemble = ensembleCurveSet->summaryEnsemble() )
+                {
+                    casesForNewEnsemble = ensembleCurveSet->filterEnsembleCases( ensemble->allSummaryCases() );
                 }
             }
         }
