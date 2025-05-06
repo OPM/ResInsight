@@ -328,7 +328,11 @@ void RimEnsembleCurveSetCollection::onChildDeleted( caf::PdmChildArrayFieldHandl
                                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
-    if ( plot ) plot->updateConnectedEditors();
+    if ( plot )
+    {
+        plot->updateConnectedEditors();
+        plot->updateAndRedrawTimeAnnotations();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
