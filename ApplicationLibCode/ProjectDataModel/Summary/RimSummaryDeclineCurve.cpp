@@ -73,15 +73,6 @@ RimSummaryDeclineCurve::RimSummaryDeclineCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryDeclineCurve::~RimSummaryDeclineCurve()
-{
-    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
-    if ( plot && m_timeRangeAnnotation ) plot->removeTimeAnnotation( m_timeRangeAnnotation );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryDeclineCurve::valuesY() const
 {
     auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
@@ -97,6 +88,24 @@ std::vector<double> RimSummaryDeclineCurve::valuesX() const
     auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
 
     return createDeclineCurveValues( RimSummaryCurve::valuesX(), RimSummaryCurve::timeStepsX(), minTimeStep, maxTimeStep, curveType() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimTimeAxisAnnotation*> RimSummaryDeclineCurve::createTimeAnnotations() const
+{
+    if ( m_showTimeSelectionInPlot && isChecked() )
+    {
+        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+
+        auto annotation = RimTimeAxisAnnotation::createTimeRangeAnnotation( minTimeStep, maxTimeStep, color() );
+        annotation->setName( "" );
+
+        return { annotation };
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -445,16 +454,9 @@ QString RimSummaryDeclineCurve::curveExportDescription( const RifEclipseSummaryA
 //--------------------------------------------------------------------------------------------------
 void RimSummaryDeclineCurve::updateTimeAnnotations()
 {
-    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-    if ( m_timeRangeAnnotation ) plot->removeTimeAnnotation( m_timeRangeAnnotation );
-
-    if ( m_showTimeSelectionInPlot && isChecked() )
+    if ( auto plot = firstAncestorOrThisOfType<RimSummaryPlot>() )
     {
-        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
-
-        m_timeRangeAnnotation = plot->addTimeRangeAnnotation( minTimeStep, maxTimeStep );
-        m_timeRangeAnnotation->setColor( color() );
-        m_timeRangeAnnotation->setName( "" );
+        plot->updateAndRedrawTimeAnnotations();
     }
 }
 

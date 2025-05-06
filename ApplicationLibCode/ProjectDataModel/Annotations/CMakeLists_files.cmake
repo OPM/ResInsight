@@ -15,6 +15,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylineTarget.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotationUpdater.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.h
 )
@@ -36,6 +37,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylineTarget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotationUpdater.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.cpp
 )
