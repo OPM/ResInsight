@@ -48,7 +48,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcElasticProperties_addPropertyS
     RimElasticProperties* elasticProperties = self<RimElasticProperties>();
 
     RimElasticPropertyScalingCollection* scalingColl = elasticProperties->scalingCollection();
-    if ( !scalingColl ) return nullptr;
+    if ( !scalingColl ) return std::unexpected( "No scaling collection found" );
 
     RimElasticPropertyScaling* propertyScaling = new RimElasticPropertyScaling;
     propertyScaling->setFormation( m_formation() );

@@ -232,7 +232,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
         return triangleGeometry;
     }
 
-    return new RimcTriangleGeometry;
+    return std::unexpected( "No intersection geometry found." );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,9 +307,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
         auto eclView = intersection->firstAncestorOfType<RimEclipseView>();
         if ( !eclView )
         {
-            RiaLogging::error( "No Eclipse view found. Extraction of intersection result is only supported for "
-                               "Eclipse view." );
-            return nullptr;
+            return std::unexpected( "No Eclipse view found. Extraction of intersection result is only supported for Eclipse view." );
         }
 
         RimEclipseResultDefinition* eclResultDef = nullptr;
@@ -337,7 +335,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
         return RimcDataContainerDouble::create( values );
     }
 
-    return new RimcDataContainerDouble();
+    return std::unexpected( "No intersection geometry result found." );
 }
 
 //--------------------------------------------------------------------------------------------------

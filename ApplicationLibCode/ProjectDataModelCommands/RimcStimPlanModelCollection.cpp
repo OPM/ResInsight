@@ -64,9 +64,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelCollection_append
         stimPlanModel->setMD( m_md() );
         stimPlanModel->setStimPlanModelTemplate( m_stimPlanModelTemplate() );
         stimPlanModelCollection->updateAllRequiredEditors();
+        return stimPlanModel;
     }
-
-    return stimPlanModel;
+    else
+    {
+        return std::unexpected( "Unable to add StimPlan model." );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,13 +47,12 @@ RimcFishbonesCollection_appendFishbones::RimcFishbonesCollection_appendFishbones
 std::expected<caf::PdmObjectHandle*, QString> RimcFishbonesCollection_appendFishbones::execute()
 {
     auto fishbonesCollection = self<RimFishbonesCollection>();
-    if ( !fishbonesCollection ) return nullptr;
+    if ( !fishbonesCollection ) return std::unexpected( "No fishbones collection found" );
 
     if ( m_subLocations().empty() )
     {
-        RiaLogging::error(
+        return std::unexpected(
             "Sub locations are empty, expected list of float values defining measured depths. Cannot create fishbones object." );
-        return nullptr;
     }
 
     auto* fishbonesObject = fishbonesCollection->appendFishbonesSubsAtLocations( m_subLocations(), m_drillingType() );

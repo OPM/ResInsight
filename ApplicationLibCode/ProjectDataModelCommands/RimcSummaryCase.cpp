@@ -198,38 +198,39 @@ RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHand
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_resampleValues::execute()
 {
-    auto*                      summaryCase = self<RimSummaryCase>();
-    RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
+    auto* summaryCase = self<RimSummaryCase>();
+
+    RifSummaryReaderInterface* sumReader = summaryCase->summaryReader();
+    if ( !sumReader )
+    {
+        return std::unexpected( "No reader found for summary case." );
+    }
 
     auto adr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
 
-    auto dataObject = new RimcSummaryResampleData();
-
-    if ( sumReader )
+    auto [isOk, values] = sumReader->values( adr );
+    if ( !isOk )
     {
-        auto [isOk, values] = sumReader->values( adr );
-        if ( !isOk )
-        {
-            // Error message
-        }
+        return std::unexpected( QString( "No values found for address: '%1'" ).arg( m_addressString ) );
+    }
 
-        const auto& timeValues = sumReader->timeSteps( adr );
+    const auto& timeValues = sumReader->timeSteps( adr );
 
-        QString                    periodString = m_resamplingPeriod().trimmed();
-        RiaDefines::DateTimePeriod period       = RiaDefines::DateTimePeriodEnum::fromText( periodString );
+    QString                    periodString = m_resamplingPeriod().trimmed();
+    RiaDefines::DateTimePeriod period       = RiaDefines::DateTimePeriodEnum::fromText( periodString );
 
-        if ( period != RiaDefines::DateTimePeriod::NONE )
-        {
-            auto [resampledTimeSteps, resampledValues] = RiaSummaryTools::resampledValuesForPeriod( adr, timeValues, values, period );
+    auto dataObject = new RimcSummaryResampleData();
+    if ( period != RiaDefines::DateTimePeriod::NONE )
+    {
+        auto [resampledTimeSteps, resampledValues] = RiaSummaryTools::resampledValuesForPeriod( adr, timeValues, values, period );
 
-            dataObject->m_timeValues   = resampledTimeSteps;
-            dataObject->m_doubleValues = resampledValues;
-        }
-        else
-        {
-            dataObject->m_timeValues   = timeValues;
-            dataObject->m_doubleValues = values;
-        }
+        dataObject->m_timeValues   = resampledTimeSteps;
+        dataObject->m_doubleValues = resampledValues;
+    }
+    else
+    {
+        dataObject->m_timeValues   = timeValues;
+        dataObject->m_doubleValues = values;
     }
 
     return dataObject;

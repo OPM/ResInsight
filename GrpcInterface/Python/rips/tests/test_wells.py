@@ -6,6 +6,8 @@ import rips
 
 import dataroot
 
+import pytest
+
 
 def test_10k(rips_instance, initialize_test):
     case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
@@ -80,13 +82,9 @@ def test_empty_well_intersection(rips_instance, initialize_test):
     well_path_intersection.well_path = None
     well_path_intersection.update()
 
-    # Test with empty geometry. This will also test that an empty list in CAF is converted to an empty list in Python
-    # See __makelist in pdmobject.py
-    geometry = well_path_intersection.geometry()
-    coord_count = len(geometry.x_coords)
-    assert coord_count == 0
+    # Test with empty geometry.
+    with pytest.raises(rips.RipsError):
+        well_path_intersection.geometry()
 
-    # One value per triangle
-    geometry_result_values = well_path_intersection.geometry_result()
-    result_count = len(geometry_result_values.values)
-    assert result_count == 0
+    with pytest.raises(rips.RipsError):
+        well_path_intersection.geometry_result()

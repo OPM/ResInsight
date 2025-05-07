@@ -103,14 +103,16 @@ void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSur
         auto fileName = fileNames[i];
 
         // Not possible to use structured bindings here due to a bug in clang
-        auto surfaceResult    = RimcCommandRouter_extractSurfaces::extractSurfaces( fileName, layers );
-        auto isOk             = surfaceResult.first;
-        auto surfaceFileNames = surfaceResult.second;
+        auto surfaceResult = RimcCommandRouter_extractSurfaces::extractSurfaces( fileName, layers );
+        if ( surfaceResult.has_value() )
+        {
+            auto surfaceFileNames = surfaceResult.value();
 
 #pragma omp critical( RicCreateEnsembleSurfaceFeature )
-        {
-            auto task = progress.task( QString( "Extracting surfaces for %1" ).arg( fileName ) );
-            if ( isOk ) allSurfaceFileNames << surfaceFileNames;
+            {
+                auto task = progress.task( QString( "Extracting surfaces for %1" ).arg( fileName ) );
+                allSurfaceFileNames << surfaceFileNames;
+            }
         }
     }
     progress.setProgress( fileNames.size() );

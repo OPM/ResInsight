@@ -38,7 +38,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurface, RimcSurface_exportToFile, "Export
 RimcSurface_exportToFile::RimcSurface_exportToFile( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
-    CAF_PDM_InitObject( "Export Surface To fiole", "", "", "Export a surface to file" );
+    CAF_PDM_InitObject( "Export Surface To file", "", "", "Export a surface to file" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Filename to export surface to" );
 }
 
@@ -48,21 +48,23 @@ RimcSurface_exportToFile::RimcSurface_exportToFile( caf::PdmObjectHandle* self )
 std::expected<caf::PdmObjectHandle*, QString> RimcSurface_exportToFile::execute()
 {
     RimSurface* surface = self<RimSurface>();
-
-    auto dataObject = new RimcDataContainerString();
-
-    if ( surface )
+    if ( !surface )
     {
-        RigSurface* surfaceData = surface->surfaceData();
-
-        RifSurfaceExporter::writeGocadTSurfFile( m_fileName(),
-                                                 surface->userDescription(),
-                                                 surfaceData->vertices(),
-                                                 surfaceData->triangleIndices() );
-
-        dataObject->m_stringValues = { m_fileName() };
+        return std::unexpected( "No surface found" );
     }
 
+    RigSurface* surfaceData = surface->surfaceData();
+
+    if ( !RifSurfaceExporter::writeGocadTSurfFile( m_fileName(),
+                                                   surface->userDescription(),
+                                                   surfaceData->vertices(),
+                                                   surfaceData->triangleIndices() ) )
+    {
+        return std::unexpected( QString( "Failed to write surface to file: '%1'" ).arg( m_fileName() ) );
+    }
+
+    auto dataObject            = new RimcDataContainerString();
+    dataObject->m_stringValues = { m_fileName() };
     return dataObject;
 }
 
