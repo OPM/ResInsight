@@ -22,6 +22,8 @@
 
 #include "cafPdmObject.h"
 
+#include <expected>
+
 //==================================================================================================
 //
 //
@@ -41,12 +43,12 @@ public:
 
     QString locationOnDisc() const override;
 
-    static std::pair<RimCornerPointCase*, QString> createFromCoordinatesArray( const int                 nx,
-                                                                               const int                 ny,
-                                                                               const int                 nz,
-                                                                               const std::vector<float>& coord,
-                                                                               const std::vector<float>& zcorn,
-                                                                               const std::vector<float>& actnum );
+    static std::expected<RimCornerPointCase*, QString> createFromCoordinatesArray( const int                 nx,
+                                                                                   const int                 ny,
+                                                                                   const int                 nz,
+                                                                                   const std::vector<float>& coord,
+                                                                                   const std::vector<float>& zcorn,
+                                                                                   const std::vector<float>& actnum );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
