@@ -44,7 +44,7 @@ RimcEclipseStatisticsCase_setSourceProperties::RimcEclipseStatisticsCase_setSour
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcEclipseStatisticsCase_setSourceProperties::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseStatisticsCase_setSourceProperties::execute()
 {
     RiaDefines::ResultCatType myEnum = caf::AppEnum<RiaDefines::ResultCatType>::fromText( m_propertyType() );
 
@@ -99,7 +99,7 @@ RimcEclipseStatisticsCase_computeStatistics::RimcEclipseStatisticsCase_computeSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcEclipseStatisticsCase_computeStatistics::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseStatisticsCase_computeStatistics::execute()
 {
     auto eclipseCase = self<RimEclipseStatisticsCase>();
     eclipseCase->computeStatistics();
@@ -144,7 +144,7 @@ RimcEclipseStatisticsCase_clearSourceProperties::RimcEclipseStatisticsCase_clear
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcEclipseStatisticsCase_clearSourceProperties::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseStatisticsCase_clearSourceProperties::execute()
 {
     auto myEnums = { RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                      RiaDefines::ResultCatType::STATIC_NATIVE,

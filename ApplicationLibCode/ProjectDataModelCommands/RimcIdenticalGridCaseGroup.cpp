@@ -36,7 +36,7 @@ RimcIdenticalGridCaseGroup_createStatisticsCase::RimcIdenticalGridCaseGroup_crea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcIdenticalGridCaseGroup_createStatisticsCase::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcIdenticalGridCaseGroup_createStatisticsCase::execute()
 {
     auto gridCaseGroup = self<RimIdenticalGridCaseGroup>();
     auto statCase      = gridCaseGroup->createAndAppendEmptyStatisticsCase();

@@ -53,7 +53,7 @@ RimcWellLogTrack_addExtractionCurve::RimcWellLogTrack_addExtractionCurve( caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellLogTrack_addExtractionCurve::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellLogTrack_addExtractionCurve::execute()
 {
     RimWellLogTrack* wellLogTrack = self<RimWellLogTrack>();
 

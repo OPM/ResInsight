@@ -54,7 +54,7 @@ RimcCommandRouter_extractSurfaces::RimcCommandRouter_extractSurfaces( caf::PdmOb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcCommandRouter_extractSurfaces::execute()
 {
     extractSurfaces( m_gridModelFilename, m_layers(), m_minimumI(), m_maximumI(), m_minimumJ(), m_maximumJ() );
     return nullptr;

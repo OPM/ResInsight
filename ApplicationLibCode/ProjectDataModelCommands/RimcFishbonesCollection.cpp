@@ -44,7 +44,7 @@ RimcFishbonesCollection_appendFishbones::RimcFishbonesCollection_appendFishbones
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcFishbonesCollection_appendFishbones::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcFishbonesCollection_appendFishbones::execute()
 {
     auto fishbonesCollection = self<RimFishbonesCollection>();
     if ( !fishbonesCollection ) return nullptr;
@@ -98,7 +98,7 @@ RimcFishbonesCollection_setFixedStartLocation::RimcFishbonesCollection_setFixedS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcFishbonesCollection_setFixedStartLocation::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcFishbonesCollection_setFixedStartLocation::execute()
 {
     auto fishbonesCollection = self<RimFishbonesCollection>();
     if ( fishbonesCollection )
@@ -149,7 +149,7 @@ RimcFishbonesCollection_setFixedEndLocation::RimcFishbonesCollection_setFixedEnd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcFishbonesCollection_setFixedEndLocation::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcFishbonesCollection_setFixedEndLocation::execute()
 {
     auto fishbonesCollection = self<RimFishbonesCollection>();
     if ( fishbonesCollection )

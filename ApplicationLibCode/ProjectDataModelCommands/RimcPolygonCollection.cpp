@@ -41,7 +41,7 @@ RimcPolygonCollection_createPolygon::RimcPolygonCollection_createPolygon( caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcPolygonCollection_createPolygon::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcPolygonCollection_createPolygon::execute()
 {
     auto polygonCollection = self<RimPolygonCollection>();
 

@@ -47,7 +47,7 @@ RimSummaryCase_summaryVectorValues::RimSummaryCase_summaryVectorValues( caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_summaryVectorValues::execute()
 {
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
@@ -96,7 +96,7 @@ RimSummaryCase_availableAddresses::RimSummaryCase_availableAddresses( caf::PdmOb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimSummaryCase_availableAddresses::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_availableAddresses::execute()
 {
     auto* summaryCase = self<RimSummaryCase>();
 
@@ -148,7 +148,7 @@ RimSummaryCase_availableTimeSteps::RimSummaryCase_availableTimeSteps( caf::PdmOb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimSummaryCase_availableTimeSteps::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_availableTimeSteps::execute()
 {
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
@@ -196,7 +196,7 @@ RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHand
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_resampleValues::execute()
 {
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
@@ -269,7 +269,7 @@ RimSummaryCase_setSummaryVectorValues::RimSummaryCase_setSummaryVectorValues( ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimSummaryCase_setSummaryVectorValues::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_setSummaryVectorValues::execute()
 {
     auto* summaryCase     = self<RimSummaryCase>();
     auto* fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( summaryCase );

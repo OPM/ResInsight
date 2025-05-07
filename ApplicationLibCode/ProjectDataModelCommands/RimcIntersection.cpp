@@ -188,7 +188,7 @@ RimcExtrudedCurveIntersection_geometry::RimcExtrudedCurveIntersection_geometry( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geometry::execute()
 {
     auto intersection = self<RimExtrudedCurveIntersection>();
 
@@ -297,7 +297,7 @@ RimcExtrudedCurveIntersection_geometryResult::RimcExtrudedCurveIntersection_geom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geometryResult::execute()
 {
     auto intersection = self<RimExtrudedCurveIntersection>();
 

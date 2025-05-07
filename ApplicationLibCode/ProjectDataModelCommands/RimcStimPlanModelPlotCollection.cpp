@@ -44,7 +44,7 @@ RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::RimcStimPlanModelPlotCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::execute()
 {
     RimStimPlanModelPlot*           stimPlanModelPlot           = nullptr;
     RimStimPlanModelPlotCollection* stimPlanModelPlotCollection = self<RimStimPlanModelPlotCollection>();

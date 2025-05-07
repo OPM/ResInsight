@@ -48,7 +48,7 @@ RimcFractureTemplateCollection_appendFractureTemplate::RimcFractureTemplateColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcFractureTemplateCollection_appendFractureTemplate::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_appendFractureTemplate::execute()
 {
     RimFractureTemplateCollection* stimPlanModelTemplateCollection = self<RimFractureTemplateCollection>();
 
@@ -95,7 +95,7 @@ RimcFractureTemplateCollection_appendThermalFractureTemplate::RimcFractureTempla
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcFractureTemplateCollection_appendThermalFractureTemplate::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_appendThermalFractureTemplate::execute()
 {
     RimFractureTemplateCollection* fractureTemplateCollection = self<RimFractureTemplateCollection>();
 

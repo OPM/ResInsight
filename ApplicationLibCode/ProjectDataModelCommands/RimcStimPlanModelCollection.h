@@ -42,9 +42,9 @@ class RimcStimPlanModelCollection_appendStimPlanModel : public caf::PdmObjectMet
 public:
     RimcStimPlanModelCollection_appendStimPlanModel( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmPtrField<RimWellPath*>              m_wellPath;
