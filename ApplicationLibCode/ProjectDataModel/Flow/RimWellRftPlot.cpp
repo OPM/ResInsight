@@ -1548,6 +1548,11 @@ RimWellRftEnsembleCurveSet* RimWellRftPlot::findEnsembleCurveSet( RimSummaryEnse
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::rebuildCurves()
 {
+    for ( auto c : m_ensembleCurveSets )
+    {
+        c->clearEnsembleStatistics();
+    }
+
     createEnsembleCurveSets();
     updateFormationsOnPlot();
     syncCurvesFromUiSelection();
