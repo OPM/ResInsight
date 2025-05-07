@@ -54,7 +54,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellLogPlot_newWellLogTrack::e
 {
     RimWellLogPlot* wellLogPlot = self<RimWellLogPlot>();
 
-    if ( !wellLogPlot ) return nullptr;
+    if ( !wellLogPlot ) return std::unexpected( "No well log plot found" );
 
     return createWellLogTrack( wellLogPlot, m_case(), m_wellPath(), m_title() );
 }

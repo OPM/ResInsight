@@ -46,8 +46,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplate_setScaleFacto
 {
     if ( m_halfLength() <= 0.0 || m_height() <= 0.0 || m_dFactor() <= 0.0 || m_conductivity() <= 0.0 )
     {
-        RiaLogging::error( "Invalid scale factors." );
-        return nullptr;
+        return std::unexpected( "Invalid scale factors." );
     }
 
     RimFractureTemplate* fractureTemplate = self<RimFractureTemplate>();

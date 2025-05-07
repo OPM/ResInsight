@@ -31,8 +31,6 @@
 #include <QDir>
 #include <QFileInfo>
 
-#include <memory>
-
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCommandRouter, RimcCommandRouter_extractSurfaces, "ExtractSurfaces" );
 
 //--------------------------------------------------------------------------------------------------
@@ -56,19 +54,22 @@ RimcCommandRouter_extractSurfaces::RimcCommandRouter_extractSurfaces( caf::PdmOb
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::PdmObjectHandle*, QString> RimcCommandRouter_extractSurfaces::execute()
 {
-    extractSurfaces( m_gridModelFilename, m_layers(), m_minimumI(), m_maximumI(), m_minimumJ(), m_maximumJ() );
-    return nullptr;
+    auto result = extractSurfaces( m_gridModelFilename, m_layers(), m_minimumI(), m_maximumI(), m_minimumJ(), m_maximumJ() );
+    if ( result.has_value() )
+        return nullptr;
+    else
+        return std::unexpected( result.error() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces( const QString&          gridModelFilename,
-                                                                                 const std::vector<int>& layers,
-                                                                                 int                     minI,
-                                                                                 int                     maxI,
-                                                                                 int                     minJ,
-                                                                                 int                     maxJ )
+std::expected<QStringList, QString> RimcCommandRouter_extractSurfaces::extractSurfaces( const QString&          gridModelFilename,
+                                                                                        const std::vector<int>& layers,
+                                                                                        int                     minI,
+                                                                                        int                     maxI,
+                                                                                        int                     minJ,
+                                                                                        int                     maxJ )
 {
     QStringList surfaceFileNames;
 
@@ -132,8 +133,7 @@ std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces(
             {
                 if ( !fi.absoluteDir().mkpath( surfaceExportDirName ) )
                 {
-                    RiaLogging::error( "Unable to create directory for surface export: " + fi.absoluteDir().absolutePath() );
-                    return std::make_pair( false, surfaceFileNames );
+                    return std::unexpected( "Unable to create directory for surface export: " + fi.absoluteDir().absolutePath() );
                 }
             }
 
@@ -143,8 +143,7 @@ std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces(
             // TODO: Add more info in surface comment
             if ( !RifSurfaceExporter::writeGocadTSurfFile( surfaceFilename, "Surface comment", vertices, triangleIndices ) )
             {
-                RiaLogging::error( "Failed to export surface data to " + surfaceFilename );
-                return std::make_pair( false, surfaceFileNames );
+                return std::unexpected( "Failed to export surface data to " + surfaceFilename );
             }
             else
             {
@@ -153,12 +152,11 @@ std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces(
             }
         }
 
-        return std::make_pair( true, surfaceFileNames );
+        return surfaceFileNames;
     }
     catch ( ... )
     {
-        RiaLogging::error( "Error during creation of surface data for model " + gridModelFilename );
-        return std::make_pair( false, surfaceFileNames );
+        return std::unexpected( "Error during creation of surface data for model " + gridModelFilename );
     }
 }
 

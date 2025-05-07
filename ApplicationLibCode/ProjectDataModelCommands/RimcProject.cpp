@@ -257,15 +257,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
     RiaLogging::info( "Creating grid from key values" );
 
     QString name = m_name();
-    if ( name.isEmpty() )
-    {
-        RiaLogging::error( "Empty name not allowed" );
-        return nullptr;
-    }
+    if ( name.isEmpty() ) return std::unexpected( "Empty name not allowed" );
 
     int nx = m_nx();
     int ny = m_ny();
     int nz = m_nz();
+    if ( nx <= 0 || ny <= 0 || nz <= 0 ) return std::unexpected( "Invalid grid size. nx, ny and nz must be positive." );
 
     RiaLogging::info( QString( "Grid dimensions: [%1 %2 %3]" ).arg( nx ).arg( ny ).arg( nz ) );
     RiaLogging::info( QString( "Coord: %1" ).arg( m_coordKey() ) );
@@ -304,27 +301,28 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
     std::vector<float> actnum = convertToFloatVector( keyValueStore->get( m_actnumKey().toStdString() ) );
     if ( coord.empty() || zcorn.empty() || actnum.empty() )
     {
-        RiaLogging::error( "Found unexcepted empty coord, zcorn or actnum array." );
-        return nullptr;
+        return std::unexpected( "Found unexcepted empty coord, zcorn or actnum array." );
     }
 
-    auto [grid, errorMessage] = RimCornerPointCase::createFromCoordinatesArray( nx, ny, nz, coord, zcorn, actnum );
-    if ( grid )
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "Invalid project." );
+
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if ( !analysisModels ) return std::unexpected( "Missing analysis models." );
+
+    auto result = RimCornerPointCase::createFromCoordinatesArray( nx, ny, nz, coord, zcorn, actnum );
+    if ( !result.has_value() ) return result;
+
+    RimCornerPointCase* grid = result.value();
+    grid->setCustomCaseName( name );
+    project->assignCaseIdToCase( grid );
+
+    analysisModels->cases.push_back( grid );
+
+    RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
+
+    if ( RimEclipseView* riv = grid->createAndAddReservoirView() )
     {
-        RimProject* project = RimProject::current();
-        if ( !project ) return nullptr;
-
-        grid->setCustomCaseName( name );
-        project->assignCaseIdToCase( grid );
-
-        RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
-        if ( !analysisModels ) return nullptr;
-
-        analysisModels->cases.push_back( grid );
-
-        RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
-
-        RimEclipseView* riv = grid->createAndAddReservoirView();
         riv->loadDataAndUpdate();
 
         if ( !riv->cellResult()->hasResult() )
@@ -338,10 +336,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
         {
             if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
         }
-    }
-    else
-    {
-        RiaLogging::error( QString( "Creating corner point grid failed: %1" ).arg( errorMessage ) );
     }
 
     keyValueStore->remove( m_coordKey().toStdString() );

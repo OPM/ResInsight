@@ -22,12 +22,10 @@
 
 #include "cafPdmField.h"
 
-#include "cvfVector3.h"
-
 #include <QString>
 #include <QStringList>
 
-#include <memory>
+#include <expected>
 
 //==================================================================================================
 ///
@@ -41,13 +39,13 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
 
-    static bool                         readMinMaxLayerFromGridFile( const QString& gridFileName, int& minK, int& maxK );
-    static std::pair<bool, QStringList> extractSurfaces( const QString&          gridModelFileName,
-                                                         const std::vector<int>& layers,
-                                                         int                     minI = -1,
-                                                         int                     maxI = -1,
-                                                         int                     minJ = -1,
-                                                         int                     maxJ = -1 );
+    static bool                                readMinMaxLayerFromGridFile( const QString& gridFileName, int& minK, int& maxK );
+    static std::expected<QStringList, QString> extractSurfaces( const QString&          gridModelFileName,
+                                                                const std::vector<int>& layers,
+                                                                int                     minI = -1,
+                                                                int                     maxI = -1,
+                                                                int                     minJ = -1,
+                                                                int                     maxJ = -1 );
 
 private:
     caf::PdmField<QString>          m_gridModelFilename;

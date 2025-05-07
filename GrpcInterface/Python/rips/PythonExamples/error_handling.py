@@ -18,13 +18,13 @@ try:
 except rips.RipsError as e:
     print("Expected Server Exception Received while loading case: ", e)
 
-# Try loading well paths from a non-existing folder.  We should get a grpc.RpcError exception from the server
+# Try loading well paths from a non-existing folder.  We should get a rips.RipsError exception from the server
 try:
     well_path_files = resinsight.project.import_well_paths(
         well_path_folder="NONSENSE/NONSENSE"
     )
 except rips.RipsError as e:
-    print("Expected Server Exception Received while loading wellpaths: ", e)
+    print("Server Exception Received while loading wellpaths: ", e)
 
 # Try loading well paths from an existing but empty folder. We should get a warning.
 try:
@@ -55,12 +55,12 @@ if case is not None:
     # Add another value, so this is outside the bounds of the active cell result storage
     results.append(1.0)
 
-    # This time we should get a grpc.RpcError exception, which is a server side error.
+    # This time we should get a rips.RipsError exception.
     try:
         case.set_active_cell_property(results, "GENERATED", "POROAPPENDED", 0)
         print("Everything went well??")
     except RipsError as e:
-        print("Expected Server Exception Received: ", e)
+        print("Server Exception Received: ", e)
     except IndexError:
         print("Got index out of bounds error. This shouldn't happen here")
 

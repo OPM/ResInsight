@@ -53,13 +53,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseStatisticsCase_setSourc
     {
         auto eclipseCase = self<RimEclipseStatisticsCase>();
         eclipseCase->setSourceProperties( myEnum, m_propertyNames );
+        return nullptr;
     }
     else
     {
-        RiaLogging::error( "Wrong result type. Supported types are DYNAMIC_NATIVE, STATIC_NATIVE, INPUT_PROPERTY, GENERATED" );
+        return std::unexpected( "Wrong result type. Supported types are DYNAMIC_NATIVE, STATIC_NATIVE, INPUT_PROPERTY, GENERATED" );
     }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
