@@ -41,9 +41,9 @@ class RimcWellPath_addFracture : public caf::PdmObjectMethod
 public:
     RimcWellPath_addFracture( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
 private:
     caf::PdmField<double>                          m_md;
@@ -62,9 +62,9 @@ class RimcWellPath_addThermalFracture : public caf::PdmObjectMethod
 public:
     RimcWellPath_addThermalFracture( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
 private:
     caf::PdmPtrField<RimThermalFractureTemplate*> m_fractureTemplate;
@@ -82,9 +82,9 @@ class RimcWellPath_appendPerforationInterval : public caf::PdmObjectMethod
 public:
     RimcWellPath_appendPerforationInterval( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
 private:
     caf::PdmField<double> m_startMD;
@@ -103,10 +103,10 @@ class RimcWellPath_multiSegmentWellSettings : public caf::PdmObjectMethod
 public:
     RimcWellPath_multiSegmentWellSettings( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    bool                             isNullptrValidResult() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    bool                                     isNullptrValidResult() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 };
 
 //==================================================================================================
@@ -119,10 +119,10 @@ class RimcWellPath_appendFishbones : public caf::PdmObjectMethod
 public:
     RimcWellPath_appendFishbones( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    bool                             isNullptrValidResult() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    bool                                     isNullptrValidResult() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
 private:
     caf::PdmField<std::vector<double>>                             m_subLocations;

@@ -50,7 +50,7 @@ RimcWellLogPlot_newWellLogTrack::RimcWellLogPlot_newWellLogTrack( caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellLogPlot_newWellLogTrack::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellLogPlot_newWellLogTrack::execute()
 {
     RimWellLogPlot* wellLogPlot = self<RimWellLogPlot>();
 

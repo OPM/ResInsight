@@ -36,9 +36,9 @@ class RimcRimWellPathGeometryDef_appendNewWellTarget : public caf::PdmObjectMeth
 public:
     RimcRimWellPathGeometryDef_appendNewWellTarget( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
 private:
     caf::PdmField<cvf::Vec3d> m_coordinate;

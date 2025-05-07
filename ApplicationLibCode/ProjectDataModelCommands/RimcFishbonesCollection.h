@@ -34,9 +34,9 @@ class RimcFishbonesCollection_appendFishbones : public caf::PdmObjectMethod
 public:
     RimcFishbonesCollection_appendFishbones( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
 private:
     caf::PdmField<std::vector<double>>                             m_subLocations;
@@ -53,9 +53,9 @@ class RimcFishbonesCollection_setFixedStartLocation : public caf::PdmObjectMetho
 public:
     RimcFishbonesCollection_setFixedStartLocation( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
     bool isNullptrValidResult() const override;
 
@@ -73,9 +73,9 @@ class RimcFishbonesCollection_setFixedEndLocation : public caf::PdmObjectMethod
 public:
     RimcFishbonesCollection_setFixedEndLocation( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
     bool isNullptrValidResult() const override;
 

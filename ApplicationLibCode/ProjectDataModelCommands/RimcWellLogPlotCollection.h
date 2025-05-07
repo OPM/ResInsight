@@ -37,9 +37,9 @@ class RimcWellLogPlotCollection_newWellLogPlot : public caf::PdmObjectMethod
 public:
     RimcWellLogPlotCollection_newWellLogPlot( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
     static RimWellLogPlot*
         createWellLogPlot( RimWellLogPlotCollection* wellLogPlotCollection, RimWellPath* wellPath, RimEclipseCase* eclipseCase );

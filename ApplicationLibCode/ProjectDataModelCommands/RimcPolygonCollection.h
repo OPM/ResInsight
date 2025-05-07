@@ -36,9 +36,9 @@ class RimcPolygonCollection_createPolygon : public caf::PdmObjectMethod
 public:
     RimcPolygonCollection_createPolygon( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
 
 private:
     caf::PdmField<QString>                 m_name;

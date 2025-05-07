@@ -53,7 +53,7 @@ RimcEclipseCase_importProperties::RimcEclipseCase_importProperties( caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcEclipseCase_importProperties::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_importProperties::execute()
 {
     std::vector<QString> absolutePaths = m_fileNames;
     for ( auto& path : absolutePaths )

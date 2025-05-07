@@ -37,10 +37,10 @@ class RimcStimPlanModel_exportToFile : public caf::PdmObjectMethod
 public:
     RimcStimPlanModel_exportToFile( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                     resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
+    bool                                     isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_directoryPath;
