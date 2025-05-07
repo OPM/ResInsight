@@ -490,7 +490,6 @@ class PdmObjectBase:
         except grpc.RpcError as exc:
             raise RuntimeError("%s" % exc.details()) from None
 
-
     O = TypeVar("O")
 
     def _call_pdm_method_return_optional_value(
@@ -520,7 +519,6 @@ class PdmObjectBase:
 
         except grpc.RpcError as exc:
             raise RuntimeError("%s" % exc.details()) from None
-
 
     def update(self) -> None:
         """Sync all fields from the Python Object to ResInsight"""
