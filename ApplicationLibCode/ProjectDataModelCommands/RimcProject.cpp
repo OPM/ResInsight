@@ -61,7 +61,7 @@ RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryCase::execute()
 {
     QString   absolutePath = m_fileName;
     QFileInfo projectPathInfo( absolutePath );
@@ -136,7 +136,7 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimProject_summaryCase::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimProject_summaryCase::execute()
 {
     auto proj     = RimProject::current();
     auto sumCases = proj->allSummaryCases();
@@ -188,7 +188,7 @@ RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimProject_surfaceFolder::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimProject_surfaceFolder::execute()
 {
     auto                  proj     = RimProject::current();
     RimSurfaceCollection* surfcoll = proj->activeOilField()->surfaceCollection();
@@ -252,7 +252,7 @@ RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimProject_createGridFromKeyValues::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues::execute()
 {
     RiaLogging::info( "Creating grid from key values" );
 

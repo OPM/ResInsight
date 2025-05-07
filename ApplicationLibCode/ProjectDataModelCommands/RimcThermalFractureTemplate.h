@@ -37,10 +37,10 @@ class RimcThermalFractureTemplate_exportToFile : public caf::PdmObjectMethod
 public:
     RimcThermalFractureTemplate_exportToFile( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_filePath;
@@ -57,8 +57,8 @@ class RimcThermalFractureTemplate_timeSteps : public caf::PdmObjectMethod
 public:
     RimcThermalFractureTemplate_timeSteps( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 };

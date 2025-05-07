@@ -7,6 +7,7 @@ import rips
 import grpc
 import tempfile
 
+
 resinsight = rips.Instance.find()
 
 case = None
@@ -14,22 +15,16 @@ case = None
 # Try loading a non-existing case. We should get a grpc.RpcError exception from the server
 try:
     case = resinsight.project.load_case("Nonsense")
-except grpc.RpcError as e:
-    print(
-        "Expected Server Exception Received while loading case: ", e.code(), e.details()
-    )
+except rips.RipsError as e:
+    print("Expected Server Exception Received while loading case: ", e)
 
 # Try loading well paths from a non-existing folder.  We should get a grpc.RpcError exception from the server
 try:
     well_path_files = resinsight.project.import_well_paths(
         well_path_folder="NONSENSE/NONSENSE"
     )
-except grpc.RpcError as e:
-    print(
-        "Expected Server Exception Received while loading wellpaths: ",
-        e.code(),
-        e.details(),
-    )
+except rips.RipsError as e:
+    print("Expected Server Exception Received while loading wellpaths: ", e)
 
 # Try loading well paths from an existing but empty folder. We should get a warning.
 try:
@@ -42,7 +37,7 @@ try:
         print("Should get warnings below")
         for warning in resinsight.project.warnings():
             print(warning)
-except grpc.RpcError as e:
+except rips.RipsError as e:
     print("Unexpected Server Exception caught!!!", e)
 
 case = resinsight.project.case(case_id=0)
@@ -64,7 +59,7 @@ if case is not None:
     try:
         case.set_active_cell_property(results, "GENERATED", "POROAPPENDED", 0)
         print("Everything went well??")
-    except grpc.RpcError as e:
+    except RipsError as e:
         print("Expected Server Exception Received: ", e)
     except IndexError:
         print("Got index out of bounds error. This shouldn't happen here")

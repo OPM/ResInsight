@@ -52,7 +52,7 @@ RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::RimcStimPlanMod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::execute()
 {
     if ( !m_eclipseCase ) return nullptr;
 

@@ -39,7 +39,7 @@ class RimcCommandRouter_extractSurfaces : public RimCommandRouterMethod
 public:
     RimcCommandRouter_extractSurfaces( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle* execute() override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
 
     static bool                         readMinMaxLayerFromGridFile( const QString& gridFileName, int& minK, int& maxK );
     static std::pair<bool, QStringList> extractSurfaces( const QString&          gridModelFileName,

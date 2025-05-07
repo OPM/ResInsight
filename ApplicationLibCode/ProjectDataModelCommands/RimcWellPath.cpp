@@ -64,7 +64,7 @@ RimcWellPath_addFracture::RimcWellPath_addFracture( caf::PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellPath_addFracture::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addFracture::execute()
 {
     auto wellPath = self<RimWellPath>();
 
@@ -141,7 +141,7 @@ RimcWellPath_addThermalFracture::RimcWellPath_addThermalFracture( caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellPath_addThermalFracture::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addThermalFracture::execute()
 {
     auto wellPath = self<RimWellPath>();
 
@@ -194,7 +194,7 @@ RimcWellPath_appendPerforationInterval::RimcWellPath_appendPerforationInterval( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellPath_appendPerforationInterval::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendPerforationInterval::execute()
 {
     auto wellPath = self<RimWellPath>();
 
@@ -243,7 +243,7 @@ RimcWellPath_multiSegmentWellSettings::RimcWellPath_multiSegmentWellSettings( ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellPath_multiSegmentWellSettings::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_multiSegmentWellSettings::execute()
 {
     auto wellPath = self<RimWellPath>();
 
@@ -303,7 +303,7 @@ RimcWellPath_appendFishbones::RimcWellPath_appendFishbones( caf::PdmObjectHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellPath_appendFishbones::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendFishbones::execute()
 {
     auto wellPath = self<RimWellPath>();
 
