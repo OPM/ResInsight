@@ -464,7 +464,10 @@ class PdmObjectBase:
             object=self._pb2_object, method=method_name, params=pb2_params
         )
 
-        self._pdm_object_stub.CallPdmObjectMethod(request)
+        try:
+            self._pdm_object_stub.CallPdmObjectMethod(request)
+        except grpc.RpcError as exc:
+            raise RuntimeError("%s" % exc.details()) from None
 
     X = TypeVar("X")
 
@@ -480,10 +483,13 @@ class PdmObjectBase:
             object=self._pb2_object, method=method_name, params=pb2_params
         )
 
-        pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
+        try:
+            pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
+            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
+            return pdm_object
+        except grpc.RpcError as exc:
+            raise RuntimeError("%s" % exc.details()) from None
 
-        pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
-        return pdm_object
 
     O = TypeVar("O")
 
@@ -499,17 +505,22 @@ class PdmObjectBase:
             object=self._pb2_object, method=method_name, params=pb2_params
         )
 
-        pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
+        try:
+            pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
 
-        from .generated.generated_classes import class_from_keyword
+            from .generated.generated_classes import class_from_keyword
 
-        child_class_definition = class_from_keyword(pb2_object.class_keyword)
-        if child_class_definition is None:
-            return None
+            child_class_definition = class_from_keyword(pb2_object.class_keyword)
+            if child_class_definition is None:
+                return None
 
-        assert class_definition.__name__ == child_class_definition.__name__
-        pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
-        return pdm_object
+            assert class_definition.__name__ == child_class_definition.__name__
+            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
+            return pdm_object
+
+        except grpc.RpcError as exc:
+            raise RuntimeError("%s" % exc.details()) from None
+
 
     def update(self) -> None:
         """Sync all fields from the Python Object to ResInsight"""
