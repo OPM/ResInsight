@@ -37,9 +37,9 @@ public:
     RimcFractureTemplate_setScaleFactors( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                     resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
-    bool                                     isNullptrValidResult() const override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<double> m_halfLength;

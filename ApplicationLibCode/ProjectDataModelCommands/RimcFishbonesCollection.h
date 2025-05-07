@@ -35,8 +35,8 @@ public:
     RimcFishbonesCollection_appendFishbones( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                     resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<std::vector<double>>                             m_subLocations;
@@ -54,8 +54,8 @@ public:
     RimcFishbonesCollection_setFixedStartLocation( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                     resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
     bool isNullptrValidResult() const override;
 
@@ -74,8 +74,8 @@ public:
     RimcFishbonesCollection_setFixedEndLocation( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                     resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
     bool isNullptrValidResult() const override;
 

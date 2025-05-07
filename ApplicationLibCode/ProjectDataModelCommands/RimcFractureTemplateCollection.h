@@ -37,8 +37,8 @@ public:
     RimcFractureTemplateCollection_appendFractureTemplate( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                     resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<QString> m_filePath;
@@ -55,8 +55,8 @@ public:
     RimcFractureTemplateCollection_appendThermalFractureTemplate( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                     resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>         defaultResult() const override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<QString> m_filePath;
