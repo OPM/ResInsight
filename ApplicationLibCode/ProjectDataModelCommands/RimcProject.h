@@ -36,10 +36,10 @@ class RimProject_importSummaryCase : public caf::PdmObjectMethod
 public:
     RimProject_importSummaryCase( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_fileName;
@@ -55,10 +55,10 @@ class RimProject_summaryCase : public caf::PdmObjectMethod
 public:
     RimProject_summaryCase( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<int> m_caseId;
@@ -74,10 +74,10 @@ class RimProject_surfaceFolder : public caf::PdmObjectMethod
 public:
     RimProject_surfaceFolder( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_folderName;
@@ -93,10 +93,10 @@ class RimProject_createGridFromKeyValues : public caf::PdmObjectMethod
 public:
     RimProject_createGridFromKeyValues( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_name;

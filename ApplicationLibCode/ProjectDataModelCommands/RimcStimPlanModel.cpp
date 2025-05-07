@@ -39,13 +39,14 @@ RimcStimPlanModel_exportToFile::RimcStimPlanModel_exportToFile( caf::PdmObjectHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcStimPlanModel_exportToFile::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModel_exportToFile::execute()
 {
     RimStimPlanModel* stimPlanModel = self<RimStimPlanModel>();
 
-    RifStimPlanModelExporter::writeToDirectory( stimPlanModel, stimPlanModel->useDetailedFluidLoss(), m_directoryPath() );
-
-    return nullptr;
+    if ( RifStimPlanModelExporter::writeToDirectory( stimPlanModel, stimPlanModel->useDetailedFluidLoss(), m_directoryPath() ) )
+        return nullptr;
+    else
+        return std::unexpected( "Unable to write model to directory" );
 }
 
 //--------------------------------------------------------------------------------------------------

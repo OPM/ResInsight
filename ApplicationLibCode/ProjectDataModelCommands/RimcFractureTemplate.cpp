@@ -42,7 +42,7 @@ RimcFractureTemplate_setScaleFactors::RimcFractureTemplate_setScaleFactors( caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcFractureTemplate_setScaleFactors::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplate_setScaleFactors::execute()
 {
     if ( m_halfLength() <= 0.0 || m_height() <= 0.0 || m_dFactor() <= 0.0 || m_conductivity() <= 0.0 )
     {

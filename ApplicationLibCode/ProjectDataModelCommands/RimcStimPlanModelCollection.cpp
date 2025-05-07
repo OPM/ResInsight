@@ -48,7 +48,7 @@ RimcStimPlanModelCollection_appendStimPlanModel::RimcStimPlanModelCollection_app
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcStimPlanModelCollection_appendStimPlanModel::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelCollection_appendStimPlanModel::execute()
 {
     RimStimPlanModel*           stimPlanModel           = nullptr;
     RimStimPlanModelCollection* stimPlanModelCollection = self<RimStimPlanModelCollection>();

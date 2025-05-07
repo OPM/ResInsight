@@ -42,7 +42,7 @@ RimcThermalFractureTemplate_exportToFile::RimcThermalFractureTemplate_exportToFi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcThermalFractureTemplate_exportToFile::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcThermalFractureTemplate_exportToFile::execute()
 {
     RimThermalFractureTemplate* thermalFracture = self<RimThermalFractureTemplate>();
     if ( thermalFracture && thermalFracture->fractureDefinition() )
@@ -88,7 +88,7 @@ RimcThermalFractureTemplate_timeSteps::RimcThermalFractureTemplate_timeSteps( ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcThermalFractureTemplate_timeSteps::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcThermalFractureTemplate_timeSteps::execute()
 {
     RimThermalFractureTemplate* thermalFracture = self<RimThermalFractureTemplate>();
     auto                        timeSteps       = thermalFracture->timeStepsStrings();

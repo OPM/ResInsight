@@ -36,10 +36,10 @@ class RimcEclipseCase_importProperties : public caf::PdmObjectMethod
 public:
     RimcEclipseCase_importProperties( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<std::vector<QString>> m_fileNames;

@@ -16,10 +16,10 @@ class InheritedDemoObj_appendValves : public caf::PdmObjectMethod
 public:
     InheritedDemoObj_appendValves( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    bool                             isNullptrValidResult() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    bool                                          isNullptrValidResult() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<std::vector<double>> m_valveLocations;
@@ -41,7 +41,7 @@ InheritedDemoObj_appendValves::InheritedDemoObj_appendValves( caf::PdmObjectHand
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* InheritedDemoObj_appendValves::execute()
+std::expected<caf::PdmObjectHandle*, QString> InheritedDemoObj_appendValves::execute()
 {
     auto obj = self<InheritedDemoObj>();
 

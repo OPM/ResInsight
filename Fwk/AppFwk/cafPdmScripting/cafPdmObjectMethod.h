@@ -39,6 +39,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
+#include <expected>
+
 /// CAF_PDM_OBJECT_METHOD_SOURCE_INIT associates the self class keyword and the method keyword with the method factory
 /// Place this in the cpp file, preferably above the constructor
 #define CAF_PDM_OBJECT_METHOD_SOURCE_INIT( SelfClassName, MethodClassName, methodKeyword ) \
@@ -65,7 +67,7 @@ public:
     PdmObjectMethod( PdmObjectHandle* self );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
-    virtual PdmObjectHandle* execute() = 0;
+    virtual std::expected<caf::PdmObjectHandle*, QString> execute() = 0;
 
     // Some execute() methods can return a null pointer as a valid return value.
     // Return true here to allow this

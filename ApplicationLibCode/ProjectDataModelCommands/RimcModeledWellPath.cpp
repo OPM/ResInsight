@@ -44,7 +44,7 @@ RimcModeledWellPath_appendLateral::RimcModeledWellPath_appendLateral( caf::PdmOb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcModeledWellPath_appendLateral::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcModeledWellPath_appendLateral::execute()
 {
     auto parentWellPath = self<RimModeledWellPath>();
 

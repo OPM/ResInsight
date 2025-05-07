@@ -41,7 +41,7 @@ RimcPressureTable_addPressure::RimcPressureTable_addPressure( caf::PdmObjectHand
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcPressureTable_addPressure::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcPressureTable_addPressure::execute()
 {
     RimPressureTableItem* pressureTableItem = new RimPressureTableItem;
     pressureTableItem->setValues( m_depth, m_initialPressure, m_pressure );

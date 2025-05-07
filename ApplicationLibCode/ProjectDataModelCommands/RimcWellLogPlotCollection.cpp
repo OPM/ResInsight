@@ -54,7 +54,7 @@ RimcWellLogPlotCollection_newWellLogPlot::RimcWellLogPlotCollection_newWellLogPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellLogPlotCollection_newWellLogPlot::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellLogPlotCollection_newWellLogPlot::execute()
 {
     RimWellLogPlot*           newWellLogPlot        = nullptr;
     RimWellLogPlotCollection* wellLogPlotCollection = self<RimWellLogPlotCollection>();

@@ -48,7 +48,7 @@ RimcRimWellPathGeometryDef_appendNewWellTarget::RimcRimWellPathGeometryDef_appen
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcRimWellPathGeometryDef_appendNewWellTarget::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcRimWellPathGeometryDef_appendNewWellTarget::execute()
 {
     auto geoDef = self<RimWellPathGeometryDef>();
 
