@@ -64,6 +64,7 @@ public:
     RimEclipseCase* eclipseCase() const;
 
     RifReaderRftInterface* statisticsEclipseRftReader();
+    void                   clearEnsembleStatistics();
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -77,7 +78,6 @@ protected:
 private:
     QString              ensembleName() const;
     std::vector<QString> parametersWithVariation() const;
-    void                 clearEnsembleStatistics();
 
 private:
     caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
