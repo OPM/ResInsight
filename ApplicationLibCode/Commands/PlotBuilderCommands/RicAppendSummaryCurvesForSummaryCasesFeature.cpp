@@ -62,9 +62,7 @@ void RicAppendSummaryCurvesForSummaryCasesFeature::onActionTriggered( bool isChe
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryCurvesForSummaryCasesFeature::setupActionLook( QAction* actionToSetup )
 {
-    QString objectType = "Cases";
-
-    auto text = QString( "Append Curves For " ) + objectType;
+    auto text = QString( "Append to Current Plot(s)" );
     actionToSetup->setText( text );
     actionToSetup->setIcon( QIcon( ":/SummaryCurve16x16.png" ) );
 }
