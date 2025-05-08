@@ -63,9 +63,7 @@ void RicAppendSummaryPlotsForSummaryCasesFeature::onActionTriggered( bool isChec
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryPlotsForSummaryCasesFeature::setupActionLook( QAction* actionToSetup )
 {
-    QString objectType = "Cases";
-
-    auto text = QString( "Append Plots For " ) + objectType;
+    auto text = QString( "Append as New Plot(s)" );
     actionToSetup->setText( text );
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
 }
