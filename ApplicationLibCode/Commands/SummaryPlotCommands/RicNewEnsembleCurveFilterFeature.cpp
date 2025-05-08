@@ -72,6 +72,7 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
             curveSet->setDefaultTimeRange();
             curveSet->loadDataAndUpdate( true );
         }
+        newFilter->updateMaxMinAndDefaultValuesFromParent();
         newFilter->loadDataAndUpdate();
         filterCollection->updateConnectedEditors();
 
