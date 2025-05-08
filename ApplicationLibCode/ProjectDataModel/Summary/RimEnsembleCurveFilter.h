@@ -85,6 +85,7 @@ private:
     caf::PdmFieldHandle* objectToggleField() override;
     void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void                 appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void                 initAfterRead() override;
 
     void onObjectionFunctionChanged( const caf::SignalEmitter* emitter );
 
@@ -109,8 +110,10 @@ private:
 
     caf::PdmChildField<RimSummaryAddressSelector*> m_addressSelector;
 
-    caf::PdmField<double>               m_minValue;
-    caf::PdmField<double>               m_maxValue;
+    caf::PdmField<std::pair<double, double>> m_valueRange;
+    caf::PdmField<double>                    m_minValue_OBSOLETE;
+    caf::PdmField<double>                    m_maxValue_OBSOLETE;
+
     caf::PdmField<std::vector<QString>> m_categories;
 
     caf::PdmField<QString> m_realizationFilter;

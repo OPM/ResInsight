@@ -74,3 +74,28 @@ TEST( RiaNumericalTools, RoundToSignificant )
         EXPECT_EQ( testValue.expectedFloor, valueFloor );
     }
 }
+
+TEST( RiaNumericalTools, ValueInRange )
+{
+    struct TestValues
+    {
+        double value;
+        double minimum;
+        double maximum;
+        bool   expectedResult;
+    };
+
+    TestValues testValues[] = {
+        { 5, 0, 10, true },
+        { -5, 0, 10, false },
+        { 1.0, 1.0, 2.0, true },
+        { 2.0, 1.0, 2.0, true },
+        { 2.1, 1.0, 2.0, false },
+    };
+
+    for ( const auto& testValue : testValues )
+    {
+        auto isInRange = RiaNumericalTools::isValueInRange( testValue.value, std::pair( testValue.minimum, testValue.maximum ) );
+        EXPECT_EQ( testValue.expectedResult, isInRange );
+    }
+}

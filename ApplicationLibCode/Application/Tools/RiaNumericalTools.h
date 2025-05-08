@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <algorithm>
+#include <utility>
+
 namespace RiaNumericalTools
 {
 double roundToClosestPowerOfTenCeil( double value );
@@ -34,5 +37,13 @@ enum class RoundToSignificantDigitsMode
     FLOOR
 };
 double roundToNumSignificantDigits( double value, double numSignificantDigits, RoundToSignificantDigitsMode mode );
+
+template <typename T>
+bool isValueInRange( T value, const std::pair<T, T>& range )
+{
+    auto minimumValue = std::min( range.first, range.second );
+    auto maximumValue = std::max( range.first, range.second );
+    return value >= minimumValue && value <= maximumValue;
+}
 
 }; // namespace RiaNumericalTools
