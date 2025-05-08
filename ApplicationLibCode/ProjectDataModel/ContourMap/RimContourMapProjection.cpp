@@ -57,7 +57,7 @@ void RimContourMapProjection::ResultAggregation::setUp()
     addItem( RigContourMapCalculator::GEOMETRIC_MEAN, "GEOM_VALUE", "Geometric Mean" );
     addItem( RigContourMapCalculator::SUM, "SUM", "Sum" );
 
-    addItem( RigContourMapCalculator::TOP_VALUE, "TOP_VALUE", "Top  Value" );
+    addItem( RigContourMapCalculator::TOP_VALUE, "TOP_VALUE", "Top Value" );
     addItem( RigContourMapCalculator::MIN_VALUE, "MIN_VALUE", "Min Value" );
     addItem( RigContourMapCalculator::MAX_VALUE, "MAX_VALUE", "Max Value" );
 
