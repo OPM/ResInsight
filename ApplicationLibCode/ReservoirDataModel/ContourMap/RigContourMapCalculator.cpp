@@ -79,14 +79,38 @@ double RigContourMapCalculator::calculateTopValue( const RigContourMapProjection
                                                    const std::vector<std::pair<size_t, double>>& matchingCells,
                                                    const std::vector<double>&                    gridCellValues )
 {
+    std::vector<size_t> cellIndices;
+    cellIndices.reserve( matchingCells.size() );
     for ( auto [cellIdx, weight] : matchingCells )
     {
-        double cellValue = gridCellValues[contourMapProjection.gridResultIndex( cellIdx )];
+        cellIndices.push_back( cellIdx );
+    }
+
+    // Sort the cells based on k layer as first criteria, then on cell index
+    std::sort( cellIndices.begin(),
+               cellIndices.end(),
+               [&]( size_t a, size_t b )
+               {
+                   if ( contourMapProjection.kLayer( a ) == contourMapProjection.kLayer( b ) )
+                   {
+                       return a < b;
+                   }
+                   return contourMapProjection.kLayer( a ) < contourMapProjection.kLayer( b );
+               } );
+
+    // Find the first cell with a valid value
+    for ( auto cellIdx : cellIndices )
+    {
+        auto gridResultIndex = contourMapProjection.gridResultIndex( cellIdx );
+        if ( gridResultIndex >= gridCellValues.size() ) continue;
+
+        double cellValue = gridCellValues[gridResultIndex];
         if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
         {
             return cellValue;
         }
     }
+
     return std::numeric_limits<double>::infinity();
 }
 
