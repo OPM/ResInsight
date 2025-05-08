@@ -19,6 +19,7 @@
 #include "RimEnsembleCurveFilter.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaNumericalTools.h"
 #include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
@@ -27,6 +28,7 @@
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimObjectiveFunctionTools.h"
+#include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressSelector.h"
 #include "RimSummaryCase.h"
@@ -39,6 +41,7 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiValueRangeEditor.h"
 
 namespace caf
 {
@@ -104,11 +107,16 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_minValue, "MinValue", m_lowerLimit, "Min" );
-    m_minValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_minValue_OBSOLETE, "MinValue", m_lowerLimit, "Min" );
+    m_minValue_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_minValue_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_maxValue, "MaxValue", m_upperLimit, "Max" );
-    m_maxValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_maxValue_OBSOLETE, "MaxValue", m_upperLimit, "Max" );
+    m_maxValue_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_maxValue_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitField( &m_valueRange, "ValueRange", std::pair( 0.0, 0.0 ), "Value Range" );
+    m_valueRange.uiCapability()->setUiEditorTypeName( caf::PdmUiValueRangeEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_categories, "Categories", "Categories" );
 
@@ -156,7 +164,7 @@ void RimEnsembleCurveFilter::setActive( bool active )
 //--------------------------------------------------------------------------------------------------
 double RimEnsembleCurveFilter::minValue() const
 {
-    return m_minValue;
+    return m_valueRange().first;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,7 +172,7 @@ double RimEnsembleCurveFilter::minValue() const
 //--------------------------------------------------------------------------------------------------
 double RimEnsembleCurveFilter::maxValue() const
 {
-    return m_maxValue;
+    return m_valueRange().second;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -242,8 +250,8 @@ QString RimEnsembleCurveFilter::description() const
 
     return QString( "%0 : %1 - %2" )
         .arg( descriptor )
-        .arg( QString::number( m_minValue(), format, precision ) )
-        .arg( QString::number( m_maxValue(), format, precision ) );
+        .arg( QString::number( minValue(), format, precision ) )
+        .arg( QString::number( maxValue(), format, precision ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,7 +407,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         }
         updateMaxMinAndDefaultValues( true );
     }
-    else if ( changedField == &m_active || changedField == &m_minValue || changedField == &m_maxValue || changedField == &m_categories ||
+    else if ( changedField == &m_active || changedField == &m_valueRange || changedField == &m_categories ||
               changedField == &m_realizationFilter )
     {
         if ( curveSet )
@@ -486,6 +494,17 @@ void RimEnsembleCurveFilter::updateCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2025.04.0" ) )
+    {
+        m_valueRange = std::pair<double, double>( m_minValue_OBSOLETE, m_maxValue_OBSOLETE );
+    };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto eParam = selectedEnsembleParameter();
@@ -528,8 +547,7 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
     else if ( eParam.isNumeric() || m_filterMode() == FilterMode::SUMMARY_VALUE )
     {
-        uiOrdering.add( &m_minValue );
-        uiOrdering.add( &m_maxValue );
+        uiOrdering.add( &m_valueRange );
     }
     else if ( eParam.isText() )
     {
@@ -549,19 +567,21 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_minValue || field == &m_maxValue )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_minimum = m_lowerLimit;
-            attr->m_maximum = m_upperLimit;
-        }
-    }
-    else if ( field == &m_objectiveValuesSelectSummaryAddressPushButton )
+    if ( field == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         if ( auto attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
             attr->m_buttonText = "...";
+        }
+    }
+    else if ( field == &m_valueRange )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            attr->m_sliderTickCount = 100;
+
+            attr->m_minimum = m_lowerLimit;
+            attr->m_maximum = m_upperLimit;
         }
     }
 }
@@ -610,7 +630,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
             }
             else if ( eParam.isNumeric() )
             {
-                if ( !crpValue.isNumeric() || crpValue.numericValue() < m_minValue() || crpValue.numericValue() > m_maxValue() )
+                if ( !crpValue.isNumeric() || !RiaNumericalTools::isValueInRange( crpValue.numericValue(), m_valueRange() ) )
                 {
                     casesToRemove.insert( sumCase );
                 }
@@ -637,7 +657,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
             double value = m_objectiveFunction->value( sumCase, addresses, curveSet->objectiveFunctionTimeConfig(), &hasWarning );
             if ( hasWarning ) continue;
 
-            if ( value < m_minValue() || value > m_maxValue )
+            if ( !RiaNumericalTools::isValueInRange( value, m_valueRange() ) )
             {
                 casesToRemove.insert( sumCase );
             }
@@ -647,7 +667,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
             if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
             {
                 double value = m_customObjectiveFunction()->value( sumCase );
-                if ( value < m_minValue() || value > m_maxValue )
+                if ( !RiaNumericalTools::isValueInRange( value, m_valueRange() ) )
                 {
                     casesToRemove.insert( sumCase );
                 }
@@ -668,11 +688,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 {
                     if ( timeSteps[i] < timeConfig.m_startTimeStep || timeSteps[i] > timeConfig.m_endTimeStep ) continue;
 
-                    const double value = values[i];
-                    if ( value < m_minValue() || value > m_maxValue )
-                    {
-                        isInsideFilter = false;
-                    }
+                    isInsideFilter = RiaNumericalTools::isValueInRange( values[i], m_valueRange() );
                 }
             }
             if ( !isInsideFilter )
@@ -786,12 +802,6 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) ) m_lowerLimit = eParam.minValue;
             if ( RiaCurveDataTools::isValidValue( eParam.maxValue, false ) ) m_upperLimit = eParam.maxValue;
 
-            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
-            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
-
-            m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
-            m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
-
             if ( m_ensembleParameterName() == RiaDefines::summaryRealizationNumber() )
             {
                 int lower = eParam.minValue;
@@ -822,12 +832,6 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 
             m_lowerLimit = minObjValue;
             m_upperLimit = maxObjValue;
-
-            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
-            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
-
-            m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
-            m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
         }
     }
     else if ( m_filterMode() == FilterMode::CUSTOM_OBJECTIVE_FUNCTION )
@@ -838,12 +842,6 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 
             m_lowerLimit = minMaxValues.first;
             m_upperLimit = minMaxValues.second;
-
-            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
-            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
-
-            m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
-            m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
         }
     }
     else if ( m_filterMode() == FilterMode::SUMMARY_VALUE )
@@ -855,13 +853,12 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             auto minMaxValues = ensemble->minMax( m_addressSelector->summaryAddress() );
             m_lowerLimit      = minMaxValues.first;
             m_upperLimit      = minMaxValues.second;
-
-            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
-            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
-
-            m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
-            m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
         }
+    }
+
+    if ( forceDefault )
+    {
+        m_valueRange = { m_lowerLimit, m_upperLimit };
     }
 }
 
