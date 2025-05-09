@@ -61,7 +61,7 @@ void RicApplyUserDefinedCameraFeature::onActionTriggered( bool isChecked )
         readCameraFromSettings( eye, vrp, up );
         if ( eye.isUndefined() || vrp.isUndefined() || up.isUndefined() ) return;
 
-        RicStoreUserDefinedCameraFeature::activeCamera()->setFromLookAt( eye, vrp, up );
+        camera->setFromLookAt( eye, vrp, up );
         RiaApplication::instance()->activeReservoirView()->updateDisplayModelForCurrentTimeStepAndRedraw();
     }
 }
