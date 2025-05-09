@@ -3,7 +3,10 @@ cmake_minimum_required(VERSION 3.26)
 
 # Check if CMake version is 4.0 or higher
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.0)
-    message(FATAL_ERROR "CMake version ${CMAKE_VERSION} detected. We are investigating issues for CMake 4. Use CMake 3.x to build ResInsight.")
+  message(
+    FATAL_ERROR
+      "CMake version ${CMAKE_VERSION} detected. We are investigating issues for CMake 4. Use CMake 3.x to build ResInsight."
+  )
 endif()
 
 include(CheckCSourceCompiles)
@@ -12,14 +15,20 @@ include(FetchContent)
 project(ResInsight)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0)
-        message(FATAL_ERROR "Minimum GCC version is 13, detected version: ${CMAKE_CXX_COMPILER_VERSION}")
-    endif()
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0)
+    message(
+      FATAL_ERROR
+        "Minimum GCC version is 13, detected version: ${CMAKE_CXX_COMPILER_VERSION}"
+    )
+  endif()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
-    message(FATAL_ERROR "Minimum supported version is Clang 19, detected version: ${CMAKE_CXX_COMPILER_VERSION}")
+    message(
+      FATAL_ERROR
+        "Minimum supported version is Clang 19, detected version: ${CMAKE_CXX_COMPILER_VERSION}"
+    )
   endif()
 endif()
 
