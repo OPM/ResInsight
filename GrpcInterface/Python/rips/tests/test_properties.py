@@ -52,7 +52,7 @@ def test_10k_set_out_of_bounds(rips_instance, initialize_test):
 
     results = case.active_cell_property("DYNAMIC_NATIVE", "SOIL", 1)
     results.append(5.0)
-    with pytest.raises(grpc.RpcError):
+    with pytest.raises(rips.RipsError):
         assert case.set_active_cell_property(results, "GENERATED", "SOIL", 1)
 
 

@@ -87,7 +87,6 @@ def test_add_well_path_completions(rips_instance, initialize_test):
 
 
 def test_add_well_path_fracture_template(rips_instance, initialize_test):
-
     # Add test for all properties
     # Some properties depend on availablility of other data and is not tested, these tests are commented out
 
