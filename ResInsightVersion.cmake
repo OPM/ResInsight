@@ -7,6 +7,7 @@ set(RESINSIGHT_PATCH_VERSION 1)
 set(RESINSIGHT_VERSION_TEXT "-dev")
 # set(RESINSIGHT_VERSION_TEXT "-RC_4")
 
+
 # Optional text
 # Must be unique and increasing within one combination of major/minor/patch version 
 # The uniqueness of this text is independent of RESINSIGHT_VERSION_TEXT 
