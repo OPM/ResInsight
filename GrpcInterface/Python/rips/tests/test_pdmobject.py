@@ -5,6 +5,7 @@ import pytest
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 from rips import RipsError
 
+
 def test_exception_on_object_method(rips_instance, initialize_test):
     name = "the name"
     nx = 12
