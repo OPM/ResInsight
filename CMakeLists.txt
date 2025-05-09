@@ -11,6 +11,18 @@ include(FetchContent)
 
 project(ResInsight)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0)
+        message(FATAL_ERROR "Minimum GCC version is 13, detected version: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
+    message(FATAL_ERROR "Minimum supported version is Clang 19, detected version: ${CMAKE_CXX_COMPILER_VERSION}")
+  endif()
+endif()
+
 # Ensure all binary files ensd up in the same folder as the executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
