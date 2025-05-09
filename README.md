@@ -46,6 +46,13 @@ ResInsight is cross-platform with automated testing on:
 ```
 git clone git://github.com/OPM/ResInsight.git
 ```
+### Minimum Requirements
+gcc 13
+clang 19
+CMake 3.15 (CMake 4 is currently not supported)
+MSVC 2022 17.4
+
+These requirements are defined by used features in c++23 like std::stacktrace and std::expected.
 
 ### Dependencies
 Most dependencies are managed using vcpkg as defined in [vcpkg.json](https://github.com/OPM/ResInsight/blob/dev/vcpkg.json)
