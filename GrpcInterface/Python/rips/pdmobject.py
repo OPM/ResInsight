@@ -16,6 +16,7 @@ import PdmObject_pb2_grpc
 import Commands_pb2
 import Commands_pb2_grpc
 
+from .exception import RipsError
 
 from typing import Any, Callable, TypeVar, Tuple, cast, Union, List, Optional, Type
 from typing_extensions import ParamSpec, Self
@@ -36,7 +37,18 @@ C = TypeVar("C")
 
 def add_method(cls: C) -> Callable[[F], F]:
     def decorator(func: F) -> F:
-        setattr(cls, func.__name__, func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except grpc.RpcError as e:
+                raise RipsError(e.details()) from None
+
+        # Preserve the metadata of the original function
+        wrapper.__name__ = func.__name__
+        wrapper.__doc__ = func.__doc__
+
+        # Add the wrapped function to the class
+        setattr(cls, func.__name__, wrapper)
         return func  # returning func means func can still be used normally
 
     return decorator
@@ -467,7 +479,7 @@ class PdmObjectBase:
         try:
             self._pdm_object_stub.CallPdmObjectMethod(request)
         except grpc.RpcError as exc:
-            raise RuntimeError("%s" % exc.details()) from None
+            raise RipsError("%s" % exc.details()) from None
 
     X = TypeVar("X")
 
@@ -488,7 +500,7 @@ class PdmObjectBase:
             pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
             return pdm_object
         except grpc.RpcError as exc:
-            raise RuntimeError("%s" % exc.details()) from None
+            raise RipsError("%s" % exc.details()) from None
 
     O = TypeVar("O")
 
@@ -518,7 +530,7 @@ class PdmObjectBase:
             return pdm_object
 
         except grpc.RpcError as exc:
-            raise RuntimeError("%s" % exc.details()) from None
+            raise RipsError("%s" % exc.details()) from None
 
     def update(self) -> None:
         """Sync all fields from the Python Object to ResInsight"""
