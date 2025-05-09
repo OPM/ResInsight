@@ -49,10 +49,10 @@ jobs:
               ri-unit-test-path: "ResInsight-tests",
             }
           - {
-              name: "Ubuntu 24.04 clang-18",
+              name: "Ubuntu 24.04 clang-19",
               os: ubuntu-24.04,
-              cc: "clang-18",
-              cxx: "clang++-18",
+              cc: "clang-19",
+              cxx: "clang++-19",
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: false,
@@ -160,13 +160,13 @@ jobs:
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
           sudo apt install mono-complete
 
-      - name: Install clang-18
+      - name: Install clang-19
         if: contains( matrix.config.cc, 'clang')
         run: |
           sudo apt-get upgrade
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
-          sudo ./llvm.sh 18 all
+          sudo ./llvm.sh 19 all
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
