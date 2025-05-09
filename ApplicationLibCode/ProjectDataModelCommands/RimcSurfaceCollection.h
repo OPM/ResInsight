@@ -43,10 +43,10 @@ class RimcSurfaceCollection_importSurface : public caf::PdmObjectMethod
 public:
     RimcSurfaceCollection_importSurface( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_fileName;
@@ -62,10 +62,10 @@ class RimcSurfaceCollection_addFolder : public caf::PdmObjectMethod
 public:
     RimcSurfaceCollection_addFolder( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_folderName;
@@ -81,10 +81,10 @@ class RimcSurfaceCollection_newSurface : public caf::PdmObjectMethod
 public:
     RimcSurfaceCollection_newSurface( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmPtrField<RimCase*> m_case;

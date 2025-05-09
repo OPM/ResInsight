@@ -45,7 +45,7 @@ RimcSurface_exportToFile::RimcSurface_exportToFile( caf::PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSurface_exportToFile::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcSurface_exportToFile::execute()
 {
     RimSurface* surface = self<RimSurface>();
 

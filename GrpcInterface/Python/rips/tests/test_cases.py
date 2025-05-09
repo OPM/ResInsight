@@ -180,7 +180,7 @@ def test_replaceCase(rips_instance, initialize_test):
 
 def test_loadNonExistingCase(rips_instance, initialize_test):
     case_path = "Nonsense/Nonsense/Nonsense"
-    with pytest.raises(grpc.RpcError):
+    with pytest.raises(rips.RipsError):
         assert rips_instance.project.load_case(case_path)
 
 

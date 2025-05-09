@@ -52,7 +52,7 @@ RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcSummaryPlotCollection_newSummaryPlot::execute()
 {
     QStringList addressStrings = RiaTextStringTools::splitSkipEmptyParts( m_addressString(), ";" );
 

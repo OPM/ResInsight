@@ -76,12 +76,12 @@ bool RimCornerPointCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<RimCornerPointCase*, QString> RimCornerPointCase::createFromCoordinatesArray( const int                 nx,
-                                                                                        const int                 ny,
-                                                                                        const int                 nz,
-                                                                                        const std::vector<float>& coord,
-                                                                                        const std::vector<float>& zcorn,
-                                                                                        const std::vector<float>& actnum )
+std::expected<RimCornerPointCase*, QString> RimCornerPointCase::createFromCoordinatesArray( const int                 nx,
+                                                                                            const int                 ny,
+                                                                                            const int                 nz,
+                                                                                            const std::vector<float>& coord,
+                                                                                            const std::vector<float>& zcorn,
+                                                                                            const std::vector<float>& actnum )
 {
     CAF_ASSERT( nx > 0 );
     CAF_ASSERT( ny > 0 );
@@ -92,20 +92,20 @@ std::pair<RimCornerPointCase*, QString> RimCornerPointCase::createFromCoordinate
     size_t ntot   = nx * ny * nz;
 
     if ( coord.size() != ncoord )
-        return { nullptr, QString( "Wrong size of coord array. Expected %1, but got %2" ).arg( ncoord ).arg( coord.size() ) };
+        return std::unexpected( QString( "Wrong size of coord array. Expected %1, but got %2" ).arg( ncoord ).arg( coord.size() ) );
 
     if ( zcorn.size() != nzcorn )
-        return { nullptr, QString( "Wrong size of zcorn array. Expected %1, but got %2" ).arg( nzcorn ).arg( zcorn.size() ) };
+        return std::unexpected( QString( "Wrong size of zcorn array. Expected %1, but got %2" ).arg( nzcorn ).arg( zcorn.size() ) );
 
     if ( actnum.size() != ntot )
-        return { nullptr, QString( "Wrong size of actnum array. Expected %1, but got %2" ).arg( ntot ).arg( actnum.size() ) };
+        return std::unexpected( QString( "Wrong size of actnum array. Expected %1, but got %2" ).arg( ntot ).arg( actnum.size() ) );
 
     auto cornerPointCase = new RimCornerPointCase;
 
     buildGrid( *cornerPointCase->eclipseCaseData(), nx, ny, nz, coord, zcorn, actnum );
     cornerPointCase->ensureFaultDataIsComputed();
 
-    return { cornerPointCase, "" };
+    return cornerPointCase;
 }
 
 //--------------------------------------------------------------------------------------------------

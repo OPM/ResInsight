@@ -41,9 +41,9 @@ class RimcElasticProperties_addPropertyScaling : public caf::PdmObjectMethod
 public:
     RimcElasticProperties_addPropertyScaling( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<QString> m_formation;

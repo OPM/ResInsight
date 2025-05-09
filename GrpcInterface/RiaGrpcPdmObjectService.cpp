@@ -552,23 +552,31 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
         {
             copyPdmObjectFromRipsToCaf( &( request->params() ), method.get() );
 
-            caf::PdmObjectHandle* result = method->execute();
-            if ( result )
+            std::expected<caf::PdmObjectHandle*, QString> result = method->execute();
+            if ( !result.has_value() )
             {
-                copyPdmObjectFromCafToRips( result, reply );
-                if ( !method->resultIsPersistent() )
+                return grpc::Status( grpc::NOT_FOUND, result.error().toStdString() );
+            }
+            else
+            {
+                caf::PdmObjectHandle* object = result.value();
+                if ( object )
                 {
-                    delete result;
+                    copyPdmObjectFromCafToRips( object, reply );
+                    if ( !method->resultIsPersistent() )
+                    {
+                        delete object;
+                    }
+                    return grpc::Status::OK;
                 }
-                return grpc::Status::OK;
-            }
 
-            if ( method->isNullptrValidResult() )
-            {
-                return grpc::Status::OK;
-            }
+                if ( method->isNullptrValidResult() )
+                {
+                    return grpc::Status::OK;
+                }
 
-            return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
+                return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
+            }
         }
         return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
     }

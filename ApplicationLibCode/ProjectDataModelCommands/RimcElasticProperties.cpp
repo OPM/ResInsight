@@ -43,7 +43,7 @@ RimcElasticProperties_addPropertyScaling::RimcElasticProperties_addPropertyScali
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcElasticProperties_addPropertyScaling::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcElasticProperties_addPropertyScaling::execute()
 {
     RimElasticProperties* elasticProperties = self<RimElasticProperties>();
 

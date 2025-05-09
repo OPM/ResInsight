@@ -66,12 +66,12 @@ def test_non_existing_dynamic_values(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
-    with pytest.raises(grpc.RpcError):
+    with pytest.raises(rips.RipsError):
         case.nnc_connections_dynamic_values("x", 0)
 
 
 def test_invalid_time_steps(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
-    with pytest.raises(grpc.RpcError):
+    with pytest.raises(rips.RipsError):
         case.nnc_connections_generated_values("Formation Allan", 9999)

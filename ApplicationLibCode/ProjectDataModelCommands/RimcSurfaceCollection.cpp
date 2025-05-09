@@ -47,7 +47,7 @@ RimcSurfaceCollection_importSurface::RimcSurfaceCollection_importSurface( caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSurfaceCollection_importSurface::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_importSurface::execute()
 {
     RimSurfaceCollection* coll = self<RimSurfaceCollection>();
     if ( coll )
@@ -96,7 +96,7 @@ RimcSurfaceCollection_addFolder::RimcSurfaceCollection_addFolder( caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSurfaceCollection_addFolder::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_addFolder::execute()
 {
     RimSurfaceCollection* coll = self<RimSurfaceCollection>();
     if ( coll )
@@ -148,7 +148,7 @@ RimcSurfaceCollection_newSurface::RimcSurfaceCollection_newSurface( caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSurfaceCollection_newSurface::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newSurface::execute()
 {
     RimSurfaceCollection* coll = self<RimSurfaceCollection>();
     if ( coll && m_case )
