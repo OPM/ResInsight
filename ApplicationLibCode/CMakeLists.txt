@@ -303,10 +303,13 @@ set(LINK_LIBRARIES
     ${RI_LIBRARIES}
 )
 
-# According to ivarun this is needed on OpenSuse, and Fedora. See:
-# https://github.com/OPM/ResInsight/pull/7
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  # According to ivarun rt is needed on OpenSuse, and Fedora. See:
+  # https://github.com/OPM/ResInsight/pull/7
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
+
+  # stdc++exp is required for std::stacktrace
+  list(APPEND EXTERNAL_LINK_LIBRARIES stdc++exp)
 endif()
 
 target_link_libraries(
