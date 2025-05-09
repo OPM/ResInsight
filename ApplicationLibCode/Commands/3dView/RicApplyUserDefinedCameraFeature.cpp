@@ -52,7 +52,7 @@ bool RicApplyUserDefinedCameraFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicApplyUserDefinedCameraFeature::onActionTriggered( bool isChecked )
 {
-    if ( auto camera = RicStoreUserDefinedCameraFeature::activeCamera() )
+    if ( RicStoreUserDefinedCameraFeature::activeCamera() )
     {
         cvf::Vec3d eye = cvf::Vec3d::UNDEFINED;
         cvf::Vec3d vrp = cvf::Vec3d::UNDEFINED;
