@@ -291,7 +291,7 @@ RimSummaryCase* RiaSummaryTools::summaryCaseById( int caseId )
 //--------------------------------------------------------------------------------------------------
 RimSummaryEnsemble* RiaSummaryTools::ensembleById( int ensembleId )
 {
-    auto ensembles = RimProject::current()->summaryGroups();
+    auto ensembles = RimProject::current()->summaryEnsembles();
 
     for ( auto ensemble : ensembles )
     {

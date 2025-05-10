@@ -594,16 +594,16 @@ std::vector<RimSummaryEnsemble*> RimDeltaSummaryEnsemble::allEnsembles() const
 
     auto project = RimProject::current();
 
-    for ( auto group : project->summaryGroups() )
+    for ( auto ensemble : project->summaryEnsembles() )
     {
-        if ( group == this ) continue;
+        if ( ensemble == this ) continue;
 
-        if ( !group->isEnsemble() ) continue;
+        if ( !ensemble->isEnsemble() ) continue;
 
-        auto derivedEnsemble = dynamic_cast<const RimDeltaSummaryEnsemble*>( group );
+        auto derivedEnsemble = dynamic_cast<const RimDeltaSummaryEnsemble*>( ensemble );
         if ( derivedEnsemble && !derivedEnsemble->isValid() ) continue;
 
-        ensembles.push_back( group );
+        ensembles.push_back( ensemble );
     }
     return ensembles;
 }

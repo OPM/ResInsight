@@ -103,10 +103,10 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
     if ( sourcesToSelect.empty() && selectedGroups.empty() )
     {
         const auto                       allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
-        const auto                       allGroups      = project->summaryGroups();
+        const auto                       ensembles      = project->summaryEnsembles();
         std::vector<RimSummaryEnsemble*> allEnsembles;
-        for ( const auto group : allGroups )
-            if ( group->isEnsemble() ) allEnsembles.push_back( group );
+        for ( const auto ensemble : ensembles )
+            if ( ensemble->isEnsemble() ) allEnsembles.push_back( ensemble );
 
         if ( !allSingleCases.empty() )
         {

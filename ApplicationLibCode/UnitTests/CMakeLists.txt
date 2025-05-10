@@ -109,6 +109,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkSurfaceImporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaKeyValueStore-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleImportTools-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

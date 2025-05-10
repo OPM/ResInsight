@@ -196,7 +196,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
     if ( fieldNeedingOptions == &m_ensemble )
     {
         RimProject* proj = RimProject::current();
-        for ( auto ensemble : proj->summaryGroups() )
+        for ( auto ensemble : proj->summaryEnsembles() )
         {
             if ( ensemble->isEnsemble() )
             {
@@ -769,7 +769,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
     auto ensembleColl = ensembleCollection();
     if ( ensembleColl.size() == 1 )
     {
-        if ( proj->summaryGroups().size() > 1 )
+        if ( proj->summaryEnsembles().size() > 1 )
         {
             m_ensemble = *( ensembleColl.begin() );
 
@@ -1408,7 +1408,7 @@ RimSummaryEnsemble* RimSummaryPlotSourceStepping::stepEnsemble( int direction )
     std::vector<RimSummaryEnsemble*> ensembles;
 
     RimProject* proj = RimProject::current();
-    for ( auto ensemble : proj->summaryGroups() )
+    for ( auto ensemble : proj->summaryEnsembles() )
     {
         if ( ensemble->isEnsemble() )
         {

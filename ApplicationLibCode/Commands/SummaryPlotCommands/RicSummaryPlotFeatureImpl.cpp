@@ -18,6 +18,7 @@
 
 #include "RicSummaryPlotFeatureImpl.h"
 
+#include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDefines.h"
@@ -284,10 +285,10 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
     bool isEnsembleMode = ensembleColoringStyle != EnsembleColoringType::NONE;
 
-    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType        = RiaDefines::FileType::SMSPEC,
-                                                             .ensembleOrGroup = isEnsembleMode,
-                                                             .allowDialogs    = true };
-    auto [isOk, summaryCasesToUse] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, createConfig );
+    RiaEnsembleImportTools::CreateConfig createConfig{ .fileType        = RiaDefines::FileType::SMSPEC,
+                                                       .ensembleOrGroup = isEnsembleMode,
+                                                       .allowDialogs    = true };
+    auto [isOk, summaryCasesToUse] = RiaEnsembleImportTools::createSummaryCasesFromFiles( summaryFileNames, createConfig );
     if ( !isOk || summaryCasesToUse.empty() )
     {
         RiaLogging::error( "Needs at least one summary case to create a plot." );

@@ -52,13 +52,13 @@ void RicSelectCaseOrEnsembleUi::setEnsembleSelectionMode( bool ensembleMode )
 
     if ( ensembleMode )
     {
-        std::vector<RimSummaryEnsemble*> groups = proj->summaryGroups();
+        std::vector<RimSummaryEnsemble*> ensembles = proj->summaryEnsembles();
 
-        for ( RimSummaryEnsemble* group : groups )
+        for ( RimSummaryEnsemble* ensemble : ensembles )
         {
-            if ( group->isEnsemble() )
+            if ( ensemble->isEnsemble() )
             {
-                m_selectedEnsemble = group;
+                m_selectedEnsemble = ensemble;
                 break;
             }
         }
@@ -83,12 +83,12 @@ QList<caf::PdmOptionItemInfo> RicSelectCaseOrEnsembleUi::calculateValueOptions( 
     }
     else if ( fieldNeedingOptions == &m_selectedEnsemble )
     {
-        RimProject*                      proj   = RimProject::current();
-        std::vector<RimSummaryEnsemble*> groups = proj->summaryGroups();
+        RimProject*                      proj      = RimProject::current();
+        std::vector<RimSummaryEnsemble*> ensembles = proj->summaryEnsembles();
 
-        for ( RimSummaryEnsemble* group : groups )
+        for ( RimSummaryEnsemble* ensemble : ensembles )
         {
-            if ( group->isEnsemble() ) options.push_back( caf::PdmOptionItemInfo( group->name(), group ) );
+            if ( ensemble->isEnsemble() ) options.push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble ) );
         }
     }
 

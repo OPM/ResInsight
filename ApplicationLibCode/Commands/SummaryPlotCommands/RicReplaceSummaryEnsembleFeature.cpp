@@ -18,6 +18,7 @@
 
 #include "RicReplaceSummaryEnsembleFeature.h"
 
+#include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaLogging.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -61,8 +62,8 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
     if ( fileNames.isEmpty() ) return;
     if ( fileType != RiaDefines::FileType::SMSPEC ) return;
 
-    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = false };
-    auto [isOk, newCases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
+    RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = false };
+    auto [isOk, newCases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
     if ( !isOk || newCases.empty() )
     {
         RiaLogging::warning( "No new cases are created." );

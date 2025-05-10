@@ -43,15 +43,6 @@ public:
     static std::pair<bool, std::vector<RimSummaryCase*>> createAndAddSummaryCasesFromFiles( const QStringList& fileName,
                                                                                             bool               doCreateDefaultPlot );
 
-    struct CreateConfig
-    {
-        RiaDefines::FileType fileType;
-        bool                 ensembleOrGroup;
-        bool                 allowDialogs;
-    };
-
-    static std::pair<bool, std::vector<RimSummaryCase*>> createSummaryCasesFromFiles( const QStringList& fileName, CreateConfig createConfig );
-
     static void addSummaryCases( const std::vector<RimSummaryCase*>& cases );
     static void addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases );
 
