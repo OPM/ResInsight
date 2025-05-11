@@ -308,19 +308,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # https://github.com/OPM/ResInsight/pull/7
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 
-  find_library(STDCPP_LIBRARY NAMES stdc++
-      HINTS 
-    /opt/rh/gcc-toolset-13/root/usr/lib64
-    /opt/rh/gcc-toolset-13/root/usr/lib/gcc/x86_64-redhat-linux/13
-    /usr/lib/x86_64-linux-gnu
-    /usr/lib/gcc/x86_64-linux-gnu/13)
+  find_library(STDCPP_LIBRARY NAMES stdc++)
 
+  # std::stacktrace requires stdc++exp.
+  # If a custom build of GCC stdc++exp is reqiured, define the serach path here.
+  set(RESINSIGHT_GCC_STDCPP_EXP_PATH "" CACHE PATH "Path to search for stdc++exp")
+  
   find_library(STDCPP_EXP_LIBRARY NAMES stdc++exp
-    HINTS 
-    /opt/rh/gcc-toolset-13/root/usr/lib64
-    /opt/rh/gcc-toolset-13/root/usr/lib/gcc/x86_64-redhat-linux/13
-    /usr/lib/x86_64-linux-gnu
-    /usr/lib/gcc/x86_64-linux-gnu/13)
+    HINTS ${RESINSIGHT_GCC_STDCPP_EXP_PATH})
 
   if (STDCPP_EXP_LIBRARY)  
     message(STATUS "stdc++exp library found: ${STDCPP_EXP_LIBRARY}")
