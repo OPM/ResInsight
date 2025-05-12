@@ -295,6 +295,7 @@ void RimSurfaceCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuil
     menuBuilder << "RicImportSurfacesFeature";
     menuBuilder << "RicNewGridSurfaceFeature";
     menuBuilder << "RicNewDepthSurfaceFeature";
+    menuBuilder << "RicNewRegularSurfaceFeature";
     menuBuilder << "RicImportEnsembleSurfaceFeature";
     menuBuilder << "RicCreateEnsembleSurfaceFeature";
     menuBuilder.addSeparator();
