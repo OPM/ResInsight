@@ -63,8 +63,8 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
     if ( fileType != RiaDefines::FileType::SMSPEC ) return;
 
     RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = false };
-    auto [isOk, newCases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
-    if ( !isOk || newCases.empty() )
+    auto                                 newCases = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
+    if ( newCases.empty() )
     {
         RiaLogging::warning( "No new cases are created." );
         return;

@@ -36,12 +36,12 @@ namespace RiaEnsembleImportTools
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::vector<RimSummaryCase*>> createSummaryCasesFromFiles( const QStringList& fileNames, CreateConfig createConfig )
+std::vector<RimSummaryCase*> createSummaryCasesFromFiles( const QStringList& fileNames, CreateConfig createConfig )
 {
     RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !sumCaseColl ) return {};
 
     std::vector<RimSummaryCase*> newCases;
-    if ( !sumCaseColl ) return std::make_pair( false, newCases );
 
     std::vector<RifSummaryCaseFileResultInfo> importFileInfos;
     if ( createConfig.fileType == RiaDefines::FileType::SMSPEC )
@@ -79,7 +79,7 @@ std::pair<bool, std::vector<RimSummaryCase*>> createSummaryCasesFromFiles( const
         newCases.insert( newCases.end(), sumCases.begin(), sumCases.end() );
     }
 
-    return std::make_pair( true, newCases );
+    return newCases;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,24 +89,30 @@ std::pair<QString, QString> findPathPattern( const QStringList& filePaths, const
 {
     if ( filePaths.isEmpty() ) return {};
 
-    std::vector<std::vector<int>> tableOfNumbers;
-
     QRegularExpression numberRegex( "\\d+" );
 
-    for ( const auto& f : filePaths )
+    auto getTableOfNumbers = []( const QStringList& filePaths, const QRegularExpression& expression ) -> std::vector<std::vector<int>>
     {
-        std::vector<int> valuesInString;
-        auto             matchIterator = numberRegex.globalMatch( f );
-        while ( matchIterator.hasNext() )
+        std::vector<std::vector<int>> tableOfNumbers;
+
+        for ( const auto& f : filePaths )
         {
-            auto    match  = matchIterator.next();
-            QString number = match.captured( 0 );
+            std::vector<int> valuesInString;
+            auto             matchIterator = expression.globalMatch( f );
+            while ( matchIterator.hasNext() )
+            {
+                auto    match  = matchIterator.next();
+                QString number = match.captured( 0 );
 
-            valuesInString.push_back( number.toInt() );
+                valuesInString.push_back( number.toInt() );
+            }
+            tableOfNumbers.push_back( valuesInString );
         }
-        tableOfNumbers.push_back( valuesInString );
-    }
 
+        return tableOfNumbers;
+    };
+
+    auto tableOfNumbers = getTableOfNumbers( filePaths, numberRegex );
     if ( tableOfNumbers.empty() ) return {};
 
     const auto valuesFirstRow = tableOfNumbers[0];
@@ -239,33 +245,30 @@ QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const 
     {
         basePath = basePath.left( realizationPos );
     }
-
-    QStringList matchingFiles;
-
     // Replace placeholder string with a regex pattern to capture numbers
     QString regexPattern = pathPattern;
     regexPattern.replace( placeholderString, "(\\d+)" );
 
-    QRegularExpression regex( regexPattern );
-
-    // Use QDirIterator to traverse the directory recursively
-    QDirIterator it( basePath, QDir::Files, QDirIterator::Subdirectories );
-    while ( it.hasNext() )
+    auto getMatchingFiles = []( const QString& basePath, const QString& regexPattern ) -> QStringList
     {
-        QString filePath = it.next();
+        QStringList        filePaths;
+        QRegularExpression regex( regexPattern );
 
-        QRegularExpressionMatch match = regex.match( filePath );
-        if ( match.hasMatch() )
+        // Use QDirIterator to traverse the directory recursively
+        QDirIterator it( basePath, QDir::Files, QDirIterator::Subdirectories );
+        while ( it.hasNext() )
         {
-            QString index1 = match.captured( 1 );
-            QString index2 = match.captured( 2 );
-
-            if ( index1 == index2 )
+            QString filePath = it.next();
+            if ( regex.match( filePath ).hasMatch() )
             {
-                matchingFiles << filePath;
+                filePaths << filePath;
             }
         }
-    }
+
+        return filePaths;
+    };
+
+    auto matchingFiles = getMatchingFiles( basePath, regexPattern );
 
     // Sort files by realization number
     std::sort( matchingFiles.begin(),

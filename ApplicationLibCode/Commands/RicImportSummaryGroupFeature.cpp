@@ -49,7 +49,7 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
     RiaDefines::FileType fileType = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
 
     RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = true, .allowDialogs = true };
-    auto [isOk, cases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
+    auto                                 cases = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
 
     RicImportSummaryCasesFeature::addSummaryCases( cases );
     RicImportEnsembleFeature::groupSummaryCases( cases, "", RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE, false );

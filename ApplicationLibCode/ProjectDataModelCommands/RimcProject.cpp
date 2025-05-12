@@ -74,8 +74,8 @@ caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
     QStringList summaryFileNames{ absolutePath };
 
     RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = RiaDefines::FileType::SMSPEC, .ensembleOrGroup = false, .allowDialogs = false };
-    auto [isOk, newCases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( summaryFileNames, createConfig );
-    if ( isOk )
+    auto newCases = RiaEnsembleImportTools::createSummaryCasesFromFiles( summaryFileNames, createConfig );
+    if ( !newCases.empty() )
     {
         RicImportSummaryCasesFeature::addSummaryCases( newCases );
 
