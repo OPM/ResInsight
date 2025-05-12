@@ -322,7 +322,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       HINTS ${RESINSIGHT_GCC_STDCPP_EXP_PATH}
     )
     if(STDCPP_EXP_LIBRARY)
-      message(STATUS "stdc++exp library found at custom location: ${STDCPP_EXP_LIBRARY}")
+      message(
+        STATUS
+          "stdc++exp library found at custom location: ${STDCPP_EXP_LIBRARY}"
+      )
       list(APPEND EXTERNAL_LINK_LIBRARIES ${STDCPP_EXP_LIBRARY})
     endif()
   else()
