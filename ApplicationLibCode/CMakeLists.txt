@@ -315,19 +315,19 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       CACHE PATH "Path to search for stdc++exp"
   )
 
-  if (RESINSIGHT_GCC_STDCPP_EXP_PATH)
-      find_library(
-        STDCPP_EXP_LIBRARY
-        NAMES stdc++exp
-        HINTS ${RESINSIGHT_GCC_STDCPP_EXP_PATH}
-      )
-      if(STDCPP_EXP_LIBRARY)
-        message(STATUS "stdc++exp library found: ${STDCPP_EXP_LIBRARY}")
-        list(APPEND EXTERNAL_LINK_LIBRARIES ${STDCPP_EXP_LIBRARY})
-      endif()
-      else()
-  # stdc++exp is required for std::stacktrace
-  list(APPEND EXTERNAL_LINK_LIBRARIES stdc++exp)
+  if(RESINSIGHT_GCC_STDCPP_EXP_PATH)
+    find_library(
+      STDCPP_EXP_LIBRARY
+      NAMES stdc++exp
+      HINTS ${RESINSIGHT_GCC_STDCPP_EXP_PATH}
+    )
+    if(STDCPP_EXP_LIBRARY)
+      message(STATUS "stdc++exp library found: ${STDCPP_EXP_LIBRARY}")
+      list(APPEND EXTERNAL_LINK_LIBRARIES ${STDCPP_EXP_LIBRARY})
+    endif()
+  else()
+    # stdc++exp is required for std::stacktrace
+    list(APPEND EXTERNAL_LINK_LIBRARIES stdc++exp)
   endif()
 endif()
 
