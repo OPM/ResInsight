@@ -76,8 +76,8 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     if ( fileNames.isEmpty() ) return;
 
     RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
-    auto [isOk, cases] = createSummaryCasesFromFiles( fileNames, createConfig );
-    if ( !isOk ) return;
+    auto                                 cases = createSummaryCasesFromFiles( fileNames, createConfig );
+    if ( !cases.empty() ) return;
 
     addSummaryCases( cases );
     if ( !cases.empty() )
@@ -125,8 +125,8 @@ std::pair<bool, std::vector<RimSummaryCase*>> RicImportSummaryCasesFeature::crea
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
     RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = RiaDefines::FileType::SMSPEC, .ensembleOrGroup = false, .allowDialogs = true };
-    auto [isOk, cases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
-    if ( isOk )
+    auto cases = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
+    if ( !cases.empty() )
     {
         addSummaryCases( cases );
         if ( !cases.empty() && doCreateDefaultPlot )

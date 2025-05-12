@@ -125,9 +125,8 @@ RimSummaryEnsemble* RicImportEnsembleFeature::importSingleEnsemble( const QStrin
     if ( ensembleName.isEmpty() ) return nullptr;
 
     RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = true, .allowDialogs = true };
-    auto [isOk, cases] = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
-
-    if ( !isOk || cases.empty() ) return nullptr;
+    auto                                 cases = RiaEnsembleImportTools::createSummaryCasesFromFiles( fileNames, createConfig );
+    if ( cases.empty() ) return nullptr;
 
     RimSummaryEnsemble* ensemble = RicImportEnsembleFeature::groupSummaryCases( cases, ensembleName, groupingMode, true );
 
