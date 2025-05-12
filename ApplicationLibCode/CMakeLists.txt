@@ -308,8 +308,28 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # https://github.com/OPM/ResInsight/pull/7
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 
-  # stdc++exp is required for std::stacktrace
-  list(APPEND EXTERNAL_LINK_LIBRARIES stdc++exp)
+  # std::stacktrace requires stdc++exp. If a custom build of GCC stdc++exp is
+  # reqiured, define the search path here.
+  set(RESINSIGHT_GCC_STDCPP_EXP_PATH
+      ""
+      CACHE PATH "Path to search for stdc++exp"
+  )
+
+  if(RESINSIGHT_GCC_STDCPP_EXP_PATH)
+    find_library(
+      STDCPP_EXP_LIBRARY
+      NAMES stdc++exp
+      HINTS ${RESINSIGHT_GCC_STDCPP_EXP_PATH}
+    )
+    if(STDCPP_EXP_LIBRARY)
+      message(STATUS "stdc++exp library found at custom location: ${STDCPP_EXP_LIBRARY}")
+      list(APPEND EXTERNAL_LINK_LIBRARIES ${STDCPP_EXP_LIBRARY})
+    endif()
+  else()
+    # stdc++exp is required for std::stacktrace
+    message(STATUS "stdc++exp library found at default location")
+    list(APPEND EXTERNAL_LINK_LIBRARIES stdc++exp)
+  endif()
 endif()
 
 target_link_libraries(
