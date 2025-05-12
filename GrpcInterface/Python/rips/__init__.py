@@ -18,6 +18,7 @@ from .contour_map import (
 from .well_log_plot import WellLogPlot as WellLogPlot
 from .simulation_well import SimulationWell as SimulationWell
 from .exception import RipsError as RipsError
+from .surface import RegularSurface as RegularSurface
 
 from typing import List
 
