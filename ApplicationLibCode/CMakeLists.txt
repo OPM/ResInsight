@@ -316,6 +316,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   if (STDCPP_EXP_LIBRARY)  
     message(STATUS "stdc++exp library found: ${STDCPP_EXP_LIBRARY}")
     list(APPEND EXTERNAL_LINK_LIBRARIES ${STDCPP_EXP_LIBRARY})
+  endif()
 endif()
 
 target_link_libraries(
