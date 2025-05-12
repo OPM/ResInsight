@@ -309,7 +309,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 
   # std::stacktrace requires stdc++exp. If a custom build of GCC stdc++exp is
-  # reqiured, define the serach path here.
+  # reqiured, define the search path here.
   set(RESINSIGHT_GCC_STDCPP_EXP_PATH
       ""
       CACHE PATH "Path to search for stdc++exp"
