@@ -20,8 +20,6 @@
 
 #include "RimSurface.h"
 
-#include "cafPdmCoreVec3d.h"
-
 class RimRegularSurface : public RimSurface
 {
     CAF_PDM_HEADER_INIT;
@@ -33,17 +31,9 @@ public:
     bool        onLoadData() override;
     RimSurface* createCopy() override;
 
-    // bool showIntersectionCellResults() override;
-
-    // void setPlaneExtent( double minX, double minY, double maxX, double maxY );
-    // void setDepth( double depth );
-    // void setDepthSliderLimits( double lower, double upper );
-    // void setAreaOfInterest( cvf::Vec3d min, cvf::Vec3d max );
-
 private:
     bool updateSurfaceData() override;
     void clearCachedNativeData() override;
-    // QString fullName() const override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
@@ -54,6 +44,7 @@ private:
     caf::PdmField<int>    m_ny;
     caf::PdmField<double> m_originX;
     caf::PdmField<double> m_originY;
+    caf::PdmField<double> m_depth;
     caf::PdmField<double> m_incrementX;
     caf::PdmField<double> m_incrementY;
     caf::PdmField<double> m_rotation;

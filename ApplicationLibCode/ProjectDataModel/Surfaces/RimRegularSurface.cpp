@@ -22,9 +22,9 @@
 
 #include "RimSurfaceCollection.h"
 
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
-// #include "cafPdmUiDoubleSliderEditor.h"
-// #include "cafPdmUiDoubleValueEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfVector3.h"
 
@@ -37,13 +37,18 @@ RimRegularSurface::RimRegularSurface()
 {
     CAF_PDM_InitScriptableObject( "RegularSurface", ":/ReservoirSurface16x16.png" );
 
-    CAF_PDM_InitField( &m_nx, "Nx", 10, "Nx" );
-    CAF_PDM_InitField( &m_ny, "Ny", 10, "Ny" );
-    CAF_PDM_InitField( &m_originX, "OriginX", 0.0, "Origin X" );
-    CAF_PDM_InitField( &m_originY, "OriginY", 0.0, "Origin Y" );
-    CAF_PDM_InitField( &m_incrementX, "IncrementX", 20.0, "Increment X" );
-    CAF_PDM_InitField( &m_incrementY, "IncrementY", 20.0, "Increment Y" );
-    CAF_PDM_InitField( &m_rotation, "Rotation", 0.0, "Rotation" );
+    CAF_PDM_InitScriptableField( &m_originX, "OriginX", 0.0, "Origin X" );
+    CAF_PDM_InitScriptableField( &m_originY, "OriginY", 0.0, "Origin Y" );
+    CAF_PDM_InitScriptableField( &m_depth, "Depth", 0.0, "Depth" );
+    m_depth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitScriptableField( &m_nx, "Nx", 10, "Nx" );
+    CAF_PDM_InitScriptableField( &m_ny, "Ny", 10, "Ny" );
+    CAF_PDM_InitScriptableField( &m_incrementX, "IncrementX", 20.0, "Increment X" );
+    CAF_PDM_InitScriptableField( &m_incrementY, "IncrementY", 20.0, "Increment Y" );
+
+    CAF_PDM_InitScriptableField( &m_rotation, "Rotation", 0.0, "Rotation" );
+    m_rotation.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,56 +77,6 @@ RimSurface* RimRegularSurface::createCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// bool RimRegularSurface::showIntersectionCellResults()
-// {
-//     // Avoid use of cell intersection results color for depth surfaces
-//     return false;
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimRegularSurface::setPlaneExtent( double minX, double minY, double maxX, double maxY )
-// {
-//     m_minX = minX;
-//     m_minY = minY;
-//     m_maxX = maxX;
-//     m_maxY = maxY;
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimRegularSurface::setDepth( double depth )
-// {
-//     m_depth = depth;
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimRegularSurface::setDepthSliderLimits( double lower, double upper )
-// {
-//     m_depthLowerLimit = lower;
-//     m_depthUpperLimit = upper;
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimRegularSurface::setAreaOfInterest( cvf::Vec3d min, cvf::Vec3d max )
-// {
-//     m_areaOfInterestMin = min;
-//     m_areaOfInterestMax = max;
-
-//     auto lowerDepthLimit = -max.z();
-//     auto upperDepthLimit = -min.z();
-//     setDepthSliderLimits( lowerDepthLimit, upperDepthLimit );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimRegularSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
@@ -140,34 +95,23 @@ void RimRegularSurface::defineEditorAttribute( const caf::PdmFieldHandle* field,
 {
     RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
 
-    // caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
+    if ( field == &m_rotation )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            attr->m_minimum = 0.0;
+            attr->m_maximum = 360.0;
+        }
+    }
 
-    // if ( field == &m_depth )
-    // {
-    //     if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-    //     {
-    //         attr->m_minimum = m_depthLowerLimit;
-    //         attr->m_maximum = m_depthUpperLimit;
-    //     }
-    // }
-
-    // if ( field == &m_minX || field == &m_maxX )
-    // {
-    //     if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-    //     {
-    //         attr->m_minimum = m_areaOfInterestMin().x();
-    //         attr->m_maximum = m_areaOfInterestMax().x();
-    //     }
-    // }
-
-    // if ( field == &m_minY || field == &m_maxY )
-    // {
-    //     if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-    //     {
-    //         attr->m_minimum = m_areaOfInterestMin().y();
-    //         attr->m_maximum = m_areaOfInterestMax().y();
-    //     }
-    // }
+    if ( field == &m_depth )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            attr->m_minimum = 0.0;
+            attr->m_maximum = 10000.0;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,26 +119,26 @@ void RimRegularSurface::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimRegularSurface::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    // uiOrdering.add( &m_depth );
+    {
+        auto group = uiOrdering.addNewGroup( "Location" );
+        group->add( &m_originX );
+        group->add( &m_originY );
+        group->add( &m_depth );
+    }
 
-    // {
-    //     auto group = uiOrdering.addNewGroup( "Depth Limits" );
-    //     group->setCollapsedByDefault();
-    //     group->add( &m_depthLowerLimit );
-    //     group->add( &m_depthUpperLimit );
-    // }
+    {
+        auto group = uiOrdering.addNewGroup( "Extent" );
+        group->add( &m_nx );
+        group->add( &m_ny );
+        group->add( &m_incrementX );
+        group->add( &m_incrementY );
+    }
 
-    // {
-    //     auto group = uiOrdering.addNewGroup( "Extent" );
-    //     group->add( &m_minX );
-    //     group->add( &m_maxX );
-    //     group->add( &m_minY );
-    //     group->add( &m_maxY );
-    // }
+    uiOrdering.add( &m_rotation );
+    uiOrdering.add( &m_depthOffset );
 
     {
         // Fields from RimSurface
-
         auto group = uiOrdering.addNewGroup( "Appearance" );
         group->add( &m_userDescription );
         group->add( &m_color );
@@ -220,127 +164,74 @@ void RimRegularSurface::clearCachedNativeData()
 //--------------------------------------------------------------------------------------------------
 bool RimRegularSurface::updateSurfaceData()
 {
-    //    auto displayZ = -m_depth;
-
-    auto surf_xyz_from_ij = []( int i, int j, double xori, double xinc, double yori, double yinc, double rot_deg ) -> cvf::Vec3d
+    // Adapted from xtgeo surf_xyz_from_ij
+    auto computeXyzFromIj =
+        []( int i, int j, double depth, double xori, double yori, double xinc, double yinc, double rotationDegrees ) -> cvf::Vec3d
     {
-        /* locals */
-        // double angle, xdist, ydist, dist, beta, gamma, dxrot, dyrot;
+        CAF_ASSERT( i >= 0 );
+        CAF_ASSERT( j >= 0 );
 
-        // if (i < 1 || i > nx || j < 1 || j > ny) {
-        //     if (i == 0)
-        //         i = 1;
-        //     if (i == nx + 1)
-        //         i = nx;
-        //     if (j == 0)
-        //         j = 1;
-        //     if (j == ny + 1)
-        //         j = ny;
+        double z = -depth;
 
-        //     /* retest if more severe and return -1 if case*/
-        //     if (i < 1 || i > nx || j < 1 || j > ny) {
-        //         *x = 0.0;
-        //         *y = 0.0;
-        //         *z = UNDEF;
-        //         throw_exception("Accessing value outside surface");
-        //         return -1;
-        //     }
-        // }
+        if ( i == 0 && j == 0 ) return cvf::Vec3d( xori, yori, z );
 
-        // if ( flag == 0 )
-        // {
-        //     ic = x_ijk2ic( i, j, 1, nx, ny, 1, 0 ); /* C order */
-        //     if ( ic < 0 )
-        //     {
-        //         *z = UNDEF;
-        //     }
-        //     else
-        //     {
-        //         *z = p_map_v[ic];
-        //     }
-        // }
-        // else
-        // {
-        //     *z = 999.00;
-        // }
+        // Surface rotation: this should be the usual angle, anti-clock from x axis,
+        // radians, positive
+        const double angle = rotationDegrees * std::numbers::pi / 180.0;
 
-        double x = xori;
-        double y = yori;
-        // TODO:
-        double z = 1000.0;
+        const double xdist = xinc * i;
+        const double ydist = yinc * j;
 
-        if ( i == 0 && j == 0 )
-        {
-            x = xori;
-            y = yori;
-            // return ( 0 );
-        }
-        else
-        {
-            //   yinc = yinc * yflip;
+        // Distance of point from "origo"
+        const double dist = sqrt( xdist * xdist + ydist * ydist );
 
-            /* cube rotation: this should be the usual angle, anti-clock from x axis */
-            double angle = rot_deg * std::numbers::pi / 180.0; /* radians, positive */
+        const double beta = acos( xdist / dist );
 
-            double xdist = xinc * i;
-            double ydist = yinc * j;
+        if ( beta < 0 || beta > std::numbers::pi / 2.0 || std::isnan( beta ) ) return cvf::Vec3d::UNDEFINED;
 
-            /* distance of point from "origo" */
-            double dist = sqrt( xdist * xdist + ydist * ydist );
+        // The difference in rotated coord system
+        double gamma = angle + beta;
 
-            double beta = acos( xdist / dist );
+        double dxrot = dist * cos( gamma );
+        double dyrot = dist * sin( gamma );
 
-            /* secure that angle is in right mode */
-            /* if (xdist<0 && ydist<0)  beta=2*PI - beta; */
-            /* if (xdist>=0 && ydist<0) beta=PI + beta; */
-
-            if ( beta < 0 || beta > std::numbers::pi / 2.0 || std::isnan( beta ) )
-            {
-                x = 0.0;
-                y = 0.0;
-                //            throw_exception( "Unvalid value for beta in: surf_xyz_from_ij" );
-                //            return ( -9 );
-            }
-            else
-            {
-                double gamma = angle + beta; /* the difference in rotated coord system */
-
-                double dxrot = dist * cos( gamma );
-                double dyrot = dist * sin( gamma );
-
-                x = xori + dxrot;
-                y = yori + dyrot;
-            }
-        }
-
-        return cvf::Vec3d( x, y, z );
+        return cvf::Vec3d( xori + dxrot, yori + dyrot, z );
     };
 
     for ( int j = 0; j < m_ny(); j++ )
     {
         for ( int i = 0; i < m_nx(); i++ )
         {
-            m_vertices.push_back( surf_xyz_from_ij( i, j, m_originX, m_originY, m_incrementX, m_incrementY, m_rotation ) );
+            m_vertices.push_back( computeXyzFromIj( i, j, m_depth, m_originX, m_originY, m_incrementX, m_incrementY, m_rotation ) );
         }
     }
 
-    // cvf::Vec3d a( m_minX, m_minY, displayZ );
-    // cvf::Vec3d b( m_maxX, m_minY, displayZ );
-    // cvf::Vec3d c( m_maxX, m_maxY, displayZ );
-    // cvf::Vec3d d( m_minX, m_maxY, displayZ );
+    // Iterate through the entire grid
+    for ( int j = 0; j < m_ny() - 1; j++ )
+    {
+        for ( int i = 0; i < m_nx() - 1; i++ )
+        {
+            // Calculate the indices of the four vertices in the current cell
+            // Top-left vertex
+            size_t idx00 = j * m_nx() + i;
+            // Top-right vertex
+            size_t idx01 = j * m_nx() + ( i + 1 );
+            // Bottom-left vertex
+            size_t idx10 = ( j + 1 ) * m_nx() + i;
+            // Bottom-right vertex
+            size_t idx11 = ( j + 1 ) * m_nx() + ( i + 1 );
 
-    // m_vertices.push_back( a );
-    // m_vertices.push_back( b );
-    // m_vertices.push_back( c );
-    // m_vertices.push_back( d );
+            // First triangle (top-left, top-right, bottom-left)
+            m_triangleIndices.push_back( idx00 );
+            m_triangleIndices.push_back( idx01 );
+            m_triangleIndices.push_back( idx10 );
 
-    m_triangleIndices.push_back( 0 );
-    m_triangleIndices.push_back( 1 );
-    m_triangleIndices.push_back( 2 );
-
-    m_triangleIndices.push_back( 0 );
-    m_triangleIndices.push_back( 2 );
-    m_triangleIndices.push_back( 3 );
+            // Second triangle (top-right, bottom-right, bottom-left)
+            m_triangleIndices.push_back( idx01 );
+            m_triangleIndices.push_back( idx11 );
+            m_triangleIndices.push_back( idx10 );
+        }
+    }
 
     if ( !m_triangleIndices.empty() )
     {
@@ -363,15 +254,3 @@ bool RimRegularSurface::updateSurfaceData()
 
     return true;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// Return the name to show in the project tree
-//--------------------------------------------------------------------------------------------------
-// QString RimRegularSurface::fullName() const
-// {
-//     QString retval = RimSurface::fullName();
-//     if ( !retval.isEmpty() ) retval += " - ";
-//     retval += "Depth: ";
-//     retval += QString::number( m_depth );
-//     return retval;
-// }

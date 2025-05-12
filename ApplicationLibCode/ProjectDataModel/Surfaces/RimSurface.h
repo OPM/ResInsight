@@ -99,10 +99,10 @@ protected:
     caf::PdmField<bool>         m_enableOpacity;
     caf::PdmField<bool>         m_showMeshLines;
     caf::PdmField<double>       m_opacity;
+    caf::PdmField<double>       m_depthOffset;
 
     cvf::ref<RigSurface> m_surfaceData;
 
 private:
     caf::PdmProxyValueField<QString> m_nameProxy;
-    caf::PdmField<double>            m_depthOffset;
 };
