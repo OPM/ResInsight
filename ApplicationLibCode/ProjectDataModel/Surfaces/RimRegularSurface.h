@@ -1,0 +1,63 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2025     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "RimSurface.h"
+
+#include "cafPdmCoreVec3d.h"
+
+class RimRegularSurface : public RimSurface
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimRegularSurface();
+    ~RimRegularSurface() override;
+
+    bool        onLoadData() override;
+    RimSurface* createCopy() override;
+
+    // bool showIntersectionCellResults() override;
+
+    // void setPlaneExtent( double minX, double minY, double maxX, double maxY );
+    // void setDepth( double depth );
+    // void setDepthSliderLimits( double lower, double upper );
+    // void setAreaOfInterest( cvf::Vec3d min, cvf::Vec3d max );
+
+private:
+    bool updateSurfaceData() override;
+    void clearCachedNativeData() override;
+    // QString fullName() const override;
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    caf::PdmField<int>    m_nx;
+    caf::PdmField<int>    m_ny;
+    caf::PdmField<double> m_originX;
+    caf::PdmField<double> m_originY;
+    caf::PdmField<double> m_incrementX;
+    caf::PdmField<double> m_incrementY;
+    caf::PdmField<double> m_rotation;
+
+    std::vector<unsigned>   m_triangleIndices;
+    std::vector<cvf::Vec3d> m_vertices;
+};
