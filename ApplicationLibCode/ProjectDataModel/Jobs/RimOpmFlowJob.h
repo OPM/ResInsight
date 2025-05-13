@@ -22,6 +22,8 @@
 
 #include "cafPdmPtrField.h"
 
+#include <string>
+
 class RimEclipseCase;
 class RimWellPath;
 class RifOpmFlowDeckFile;
@@ -38,8 +40,7 @@ public:
     enum class WellOpenType
     {
         OPEN_BY_POSITION,
-        OPEN_AT_DATE,
-        USE_PERFORATION_DATES
+        OPEN_AT_DATE
     };
 
 public:
@@ -70,12 +71,15 @@ protected:
 private:
     RimEclipseCase* findExistingCase( QString filename );
     QString         deckExtension() const;
-    QString         wellTempFile() const;
+    QString         wellTempFile( int timeStep = -1, bool includeMSW = false, bool includeLGR = false ) const;
     QString         openWellTempFile() const;
 
-    void    prepareWellSettings();
-    QString prepareOpenWellText();
-    void    selectOpenWellPosition();
+    static QString readFileContent( QString filename );
+
+    void        exportBasicWellSettings();
+    std::string exportMswWellSettings( QDateTime date, int timeStep );
+    QString     generateBasicOpenWellText();
+    void        selectOpenWellPosition();
 
 private:
     caf::PdmField<caf::FilePath> m_deckFileName;
@@ -91,6 +95,7 @@ private:
     caf::PdmField<int>                        m_openTimeStep;
     caf::PdmField<bool>                       m_addNewWell;
     caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;
+    caf::PdmField<bool>                       m_includeMSWData;
 
     caf::PdmField<QString> m_wellOpenKeyword;
     caf::PdmField<QString> m_wellOpenText;

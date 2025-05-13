@@ -157,30 +157,26 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string openText 
 {
     Opm::ErrorGuard errors{};
 
-    int stepCount = 0;
+    int currentStep = 1;
 
     // locate dates keyword for the selected step
-    Opm::FileDeck::Index* datePos = nullptr;
     for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
     {
         auto& kw = m_fileDeck->operator[]( it );
         if ( kw.name() != "DATES" ) continue;
 
-        if ( stepCount == timeStep )
+        if ( currentStep == timeStep )
         {
-            datePos = &it;
-
             auto             deck = Opm::Parser{}.parseString( openText, defaultParseContext(), errors );
             Opm::DeckKeyword newKw( *deck.begin() );
 
-            Opm::FileDeck::Index openPos( *datePos );
-            openPos--;
+            Opm::FileDeck::Index openPos( it );
 
             m_fileDeck->insert( openPos, newKw );
 
             return true;
         }
-        stepCount++;
+        currentStep++;
     }
 
     return false;
@@ -189,7 +185,7 @@ bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, std::string openText 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::ParseContext RifOpmFlowDeckFile::defaultParseContext() const
+Opm::ParseContext RifOpmFlowDeckFile::defaultParseContext()
 {
     // Use the same default ParseContext as flow.
     Opm::ParseContext pc( Opm::InputErrorAction::WARN );
@@ -238,7 +234,20 @@ std::vector<std::string> RifOpmFlowDeckFile::keywords()
     for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
     {
         auto& kw = m_fileDeck->operator[]( it );
-        values.push_back( kw.name() );
+        if ( kw.name() == "DATES" )
+        {
+            const auto& rec   = kw.getRecord( 0 );
+            int         day   = rec.getItem( "DAY" ).get<int>( 0 );
+            auto        month = rec.getItem( "MONTH" ).getTrimmedString( 0 );
+            int         year  = rec.getItem( "YEAR" ).get<int>( 0 );
+
+            std::string dateStr = std::format( "DATES  ({}/{}/{})", day, month, year );
+            values.push_back( dateStr );
+        }
+        else
+        {
+            values.push_back( kw.name() );
+        }
     }
     return values;
 }
@@ -251,4 +260,95 @@ bool RifOpmFlowDeckFile::hasDatesKeyword()
     if ( m_fileDeck.get() == nullptr ) return false;
     auto pos = m_fileDeck->find( "DATES" );
     return pos.has_value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::mergeMswData( std::vector<std::string>& mswFileData )
+{
+    Opm::ErrorGuard errors{};
+
+    int         curTimeStep = 0;
+    int         maxSteps    = (int)mswFileData.size();
+    std::string prevFileData;
+
+    // locate dates keyword for the selected step
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() != "DATES" ) continue;
+
+        Opm::FileDeck::Index insertPos( it );
+
+        if ( mswFileData[curTimeStep] != prevFileData )
+        {
+            auto deck = Opm::Parser{}.parseString( mswFileData[curTimeStep], defaultParseContext(), errors );
+
+            for ( auto kwit = deck.begin(); kwit != deck.end(); kwit++ )
+            {
+                Opm::DeckKeyword newKw( *kwit );
+
+                if ( ( newKw.name() == "WELSPECS" ) && ( curTimeStep == 0 ) )
+                {
+                    const auto found = m_fileDeck->find( "WELSPECS" );
+                    if ( !found.has_value() )
+                    {
+                        m_fileDeck->insert( insertPos, newKw );
+                        insertPos++;
+                    }
+                    else
+                    {
+                        Opm::DeckRecord newRecToAdd( newKw.getRecord( 0 ) );
+
+                        auto& existing_pos = found.value();
+                        auto& welspecs_kw  = m_fileDeck->operator[]( existing_pos );
+
+                        Opm::DeckKeyword newWelspecsKw( welspecs_kw );
+                        newWelspecsKw.addRecord( std::move( newRecToAdd ) );
+
+                        m_fileDeck->erase( existing_pos );
+                        m_fileDeck->insert( existing_pos, newWelspecsKw );
+                    }
+                }
+                else if ( ( newKw.name() == "COMPDAT" ) && ( curTimeStep == 0 ) )
+                {
+                    const auto found = m_fileDeck->find( "COMPDAT" );
+                    if ( !found.has_value() )
+                    {
+                        m_fileDeck->insert( insertPos, newKw );
+                        insertPos++;
+                    }
+                    else
+                    {
+                        auto& existing_pos = found.value();
+                        auto& compdat_kw   = m_fileDeck->operator[]( existing_pos );
+
+                        Opm::DeckKeyword newCompdatKw( compdat_kw );
+
+                        for ( size_t i = 0; i < newKw.size(); i++ )
+                        {
+                            Opm::DeckRecord newRecToAdd( newKw.getRecord( i ) );
+                            newCompdatKw.addRecord( std::move( newRecToAdd ) );
+                        }
+
+                        m_fileDeck->erase( existing_pos );
+                        m_fileDeck->insert( existing_pos, newCompdatKw );
+                    }
+                }
+                else
+                {
+                    m_fileDeck->insert( insertPos, newKw );
+                    insertPos++;
+                }
+            }
+
+            prevFileData = mswFileData[curTimeStep];
+        }
+
+        curTimeStep++;
+        if ( curTimeStep >= maxSteps ) break;
+    }
+
+    return curTimeStep > 1;
 }
