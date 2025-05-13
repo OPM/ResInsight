@@ -514,49 +514,18 @@ endif() # MSVC
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
 
-# Option used to build opm-common from source or use precompiled binaries
-option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
-mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
+# CREATE_OPM_COMMON_KEYWORDS is used to create c++-code for the keywords in
+# opm-common JSON files See description in
+# ThirdParty/custom-opm-common/CMakeLists.txt When changing this flag, it is
+# required to reopen the Visual Studio project
+set(CREATE_OPM_COMMON_KEYWORDS OFF)
 
-if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
+add_subdirectory(ThirdParty/custom-opm-common)
 
-  message(STATUS "Starting download of external library opm-common ...")
-
-  # See description of URL here
-  # https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases
-  FetchContent_Declare(
-    ri-dependencies
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2025.01/custom-opm-common.zip
-  )
-  FetchContent_MakeAvailable(ri-dependencies)
-
-  add_library(custom-opm-common STATIC IMPORTED)
-  set_target_properties(
-    custom-opm-common
-    PROPERTIES IMPORTED_CONFIGURATIONS "Debug;Release"
-               IMPORTED_LOCATION_DEBUG
-               "${ri-dependencies_SOURCE_DIR}/custom-opm-common_debug.lib"
-               IMPORTED_LOCATION_RELEASE
-               "${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib"
-  )
-
-  list(APPEND EXTERNAL_LINK_LIBRARIES custom-opm-common)
-
-  message(STATUS "... completed download of external library opm-common ")
-else()
-  # CREATE_OPM_COMMON_KEYWORDS is used to create c++-code for the keywords in
-  # opm-common JSON files See description in
-  # ThirdParty/custom-opm-common/CMakeLists.txt When changing this flag, it is
-  # required to reopen the Visual Studio project
-  set(CREATE_OPM_COMMON_KEYWORDS OFF)
-
-  add_subdirectory(ThirdParty/custom-opm-common)
-
-  if(NOT CREATE_OPM_COMMON_KEYWORDS)
-    add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
-    list(APPEND OPM_LIBRARIES custom-opm-common)
-    set_property(TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
-  endif()
+if(NOT CREATE_OPM_COMMON_KEYWORDS)
+  add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
+  list(APPEND OPM_LIBRARIES custom-opm-common)
+  set_property(TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
 endif()
 
 list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
