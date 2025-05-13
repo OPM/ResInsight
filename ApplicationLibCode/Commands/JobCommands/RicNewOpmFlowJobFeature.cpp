@@ -114,7 +114,8 @@ QString RicNewOpmFlowJobFeature::workingFolder()
 //--------------------------------------------------------------------------------------------------
 QString RicNewOpmFlowJobFeature::inputDataFile()
 {
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "OPM_FLOW_INPUT" );
+    const QString defaultDirName = "OPM_FLOW_INPUT";
+    QString       defaultDir     = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( defaultDirName );
 
     QString filterText = QString( "Simulation Input Files (*.DATA);;All Files (*.*)" );
 
@@ -124,7 +125,7 @@ QString RicNewOpmFlowJobFeature::inputDataFile()
     if ( fileName.isEmpty() ) return "";
 
     // Remember the path to next time
-    RiaApplication::instance()->setLastUsedDialogDirectory( "OPM_FLOW_INPUT", QFileInfo( fileName ).absolutePath() );
+    RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirName, QFileInfo( fileName ).absolutePath() );
 
     return fileName;
 }

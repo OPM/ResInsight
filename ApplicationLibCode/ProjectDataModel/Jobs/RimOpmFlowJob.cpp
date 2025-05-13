@@ -61,7 +61,6 @@ void caf::AppEnum<RimOpmFlowJob::WellOpenType>::setUp()
 {
     addItem( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION, "OpenByPosition", "Select Keyword Position in File" );
     addItem( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE, "AtSelectedDate", "Select a Date" );
-    addItem( RimOpmFlowJob::WellOpenType::USE_PERFORATION_DATES, "CustomPerforationDate", "Use Custom Dates from Perforations" );
 
     setDefault( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION );
 }
@@ -84,6 +83,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
     CAF_PDM_InitField( &m_addNewWell, "AddNewWell", true, "Add New Well" );
     CAF_PDM_InitField( &m_openWellDeckPosition, "OpenWellDeckPosition", -1, "Open Well at Keyword Index" );
+    CAF_PDM_InitField( &m_includeMSWData, "IncludeMswData", false, "Add MSW Data" );
 
     CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_BY_POSITION ), "Open Well" );
 
@@ -177,6 +177,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
             if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
             {
                 wellGrp->add( &m_openTimeStep );
+                wellGrp->add( &m_includeMSWData );
             }
             else if ( m_wellOpenType == WellOpenType::OPEN_BY_POSITION )
             {
@@ -355,9 +356,23 @@ QString RimOpmFlowJob::deckExtension() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::wellTempFile() const
+QString RimOpmFlowJob::wellTempFile( int timeStep, bool includeMSW, bool includeLGR ) const
 {
-    return m_workDir().path() + "/ri_new_well" + deckExtension();
+    QString postfix = "";
+    if ( timeStep >= 0 )
+    {
+        postfix = QString( "_%1" ).arg( timeStep );
+    }
+    if ( includeLGR )
+    {
+        postfix = postfix + "_LGR";
+    }
+    if ( includeMSW )
+    {
+        postfix = postfix + "_MSW";
+    }
+
+    return m_workDir().path() + "/ri_new_well" + postfix + deckExtension();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -415,46 +430,60 @@ bool RimOpmFlowJob::onPrepare()
     // add a new well?
     if ( m_addNewWell() )
     {
-        // export new well settings from resinsight
-        prepareWellSettings();
-        if ( !QFile::exists( wellTempFile() ) )
+        if ( m_includeMSWData && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
         {
-            RiaLogging::error( "Could not find exported well data from ResInsight: " + wellTempFile() );
-            return false;
-        }
-
-        // merge new well settings from resinsight into DATA deck
-        if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) )
-        {
-            RiaLogging::error( "Unable to merge new well data into DATA file. Are there WELSPECS and COMPDAT keywords?" );
-            return false;
-        }
-
-        QFile::remove( wellTempFile() );
-
-        if ( m_wellOpenType == WellOpenType::USE_PERFORATION_DATES )
-        {
-        }
-        else
-        {
-            QString openWellText = prepareOpenWellText();
-
-            // open new well at selected timestep
-            if ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+            if ( m_eclipseCase() )
             {
-                if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
+                std::vector<std::string> mswData;
+                int                      i = 0;
+                for ( auto& date : m_eclipseCase->timeStepDates() )
                 {
-                    RiaLogging::error( "Unable to open new well in DATA file." );
+                    mswData.push_back( exportMswWellSettings( date, i++ ) );
+                }
+
+                if ( !m_fileDeck->mergeMswData( mswData ) )
+                {
+                    RiaLogging::error( "Failed to merge MSW data into file deck." );
                     return false;
                 }
             }
-            else
+        }
+        else
+        {
+            // export new well settings from resinsight
+            exportBasicWellSettings();
+            if ( !QFile::exists( wellTempFile() ) )
             {
-                if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
-                {
-                    RiaLogging::error( "Unable to open new well at selected position in DATA file." );
-                    return false;
-                }
+                RiaLogging::error( "Could not find exported well data from ResInsight: " + wellTempFile() );
+                return false;
+            }
+
+            // merge new well settings from resinsight into DATA deck
+            if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) )
+            {
+                RiaLogging::error( "Unable to merge new well data into DATA file. Are there WELSPECS and COMPDAT keywords?" );
+                return false;
+            }
+            QFile::remove( wellTempFile() );
+        }
+
+        QString openWellText = generateBasicOpenWellText();
+
+        // open new well at selected timestep
+        if ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+        {
+            if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
+            {
+                RiaLogging::error( "Unable to open new well in DATA file." );
+                return false;
+            }
+        }
+        else
+        {
+            if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
+            {
+                RiaLogging::error( "Unable to open new well at selected position in DATA file." );
+                return false;
             }
         }
     }
@@ -539,7 +568,7 @@ RimEclipseCase* RimOpmFlowJob::findExistingCase( QString filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::prepareWellSettings()
+void RimOpmFlowJob::exportBasicWellSettings()
 {
     RicExportCompletionDataSettingsUi exportSettings;
 
@@ -581,7 +610,65 @@ void RimOpmFlowJob::prepareWellSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::prepareOpenWellText()
+std::string RimOpmFlowJob::exportMswWellSettings( QDateTime date, int timeStep )
+{
+    RicExportCompletionDataSettingsUi exportSettings;
+
+    QString customName    = wellTempFile( timeStep );
+    QString customMswName = wellTempFile( timeStep, true /*include msw*/ );
+
+    // this file is not used, but the export generates the file anyways, so we need to remove it
+    QString customMswLgrName = wellTempFile( timeStep, true /*include msw*/, true /*include LGR*/ );
+
+    exportSettings.fileSplit   = RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE;
+    exportSettings.caseToApply = m_eclipseCase();
+    exportSettings.setCustomFileName( customName );
+    exportSettings.includeMsw = true;
+    exportSettings.setExportDataSourceAsComment( false );
+    exportSettings.timeStep = timeStep;
+
+    exportSettings.folder = m_workDir().path();
+
+    std::vector<RimWellPathFracture*>    wellPathFractures;
+    std::vector<RimFishbones*>           wellPathFishbones;
+    std::vector<RimPerforationInterval*> wellPathPerforations;
+
+    auto topLevelWell = m_wellPath->topLevelWellPath();
+
+    std::set<RimWellPath*> uniquePaths;
+    for ( auto w : topLevelWell->allWellPathLaterals() )
+    {
+        uniquePaths.insert( w );
+    }
+
+    for ( auto w : uniquePaths )
+    {
+        auto fractures = w->descendantsIncludingThisOfType<RimWellPathFracture>();
+        wellPathFractures.insert( wellPathFractures.end(), fractures.begin(), fractures.end() );
+
+        auto fishbones = w->descendantsIncludingThisOfType<RimFishbones>();
+        wellPathFishbones.insert( wellPathFishbones.end(), fishbones.begin(), fishbones.end() );
+
+        auto perforations = w->descendantsIncludingThisOfType<RimPerforationInterval>();
+        wellPathPerforations.insert( wellPathPerforations.end(), perforations.begin(), perforations.end() );
+    }
+
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( { topLevelWell }, exportSettings );
+
+    QString fileContent = readFileContent( customName );
+    fileContent += readFileContent( customMswName );
+
+    QFile::remove( customName );
+    QFile::remove( customMswName );
+    QFile::remove( customMswLgrName );
+
+    return fileContent.toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::generateBasicOpenWellText()
 {
     auto cs = m_wellPath->completionSettings();
 
@@ -617,4 +704,20 @@ void RimOpmFlowJob::selectOpenWellPosition()
     }
 
     m_openWellDeckPosition = RimDeckPositionDlg::askForPosition( nullptr, kwVec, "--- Open New Well HERE ---", m_openWellDeckPosition );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::readFileContent( QString filename )
+{
+    QFile file( filename );
+    if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
+        QTextStream in( &file );
+        QString     fileContent = in.readAll();
+        file.close();
+        return fileContent;
+    }
+    return "";
 }
