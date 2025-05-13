@@ -43,6 +43,7 @@ public:
     bool saveDeck( std::string folder, std::string filename );
 
     bool mergeWellDeck( std::string filename );
+    bool mergeMswData( std::vector<std::string>& mswFileData );
 
     bool openWellAtTimeStep( int timeStep, std::string openText );
     bool openWellAtDeckPosition( int deckPosition, std::string openText );
@@ -51,10 +52,10 @@ public:
     bool                     hasDatesKeyword();
 
 private:
-    Opm::DeckItem     item( std::string name, std::string value );
-    Opm::DeckItem     item( std::string name, int value );
-    Opm::DeckItem     defaultItem( std::string name, int cols );
-    Opm::ParseContext defaultParseContext() const;
+    Opm::DeckItem            item( std::string name, std::string value );
+    Opm::DeckItem            item( std::string name, int value );
+    Opm::DeckItem            defaultItem( std::string name, int cols );
+    static Opm::ParseContext defaultParseContext();
 
 private:
     std::unique_ptr<Opm::FileDeck> m_fileDeck;
