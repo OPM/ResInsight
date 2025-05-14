@@ -4,7 +4,6 @@
 ###################################################################
 
 import rips
-import grpc
 import tempfile
 
 
@@ -49,8 +48,8 @@ if case is not None:
     try:
         case.set_active_cell_property(results, "GENERATED", "POROAPPENDED", 0)
         print("Everything went well as expected")
-    except:  # Match any exception, but it should not happen
-        print("Ooops!")
+    except Exception as e:  # Match any exception, but it should not happen
+        print("Ooops!", e)
 
     # Add another value, so this is outside the bounds of the active cell result storage
     results.append(1.0)
@@ -59,7 +58,7 @@ if case is not None:
     try:
         case.set_active_cell_property(results, "GENERATED", "POROAPPENDED", 0)
         print("Everything went well??")
-    except RipsError as e:
+    except rips.RipsError as e:
         print("Server Exception Received: ", e)
     except IndexError:
         print("Got index out of bounds error. This shouldn't happen here")
@@ -72,7 +71,7 @@ if case is not None:
     try:
         case.set_active_cell_property(results, "GENERATED", "POROAPPENDED", 0)
         print("Everything went well??")
-    except grpc.RpcError as e:
+    except rips.RipsError as e:
         print("Got unexpected server exception", e, "This should not happen now")
     except IndexError:
         print("Got expected index out of bounds error on client side")
