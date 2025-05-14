@@ -291,6 +291,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
     }
 
     return RifEclipseSummaryAddress( category,
+                                     RifEclipseSummaryAddressDefines::StatisticsType::NONE,
                                      quantityName,
                                      regionNumber,
                                      regionNumber2,
