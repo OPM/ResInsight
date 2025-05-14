@@ -21,6 +21,7 @@ def test_10k_well_log_extraction(rips_instance, initialize_test):
     view.set_time_step(1)
 
     well_path_names = rips_instance.project.import_well_paths(well_path_files)
+    assert len(well_path_names) == 1
     wells = rips_instance.project.well_paths()
     well_path = wells[0]
 
@@ -41,6 +42,7 @@ def test_10k_well_log_extraction(rips_instance, initialize_test):
     for prop_type, prop_name, time_step in properties:
         track = well_log_plot.new_well_log_track("Track: " + prop_name, case, well_path)
         c = track.add_extraction_curve(case, well_path, prop_type, prop_name, time_step)
+        assert c
 
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         well_log_plot.export_data_as_las(export_folder=tmpdirname)

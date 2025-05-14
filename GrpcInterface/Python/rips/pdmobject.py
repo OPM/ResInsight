@@ -177,7 +177,6 @@ class PdmObjectBase:
         print("Object Attributes: ")
         for snake_kw in dir(self):
             if not snake_kw.startswith("_") and not callable(getattr(self, snake_kw)):
-                camel_kw = snake_to_camel(snake_kw)
                 print(
                     "   "
                     + snake_kw

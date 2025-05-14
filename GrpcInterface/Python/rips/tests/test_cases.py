@@ -214,4 +214,5 @@ def test_multiple_load_of_same_case(rips_instance, initialize_test):
     path_name = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.EGRID"
     case_count = 3
     for i in range(case_count):
-        case = rips_instance.project.load_case(path_name)
+        c = rips_instance.project.load_case(path_name)
+        assert c
