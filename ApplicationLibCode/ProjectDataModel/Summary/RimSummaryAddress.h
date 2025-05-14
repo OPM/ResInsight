@@ -66,6 +66,7 @@ protected:
 
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>>  m_statistics;
 
     caf::PdmField<QString> m_vectorName;
     caf::PdmField<int>     m_regionNumber;

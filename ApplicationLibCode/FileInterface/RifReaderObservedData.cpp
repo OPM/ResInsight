@@ -166,6 +166,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
     }
 
     return RifEclipseSummaryAddress( summaryCategory,
+                                     RifEclipseSummaryAddressDefines::StatisticsType::NONE,
                                      stdVectorName,
                                      regionNumber,
                                      regionNumber2,

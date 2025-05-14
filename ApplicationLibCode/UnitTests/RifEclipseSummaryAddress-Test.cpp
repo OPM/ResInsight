@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RimSummaryAddress.h"
 
 #include <QString>
 
@@ -594,4 +595,32 @@ TEST( RifEclipseSummaryAddressTest, ConversionFromTextToAddress )
         EXPECT_EQ( "WOPRTEST", adr.vectorName() );
         EXPECT_EQ( "B-2H", adr.wellName() );
     }
+}
+
+TEST( RifEclipseSummaryAddressTest, Conversion_RifEclipseSummaryAddress_RimSummaryAddress_RoundTrip )
+{
+    // Create a RifEclipseSummaryAddress with various fields set
+    RifEclipseSummaryAddress original = RifEclipseSummaryAddress::wellConnectionAddress( "WOPR", "B-2H", 10, 20, 30 );
+    original.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::P50 );
+    original.setAsErrorResult();
+    original.setId( 42 );
+
+    // Convert to RimSummaryAddress
+    RimSummaryAddress rimAddr;
+    rimAddr.setAddress( original );
+
+    // Convert back to RifEclipseSummaryAddress
+    RifEclipseSummaryAddress roundTrip = rimAddr.address();
+
+    // Check that all relevant fields are preserved
+    EXPECT_TRUE( roundTrip.isValid() );
+    EXPECT_EQ( original.category(), roundTrip.category() );
+    EXPECT_EQ( original.vectorName(), roundTrip.vectorName() );
+    EXPECT_EQ( original.wellName(), roundTrip.wellName() );
+    EXPECT_EQ( original.cellI(), roundTrip.cellI() );
+    EXPECT_EQ( original.cellJ(), roundTrip.cellJ() );
+    EXPECT_EQ( original.cellK(), roundTrip.cellK() );
+    EXPECT_EQ( original.statisticsType(), roundTrip.statisticsType() );
+    EXPECT_EQ( original.isErrorResult(), roundTrip.isErrorResult() );
+    EXPECT_EQ( original.id(), roundTrip.id() );
 }
