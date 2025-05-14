@@ -72,18 +72,19 @@ bool RimEnsembleStatisticsCase::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::vector<double>> RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    auto quantityName = resultAddress.ensembleStatisticsVectorName();
-
-    if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP10() )
-        return { true, m_p10Data };
-    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP50() )
-        return { true, m_p50Data };
-    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP90() )
-        return { true, m_p90Data };
-    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameMean() )
-        return { true, m_meanData };
-
-    return { true, {} };
+    switch ( resultAddress.statisticsType() )
+    {
+        case RifEclipseSummaryAddressDefines::StatisticsType::P10:
+            return { true, m_p10Data };
+        case RifEclipseSummaryAddressDefines::StatisticsType::P50:
+            return { true, m_p50Data };
+        case RifEclipseSummaryAddressDefines::StatisticsType::P90:
+            return { true, m_p90Data };
+        case RifEclipseSummaryAddressDefines::StatisticsType::MEAN:
+            return { true, m_meanData };
+        default:
+            return { true, {} };
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

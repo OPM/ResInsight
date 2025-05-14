@@ -46,7 +46,6 @@ enum class SummaryCategory
     SUMMARY_BLOCK,
     SUMMARY_BLOCK_LGR,
     SUMMARY_IMPORTED,
-    SUMMARY_ENSEMBLE_STATISTICS,
     SUMMARY_TIME // Used to represent time as along the x-axis
 };
 
@@ -81,10 +80,6 @@ enum class CurveType
     RATE
 };
 
-std::string statisticsNameP10();
-std::string statisticsNameP50();
-std::string statisticsNameP90();
-std::string statisticsNameMean();
 std::string statisticsTypeToString( StatisticsType type );
 
 std::string differenceIdentifier();

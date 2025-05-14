@@ -239,6 +239,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
     }
 
     return RifEclipseSummaryAddress( sumCategory,
+                                     RifEclipseSummaryAddressDefines::StatisticsType::NONE,
                                      quantityName,
                                      regionNumber,
                                      regionNumber2,
