@@ -498,11 +498,9 @@ class PdmObjectBase:
         except grpc.RpcError as exc:
             raise RipsError("%s" % exc.details()) from None
 
-    O = TypeVar("O")
-
     def _call_pdm_method_return_optional_value(
-        self, method_name: str, class_definition: Type[O], **kwargs: Any
-    ) -> Optional[O]:
+        self, method_name: str, class_definition: Type[X], **kwargs: Any
+    ) -> Optional[X]:
         pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
         for key, value in kwargs.items():
             pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(
