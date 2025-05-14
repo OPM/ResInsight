@@ -174,21 +174,6 @@ endif()
 list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
 
 #
-# Configure include directories if opm-common.lib is downloaded and linked
-# without building from source
-#
-if(NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
-  list(APPEND RI_PUBLIC_INCLUDES
-       ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/opm-common
-  )
-  list(
-    APPEND
-    RI_PRIVATE_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/generated-opm-common/include
-  )
-endif()
-
-#
 # HDF5
 #
 if(RESINSIGHT_FOUND_HDF5)

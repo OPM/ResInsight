@@ -229,7 +229,6 @@ jobs:
           -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
           -DRESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
           -DRESINSIGHT_ENABLE_HDF5=false
-          -DRESINSIGHT_BUILD_LIBS_FROM_SOURCE=false
           -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
           -G Ninja
 
