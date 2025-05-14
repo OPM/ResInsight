@@ -31,7 +31,6 @@ from .grpc_retry_interceptor import RetryOnRpcErrorClientInterceptor
 from .generated.generated_classes import CommandRouter
 
 from typing import List, Optional, Tuple
-from typing_extensions import Self
 from pathlib import Path
 
 

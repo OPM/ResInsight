@@ -1,9 +1,3 @@
-from rips.generated.generated_classes import (
-    ModeledWellPath,
-    StimPlanModel,
-    WellPathGeometry,
-    WellPathTarget,
-)
 import sys
 import os
 

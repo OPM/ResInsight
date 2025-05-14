@@ -2,7 +2,6 @@
 ResInsight 3d view module
 """
 
-import builtins
 import Commands_pb2 as Cmd
 
 import rips.case  # Circular import of Case, which already imports View. Use full name.

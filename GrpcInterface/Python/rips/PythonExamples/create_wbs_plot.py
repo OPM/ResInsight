@@ -1,5 +1,4 @@
 import os
-import grpc
 
 # Load ResInsight Processing Server Client Library
 import rips

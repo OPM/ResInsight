@@ -1,6 +1,5 @@
 import sys
 import os
-import grpc
 import pytest
 
 import rips.generated.NNCProperties_pb2 as NNCProperties_pb2

@@ -3,13 +3,10 @@
 ResInsight caf::PdmObject connection module
 """
 
-from functools import partial, wraps
+from functools import wraps
 import grpc
 import re
-import builtins
-import importlib
 import inspect
-import sys
 
 import PdmObject_pb2
 import PdmObject_pb2_grpc
@@ -18,8 +15,8 @@ import Commands_pb2_grpc
 
 from .exception import RipsError
 
-from typing import Any, Callable, TypeVar, Tuple, cast, Union, List, Optional, Type
-from typing_extensions import ParamSpec, Self
+from typing import Any, Callable, TypeVar, Union, List, Optional, Type
+from typing_extensions import ParamSpec
 
 
 def camel_to_snake(name: str) -> str:

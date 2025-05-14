@@ -3,7 +3,6 @@
 ###########################################################################################
 
 import rips
-import itertools
 import time
 
 resinsight = rips.Instance.find()

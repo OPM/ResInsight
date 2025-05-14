@@ -35,7 +35,6 @@ result
 
 """
 
-import builtins
 import grpc
 from typing import List, Tuple
 
