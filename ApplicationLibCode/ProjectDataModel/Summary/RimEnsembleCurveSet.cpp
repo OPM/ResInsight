@@ -717,8 +717,7 @@ void RimEnsembleCurveSet::deleteEnsembleCurves()
     for ( size_t c = 0; c < m_curves.size(); c++ )
     {
         RimSummaryCurve* curve = m_curves[c];
-        if ( curve->summaryAddressY().category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
-            curvesIndexesToDelete.push_back( c );
+        if ( !curve->summaryAddressY().isStatistics() ) curvesIndexesToDelete.push_back( c );
     }
 
     while ( !curvesIndexesToDelete.empty() )
@@ -739,8 +738,7 @@ void RimEnsembleCurveSet::deleteStatisticsCurves()
     for ( size_t c = 0; c < m_curves.size(); c++ )
     {
         RimSummaryCurve* curve = m_curves[c];
-        if ( curve->summaryAddressY().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
-            curvesIndexesToDelete.push_back( c );
+        if ( curve->summaryAddressY().isStatistics() ) curvesIndexesToDelete.push_back( c );
     }
 
     while ( !curvesIndexesToDelete.empty() )
@@ -2079,8 +2077,7 @@ void RimEnsembleCurveSet::updateCurveColors()
     std::vector<RimSummaryCase*>  summaryCases;
     for ( auto& curve : m_curves )
     {
-        if ( curve->summaryAddressY().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
-            continue;
+        if ( curve->summaryAddressY().isStatistics() ) continue;
 
         curvesToColor.push_back( curve );
         summaryCases.push_back( curve->summaryCaseY() );
@@ -2261,8 +2258,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCase*>& sumCases )
 {
-    using SAddr = RifEclipseSummaryAddress;
-
     RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
     RimSummaryAddress*  addr  = m_yValuesSummaryAddress();
 
@@ -2303,45 +2298,49 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             RifEclipseSummaryAddress dataAddressY = m_yValuesSummaryAddress->address();
             RifEclipseSummaryAddress dataAddressX = m_xAddressSelector->summaryAddress();
 
-            auto getStatisticsAddress = []( const std::string&              statisticsVectorName,
-                                            const RifEclipseSummaryAddress& addrX,
-                                            const RifEclipseSummaryAddress& addrY ) -> RiaSummaryCurveAddress
+            auto getStatisticsAddress = []( RifEclipseSummaryAddressDefines::StatisticsType statisticsType,
+                                            const RifEclipseSummaryAddress&                 addrX,
+                                            const RifEclipseSummaryAddress&                 addrY ) -> RiaSummaryCurveAddress
             {
-                auto xStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrX.toEclipseTextAddress() );
-                auto yStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrY.toEclipseTextAddress() );
+                auto xStatAddress = addrX;
+                xStatAddress.setStatisticsType( statisticsType );
+                auto yStatAddress = addrY;
+                yStatAddress.setStatisticsType( statisticsType );
 
                 return RiaSummaryCurveAddress( xStatAddress, yStatAddress );
             };
 
             if ( m_statistics->showP10Curve() && m_ensembleStatCaseXY->hasP10Data() )
-                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP10(), dataAddressX, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::P10, dataAddressX, dataAddressY ) );
             if ( m_statistics->showP50Curve() && m_ensembleStatCaseXY->hasP50Data() )
-                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP50(), dataAddressX, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::P50, dataAddressX, dataAddressY ) );
             if ( m_statistics->showP90Curve() && m_ensembleStatCaseXY->hasP90Data() )
-                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP90(), dataAddressX, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::P90, dataAddressX, dataAddressY ) );
             if ( m_statistics->showMeanCurve() && m_ensembleStatCaseXY->hasMeanData() )
-                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameMean(), dataAddressX, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::MEAN, dataAddressX, dataAddressY ) );
         }
         else
         {
             RifEclipseSummaryAddress dataAddressY = m_yValuesSummaryAddress->address();
 
-            auto getStatisticsAddress = []( const std::string& statisticsVectorName, const RifEclipseSummaryAddress& addrY ) -> RiaSummaryCurveAddress
+            auto getStatisticsAddress = []( RifEclipseSummaryAddressDefines::StatisticsType statisticsType,
+                                            const RifEclipseSummaryAddress&                 addrY ) -> RiaSummaryCurveAddress
             {
                 auto xStatAddress = RifEclipseSummaryAddress::timeAddress();
-                auto yStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrY.toEclipseTextAddress() );
+                auto yStatAddress = addrY;
+                yStatAddress.setStatisticsType( statisticsType );
 
                 return RiaSummaryCurveAddress( xStatAddress, yStatAddress );
             };
 
             if ( m_statistics->showP10Curve() && m_ensembleStatCaseY->hasP10Data() )
-                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP10(), dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::P10, dataAddressY ) );
             if ( m_statistics->showP50Curve() && m_ensembleStatCaseY->hasP50Data() )
-                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP50(), dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::P50, dataAddressY ) );
             if ( m_statistics->showP90Curve() && m_ensembleStatCaseY->hasP90Data() )
-                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP90(), dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::P90, dataAddressY ) );
             if ( m_statistics->showMeanCurve() && m_ensembleStatCaseY->hasMeanData() )
-                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameMean(), dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::MEAN, dataAddressY ) );
         }
     }
 
@@ -2376,7 +2375,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
                 if ( m_statistics->showCurveLabels() )
                 {
-                    curve->setSymbolLabel( QString::fromStdString( address.summaryAddressY().ensembleStatisticsVectorName() ) );
+                    curve->setSymbolLabel( QString::fromStdString(
+                        RifEclipseSummaryAddressDefines::statisticsTypeToString( address.summaryAddressY().statisticsType() ) ) );
                 }
                 curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
             }
@@ -2674,16 +2674,17 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
 //--------------------------------------------------------------------------------------------------
 RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address )
 {
-    auto qName = address.vectorName();
-
-    if ( qName.find( RifEclipseSummaryAddressDefines::statisticsNameP10() ) != std::string::npos )
-        return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
-    if ( qName.find( RifEclipseSummaryAddressDefines::statisticsNameP50() ) != std::string::npos )
-        return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
-    if ( qName.find( RifEclipseSummaryAddressDefines::statisticsNameP90() ) != std::string::npos )
-        return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
-
-    return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
+    switch ( address.statisticsType() )
+    {
+        case RifEclipseSummaryAddressDefines::StatisticsType::P10:
+            return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+        case RifEclipseSummaryAddressDefines::StatisticsType::P50:
+            return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+        case RifEclipseSummaryAddressDefines::StatisticsType::P90:
+            return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
+        default:
+            return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2691,10 +2692,16 @@ RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifE
 //--------------------------------------------------------------------------------------------------
 int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol )
 {
-    if ( symbol == RiuPlotCurveSymbol::SYMBOL_DIAMOND ) return 8;
-    if ( symbol == RiuPlotCurveSymbol::SYMBOL_TRIANGLE ) return 7;
-    if ( symbol == RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE ) return 7;
-    return 6;
+    switch ( symbol )
+    {
+        case RiuPlotCurveSymbol::SYMBOL_DIAMOND:
+            return 8;
+        case RiuPlotCurveSymbol::SYMBOL_TRIANGLE:
+        case RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE:
+            return 7;
+        default:
+            return 6;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

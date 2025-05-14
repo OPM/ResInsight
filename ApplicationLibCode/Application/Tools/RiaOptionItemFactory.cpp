@@ -116,8 +116,6 @@ caf::PdmOptionItemInfo RiaOptionItemFactory::optionItemFromSummaryType( RifEclip
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED:
             iconText = ":/summary/components/images/others.svg";
             break;
-        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS:
-            break;
     }
 
     if ( iconText.isEmpty() )
