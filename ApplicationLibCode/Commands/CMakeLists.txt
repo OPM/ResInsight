@@ -35,6 +35,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     CrossSectionCommands/CMakeLists_files.cmake
     EclipseCommands/CMakeLists_files.cmake
     EclipseCommands/EclipseWell/CMakeLists_files.cmake
+    EnsembleFileSetCommands/CMakeLists_files.cmake
     ExportCommands/CMakeLists_files.cmake
     FlowCommands/CMakeLists_files.cmake
     GridCrossPlotCommands/CMakeLists_files.cmake

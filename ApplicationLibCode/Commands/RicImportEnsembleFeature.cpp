@@ -27,10 +27,14 @@
 
 #include "RicImportSummaryCasesFeature.h"
 
+#include "EnsembleFileSet/RimEnsembleFileSet.h"
+#include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
+#include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
+#include "Summary/Ensemble/RimSummaryFileSetEnsemble.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -62,7 +66,7 @@ RimSummaryEnsemble* RicImportEnsembleFeature::createSummaryEnsemble( std::vector
     }
 
     bool useEnsembleNameDialog = false;
-    return importSingleEnsemble( fileNames, useEnsembleNameDialog, groupingMode, RiaDefines::FileType::SMSPEC, name );
+    return importSingleEnsembleFileSet( fileNames, useEnsembleNameDialog, groupingMode, RiaDefines::FileType::SMSPEC, name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,14 +100,24 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
         }
         else
         {
-            auto grouping = RiaEnsembleNameTools::groupFilesByEnsembleName( fileNames, ensembleGroupingMode );
+            std::vector<RimSummaryEnsemble*> ensembles;
+            auto                             grouping = RiaEnsembleNameTools::groupFilesByEnsembleName( fileNames, ensembleGroupingMode );
             for ( const auto& [groupName, fileNames] : grouping )
             {
                 bool useEnsembleNameDialog = false;
-                importSingleEnsemble( fileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType, groupName );
+                if ( auto ensemble = importSingleEnsembleFileSet( fileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType, groupName ) )
+                {
+                    ensembles.push_back( ensemble );
+                }
             }
 
             RiaSummaryTools::updateSummaryEnsembleNames();
+
+            for ( auto ensemble : ensembles )
+            {
+                RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
+            }
+            RiaSummaryTools::summaryCaseMainCollection()->updateConnectedEditors();
         }
     }
 }
@@ -150,6 +164,22 @@ RimSummaryEnsemble* RicImportEnsembleFeature::importSingleEnsemble( const QStrin
     }
 
     return ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryEnsemble* RicImportEnsembleFeature::importSingleEnsembleFileSet( const QStringList&               fileNames,
+                                                                           bool                             useEnsembleNameDialog,
+                                                                           RiaDefines::EnsembleGroupingMode groupingMode,
+                                                                           RiaDefines::FileType             fileType,
+                                                                           const QString&                   defaultEnsembleName )
+{
+    auto fileSets  = RimEnsembleFileSetTools::createEnsembleFileSets( fileNames, groupingMode );
+    auto ensembles = RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( fileSets );
+    if ( !ensembles.empty() ) return ensembles.front();
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

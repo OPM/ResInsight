@@ -19,6 +19,7 @@
 #include "RicCreateEnsembleFromFilteredCasesFeature.h"
 
 #include "RiaLogging.h"
+#include "Summary/RiaSummaryPlotTools.h"
 
 #include "RicImportEnsembleFeature.h"
 
@@ -137,6 +138,8 @@ void RicCreateEnsembleFromFilteredCasesFeature::onActionTriggered( bool isChecke
 
     if ( auto newEnsemble = RicImportEnsembleFeature::createSummaryEnsemble( casesForNewEnsemble ) )
     {
+        RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { newEnsemble } );
+
         RiaLogging::info( "Created ensemble " + newEnsemble->name() );
     }
     else

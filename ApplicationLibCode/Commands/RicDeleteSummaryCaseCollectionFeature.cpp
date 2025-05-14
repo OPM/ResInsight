@@ -119,6 +119,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
     for ( RimSummaryEnsemble* ensemble : ensembles )
     {
         summaryCaseMainCollection->removeEnsemble( ensemble );
+        ensemble->cleanupBeforeDelete();
         delete ensemble;
     }
 

@@ -468,7 +468,7 @@ void RiuPlotMainWindow::refreshToolbars()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::createDockPanels()
 {
-    const std::vector<QString> treeViewTitles = { "Plots", "Data Sources", "Templates", "Scripts", "Cloud" + RiaDefines::betaFeaturePostfix() };
+    const std::vector<QString> treeViewTitles    = { "Plots", "Data Sources", "Templates", "Scripts", "Ensemble Data" };
     const std::vector<QString> treeViewConfigs   = { "PlotWindow.Plots",
                                                      "PlotWindow.DataSources",
                                                      "PlotWindow.Templates",
