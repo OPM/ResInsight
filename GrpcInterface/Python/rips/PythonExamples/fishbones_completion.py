@@ -1,6 +1,5 @@
 # Load ResInsight Processing Server Client Library
 import rips
-import time
 
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()

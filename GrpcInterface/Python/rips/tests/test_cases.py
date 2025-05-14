@@ -2,7 +2,6 @@ import sys
 import os
 import math
 import pytest
-import grpc
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))

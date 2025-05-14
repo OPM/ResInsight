@@ -2,7 +2,6 @@
 # This example will synchronously calculate the average value for SOIL for all time steps
 ###########################################################################################
 import rips
-import itertools
 import time
 
 resinsight = rips.Instance.find()

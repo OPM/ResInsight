@@ -1,7 +1,6 @@
 import pytest
 import sys
 import os
-import getopt
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
