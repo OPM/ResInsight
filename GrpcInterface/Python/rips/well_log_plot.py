@@ -4,8 +4,7 @@ ResInsight Well Log Plot plot module
 
 import Commands_pb2
 
-from .plot import Plot
-from .pdmobject import PdmObjectBase, add_method
+from .pdmobject import add_method
 from .resinsight_classes import WellLogPlot
 
 from typing import List
