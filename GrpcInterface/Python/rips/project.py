@@ -9,8 +9,8 @@ import uuid
 
 from .case import Case
 from .gridcasegroup import GridCaseGroup
-from .pdmobject import PdmObjectBase, add_method, add_static_method
-from .plot import Plot
+from .pdmobject import add_method, add_static_method
+from .plot import Plot as Plot
 from .view import View
 
 import Commands_pb2
