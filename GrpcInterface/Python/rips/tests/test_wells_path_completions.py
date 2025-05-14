@@ -50,7 +50,7 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     completions_settings.update()  # Commit updates back to ResInsight
 
     completions_settings_updated = well_path.completion_settings()
-    assert completions_settings_updated.allow_well_cross_flow == True
+    assert completions_settings_updated.allow_well_cross_flow
     assert completions_settings_updated.auto_well_shut_in == "STOP"
     assert completions_settings_updated.drainage_radius_for_pi == "1.56"
     assert completions_settings_updated.fluid_in_place_region == 99
@@ -76,8 +76,8 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     msw_settings.update()
 
     msw_settings_updated = well_path.msw_settings()
-    assert msw_settings_updated.custom_values_for_lateral == True
-    assert msw_settings_updated.enforce_max_segment_length == True
+    assert msw_settings_updated.custom_values_for_lateral
+    assert msw_settings_updated.enforce_max_segment_length
     assert msw_settings_updated.liner_diameter == 20.0
     assert msw_settings_updated.max_segment_length == 123.05
     assert msw_settings_updated.pressure_drop == "HFA"
@@ -137,7 +137,7 @@ def test_add_well_path_fracture_template(rips_instance, initialize_test):
     assert fracture_template_updated.relative_gas_density == 0.1
     assert fracture_template_updated.relative_permeability == 0.2
     assert fracture_template_updated.user_defined_d_factor == 14
-    assert fracture_template_updated.user_defined_perforation_length == True
+    assert fracture_template_updated.user_defined_perforation_length
     assert fracture_template_updated.user_description == "my frac name"
     assert fracture_template_updated.width_scale_factor == 7
 
