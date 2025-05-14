@@ -550,6 +550,8 @@ void RimSummaryCaseMainCollection::onCaseNameChanged( const SignalEmitter* emitt
 
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     summaryPlotColl->updateSummaryNameHasChanged();
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

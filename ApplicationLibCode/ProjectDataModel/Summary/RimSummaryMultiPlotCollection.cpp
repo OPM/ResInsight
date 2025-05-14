@@ -189,4 +189,6 @@ void RimSummaryMultiPlotCollection::updateSummaryNameHasChanged()
 
         multiPlot->updatePlotTitles();
     }
+
+    updateConnectedEditors();
 }
