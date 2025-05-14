@@ -68,8 +68,9 @@ private:
 
     caf::PdmField<QString> m_nameTemplateString;
     caf::PdmField<bool>    m_autoName;
-    caf::PdmField<bool>    m_useKey1;
-    caf::PdmField<bool>    m_useKey2;
 
     caf::PdmField<caf::AppEnum<RiaDefines::EnsembleGroupingMode>> m_groupingMode;
+
+    bool m_useKey1;
+    bool m_useKey2;
 };

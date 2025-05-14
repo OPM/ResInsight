@@ -48,6 +48,8 @@ QString placeholderString()
 RimEnsembleFileSet::RimEnsembleFileSet()
     : fileSetChanged( this )
     , nameChanged( this )
+    , m_useKey1( false )
+    , m_useKey2( false )
 
 {
     CAF_PDM_InitObject( "Ensemble", ":/CreateGridCaseGroup16x16.png", "", "" );
@@ -58,8 +60,6 @@ RimEnsembleFileSet::RimEnsembleFileSet()
     CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
     CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
-    CAF_PDM_InitScriptableField( &m_useKey1, "UseKey1", false, "Use First Path Part" );
-    CAF_PDM_InitScriptableField( &m_useKey2, "UseKey2", false, "Use Second Path Part" );
 
     QString defaultText = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
     QString tooltipText = QString( "Variables in template is supported, and will be replaced to create name. Example '%1'" ).arg( defaultText );
@@ -347,8 +347,8 @@ std::pair<std::string, std::string> RimEnsembleFileSet::nameKeys() const
 QString RimEnsembleFileSet::nameTemplateText() const
 {
     QString text;
-    if ( m_useKey1() ) text += RiaDefines::key1VariableName();
-    if ( m_useKey2() )
+    if ( m_useKey1 ) text += RiaDefines::key1VariableName();
+    if ( m_useKey2 )
     {
         if ( !text.isEmpty() ) text += ", ";
         text += RiaDefines::key2VariableName();
