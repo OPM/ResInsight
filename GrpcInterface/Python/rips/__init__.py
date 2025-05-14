@@ -1,5 +1,3 @@
-name = "rips"
-
 import os
 import sys
 
