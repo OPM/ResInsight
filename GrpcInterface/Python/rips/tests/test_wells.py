@@ -19,6 +19,7 @@ def test_10k(rips_instance, initialize_test):
         case_root_path + "/wellpath_b.dev",
     ]
     well_path_names = rips_instance.project.import_well_paths(well_path_files)
+    assert len(well_path_names) == 2
     wells = rips_instance.project.well_paths()
     assert len(wells) == 2
     assert wells[0].name == "Well Path A"
@@ -38,6 +39,7 @@ def test_10k_intersection(rips_instance, initialize_test):
     view.set_time_step(1)
 
     well_path_names = rips_instance.project.import_well_paths(well_path_files)
+    assert len(well_path_names) == 1
     wells = rips_instance.project.well_paths()
     well_path = wells[0]
 
