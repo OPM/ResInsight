@@ -235,12 +235,6 @@ RimSummaryEnsemble* RimSummaryCaseMainCollection::addEnsemble( const std::vector
     RimSummaryEnsemble* ensemble = allocator();
     if ( !collectionName.isEmpty() ) ensemble->setNameTemplate( collectionName );
 
-    if ( ensemble->ensembleId() == -1 )
-    {
-        RimProject* project = RimProject::current();
-        project->assignIdToEnsemble( ensemble );
-    }
-
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
         auto currentSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>();
@@ -262,10 +256,7 @@ RimSummaryEnsemble* RimSummaryCaseMainCollection::addEnsemble( const std::vector
 
     ensemble->setAsEnsemble( isEnsemble );
 
-    ensemble->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
-    m_ensembles.push_back( ensemble );
-
-    dataSourceHasChanged.send();
+    addEnsemble( ensemble );
 
     return ensemble;
 }
@@ -296,6 +287,8 @@ void RimSummaryCaseMainCollection::addEnsemble( RimSummaryEnsemble* ensemble )
         RimProject* project = RimProject::current();
         project->assignIdToEnsemble( ensemble );
     }
+
+    ensemble->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
 
     dataSourceHasChanged.send();
 }
@@ -550,6 +543,8 @@ void RimSummaryCaseMainCollection::onCaseNameChanged( const SignalEmitter* emitt
 
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     summaryPlotColl->updateSummaryNameHasChanged();
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

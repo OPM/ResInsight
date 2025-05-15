@@ -66,7 +66,7 @@ public:
     QString name() const;
 
     void                                        setNameTemplate( const QString& name );
-    void                                        updateName( const std::set<QString>& existingEnsembleNames );
+    virtual void                                updateName( const std::set<QString>& existingEnsembleNames );
     void                                        setUsePathKey1( bool useKey1 );
     void                                        setUsePathKey2( bool useKey2 );
     virtual std::pair<std::string, std::string> nameKeys() const;
@@ -117,6 +117,8 @@ public:
     void                      setMinMax( const RifEclipseSummaryAddress& address, double min, double max );
     std::pair<double, double> minMax( const RifEclipseSummaryAddress& address );
 
+    virtual void cleanupBeforeDelete();
+
 protected:
     virtual void onLoadDataAndUpdate();
 
@@ -127,10 +129,11 @@ protected:
     bool isAutoNameChecked() const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
+    void buildChildNodes();
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
-    void                 initAfterRead() override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
@@ -141,7 +144,6 @@ private:
 
     void onCaseNameChanged( const SignalEmitter* emitter );
 
-    void buildChildNodes();
     void clearChildNodes();
 
     QString ensembleDescription() const;

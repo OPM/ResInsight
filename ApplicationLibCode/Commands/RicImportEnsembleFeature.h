@@ -51,4 +51,10 @@ private:
                                                      RiaDefines::EnsembleGroupingMode groupingMode,
                                                      RiaDefines::FileType             fileType,
                                                      const QString&                   defaultEnsembleName = QString() );
+
+    static RimSummaryEnsemble* importSingleEnsembleFileSet( const QStringList&               fileNames,
+                                                            bool                             useEnsembleNameDialog,
+                                                            RiaDefines::EnsembleGroupingMode groupingMode,
+                                                            RiaDefines::FileType             fileType,
+                                                            const QString&                   defaultEnsembleName = QString() );
 };

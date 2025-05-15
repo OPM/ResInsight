@@ -36,6 +36,7 @@
 
 #include "Cloud/RimCloudDataSourceCollection.h"
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
+#include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
@@ -235,6 +236,9 @@ RimProject::RimProject()
     CAF_PDM_InitFieldNoDefault( &m_automationSettings, "AutomationSettings", "Automation Settings" );
     m_automationSettings = new RimAutomationSettings();
 
+    CAF_PDM_InitFieldNoDefault( &m_ensembleFileSetCollection, "EnsembleFileSetCollection", "Ensemble File Sets" );
+    m_ensembleFileSetCollection = new RimEnsembleFileSetCollection();
+
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back( new RimOilField );
 
@@ -266,6 +270,7 @@ void RimProject::close()
         m_mainPlotCollection()->deleteAllContainedObjects();
     }
 
+    m_ensembleFileSetCollection()->deleteAllFileSets();
     oilFields.deleteChildren();
     oilFields.push_back( new RimOilField );
 
@@ -379,6 +384,14 @@ RimAutomationSettings* RimProject::automationSettings() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEnsembleFileSetCollection* RimProject::ensembleFileSetCollection() const
+{
+    return m_ensembleFileSetCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::initAfterRead()
 {
     // Function moved to beforeInitAfterRead() to make sure that file path objects are replaced before other initAfterRead() is called
@@ -407,6 +420,44 @@ void RimProject::setupBeforeSave()
     }
 
     m_projectFileVersionString = STRPRODUCTVER;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimProject::fieldsForExport() const
+{
+    std::vector<QString> orderedKeywords;
+
+    orderedKeywords.push_back( fileNameHandle()->keyword() );
+    orderedKeywords.push_back( m_projectFileVersionString.keyword() );
+    orderedKeywords.push_back( m_globalPathList.keyword() );
+    orderedKeywords.push_back( m_ensembleFileSetCollection.keyword() );
+
+    std::vector<caf::PdmFieldHandle*> ordered;
+
+    auto fieldHandles = fields();
+    for ( const auto& kw : orderedKeywords )
+    {
+        auto it = std::find_if( fieldHandles.begin(),
+                                fieldHandles.end(),
+                                [&]( const caf::PdmFieldHandle* field ) { return field->keyword() == kw; } );
+        if ( it != fieldHandles.end() )
+        {
+            ordered.push_back( *it );
+        }
+    }
+
+    // Append the rest of the fields
+    for ( auto fieldHandle : fields() )
+    {
+        if ( std::find( ordered.begin(), ordered.end(), fieldHandle ) == ordered.end() )
+        {
+            ordered.push_back( fieldHandle );
+        }
+    }
+
+    return ordered;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1463,6 +1514,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     }
     else if ( uiConfigName == "PlotWindow.Cloud" )
     {
+        uiTreeOrdering.add( &m_ensembleFileSetCollection );
         if ( m_mainPlotCollection )
         {
             if ( activeOilField()->cloudDataCollection() )

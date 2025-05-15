@@ -1739,6 +1739,8 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
 //--------------------------------------------------------------------------------------------------
 std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps() const
 {
+    if ( !summaryEnsemble() ) return {};
+
     std::set<time_t> timeStepUnion;
 
     for ( RimSummaryCase* sumCase : summaryEnsemble()->allSummaryCases() )

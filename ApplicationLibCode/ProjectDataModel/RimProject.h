@@ -73,6 +73,7 @@ class RimPlotTemplateFolderItem;
 class RimGridCalculationCollection;
 class RimQuickAccessCollection;
 class RimAutomationSettings;
+class RimEnsembleFileSetCollection;
 
 namespace caf
 {
@@ -192,12 +193,14 @@ public:
 
     void updatesAfterProjectFileIsRead();
 
-    RimQuickAccessCollection* pinnedFieldCollection() const;
-    RimAutomationSettings*    automationSettings() const;
+    RimQuickAccessCollection*     pinnedFieldCollection() const;
+    RimAutomationSettings*        automationSettings() const;
+    RimEnsembleFileSetCollection* ensembleFileSetCollection() const;
 
 protected:
-    void initAfterRead() override;
-    void setupBeforeSave() override;
+    void                              initAfterRead() override;
+    void                              setupBeforeSave() override;
+    std::vector<caf::PdmFieldHandle*> fieldsForExport() const override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
@@ -207,9 +210,10 @@ private:
     QString updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
 private:
-    caf::PdmChildField<RimMainPlotCollection*>    m_mainPlotCollection;
-    caf::PdmChildField<RimQuickAccessCollection*> m_pinnedFieldCollection;
-    caf::PdmChildField<RimAutomationSettings*>    m_automationSettings;
+    caf::PdmChildField<RimMainPlotCollection*>        m_mainPlotCollection;
+    caf::PdmChildField<RimQuickAccessCollection*>     m_pinnedFieldCollection;
+    caf::PdmChildField<RimAutomationSettings*>        m_automationSettings;
+    caf::PdmChildField<RimEnsembleFileSetCollection*> m_ensembleFileSetCollection;
 
     caf::PdmField<QString> m_globalPathList;
     caf::PdmField<QString> m_projectFileVersionString;

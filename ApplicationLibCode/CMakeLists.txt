@@ -105,12 +105,14 @@ list(
   ProjectDataModel/CorrelationPlots/CMakeLists_files.cmake
   ProjectDataModel/ContourMap/CMakeLists_files.cmake
   ProjectDataModel/Cloud/CMakeLists_files.cmake
+  ProjectDataModel/EnsembleFileSet/CMakeLists_files.cmake
   ProjectDataModel/Faults/CMakeLists_files.cmake
   ProjectDataModel/GeoMech/CMakeLists_files.cmake
   ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
   ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
   ProjectDataModel/Summary/CMakeLists_files.cmake
   ProjectDataModel/Summary/Sumo/CMakeLists_files.cmake
+  ProjectDataModel/Summary/Ensemble/CMakeLists_files.cmake
   ProjectDataModel/Flow/CMakeLists_files.cmake
   ProjectDataModel/Formations/CMakeLists_files.cmake
   ProjectDataModel/Annotations/CMakeLists_files.cmake
