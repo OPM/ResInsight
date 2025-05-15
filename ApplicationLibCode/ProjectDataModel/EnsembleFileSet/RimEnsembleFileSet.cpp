@@ -55,7 +55,7 @@ RimEnsembleFileSet::RimEnsembleFileSet()
     CAF_PDM_InitObject( "Ensemble", ":/CreateGridCaseGroup16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_pathPattern, "PathPattern", QString(), "Path Pattern", "", "", "" );
-    CAF_PDM_InitField( &m_realizationSubSet, "RealizationSubSet", QString(), "Realization SubSet", "", "", "" );
+    CAF_PDM_InitField( &m_realizationSubSet, "RealizationSubSet", QString(), "Realization Filter", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
@@ -215,7 +215,7 @@ void RimEnsembleFileSet::defineEditorAttribute( const caf::PdmFieldHandle* field
     {
         if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
         {
-            lineEdAttr->placeholderText = "E.g. 0,1,2-5,10-20";
+            lineEdAttr->placeholderText = "E.g. 0,1,4-6,10-20";
         }
     }
 }
