@@ -11,7 +11,10 @@ from .instance import Instance as Instance
 from .view import View as View
 from .project import Project as Project
 from .plot import Plot as Plot, PlotWindow as PlotWindow
-from .contour_map import EclipseContourMap as EclipseContourMap, GeoMechContourMap as GeoMechContourMap
+from .contour_map import (
+    EclipseContourMap as EclipseContourMap,
+    GeoMechContourMap as GeoMechContourMap,
+)
 from .well_log_plot import WellLogPlot as WellLogPlot
 from .simulation_well import SimulationWell as SimulationWell
 from .exception import RipsError as RipsError

@@ -12,9 +12,9 @@ case_paths.append(test_model_path + "/Case_with_10_timesteps/Real30/BRUGGE_0030.
 case_paths.append(test_model_path + "/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID")
 
 for case_path in case_paths:
-    assert os.path.exists(case_path), (
-        "You need to set valid case paths for this script to work"
-    )
+    assert os.path.exists(
+        case_path
+    ), "You need to set valid case paths for this script to work"
 
 case_group = resinsight.project.create_grid_case_group(case_paths=case_paths)
 
