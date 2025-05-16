@@ -1,16 +1,10 @@
 import sys
 import os
-import math
-import pytest
-import grpc
-import tempfile
 import time
 import multiprocessing
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
-
-import dataroot
 
 
 def launch_resinsight(sec=1):
@@ -23,7 +17,7 @@ def launch_resinsight(sec=1):
 
     print(f"Sleeping for {sec} second(s): ", instance.location)
     time.sleep(sec)
-    print(f"Done sleeping", instance.location)
+    print("Done sleeping", instance.location)
 
     instance.exit()
 

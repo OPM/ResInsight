@@ -3,13 +3,10 @@
 ResInsight caf::PdmObject connection module
 """
 
-from functools import partial, wraps
+from functools import wraps
 import grpc
 import re
-import builtins
-import importlib
 import inspect
-import sys
 
 import PdmObject_pb2
 import PdmObject_pb2_grpc
@@ -18,8 +15,8 @@ import Commands_pb2_grpc
 
 from .exception import RipsError
 
-from typing import Any, Callable, TypeVar, Tuple, cast, Union, List, Optional, Type
-from typing_extensions import ParamSpec, Self
+from typing import Any, Callable, TypeVar, Union, List, Optional, Type
+from typing_extensions import ParamSpec
 
 
 def camel_to_snake(name: str) -> str:
@@ -180,7 +177,6 @@ class PdmObjectBase:
         print("Object Attributes: ")
         for snake_kw in dir(self):
             if not snake_kw.startswith("_") and not callable(getattr(self, snake_kw)):
-                camel_kw = snake_to_camel(snake_kw)
                 print(
                     "   "
                     + snake_kw
@@ -502,11 +498,9 @@ class PdmObjectBase:
         except grpc.RpcError as exc:
             raise RipsError("%s" % exc.details()) from None
 
-    O = TypeVar("O")
-
     def _call_pdm_method_return_optional_value(
-        self, method_name: str, class_definition: Type[O], **kwargs: Any
-    ) -> Optional[O]:
+        self, method_name: str, class_definition: Type[X], **kwargs: Any
+    ) -> Optional[X]:
         pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
         for key, value in kwargs.items():
             pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(

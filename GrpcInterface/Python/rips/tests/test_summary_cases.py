@@ -1,13 +1,10 @@
 import sys
 import os
-import math
 import contextlib
-import os
 import shutil
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
 
 import dataroot
 

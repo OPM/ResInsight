@@ -35,7 +35,6 @@ result
 
 """
 
-import builtins
 import grpc
 from typing import List, Tuple
 
@@ -49,16 +48,16 @@ import Properties_pb2_grpc
 import NNCProperties_pb2
 import NNCProperties_pb2_grpc
 from .resinsight_classes import (
-    Case,
-    EclipseCase,
-    GeoMechCase,
-    WellBoreStabilityPlot,
-    WbsParameters,
+    Case as Case,
+    EclipseCase as EclipseCase,
+    GeoMechCase as GeoMechCase,
+    WellBoreStabilityPlot as WellBoreStabilityPlot,
+    WbsParameters as WbsParameters,
 )
 
-from .grid import Grid
+from .grid import Grid as Grid
 from .pdmobject import add_method
-from .view import View
+from .view import View as View
 from .simulation_well import SimulationWell
 import rips.project  # full name import due to circular dependency
 

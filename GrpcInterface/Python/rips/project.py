@@ -4,24 +4,21 @@
 The ResInsight project module
 """
 
-import builtins
 import grpc
 import uuid
 
 from .case import Case
 from .gridcasegroup import GridCaseGroup
-from .pdmobject import PdmObjectBase, add_method, add_static_method
-from .plot import Plot
+from .pdmobject import add_method, add_static_method
+from .plot import Plot as Plot
 from .view import View
 
 import Commands_pb2
 from Definitions_pb2 import Empty
 import Project_pb2_grpc
-import Project_pb2
 import KeyValueStore_pb2_grpc
 import KeyValueStore_pb2
 
-import PdmObject_pb2
 from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase, Reservoir
 
 from typing import Optional, List

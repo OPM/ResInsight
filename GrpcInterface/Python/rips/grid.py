@@ -10,7 +10,7 @@ import Grid_pb2
 import Grid_pb2_grpc
 import Definitions_pb2
 
-from typing import Tuple, Optional, List
+from typing import Optional, List
 from grpc import Channel
 
 from .case import Case

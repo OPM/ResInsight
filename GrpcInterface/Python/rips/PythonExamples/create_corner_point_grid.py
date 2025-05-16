@@ -3,9 +3,8 @@
 # and actnum configuration.
 ######################################################################
 import rips
-import xtgeo
-from xtgeo.grid3d._egrid import EGrid, RockModel
-from xtgeo.io._file import FileFormat, FileWrapper
+from xtgeo.grid3d._egrid import EGrid
+from xtgeo.io._file import FileFormat
 import numpy as np
 
 grid_filepath = "/home/resinsight/testdata/01_drogon_ahm/realization-0/iter-0/eclipse/model/DROGON-0.EGRID"

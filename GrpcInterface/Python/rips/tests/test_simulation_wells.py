@@ -2,7 +2,6 @@ import sys
 import os
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
 
 import dataroot
 
@@ -13,6 +12,8 @@ def test_10k(rips_instance, initialize_test):
     case.create_view()
     assert len(case.grids()) == 2
     cell_count_info = case.cell_count()
+    assert cell_count_info.active_cell_count == 11125
+    assert cell_count_info.reservoir_cell_count == 316224
 
     sim_wells = case.simulation_wells()
     assert len(sim_wells) == 3

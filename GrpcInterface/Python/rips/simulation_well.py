@@ -7,15 +7,13 @@ import grpc
 import SimulationWell_pb2
 import SimulationWell_pb2_grpc
 
-import Properties_pb2
-import Properties_pb2_grpc
 import PdmObject_pb2
 
 from .resinsight_classes import SimulationWell
 
 from .case import Case
 from .view import View
-from .pdmobject import PdmObjectBase, add_method
+from .pdmobject import add_method
 
 from typing import List, Optional
 

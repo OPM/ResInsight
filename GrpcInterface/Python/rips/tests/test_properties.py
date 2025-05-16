@@ -1,6 +1,5 @@
 import sys
 import os
-import grpc
 import pytest
 import tempfile
 

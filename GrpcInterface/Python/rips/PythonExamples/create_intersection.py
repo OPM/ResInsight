@@ -1,5 +1,4 @@
 # Load ResInsight Processing Server Client Library
-import math, time
 import rips
 
 resinsight = rips.Instance.find()

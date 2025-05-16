@@ -2,7 +2,6 @@ import sys
 import os
 import tempfile
 from pathlib import Path
-import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips

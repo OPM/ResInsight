@@ -2,12 +2,16 @@
 ResInsight 3d view module
 """
 
-import builtins
 import Commands_pb2 as Cmd
 
 import rips.case  # Circular import of Case, which already imports View. Use full name.
 from .pdmobject import add_method
-from .resinsight_classes import View, ViewWindow, EclipseView, GeoMechView
+from .resinsight_classes import (
+    View as View,
+    ViewWindow as ViewWindow,
+    EclipseView as EclipseView,
+    GeoMechView as GeoMechView,
+)
 
 
 @add_method(View)

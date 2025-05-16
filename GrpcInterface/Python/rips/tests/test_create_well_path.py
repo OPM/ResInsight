@@ -1,9 +1,3 @@
-from rips.generated.generated_classes import (
-    ModeledWellPath,
-    StimPlanModel,
-    WellPathGeometry,
-    WellPathTarget,
-)
 import sys
 import os
 
@@ -49,8 +43,8 @@ def test_add_well_path_targets(rips_instance, initialize_test):
     target = geometry.append_well_target(
         coord, use_fixed_azimuth=True, fixed_azimuth_value=110.1
     )
-    assert target.use_fixed_inclination == False
-    assert target.use_fixed_azimuth == True
+    assert not target.use_fixed_inclination
+    assert target.use_fixed_azimuth
     assert target.azimuth == 110.1
     assert target.inclination == 0.0
 
@@ -60,7 +54,7 @@ def test_add_well_path_targets(rips_instance, initialize_test):
         coord, use_fixed_inclination=True, fixed_inclination_value=25.6
     )
 
-    assert target.use_fixed_inclination == True
-    assert target.use_fixed_azimuth == False
+    assert target.use_fixed_inclination
+    assert not target.use_fixed_azimuth
     assert target.azimuth == 0.0
     assert target.inclination == 25.6
