@@ -40,6 +40,8 @@ public:
     void setIncrementY( double incrementY );
     void setRotation( double rotation );
 
+    void setProperty( const QString& key, const std::vector<float>& values );
+
 private:
     bool updateSurfaceData() override;
     void clearCachedNativeData() override;
@@ -60,4 +62,6 @@ private:
 
     std::vector<unsigned>   m_triangleIndices;
     std::vector<cvf::Vec3d> m_vertices;
+
+    std::map<QString, std::vector<float>> m_properties;
 };
