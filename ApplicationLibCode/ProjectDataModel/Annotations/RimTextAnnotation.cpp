@@ -39,7 +39,7 @@
 #include <QPointer>
 #include <memory>
 
-CAF_PDM_SOURCE_INIT( RimTextAnnotation, "RimTextAnnotation" );
+CAF_PDM_SOURCE_INIT( RimTextAnnotation, "TextAnnotation", "RimTextAnnotation" );
 
 //--------------------------------------------------------------------------------------------------
 ///

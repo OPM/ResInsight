@@ -22,7 +22,7 @@
 
 #include "cafPdmObjectScriptingCapability.h"
 
-CAF_PDM_SOURCE_INIT( RimSummaryCaseSumo, "RimSummaryCaseSumo" );
+CAF_PDM_SOURCE_INIT( RimSummaryCaseSumo, "SummaryCaseSumo", "RimSummaryCaseSumo" );
 
 //--------------------------------------------------------------------------------------------------
 ///
