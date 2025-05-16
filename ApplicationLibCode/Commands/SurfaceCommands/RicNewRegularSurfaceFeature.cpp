@@ -47,19 +47,6 @@ void RicNewRegularSurfaceFeature::onActionTriggered( bool isChecked )
     surface->setColor( cvf::Color3f::BLUE );
     surface->setOpacity( true, 0.6f );
     surface->setUserDescription( "Regular Surface" );
-
-    // auto allCases = RimProject::current()->allGridCases();
-    // if ( !allCases.empty() )
-    // {
-    //     auto sourceCase = allCases.front();
-    //     auto bb         = sourceCase->activeCellsBoundingBox();
-    //     surface->setPlaneExtent( bb.min().x(), bb.min().y(), bb.max().x(), bb.max().y() );
-    //     surface->setDepth( -bb.center().z() );
-
-    //     bb.expand( 0.1 * bb.extent().z() );
-
-    //     surface->setAreaOfInterest( bb.min(), bb.max() );
-    // }
     surface->loadDataIfRequired();
 
     auto surfColl = colls.front();

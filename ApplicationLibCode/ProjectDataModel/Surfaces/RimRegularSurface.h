@@ -31,6 +31,15 @@ public:
     bool        onLoadData() override;
     RimSurface* createCopy() override;
 
+    void setOriginX( double originX );
+    void setOriginY( double originY );
+    void setNx( double nx );
+    void setNy( double ny );
+    void setDepth( double depth );
+    void setIncrementX( double incrementX );
+    void setIncrementY( double incrementY );
+    void setRotation( double rotation );
+
 private:
     bool updateSurfaceData() override;
     void clearCachedNativeData() override;

@@ -22,6 +22,7 @@
 #include "RimCase.h"
 #include "RimFileSurface.h"
 #include "RimGridCaseSurface.h"
+#include "RimRegularSurface.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 
@@ -33,6 +34,7 @@
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_importSurface, "ImportSurface" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_addFolder, "AddFolder" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_newSurface, "NewSurface" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_newRegularSurface, "NewRegularSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -179,6 +181,84 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newSurface::defaultR
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimcSurfaceCollection_newSurface::isNullptrValidResult() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSurfaceCollection_newRegularSurface::RimcSurfaceCollection_newRegularSurface( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "New Regular Surface", "", "", "Create a new regular surface" );
+
+    CAF_PDM_InitScriptableField( &m_name, "Name", QString( "" ), "Name" );
+
+    CAF_PDM_InitScriptableField( &m_originX, "OriginX", 0.0, "Origin X" );
+    CAF_PDM_InitScriptableField( &m_originY, "OriginY", 0.0, "Origin Y" );
+    CAF_PDM_InitScriptableField( &m_depth, "Depth", 0.0, "Depth" );
+
+    CAF_PDM_InitScriptableField( &m_nx, "Nx", 10, "Nx" );
+    CAF_PDM_InitScriptableField( &m_ny, "Ny", 10, "Ny" );
+    CAF_PDM_InitScriptableField( &m_incrementX, "IncrementX", 20.0, "Increment X" );
+    CAF_PDM_InitScriptableField( &m_incrementY, "IncrementY", 20.0, "Increment Y" );
+
+    CAF_PDM_InitScriptableField( &m_rotation, "Rotation", 0.0, "Rotation" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSurface::execute()
+{
+    RimSurfaceCollection* coll = self<RimSurfaceCollection>();
+    if ( coll )
+    {
+        RimRegularSurface* surface = new RimRegularSurface;
+        surface->setUserDescription( m_name() );
+
+        surface->setNx( m_nx() );
+        surface->setNy( m_ny() );
+        surface->setOriginX( m_originX() );
+        surface->setOriginY( m_originX() );
+        surface->setDepth( m_depth() );
+        surface->setIncrementX( m_incrementX() );
+        surface->setIncrementY( m_incrementX() );
+        surface->setRotation( m_rotation() );
+        coll->addSurface( surface );
+
+        surface->setColor( cvf::Color3f::BLUE );
+        surface->setOpacity( true, 0.6f );
+
+        coll->updateViews();
+        coll->updateConnectedEditors();
+
+        return surface;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcSurfaceCollection_newRegularSurface::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newRegularSurface::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimRegularSurface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcSurfaceCollection_newRegularSurface::isNullptrValidResult() const
 {
     return true;
 }

@@ -90,3 +90,30 @@ private:
     caf::PdmPtrField<RimCase*> m_case;
     caf::PdmField<int>         m_kIndex;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSurfaceCollection_newRegularSurface : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSurfaceCollection_newRegularSurface( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
+
+private:
+    caf::PdmField<QString> m_name;
+    caf::PdmField<int>     m_nx;
+    caf::PdmField<int>     m_ny;
+    caf::PdmField<double>  m_originX;
+    caf::PdmField<double>  m_originY;
+    caf::PdmField<double>  m_depth;
+    caf::PdmField<double>  m_incrementX;
+    caf::PdmField<double>  m_incrementY;
+    caf::PdmField<double>  m_rotation;
+};
