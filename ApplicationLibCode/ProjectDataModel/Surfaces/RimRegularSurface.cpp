@@ -247,6 +247,11 @@ bool RimRegularSurface::updateSurfaceData()
         auto surfaceData = new RigSurface;
         surfaceData->setTriangleData( tringleIndices, vertices );
 
+        for ( auto& [key, vec] : m_properties )
+        {
+            surfaceData->addVertexResult( key, vec );
+        }
+
         setSurfaceData( surfaceData );
     }
     else
@@ -324,4 +329,12 @@ void RimRegularSurface::setRotation( double rotation )
 {
     CAF_ASSERT( rotation >= 0.0 && rotation <= 360.0 );
     m_rotation = rotation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularSurface::setProperty( const QString& key, const std::vector<float>& values )
+{
+    m_properties[key] = values;
 }
