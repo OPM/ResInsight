@@ -28,7 +28,7 @@
 
 #include "cvfVector3.h"
 
-CAF_PDM_SOURCE_INIT( RimDepthSurface, "RimDepthSurface" );
+CAF_PDM_SOURCE_INIT( RimDepthSurface, "DepthSurface", "RimDepthSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///

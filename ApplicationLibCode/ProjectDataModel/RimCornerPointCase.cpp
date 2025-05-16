@@ -47,7 +47,7 @@
 
 using namespace std::chrono;
 
-CAF_PDM_SOURCE_INIT( RimCornerPointCase, "RimCornerPointCase" );
+CAF_PDM_SOURCE_INIT( RimCornerPointCase, "CornerPointCase", "RimCornerPointCase" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
