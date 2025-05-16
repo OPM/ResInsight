@@ -51,6 +51,14 @@ RimSummaryFileSetEnsemble::RimSummaryFileSetEnsemble()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEnsembleFileSet* RimSummaryFileSetEnsemble::ensembleFileSet()
+{
+    return m_ensembleFileSet();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryFileSetEnsemble::setEnsembleFileSet( RimEnsembleFileSet* ensembleFileSet )
 {
     m_ensembleFileSet = ensembleFileSet;
