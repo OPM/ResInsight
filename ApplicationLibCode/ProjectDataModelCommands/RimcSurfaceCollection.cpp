@@ -221,7 +221,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSu
         surface->setNx( m_nx() );
         surface->setNy( m_ny() );
         surface->setOriginX( m_originX() );
-        surface->setOriginY( m_originX() );
+        surface->setOriginY( m_originY() );
         surface->setDepth( m_depth() );
         surface->setIncrementX( m_incrementX() );
         surface->setIncrementY( m_incrementX() );
