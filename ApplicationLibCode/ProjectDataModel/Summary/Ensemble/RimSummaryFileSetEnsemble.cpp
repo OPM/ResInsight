@@ -21,6 +21,7 @@
 #include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
@@ -171,6 +172,8 @@ void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet()
             summaryCase->updateAutoShortName();
         }
     }
+
+    RiaSummaryTools::updateConnectedPlots( this );
 }
 
 //--------------------------------------------------------------------------------------------------
