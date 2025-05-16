@@ -39,8 +39,10 @@ CAF_CMD_SOURCE_INIT( RicReloadSummaryCaseFeature, "RicReloadSummaryCaseFeature" 
 //--------------------------------------------------------------------------------------------------
 bool RicReloadSummaryCaseFeature::isCommandEnabled() const
 {
-    std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
+    auto ensembles = caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
+    if ( !ensembles.empty() ) return true;
 
+    std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
     return !caseSelection.empty();
 }
 
@@ -49,6 +51,17 @@ bool RicReloadSummaryCaseFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
+    auto ensembles = caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
+    if ( !ensembles.empty() )
+    {
+        for ( RimSummaryEnsemble* ensemble : ensembles )
+        {
+            ensemble->reloadCases();
+        }
+
+        return;
+    }
+
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
     for ( RimSummaryCase* summaryCase : caseSelection )
     {
@@ -79,14 +92,6 @@ std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
     }
 
     std::vector<RimSummaryCase*> caseSelection = caf::SelectionManager::instance()->objectsByType<RimSummaryCase>();
-
-    {
-        for ( auto collection : caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>() )
-        {
-            std::vector<RimSummaryCase*> summaryCaseCollection = collection->allSummaryCases();
-            caseSelection.insert( caseSelection.end(), summaryCaseCollection.begin(), summaryCaseCollection.end() );
-        }
-    }
 
     {
         for ( auto collection : caf::SelectionManager::instance()->objectsByType<RimObservedDataCollection>() )
