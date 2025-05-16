@@ -213,30 +213,34 @@ RimcSurfaceCollection_newRegularSurface::RimcSurfaceCollection_newRegularSurface
 std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSurface::execute()
 {
     RimSurfaceCollection* coll = self<RimSurfaceCollection>();
-    if ( coll )
-    {
-        RimRegularSurface* surface = new RimRegularSurface;
-        surface->setUserDescription( m_name() );
+    if ( !coll ) return std::unexpected( "No surface collection found" );
 
-        surface->setNx( m_nx() );
-        surface->setNy( m_ny() );
-        surface->setOriginX( m_originX() );
-        surface->setOriginY( m_originY() );
-        surface->setDepth( m_depth() );
-        surface->setIncrementX( m_incrementX() );
-        surface->setIncrementY( m_incrementX() );
-        surface->setRotation( m_rotation() );
-        coll->addSurface( surface );
+    if ( m_nx() <= 0 ) return std::unexpected( "Invalid nx. Must be positive." );
+    if ( m_ny() <= 0 ) return std::unexpected( "Invalid ny. Must be positive." );
+    if ( m_incrementX() <= 0.0 ) return std::unexpected( "Invalid increment X. Must be positive." );
+    if ( m_incrementY() <= 0.0 ) return std::unexpected( "Invalid increment Y. Must be positive." );
+    if ( m_rotation() < 0.0 || m_rotation() > 360.0 ) return std::unexpected( "Invalid rotation. Valid range: [0.0-360.0]" );
 
-        surface->setColor( cvf::Color3f::BLUE );
-        surface->setOpacity( true, 0.6f );
+    RimRegularSurface* surface = new RimRegularSurface;
+    surface->setUserDescription( m_name() );
 
-        coll->updateViews();
-        coll->updateConnectedEditors();
+    surface->setNx( m_nx() );
+    surface->setNy( m_ny() );
+    surface->setOriginX( m_originX() );
+    surface->setOriginY( m_originY() );
+    surface->setDepth( m_depth() );
+    surface->setIncrementX( m_incrementX() );
+    surface->setIncrementY( m_incrementY() );
+    surface->setRotation( m_rotation() );
 
-        return surface;
-    }
-    return nullptr;
+    surface->setColor( cvf::Color3f::BLUE );
+    surface->setOpacity( true, 0.6f );
+
+    coll->addSurface( surface );
+    coll->updateViews();
+    coll->updateConnectedEditors();
+
+    return surface;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,8 +33,8 @@ public:
 
     void setOriginX( double originX );
     void setOriginY( double originY );
-    void setNx( double nx );
-    void setNy( double ny );
+    void setNx( int nx );
+    void setNy( int ny );
     void setDepth( double depth );
     void setIncrementX( double incrementX );
     void setIncrementY( double incrementY );

@@ -276,7 +276,7 @@ void RimRegularSurface::setOriginY( double originY )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularSurface::setNx( double nx )
+void RimRegularSurface::setNx( int nx )
 {
     CAF_ASSERT( nx > 0 );
     m_nx = nx;
@@ -285,7 +285,7 @@ void RimRegularSurface::setNx( double nx )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularSurface::setNy( double ny )
+void RimRegularSurface::setNy( int ny )
 {
     CAF_ASSERT( ny > 0 );
     m_ny = ny;
