@@ -28,6 +28,8 @@
 
 #include "cvfVector3.h"
 
+#include <numbers>
+
 CAF_PDM_SOURCE_INIT( RimRegularSurface, "RimRegularSurface" );
 
 //--------------------------------------------------------------------------------------------------
@@ -222,14 +224,14 @@ bool RimRegularSurface::updateSurfaceData()
             size_t idx11 = ( j + 1 ) * m_nx() + ( i + 1 );
 
             // First triangle (top-left, top-right, bottom-left)
-            m_triangleIndices.push_back( idx00 );
-            m_triangleIndices.push_back( idx01 );
-            m_triangleIndices.push_back( idx10 );
+            m_triangleIndices.push_back( static_cast<unsigned>( idx00 ) );
+            m_triangleIndices.push_back( static_cast<unsigned>( idx01 ) );
+            m_triangleIndices.push_back( static_cast<unsigned>( idx10 ) );
 
             // Second triangle (top-right, bottom-right, bottom-left)
-            m_triangleIndices.push_back( idx01 );
-            m_triangleIndices.push_back( idx11 );
-            m_triangleIndices.push_back( idx10 );
+            m_triangleIndices.push_back( static_cast<unsigned>( idx01 ) );
+            m_triangleIndices.push_back( static_cast<unsigned>( idx11 ) );
+            m_triangleIndices.push_back( static_cast<unsigned>( idx10 ) );
         }
     }
 
