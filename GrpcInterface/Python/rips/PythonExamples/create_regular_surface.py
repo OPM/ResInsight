@@ -1,6 +1,5 @@
 ######################################################################
-# This script creates a corner point grid from a Eclipse coord, zcorn
-# and actnum configuration.
+# This script creates a regular surface for each case
 ######################################################################
 import rips
 
@@ -40,8 +39,6 @@ if resinsight is not None:
             increment_x=increment_x,
             increment_y=increment_y,
         )
-        #        print("Coordinates for {}:".format(p.name))
-        #        for coord in p.coordinates:
-        #            print(coord)
+
         s.rotation = 45.0
         s.update()
