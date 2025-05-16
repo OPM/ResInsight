@@ -41,6 +41,8 @@ public:
 
     void cleanupBeforeDelete() override;
 
+    void reloadCases() override;
+
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

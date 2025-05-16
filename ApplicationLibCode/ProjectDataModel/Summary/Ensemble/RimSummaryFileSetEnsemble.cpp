@@ -94,6 +94,17 @@ void RimSummaryFileSetEnsemble::cleanupBeforeDelete()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryFileSetEnsemble::reloadCases()
+{
+    if ( m_ensembleFileSet() )
+    {
+        m_ensembleFileSet()->reload();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryFileSetEnsemble::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     if ( fieldNeedingOptions == &m_ensembleFileSet )

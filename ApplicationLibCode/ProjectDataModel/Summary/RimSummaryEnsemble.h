@@ -60,6 +60,8 @@ public:
     void addCase( RimSummaryCase* summaryCase );
     void replaceCases( const std::vector<RimSummaryCase*>& summaryCases );
 
+    virtual void reloadCases();
+
     virtual std::vector<RimSummaryCase*> allSummaryCases() const;
     RimSummaryCase*                      firstSummaryCase() const;
 

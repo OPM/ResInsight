@@ -221,6 +221,19 @@ void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::reloadCases()
+{
+    for ( auto summaryCase : allSummaryCases() )
+    {
+        RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
+
+        RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::setNameTemplate( const QString& name )
 {
     m_nameTemplateString = name;
