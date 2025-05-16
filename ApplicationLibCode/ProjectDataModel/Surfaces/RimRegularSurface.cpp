@@ -30,7 +30,7 @@
 
 #include <numbers>
 
-CAF_PDM_SOURCE_INIT( RimRegularSurface, "RimRegularSurface" );
+CAF_PDM_SOURCE_INIT( RimRegularSurface, "RegularSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
