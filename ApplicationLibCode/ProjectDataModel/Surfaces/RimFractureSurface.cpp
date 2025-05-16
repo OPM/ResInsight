@@ -32,7 +32,7 @@
 
 #include "cafPdmObjectScriptingCapability.h"
 
-CAF_PDM_SOURCE_INIT( RimFractureSurface, "RimFractureSurface" );
+CAF_PDM_SOURCE_INIT( RimFractureSurface, "FractureSurface", "RimFractureSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///

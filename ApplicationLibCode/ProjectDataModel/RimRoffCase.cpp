@@ -40,7 +40,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT( RimRoffCase, "RimRoffCase" );
+CAF_PDM_SOURCE_INIT( RimRoffCase, "RoffCase", "RimRoffCase" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
