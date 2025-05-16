@@ -43,8 +43,7 @@ if resinsight is not None:
         s.rotation = 45.0
         s.update()
 
-
         values = []
-        for i in range(nx*ny):
+        for i in range(nx * ny):
             values.append(float(i))
         s.set_property("test", values)

@@ -21,8 +21,4 @@ def set_property(self, name, values):
     key = "{}_{}".format(uuid.uuid4(), "regular_surface_key")
 
     project.set_key_values(key, values)
-    return self.set_property_from_key(
-        name=name,
-        value_key=key
-    )
-
+    return self.set_property_from_key(name=name, value_key=key)
