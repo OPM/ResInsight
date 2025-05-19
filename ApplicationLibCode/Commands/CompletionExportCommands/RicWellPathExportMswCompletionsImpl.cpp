@@ -164,7 +164,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( c
                 bool anyPerforationsPresent = exportSettings.includeFractures() &&
                                               std::any_of( allCompletions.begin(),
                                                            allCompletions.end(),
-                                                           []( auto completion ) {
+                                                           []( auto completion )
+                                                           {
                                                                return completion->isEnabled() &&
                                                                       completion->componentType() ==
                                                                           RiaDefines::WellPathComponentType::PERFORATION_INTERVAL;

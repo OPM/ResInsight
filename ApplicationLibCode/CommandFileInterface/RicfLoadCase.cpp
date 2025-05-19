@@ -68,7 +68,7 @@ caf::PdmScriptResponse RicfLoadCase::execute()
         absolutePath = startDir.absoluteFilePath( m_path );
     }
 
-    RifReaderSettings readerSettings = m_gridOnly ? RiaPreferencesGrid::current()->gridOnlyReaderSettings()
+    RifReaderSettings readerSettings = m_gridOnly ? RiaPreferencesGrid::gridOnlyReaderSettings()
                                                   : RiaPreferencesGrid::current()->readerSettings();
 
     bool createPlot = false;

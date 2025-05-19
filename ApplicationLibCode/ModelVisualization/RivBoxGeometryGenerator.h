@@ -37,5 +37,5 @@ public:
     static cvf::ref<cvf::Part> createBoxFromVertices( const std::vector<cvf::Vec3f>& vertices, const cvf::Color3f color );
 
 private:
-    RivBoxGeometryGenerator(){};
+    RivBoxGeometryGenerator() {};
 };

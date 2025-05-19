@@ -508,7 +508,8 @@ std::vector<std::pair<RigEnsembleParameter, double>>
     {
         parameters.erase( std::remove_if( parameters.begin(),
                                           parameters.end(),
-                                          [&selectedParameters]( const RigEnsembleParameter& parameter ) {
+                                          [&selectedParameters]( const RigEnsembleParameter& parameter )
+                                          {
                                               return std::find( selectedParameters.begin(), selectedParameters.end(), parameter.name ) ==
                                                      selectedParameters.end();
                                           } ),

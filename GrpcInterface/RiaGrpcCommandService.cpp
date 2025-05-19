@@ -104,7 +104,7 @@ grpc::Status RiaGrpcCommandService::Execute( grpc::ServerContext* context, const
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcCommandService::createCallbacks()
 {
-    typedef RiaGrpcCommandService Self;
+    using Self = RiaGrpcCommandService;
 
     return { new RiaGrpcUnaryCallback<Self, CommandParams, CommandReply>( this, &Self::Execute, &Self::RequestExecute ) };
 }

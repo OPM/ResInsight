@@ -201,7 +201,7 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
             if ( onlyShowFacesWithDefinedNeighbors && !hasConnection( cellIndex, face, connections, connIndices ) ) continue;
 
             m_grid->cellCornerVertices( cellIndex, cornerVerts );
-            m_grid->cellFaceVertexIndices( face, faceConn );
+            cvf::StructGridInterface::cellFaceVertexIndices( face, faceConn );
 
             for ( int n = 0; n < 4; n++ )
             {

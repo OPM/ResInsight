@@ -70,7 +70,7 @@ public:
         this->addField( &derivedOtherObjs, "derivedOtherObjs" );
     }
 
-    ~ContainerObj(){
+    ~ContainerObj() {
         /*
         *
         *  Test code used when debugging crash related to delete of objects and disconnect of signals

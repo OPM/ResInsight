@@ -71,7 +71,7 @@ RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculationCo
     std::set<QString> calcNames;
     for ( const auto& calc : m_calculations )
     {
-        calcNames.insert( calc->findLeftHandSide( calc->expression() ) );
+        calcNames.insert( RimUserDefinedCalculation::findLeftHandSide( calc->expression() ) );
     }
 
     QString expression  = calcCopy->expression();

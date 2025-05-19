@@ -36,7 +36,7 @@ public:
     static QString rootKeyText();
 
 private:
-    JsonReader(){};
+    JsonReader() {};
 };
 
 class JsonWriter
@@ -45,7 +45,7 @@ public:
     static bool encodeFile( QString filePath, QMap<QString, QVariant> map );
 
 private:
-    JsonWriter(){};
+    JsonWriter() {};
 };
 
 class Json

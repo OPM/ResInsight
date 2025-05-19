@@ -187,7 +187,7 @@ grpc::Status RiaGrpcGridService::GetCellCorners( grpc::ServerContext*       cont
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridService::createCallbacks()
 {
-    typedef RiaGrpcGridService Self;
+    using Self = RiaGrpcGridService;
 
     return {
 

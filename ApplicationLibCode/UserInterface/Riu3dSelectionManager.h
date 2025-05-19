@@ -125,7 +125,7 @@ public:
 
 public:
     RiuSelectionItem() {}
-    virtual ~RiuSelectionItem(){};
+    virtual ~RiuSelectionItem() {};
 
     virtual RiuSelectionType type() const = 0;
 };
@@ -150,7 +150,7 @@ public:
 
     explicit RiuEclipseSelectionItem( RimEclipseView* view, size_t gridIndex, size_t gridLocalCellIndex );
 
-    ~RiuEclipseSelectionItem() override{};
+    ~RiuEclipseSelectionItem() override {};
 
     RiuSelectionType type() const override { return ECLIPSE_SELECTION_OBJECT; }
 
@@ -194,7 +194,7 @@ public:
                                       int                              elementFace,
                                       const cvf::Vec3d&                localIntersectionPointInDisplay,
                                       const std::array<cvf::Vec3f, 3>& intersectionTriangle );
-    ~RiuGeoMechSelectionItem() override{};
+    ~RiuGeoMechSelectionItem() override {};
 
     RiuSelectionType type() const override { return GEOMECH_SELECTION_OBJECT; }
 
@@ -250,7 +250,7 @@ public:
                                        double                         measuredDepth,
                                        RimWellPathComponentInterface* wellPathComponent = nullptr );
 
-    ~RiuWellPathSelectionItem() override{};
+    ~RiuWellPathSelectionItem() override {};
 
     RiuSelectionType type() const override { return WELLPATH_SELECTION_OBJECT; }
 
@@ -273,7 +273,7 @@ class RiuSimWellSelectionItem : public RiuSelectionItem
 public:
     explicit RiuSimWellSelectionItem( RimSimWellInView* simwell, cvf::Vec3d domainCoord, size_t branchIndex );
 
-    ~RiuSimWellSelectionItem() override{};
+    ~RiuSimWellSelectionItem() override {};
 
     RiuSelectionType type() const override { return SIMWELL_SELECTION_OBJECT; }
 
@@ -293,7 +293,7 @@ class RiuGeneralSelectionItem : public RiuSelectionItem
 public:
     RiuGeneralSelectionItem( caf::PdmObject* object );
 
-    ~RiuGeneralSelectionItem() override{};
+    ~RiuGeneralSelectionItem() override {};
 
     RiuSelectionType type() const override { return GENERAL_SELECTION_OBJECT; }
 

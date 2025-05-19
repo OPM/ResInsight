@@ -208,7 +208,7 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcProjectService::createCallbacks()
 {
-    typedef RiaGrpcProjectService Self;
+    using Self = RiaGrpcProjectService;
 
     return { new RiaGrpcUnaryCallback<Self, Empty, CaseRequest>( this, &Self::GetCurrentCase, &Self::RequestGetCurrentCase ),
              new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this,

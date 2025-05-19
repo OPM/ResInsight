@@ -47,7 +47,7 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
     RifCsvUserDataFileParser csvParser( filePath );
     QString                  separator = csvParser.tryDetermineCellSeparator();
 
-    typedef std::tuple<QString, QString, QString> FaciesKey;
+    using FaciesKey = std::tuple<QString, QString, QString>;
 
     // Read the facies properties from file
     std::vector<RifElasticProperties> rifElasticProperties;

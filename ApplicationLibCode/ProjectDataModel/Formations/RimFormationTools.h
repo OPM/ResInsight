@@ -29,5 +29,5 @@ public:
     static RimFormationNames* loadFormationNamesFromFolder( const QStringList& folderNames );
 
 private:
-    RimFormationTools(){};
+    RimFormationTools() {};
 };

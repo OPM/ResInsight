@@ -31,7 +31,7 @@ class RimStimPlanModel;
 class RimStimPlanModelPropertyCalculator
 {
 public:
-    virtual ~RimStimPlanModelPropertyCalculator(){};
+    virtual ~RimStimPlanModelPropertyCalculator() {};
 
     virtual bool isMatching( RiaDefines::CurveProperty curveProperty ) const = 0;
     virtual bool calculate( RiaDefines::CurveProperty curveProperty,

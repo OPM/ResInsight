@@ -36,7 +36,7 @@ void RicDeleteSumoTokenFeature::deleteUserToken()
     const auto filename = RiaSumoDefines::tokenPath();
     if ( !QFile::exists( filename ) ) return;
 
-    auto parent = RiaGuiApplication::instance()->activeWindow();
+    auto parent = RiaGuiApplication::activeWindow();
 
     QString question = "Do you want to delete your SUMO token file?";
     auto    reply    = QMessageBox::question( parent, "Delete token?", question, QMessageBox::Yes, QMessageBox::No );

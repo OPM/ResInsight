@@ -465,7 +465,8 @@ std::vector<double> RigContourMapProjection::aggregatedVertexResultsFiltered() c
         std::transform( filteredResults.begin(),
                         filteredResults.end(),
                         filteredResults.begin(),
-                        [this]( double value ) {
+                        [this]( double value )
+                        {
                             return ( value < m_valueFilter->first || value > m_valueFilter->second ) ? std::numeric_limits<double>::infinity()
                                                                                                      : value;
                         } );

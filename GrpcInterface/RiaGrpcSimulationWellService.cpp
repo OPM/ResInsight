@@ -170,7 +170,7 @@ cvf::ref<RigSimWellData> RiaGrpcSimulationWellService::findWellResult( const Rim
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcSimulationWellService::createCallbacks()
 {
-    typedef RiaGrpcSimulationWellService Self;
+    using Self = RiaGrpcSimulationWellService;
 
     return {
         new RiaGrpcUnaryCallback<Self, SimulationWellRequest, SimulationWellStatus>( this,

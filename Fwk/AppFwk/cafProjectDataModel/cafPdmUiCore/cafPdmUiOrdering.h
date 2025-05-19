@@ -72,7 +72,7 @@ public:
     using TableLayout    = std::vector<RowLayout>;
 
     PdmUiOrdering()
-        : m_skipRemainingFields( false ){};
+        : m_skipRemainingFields( false ) {};
     virtual ~PdmUiOrdering();
 
     PdmUiOrdering( const PdmUiOrdering& )            = delete;

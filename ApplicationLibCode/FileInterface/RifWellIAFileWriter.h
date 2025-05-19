@@ -29,5 +29,5 @@ public:
     static bool writeToCSVFile( RimWellIASettings& settings, QString& outErrorText );
 
 private:
-    RifWellIAFileWriter(){};
+    RifWellIAFileWriter() {};
 };

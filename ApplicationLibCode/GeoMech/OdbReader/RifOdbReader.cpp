@@ -59,8 +59,8 @@ class RifOdbBulkDataGetter
 {
 public:
     explicit RifOdbBulkDataGetter( const odb_FieldBulkData& bulkData )
-        : m_bulkData( bulkData ){};
-    virtual ~RifOdbBulkDataGetter(){};
+        : m_bulkData( bulkData ) {};
+    virtual ~RifOdbBulkDataGetter() {};
 
     float* data()
     {

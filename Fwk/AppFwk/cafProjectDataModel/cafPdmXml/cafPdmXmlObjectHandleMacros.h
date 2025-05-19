@@ -66,10 +66,10 @@ public:                                                                         
 /// CAF_PDM_XML_SOURCE_INIT associates the file keyword used for storage with the class and
 //  initializes the factory
 /// Place this in the cpp file, preferably above the constructor
-#define CAF_PDM_XML_SOURCE_INIT( ClassName, keyword, ... )                 \
-    CAF_PDM_XML_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )  \
-    static bool PDM_OBJECT_STRING_CONCATENATE( my##ClassName, __LINE__ ) = \
-        caf::PdmDefaultObjectFactory::instance() -> registerCreator<ClassName>()
+#define CAF_PDM_XML_SOURCE_INIT( ClassName, keyword, ... )                                                          \
+    CAF_PDM_XML_ABSTRACT_SOURCE_INIT( ClassName, keyword, ##__VA_ARGS__ )                                           \
+    static bool PDM_OBJECT_STRING_CONCATENATE( my##ClassName, __LINE__ ) = caf::PdmDefaultObjectFactory::instance() \
+                                                                               -> registerCreator<ClassName>()
 
 #define CAF_PDM_XML_InitField( field, keyword )                                                                                         \
     {                                                                                                                                   \
