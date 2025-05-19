@@ -15,31 +15,31 @@ jobs:
           curl http://mirrors.ubuntu.com/mirrors.txt | sudo tee --append /etc/apt/mirrors.txt
           sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
 
-      - name: Install clang-format 18
+      - name: Install clang-format 19
         run: |
           sudo apt-get update
-          sudo apt-get install --option="APT::Acquire::Retries=3" clang-format-18
-          clang-format-18 --version
+          sudo apt-get install --option="APT::Acquire::Retries=3" clang-format-19
+          clang-format-19 --version
       - uses: actions/checkout@v4
       - name: Check format - ApplicationLibCode
         run: |
           cd ApplicationLibCode
-          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-18 -i
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-19 -i
           git diff
       - name: Check format - ApplicationExeCode
         run: |
           cd ApplicationExeCode
-          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-18 -i
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-19 -i
           git diff
       - name: Check format - AppFwk
         run: |
           cd Fwk/AppFwk
-          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | grep -v gtest | xargs clang-format-18 -i
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | grep -v gtest | xargs clang-format-19 -i
           git diff
       - name: Check format - GrpcInterface
         run: |
           cd GrpcInterface
-          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' -o -name '*.proto' | grep -v gtest | xargs clang-format-18 -i
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' -o -name '*.proto' | grep -v gtest | xargs clang-format-19 -i
           git diff
       - uses: peter-evans/create-pull-request@v7
         with:
