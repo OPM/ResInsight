@@ -88,10 +88,10 @@ RimEnsembleFileSet::RimEnsembleFileSet()
 //--------------------------------------------------------------------------------------------------
 QStringList RimEnsembleFileSet::createPaths( const QString& extension ) const
 {
-    // Append extension to the path pattern and return list of files matching the pattern
+    if ( m_pathPattern().isEmpty() ) return {};
 
-    QString pathPattern              = m_pathPattern();
-    QString pathPatternWithExtension = pathPattern + extension;
+    // Append extension to the path pattern and return list of files matching the pattern
+    QString pathPatternWithExtension = m_pathPattern() + extension;
     auto    realizationFilter        = m_realizationSubSet();
     if ( internal::isEmptyOrWildcard( realizationFilter ) )
     {
@@ -103,10 +103,6 @@ QStringList RimEnsembleFileSet::createPaths( const QString& extension ) const
         }
 
         realizationFilter = m_realizationNumbersReadFromFiles;
-    }
-    if ( pathPattern.isEmpty() )
-    {
-        return {};
     }
 
     return RiaEnsembleImportTools::createPathsFromPattern( pathPatternWithExtension, realizationFilter, internal::placeholderString() );
