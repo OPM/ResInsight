@@ -213,7 +213,7 @@ public:
     RecursiveUpdateData( int row, PdmUiTreeOrdering* existingChild, PdmUiTreeOrdering* sourceChild )
         : m_row( row )
         , m_existingChild( existingChild )
-        , m_sourceChild( sourceChild ){};
+        , m_sourceChild( sourceChild ) {};
 
     int                m_row;
     PdmUiTreeOrdering* m_existingChild;

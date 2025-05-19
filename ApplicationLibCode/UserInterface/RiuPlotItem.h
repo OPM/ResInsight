@@ -21,6 +21,6 @@
 class RiuPlotItem
 {
 public:
-    explicit RiuPlotItem(){};
-    virtual ~RiuPlotItem(){};
+    explicit RiuPlotItem() {};
+    virtual ~RiuPlotItem() {};
 };

@@ -491,7 +491,7 @@ grpc::Status RiaGrpcNNCPropertiesService::SetNNCValues( grpc::ServerContext*    
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcNNCPropertiesService::createCallbacks()
 {
-    typedef RiaGrpcNNCPropertiesService Self;
+    using Self = RiaGrpcNNCPropertiesService;
 
     std::vector<RiaGrpcCallbackInterface*> callbacks;
     callbacks =

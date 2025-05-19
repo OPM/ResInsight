@@ -45,7 +45,7 @@ typedef struct well_segment_collection_struct well_segment_collection_type;
 class RifReaderEclipseWell
 {
 private:
-    RifReaderEclipseWell(){};
+    RifReaderEclipseWell() {};
 
 public:
     static void readWellCells( RifEclipseRestartDataAccess* restartDataAccess,

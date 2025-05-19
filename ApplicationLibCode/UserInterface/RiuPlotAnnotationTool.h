@@ -37,7 +37,7 @@ class RimPlotAxisAnnotation;
 class RiuPlotAnnotationTool
 {
 public:
-    RiuPlotAnnotationTool(){};
+    RiuPlotAnnotationTool() {};
     ~RiuPlotAnnotationTool();
 
     void attachNamedRegions( QwtPlot*                                      plot,

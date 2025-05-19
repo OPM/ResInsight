@@ -632,7 +632,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
     glDisableVertexAttribArray( ShaderProgram::VERTEX );
 
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
-    shaderProgram->useNoProgram( oglContext );
+    cvf::ShaderProgram::useNoProgram( oglContext );
 
     // Reset render states
     RenderStateDepth resetDepth;

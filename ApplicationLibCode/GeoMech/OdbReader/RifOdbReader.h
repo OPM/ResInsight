@@ -95,7 +95,7 @@ private:
     public:
         RifOdbResultKey( ResultPosition aResultPostion, const std::string& aFieldName )
             : resultPostion( aResultPostion )
-            , fieldName( aFieldName ){};
+            , fieldName( aFieldName ) {};
 
         ResultPosition resultPostion;
         std::string    fieldName;

@@ -41,8 +41,8 @@ class RimEclipseCase;
 class RigFRModelPart
 {
 public:
-    RigFRModelPart(){};
-    ~RigFRModelPart(){};
+    RigFRModelPart() {};
+    ~RigFRModelPart() {};
 
     std::vector<cvf::Vec3d>     rect;
     cvf::ref<cvf::TextureImage> texture;

@@ -40,8 +40,8 @@ class RigTexturedSectionPart
 {
 public:
     RigTexturedSectionPart()
-        : isRectValid( false ){};
-    ~RigTexturedSectionPart(){};
+        : isRectValid( false ) {};
+    ~RigTexturedSectionPart() {};
 
     bool allDataValid() const { return isRectValid && ( sliceData != nullptr ) && texture.notNull(); };
 

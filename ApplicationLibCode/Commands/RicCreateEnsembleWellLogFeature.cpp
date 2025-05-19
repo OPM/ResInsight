@@ -281,7 +281,7 @@ RimEclipseCase* RicCreateEnsembleWellLogFeature::loadEclipseCase( const QString&
     bool createView = false;
     bool createPlot = false;
 
-    RifReaderSettings readerSettings = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
+    RifReaderSettings readerSettings = RiaPreferencesGrid::gridOnlyReaderSettings();
     auto              openResult =
         RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList( { absolutePath } ), createPlot, createView, readerSettings );
 

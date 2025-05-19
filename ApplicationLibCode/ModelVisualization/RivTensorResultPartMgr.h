@@ -61,7 +61,7 @@ private:
             , faceNormal( faceNormal )
             , isPressure( isPressure )
             , principalNumber( princial )
-            , principalValue( principalValue ){};
+            , principalValue( principalValue ) {};
 
         cvf::Vec3f vertex;
         cvf::Vec3f result;

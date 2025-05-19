@@ -40,8 +40,8 @@
 class RifEclipseRestartDataAccess : public cvf::Object
 {
 public:
-    RifEclipseRestartDataAccess(){};
-    ~RifEclipseRestartDataAccess() override{};
+    RifEclipseRestartDataAccess() {};
+    ~RifEclipseRestartDataAccess() override {};
 
     virtual bool open()                                        = 0;
     virtual void setRestartFiles( const QStringList& fileSet ) = 0;

@@ -91,7 +91,7 @@ public:
         setStyle( m_style.get() );
     };
 
-    ~PdmUiTreeViewWidget() override{};
+    ~PdmUiTreeViewWidget() override {};
 
     bool isTreeItemEditWidgetActive() const { return state() == QAbstractItemView::EditingState; }
 

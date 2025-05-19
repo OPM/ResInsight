@@ -553,7 +553,12 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
         {
             copyPdmObjectFromRipsToCaf( &( request->params() ), method.get() );
 
-            std::expected<caf::PdmObjectHandle*, QString> result = method->execute();
+            // clang-tidy-19 has a bug that did the following:
+            //   std::expected<caf::PdmObjectHandle, QString> result = method->execute();
+            // was replaced with
+            //   std::unexpected<caf::PdmObjectHandle, QString> result = method->execute();
+            // Using auto works around the problem
+            auto result = method->execute();
             if ( !result.has_value() )
             {
                 RiaLogging::error( QString( "Method '%1' failed. Error: %2" ).arg( methodKeyword ).arg( result.error() ) );
@@ -589,7 +594,7 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcPdmObjectService::createCallbacks()
 {
-    typedef RiaGrpcPdmObjectService Self;
+    using Self = RiaGrpcPdmObjectService;
     return {
         new RiaGrpcUnaryCallback<Self, PdmParentObjectRequest, PdmObject>( this,
                                                                            &Self::GetAncestorPdmObject,

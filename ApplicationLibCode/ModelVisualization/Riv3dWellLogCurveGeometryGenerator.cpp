@@ -100,7 +100,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables( gsl::not_null<con
     std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords( wellPathGeometry->wellPathPoints() );
 
     std::vector<cvf::Vec3d> wellPathCurveNormals =
-        RigWellPathGeometryTools::calculateLineSegmentNormals( displayCoords, wellLogCurve->drawPlaneAngle( wellLogCurve->drawPlane() ) );
+        RigWellPathGeometryTools::calculateLineSegmentNormals( displayCoords, Rim3dWellLogCurve::drawPlaneAngle( wellLogCurve->drawPlane() ) );
 
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
     std::vector<cvf::Vec3d> interpolatedCurveNormals;

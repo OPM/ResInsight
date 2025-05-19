@@ -35,5 +35,5 @@ public:
         addSettingsToMap( QMap<QString, QVariant>& map, cvf::Vec3d normalVector, cvf::Vec3d topFaultPosition, cvf::Vec3d bottomFaultPosition );
 
 private:
-    RimFaultReactivationTools(){};
+    RimFaultReactivationTools() {};
 };

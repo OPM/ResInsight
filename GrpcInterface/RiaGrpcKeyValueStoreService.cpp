@@ -169,7 +169,7 @@ grpc::Status RiaGrpcKeyValueStoreService::SetValue( grpc::ServerContext*        
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcKeyValueStoreService::createCallbacks()
 {
-    typedef RiaGrpcKeyValueStoreService Self;
+    using Self = RiaGrpcKeyValueStoreService;
 
     std::vector<RiaGrpcCallbackInterface*> callbacks;
     callbacks = {

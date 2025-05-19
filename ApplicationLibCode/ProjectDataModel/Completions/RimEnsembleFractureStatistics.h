@@ -31,7 +31,7 @@ class Layer
 public:
     Layer( double topDepth, double bottomDepth )
         : m_topDepth( topDepth )
-        , m_bottomDepth( bottomDepth ){};
+        , m_bottomDepth( bottomDepth ) {};
 
     double topDepth() const { return m_topDepth; };
     double bottomDepth() const { return m_bottomDepth; };

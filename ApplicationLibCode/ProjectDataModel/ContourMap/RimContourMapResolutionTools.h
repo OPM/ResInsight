@@ -32,5 +32,5 @@ public:
     static double resolutionFromEnumValue( RimContourMapResolutionTools::SamplingResolution resEnumVal );
 
 private:
-    RimContourMapResolutionTools(){};
+    RimContourMapResolutionTools() {};
 };

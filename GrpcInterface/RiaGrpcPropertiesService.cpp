@@ -485,7 +485,7 @@ grpc::Status RiaGrpcPropertiesService::SetGridProperty( grpc::ServerContext*    
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcPropertiesService::createCallbacks()
 {
-    typedef RiaGrpcPropertiesService Self;
+    using Self = RiaGrpcPropertiesService;
 
     std::vector<RiaGrpcCallbackInterface*> callbacks;
     callbacks =

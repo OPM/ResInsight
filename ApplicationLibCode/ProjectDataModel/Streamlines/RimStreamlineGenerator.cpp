@@ -37,8 +37,8 @@ public:
     StreamlineSeedPoint( double rate, size_t index, RimStreamlineGenerator::CellFaceType faceIdx )
         : m_rate( rate )
         , m_index( index )
-        , m_faceIdx( faceIdx ){};
-    ~StreamlineSeedPoint(){};
+        , m_faceIdx( faceIdx ) {};
+    ~StreamlineSeedPoint() {};
 
     bool operator<( const StreamlineSeedPoint& other ) const { return rate() < other.rate(); };
 

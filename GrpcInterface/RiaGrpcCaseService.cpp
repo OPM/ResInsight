@@ -727,7 +727,7 @@ grpc::Status RiaGrpcCaseService::GetCoarseningInfoArray( grpc::ServerContext*   
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
 {
-    typedef RiaGrpcCaseService Self;
+    using Self = RiaGrpcCaseService;
 
     return { new RiaGrpcUnaryCallback<Self, CaseRequest, GridCount>( this, &Self::GetGridCount, &Self::RequestGetGridCount ),
              new RiaGrpcUnaryCallback<Self, CellInfoRequest, CellCount>( this, &Self::GetCellCount, &Self::RequestGetCellCount ),

@@ -265,7 +265,8 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
         // Sort intersection on distance to ray origin
         std::sort( intersectionInfo.begin(),
                    intersectionInfo.end(),
-                   [&domainRayOrigin]( const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs ) {
+                   [&domainRayOrigin]( const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs )
+                   {
                        return ( lhs.m_intersectionPoint - domainRayOrigin ).lengthSquared() <
                               ( rhs.m_intersectionPoint - domainRayOrigin ).lengthSquared();
                    } );

@@ -50,7 +50,7 @@ class PdmUiTreeItemEditor : public PdmUiEditorHandle
 {
 public:
     explicit PdmUiTreeItemEditor( PdmUiItem* uiItem );
-    ~PdmUiTreeItemEditor() override{};
+    ~PdmUiTreeItemEditor() override {};
 
     void setTreeViewEditor( PdmUiTreeEditorHandle* treeViewEditor ) { m_treeViewEditor = treeViewEditor; }
 

@@ -524,7 +524,7 @@ void RimStatisticsContourMap::computeStatistics()
 
     caf::ProgressInfo progInfo( nCases, QString( "Reading Eclipse Ensemble" ) );
 
-    auto readerSettings                = RiaPreferencesGrid::current()->gridOnlyReaderSettings();
+    auto readerSettings                = RiaPreferencesGrid::gridOnlyReaderSettings();
     readerSettings.onlyLoadActiveCells = true;
     auto casesInViews                  = ensemble->casesInViews();
     auto oldReaderType                 = RiaPreferencesGrid::current()->gridModelReaderOverride();
