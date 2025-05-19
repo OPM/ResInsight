@@ -31,6 +31,7 @@
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartDataAccess.h"
+#include "RifEdfmTools.h"
 #include "RifInputPropertyLoader.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
@@ -255,6 +256,12 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         setFilesContainingFaults( readerInterface->filenamesWithFaults() );
 
         setReservoirData( eclipseCase.p() );
+
+        auto iLimitFromEdfm = RifEdfmTools::checkForEdfmData( gridFileName() );
+        if ( iLimitFromEdfm > 0 )
+        {
+            eclipseCase->mainGrid()->invalidateCellsAboveI( iLimitFromEdfm - 1 /* zero based index */ );
+        }
     }
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );

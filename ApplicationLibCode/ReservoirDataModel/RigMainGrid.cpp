@@ -1114,3 +1114,26 @@ std::array<double, 6> RigMainGrid::defaultMapAxes()
     // Order (see Elipse Reference Manual for keyword MAPAXES): Y_x, Y_y, O_x, O_y, X_x, X_y
     return { yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1] };
 }
+
+//--------------------------------------------------------------------------------------------------
+// Invalidate all cells with I > iLimit (0 based index)
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::invalidateCellsAboveI( size_t iLimit )
+{
+    const auto cells = cellCount();
+    for ( size_t i = iLimit + 1; i < cellCountI(); i++ )
+    {
+        for ( size_t j = 0; j < cellCountJ(); j++ )
+        {
+            for ( size_t k = 0; k < cellCountK(); k++ )
+            {
+                const auto cellIdx = cellIndexFromIJK( i, j, k );
+                if ( cellIdx < cells )
+                {
+                    RigCell& c = cell( cellIdx );
+                    c.setInvalid( true );
+                }
+            }
+        }
+    }
+}

@@ -503,6 +503,7 @@ void RiuSelectionChangedHandler::addDepthCurveFromSelectionItem( const RiuSelect
 
     const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>( itemAdded );
     if ( eclipseSelectionItem == nullptr ) return;
+    if ( eclipseSelectionItem->m_view == nullptr ) return;
 
     int currentTimeStep = eclipseSelectionItem->m_view->currentTimeStep();
 

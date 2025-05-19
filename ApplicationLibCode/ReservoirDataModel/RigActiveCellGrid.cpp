@@ -112,7 +112,7 @@ size_t RigActiveCellGrid::totalActiveCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigActiveCellGrid::activeLocalCellIndices() const
+std::vector<size_t> RigActiveCellGrid::activeLocalCellIndices( bool skipInvalidCells ) const
 {
     std::vector<size_t> indices;
     indices.reserve( m_nativeCells.size() );
@@ -120,6 +120,9 @@ std::vector<size_t> RigActiveCellGrid::activeLocalCellIndices() const
 
     for ( const auto& [index, cell] : m_nativeCells )
     {
+        // skip invalid cells unless they should be included
+        if ( skipInvalidCells && cell.isInvalid() ) continue;
+
         // only add cells indexes that belongs to our grid, not subgrids
         if ( index < maxCellIdx ) indices.emplace_back( index );
     }

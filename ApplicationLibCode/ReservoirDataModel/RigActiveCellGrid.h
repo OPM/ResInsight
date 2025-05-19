@@ -34,7 +34,7 @@ public:
     size_t totalCellCount() const override;
     size_t totalActiveCellCount() const;
 
-    std::vector<size_t> activeLocalCellIndices() const;
+    std::vector<size_t> activeLocalCellIndices( bool skipInvalidCells ) const;
 
 protected: // only for use by file readers!
     friend class RifReaderOpmCommonActive;
