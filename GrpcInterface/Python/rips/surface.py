@@ -1,24 +1,24 @@
 import uuid
 
 from .pdmobject import add_method
-from .resinsight_classes import RegularSurface
 from .project import Project
+from .resinsight_classes import RegularSurface
+from typing import List
 
 
 @add_method(RegularSurface)
-def set_property(self, name, values):
-    """Export snapshot for the current plot
+def set_property(self: RegularSurface, name: str, values: List[float]) -> None:
+    """Sets a property on a regular surface.
 
     Arguments:
-        export_folder(str): The path to export to. By default will use the global export folder
-        prefix (str): Exported file name prefix
-        output_format(str): Enum string. Can be 'PNG' or 'PDF'.
-
+        name(str): Name of the property.
+        values (List[float]): Values to set (float32).
+          Should be of nx*ny size (see RegularSurface).
     """
-
-    project = self.ancestor(Project)
 
     key = "{}_{}".format(uuid.uuid4(), "regular_surface_key")
 
-    project.set_key_values(key, values)
-    return self.set_property_from_key(name=name, value_key=key)
+    project = self.ancestor(Project)
+    if project:
+        project.set_key_values(key, values)
+        self.set_property_from_key(name=name, value_key=key)
