@@ -24,11 +24,15 @@ jobs:
         with:
           submodules: true
 
+      - uses: TAServers/vcpkg-cache@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install Linux dependencies
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
-          sudo apt-get install clang-tidy-18 clang-format-18
+          sudo apt-get install clang-tidy-19 clang-format-19
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -38,37 +42,37 @@ jobs:
           cache: true
           modules: "qtnetworkauth qtcharts"
 
-      - name: Export GitHub Actions cache environment variables
-        uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
       - name: vcpkg bootstrap
         run: ThirdParty/vcpkg/bootstrap-vcpkg.sh
   
+      - name: Restore vcpkg cache
+        id: vcpkg-cache
+        uses: TAServers/vcpkg-cache@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create compile commands and run clang-tidy
         # https://clang.llvm.org/extra/doxygen/run-clang-tidy_8py_source.html
+        env:
+          VCPKG_FEATURE_FLAGS: "binarycaching" # Possibly redundant, but explicitly sets the binary caching feature flag
+          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DRESINSIGHT_USE_OPENMP=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-          mv compile_commands.json compile_commands_original.json
-          python ../scripts/fix_json_database.py compile_commands_original.json >> compile_commands.json
+          cmake -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19 -DRESINSIGHT_USE_OPENMP=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
       - name: Run clang-tidy and apply fixes
         continue-on-error: true
         run: |
           cd build
-          run-clang-tidy-18 -config-file ../ApplicationLibCode/.clang-tidy -fix files ApplicationLibCode
-          run-clang-tidy-18 -config-file ../GrpcInterface/.clang-tidy -fix files GrpcInterface
+          run-clang-tidy-19 -config-file ../ApplicationLibCode/.clang-tidy -fix files ApplicationLibCode
+          run-clang-tidy-19 -config-file ../GrpcInterface/.clang-tidy -fix files GrpcInterface
       - name: Run clang-format after clang-tidy
         continue-on-error: true
         run: |
           cd ApplicationLibCode
-          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-18 -i
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-19 -i
           cd ../GrpcInterface
-          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-18 -i
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-19 -i
       - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
