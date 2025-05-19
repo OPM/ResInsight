@@ -58,7 +58,7 @@ RimEnsembleFileSet::RimEnsembleFileSet()
     , m_useKey2( false )
 
 {
-    CAF_PDM_InitObject( "Ensemble", ":/CreateGridCaseGroup16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble", ":/SummaryEnsemble.svg", "", "" );
 
     CAF_PDM_InitField( &m_pathPattern, "PathPattern", QString(), "Path Pattern", "", "", "" );
     CAF_PDM_InitField( &m_realizationSubSet, "RealizationSubSet", QString(), "Realization Filter", "", "", "" );

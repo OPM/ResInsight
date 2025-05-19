@@ -403,7 +403,7 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
     else if ( dockWidgetName == mainWindowSeismicHistogramName() )
         return QIcon( ":/graph.svg" );
     else if ( dockWidgetName == plotMainWindowCloudTreeName() )
-        return QIcon( ":/Cloud.svg" );
+        return QIcon( ":/SummaryEnsemble.svg" );
     else if ( dockWidgetName == plotWindowQuickAccessName() || dockWidgetName == mainWindowQuickAccessName() )
         return QIcon( ":/pinned.svg" );
 
