@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimcRegularSurface.h"
 
+#include "KeyValueStore/RiaKeyValueStoreUtil.h"
 #include "RiaApplication.h"
 
 #include "RimRegularSurface.h"
@@ -51,33 +52,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyFrom
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    // TODO: duplicated with corner point case
-    auto convertToFloatVector = []( const std::optional<std::vector<char>>& input ) -> std::vector<float>
-    {
-        if ( input && !input->empty() )
-        {
-            // Ensure the byte vector size is a multiple of sizeof(float)
-            if ( input->size() % sizeof( float ) != 0 )
-            {
-                return {};
-            }
-
-            // Calculate how many floats we'll have
-            size_t float_count = input->size() / sizeof( float );
-
-            // Create a vector of floats with the appropriate size
-            std::vector<float> float_vec( float_count );
-
-            // Copy the binary data from the byte vector to the float vector
-            std::memcpy( float_vec.data(), input->data(), input->size() );
-
-            return float_vec;
-        }
-
-        return {};
-    };
-
-    std::vector<float> values = convertToFloatVector( keyValueStore->get( m_valueKey().toStdString() ) );
+    std::vector<float> values = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_valueKey().toStdString() ) );
     if ( values.empty() ) return std::unexpected( "Found unexcepted empty property." );
 
     RigSurface* surfaceData = surface->surfaceData();
