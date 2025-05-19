@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <cstring>
 #include <optional>
 #include <vector>
 

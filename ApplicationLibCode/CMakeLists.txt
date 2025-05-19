@@ -338,6 +338,7 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/Application
          ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
          ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/WellPathTools
+         ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/KeyValueStore
          ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
          ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
          ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface

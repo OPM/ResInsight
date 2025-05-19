@@ -1,20 +1,25 @@
 #include "RiaKeyValueStoreUtil.h"
 
-std::vector<float> convertToFloatVector( const std::optional<std::vector<char>>& input )
+#include <cstring>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<float> RiaKeyValueStoreUtil::convertToFloatVector( const std::optional<std::vector<char>>& inputVector )
 {
-    if ( !input || input->empty() ) return {};
+    if ( !inputVector || inputVector->empty() ) return {};
 
     // Ensure the byte vector size is a multiple of sizeof(float)
-    if ( input->size() % sizeof( float ) != 0 ) return {};
+    if ( inputVector->size() % sizeof( float ) != 0 ) return {};
 
     // Calculate how many floats we'll have
-    size_t float_count = input->size() / sizeof( float );
+    size_t numFloats = inputVector->size() / sizeof( float );
 
     // Create a vector of floats with the appropriate size
-    std::vector<float> float_vec( float_count );
+    std::vector<float> floatVector( numFloats );
 
     // Copy the binary data from the byte vector to the float vector
-    std::memcpy( float_vec.data(), input->data(), input->size() );
+    std::memcpy( floatVector.data(), inputVector->data(), inputVector->size() );
 
-    return float_vec;
+    return floatVector;
 }
