@@ -31,6 +31,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimEnsembleFileSet, "EnsembleFileSet" );
 
@@ -39,6 +40,11 @@ namespace internal
 QString placeholderString()
 {
     return "*";
+}
+
+bool isEmptyOrWildcard( const QString& pattern )
+{
+    return pattern.isEmpty() || pattern.contains( placeholderString() );
 }
 } // namespace internal
 
@@ -52,10 +58,16 @@ RimEnsembleFileSet::RimEnsembleFileSet()
     , m_useKey2( false )
 
 {
-    CAF_PDM_InitObject( "Ensemble", ":/CreateGridCaseGroup16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble", ":/SummaryEnsemble.svg", "", "" );
 
     CAF_PDM_InitField( &m_pathPattern, "PathPattern", QString(), "Path Pattern", "", "", "" );
     CAF_PDM_InitField( &m_realizationSubSet, "RealizationSubSet", QString(), "Realization Filter", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleInfo, "EnsembleInfo", "Info" );
+    m_ensembleInfo.registerGetMethod( this, &RimEnsembleFileSet::ensembleInfo );
+    m_ensembleInfo.uiCapability()->setUiReadOnly( true );
+    m_ensembleInfo.xmlCapability()->disableIO();
+    m_ensembleInfo.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
@@ -76,17 +88,24 @@ RimEnsembleFileSet::RimEnsembleFileSet()
 //--------------------------------------------------------------------------------------------------
 QStringList RimEnsembleFileSet::createPaths( const QString& extension ) const
 {
-    // Append extension to the path pattern and return list of files matching the pattern
+    if ( m_pathPattern().isEmpty() ) return {};
 
-    QString pathPattern = m_pathPattern();
-    if ( pathPattern.isEmpty() )
+    // Append extension to the path pattern and return list of files matching the pattern
+    QString pathPatternWithExtension = m_pathPattern() + extension;
+    auto    realizationFilter        = m_realizationSubSet();
+    if ( internal::isEmptyOrWildcard( realizationFilter ) )
     {
-        return {};
+        if ( m_realizationNumbersReadFromFiles.isEmpty() )
+        {
+            auto paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString() );
+            const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
+            m_realizationNumbersReadFromFiles = range;
+        }
+
+        realizationFilter = m_realizationNumbersReadFromFiles;
     }
 
-    pathPattern += extension;
-
-    return RiaEnsembleImportTools::createPathsFromPattern( pathPattern, m_realizationSubSet(), internal::placeholderString() );
+    return RiaEnsembleImportTools::createPathsFromPattern( pathPatternWithExtension, realizationFilter, internal::placeholderString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,9 +129,21 @@ void RimEnsembleFileSet::findAndSetPathPatternAndRangeString( const QStringList&
         noExtension = noExtension.left( dotIndex );
     }
 
-    m_pathPattern       = noExtension;
-    m_realizationSubSet = rangeString;
-    fileSetChanged.send();
+    m_pathPattern                     = noExtension;
+    m_realizationNumbersReadFromFiles = rangeString;
+
+    auto createdPaths = RiaEnsembleImportTools::createPathsFromPattern( pattern, rangeString, internal::placeholderString() );
+    if ( createdPaths.size() == filePaths.size() )
+    {
+        // If incoming files count matches the generated file count, use '*' to represent all
+        m_realizationSubSet = internal::placeholderString();
+    }
+    else
+    {
+        m_realizationSubSet = rangeString;
+    }
+
+    sendFileSetChangedSignal();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,7 +152,7 @@ void RimEnsembleFileSet::findAndSetPathPatternAndRangeString( const QStringList&
 void RimEnsembleFileSet::setNameTemplate( const QString& name )
 {
     m_nameTemplateString = name;
-    fileSetChanged.send();
+    nameChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,7 +246,14 @@ void RimEnsembleFileSet::defineEditorAttribute( const caf::PdmFieldHandle* field
     {
         if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
         {
-            lineEdAttr->placeholderText = "E.g. 0,1,4-6,10-20";
+            lineEdAttr->placeholderText = "E.g. 0,1,4-6. Use '*' for all.";
+        }
+    }
+    else if ( field == &m_ensembleInfo )
+    {
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
+        {
+            myAttr->heightHint = -1;
         }
     }
 }
@@ -234,6 +272,7 @@ void RimEnsembleFileSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_pathPattern );
     uiOrdering.add( &m_realizationSubSet );
+    uiOrdering.add( &m_ensembleInfo );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -246,11 +285,10 @@ void RimEnsembleFileSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     if ( changedField == &m_nameTemplateString || changedField == &m_autoName )
     {
         RimProject::current()->ensembleFileSetCollection()->updateFileSetNames();
+        return;
     }
-    else
-    {
-        fileSetChanged.send();
-    }
+
+    sendFileSetChangedSignal();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,7 +305,9 @@ void RimEnsembleFileSet::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
 void RimEnsembleFileSet::setPathPattern( const QString& pathPattern )
 {
     m_pathPattern = pathPattern;
-    fileSetChanged.send();
+    m_realizationNumbersReadFromFiles.clear();
+
+    sendFileSetChangedSignal();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,8 +315,16 @@ void RimEnsembleFileSet::setPathPattern( const QString& pathPattern )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFileSet::setRangeString( const QString& rangeString )
 {
-    m_realizationSubSet = rangeString;
-    fileSetChanged.send();
+    sendFileSetChangedSignal();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleFileSet::ensembleInfo() const
+{
+    QString text = "Realization numbers detected on file system : " + m_realizationNumbersReadFromFiles;
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -363,4 +411,21 @@ QString RimEnsembleFileSet::nameTemplateText() const
 void RimEnsembleFileSet::setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode )
 {
     m_groupingMode = groupingMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFileSet::sendFileSetChangedSignal()
+{
+    fileSetChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFileSet::reload()
+{
+    m_realizationNumbersReadFromFiles.clear();
+    sendFileSetChangedSignal();
 }

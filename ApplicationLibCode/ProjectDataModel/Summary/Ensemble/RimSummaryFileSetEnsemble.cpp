@@ -21,6 +21,7 @@
 #include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
@@ -46,6 +47,14 @@ RimSummaryFileSetEnsemble::RimSummaryFileSetEnsemble()
     m_cases.xmlCapability()->disableIO();
 
     setAsEnsemble( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleFileSet* RimSummaryFileSetEnsemble::ensembleFileSet()
+{
+    return m_ensembleFileSet();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +98,17 @@ void RimSummaryFileSetEnsemble::cleanupBeforeDelete()
         }
     }
     RimSummaryEnsemble::cleanupBeforeDelete();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryFileSetEnsemble::reloadCases()
+{
+    if ( m_ensembleFileSet() )
+    {
+        m_ensembleFileSet()->reload();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,6 +172,8 @@ void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet()
             summaryCase->updateAutoShortName();
         }
     }
+
+    RiaSummaryTools::updateConnectedPlots( this );
 }
 
 //--------------------------------------------------------------------------------------------------

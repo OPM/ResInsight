@@ -25,6 +25,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmProxyValueField.h"
 
 //==================================================================================================
 ///
@@ -52,6 +53,7 @@ public:
     QString                             nameTemplateText() const;
 
     void setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    void reload();
 
 private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
@@ -62,9 +64,14 @@ private:
     void setPathPattern( const QString& pathPattern );
     void setRangeString( const QString& rangeString );
 
+    QString ensembleInfo() const;
+
+    void sendFileSetChangedSignal();
+
 private:
-    caf::PdmField<QString> m_pathPattern;
-    caf::PdmField<QString> m_realizationSubSet;
+    caf::PdmField<QString>           m_pathPattern;
+    caf::PdmField<QString>           m_realizationSubSet;
+    caf::PdmProxyValueField<QString> m_ensembleInfo;
 
     caf::PdmField<QString> m_nameTemplateString;
     caf::PdmField<bool>    m_autoName;
@@ -73,4 +80,6 @@ private:
 
     bool m_useKey1;
     bool m_useKey2;
+
+    mutable QString m_realizationNumbersReadFromFiles;
 };
