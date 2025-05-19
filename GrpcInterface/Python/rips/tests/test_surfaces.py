@@ -1,6 +1,7 @@
 import sys
 import os
 import tempfile
+import pytest
 from pathlib import Path
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
