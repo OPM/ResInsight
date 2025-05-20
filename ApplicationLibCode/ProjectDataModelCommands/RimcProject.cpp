@@ -297,19 +297,19 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 
     RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
 
-    if ( RimEclipseView* riv = grid->createAndAddReservoirView() )
+    if ( RiaGuiApplication::isRunning() )
     {
-        riv->loadDataAndUpdate();
-
-        if ( !riv->cellResult()->hasResult() )
+        if ( RimEclipseView* riv = grid->createAndAddReservoirView() )
         {
-            riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
-        }
+            riv->loadDataAndUpdate();
 
-        analysisModels->updateConnectedEditors();
+            if ( !riv->cellResult()->hasResult() )
+            {
+                riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
+            }
 
-        if ( RiaGuiApplication::isRunning() )
-        {
+            analysisModels->updateConnectedEditors();
+
             if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
         }
     }
