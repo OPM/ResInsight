@@ -41,7 +41,10 @@ public:
     void setRotation( double rotation );
 
     void setProperty( const QString& key, const std::vector<float>& values );
-    void setPropertyAsDepth( const QString& key );
+    bool setPropertyAsDepth( const QString& key );
+
+    int nx() const;
+    int ny() const;
 
 private:
     bool updateSurfaceData() override;

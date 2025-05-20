@@ -56,6 +56,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyFrom
     std::vector<float> values = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_valueKey().toStdString() ) );
     if ( values.empty() ) return std::unexpected( "Found unexcepted empty property." );
 
+    if ( values.size() != static_cast<size_t>( surface->nx() * surface->ny() ) )
+        return std::unexpected( "Failed to set property: incorrect dimensions." );
+
     surface->setProperty( m_name, values );
 
     surface->onLoadData();
@@ -116,7 +119,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyAsDe
     RimRegularSurface* surface = self<RimRegularSurface>();
     if ( !surface ) return std::unexpected( "No surface found" );
 
-    surface->setPropertyAsDepth( m_name );
+    if ( !surface->setPropertyAsDepth( m_name ) ) return std::unexpected( "Failed to set depth property." );
 
     surface->onLoadData();
 

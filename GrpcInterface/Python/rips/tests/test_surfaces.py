@@ -69,6 +69,26 @@ def test_create_regular_surface(rips_instance, initialize_test):
     assert s.nx == nx
     assert s.ny == ny
 
+    with pytest.raises(rips.RipsError, match="Failed to set depth property."):
+        s.set_property_as_depth(name="non_existing_property")
+
+    with pytest.raises(
+        rips.RipsError, match="Failed to set property: incorrect dimensions."
+    ):
+        s.set_property("property_too_big", [i for i in range(nx * ny * 2)])
+
+    # Sucessfully set the depth property
+    s.set_property("depth", [i for i in range(nx * ny)])
+    s.set_property_as_depth("depth")
+
+    # Change the dimensions of the surface: should invalidate the properties
+    s.nx = 30
+    s.update()
+
+    # 'depth' property is now gone
+    with pytest.raises(rips.RipsError, match="Failed to set depth property."):
+        s.set_property_as_depth(name="depth")
+
 
 def test_create_regular_surface_invalid_values(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"

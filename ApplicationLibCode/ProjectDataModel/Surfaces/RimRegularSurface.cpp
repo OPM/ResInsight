@@ -86,6 +86,13 @@ void RimRegularSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
 
+    if ( changedField == &m_nx || changedField == &m_ny )
+    {
+        // Invalidate all properties when dimensions changes
+        m_properties.clear();
+        m_depthProperty = "";
+    }
+
     clearCachedNativeData();
     updateSurfaceData();
 
@@ -344,13 +351,33 @@ void RimRegularSurface::setRotation( double rotation )
 //--------------------------------------------------------------------------------------------------
 void RimRegularSurface::setProperty( const QString& key, const std::vector<float>& values )
 {
+    CAF_ASSERT( values.size() == static_cast<size_t>( m_nx() * m_ny() ) );
     m_properties[key] = values;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularSurface::setPropertyAsDepth( const QString& key )
+bool RimRegularSurface::setPropertyAsDepth( const QString& key )
 {
+    if ( !m_properties.contains( key ) ) return false;
+
     m_depthProperty = key;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimRegularSurface::nx() const
+{
+    return m_nx;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimRegularSurface::ny() const
+{
+    return m_ny;
 }
