@@ -1,6 +1,5 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RiaKeyValueStore.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaKeyValueStoreUtil.h
+set(SOURCE_GROUP_HEADER_FILES ${CMAKE_CURRENT_LIST_DIR}/RiaKeyValueStore.h
+                              ${CMAKE_CURRENT_LIST_DIR}/RiaKeyValueStoreUtil.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
