@@ -427,15 +427,9 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         if ( m_ensemble() && dataSourceSteppingObject() )
         {
-            caf::PdmPointer<caf::PdmObjectHandle> variantHandle      = oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
-            RimSummaryEnsemble*                   previousCollection = dynamic_cast<RimSummaryEnsemble*>( variantHandle.p() );
-
             for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
             {
-                if ( curveSet->summaryEnsemble() == previousCollection )
-                {
-                    curveSet->setSummaryEnsemble( m_ensemble );
-                }
+                curveSet->setSummaryEnsemble( m_ensemble );
             }
 
             triggerLoadDataAndUpdate = true;
