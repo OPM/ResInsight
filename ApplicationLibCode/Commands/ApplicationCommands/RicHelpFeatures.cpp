@@ -90,7 +90,9 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
     dlg.addVersionEntry( " ", QString( "   Qt " ) + qVersion() );
     dlg.addVersionEntry( " ", QString( "   " ) + caf::AboutDialog::versionStringForcurrentOpenGLContext() );
     dlg.addVersionEntry( " ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL" );
-    dlg.addVersionEntry( " ", QString( "   Octave " ) + QString( RESINSIGHT_OCTAVE_VERSION ) );
+
+    if ( !QString( RESINSIGHT_OCTAVE_VERSION ).isEmpty() )
+        dlg.addVersionEntry( " ", QString( "   Octave " ) + QString( RESINSIGHT_OCTAVE_VERSION ) );
 
     bool isAbleToUseSsl = false;
     bool isSslSupported = false;
@@ -150,7 +152,11 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
         dlg.addVersionEntry( " ", QString( "   " ) + vendor + " : " + render );
     }
 
-    dlg.addVersionEntry( " ", QString( "    Build Server : " ) + RESINSIGHT_BUILD_SYSTEM_ID );
+    QString buildSystemId = RESINSIGHT_BUILD_SYSTEM_ID;
+    if ( !buildSystemId.isEmpty() )
+    {
+        dlg.addVersionEntry( " ", QString( "    Build Server : " ) + buildSystemId );
+    }
 
     QString compiledUsingPythonVersion = RESINSIGHT_PYTHON_VERSION;
     if ( !compiledUsingPythonVersion.isEmpty() )
@@ -164,6 +170,10 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
         dlg.addVersionEntry( " ", QString( "  Runtime binary: " ) + pythonRuntimePath );
         dlg.addVersionEntry( " ", QString( "  Runtime version: " ) + pythonRuntimeVersion );
     }
+
+    dlg.addVersionEntry( " ", "" );
+    QString nowDate = QDateTime::currentDateTime().toString( "yyyy-MMM-dd" );
+    dlg.addVersionEntry( "", QString( "Build date: " ) + nowDate );
 
     dlg.create();
     dlg.resize( 300, 200 );
