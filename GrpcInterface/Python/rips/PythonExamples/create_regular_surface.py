@@ -12,6 +12,7 @@ def create_x_surface(nx, ny):
             surface.append(float(i))
     return surface
 
+
 def create_wave_surface(nx, ny):
     # Fill the coordinate and wave pattern arrays
     surface = []
@@ -20,7 +21,11 @@ def create_wave_surface(nx, ny):
             # Create wave pattern - combining multiple sine waves
             x = -5 + 10 * i / (nx - 1)
             y = -5 + 10 * j / (ny - 1)
-            offset = math.sin(x**2 + y**2) + 0.5 * math.sin(2*x) * math.cos(2*y) + 25.0 * math.cos(5*x + 2*y)
+            offset = (
+                math.sin(x**2 + y**2)
+                + 0.5 * math.sin(2 * x) * math.cos(2 * y)
+                + 25.0 * math.cos(5 * x + 2 * y)
+            )
             surface.append(-depth + offset)
     return surface
 
