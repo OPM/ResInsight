@@ -249,8 +249,6 @@ void RimViewController::updateOverrides()
 
     auto masterView = viewLinker->masterView();
 
-    CVF_ASSERT( masterView );
-
     if ( m_managedView )
     {
         RimEclipseView* manEclView = managedEclipseView();
@@ -356,13 +354,9 @@ void RimViewController::updateOptionSensitivity()
 {
     Rim3dView* mainView = nullptr;
 
+    if ( auto linkedViews = firstAncestorOrThisOfType<RimViewLinker>() )
     {
-        RimViewLinker* linkedViews = firstAncestorOrThisOfTypeAsserted<RimViewLinker>();
-        if ( linkedViews )
-        {
-            mainView = linkedViews->masterView();
-        }
-        CVF_ASSERT( mainView );
+        mainView = linkedViews->masterView();
     }
 
     auto* eclipseMasterView = dynamic_cast<RimEclipseView*>( mainView );
@@ -512,7 +506,6 @@ void RimViewController::updateDuplicatedPropertyFilters()
     RimViewLinker* viewLinker = ownerViewLinker();
 
     auto masterView = viewLinker->masterView();
-    CVF_ASSERT( masterView );
 
     if ( m_managedView )
     {
