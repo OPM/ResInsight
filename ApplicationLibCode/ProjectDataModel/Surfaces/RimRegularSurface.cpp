@@ -50,6 +50,8 @@ RimRegularSurface::RimRegularSurface()
     CAF_PDM_InitScriptableField( &m_incrementY, "IncrementY", 20.0, "Increment Y" );
 
     CAF_PDM_InitScriptableField( &m_rotation, "Rotation", 0.0, "Rotation" );
+
+    CAF_PDM_InitScriptableField( &m_depthProperty, "DepthProperty", QString( "" ), "Depth Property" );
     m_rotation.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 }
 
@@ -65,6 +67,7 @@ RimRegularSurface::~RimRegularSurface()
 //--------------------------------------------------------------------------------------------------
 bool RimRegularSurface::onLoadData()
 {
+    clearCachedNativeData();
     return updateSurfaceData();
 }
 
@@ -204,7 +207,12 @@ bool RimRegularSurface::updateSurfaceData()
     {
         for ( int i = 0; i < m_nx(); i++ )
         {
-            m_vertices.push_back( computeXyzFromIj( i, j, m_depth, m_originX, m_originY, m_incrementX, m_incrementY, m_rotation ) );
+            double depth = m_depth;
+            if ( !m_depthProperty().isEmpty() && m_properties.contains( m_depthProperty ) )
+            {
+                depth = m_properties[m_depthProperty][j * m_nx + i];
+            }
+            m_vertices.push_back( computeXyzFromIj( i, j, depth, m_originX, m_originY, m_incrementX, m_incrementY, m_rotation ) );
         }
     }
 
@@ -337,4 +345,12 @@ void RimRegularSurface::setRotation( double rotation )
 void RimRegularSurface::setProperty( const QString& key, const std::vector<float>& values )
 {
     m_properties[key] = values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularSurface::setPropertyAsDepth( const QString& key )
+{
+    m_depthProperty = key;
 }

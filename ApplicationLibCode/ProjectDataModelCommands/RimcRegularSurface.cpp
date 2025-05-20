@@ -26,6 +26,7 @@
 
 #include "RifSurfaceExporter.h"
 
+#include "RimSurfaceCollection.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -55,8 +56,19 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyFrom
     std::vector<float> values = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_valueKey().toStdString() ) );
     if ( values.empty() ) return std::unexpected( "Found unexcepted empty property." );
 
-    RigSurface* surfaceData = surface->surfaceData();
-    surfaceData->addVertexResult( m_name(), values );
+    surface->setProperty( m_name, values );
+
+    surface->onLoadData();
+
+    auto coll = surface->firstAncestorOrThisOfType<RimSurfaceCollection>();
+    if ( coll )
+    {
+        coll->updateUiIconFromToggleField();
+        coll->updateViews();
+    }
+
+    keyValueStore->remove( m_valueKey().toStdString() );
+
     return nullptr;
 }
 
@@ -80,6 +92,66 @@ std::unique_ptr<caf::PdmObjectHandle> RimcRegularSurface_setPropertyFromKey::def
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimcRegularSurface_setPropertyFromKey::isNullptrValidResult() const
+{
+    return true;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimRegularSurface, RimcRegularSurface_setPropertyAsDepth, "SetPropertyAsDepth" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcRegularSurface_setPropertyAsDepth::RimcRegularSurface_setPropertyAsDepth( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set property as depth", "", "", "Set property as depth." );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "", "", "", "Name" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyAsDepth::execute()
+{
+    RimRegularSurface* surface = self<RimRegularSurface>();
+    if ( !surface ) return std::unexpected( "No surface found" );
+
+    surface->setPropertyAsDepth( m_name );
+
+    surface->onLoadData();
+
+    auto coll = surface->firstAncestorOrThisOfType<RimSurfaceCollection>();
+    if ( coll )
+    {
+        coll->updateUiIconFromToggleField();
+        coll->updateViews();
+        coll->updateConnectedEditors();
+    }
+    surface->updateConnectedEditors();
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcRegularSurface_setPropertyAsDepth::resultIsPersistent() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcRegularSurface_setPropertyAsDepth::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcRegularSurface_setPropertyAsDepth::isNullptrValidResult() const
 {
     return true;
 }

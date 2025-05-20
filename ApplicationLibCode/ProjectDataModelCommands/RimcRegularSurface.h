@@ -45,3 +45,22 @@ private:
     caf::PdmField<QString> m_name;
     caf::PdmField<QString> m_valueKey;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcRegularSurface_setPropertyAsDepth : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcRegularSurface_setPropertyAsDepth( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    bool                                          resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    bool                                          isNullptrValidResult() const override;
+
+private:
+    caf::PdmField<QString> m_name;
+};

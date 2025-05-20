@@ -41,6 +41,7 @@ public:
     void setRotation( double rotation );
 
     void setProperty( const QString& key, const std::vector<float>& values );
+    void setPropertyAsDepth( const QString& key );
 
 private:
     bool updateSurfaceData() override;
@@ -59,6 +60,8 @@ private:
     caf::PdmField<double> m_incrementX;
     caf::PdmField<double> m_incrementY;
     caf::PdmField<double> m_rotation;
+
+    caf::PdmField<QString> m_depthProperty;
 
     std::vector<unsigned>   m_triangleIndices;
     std::vector<cvf::Vec3d> m_vertices;
