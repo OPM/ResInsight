@@ -165,7 +165,7 @@ void RimWellAllocationOverTimePlot::setFromSimulationWell( RimSimWellInView* sim
 
     // Use the active flow diagnostics solutions, or the first one as default
     m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
-    if ( !m_flowDiagSolution )
+    if ( ( m_flowDiagSolution == nullptr ) && ( m_case != nullptr ) )
     {
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
