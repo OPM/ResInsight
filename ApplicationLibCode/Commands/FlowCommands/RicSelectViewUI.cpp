@@ -45,7 +45,7 @@ void RicSelectViewUI::setView( RimEclipseView* currentView )
 {
     m_currentView = currentView;
 
-    m_currentCase = m_currentView->firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
+    m_currentCase = m_currentView->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     m_selectedView = m_currentView;
 }
