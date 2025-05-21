@@ -22,5 +22,5 @@
 
 namespace RifEdfmTools
 {
-size_t checkForEdfmData( QString gridFileName );
+size_t checkForEdfmLimitI( QString gridFileName );
 }

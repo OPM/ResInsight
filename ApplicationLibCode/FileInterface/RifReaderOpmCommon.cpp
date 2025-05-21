@@ -28,6 +28,7 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseReportKeywords.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
+#include "RifEdfmTools.h"
 #include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseWell.h"
 
@@ -90,6 +91,12 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
             RiaLogging::error( "Failed to open grid file " + fileName );
 
             return false;
+        }
+
+        auto iLimitFromEdfm = RifEdfmTools::checkForEdfmLimitI( fileName );
+        if ( iLimitFromEdfm > 0 )
+        {
+            eclipseCaseData->mainGrid()->invalidateCellsAboveI( iLimitFromEdfm - 1 /* zero based index */ );
         }
 
         if ( isFaultImportEnabled() )

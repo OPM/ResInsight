@@ -24,7 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RifEdfmTools::checkForEdfmData( QString gridFileName )
+size_t RifEdfmTools::checkForEdfmLimitI( QString gridFileName )
 {
     QFileInfo fi( gridFileName );
 
