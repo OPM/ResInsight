@@ -38,7 +38,8 @@ void RicImportGeoMechCaseFeature::onActionTriggered( bool isChecked )
 #if USE_ODB_API
     filterStr += "Abaqus results (*.odb);;";
 #endif
-    filterStr += "Abaqus input file (*.inp)";
+    filterStr += "Abaqus input file (*.inp);;";
+    filterStr += "VTK file (*.pvd)";
 
     QString     defaultDir = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
     QStringList fileNames  = RiuFileDialogTools::getOpenFileNames( nullptr, "Import Geo-Mechanical Model", defaultDir, filterStr );

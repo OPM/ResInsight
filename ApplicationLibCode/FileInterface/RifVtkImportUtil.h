@@ -42,6 +42,7 @@ public:
     static std::vector<PvdDataset> parsePvdDatasets( const std::filesystem::path& filepath );
 
     static std::vector<cvf::Vec3d>                   readPoints( const pugi::xml_node& piece );
+    static std::vector<cvf::Vec3f>                   readDisplacements( const pugi::xml_node& piece );
     static std::vector<unsigned>                     readConnectivity( const pugi::xml_node& piece );
     static std::map<std::string, std::vector<float>> readProperties( const pugi::xml_node& piece );
 

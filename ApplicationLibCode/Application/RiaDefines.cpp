@@ -331,6 +331,10 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
     {
         return ImportFileType::GEOMECH_INP_FILE;
     }
+    else if ( fileName.endsWith( "PVD", Qt::CaseInsensitive ) )
+    {
+        return ImportFileType::GEOMECH_VTK_FILE;
+    }
     else if ( fileName.endsWith( ".rsp", Qt::CaseInsensitive ) || fileName.endsWith( ".rip", Qt::CaseInsensitive ) )
     {
         return ImportFileType::RESINSIGHT_PROJECT_FILE;

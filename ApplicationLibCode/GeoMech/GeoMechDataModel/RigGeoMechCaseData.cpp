@@ -26,6 +26,7 @@
 #include "RigGeoMechCaseData.h"
 
 #include "RifInpReader.h"
+#include "RifVtkReader.h"
 #ifdef USE_ODB_API
 #include "RifOdbReader.h"
 #endif
@@ -99,6 +100,10 @@ bool RigGeoMechCaseData::open( std::string* errorMessage )
     {
         m_readerInterface = new RifInpReader();
     }
+    else if ( filename.ends_with( ".PVD" ) )
+    {
+        m_readerInterface = new RifVtkReader();
+    }
 #ifdef USE_ODB_API
     else if ( filename.ends_with( ".ODB" ) )
     {
@@ -143,17 +148,20 @@ bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vec
             progress.incrementProgress();
             progress.setProgressDescription( "Calculating element neighbors" );
 
-            m_elementPropertyReader = new RifElementPropertyReader( m_femParts->part( 0 )->elementIdxToId() );
-            // Initialize results containers
-            m_femPartResultsColl = new RigFemPartResultsCollection( m_readerInterface.p(), m_elementPropertyReader.p(), m_femParts.p() );
-
-            // Calculate derived Fem data
-            for ( int pIdx = 0; pIdx < m_femParts->partCount(); ++pIdx )
+            if ( m_femParts->partCount() > 0 )
             {
-                m_femParts->part( pIdx )->assertNodeToElmIndicesIsCalculated();
-                m_femParts->part( pIdx )->assertElmNeighborsIsCalculated();
+                m_elementPropertyReader = new RifElementPropertyReader( m_femParts->part( 0 )->elementIdxToId() );
+                // Initialize results containers
+                m_femPartResultsColl = new RigFemPartResultsCollection( m_readerInterface.p(), m_elementPropertyReader.p(), m_femParts.p() );
+
+                // Calculate derived Fem data
+                for ( int pIdx = 0; pIdx < m_femParts->partCount(); ++pIdx )
+                {
+                    m_femParts->part( pIdx )->assertNodeToElmIndicesIsCalculated();
+                    m_femParts->part( pIdx )->assertElmNeighborsIsCalculated();
+                }
+                return true;
             }
-            return true;
         }
     }
 
