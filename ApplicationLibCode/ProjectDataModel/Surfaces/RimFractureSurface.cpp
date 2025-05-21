@@ -21,8 +21,8 @@
 #include "RiaLogging.h"
 
 #include "RigStatisticsMath.h"
-#include "Surface/RigTriangleMeshData.h"
 #include "Surface/RigSurface.h"
+#include "Surface/RigTriangleMeshData.h"
 
 #include "RimRegularLegendConfig.h"
 #include "RimSurfaceCollection.h"
