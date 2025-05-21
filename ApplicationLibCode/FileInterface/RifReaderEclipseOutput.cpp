@@ -29,6 +29,7 @@
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartDataAccess.h"
+#include "RifEdfmTools.h"
 #include "RifHdf5ReaderInterface.h"
 #include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseWell.h"
@@ -409,6 +410,12 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         if ( !transferGeometry( mainEclGrid, eclipseCaseData, invalidateLongThinCells() ) ) return false;
 
         RifOpmRadialGridTools::importCoordinatesForRadialGrid( fileName.toStdString(), eclipseCaseData->mainGrid() );
+    }
+
+    auto iLimitFromEdfm = RifEdfmTools::checkForEdfmLimitI( fileName );
+    if ( iLimitFromEdfm > 0 )
+    {
+        eclipseCaseData->mainGrid()->invalidateCellsAboveI( iLimitFromEdfm - 1 /* zero based index */ );
     }
 
     {
