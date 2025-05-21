@@ -41,7 +41,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.h
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigTriangleMeshData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridCrossPlotCurveGrouping.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGriddedPart3d.h
@@ -63,9 +62,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D.h
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurface.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigTesselatorTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RigTexturedSection.h
     ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureDefinition.h
@@ -126,7 +122,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigTriangleMeshData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGriddedPart3d.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridManager.cpp
@@ -146,9 +141,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurface.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigTesselatorTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigTexturedSection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureDefinition.cpp

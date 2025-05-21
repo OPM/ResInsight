@@ -18,7 +18,7 @@
 
 #include "RifVtkSurfaceImporter.h"
 
-#include "RigTriangleMeshData.h"
+#include "Surface/RigTriangleMeshData.h"
 
 #include <filesystem>
 #include <memory>

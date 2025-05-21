@@ -20,7 +20,7 @@
 
 #include "RiaResultNames.h"
 
-#include "RigSurface.h"
+#include "Surface/RigSurface.h"
 
 #include "Rim3dView.h"
 #include "RimRegularLegendConfig.h"

@@ -20,7 +20,7 @@
 
 #include "RimSurfaceCollection.h"
 
-#include "RigSurfaceStatisticsCalculator.h"
+#include "Surface/RigSurfaceStatisticsCalculator.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmPtrField.h"

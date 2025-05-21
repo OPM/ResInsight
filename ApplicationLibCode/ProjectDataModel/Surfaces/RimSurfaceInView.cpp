@@ -20,7 +20,7 @@
 
 #include "RiaLogging.h"
 
-#include "RigSurface.h"
+#include "Surface/RigSurface.h"
 
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
