@@ -1,0 +1,16 @@
+set(SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurface.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigTriangleMeshData.h
+)
+
+set(SOURCE_GROUP_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigTriangleMeshData.cpp
+)
+
+list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
+list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

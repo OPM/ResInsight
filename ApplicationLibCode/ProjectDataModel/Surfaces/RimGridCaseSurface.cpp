@@ -22,7 +22,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
-#include "RigSurface.h"
+#include "Surface/RigSurface.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"

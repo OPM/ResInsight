@@ -21,8 +21,8 @@
 
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
-#include "RigSurface.h"
-#include "RigSurfaceResampler.h"
+#include "Surface/RigSurface.h"
+#include "Surface/RigSurfaceResampler.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"

@@ -21,7 +21,9 @@
 #include "RiaApplication.h"
 
 #include "RifSurfaceExporter.h"
-#include "RigSurface.h"
+
+#include "Surface/RigSurface.h"
+
 #include "RimGridCaseSurface.h"
 
 #include "Riu3DMainWindowTools.h"

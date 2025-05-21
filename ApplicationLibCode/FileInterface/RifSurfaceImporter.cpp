@@ -17,8 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifSurfaceImporter.h"
+
 #include "RiaStdStringTools.h"
-#include "RigTriangleMeshData.h"
+
+#include "Surface/RigTriangleMeshData.h"
 
 #include "cafProgressInfo.h"
 

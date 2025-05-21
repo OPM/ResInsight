@@ -18,7 +18,7 @@
 
 #include "RimRegularSurface.h"
 
-#include "RigSurface.h"
+#include "Surface/RigSurface.h"
 
 #include "RimSurfaceCollection.h"
 

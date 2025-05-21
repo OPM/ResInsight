@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include "RigSurface.h"
-
-#include "RigSurfaceStatisticsCalculator.h"
+#include "Surface/RigSurface.h"
+#include "Surface/RigSurfaceStatisticsCalculator.h"
 
 #include "RimSurface.h"
+
 #include "cafAppEnum.h"
 
 class RimEnsembleStatisticsSurface : public RimSurface

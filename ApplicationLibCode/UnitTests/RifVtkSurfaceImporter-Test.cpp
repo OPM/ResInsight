@@ -2,7 +2,7 @@
 
 #include "RiaTestDataDirectory.h"
 
-#include "RigTriangleMeshData.h"
+#include "Surface/RigTriangleMeshData.h"
 
 #include <gtest/gtest.h>
 

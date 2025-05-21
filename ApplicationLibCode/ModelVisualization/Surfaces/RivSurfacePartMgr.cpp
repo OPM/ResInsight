@@ -20,8 +20,9 @@
 
 #include "RiaPreferences.h"
 
+#include "Surface/RigSurface.h"
+
 #include "ProjectDataModel/RimCase.h"
-#include "RigSurface.h"
 #include "Rim3dView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
