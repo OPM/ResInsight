@@ -28,6 +28,7 @@
 #include "RimSurfaceCollection.h"
 
 #include "RifSurfaceImporter.h"
+#include "RifVtkImportUtil.h"
 #include "RifVtkSurfaceImporter.h"
 
 #include "cafPdmObjectScriptingCapability.h"
@@ -199,7 +200,7 @@ void RimFractureSurface::clearCachedNativeData()
 bool RimFractureSurface::loadDataFromFile()
 {
     std::filesystem::path filepath    = m_surfaceDefinitionFilePath().path().toLocal8Bit().constData();
-    auto                  surfaceInfo = RifVtkSurfaceImporter::parsePvdDatasets( filepath );
+    auto                  surfaceInfo = RifVtkImportUtil::parsePvdDatasets( filepath );
 
     for ( const auto& s : surfaceInfo )
     {
