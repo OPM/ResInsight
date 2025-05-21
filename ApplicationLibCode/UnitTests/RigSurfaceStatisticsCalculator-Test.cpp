@@ -18,8 +18,8 @@
 
 #include "gtest/gtest.h"
 
-#include "RigSurface.h"
-#include "RigSurfaceStatisticsCalculator.h"
+#include "Surface/RigSurface.h"
+#include "Surface/RigSurfaceStatisticsCalculator.h"
 
 #include "cvfObject.h"
 

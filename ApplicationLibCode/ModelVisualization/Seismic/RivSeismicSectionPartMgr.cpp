@@ -29,8 +29,8 @@
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 
-#include "RigSurfaceResampler.h"
 #include "RigTexturedSection.h"
+#include "Surface/RigSurfaceResampler.h"
 
 #include "RivAnnotationSourceInfo.h"
 #include "RivObjectSourceInfo.h"

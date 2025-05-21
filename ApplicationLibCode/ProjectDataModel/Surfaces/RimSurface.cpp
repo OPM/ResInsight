@@ -26,7 +26,7 @@
 #include "RimSurfaceCollection.h"
 
 #include "RigStatisticsMath.h"
-#include "RigSurface.h"
+#include "Surface/RigSurface.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"

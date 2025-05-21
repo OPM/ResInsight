@@ -3,7 +3,7 @@
 #include "RifSurfaceImporter.h"
 
 #include "RiaTestDataDirectory.h"
-#include "RigTriangleMeshData.h"
+#include "Surface/RigTriangleMeshData.h"
 
 #include "QDir"
 #include <QString>

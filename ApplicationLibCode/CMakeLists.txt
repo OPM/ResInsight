@@ -99,6 +99,7 @@ list(
   ReservoirDataModel/ResultAccessors/CMakeLists_files.cmake
   ReservoirDataModel/ResultCalculators/CMakeLists_files.cmake
   ReservoirDataModel/Well/CMakeLists_files.cmake
+  ReservoirDataModel/Surface/CMakeLists_files.cmake
   FileInterface/CMakeLists_files.cmake
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake

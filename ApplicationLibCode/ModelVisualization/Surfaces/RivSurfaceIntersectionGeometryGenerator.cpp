@@ -23,8 +23,8 @@
 
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
+#include "Surface/RigSurface.h"
 
-#include "RigSurface.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimGridView.h"

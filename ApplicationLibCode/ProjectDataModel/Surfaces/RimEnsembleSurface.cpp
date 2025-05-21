@@ -21,8 +21,8 @@
 #include "RiaLogging.h"
 #include "RiaOptionItemFactory.h"
 
-#include "RigSurfaceResampler.h"
-#include "RigSurfaceStatisticsCalculator.h"
+#include "Surface/RigSurfaceResampler.h"
+#include "Surface/RigSurfaceStatisticsCalculator.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleStatisticsSurface.h"
