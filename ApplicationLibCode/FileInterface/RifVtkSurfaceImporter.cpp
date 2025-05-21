@@ -18,11 +18,12 @@
 
 #include "RifVtkSurfaceImporter.h"
 
+#include "RifVtkImportUtil.h"
+
 #include "Surface/RigTriangleMeshData.h"
 
 #include <filesystem>
 #include <memory>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -53,11 +54,11 @@ std::unique_ptr<RigTriangleMeshData> RifVtkSurfaceImporter::importFromXmlDoc( co
     if ( !piece ) return nullptr;
 
     // Read points
-    std::vector<cvf::Vec3d> vertices = readPoints( piece );
+    std::vector<cvf::Vec3d> vertices = RifVtkImportUtil::readPoints( piece );
     if ( vertices.empty() ) return nullptr;
 
     // Read connectivity
-    std::vector<unsigned> connectivity = readConnectivity( piece );
+    std::vector<unsigned> connectivity = RifVtkImportUtil::readConnectivity( piece );
     if ( connectivity.empty() ) return nullptr;
 
     // Avoid shared nodes
@@ -81,7 +82,7 @@ std::unique_ptr<RigTriangleMeshData> RifVtkSurfaceImporter::importFromXmlDoc( co
     triangleMeshData->setGeometryData( nonSharedVertices, nonSharedConnectivity );
 
     // Read properties
-    const std::map<std::string, std::vector<float>> properties = readProperties( piece );
+    const std::map<std::string, std::vector<float>> properties = RifVtkImportUtil::readProperties( piece );
     for ( const auto& [name, values] : properties )
     {
         // These values are per element, so we need to duplicate them for each node
@@ -100,149 +101,4 @@ std::unique_ptr<RigTriangleMeshData> RifVtkSurfaceImporter::importFromXmlDoc( co
     }
 
     return triangleMeshData;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RifVtkSurfaceImporter::readPoints( const pugi::xml_node& piece )
-{
-    auto points = piece.child( "Points" );
-    if ( !points ) return {};
-
-    auto coords = points.child( "DataArray" );
-    if ( !coords || std::string( coords.attribute( "Name" ).value() ) != "Coordinates" ) return {};
-
-    std::vector<cvf::Vec3d> vertices;
-    std::istringstream      iss( coords.text().get() );
-
-    double x, y, z;
-    while ( iss >> x >> y >> z )
-    {
-        vertices.emplace_back( x, y, -z );
-    }
-
-    return vertices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<unsigned> RifVtkSurfaceImporter::readConnectivity( const pugi::xml_node& piece )
-{
-    auto cells = piece.child( "Cells" );
-    if ( !cells ) return {};
-
-    std::vector<unsigned> connectivity;
-    auto                  connectivityArray = cells.child( "DataArray" );
-
-    while ( connectivityArray )
-    {
-        if ( std::string( connectivityArray.attribute( "Name" ).value() ) == "connectivity" )
-        {
-            std::string        connectivityText = connectivityArray.text().get();
-            std::istringstream iss( connectivityText );
-
-            unsigned index;
-            while ( iss >> index )
-            {
-                connectivity.push_back( index );
-            }
-            break;
-        }
-        connectivityArray = connectivityArray.next_sibling( "DataArray" );
-    }
-
-    return connectivity;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<float>> RifVtkSurfaceImporter::readProperties( const pugi::xml_node& piece )
-{
-    auto cellData = piece.child( "CellData" );
-    if ( !cellData ) return {};
-
-    std::map<std::string, std::vector<float>> properties;
-
-    for ( const auto& dataArray : cellData.children( "DataArray" ) )
-    {
-        const char* name = dataArray.attribute( "Name" ).value();
-        if ( name && *name )
-        {
-            std::vector<float> values;
-            std::istringstream iss( dataArray.text().get() );
-
-            std::string token;
-            while ( iss >> token )
-            {
-                if ( token == "nan" || token == "NaN" || token == "NAN" )
-                {
-                    values.push_back( std::numeric_limits<float>::quiet_NaN() );
-                }
-                else
-                {
-                    try
-                    {
-                        float value = std::stof( token );
-                        values.push_back( value );
-                    }
-                    catch ( const std::invalid_argument& )
-                    {
-                        // Quit parsing when encountering non-numeric tokens
-                        return {};
-                    }
-                    catch ( const std::out_of_range& )
-                    {
-                        // Quit parsing when seeing out-of-range errors
-                        return {};
-                    }
-                }
-            }
-
-            if ( !values.empty() )
-            {
-                properties[name] = std::move( values );
-            }
-        }
-    }
-
-    return properties;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RifVtkSurfaceImporter::PvdDataset> RifVtkSurfaceImporter::parsePvdDatasets( const std::filesystem::path& filepath )
-{
-    pugi::xml_document     doc;
-    pugi::xml_parse_result result = doc.load_file( filepath.string().c_str() );
-    if ( !result ) return {};
-
-    auto root = doc.child( "VTKFile" );
-    if ( !root ) return {};
-
-    auto collection = root.child( "Collection" );
-    if ( !collection ) return {};
-
-    std::filesystem::path baseDir = filepath.parent_path();
-
-    std::vector<PvdDataset> datasets;
-
-    for ( const auto& datasetElem : collection.children( "DataSet" ) )
-    {
-        const char* file        = datasetElem.attribute( "file" ).value();
-        const char* timestepStr = datasetElem.attribute( "timestep" ).value();
-
-        if ( file && timestepStr )
-        {
-            double                timestep = std::stod( timestepStr );
-            std::filesystem::path fullPath = std::filesystem::absolute( baseDir / file );
-
-            datasets.push_back( { timestep, fullPath } );
-        }
-    }
-
-    return datasets;
 }
