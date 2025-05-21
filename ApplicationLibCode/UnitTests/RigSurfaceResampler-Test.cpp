@@ -18,7 +18,8 @@
 
 #include "gtest/gtest.h"
 
-#include "RigSurfaceResampler.h"
+#include "Surface/RigSurfaceResampler.h"
+
 #include "cvfObject.h"
 
 //--------------------------------------------------------------------------------------------------
