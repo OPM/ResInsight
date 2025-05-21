@@ -50,6 +50,21 @@ std::vector<cvf::Vec3d> RifVtkImportUtil::readPoints( const pugi::xml_node& piec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3f> RifVtkImportUtil::readDisplacements( const pugi::xml_node& piece )
+{
+    auto pointData = piece.child( "PointData" );
+    if ( !pointData ) return {};
+
+    auto dataArray = pointData.child( "DataArray" );
+    if ( !dataArray || std::string( dataArray.attribute( "Name" ).value() ) != "disp" ) return {};
+
+    std::string_view text = dataArray.text().get();
+    return parseVec3fs( text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<unsigned> RifVtkImportUtil::readConnectivity( const pugi::xml_node& piece )
 {
     auto cells = piece.child( "Cells" );

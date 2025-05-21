@@ -8,8 +8,14 @@ endif()
 
 add_library(
   ${PROJECT_NAME}
-  RifInpReader.h RifInpReader.cpp RifGeoMechReaderInterface.h
-  RifGeoMechReaderInterface.cpp RifInpIncludeReader.h RifInpIncludeReader.cpp
+  RifInpReader.h
+  RifInpReader.cpp
+  RifGeoMechReaderInterface.h
+  RifGeoMechReaderInterface.cpp
+  RifInpIncludeReader.h
+  RifInpIncludeReader.cpp
+  RifVtkReader.h
+  RifVtkReader.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
