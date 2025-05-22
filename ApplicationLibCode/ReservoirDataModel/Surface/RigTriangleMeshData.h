@@ -39,7 +39,7 @@ public:
 
 private:
     std::vector<cvf::Vec3d>         m_vertices;
-    std::vector<unsigned>           m_tringleIndices;
+    std::vector<unsigned>           m_triangleIndices;
     std::vector<QString>            m_propertyNames;
     std::vector<std::vector<float>> m_propertyValues;
 };
