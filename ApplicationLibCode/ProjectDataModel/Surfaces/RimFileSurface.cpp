@@ -186,7 +186,5 @@ bool RimFileSurface::loadDataFromFile()
         m_triangleMeshData->setGeometryData( surface.first, surface.second );
     }
 
-    if ( !m_triangleMeshData ) m_triangleMeshData = std::make_unique<RigTriangleMeshData>();
-
     return !( m_triangleMeshData->geometry().first.empty() );
 }
