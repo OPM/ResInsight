@@ -45,7 +45,7 @@ std::vector<QString> RigTriangleMeshData::propertyNames() const
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RigTriangleMeshData::geometry() const
 {
-    return std::make_pair( m_vertices, m_tringleIndices );
+    return std::make_pair( m_vertices, m_triangleIndices );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ std::vector<float> RigTriangleMeshData::propertyValues( const QString& property 
 void RigTriangleMeshData::setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, const std::vector<unsigned>& connectivities )
 {
     m_vertices       = nodeCoord;
-    m_tringleIndices = connectivities;
+    m_triangleIndices = connectivities;
 }
 
 //--------------------------------------------------------------------------------------------------
