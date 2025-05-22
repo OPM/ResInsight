@@ -32,6 +32,14 @@
 
 CAF_PDM_SOURCE_INIT( RimRegularSurface, "RegularSurface" );
 
+namespace internal
+{
+QString fixedDepth()
+{
+    return "FIXED_DEPTH";
+}
+} // namespace internal
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +59,7 @@ RimRegularSurface::RimRegularSurface()
 
     CAF_PDM_InitScriptableField( &m_rotation, "Rotation", 0.0, "Rotation" );
 
-    CAF_PDM_InitScriptableField( &m_depthProperty, "DepthProperty", QString( "" ), "Depth Property" );
+    CAF_PDM_InitScriptableField( &m_depthProperty, "DepthProperty", internal::fixedDepth(), "Depth Property" );
     m_rotation.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 }
 
@@ -127,7 +135,12 @@ void RimRegularSurface::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     auto locationGroup = uiOrdering.addNewGroup( "Location" );
     locationGroup->add( &m_originX );
     locationGroup->add( &m_originY );
-    locationGroup->add( &m_depth );
+    locationGroup->add( &m_depthProperty );
+
+    if ( m_depthProperty() == internal::fixedDepth() )
+    {
+        locationGroup->add( &m_depth );
+    }
 
     auto extentGroup = uiOrdering.addNewGroup( "Extent" );
     extentGroup->add( &m_nx );
@@ -147,6 +160,38 @@ void RimRegularSurface::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     appearanceGroup->add( &m_opacity );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularSurface::setFieldsReadOnly( bool enable )
+{
+    m_nx.uiCapability()->setUiReadOnly( enable );
+    m_ny.uiCapability()->setUiReadOnly( enable );
+    m_originX.uiCapability()->setUiReadOnly( enable );
+    m_originY.uiCapability()->setUiReadOnly( enable );
+    m_incrementX.uiCapability()->setUiReadOnly( enable );
+    m_incrementY.uiCapability()->setUiReadOnly( enable );
+    m_rotation.uiCapability()->setUiReadOnly( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimRegularSurface::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_depthProperty )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "Fixed Depth", internal::fixedDepth() ) );
+
+        for ( const auto& [key, value] : m_properties )
+        {
+            options.push_back( caf::PdmOptionItemInfo( key, key ) );
+        }
+    }
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,7 +247,7 @@ bool RimRegularSurface::updateSurfaceData()
         for ( int i = 0; i < m_nx(); i++ )
         {
             double depth = m_depth;
-            if ( !m_depthProperty().isEmpty() && m_properties.contains( m_depthProperty ) )
+            if ( !m_depthProperty().isEmpty() && m_properties.contains( m_depthProperty ) && m_depthProperty() != internal::fixedDepth() )
             {
                 depth = m_properties[m_depthProperty][j * m_nx + i];
             }

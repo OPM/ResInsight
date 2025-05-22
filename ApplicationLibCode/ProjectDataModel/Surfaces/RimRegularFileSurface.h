@@ -31,5 +31,8 @@ public:
     bool onLoadData() override;
 
 private:
-    caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    caf::PdmField<caf::FilePath> m_surfaceFilePath;
 };

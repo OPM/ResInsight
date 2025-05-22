@@ -33,7 +33,7 @@ RimRegularFileSurface::RimRegularFileSurface()
 {
     CAF_PDM_InitScriptableObject( "RegularFileSurface", ":/ReservoirSurface16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceFilePath, "SurfaceFilePath", "File" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ RimRegularFileSurface::RimRegularFileSurface()
 //--------------------------------------------------------------------------------------------------
 void RimRegularFileSurface::setFilePath( const QString& filePath )
 {
-    m_surfaceDefinitionFilePath = filePath;
+    m_surfaceFilePath = filePath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,10 +49,10 @@ void RimRegularFileSurface::setFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 bool RimRegularFileSurface::onLoadData()
 {
-    auto surfaceData = RifSurfio::importSurfaceData( m_surfaceDefinitionFilePath().path().toStdString() );
+    auto surfaceData = RifSurfio::importSurfaceData( m_surfaceFilePath().path().toStdString() );
     if ( surfaceData.has_value() )
     {
-        const auto [regularSurface, depths] = surfaceData.value();
+        const auto [regularSurface, values] = surfaceData.value();
 
         setNx( regularSurface.nx );
         setNy( regularSurface.ny );
@@ -62,11 +62,10 @@ bool RimRegularFileSurface::onLoadData()
         setIncrementY( regularSurface.incrementY );
         setRotation( regularSurface.rotation );
 
-        if ( !depths.empty() )
+        if ( !values.empty() )
         {
-            const QString propertyName = "Depth";
-            setProperty( propertyName, depths );
-            setPropertyAsDepth( propertyName );
+            const QString propertyName = "File Property Values";
+            setProperty( propertyName, values );
         }
 
         RimRegularSurface::onLoadData();
@@ -77,4 +76,16 @@ bool RimRegularFileSurface::onLoadData()
     RiaLogging::error( QString::fromStdString( surfaceData.error() ) );
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularFileSurface::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    auto group = uiOrdering.addNewGroup( "Data Source" );
+    group->add( &m_surfaceFilePath );
+
+    setFieldsReadOnly( true );
+    RimRegularSurface::defineUiOrdering( uiConfigName, uiOrdering );
 }
