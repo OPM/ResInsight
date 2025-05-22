@@ -69,7 +69,7 @@ std::vector<float> RigTriangleMeshData::propertyValues( const QString& property 
 //--------------------------------------------------------------------------------------------------
 void RigTriangleMeshData::setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, const std::vector<unsigned>& connectivities )
 {
-    m_vertices       = nodeCoord;
+    m_vertices        = nodeCoord;
     m_triangleIndices = connectivities;
 }
 
