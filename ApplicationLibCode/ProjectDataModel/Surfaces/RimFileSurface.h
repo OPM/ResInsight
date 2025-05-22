@@ -50,8 +50,5 @@ private:
 
     caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
 
-    std::vector<unsigned>   m_tringleIndices;
-    std::vector<cvf::Vec3d> m_vertices;
-
     std::unique_ptr<RigTriangleMeshData> m_triangleMeshData;
 };
