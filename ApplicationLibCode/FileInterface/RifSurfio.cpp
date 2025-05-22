@@ -72,9 +72,9 @@ std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string>
 
         // transpose the data to match the expected format
         std::vector<float> transposedValues( fileData.values.size() );
-        for ( size_t row = 0; row < fileData.header.nrow; ++row )
+        for ( int row = 0; row < fileData.header.nrow; ++row )
         {
-            for ( size_t col = 0; col < fileData.header.ncol; ++col )
+            for ( int col = 0; col < fileData.header.ncol; ++col )
             {
                 transposedValues[row * fileData.header.ncol + col] = fileData.values[col * fileData.header.nrow + row];
             }
