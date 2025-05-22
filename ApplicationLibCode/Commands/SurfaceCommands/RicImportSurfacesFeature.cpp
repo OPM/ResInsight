@@ -42,10 +42,11 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
-    QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                  "Import Surfaces",
-                                                                  defaultDir,
-                                                                  "Surface files (*.ptl *.ts *.dat *.vtu *.pvd *.xyz);;All Files (*.*)" );
+    QStringList     fileNames =
+        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                              "Import Surfaces",
+                                              defaultDir,
+                                              "Surface files (*.ptl *.ts *.dat *.vtu *.pvd *.xyz *.gri *.irap);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 
