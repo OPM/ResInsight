@@ -26,6 +26,10 @@
 
 //--------------------------------------------------------------------------------------------------
 ///
+/// https://github.com/equinor/xtgeo/blob/main/src/xtgeo/surface/_regsurf_import.py
+/// https://xtgeo.readthedocs.io/en/latest/datamodels.html#description
+/// https://github.com/equinor/surfio
+/// 
 //--------------------------------------------------------------------------------------------------
 std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string> RifSurfio::importSurfaceData( const std::string& filename )
 {
