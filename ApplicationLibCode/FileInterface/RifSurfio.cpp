@@ -20,6 +20,7 @@
 
 #include "irap_import.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 
