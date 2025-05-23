@@ -75,7 +75,7 @@ QString RimCustomObjectiveFunctionWeight::title() const
         addressVector.push_back( address->address() );
     }
     return QString( "%0 * %1::%2%3%4" )
-        .arg( m_weightValue, 0, 'f', 2 )
+        .arg( m_weightValue(), 0, 'f', 2 )
         .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).text() )
         .arg( addressVector.size() > 1 ? "(" : "" )
         .arg( QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector, " + " ) ) )
