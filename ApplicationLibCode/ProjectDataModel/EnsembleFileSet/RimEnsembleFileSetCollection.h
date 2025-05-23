@@ -41,6 +41,8 @@ public:
     void                             deleteAllFileSets();
     void                             deleteFileSetIfPossible( RimEnsembleFileSet* fileSet );
 
+    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
+
     QList<caf::PdmOptionItemInfo> ensembleFileSetOptions() const;
 
     void updateFileSetNames();

@@ -17,7 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimEnsembleFileSetCollection.h"
+
 #include "RimEnsembleFileSet.h"
+#include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -75,6 +77,22 @@ void RimEnsembleFileSetCollection::deleteFileSetIfPossible( RimEnsembleFileSet* 
             delete fileSet;
 
             updateConnectedEditors();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFileSetCollection::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
+{
+    for ( auto fileSet : fileSets() )
+    {
+        auto pattern        = fileSet->pathPattern();
+        auto updatedPattern = RimTools::relocatePathPattern( pattern, newProjectPath, oldProjectPath );
+        if ( updatedPattern != pattern )
+        {
+            fileSet->setPathPattern( updatedPattern );
         }
     }
 }
