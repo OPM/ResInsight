@@ -566,14 +566,17 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
     QFileInfo fileInfoOld( oldProjectFileName );
     QString   oldProjectPath = fileInfoOld.path();
 
-    std::vector<caf::FilePath*> filePaths = allFilePaths();
-    for ( caf::FilePath* filePath : filePaths )
+    if ( newProjectPath == oldProjectPath ) return;
+
+    for ( caf::FilePath* filePath : allFilePaths() )
     {
         QString filePathCandidate = filePath->path();
 
         QString newFilePath = RimTools::relocateFile( filePathCandidate, newProjectPath, oldProjectPath );
         filePath->setPath( newFilePath );
     }
+
+    if ( ensembleFileSetCollection() ) ensembleFileSetCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
 
     auto* wellPathColl = RimTools::wellPathCollection();
     if ( wellPathColl )

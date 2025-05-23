@@ -149,6 +149,14 @@ void RimEnsembleFileSet::findAndSetPathPatternAndRangeString( const QStringList&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimEnsembleFileSet::pathPattern() const
+{
+    return m_pathPattern;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleFileSet::setNameTemplate( const QString& name )
 {
     m_nameTemplateString = name;

@@ -45,6 +45,9 @@ public:
     QStringList createPaths( const QString& extension ) const;
     void        findAndSetPathPatternAndRangeString( const QStringList& filePaths );
 
+    QString pathPattern() const;
+    void    setPathPattern( const QString& pathPattern );
+
     void                                setNameTemplate( const QString& name );
     void                                updateName( const std::set<QString>& existingEnsembleNames );
     void                                setUsePathKey1( bool useKey1 );
@@ -61,7 +64,6 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
-    void setPathPattern( const QString& pathPattern );
     void setRangeString( const QString& rangeString );
 
     QString ensembleInfo() const;
