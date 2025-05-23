@@ -83,14 +83,8 @@ QString RimTools::getCacheRootDirectoryPathFromProject()
 ///  such that the common start of oldProjectPath and m_gridFileName is removed from m_gridFileName
 ///  and replaced with the start of newProjectPath up to where newProjectPath starts to be equal to oldProjectPath
 //--------------------------------------------------------------------------------------------------
-QString RimTools::relocateFile( const QString&        originalFileName,
-                                const QString&        currentProjectPath,
-                                const QString&        previousProjectPath,
-                                bool*                 foundFile,
-                                std::vector<QString>* searchedPaths )
+QString RimTools::relocateFile( const QString& originalFileName, const QString& currentProjectPath, const QString& previousProjectPath )
 {
-    if ( foundFile ) *foundFile = true;
-
     // Make sure we have a Qt formatted path ( using "/" not "\")
     QString fileName       = QDir::fromNativeSeparators( originalFileName );
     QString newProjectPath = QDir::fromNativeSeparators( currentProjectPath );
@@ -115,7 +109,6 @@ QString RimTools::relocateFile( const QString&        originalFileName,
         fileName.replace( QString( "\\" ), QString( "/" ) );
     }
 
-    if ( searchedPaths ) searchedPaths->push_back( fileName );
     if ( caf::Utils::fileExists( fileName ) )
     {
         return fileName;
@@ -125,7 +118,6 @@ QString RimTools::relocateFile( const QString&        originalFileName,
     {
         QString fileNameWithoutPath = QFileInfo( fileName ).fileName();
         QString candidate           = QDir::fromNativeSeparators( newProjectPath + QDir::separator() + fileNameWithoutPath );
-        if ( searchedPaths ) searchedPaths->push_back( candidate );
 
         if ( caf::Utils::fileExists( candidate ) )
         {
@@ -223,8 +215,6 @@ QString RimTools::relocateFile( const QString&        originalFileName,
 
             QString relocatedFileName = relocationPath + fileNameWithoutPath;
 
-            if ( searchedPaths ) searchedPaths->push_back( relocatedFileName );
-
             if ( caf::Utils::fileExists( relocatedFileName ) )
             {
                 return relocatedFileName;
@@ -237,10 +227,41 @@ QString RimTools::relocateFile( const QString&        originalFileName,
         }
     }
 
-    // return the unchanged filename, if we could not find a valid relocation file
-    if ( foundFile ) *foundFile = false;
-
     return fileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimTools::relocatePathPattern( const QString& originalPattern, const QString& currentProjectPath, const QString& previousProjectPath )
+{
+    auto previousProjectPathStd = previousProjectPath.toStdString();
+    auto currentProjectPathStd  = currentProjectPath.toStdString();
+
+    auto originalPatternStd = originalPattern.toStdString();
+
+    size_t equalIndex = 0;
+    for ( size_t i = 0; i < std::min( previousProjectPathStd.size(), originalPatternStd.size() ); ++i )
+    {
+        if ( originalPatternStd[i] != previousProjectPathStd[i] )
+        {
+            equalIndex = i;
+            break;
+        }
+    }
+
+    if ( equalIndex > 0 )
+    {
+        auto theRest = previousProjectPathStd.substr( equalIndex );
+
+        // remove theRest from the back of newProjectPath
+        auto newProjectPathWithoutTheRest = currentProjectPathStd.substr( 0, currentProjectPathStd.size() - theRest.size() );
+        auto newPattern                   = newProjectPathWithoutTheRest + originalPatternStd.substr( equalIndex );
+
+        return QString::fromStdString( newPattern );
+    }
+
+    return originalPattern;
 }
 
 //--------------------------------------------------------------------------------------------------

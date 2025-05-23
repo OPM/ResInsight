@@ -52,11 +52,8 @@ class RimTools
 public:
     static QString getCacheRootDirectoryPathFromProject();
 
-    static QString relocateFile( const QString&        originalFileName,
-                                 const QString&        currentProjectPath,
-                                 const QString&        previousProjectPath,
-                                 bool*                 foundFile,
-                                 std::vector<QString>* searchedPaths );
+    static QString relocateFile( const QString& originalFileName, const QString& currentProjectPath, const QString& previousProjectPath );
+    static QString relocatePathPattern( const QString& originalPattern, const QString& currentProjectPath, const QString& previousProjectPath );
 
     static void wellPathOptionItemsSubset( const std::vector<RimWellPath*>& wellPathsToExclude, QList<caf::PdmOptionItemInfo>* options );
     static void wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options );
