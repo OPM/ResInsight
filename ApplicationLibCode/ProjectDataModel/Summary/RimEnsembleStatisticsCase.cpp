@@ -149,8 +149,6 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     // The last time step for the individual realizations in an ensemble is usually identical. Add a small threshold to improve robustness.
     const auto timeThreshold = RiaSummaryTools::calculateTimeThreshold( minTime, maxTime );
 
-    RiaDefines::DateTimePeriod period = findBestResamplingPeriod( minTime, maxTime );
-
     RiaTimeHistoryCurveMerger curveMerger;
     for ( const auto& sumCase : summaryCases )
     {
@@ -164,9 +162,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 
             if ( !includeIncompleteCurves && ( timeSteps.back() < timeThreshold ) ) continue;
 
-            const auto [resampledTimeSteps, resampledValues] =
-                RiaSummaryTools::resampledValuesForPeriod( inputAddress, timeSteps, values, period );
-            curveMerger.addCurveData( resampledTimeSteps, resampledValues );
+            curveMerger.addCurveData( timeSteps, values );
         }
     }
 
@@ -179,6 +175,11 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     }
 
     m_timeSteps = curveMerger.allXValues();
+
+    m_p10Data.reserve( m_timeSteps.size() );
+    m_p50Data.reserve( m_timeSteps.size() );
+    m_p90Data.reserve( m_timeSteps.size() );
+    m_meanData.reserve( m_timeSteps.size() );
 
     for ( size_t timeStepIndex = 0; timeStepIndex < m_timeSteps.size(); timeStepIndex++ )
     {
