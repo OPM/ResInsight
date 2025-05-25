@@ -222,6 +222,14 @@ jobs:
           ls cmakebuild/${{ matrix.config.ri-unit-test-path }}
           cmakebuild/${{ matrix.config.ri-unit-test-path }}
 
+      - name: (Python) Build Python module
+        if: matrix.config.build-python-module
+        shell: bash
+        run: |
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install build wheel
+          cd GrpcInterface/Python
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m build
+
       - name: (Python) Check types using mypy
         if: matrix.config.build-python-module
         shell: bash
@@ -235,9 +243,7 @@ jobs:
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight
         run: |
-          cd GrpcInterface/Python
-          python setup.py sdist          
-          cd rips
+          cd GrpcInterface/Python/rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
 
       - name: Upload python distribution folder
