@@ -74,10 +74,6 @@ jobs:
         with:
           submodules: true
 
-      - uses: TAServers/vcpkg-cache@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
