@@ -22,3 +22,6 @@
 [submodule "ThirdParty/qtadvanceddocking"]
 	path = ThirdParty/qtadvanceddocking
 	url = https://github.com/CeetronSolutions/qtadvanceddocking.git
+[submodule "ThirdParty/custom-surfio/surfio"]
+	path = ThirdParty/custom-surfio/surfio
+	url = https://github.com/CeetronSolutions/surfio.git
