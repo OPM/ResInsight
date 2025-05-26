@@ -217,7 +217,10 @@ void RimEnsembleCurveFilterCollection::defineEditorAttribute( const caf::PdmFiel
 void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 {
     for ( auto& filter : m_filters )
+    {
+        if ( !filter->isActive() ) continue;
         filter->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
