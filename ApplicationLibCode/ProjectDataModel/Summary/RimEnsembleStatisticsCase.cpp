@@ -20,6 +20,7 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaHashTools.h"
+#include "RiaLogging.h"
 #include "RiaTimeHistoryCurveResampler.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -134,6 +135,13 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     auto hash = RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves );
     if ( hash == m_hash ) return;
 
+    bool showDebugTiming = true;
+    if ( showDebugTiming )
+    {
+        QString timingText = "RimEnsembleStatisticsCase::calculate" + QString::fromStdString( inputAddress.toEclipseTextAddress() );
+        RiaLogging::resetTimer( timingText );
+    }
+
     m_hash = hash;
 
     clearData();
@@ -196,6 +204,11 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         m_p50Data.push_back( p50 );
         m_p90Data.push_back( p90 );
         m_meanData.push_back( mean );
+    }
+
+    if ( showDebugTiming )
+    {
+        RiaLogging::logTimeElapsed( "" );
     }
 }
 
