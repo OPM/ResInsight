@@ -32,6 +32,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 
 #include <QFileInfo>
+
 #include <memory>
 
 CAF_PDM_SOURCE_INIT( RimFileSurface, "Surface", "FileSurface" );
@@ -119,13 +120,12 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 bool RimFileSurface::updateSurfaceData()
 {
     bool result = true;
-    if ( m_vertices.empty() )
+    if ( m_triangleMeshData->geometry().first.empty() )
     {
         result = loadDataFromFile();
     }
 
-    std::vector<cvf::Vec3d> vertices{ m_vertices };
-    std::vector<unsigned>   tringleIndices{ m_tringleIndices };
+    auto [vertices, tringleIndices] = m_triangleMeshData->geometry();
 
     auto surface = new RigSurface;
     if ( !vertices.empty() && !tringleIndices.empty() )
@@ -155,8 +155,7 @@ bool RimFileSurface::updateSurfaceData()
 //--------------------------------------------------------------------------------------------------
 void RimFileSurface::clearCachedNativeData()
 {
-    m_vertices.clear();
-    m_tringleIndices.clear();
+    m_triangleMeshData.reset();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,35 +163,28 @@ void RimFileSurface::clearCachedNativeData()
 //--------------------------------------------------------------------------------------------------
 bool RimFileSurface::loadDataFromFile()
 {
-    std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> surface;
+    m_triangleMeshData = std::make_unique<RigTriangleMeshData>();
 
     QString filePath = surfaceFilePath();
     if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
     {
-        surface = RifSurfaceImporter::readPetrelFile( filePath );
+        auto surface = RifSurfaceImporter::readPetrelFile( filePath );
+        m_triangleMeshData->setGeometryData( surface.first, surface.second );
     }
     else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
     {
-        m_triangleMeshData = std::make_unique<RigTriangleMeshData>();
-
         RifSurfaceImporter::readGocadFile( filePath, m_triangleMeshData.get() );
-
-        surface = m_triangleMeshData->geometry();
     }
     else if ( filePath.endsWith( "vtu", Qt::CaseInsensitive ) )
     {
         m_triangleMeshData = RifVtkSurfaceImporter::importFromFile( filePath.toStdString() );
-
-        surface = m_triangleMeshData->geometry();
     }
     else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) || filePath.endsWith( "xyz", Qt::CaseInsensitive ) )
     {
         double resamplingDistance = RiaPreferences::current()->surfaceImportResamplingDistance();
-        surface                   = RifSurfaceImporter::readOpenWorksXyzFile( filePath, resamplingDistance );
+        auto   surface            = RifSurfaceImporter::readOpenWorksXyzFile( filePath, resamplingDistance );
+        m_triangleMeshData->setGeometryData( surface.first, surface.second );
     }
 
-    m_vertices       = surface.first;
-    m_tringleIndices = surface.second;
-
-    return !( m_vertices.empty() || m_tringleIndices.empty() );
+    return !( m_triangleMeshData->geometry().first.empty() );
 }
