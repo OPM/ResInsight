@@ -17,11 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifSurfio.h"
+#include "RifFileTools.h"
 
 #include "irap_import.h"
 
-#include <algorithm>
-#include <filesystem>
 #include <fstream>
 
 //--------------------------------------------------------------------------------------------------
@@ -33,20 +32,17 @@
 //--------------------------------------------------------------------------------------------------
 std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string> RifSurfio::importSurfaceData( const std::string& filename )
 {
-    namespace fs = std::filesystem;
-
-    // Check if file exists and is a regular file
-    if ( !fs::exists( filename ) || !fs::is_regular_file( filename ) )
+    auto extension = RifFileTools::extensionLowerCase( filename );
+    if ( extension != ".irap" && extension != ".gri" )
     {
-        return std::unexpected( "File does not exist or is not a regular file: " + filename );
+        return std::unexpected( "File is not a valid IRAP or GRI file: " + filename );
     }
 
     // Check file permissions (best effort, may not be reliable on all platforms)
-    fs::perms p = fs::status( filename ).permissions();
-    if ( ( p & fs::perms::owner_read ) == fs::perms::none && ( p & fs::perms::group_read ) == fs::perms::none &&
-         ( p & fs::perms::others_read ) == fs::perms::none )
+    auto isFileReadable = RifFileTools::isFileReadable( filename );
+    if ( !isFileReadable.has_value() )
     {
-        return std::unexpected( "File is not readable (permission denied): " + filename );
+        return std::unexpected( isFileReadable.error() );
     }
 
     // Try to open the file to confirm readability
@@ -54,13 +50,6 @@ std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string>
     if ( !file.is_open() )
     {
         return std::unexpected( "Could not open file: " + filename );
-    }
-
-    std::string extension = fs::path( filename ).extension().string();
-    std::transform( extension.begin(), extension.end(), extension.begin(), ::tolower );
-    if ( extension != ".irap" && extension != ".gri" )
-    {
-        return std::unexpected( "File is not a valid IRAP or GRI file: " + filename );
     }
 
     auto convertToRegularSurface =
