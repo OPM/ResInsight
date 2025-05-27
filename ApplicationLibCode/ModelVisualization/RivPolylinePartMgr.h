@@ -34,6 +34,7 @@ class Part;
 class ModelBasicList;
 class Transform;
 class Font;
+class Camera;
 } // namespace cvf
 
 namespace caf
@@ -57,7 +58,7 @@ public:
 
 private:
     bool isPolylinesInBoundingBox( std::vector<std::vector<cvf::Vec3d>> polyline, const cvf::BoundingBox& boundingBox );
-    void buildPolylineParts( const caf::DisplayCoordTransform* displayXf, const cvf::BoundingBox& boundingBox );
+    void buildPolylineParts( const cvf::Camera* camera, const caf::DisplayCoordTransform* displayXf, const cvf::BoundingBox& boundingBox );
 
     std::vector<std::vector<cvf::Vec3d>> getPolylinesPointsInDomain( RigPolyLinesData* lineDef );
     std::vector<std::vector<cvf::Vec3d>> transformPolylinesPointsToDisplay( const std::vector<std::vector<cvf::Vec3d>>& pointsInDomain,
@@ -72,4 +73,5 @@ private:
     caf::PdmPointer<Rim3dView> m_rimView;
     cvf::ref<cvf::Part>        m_linePart;
     cvf::ref<cvf::Part>        m_spherePart;
+    cvf::ref<cvf::Part>        m_labelPart;
 };

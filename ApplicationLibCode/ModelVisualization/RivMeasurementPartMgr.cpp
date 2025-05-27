@@ -182,47 +182,14 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera* camera, const
         {
             negativeXDir = true;
         }
+        QString text          = m_measurement->label();
+        auto    labelPosition = pointsInDisplay.back();
 
-        RiaGuiApplication* app = RiaGuiApplication::instance();
-
-        auto    backgroundColor = RiaPreferences::current()->defaultViewerBackgroundColor;
-        auto    fontColor       = RiuGuiTheme::getColorByVariableName( "textColor" );
-        QString text            = m_measurement->label();
-        auto    labelPosition   = pointsInDisplay.back();
-        auto    font            = app->defaultWellLabelFont();
-
-        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont( font );
-        drawableText->setCheckPosVisible( false );
-        drawableText->setDrawBorder( true );
-        drawableText->setDrawBackground( true );
-        drawableText->setVerticalAlignment( cvf::TextDrawer::BASELINE );
-        drawableText->setBackgroundColor( backgroundColor );
-        drawableText->setBorderColor( RiaColorTools::computeOffsetColor( backgroundColor, 0.3f ) );
-        drawableText->setTextColor( RiaColorTools::fromQColorTo3f( fontColor ) );
-
-        cvf::String cvfString = cvfqt::Utils::toString( text );
-
-        cvf::Vec3d windowLabelPosition;
-        camera->project( labelPosition, &windowLabelPosition );
-
-        cvf::BoundingBox oneCharBB = drawableText->textBoundingBox( cvf::String( "A" ), cvf::Vec3f( labelPosition ) );
-        if ( negativeXDir )
-        {
-            cvf::BoundingBox textBB = drawableText->textBoundingBox( cvfString, cvf::Vec3f( labelPosition ) );
-            windowLabelPosition.x() -= textBB.extent().x() + oneCharBB.extent().x();
-        }
-        else
-        {
-            windowLabelPosition.x() += oneCharBB.extent().x();
-        }
-        camera->unproject( windowLabelPosition, &labelPosition );
-
-        cvf::Vec3f textCoord( labelPosition );
-        drawableText->addText( cvfString, textCoord );
+        auto drawableText = RivPolylineGenerator::createOrientedLabel( negativeXDir, camera, labelPosition, text );
 
         cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName( "RivMeasurementPartMgr: " + cvfString );
+
+        part->setName( "RivMeasurementPartMgr: " );
         part->setDrawable( drawableText.p() );
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect();

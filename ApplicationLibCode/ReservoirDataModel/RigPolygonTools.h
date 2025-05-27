@@ -20,6 +20,8 @@
 
 #include "cvfVector3.h"
 
+#include <QString>
+
 #include <vector>
 
 namespace RigPolygonTools
@@ -39,4 +41,5 @@ double                           area( const std::vector<Point>& polygon );
 // Recursive function modifying the incoming vertices
 void simplifyPolygon( std::vector<cvf::Vec3d>& vertices, double epsilon );
 
+QString geometryDataAsText( const std::vector<cvf::Vec3d>& vertices, bool includeLastSegmentInfo );
 } // namespace RigPolygonTools

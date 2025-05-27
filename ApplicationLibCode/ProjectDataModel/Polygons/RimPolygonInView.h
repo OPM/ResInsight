@@ -74,6 +74,8 @@ public:
 
     void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
+    QString label() const override;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -99,6 +101,8 @@ private:
     caf::PdmField<bool>                         m_enablePicking;
     caf::PdmField<double>                       m_handleScalingFactor;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+
+    caf::PdmField<bool> m_showLabel;
 
     cvf::ref<RivPolylinePartMgr>                        m_polylinePartMgr;
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;

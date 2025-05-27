@@ -18,9 +18,18 @@
 
 #include "RivPolylineGenerator.h"
 
+#include "RiaColorTools.h"
+#include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
+
+#include "RiuGuiTheme.h"
+
+#include "cvfCamera.h"
 #include "cvfDrawableGeo.h"
+#include "cvfDrawableText.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
+#include "cvfqtUtils.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -161,4 +170,55 @@ cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createSetOfLines( const std::ve
     polylineGeo->addPrimitiveSet( prim.p() );
 
     return polylineGeo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableText> RivPolylineGenerator::createOrientedLabel( bool               negativeXDirection,
+                                                                       const cvf::Camera* camera,
+                                                                       const cvf::Vec3d&  labelPosition,
+                                                                       const QString&     labelText )
+{
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+
+    auto backgroundColor = RiaPreferences::current()->defaultViewerBackgroundColor;
+    auto fontColor       = RiuGuiTheme::getColorByVariableName( "textColor" );
+    auto font            = app->defaultWellLabelFont();
+
+    cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
+    drawableText->setFont( font );
+    drawableText->setCheckPosVisible( false );
+    drawableText->setDrawBorder( true );
+    drawableText->setDrawBackground( true );
+    drawableText->setVerticalAlignment( cvf::TextDrawer::BASELINE );
+    drawableText->setBackgroundColor( backgroundColor );
+    drawableText->setBorderColor( RiaColorTools::computeOffsetColor( backgroundColor, 0.3f ) );
+    drawableText->setTextColor( RiaColorTools::fromQColorTo3f( fontColor ) );
+
+    cvf::String cvfString = cvfqt::Utils::toString( labelText );
+
+    cvf::Vec3d finalPosition = labelPosition;
+    if ( camera )
+    {
+        cvf::Vec3d windowLabelPosition;
+        camera->project( labelPosition, &windowLabelPosition );
+
+        auto oneCharBB = drawableText->textBoundingBox( cvf::String( "A" ), cvf::Vec3f( labelPosition ) );
+        if ( negativeXDirection )
+        {
+            auto textBB = drawableText->textBoundingBox( cvfString, cvf::Vec3f( labelPosition ) );
+            windowLabelPosition.x() -= textBB.extent().x() + oneCharBB.extent().x();
+        }
+        else
+        {
+            windowLabelPosition.x() += oneCharBB.extent().x();
+        }
+
+        camera->unproject( windowLabelPosition, &finalPosition );
+    }
+
+    drawableText->addText( cvfString, cvf::Vec3f( finalPosition ) );
+
+    return drawableText;
 }

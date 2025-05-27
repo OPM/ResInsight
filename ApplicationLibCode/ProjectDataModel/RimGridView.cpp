@@ -425,6 +425,8 @@ void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTr
     }
 
     nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
+
+    m_polygonVizModel->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------
