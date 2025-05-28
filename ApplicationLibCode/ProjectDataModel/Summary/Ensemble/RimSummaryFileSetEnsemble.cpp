@@ -184,7 +184,6 @@ void RimSummaryFileSetEnsemble::initAfterRead()
     RimSummaryEnsemble::initAfterRead();
 
     connectSignals();
-    createSummaryCasesFromEnsembleFileSet();
 }
 
 //--------------------------------------------------------------------------------------------------
