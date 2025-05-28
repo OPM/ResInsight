@@ -18,7 +18,7 @@
 
 #include "RifFileTools.h"
 
-//#include <algorithm>
+#include <algorithm>
 #include <filesystem>
 
 namespace RifFileTools
