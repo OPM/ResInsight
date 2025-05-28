@@ -39,13 +39,16 @@
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRftPlotCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimWellRftPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
 #include "cafProgressInfo.h"
@@ -543,6 +546,13 @@ void RimSummaryCaseMainCollection::onCaseNameChanged( const SignalEmitter* emitt
 
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     summaryPlotColl->updateSummaryNameHasChanged();
+
+    // Update RFT plots, as they may depend on the summary case ensemble names
+    auto rftPlotColl = RimMainPlotCollection::current()->rftPlotCollection();
+    for ( auto plot : rftPlotColl->rftPlots() )
+    {
+        plot->loadDataAndUpdate();
+    }
 
     updateConnectedEditors();
 }
