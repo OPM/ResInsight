@@ -120,10 +120,12 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 bool RimFileSurface::updateSurfaceData()
 {
     bool result = true;
-    if ( m_triangleMeshData->geometry().first.empty() )
+    if ( !m_triangleMeshData || m_triangleMeshData->geometry().first.empty() )
     {
         result = loadDataFromFile();
     }
+
+    if ( !m_triangleMeshData ) return false;
 
     auto [vertices, tringleIndices] = m_triangleMeshData->geometry();
 
