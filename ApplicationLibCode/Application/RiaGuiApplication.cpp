@@ -1173,7 +1173,7 @@ void RiaGuiApplication::invokeProcessEvents( QEventLoop::ProcessEventsFlags flag
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onFileSuccessfullyLoaded( const QString& fileName, RiaDefines::ImportFileType fileType )
 {
-    if ( uint( fileType ) & uint( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
+    if ( RiaDefines::isEclipseFileType( fileType ) )
     {
         if ( fileType == RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE )
         {

@@ -19,6 +19,7 @@
 
 #include "RicReplaceCaseFeature.h"
 
+#include "RiaDefines.h"
 #include "RiaEclipseFileNameTools.h"
 #include "RiaGuiApplication.h"
 #include "Summary/RiaSummaryTools.h"

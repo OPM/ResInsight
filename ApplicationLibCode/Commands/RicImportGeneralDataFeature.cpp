@@ -74,24 +74,24 @@ RicImportGeneralDataFeature::OpenCaseResults RicImportGeneralDataFeature::openEc
 
     for ( const QString& fileName : fileNames )
     {
-        int fileTypeAsInt = int( obtainFileTypeFromFileName( fileName ) );
-        if ( fileTypeAsInt & ( int( ImportFileType::ECLIPSE_GRID_FILE ) | int( ImportFileType::ECLIPSE_EGRID_FILE ) ) )
+        RiaDefines::ImportFileType fileType = obtainFileTypeFromFileName( fileName );
+        if ( RiaDefines::isEclipseResultFileType( fileType ) )
         {
             eclipseCaseFiles.push_back( fileName );
         }
-        else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_INPUT_FILE ) )
+        else if ( fileType == ImportFileType::ECLIPSE_INPUT_FILE )
         {
             eclipseInputFiles.push_back( fileName );
         }
-        else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
+        else if ( fileType == ImportFileType::ECLIPSE_SUMMARY_FILE )
         {
             eclipseSummaryFiles.push_back( fileName );
         }
-        else if ( fileTypeAsInt & int( ImportFileType::ROFF_FILE ) )
+        else if ( fileType == ImportFileType::ROFF_FILE )
         {
             roffFiles.push_back( fileName );
         }
-        else if ( fileTypeAsInt & int( ImportFileType::EM_H5GRID ) )
+        else if ( fileType == ImportFileType::EM_H5GRID )
         {
             emFiles.push_back( fileName );
         }
@@ -268,24 +268,23 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
         filePatternTexts += getFilePattern( ImportFileType::ANY_ECLIPSE_FILE );
     }
 
-    int fileTypeAsInt = int( fileType );
-    if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_EGRID_FILE ) )
+    if ( fileType == ImportFileType::ECLIPSE_EGRID_FILE )
     {
         filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_EGRID_FILE );
     }
-    if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_GRID_FILE ) )
+    if ( fileType == ImportFileType::ECLIPSE_GRID_FILE )
     {
         filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_GRID_FILE );
     }
-    if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_INPUT_FILE ) )
+    if ( fileType == ImportFileType::ECLIPSE_INPUT_FILE )
     {
         filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_INPUT_FILE );
     }
-    if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
+    if ( fileType == ImportFileType::ECLIPSE_SUMMARY_FILE )
     {
         filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_SUMMARY_FILE );
     }
-    if ( fileTypeAsInt & int( ImportFileType::ROFF_FILE ) )
+    if ( fileType == ImportFileType::ROFF_FILE )
     {
         filePatternTexts += getFilePattern( ImportFileType::ROFF_FILE );
     }

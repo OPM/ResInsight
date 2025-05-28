@@ -267,6 +267,30 @@ RiaDefines::EclipseUnitSystem RiaDefines::fromDepthUnit( DepthUnitType depthUnit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaDefines::isGeoMechFileType( ImportFileType fileType )
+{
+    return BitmaskEnum<ImportFileType>( fileType ).AnyOf( ImportFileType::ANY_GEOMECH_FILE );
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDefines::isEclipseResultFileType( ImportFileType fileType )
+{
+    return BitmaskEnum<ImportFileType>( fileType ).AnyOf( ImportFileType::ECLIPSE_RESULT_GRID );
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDefines::isEclipseFileType( ImportFileType fileType )
+{
+    return BitmaskEnum<ImportFileType>( fileType ).AnyOf( ImportFileType::ANY_ECLIPSE_FILE );
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString& fileName )
 {
     if ( fileName.endsWith( "h5grid", Qt::CaseInsensitive ) )
@@ -320,28 +344,25 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
 QString RiaDefines::defaultDirectoryLabel( RiaDefines::ImportFileType fileType )
 {
     QString defaultDirLabel;
-
-    int fileTypeAsInt = int( fileType );
-
-    if ( fileType == ImportFileType::ANY_ECLIPSE_FILE )
+    if ( RiaDefines::isEclipseFileType( fileType ) )
     {
         defaultDirLabel = "GENERAL_DATA";
     }
-    else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_RESULT_GRID ) )
+    else if ( RiaDefines::isEclipseResultFileType( fileType ) )
     {
         defaultDirLabel = "BINARY_GRID";
     }
-    else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_INPUT_FILE ) )
+    else if ( fileType == ImportFileType::ECLIPSE_INPUT_FILE )
     {
         defaultDirLabel = "INPUT_FILES";
     }
-    else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
+    else if ( fileType == ImportFileType::ECLIPSE_SUMMARY_FILE )
     {
         // TODO: Summary files used "INPUT_FILES" as last used directory.
         // Check if this is correct.
         defaultDirLabel = "INPUT_FILES";
     }
-    else if ( fileTypeAsInt & int( ImportFileType::GEOMECH_ODB_FILE ) )
+    else if ( fileType == ImportFileType::GEOMECH_ODB_FILE )
     {
         defaultDirLabel = "GEOMECH_MODEL";
     }
