@@ -469,7 +469,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 {
     // First Close the current project
 
-    caf::ProgressInfo progress( 10, "Loading Project File" );
+    caf::ProgressInfo progress( 7, "Loading Project File" );
     progress.setProgressDescription( "Reading Project Structure from File" );
 
     closeProject();
