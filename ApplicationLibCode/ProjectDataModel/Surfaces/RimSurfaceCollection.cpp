@@ -30,6 +30,7 @@
 #include "RimGridCaseSurface.h"
 #include "RimGridView.h"
 #include "RimProject.h"
+#include "RimRegularFileSurface.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSurface.h"
@@ -144,12 +145,21 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
     {
         RimSurface* newSurface = nullptr;
 
-        if ( newFileName.endsWith( ".pvd" ) )
+        auto extension = QFileInfo( newFileName ).suffix().toLower();
+
+        if ( extension == "pvd" )
         {
             RimFractureSurface* fractureSurface = new RimFractureSurface;
             fractureSurface->setSurfaceFilePath( newFileName );
 
             newSurface = fractureSurface;
+        }
+        else if ( extension == "irap" || extension == "gri" )
+        {
+            auto regularFileSurface = new RimRegularFileSurface;
+            regularFileSurface->setFilePath( newFileName );
+
+            newSurface = regularFileSurface;
         }
         else
         {

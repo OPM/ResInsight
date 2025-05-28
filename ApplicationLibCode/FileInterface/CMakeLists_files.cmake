@@ -105,6 +105,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifArrowTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderRegularGridModel.h
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkSurfaceImporter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifSurfio.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifFileTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -207,6 +209,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifArrowTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderRegularGridModel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkSurfaceImporter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifSurfio.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifFileTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

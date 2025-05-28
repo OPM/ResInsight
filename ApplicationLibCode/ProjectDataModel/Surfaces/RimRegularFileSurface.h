@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,37 +18,21 @@
 
 #pragma once
 
-#include "RimSurface.h"
+#include "RimRegularSurface.h"
 
-#include <memory>
-
-class RigTriangleMeshData;
-
-class RimFileSurface : public RimSurface
+class RimRegularFileSurface : public RimRegularSurface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFileSurface();
-    ~RimFileSurface() override;
+    RimRegularFileSurface();
+    void setFilePath( const QString& filePath );
 
-    void    setSurfaceFilePath( const QString& filePath );
-    QString surfaceFilePath();
-
-    bool        onLoadData() override;
-    RimSurface* createCopy() override;
-
-protected:
-    bool updateSurfaceData() override;
-    void clearCachedNativeData() override;
+    bool onLoadData() override;
 
 private:
-    bool loadDataFromFile();
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
-
-    std::unique_ptr<RigTriangleMeshData> m_triangleMeshData;
+    caf::PdmField<caf::FilePath> m_surfaceFilePath;
 };
