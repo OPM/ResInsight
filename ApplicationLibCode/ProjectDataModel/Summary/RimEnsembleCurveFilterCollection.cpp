@@ -218,8 +218,10 @@ void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 {
     for ( auto& filter : m_filters )
     {
-        if ( !filter->isActive() ) continue;
-        filter->loadDataAndUpdate();
+        if ( filter->isActive() )
+        {
+            filter->loadDataAndUpdate();
+        }
     }
 }
 
