@@ -19,6 +19,8 @@
 #include "RimCalculatedSummaryCurveReader.h"
 
 #include "RifEclipseSummaryAddress.h"
+
+#include "RimProject.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimUserDefinedCalculation.h"
@@ -26,9 +28,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalculationCollection* calculationCollection,
-                                                                  RimSummaryCase*                  summaryCase )
-    : m_calculationCollection( calculationCollection )
+RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCase* summaryCase )
+    : m_calculationCollection( RimProject::current()->calculationCollection() )
     , m_summaryCase( summaryCase )
 {
     CAF_ASSERT( summaryCase );
@@ -84,6 +85,8 @@ std::string RifCalculatedSummaryCurveReader::unitName( const RifEclipseSummaryAd
 void RifCalculatedSummaryCurveReader::buildMetaData()
 {
     m_allResultAddresses.clear();
+
+    if ( !m_calculationCollection || !m_summaryCase ) return;
 
     for ( RimUserDefinedCalculation* calc : m_calculationCollection->calculations() )
     {
