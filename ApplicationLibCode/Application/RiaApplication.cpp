@@ -22,6 +22,7 @@
 #include "Cloud/RiaSumoConnector.h"
 #include "Cloud/RiaSumoDefines.h"
 #include "KeyValueStore/RiaKeyValueStore.h"
+#include "RiaDefines.h"
 #include "RiaOsduDefines.h"
 
 #include "RiaBaseDefs.h"
@@ -377,12 +378,12 @@ bool RiaApplication::openFile( const QString& fileName )
     {
         loadingSucceded = loadProject( fileName );
     }
-    else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_GEOMECH_FILE ) )
+    else if ( RiaDefines::isGeoMechFileType( fileType ) )
     {
         loadingSucceded   = openOdbCaseFromFile( fileName );
         lastUsedDialogTag = "GEOMECH_MODEL";
     }
-    else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
+    else if ( RiaDefines::isEclipseFileType( fileType ) )
     {
         bool createView   = true;
         bool createPlot   = true;
