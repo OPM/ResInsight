@@ -1180,7 +1180,7 @@ void RiaGuiApplication::onFileSuccessfullyLoaded( const QString& fileName, RiaDe
             auto plotWindow = getOrCreateAndShowMainPlotWindow();
             plotWindow->raise();
         }
-        else if ( fileType != RiaDefines::ImportFileType::RESINSIGHT_PROJECT_FILE )
+        else
         {
             auto mainWindow = getOrCreateAndShowMainWindow();
             mainWindow->raise();
