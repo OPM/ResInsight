@@ -97,9 +97,20 @@ QStringList RimEnsembleFileSet::createPaths( const QString& extension ) const
     {
         if ( m_realizationNumbersReadFromFiles.isEmpty() )
         {
-            auto paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString() );
-            const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
-            m_realizationNumbersReadFromFiles = range;
+            if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
+            {
+                auto paths =
+                    RiaEnsembleImportTools::createOpmPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString() );
+                const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
+                m_realizationNumbersReadFromFiles = range;
+            }
+            else
+            {
+                auto paths =
+                    RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString() );
+                const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
+                m_realizationNumbersReadFromFiles = range;
+            }
         }
 
         realizationFilter = m_realizationNumbersReadFromFiles;

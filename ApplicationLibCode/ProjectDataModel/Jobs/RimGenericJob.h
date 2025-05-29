@@ -42,7 +42,7 @@ protected:
 
     virtual QString     title()   = 0;
     virtual QStringList command() = 0;
-    virtual QString     workingDirectory();
+    virtual QString     workingDirectory() const;
     virtual bool        onPrepare()                 = 0;
     virtual void        onCompleted( bool success ) = 0;
 };
