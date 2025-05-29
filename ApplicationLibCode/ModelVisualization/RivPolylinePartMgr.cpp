@@ -125,29 +125,35 @@ void RivPolylinePartMgr::buildPolylineParts( const cvf::Camera*                c
     }
 
     auto labelText = m_polylineInterface->label();
-    if ( !labelText.isEmpty() && !polylineDef->completePolyLines().empty() )
+    if ( !labelText.isEmpty() && !polylineDef->completePolyLines().empty() && m_linePart.notNull() )
     {
-        auto pointsInDisplay = linesInDisplay.back();
-
-        bool       negativeXDir = false;
-        cvf::Vec3d lastV        = pointsInDisplay[pointsInDisplay.size() - 1] - pointsInDisplay[pointsInDisplay.size() - 2];
-        if ( lastV.x() < 0.0 )
+        cvf::BoundingBox bb;
+        for ( const auto& lines : linesInDisplay )
         {
-            negativeXDir = true;
+            for ( const auto& point : lines )
+            {
+                bb.add( point );
+            }
         }
 
-        auto labelPosition = pointsInDisplay.back();
-        auto drawableText  = RivPolylineGenerator::createOrientedLabel( negativeXDir, camera, labelPosition, labelText );
+        if ( bb.isValid() )
+        {
+            auto labelPosition = bb.center();
+            labelPosition.z() += 200;
 
-        cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName( "RivPolylinePartMgr::buildPolylineParts" );
-        part->setDrawable( drawableText.p() );
+            bool negativeXDir = false;
+            auto drawableText = RivPolylineGenerator::createOrientedLabel( negativeXDir, camera, labelPosition, labelText );
 
-        cvf::ref<cvf::Effect> eff = new cvf::Effect();
-        part->setEffect( eff.p() );
-        part->setPriority( RivPartPriority::PartType::Text );
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName( "RivPolylinePartMgr::buildPolylineParts" );
+            part->setDrawable( drawableText.p() );
 
-        m_labelPart = part;
+            cvf::ref<cvf::Effect> eff = new cvf::Effect();
+            part->setEffect( eff.p() );
+            part->setPriority( RivPartPriority::PartType::Text );
+
+            m_labelPart = part;
+        }
     }
 
     // Sphere part
