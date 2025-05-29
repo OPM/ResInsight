@@ -25,17 +25,24 @@
 
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
+#include "EclipseCommands/RicCreateGridCaseEnsemblesFromFilesFeature.h"
 #include "JobCommands/RicRunJobFeature.h"
-
 #include "RifOpmFlowDeckFile.h"
 
+#include "Ensemble/RimSummaryFileSetEnsemble.h"
+#include "EnsembleFileSet/RimEnsembleFileSet.h"
+#include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "RimCase.h"
 #include "RimDeckPositionDlg.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimFishbones.h"
+#include "RimOilField.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
+#include "RimSummaryEnsemble.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
@@ -80,13 +87,17 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
+    CAF_PDM_InitFieldNoDefault( &m_gridEnsemble, "GridEnsemble", "Grid Ensemble" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryEnsemble, "SummaryEnsemble", "Summary Ensemble" );
+
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
     CAF_PDM_InitField( &m_addNewWell, "AddNewWell", true, "Add New Well" );
     CAF_PDM_InitField( &m_openWellDeckPosition, "OpenWellDeckPosition", -1, "Open Well at Keyword Index" );
     CAF_PDM_InitField( &m_includeMSWData, "IncludeMswData", false, "Add MSW Data" );
+    CAF_PDM_InitField( &m_addToEnsemble, "AddToEnsemble", false, "Add Runs to Ensemble" );
+    CAF_PDM_InitField( &m_nextRunId, "NextRunId", 0, "Next Run ID" );
 
     CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_BY_POSITION ), "Open Well" );
-
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_wellOpenKeyword.xmlCapability()->disableIO();
@@ -190,8 +201,10 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         }
     }
 
-    uiOrdering.add( &m_pauseBeforeRun );
-    uiOrdering.add( &m_runButton );
+    auto opmGrp = uiOrdering.addNewGroup( "Opm Flow" );
+    opmGrp->add( &m_addToEnsemble );
+    opmGrp->add( &m_pauseBeforeRun );
+    opmGrp->add( &m_runButton );
 
     uiOrdering.skipRemainingFields();
 }
@@ -228,7 +241,7 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_deckFileName )
+    if ( ( changedField == &m_deckFileName ) || ( changedField == &m_addToEnsemble ) )
     {
         m_deckName = "";
     }
@@ -326,9 +339,16 @@ QString RimOpmFlowJob::title()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::workingDirectory()
+QString RimOpmFlowJob::workingDirectory() const
 {
-    return m_workDir().path();
+    if ( !m_addToEnsemble() )
+    {
+        return m_workDir().path();
+    }
+    else
+    {
+        return QString( "%1/run-%2" ).arg( m_workDir().path() ).arg( m_nextRunId() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -338,11 +358,23 @@ QString RimOpmFlowJob::deckName()
 {
     if ( m_deckName.isEmpty() )
     {
-        QFileInfo fi( m_deckFileName().path() );
-        m_deckName = fi.completeBaseName();
+        m_deckName = baseDeckName();
+        if ( m_addToEnsemble() )
+        {
+            m_deckName = m_deckName + "-" + QString::number( m_nextRunId() );
+        }
     }
 
     return m_deckName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::baseDeckName() const
+{
+    QFileInfo fi( m_deckFileName().path() );
+    return fi.completeBaseName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -372,7 +404,7 @@ QString RimOpmFlowJob::wellTempFile( int timeStep, bool includeMSW, bool include
         postfix = postfix + "_MSW";
     }
 
-    return m_workDir().path() + "/ri_new_well" + postfix + deckExtension();
+    return workingDirectory() + "/ri_new_well" + postfix + deckExtension();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -380,7 +412,7 @@ QString RimOpmFlowJob::wellTempFile( int timeStep, bool includeMSW, bool include
 //--------------------------------------------------------------------------------------------------
 QString RimOpmFlowJob::openWellTempFile() const
 {
-    return m_workDir().path() + "/ri_open_well" + deckExtension();
+    return workingDirectory() + "/ri_open_well" + deckExtension();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,7 +422,7 @@ QStringList RimOpmFlowJob::command()
 {
     QStringList cmd;
 
-    QString workDir = m_workDir().path();
+    QString workDir = workingDirectory();
     if ( workDir.isEmpty() ) return cmd;
 
     QString dataFile = workDir + "/" + deckName();
@@ -489,13 +521,13 @@ bool RimOpmFlowJob::onPrepare()
     }
 
     // save DATA file to working folder
-    bool saveOk = m_fileDeck->saveDeck( m_workDir().path().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
+    bool saveOk = m_fileDeck->saveDeck( workingDirectory().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
     m_fileDeck.reset();
 
     if ( m_pauseBeforeRun() )
     {
         QString infoText = "Input parameter files can now be found in the working folder:";
-        infoText += " \"" + m_workDir().path() + "\"\n";
+        infoText += " \"" + workingDirectory() + "\"\n";
         infoText += "\nClick OK to run the Opm Flow simulation.";
 
         auto reply = QMessageBox::information( nullptr, "Opm Flow simulation", infoText, QMessageBox::Ok | QMessageBox::Cancel );
@@ -513,31 +545,70 @@ void RimOpmFlowJob::onCompleted( bool success )
 {
     if ( !success ) return;
 
-    QString outputEgrid = m_workDir().path() + "/" + deckName() + ".EGRID";
-    if ( !QFile::exists( outputEgrid ) )
-    {
-        return;
-    }
+    QString outputEgrid = workingDirectory() + "/" + deckName() + ".EGRID";
+    if ( !QFile::exists( outputEgrid ) ) return;
 
-    if ( auto existingCase = findExistingCase( outputEgrid ) )
+    if ( m_addToEnsemble() )
     {
-        RimReloadCaseTools::reloadEclipseGridAndSummary( existingCase );
-        existingCase->setCustomCaseName( name() );
-        existingCase->updateConnectedEditors();
+        // grid ensemble
+        if ( m_gridEnsemble() == nullptr )
+        {
+            m_gridEnsemble = RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCaseEnsemble( QStringList( outputEgrid ) );
+        }
+        else
+        {
+            auto* rimResultCase = RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCase( outputEgrid );
+            m_gridEnsemble->addCase( rimResultCase );
+
+            for ( auto gridCase : m_gridEnsemble->cases() )
+            {
+                gridCase->updateAutoShortName();
+            }
+
+            RimProject::current()->activeOilField()->analysisModels()->updateConnectedEditors();
+        }
+
+        // summary ensemble
+        if ( m_summaryEnsemble() == nullptr )
+        {
+            QString pattern   = m_workDir().path() + "/run-*/" + baseDeckName() + "-*";
+            auto    fileSet   = RimEnsembleFileSetTools::createEnsembleFileSetFromOpm( pattern, name() );
+            auto    ensembles = RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( { fileSet } );
+            if ( ensembles.size() > 0 )
+            {
+                m_summaryEnsemble = ensembles[0];
+            }
+        }
+        else
+        {
+            m_summaryEnsemble->reloadCases();
+        }
+
+        m_nextRunId = m_nextRunId + 1;
+        m_deckName  = "";
     }
     else
     {
-        QStringList files( outputEgrid );
-
-        RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
-        if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( files, true /*create view*/, &newCaseFiles, false /* dialog */ ) )
+        if ( auto existingCase = findExistingCase( outputEgrid ) )
         {
-            if ( auto newCase = findExistingCase( outputEgrid ) )
+            RimReloadCaseTools::reloadEclipseGridAndSummary( existingCase );
+            existingCase->setCustomCaseName( name() );
+            existingCase->updateConnectedEditors();
+        }
+        else
+        {
+            QStringList files( outputEgrid );
+
+            RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
+            if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( files, true /*create view*/, &newCaseFiles, false /* dialog */ ) )
             {
-                newCase->setCustomCaseName( name() );
-                newCase->updateConnectedEditors();
-                Riu3DMainWindowTools::selectAsCurrentItem( newCase );
-                Riu3DMainWindowTools::setExpanded( newCase, true );
+                if ( auto newCase = findExistingCase( outputEgrid ) )
+                {
+                    newCase->setCustomCaseName( name() );
+                    newCase->updateConnectedEditors();
+                    Riu3DMainWindowTools::selectAsCurrentItem( newCase );
+                    Riu3DMainWindowTools::setExpanded( newCase, true );
+                }
             }
         }
     }
@@ -578,7 +649,7 @@ void RimOpmFlowJob::exportBasicWellSettings()
     exportSettings.includeMsw = false;
     exportSettings.setExportDataSourceAsComment( false );
 
-    exportSettings.folder = m_workDir().path();
+    exportSettings.folder = workingDirectory();
 
     std::vector<RimWellPathFracture*>    wellPathFractures;
     std::vector<RimFishbones*>           wellPathFishbones;
@@ -627,7 +698,7 @@ std::string RimOpmFlowJob::exportMswWellSettings( QDateTime date, int timeStep )
     exportSettings.setExportDataSourceAsComment( false );
     exportSettings.timeStep = timeStep;
 
-    exportSettings.folder = m_workDir().path();
+    exportSettings.folder = workingDirectory();
 
     std::vector<RimWellPathFracture*>    wellPathFractures;
     std::vector<RimFishbones*>           wellPathFishbones;

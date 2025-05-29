@@ -120,18 +120,8 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
     {
         auto task = progInfo.task( "Loading files", 1 );
 
-        QFileInfo gridFileName( caseFileName );
-
-        QString caseName = gridFileName.completeBaseName();
-
-        auto* rimResultCase = new RimEclipseResultCase();
-        rimResultCase->setDisplayNameType( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
-        rimResultCase->setCaseInfo( caseName, caseFileName );
+        auto* rimResultCase = importSingleGridCase( caseFileName );
         eclipseCaseEnsemble->addCase( rimResultCase );
-
-        auto               folderNames = RimFormationTools::formationFoldersFromCaseFileName( caseFileName );
-        RimFormationNames* formations  = RimFormationTools::loadFormationNamesFromFolder( folderNames );
-        if ( formations != nullptr ) rimResultCase->setFormationNames( formations );
     }
 
     for ( auto gridCase : eclipseCaseEnsemble->cases() )
@@ -143,6 +133,26 @@ RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingle
     oilfield->analysisModels()->updateConnectedEditors();
 
     return eclipseCaseEnsemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCase( const QString& fileName )
+{
+    QFileInfo gridFileName( fileName );
+
+    QString caseName = gridFileName.completeBaseName();
+
+    auto* rimResultCase = new RimEclipseResultCase();
+    rimResultCase->setDisplayNameType( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
+    rimResultCase->setCaseInfo( caseName, fileName );
+
+    auto               folderNames = RimFormationTools::formationFoldersFromCaseFileName( fileName );
+    RimFormationNames* formations  = RimFormationTools::loadFormationNamesFromFolder( folderNames );
+    if ( formations != nullptr ) rimResultCase->setFormationNames( formations );
+
+    return rimResultCase;
 }
 
 //--------------------------------------------------------------------------------------------------

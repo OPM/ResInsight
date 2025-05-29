@@ -34,6 +34,8 @@ namespace RimEnsembleFileSetTools
 std::vector<RimSummaryEnsemble*> createSummaryEnsemblesFromFileSets( const std::vector<RimEnsembleFileSet*> fileSets );
 std::vector<RimEnsembleFileSet*> createEnsembleFileSets( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
 
+RimEnsembleFileSet* createEnsembleFileSetFromOpm( const QString& pathPattern, const QString& name );
+
 QList<caf::PdmOptionItemInfo> ensembleFileSetOptions();
 
 }; // namespace RimEnsembleFileSetTools

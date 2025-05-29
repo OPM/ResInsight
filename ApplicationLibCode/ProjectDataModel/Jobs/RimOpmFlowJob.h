@@ -27,6 +27,8 @@
 class RimEclipseCase;
 class RimWellPath;
 class RifOpmFlowDeckFile;
+class RimEclipseCaseEnsemble;
+class RimSummaryEnsemble;
 
 //==================================================================================================
 ///
@@ -62,7 +64,7 @@ protected:
 
     QString     title() override;
     QStringList command() override;
-    QString     workingDirectory() override;
+    QString     workingDirectory() const override;
     bool        onPrepare() override;
     void        onCompleted( bool success ) override;
 
@@ -73,6 +75,7 @@ private:
     QString         deckExtension() const;
     QString         wellTempFile( int timeStep = -1, bool includeMSW = false, bool includeLGR = false ) const;
     QString         openWellTempFile() const;
+    QString         baseDeckName() const;
 
     static QString readFileContent( QString filename );
 
@@ -89,9 +92,13 @@ private:
     caf::PdmField<int>           m_openWellDeckPosition;
 
     caf::PdmField<bool> m_pauseBeforeRun;
+    caf::PdmField<bool> m_addToEnsemble;
+    caf::PdmField<int>  m_nextRunId;
 
     caf::PdmPtrField<RimWellPath*>            m_wellPath;
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;
+    caf::PdmPtrField<RimEclipseCaseEnsemble*> m_gridEnsemble;
+    caf::PdmPtrField<RimSummaryEnsemble*>     m_summaryEnsemble;
     caf::PdmField<int>                        m_openTimeStep;
     caf::PdmField<bool>                       m_addNewWell;
     caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;

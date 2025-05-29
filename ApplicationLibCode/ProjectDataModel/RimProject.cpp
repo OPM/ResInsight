@@ -257,6 +257,7 @@ void RimProject::close()
         m_mainPlotCollection()->deleteAllContainedObjects();
     }
 
+    m_jobCollection->deleteAllJobs();
     m_ensembleFileSetCollection()->deleteAllFileSets();
     oilFields.deleteChildren();
     oilFields.push_back( new RimOilField );

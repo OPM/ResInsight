@@ -56,6 +56,8 @@ public:
     QString                             nameTemplateText() const;
 
     void setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    void setPathPattern( const QString& pathPattern );
+
     void reload();
 
 private:

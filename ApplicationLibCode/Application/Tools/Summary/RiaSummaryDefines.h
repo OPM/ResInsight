@@ -33,6 +33,7 @@ enum class EnsembleGroupingMode
 {
     FMU_FOLDER_STRUCTURE,
     EVEREST_FOLDER_STRUCTURE,
+    RESINSIGHT_OPMFLOW_STRUCTURE,
     NONE
 };
 

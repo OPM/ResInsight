@@ -222,6 +222,28 @@ QStringList createPathsFromPattern( const QString& basePath, const QString& numb
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList getMatchingFiles( const QString& basePath, const QString& regexPattern )
+{
+    QStringList        filePaths;
+    QRegularExpression regex( regexPattern );
+
+    // Use QDirIterator to traverse the directory recursively
+    QDirIterator it( basePath, QDir::Files, QDirIterator::Subdirectories );
+    while ( it.hasNext() )
+    {
+        QString filePath = it.next();
+        if ( regex.match( filePath ).hasMatch() )
+        {
+            filePaths << filePath;
+        }
+    }
+
+    return filePaths;
+};
+
+//--------------------------------------------------------------------------------------------------
 /// Find all files matching the path pattern in the file system
 //
 // Example:
@@ -249,25 +271,6 @@ QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const 
     QString regexPattern = pathPattern;
     regexPattern.replace( placeholderString, "(\\d+)" );
 
-    auto getMatchingFiles = []( const QString& basePath, const QString& regexPattern ) -> QStringList
-    {
-        QStringList        filePaths;
-        QRegularExpression regex( regexPattern );
-
-        // Use QDirIterator to traverse the directory recursively
-        QDirIterator it( basePath, QDir::Files, QDirIterator::Subdirectories );
-        while ( it.hasNext() )
-        {
-            QString filePath = it.next();
-            if ( regex.match( filePath ).hasMatch() )
-            {
-                filePaths << filePath;
-            }
-        }
-
-        return filePaths;
-    };
-
     auto matchingFiles = getMatchingFiles( basePath, regexPattern );
 
     // Sort files by realization number
@@ -276,6 +279,60 @@ QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const 
                []( const QString& a, const QString& b )
                {
                    QRegularExpression regex( "realization-(\\d+)" );
+
+                   auto matchA = regex.match( a );
+                   auto matchB = regex.match( b );
+
+                   if ( matchA.hasMatch() && matchB.hasMatch() )
+                   {
+                       int numA = matchA.captured( 1 ).toInt();
+                       int numB = matchB.captured( 1 ).toInt();
+                       return numA < numB;
+                   }
+
+                   // Fallback to alphabetical if regex doesn't match
+                   return a < b;
+               } );
+
+    return matchingFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find all files matching the path pattern in the file system
+//
+// Example:
+// pathPattern = "/myfolder/myopmwork/run_*/TEST-*.EGRID"
+//
+// basePath will be      "/myfolder/myopmwork/"
+//
+// The '*' in the pathPattern is replaced with a regex pattern to capture numbers
+// regexPattern will be  "/myfolder/myopmwork/run-(\\d+)/TEST-(\\d+).EGRID"
+//
+// The basePath will be traversed recursively to find all files matching the regex pattern
+//
+//--------------------------------------------------------------------------------------------------
+QStringList createOpmPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString )
+{
+    auto basePath = pathPattern;
+
+    // Find based path up to "/realization"
+    auto runPos = basePath.indexOf( "/run" );
+    if ( runPos != -1 )
+    {
+        basePath = basePath.left( runPos );
+    }
+    // Replace placeholder string with a regex pattern to capture numbers
+    QString regexPattern = pathPattern;
+    regexPattern.replace( placeholderString, "(\\d+)" );
+
+    auto matchingFiles = getMatchingFiles( basePath, regexPattern );
+
+    // Sort files by realization number
+    std::sort( matchingFiles.begin(),
+               matchingFiles.end(),
+               []( const QString& a, const QString& b )
+               {
+                   QRegularExpression regex( "run-(\\d+)" );
 
                    auto matchA = regex.match( a );
                    auto matchB = regex.match( b );

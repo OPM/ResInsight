@@ -38,6 +38,8 @@ public:
 
     bool isEmpty();
 
+    void deleteAllJobs();
+
     std::vector<RimGenericJob*> jobs() const;
 
 protected:
