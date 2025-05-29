@@ -53,7 +53,7 @@ void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGenericJob::workingDirectory()
+QString RimGenericJob::workingDirectory() const
 {
     return "";
 }
