@@ -33,6 +33,7 @@
 #include "cvfVector4.h"
 
 class RigContourMapGrid;
+class RigContourMapProjection;
 
 namespace cvf
 {
@@ -41,6 +42,7 @@ class ScalarMapper;
 class Color3f;
 class ModelBasicList;
 class Part;
+class TextureImage;
 } // namespace cvf
 
 class RivContourMapProjectionPartMgr : public cvf::Object
@@ -70,6 +72,12 @@ public:
                                     const caf::DisplayCoordTransform* displayCoordTransform,
                                     const cvf::Vec2d&                 pickPoint,
                                     const RigContourMapGrid&          contourMapGrid ) const;
+
+    void appendProjectionAsTexturedQuad( cvf::ModelBasicList*              model,
+                                         const caf::DisplayCoordTransform* displayCoordTransform,
+                                         cvf::ScalarMapper*                mapper,
+                                         const RigContourMapProjection&    contourMapProjection,
+                                         const RigContourMapGrid&          contourMapGrid );
 
     cvf::ref<cvf::Vec2fArray> createTextureCoords( const std::vector<double>& values, cvf::ScalarMapper* scalarMapper ) const;
 
@@ -105,9 +113,17 @@ private:
                                                       const RigContourPolygonsTools::ContourPolygons& previousLevel,
                                                       double                                          tolerance );
 
+    // Extracted some code from RivTexturePartMgr. Consider reuse more code.
+    cvf::ref<cvf::Part> createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image, bool transparent );
+    static cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
+    static QImage                     createImage( const RigContourMapProjection* contourMapProjection, cvf::ScalarMapper* scalarMapper );
+    static cvf::TextureImage*         createTexture( const RigContourMapProjection* contourMapProjection, cvf::ScalarMapper* scalarMapper );
+
 private:
     caf::PdmPointer<caf::PdmObject> m_pdmObject;
 
     std::vector<std::vector<cvf::BoundingBox>> m_labelBoundingBoxes;
     cvf::ref<cvf::Effect>                      m_labelEffect;
+
+    cvf::ref<cvf::ShaderProgram> m_textureShaderProg;
 };
