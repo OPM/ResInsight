@@ -63,6 +63,8 @@ private:
 
     cvf::ref<cvf::Vec3fArray> convertToDisplayOffsetVertices( const std::vector<cvf::Vec3d>& vertices ) const;
 
+    static std::vector<unsigned> createLineIndicesFromTriangleIndices( const std::vector<unsigned>& triangleIndices );
+
     bool m_useNativePartsOnly;
 
     cvf::ref<RivSurfaceIntersectionGeometryGenerator> m_intersectionGenerator;
