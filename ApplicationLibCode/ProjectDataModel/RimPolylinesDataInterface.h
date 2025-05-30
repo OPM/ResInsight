@@ -26,4 +26,5 @@ class RimPolylinesDataInterface
 {
 public:
     virtual cvf::ref<RigPolyLinesData> polyLinesData() const = 0;
+    virtual QString                    label() const { return {}; };
 };

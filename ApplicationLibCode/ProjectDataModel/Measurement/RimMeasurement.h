@@ -45,25 +45,6 @@ public:
         MEASURE_POLYLINE
     };
 
-    class Lengths
-    {
-    public:
-        Lengths()
-            : totalLength( 0 )
-            , lastSegmentLength( 0 )
-            , totalHorizontalLength( 0 )
-            , lastSegmentHorisontalLength( 0 )
-            , area( 0 )
-        {
-        }
-
-        double totalLength;
-        double lastSegmentLength;
-        double totalHorizontalLength;
-        double lastSegmentHorisontalLength;
-        double area;
-    };
-
     RimMeasurement();
     ~RimMeasurement() override;
 
@@ -78,8 +59,6 @@ public:
     QString label() const;
 
 private:
-    Lengths calculateLengths() const;
-
     void updateView() const;
 
 private:

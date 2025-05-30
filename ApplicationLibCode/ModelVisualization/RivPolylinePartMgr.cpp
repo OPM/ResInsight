@@ -31,6 +31,8 @@
 #include "RivPartPriority.h"
 #include "RivPolylineGenerator.h"
 
+#include "RiuViewer.h"
+
 #include "cafEffectGenerator.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -79,7 +81,9 @@ bool RivPolylinePartMgr::isPolylinesInBoundingBox( std::vector<std::vector<cvf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* displayXf, const cvf::BoundingBox& boundingBox )
+void RivPolylinePartMgr::buildPolylineParts( const cvf::Camera*                camera,
+                                             const caf::DisplayCoordTransform* displayXf,
+                                             const cvf::BoundingBox&           boundingBox )
 {
     auto polylineDef = m_polylineInterface->polyLinesData();
     if ( polylineDef.isNull() || polylineDef->rawPolyLines().empty() )
@@ -118,6 +122,38 @@ void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* d
         part->setPriority( RivPartPriority::PartType::MeshLines );
 
         m_linePart = part;
+    }
+
+    auto labelText = m_polylineInterface->label();
+    if ( !labelText.isEmpty() && !polylineDef->completePolyLines().empty() && m_linePart.notNull() )
+    {
+        cvf::BoundingBox bb;
+        for ( const auto& lines : linesInDisplay )
+        {
+            for ( const auto& point : lines )
+            {
+                bb.add( point );
+            }
+        }
+
+        if ( bb.isValid() )
+        {
+            auto labelPosition = bb.center();
+            labelPosition.z() += 200;
+
+            bool negativeXDir = false;
+            auto drawableText = RivPolylineGenerator::createOrientedLabel( negativeXDir, camera, labelPosition, labelText );
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName( "RivPolylinePartMgr::buildPolylineParts" );
+            part->setDrawable( drawableText.p() );
+
+            cvf::ref<cvf::Effect> eff = new cvf::Effect();
+            part->setEffect( eff.p() );
+            part->setPriority( RivPartPriority::PartType::Text );
+
+            m_labelPart = part;
+        }
     }
 
     // Sphere part
@@ -236,6 +272,7 @@ void RivPolylinePartMgr::clearAllGeometry()
 {
     m_linePart   = nullptr;
     m_spherePart = nullptr;
+    m_labelPart  = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,8 +298,14 @@ void RivPolylinePartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
 {
     if ( !collectionVisible() ) return;
 
+    cvf::Camera* camera = nullptr;
+    if ( m_rimView.notNull() && m_rimView->viewer() )
+    {
+        camera = m_rimView->viewer()->mainCamera();
+    }
+
     // build the lines
-    buildPolylineParts( displayXf, boundingBox );
+    buildPolylineParts( camera, displayXf, boundingBox );
 
     // add the things we should
     if ( m_linePart.notNull() )
@@ -273,5 +316,10 @@ void RivPolylinePartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
     if ( m_spherePart.notNull() )
     {
         model->addPart( m_spherePart.p() );
+    }
+
+    if ( m_labelPart.notNull() )
+    {
+        model->addPart( m_labelPart.p() );
     }
 }

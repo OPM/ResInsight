@@ -21,6 +21,7 @@
 #include "RiaColorTools.h"
 
 #include "RigPolyLinesData.h"
+#include "RigPolygonTools.h"
 
 #include "Rim3dView.h"
 #include "RimPolygon.h"
@@ -64,6 +65,8 @@ RimPolygonInView::RimPolygonInView()
 
     CAF_PDM_InitField( &m_selectPolygon, "SelectPolygon", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_selectPolygon );
+
+    CAF_PDM_InitField( &m_showLabel, "ShowLabel", false, "Show Label" );
 
     CAF_PDM_InitField( &m_handleScalingFactor, "HandleScalingFactor", 2.0, "Handle Scaling Factor" );
 
@@ -305,6 +308,8 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         uiOrdering.add( &m_handleScalingFactor );
     }
 
+    uiOrdering.add( &m_showLabel );
+
     if ( m_polygon() )
     {
         uiOrdering.add( &m_selectPolygon );
@@ -386,6 +391,23 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
     uiOrdering.add( &m_enablePicking );
     uiOrdering.add( &m_targets );
     uiOrdering.add( &m_handleScalingFactor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPolygonInView::label() const
+{
+    if ( m_showLabel() && m_polygon() )
+    {
+        bool    includeLastSegmentInfo = false;
+        QString label                  = m_polygon->name();
+        label += "\n" + RigPolygonTools::geometryDataAsText( m_polygon->pointsInDomainCoords(), includeLastSegmentInfo );
+
+        return label;
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
