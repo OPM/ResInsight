@@ -37,7 +37,7 @@ std::vector<RimSummaryCase*> createSummaryCasesFromFiles( const QStringList& fil
 std::pair<QString, QString> findPathPattern( const QStringList& filePaths, const QString& placeholderString );
 
 QStringList createPathsFromPattern( const QString& basePath, const QString& numberRange, const QString& placeholderString );
-QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString );
-QStringList createOpmPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString );
+QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString, const QString& enumerationString );
 QStringList getMatchingFiles( const QString& basePath, const QString& regexPattern );
+
 } // namespace RiaEnsembleImportTools
