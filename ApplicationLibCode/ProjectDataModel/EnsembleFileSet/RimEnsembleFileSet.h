@@ -57,7 +57,6 @@ public:
     void                                setAutoName( bool autoName );
 
     void setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
-    void setPathPattern( const QString& pathPattern );
 
     void reload();
 
