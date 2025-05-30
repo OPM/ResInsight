@@ -26,6 +26,7 @@
 
 class RimEclipseCaseEnsemble;
 class RimFormationNames;
+class RimEclipseCase;
 
 //==================================================================================================
 ///

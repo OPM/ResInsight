@@ -79,15 +79,21 @@ std::vector<RimEnsembleFileSet*> createEnsembleFileSets( const QStringList& file
     return fileSets;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEnsembleFileSet* createEnsembleFileSetFromOpm( const QString& pathPattern, const QString& name )
 {
     auto collection      = RimProject::current()->ensembleFileSetCollection();
     auto ensembleFileSet = new RimEnsembleFileSet();
+    ensembleFileSet->setAutoName( false );
     ensembleFileSet->setName( name );
     ensembleFileSet->setGroupingMode( RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE );
     ensembleFileSet->setPathPattern( pathPattern );
 
     collection->addFileSet( ensembleFileSet );
+    collection->updateFileSetNames();
+    collection->updateAllRequiredEditors();
 
     return ensembleFileSet;
 }
