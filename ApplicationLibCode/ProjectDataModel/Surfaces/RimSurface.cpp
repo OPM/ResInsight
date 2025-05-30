@@ -363,3 +363,19 @@ bool RimSurface::isMeshLinesEnabledDefault() const
 {
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimSurface::boundingBoxInDomainCoords() const
+{
+    cvf::BoundingBox boundingBox;
+
+    if ( m_surfaceData.notNull() )
+    {
+        for ( const auto& vertex : m_surfaceData->vertices() )
+            boundingBox.add( vertex );
+    }
+
+    return boundingBox;
+}
