@@ -246,7 +246,8 @@ QStringList getMatchingFiles( const QString& basePath, const QString& regexPatte
 //--------------------------------------------------------------------------------------------------
 /// Find all files matching the path pattern in the file system
 //
-// Example:
+// Example, using enumerationString = "realization":
+//
 // pathPattern = "/myfolder/drogon-varying-grid-geometry/realization-*/iter-0/eclipse/model/DROGON-*.EGRID"
 //
 // basePath will be      "/myfolder/drogon-varying-grid-geometry/"
@@ -257,12 +258,12 @@ QStringList getMatchingFiles( const QString& basePath, const QString& regexPatte
 // The basePath will be traversed recursively to find all files matching the regex pattern
 //
 //--------------------------------------------------------------------------------------------------
-QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString )
+QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString, const QString& enumerationString )
 {
     auto basePath = pathPattern;
 
     // Find based path up to "/realization"
-    auto realizationPos = basePath.indexOf( "/realization" );
+    auto realizationPos = basePath.indexOf( "/" + enumerationString );
     if ( realizationPos != -1 )
     {
         basePath = basePath.left( realizationPos );
@@ -276,63 +277,9 @@ QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const 
     // Sort files by realization number
     std::sort( matchingFiles.begin(),
                matchingFiles.end(),
-               []( const QString& a, const QString& b )
+               [enumerationString]( const QString& a, const QString& b )
                {
-                   QRegularExpression regex( "realization-(\\d+)" );
-
-                   auto matchA = regex.match( a );
-                   auto matchB = regex.match( b );
-
-                   if ( matchA.hasMatch() && matchB.hasMatch() )
-                   {
-                       int numA = matchA.captured( 1 ).toInt();
-                       int numB = matchB.captured( 1 ).toInt();
-                       return numA < numB;
-                   }
-
-                   // Fallback to alphabetical if regex doesn't match
-                   return a < b;
-               } );
-
-    return matchingFiles;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Find all files matching the path pattern in the file system
-//
-// Example:
-// pathPattern = "/myfolder/myopmwork/run_*/TEST-*.EGRID"
-//
-// basePath will be      "/myfolder/myopmwork/"
-//
-// The '*' in the pathPattern is replaced with a regex pattern to capture numbers
-// regexPattern will be  "/myfolder/myopmwork/run-(\\d+)/TEST-(\\d+).EGRID"
-//
-// The basePath will be traversed recursively to find all files matching the regex pattern
-//
-//--------------------------------------------------------------------------------------------------
-QStringList createOpmPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString )
-{
-    auto basePath = pathPattern;
-
-    // Find based path up to "/realization"
-    auto runPos = basePath.indexOf( "/run" );
-    if ( runPos != -1 )
-    {
-        basePath = basePath.left( runPos );
-    }
-    // Replace placeholder string with a regex pattern to capture numbers
-    QString regexPattern = pathPattern;
-    regexPattern.replace( placeholderString, "(\\d+)" );
-
-    auto matchingFiles = getMatchingFiles( basePath, regexPattern );
-
-    // Sort files by realization number
-    std::sort( matchingFiles.begin(),
-               matchingFiles.end(),
-               []( const QString& a, const QString& b )
-               {
-                   QRegularExpression regex( "run-(\\d+)" );
+                   QRegularExpression regex( enumerationString + "-(\\d+)" );
 
                    auto matchA = regex.match( a );
                    auto matchB = regex.match( b );

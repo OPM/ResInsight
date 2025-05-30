@@ -97,20 +97,20 @@ QStringList RimEnsembleFileSet::createPaths( const QString& extension ) const
     {
         if ( m_realizationNumbersReadFromFiles.isEmpty() )
         {
+            QStringList paths;
             if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
             {
-                auto paths =
-                    RiaEnsembleImportTools::createOpmPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString() );
-                const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
-                m_realizationNumbersReadFromFiles = range;
+                paths =
+                    RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString(), "run" );
             }
             else
             {
-                auto paths =
-                    RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString() );
-                const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
-                m_realizationNumbersReadFromFiles = range;
+                paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension,
+                                                                                  internal::placeholderString(),
+                                                                                  "realization" );
             }
+            const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
+            m_realizationNumbersReadFromFiles = range;
         }
 
         realizationFilter = m_realizationNumbersReadFromFiles;
@@ -247,6 +247,14 @@ void RimEnsembleFileSet::setUsePathKey1( bool useKey1 )
 void RimEnsembleFileSet::setUsePathKey2( bool useKey2 )
 {
     m_useKey2 = useKey2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFileSet::setAutoName( bool autoName )
+{
+    m_autoName = autoName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -435,7 +443,7 @@ void RimEnsembleFileSet::setGroupingMode( RiaDefines::EnsembleGroupingMode group
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFileSet::sendFileSetChangedSignal()
+void RimEnsembleFileSet::sendFileSetChangedSignal() const
 {
     fileSetChanged.send();
 }
