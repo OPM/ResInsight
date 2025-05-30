@@ -16,7 +16,7 @@ for case in cases:
 
     eqlnum = case.active_cell_property("STATIC_NATIVE", "EQLNUM", time_step)
     poro = case.active_cell_property("STATIC_NATIVE", "PORO", time_step)
-    if (len(eqlnum) != len(poro)):
+    if len(eqlnum) != len(poro):
         print("Size of eqlnum and poro is not identical.")
         break
 
@@ -28,4 +28,6 @@ for case in cases:
     # Calculate the average porosity for the specified region
     if cell_cout > 0:
         average_poro = sum_poro / cell_cout
-        print(f"Case {case.id}: Cell count {cell_cout} Average PORO for region {region_number} = {average_poro}")
+        print(
+            f"Case {case.id}: Cell count {cell_cout} Average PORO for region {region_number} = {average_poro}"
+        )
