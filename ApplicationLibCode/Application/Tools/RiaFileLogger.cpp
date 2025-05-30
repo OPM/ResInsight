@@ -20,8 +20,8 @@
 #include "RiaPreferences.h"
 
 #include "spdlog/logger.h"
-#include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
+#include <spdlog/sinks/rotating_file_sink.h>
 
 class RiaFileLogger::Impl
 {
@@ -29,13 +29,15 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    Impl( const std::string& fileName )
+    Impl( const std::string& filePathForLogFiles )
     {
         try
         {
-            m_spdlogger = spdlog::basic_logger_mt( "basic_logger", fileName );
+            // Automatically create unique files when size limit is reached. 5MB per file, keep 3 files
+            auto fileName = filePathForLogFiles + "/resinsight.log";
+            m_spdlogger   = spdlog::rotating_logger_mt( "rotating_logger", fileName, 1024 * 1024 * 5, 3 );
 
-            auto flushInterval = RiaPreferences::current()->loggerFlushInterval();
+            auto flushInterval = 500;
             spdlog::flush_every( std::chrono::milliseconds( flushInterval ) );
         }
         catch ( ... )
@@ -98,8 +100,8 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaFileLogger::RiaFileLogger( const std::string& filename )
-    : m_impl( new Impl( filename ) )
+RiaFileLogger::RiaFileLogger( const std::string& filePathForLogFiles )
+    : m_impl( new Impl( filePathForLogFiles ) )
     , m_logLevel( int( RILogLevel::RI_LL_DEBUG ) )
 
 {
