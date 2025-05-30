@@ -43,6 +43,7 @@
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfPrimitiveSet.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRenderStateBlending.h"
 #include "cvfVector3.h"
@@ -466,6 +467,35 @@ void RivSurfacePartMgr::generateNativePartGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<unsigned> RivSurfacePartMgr::createLineIndicesFromTriangleIndices( const std::vector<unsigned>& triangleIndices )
+{
+    // Each triangle creates 3 lines, each line needs 2 indices
+    std::vector<unsigned> lineIndices;
+    lineIndices.reserve( triangleIndices.size() * 2 );
+
+    for ( size_t i = 0; i < triangleIndices.size(); i += 3 )
+    {
+        int v0 = triangleIndices[i];
+        int v1 = triangleIndices[i + 1];
+        int v2 = triangleIndices[i + 2];
+
+        // Add three edges of the triangle
+        lineIndices.push_back( v0 );
+        lineIndices.push_back( v1 );
+
+        lineIndices.push_back( v1 );
+        lineIndices.push_back( v2 );
+
+        lineIndices.push_back( v2 );
+        lineIndices.push_back( v0 );
+    }
+
+    return lineIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::generateNativeLinesPartGeometry()
 {
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
@@ -480,9 +510,11 @@ void RivSurfacePartMgr::generateNativeLinesPartGeometry()
     cvf::ref<cvf::Vec3fArray> cvfVertices = convertToDisplayOffsetVertices( vertices );
 
     const std::vector<unsigned>& triangleIndices = m_usedSurfaceData->triangleIndices();
-    cvf::ref<cvf::UIntArray>     cvfIndices      = new cvf::UIntArray( triangleIndices );
 
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexSet = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINE_STRIP );
+    std::vector<unsigned>    lineIndices = createLineIndicesFromTriangleIndices( triangleIndices );
+    cvf::ref<cvf::UIntArray> cvfIndices  = new cvf::UIntArray( lineIndices );
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexSet = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
     indexSet->setIndices( cvfIndices.p() );
 
     cvf::ref<cvf::DrawableGeo> drawGeo = new cvf::DrawableGeo;
