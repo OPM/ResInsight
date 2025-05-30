@@ -17,10 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "Rim3dPropertiesInterface.h"
 
+#include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
+#include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
 #include "cvfObject.h"
@@ -31,7 +32,7 @@
 class RimRegularLegendConfig;
 class RigSurface;
 
-class RimSurface : public caf::PdmObject
+class RimSurface : public caf::PdmObject, public Rim3dPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -91,6 +92,8 @@ protected:
 
     virtual bool updateSurfaceData()     = 0;
     virtual void clearCachedNativeData() = 0;
+
+    cvf::BoundingBox boundingBoxInDomainCoords() const override;
 
 protected:
     caf::PdmField<QString> m_userDescription;
