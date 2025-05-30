@@ -125,15 +125,12 @@ int main( int argc, char* argv[] )
     setlocale( LC_NUMERIC, "C" );
 
     // Set up signal handlers
-    if ( RiaPreferences::current()->loggerTrapSignalAndFlush() )
-    {
-        signal( SIGINT, manageSegFailure );
-        signal( SIGILL, manageSegFailure );
-        signal( SIGFPE, manageSegFailure );
-        signal( SIGSEGV, manageSegFailure );
-        signal( SIGTERM, manageSegFailure );
-        signal( SIGABRT, manageSegFailure );
-    }
+    signal( SIGINT, manageSegFailure );
+    signal( SIGILL, manageSegFailure );
+    signal( SIGFPE, manageSegFailure );
+    signal( SIGSEGV, manageSegFailure );
+    signal( SIGTERM, manageSegFailure );
+    signal( SIGABRT, manageSegFailure );
 
     // Handle the command line arguments.
     // Todo: Move to a one-shot timer, delaying the execution until we are inside the event loop.

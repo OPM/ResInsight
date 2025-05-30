@@ -436,14 +436,11 @@ void RiaGuiApplication::initialize()
 
         RiaLogging::appendLoggerInstance( std::move( logger ) );
 
-        auto filename = RiaPreferences::current()->loggerFilename();
-        if ( !filename.isEmpty() )
-        {
-            auto fileLogger = std::make_unique<RiaFileLogger>( filename.toStdString() );
-            fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+        auto logFolder  = QDir::homePath() + "/.resinsight/logs";
+        auto fileLogger = std::make_unique<RiaFileLogger>( logFolder.toStdString() );
+        fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
 
-            RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
-        }
+        RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
     }
     m_socketServer = new RiaSocketServer( this );
 
