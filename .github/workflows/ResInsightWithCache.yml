@@ -182,6 +182,7 @@ jobs:
         uses: TAServers/vcpkg-cache@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          prefix: vcpkg-${{ matrix.config.cxx}}/
           
       - name: Configure
         shell: bash
