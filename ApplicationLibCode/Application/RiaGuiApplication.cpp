@@ -435,7 +435,10 @@ void RiaGuiApplication::initialize()
         logger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
 
         RiaLogging::appendLoggerInstance( std::move( logger ) );
+    }
 
+    if ( RiaPreferencesSystem::current()->logToFile() )
+    {
         auto logFolder  = QDir::homePath() + "/.resinsight/logs";
         auto fileLogger = std::make_unique<RiaFileLogger>( logFolder.toStdString() );
         fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );

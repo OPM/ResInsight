@@ -57,6 +57,8 @@ public:
     bool    showPdfExportDialog() const;
     double  exportPdfScalingFactor() const;
 
+    bool logToFile() const;
+
     EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
 
     bool isLoggingActivatedForKeyword( const QString& keyword ) const;
@@ -74,6 +76,7 @@ private:
     caf::PdmField<bool> m_showHud;
 
     caf::PdmField<bool> m_showProjectChangedDialog;
+    caf::PdmField<bool> m_logToFile;
 
     caf::PdmField<bool>    m_showTestToolbar;
     caf::PdmField<bool>    m_includeFractureDebugInfoFile;

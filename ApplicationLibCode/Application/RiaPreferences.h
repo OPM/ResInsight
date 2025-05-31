@@ -209,11 +209,6 @@ private:
     // Python
     caf::PdmField<QString> m_pythonExecutable;
 
-    // Logging
-    caf::PdmField<std::pair<bool, QString>> m_loggerFilename;
-    caf::PdmField<int>                      m_loggerFlushInterval;
-    caf::PdmField<bool>                     m_loggerTrapSignalAndFlush;
-
     caf::PdmField<bool> m_storeBackupOfProjectFile;
 
     // Surface Import
