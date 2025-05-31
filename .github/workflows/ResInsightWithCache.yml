@@ -30,6 +30,7 @@ jobs:
               execute-pytests: false,
               unity-build: true,
               publish-to-pypi: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.bat,
               qt-version: 6.6.3,
               ri-unit-test-path: "ResInsight-tests",
             }
@@ -43,6 +44,7 @@ jobs:
               execute-pytests: true,
               unity-build: false,
               publish-to-pypi: true,
+              vcpkg-bootstrap: bootstrap-vcpkg.sh,
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
             }
@@ -56,6 +58,7 @@ jobs:
               execute-pytests: false,
               unity-build: false,
               publish-to-pypi: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.sh,
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
             }
@@ -173,6 +176,10 @@ jobs:
           cache: true
           setup-python: false
           modules: "qtnetworkauth qtcharts"
+
+      - name: vcpkg bootstrap
+        run: |
+          ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
 
       - name: Configure NuGet for binary caching (Linux)
         if: runner.os == 'Linux'
