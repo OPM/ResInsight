@@ -88,8 +88,16 @@ public:
 
         if ( m_eclipseCase )
         {
+            // This function will import grid geometry and result data. For this operation, only access to cell result
+            // data is required.
+            m_eclipseCase->ensureReservoirCaseIsOpen();
+            auto caseData = m_eclipseCase->eclipseCaseData();
+            if ( !caseData )
+            {
+                return grpc::Status( grpc::NOT_FOUND, "Eclipse case data not found" );
+            }
+
             m_porosityModel   = static_cast<RiaDefines::PorosityModelType>( request->porosity_model() );
-            auto   caseData   = m_eclipseCase->eclipseCaseData();
             auto   resultData = caseData->results( m_porosityModel );
             auto   resultType = static_cast<RiaDefines::ResultCatType>( request->property_type() );
             size_t timeStep   = static_cast<size_t>( request->time_step() );
@@ -131,7 +139,7 @@ public:
     }
 
     //--------------------------------------------------------------------------------------------------
-    /// Client streamers need to be initialised with the encapsulated parameters
+    /// Client streamers need to be initialized with the encapsulated parameters
     //--------------------------------------------------------------------------------------------------
     Status init( const PropertyInputChunk* chunk )
     {
@@ -409,8 +417,17 @@ grpc::Status RiaGrpcPropertiesService::GetAvailableProperties( grpc::ServerConte
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( caseId ) );
     if ( eclipseCase )
     {
+        // This function will import grid geometry and result data. For this operation, only access to cell result
+        // data is required.
+        eclipseCase->ensureReservoirCaseIsOpen();
+        auto caseData = eclipseCase->eclipseCaseData();
+        if ( !caseData )
+        {
+            return grpc::Status( grpc::NOT_FOUND, "Eclipse case data not found" );
+        }
+
         auto        porosityModel = static_cast<RiaDefines::PorosityModelType>( request->porosity_model() );
-        auto        resultData    = eclipseCase->eclipseCaseData()->results( porosityModel );
+        auto        resultData    = caseData->results( porosityModel );
         auto        resultType    = static_cast<RiaDefines::ResultCatType>( request->property_type() );
         QStringList resultNames   = resultData->resultNames( resultType );
         if ( !resultNames.empty() )
