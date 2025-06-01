@@ -1,6 +1,8 @@
 ###########################################################################################
-# This example will synchronously calculate the average value for SOIL for all time steps
+# This example will calculate the average value of the porosity property for a specified
+# region in the reservoir model. The region is identified by its EQLNUM value.
 ###########################################################################################
+
 import rips
 
 resinsight = rips.Instance.find()
