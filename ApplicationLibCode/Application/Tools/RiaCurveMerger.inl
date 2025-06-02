@@ -77,23 +77,9 @@ void RiaCurveMerger<XValueType>::addCurveData( const std::vector<XValueType>& xV
         }
         else
         {
-            if ( m_isXValuesSharedBetweenCurves )
-            {
-                const auto& firstXValues = m_originalValues.front().first;
-                if ( firstXValues.size() == xValues.size() )
-                {
-                    m_isXValuesSharedBetweenCurves = std::equal( firstXValues.begin(), firstXValues.end(), xValues.begin(), xValues.end() );
-                }
-                else
-                {
-                    m_isXValuesSharedBetweenCurves = false;
-                }
-            }
-
-            if ( m_isXValuesMonotonicallyIncreasing )
-            {
-                m_isXValuesMonotonicallyIncreasing = isMonotonicallyIncreasing( xValues );
-            }
+            const auto& firstXValues = m_originalValues.front().first;
+            m_isXValuesSharedBetweenCurves &= std::equal( firstXValues.begin(), firstXValues.end(), xValues.begin(), xValues.end() );
+            m_isXValuesMonotonicallyIncreasing &= isMonotonicallyIncreasing( xValues );
         }
         m_originalValues.push_back( std::make_pair( xValues, yValues ) );
     }
