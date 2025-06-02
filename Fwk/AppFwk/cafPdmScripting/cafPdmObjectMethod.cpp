@@ -43,7 +43,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self )
+PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self)
     : m_self( self )
     , m_isNullptrValid( true )
     , m_isResultPersistent( false )
