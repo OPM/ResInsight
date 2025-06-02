@@ -116,5 +116,5 @@ size_t RimHistogramMultiPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 void RimHistogramMultiPlotCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder.addCmdFeature( "RicNewHistogramMultiPlot", "New Histogram Plot" );
+    menuBuilder.addCmdFeature( "RicNewHistogramMultiPlotFeature", "New Histogram Plot" );
 }
