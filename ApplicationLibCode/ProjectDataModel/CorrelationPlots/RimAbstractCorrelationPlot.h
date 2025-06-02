@@ -79,6 +79,8 @@ public:
     void             setAxisValueFontSize( caf::FontTools::RelativeSize fontSize );
     std::set<time_t> allAvailableTimeSteps();
 
+    std::set<RifEclipseSummaryAddress> addresses() const;
+
 protected:
     // Overridden PDM methods
 
@@ -88,10 +90,9 @@ protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    std::set<RifEclipseSummaryAddress> addresses() const;
-    std::set<RigEnsembleParameter>     ensembleParameters() const;
-    std::set<RigEnsembleParameter>     variationSortedEnsembleParameters();
-    RigEnsembleParameter               ensembleParameter( const QString& ensembleParameterName ) const;
+    std::set<RigEnsembleParameter> ensembleParameters() const;
+    std::set<RigEnsembleParameter> variationSortedEnsembleParameters();
+    RigEnsembleParameter           ensembleParameterByName( const QString& ensembleParameterName ) const;
 
     // RimViewWindow overrides
     QWidget* viewWidget() override;

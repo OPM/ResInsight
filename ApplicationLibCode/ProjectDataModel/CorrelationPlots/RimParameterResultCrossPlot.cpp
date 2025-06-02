@@ -113,6 +113,14 @@ void RimParameterResultCrossPlot::setEnsembleParameter( const QString& ensembleP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimParameterResultCrossPlot::ensembleParameter() const
+{
+    return m_ensembleParameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimParameterResultCrossPlot::summaryCasesExcludedByFilter() const
 {
     if ( ensembles().size() != 1 ) return {};
@@ -465,7 +473,7 @@ void RimParameterResultCrossPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimParameterResultCrossPlot::CaseData> RimParameterResultCrossPlot::createCaseData() const
 {
-    RigEnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
+    RigEnsembleParameter parameter = ensembleParameterByName( m_ensembleParameter );
     if ( !( parameter.isNumeric() && parameter.isValid() ) ) return {};
 
     std::vector<RimParameterResultCrossPlot::CaseData> caseData;
@@ -600,7 +608,10 @@ RiuPlotWidget* RimParameterResultCrossPlot::doCreatePlotViewWidget( QWidget* mai
         m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
         updatePlotTitle();
 
-        new RiuContextMenuLauncher( m_plotWidget, { "RicShowPlotDataFeature", "RicCreateEnsembleFromFilteredCasesFeature" } );
+        new RiuContextMenuLauncher( m_plotWidget,
+                                    { "RicShowPlotDataFeature",
+                                      "RicCreateEnsembleFromFilteredCasesFeature",
+                                      "RicCreateHistogramForEnsembleParameterFeature" } );
     }
 
     if ( m_plotWidget )

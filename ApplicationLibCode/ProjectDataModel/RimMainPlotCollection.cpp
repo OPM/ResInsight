@@ -23,6 +23,7 @@
 #include "Summary/RiaSummaryDefines.h"
 #include "Summary/RiaSummaryPlotTools.h"
 
+#include "Histogram/RimHistogramMultiPlotCollection.h"
 #include "RimAbstractPlotCollection.h"
 #include "RimAnalysisPlotCollection.h"
 #include "RimCorrelationPlotCollection.h"
@@ -109,6 +110,9 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelPlotCollection, "StimPlanModelPlotCollection", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_vfpPlotCollection, "VfpPlotCollection", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_histogramMultiPlotCollection, "HistogramMultiPlotCollection", "" );
+
 #ifdef USE_QTCHARTS
     CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "" );
 
@@ -129,6 +133,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_correlationPlotCollection           = new RimCorrelationPlotCollection;
     m_stimPlanModelPlotCollection         = new RimStimPlanModelPlotCollection;
     m_vfpPlotCollection                   = new RimVfpPlotCollection();
+    m_histogramMultiPlotCollection        = new RimHistogramMultiPlotCollection();
 #ifdef USE_QTCHARTS
     m_gridStatisticsPlotCollection             = new RimGridStatisticsPlotCollection;
     m_ensembleFractureStatisticsPlotCollection = new RimEnsembleFractureStatisticsPlotCollection;
@@ -325,6 +330,14 @@ RimStimPlanModelPlotCollection* RimMainPlotCollection::stimPlanModelPlotCollecti
     return m_stimPlanModelPlotCollection();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimHistogramMultiPlotCollection* RimMainPlotCollection::histogramMultiPlotCollection() const
+{
+    return m_histogramMultiPlotCollection();
+}
+
 #ifdef USE_QTCHARTS
 //--------------------------------------------------------------------------------------------------
 ///
@@ -494,6 +507,7 @@ std::vector<RimPlotCollection*> RimMainPlotCollection::allPlotCollections() cons
     plotCollections.push_back( correlationPlotCollection() );
     plotCollections.push_back( saturationPressurePlotCollection() );
     plotCollections.push_back( multiPlotCollection() );
+    plotCollections.push_back( histogramMultiPlotCollection() );
 
 #ifdef USE_QTCHARTS
     plotCollections.push_back( gridStatisticsPlotCollection() );
