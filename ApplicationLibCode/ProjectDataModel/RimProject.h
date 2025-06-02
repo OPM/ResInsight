@@ -30,8 +30,6 @@
 
 #include <vector>
 
-class RiaVariableMapper;
-
 class RigEclipseCaseData;
 class RigGridManager;
 class RigMainGrid;
@@ -203,11 +201,6 @@ protected:
     std::vector<caf::PdmFieldHandle*> fieldsForExport() const override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-
-private:
-    void    transferPathsToGlobalPathList();
-    void    distributePathsFromGlobalPathList();
-    QString updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper = nullptr ) const;
 
 private:
     caf::PdmChildField<RimMainPlotCollection*>        m_mainPlotCollection;
