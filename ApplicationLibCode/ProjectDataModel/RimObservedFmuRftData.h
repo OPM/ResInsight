@@ -40,9 +40,13 @@ public:
     std::vector<QString> wells() const;
     std::vector<QString> labels( const RifEclipseRftAddress& rftAddress );
 
+protected:
+    void initAfterRead() override;
+
 private:
     cvf::ref<RifReaderFmuRft> m_fmuRftReader;
 
-    caf::PdmField<QString>                        m_directoryPath;
+    caf::PdmField<caf::FilePath>                  m_directoryPath;
+    caf::PdmField<QString>                        m_directoryPath_OBSOLETE;
     caf::PdmProxyValueField<std::vector<QString>> m_wells;
 };

@@ -30,8 +30,13 @@ CAF_PDM_SOURCE_INIT( RimObservedFmuRftData, "ObservedFmuRftData" );
 RimObservedFmuRftData::RimObservedFmuRftData()
 {
     CAF_PDM_InitObject( "Observed FMU Data", ":/ObservedRFTDataFile16x16.png" );
-    CAF_PDM_InitFieldNoDefault( &m_directoryPath, "Directory", "Directory" );
+
+    CAF_PDM_InitFieldNoDefault( &m_directoryPath, "ObservedFolder", "Directory" );
     m_directoryPath.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_directoryPath_OBSOLETE, "Directory", "Directory" );
+    m_directoryPath_OBSOLETE.uiCapability()->setUiReadOnly( true );
+    m_directoryPath_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells" );
     m_wells.xmlCapability()->disableIO();
@@ -52,7 +57,7 @@ void RimObservedFmuRftData::setDirectoryPath( const QString& path )
 //--------------------------------------------------------------------------------------------------
 void RimObservedFmuRftData::createRftReaderInterface()
 {
-    m_fmuRftReader = new RifReaderFmuRft( m_directoryPath );
+    m_fmuRftReader = new RifReaderFmuRft( m_directoryPath().path() );
     m_fmuRftReader->importData();
 }
 
@@ -108,4 +113,15 @@ std::vector<QString> RimObservedFmuRftData::labels( const RifEclipseRftAddress& 
         return const_cast<RifReaderFmuRft*>( m_fmuRftReader.p() )->labels( rftAddress );
     }
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObservedFmuRftData::initAfterRead()
+{
+    if ( m_directoryPath().path().isEmpty() )
+    {
+        m_directoryPath = m_directoryPath_OBSOLETE();
+    }
 }
