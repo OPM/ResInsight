@@ -228,6 +228,7 @@ QStringList getMatchingFiles( const QString& basePath, const QString& regexPatte
 {
     QStringList        filePaths;
     QRegularExpression regex( regexPattern );
+    QDir               baseDir( basePath );
 
     // Use QDirIterator to traverse the directory recursively
     QDirIterator it( basePath, QDir::Files, QDirIterator::Subdirectories );
@@ -236,7 +237,7 @@ QStringList getMatchingFiles( const QString& basePath, const QString& regexPatte
         QString filePath = it.next();
         if ( regex.match( filePath ).hasMatch() )
         {
-            filePaths << filePath;
+            filePaths << baseDir.relativeFilePath( filePath );
         }
     }
 

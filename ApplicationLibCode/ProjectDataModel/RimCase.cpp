@@ -332,7 +332,7 @@ void RimCase::updateAutoShortName()
         {
             QStringList filePaths;
             auto        cases = caseCollection->cases();
-            if ( !cases.empty() )
+            if ( cases.size() > 1 )
             {
                 for ( int i = 0; i < std::min( 4, static_cast<int>( cases.size() ) ); ++i )
                 {
