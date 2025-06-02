@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Histogram/RimHistogramMultiPlotCollection.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -44,6 +45,7 @@ class RimSaturationPressurePlotCollection;
 class RimStimPlanModelPlotCollection;
 class RimVfpPlotCollection;
 class RimPlotCollection;
+class RimHistogramMultiPlotCollection;
 
 #ifdef USE_QTCHARTS
 class RimGridStatisticsPlotCollection;
@@ -77,6 +79,7 @@ public:
     RimMultiPlotCollection*              multiPlotCollection() const;
     RimStimPlanModelPlotCollection*      stimPlanModelPlotCollection() const;
     RimVfpPlotCollection*                vfpPlotCollection() const;
+    RimHistogramMultiPlotCollection*     histogramMultiPlotCollection() const;
 
 #ifdef USE_QTCHARTS
     RimGridStatisticsPlotCollection*             gridStatisticsPlotCollection() const;
@@ -121,6 +124,7 @@ private:
     caf::PdmChildField<RimMultiPlotCollection*>              m_multiPlotCollection;
     caf::PdmChildField<RimStimPlanModelPlotCollection*>      m_stimPlanModelPlotCollection;
     caf::PdmChildField<RimVfpPlotCollection*>                m_vfpPlotCollection;
+    caf::PdmChildField<RimHistogramMultiPlotCollection*>     m_histogramMultiPlotCollection;
 #ifdef USE_QTCHARTS
     caf::PdmChildField<RimGridStatisticsPlotCollection*>             m_gridStatisticsPlotCollection;
     caf::PdmChildField<RimEnsembleFractureStatisticsPlotCollection*> m_ensembleFractureStatisticsPlotCollection;
