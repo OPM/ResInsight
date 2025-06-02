@@ -36,7 +36,8 @@ class RimParameterResultCrossPlot : public RimAbstractCorrelationPlot
 public:
     RimParameterResultCrossPlot();
     ~RimParameterResultCrossPlot() override;
-    void setEnsembleParameter( const QString& ensembleParameter );
+    void    setEnsembleParameter( const QString& ensembleParameter );
+    QString ensembleParameter() const;
 
     std::vector<RimSummaryCase*> summaryCasesExcludedByFilter() const;
     void                         appendFilterFields( caf::PdmUiOrdering& uiOrdering );

@@ -101,6 +101,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicHistogramPlotTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -206,6 +207,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicHistogramPlotTools.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
