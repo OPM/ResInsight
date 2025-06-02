@@ -26,7 +26,7 @@
 class RiaFileLogger : public RiaLogger
 {
 public:
-    explicit RiaFileLogger( const std::string& filename );
+    explicit RiaFileLogger( const std::string& filePathForLogFiles );
     ~RiaFileLogger() override;
 
     int  level() const override;

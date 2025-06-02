@@ -145,12 +145,6 @@ RiaPreferences::RiaPreferences()
     }
     defaultFilename += "/ResInsight.log";
 
-    CAF_PDM_InitField( &m_loggerFilename, "loggerFilename", std::make_pair( false, defaultFilename ), "Logging To File" );
-    m_loggerFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitField( &m_loggerFlushInterval, "loggerFlushInterval", 500, "Logging Flush Interval [ms]" );
-    CAF_PDM_InitField( &m_loggerTrapSignalAndFlush, "loggerTrapSignalAndFlush", false, "Trap SIGNAL and Flush File Logs" );
-
     CAF_PDM_InitField( &m_storeBackupOfProjectFile, "storeBackupOfProjectFile", true, "Store Backup of Project Files" );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines" );
@@ -415,11 +409,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* loggingGroup = uiOrdering.addNewGroup( "Logging and Backup" );
         loggingGroup->add( &m_storeBackupOfProjectFile );
-        loggingGroup->add( &m_loggerFilename );
-        loggingGroup->add( &m_loggerFlushInterval );
-        loggingGroup->add( &m_loggerTrapSignalAndFlush );
-        m_loggerTrapSignalAndFlush.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
-        m_loggerFlushInterval.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->setCollapsedByDefault();
@@ -1028,35 +1017,6 @@ QString RiaPreferences::octavePortNumber() const
     if ( m_octavePortNumber().first ) return m_octavePortNumber().second;
 
     return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaPreferences::loggerFilename() const
-{
-    if ( m_loggerFilename().first )
-    {
-        return m_loggerFilename().second;
-    }
-
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RiaPreferences::loggerFlushInterval() const
-{
-    return m_loggerFlushInterval();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::loggerTrapSignalAndFlush() const
-{
-    return m_loggerTrapSignalAndFlush();
 }
 
 //--------------------------------------------------------------------------------------------------
