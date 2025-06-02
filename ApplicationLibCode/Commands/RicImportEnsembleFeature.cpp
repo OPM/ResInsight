@@ -120,6 +120,8 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
             RiaSummaryTools::summaryCaseMainCollection()->updateConnectedEditors();
         }
     }
+
+    RiuPlotMainWindowTools::showPlotMainWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
