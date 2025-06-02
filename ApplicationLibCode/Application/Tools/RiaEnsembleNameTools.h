@@ -50,6 +50,9 @@ public:
     static std::map<std::pair<std::string, std::string>, std::vector<std::string>>
         groupFilePathsEverest( const std::vector<std::string>& filepaths );
 
+    static std::map<std::pair<std::string, std::string>, std::vector<std::string>>
+        groupFilePathsOpm( const std::vector<std::string>& filepaths );
+
     static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
     static std::map<QString, QStringList> groupFilesByEnsembleName( const QStringList&               fileNames,
                                                                     RiaDefines::EnsembleGroupingMode groupingMode );

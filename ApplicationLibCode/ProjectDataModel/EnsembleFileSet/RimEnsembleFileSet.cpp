@@ -412,6 +412,20 @@ std::pair<std::string, std::string> RimEnsembleFileSet::nameKeys() const
             }
         }
     }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
+    {
+        auto pathPattern = m_pathPattern + ".SMSPEC";
+        auto paths       = RiaEnsembleImportTools::createPathsFromPattern( pathPattern, "0", internal::placeholderString() );
+        if ( !paths.empty() )
+        {
+            auto fileNames = RiaEnsembleNameTools::groupFilePathsOpm( { paths.front().toStdString() } );
+            if ( !fileNames.empty() )
+            {
+                key1 = fileNames.begin()->first.first;
+                key2 = fileNames.begin()->first.second;
+            }
+        }
+    }
 
     return { key1, key2 };
 }
