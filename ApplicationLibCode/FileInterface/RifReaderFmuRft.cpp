@@ -259,13 +259,15 @@ void RifReaderFmuRft::importData()
             };
 
             // The text file name can be either <wellName>_<measurementId>.txt or <wellName>.txt
-            QString txtFile   = findFileName( wellName, "txt", measurementId, dir );
-            auto    locations = importLocations( dir.absoluteFilePath( txtFile ) );
+            QString txtFile = findFileName( wellName, "txt", measurementId, dir );
+            if ( !QFile::exists( txtFile ) ) continue;
+
+            auto locations = importLocations( dir.absoluteFilePath( txtFile ) );
             if ( locations.empty() ) continue;
 
             // The observation file name can be either <wellName>_<measurementId>.obs or <wellName>.obs
             QString observationFileName = findFileName( wellName, "obs", measurementId, dir );
-            if ( observationFileName.isEmpty() ) continue;
+            if ( !QFile::exists( observationFileName ) ) continue;
 
             for ( const auto& wellDate : wellDates )
             {
