@@ -41,7 +41,7 @@ public:
     RimcWellLogTrack_addExtractionCurve( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
     static RimWellLogExtractionCurve* addExtractionCurve( RimWellLogTrack*          wellLogTrack,

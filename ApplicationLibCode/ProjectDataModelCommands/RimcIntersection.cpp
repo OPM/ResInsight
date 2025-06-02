@@ -238,7 +238,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcExtrudedCurveIntersection_geometry::resultIsPersistent() const
+bool RimcExtrudedCurveIntersection_geometry::resultIsPersistent_obsolete() const
 {
     return false;
 }
@@ -341,7 +341,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcExtrudedCurveIntersection_geometryResult::resultIsPersistent() const
+bool RimcExtrudedCurveIntersection_geometryResult::resultIsPersistent_obsolete() const
 {
     return false;
 }

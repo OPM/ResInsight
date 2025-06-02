@@ -71,7 +71,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurface_exportToFile::execute(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurface_exportToFile::resultIsPersistent() const
+bool RimcSurface_exportToFile::resultIsPersistent_obsolete() const
 {
     return false;
 }
@@ -87,7 +87,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurface_exportToFile::defaultResult() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurface_exportToFile::isNullptrValidResult() const
+bool RimcSurface_exportToFile::isNullptrValidResult_obsolete() const
 {
     return true;
 }

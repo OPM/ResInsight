@@ -53,7 +53,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcThermalFractureTemplate_export
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcThermalFractureTemplate_exportToFile::resultIsPersistent() const
+bool RimcThermalFractureTemplate_exportToFile::resultIsPersistent_obsolete() const
 {
     return false;
 }
@@ -69,7 +69,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcThermalFractureTemplate_exportToFile::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcThermalFractureTemplate_exportToFile::isNullptrValidResult() const
+bool RimcThermalFractureTemplate_exportToFile::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -102,7 +102,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcThermalFractureTemplate_timeSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcThermalFractureTemplate_timeSteps::resultIsPersistent() const
+bool RimcThermalFractureTemplate_timeSteps::resultIsPersistent_obsolete() const
 {
     return false;
 }
@@ -118,7 +118,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcThermalFractureTemplate_timeSteps::def
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcThermalFractureTemplate_timeSteps::isNullptrValidResult() const
+bool RimcThermalFractureTemplate_timeSteps::isNullptrValidResult_obsolete() const
 {
     return true;
 }

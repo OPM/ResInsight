@@ -45,7 +45,41 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
 //--------------------------------------------------------------------------------------------------
 PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self )
     : m_self( self )
+    , m_isNullptrValid( true )
+    , m_isResultPersistent( false )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmObjectMethod::isNullptrValidResult() const
+{
+    return isNullptrValidResult_obsolete();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmObjectMethod::resultIsPersistent() const
+{
+    return resultIsPersistent_obsolete();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObjectMethod::setNullptrValid( bool isNullptrValid )
+{
+    m_isNullptrValid = isNullptrValid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObjectMethod::setResultPersistent( bool isResultPersistent )
+{
+    m_isResultPersistent = isResultPersistent;
 }
 
 //--------------------------------------------------------------------------------------------------

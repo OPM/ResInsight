@@ -114,7 +114,7 @@ RimWellLogExtractionCurve* RimcWellLogTrack_addExtractionCurve::addExtractionCur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellLogTrack_addExtractionCurve::resultIsPersistent() const
+bool RimcWellLogTrack_addExtractionCurve::resultIsPersistent_obsolete() const
 {
     return true;
 }

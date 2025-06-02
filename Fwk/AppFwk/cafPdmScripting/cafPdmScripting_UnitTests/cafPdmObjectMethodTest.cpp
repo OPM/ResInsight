@@ -17,8 +17,8 @@ public:
     InheritedDemoObj_appendValves( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    bool                                          isNullptrValidResult() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
+    bool                                          isNullptrValidResult_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
@@ -54,7 +54,7 @@ std::expected<caf::PdmObjectHandle*, QString> InheritedDemoObj_appendValves::exe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool InheritedDemoObj_appendValves::resultIsPersistent() const
+bool InheritedDemoObj_appendValves::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -62,7 +62,7 @@ bool InheritedDemoObj_appendValves::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool InheritedDemoObj_appendValves::isNullptrValidResult() const
+bool InheritedDemoObj_appendValves::isNullptrValidResult_obsolete() const
 {
     return true;
 }

@@ -110,7 +110,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addFracture::execute(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_addFracture::resultIsPersistent() const
+bool RimcWellPath_addFracture::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -163,7 +163,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addThermalFracture::e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_addThermalFracture::resultIsPersistent() const
+bool RimcWellPath_addThermalFracture::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -216,7 +216,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendPerforationInte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_appendPerforationInterval::resultIsPersistent() const
+bool RimcWellPath_appendPerforationInterval::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -264,7 +264,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_multiSegmentWellSetti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_multiSegmentWellSettings::resultIsPersistent() const
+bool RimcWellPath_multiSegmentWellSettings::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -272,7 +272,7 @@ bool RimcWellPath_multiSegmentWellSettings::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_multiSegmentWellSettings::isNullptrValidResult() const
+bool RimcWellPath_multiSegmentWellSettings::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -331,7 +331,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendFishbones::exec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_appendFishbones::resultIsPersistent() const
+bool RimcWellPath_appendFishbones::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -339,7 +339,7 @@ bool RimcWellPath_appendFishbones::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_appendFishbones::isNullptrValidResult() const
+bool RimcWellPath_appendFishbones::isNullptrValidResult_obsolete() const
 {
     return true;
 }

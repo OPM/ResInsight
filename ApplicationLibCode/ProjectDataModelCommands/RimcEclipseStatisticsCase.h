@@ -37,9 +37,9 @@ public:
     RimcEclipseStatisticsCase_setSourceProperties( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
+    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<QString>              m_propertyType;
@@ -57,9 +57,9 @@ public:
     RimcEclipseStatisticsCase_computeStatistics( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
+    bool                                          isNullptrValidResult_obsolete() const override;
 };
 
 //==================================================================================================
@@ -73,7 +73,7 @@ public:
     RimcEclipseStatisticsCase_clearSourceProperties( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
+    bool                                          isNullptrValidResult_obsolete() const override;
 };

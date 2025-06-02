@@ -65,7 +65,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPolygonCollection_createPolygo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcPolygonCollection_createPolygon::resultIsPersistent() const
+bool RimcPolygonCollection_createPolygon::resultIsPersistent_obsolete() const
 {
     return true;
 }

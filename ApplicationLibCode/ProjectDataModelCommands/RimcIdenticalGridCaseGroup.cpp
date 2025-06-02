@@ -49,7 +49,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcIdenticalGridCaseGroup_createS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcIdenticalGridCaseGroup_createStatisticsCase::resultIsPersistent() const
+bool RimcIdenticalGridCaseGroup_createStatisticsCase::resultIsPersistent_obsolete() const
 {
     return true;
 }

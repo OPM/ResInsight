@@ -64,7 +64,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_importSurfac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_importSurface::resultIsPersistent() const
+bool RimcSurfaceCollection_importSurface::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -80,7 +80,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_importSurface::defau
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_importSurface::isNullptrValidResult() const
+bool RimcSurfaceCollection_importSurface::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -115,7 +115,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_addFolder::e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_addFolder::resultIsPersistent() const
+bool RimcSurfaceCollection_addFolder::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -131,7 +131,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_addFolder::defaultRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_addFolder::isNullptrValidResult() const
+bool RimcSurfaceCollection_addFolder::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -164,7 +164,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newSurface::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_newSurface::resultIsPersistent() const
+bool RimcSurfaceCollection_newSurface::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -180,7 +180,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newSurface::defaultR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_newSurface::isNullptrValidResult() const
+bool RimcSurfaceCollection_newSurface::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -246,7 +246,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_newRegularSurface::resultIsPersistent() const
+bool RimcSurfaceCollection_newRegularSurface::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -262,7 +262,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newRegularSurface::d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_newRegularSurface::isNullptrValidResult() const
+bool RimcSurfaceCollection_newRegularSurface::isNullptrValidResult_obsolete() const
 {
     return true;
 }

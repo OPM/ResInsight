@@ -93,7 +93,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSummaryPlotCollection_newSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSummaryPlotCollection_newSummaryPlot::resultIsPersistent() const
+bool RimcSummaryPlotCollection_newSummaryPlot::resultIsPersistent_obsolete() const
 {
     return true;
 }

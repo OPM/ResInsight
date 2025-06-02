@@ -37,9 +37,9 @@ public:
     RimProject_importSummaryCase( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
+    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<QString> m_fileName;
@@ -56,9 +56,9 @@ public:
     RimProject_summaryCase( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
+    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<int> m_caseId;
@@ -75,9 +75,9 @@ public:
     RimProject_surfaceFolder( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
+    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<QString> m_folderName;
@@ -94,9 +94,9 @@ public:
     RimProject_createGridFromKeyValues( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
+    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
+    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<QString> m_name;

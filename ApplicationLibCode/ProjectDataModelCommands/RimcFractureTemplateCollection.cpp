@@ -65,7 +65,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_app
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplateCollection_appendFractureTemplate::resultIsPersistent() const
+bool RimcFractureTemplateCollection_appendFractureTemplate::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -112,7 +112,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_app
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplateCollection_appendThermalFractureTemplate::resultIsPersistent() const
+bool RimcFractureTemplateCollection_appendThermalFractureTemplate::resultIsPersistent_obsolete() const
 {
     return true;
 }

@@ -56,7 +56,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPressureTable_addPressure::exe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcPressureTable_addPressure::resultIsPersistent() const
+bool RimcPressureTable_addPressure::resultIsPersistent_obsolete() const
 {
     return true;
 }

@@ -75,7 +75,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelCollection_append
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcStimPlanModelCollection_appendStimPlanModel::resultIsPersistent() const
+bool RimcStimPlanModelCollection_appendStimPlanModel::resultIsPersistent_obsolete() const
 {
     return true;
 }

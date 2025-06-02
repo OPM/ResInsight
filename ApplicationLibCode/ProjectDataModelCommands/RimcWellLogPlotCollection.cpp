@@ -89,7 +89,7 @@ RimWellLogPlot* RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellLogPlotCollection_newWellLogPlot::resultIsPersistent() const
+bool RimcWellLogPlotCollection_newWellLogPlot::resultIsPersistent_obsolete() const
 {
     return true;
 }

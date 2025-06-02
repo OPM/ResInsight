@@ -75,7 +75,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyFrom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcRegularSurface_setPropertyFromKey::resultIsPersistent() const
+bool RimcRegularSurface_setPropertyFromKey::resultIsPersistent_obsolete() const
 {
     return false;
 }
@@ -91,7 +91,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcRegularSurface_setPropertyFromKey::def
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcRegularSurface_setPropertyFromKey::isNullptrValidResult() const
+bool RimcRegularSurface_setPropertyFromKey::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -134,7 +134,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyAsDe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcRegularSurface_setPropertyAsDepth::resultIsPersistent() const
+bool RimcRegularSurface_setPropertyAsDepth::resultIsPersistent_obsolete() const
 {
     return false;
 }
@@ -150,7 +150,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcRegularSurface_setPropertyAsDepth::def
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcRegularSurface_setPropertyAsDepth::isNullptrValidResult() const
+bool RimcRegularSurface_setPropertyAsDepth::isNullptrValidResult_obsolete() const
 {
     return true;
 }

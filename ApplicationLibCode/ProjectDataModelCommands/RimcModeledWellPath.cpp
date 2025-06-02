@@ -61,7 +61,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcModeledWellPath_appendLateral:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcModeledWellPath_appendLateral::resultIsPersistent() const
+bool RimcModeledWellPath_appendLateral::resultIsPersistent_obsolete() const
 {
     return true;
 }

@@ -78,7 +78,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_importProperties::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcEclipseCase_importProperties::resultIsPersistent() const
+bool RimcEclipseCase_importProperties::resultIsPersistent_obsolete() const
 {
     return false;
 }
@@ -94,7 +94,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcEclipseCase_importProperties::defaultR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcEclipseCase_importProperties::isNullptrValidResult() const
+bool RimcEclipseCase_importProperties::isNullptrValidResult_obsolete() const
 {
     return true;
 }

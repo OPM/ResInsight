@@ -71,16 +71,21 @@ public:
 
     // Some execute() methods can return a null pointer as a valid return value.
     // Return true here to allow this
-    virtual bool isNullptrValidResult() const { return false; }
+    virtual bool isNullptrValidResult_obsolete() const { return false; }
 
     virtual QString selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
 
     // True if object is a persistent project tree item. False if the object is to be deleted on completion.
-    virtual bool resultIsPersistent() const = 0;
+    virtual bool resultIsPersistent_obsolete() const = 0;
 
     // In order for the code generators to inspect the fields in the result object any PdmObjectMethod
     // ... need to provide an implementation that returns the same object type as the execute method.
     virtual std::unique_ptr<PdmObjectHandle> defaultResult() const = 0;
+
+    bool isNullptrValidResult() const;
+    bool resultIsPersistent() const;
+    void setNullptrValid( bool isNullptrValid );
+    void setResultPersistent( bool isResultPersistent );
 
 protected:
     // Basically the "this" pointer to the object the method belongs to
@@ -95,6 +100,10 @@ protected:
 private:
     friend class PdmObjectScriptingCapability;
     PdmPointer<PdmObjectHandle> m_self;
+
+    bool m_isNullptrValid; // True if execute() can return a null pointer as a valid result
+    bool m_isResultPersistent; // True if the result is a persistent project tree item, false if it is a temporary
+                               // object to be deleted on completion
 };
 
 //==================================================================================================

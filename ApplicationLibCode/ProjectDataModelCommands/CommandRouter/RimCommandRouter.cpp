@@ -52,7 +52,7 @@ RimCommandRouterMethod::RimCommandRouterMethod( PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCommandRouterMethod::isNullptrValidResult() const
+bool RimCommandRouterMethod::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -60,7 +60,7 @@ bool RimCommandRouterMethod::isNullptrValidResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCommandRouterMethod::resultIsPersistent() const
+bool RimCommandRouterMethod::resultIsPersistent_obsolete() const
 {
     return false;
 }

@@ -84,7 +84,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRimWellPathGeometryDef_appendN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcRimWellPathGeometryDef_appendNewWellTarget::resultIsPersistent() const
+bool RimcRimWellPathGeometryDef_appendNewWellTarget::resultIsPersistent_obsolete() const
 {
     return true;
 }

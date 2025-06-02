@@ -90,7 +90,7 @@ RimWellLogTrack* RimcWellLogPlot_newWellLogTrack::createWellLogTrack( RimWellLog
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellLogPlot_newWellLogTrack::resultIsPersistent() const
+bool RimcWellLogPlot_newWellLogTrack::resultIsPersistent_obsolete() const
 {
     return true;
 }

@@ -101,7 +101,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryCase::exec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_importSummaryCase::resultIsPersistent() const
+bool RimProject_importSummaryCase::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -117,7 +117,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_importSummaryCase::defaultResul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_importSummaryCase::isNullptrValidResult() const
+bool RimProject_importSummaryCase::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -153,7 +153,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_summaryCase::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_summaryCase::resultIsPersistent() const
+bool RimProject_summaryCase::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -169,7 +169,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_summaryCase::defaultResult() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_summaryCase::isNullptrValidResult() const
+bool RimProject_summaryCase::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -208,7 +208,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_surfaceFolder::execute(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_surfaceFolder::resultIsPersistent() const
+bool RimProject_surfaceFolder::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -224,7 +224,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_surfaceFolder::defaultResult() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_surfaceFolder::isNullptrValidResult() const
+bool RimProject_surfaceFolder::isNullptrValidResult_obsolete() const
 {
     return true;
 }
@@ -324,7 +324,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_createGridFromKeyValues::resultIsPersistent() const
+bool RimProject_createGridFromKeyValues::resultIsPersistent_obsolete() const
 {
     return true;
 }
@@ -340,7 +340,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_createGridFromKeyValues::defaul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_createGridFromKeyValues::isNullptrValidResult() const
+bool RimProject_createGridFromKeyValues::isNullptrValidResult_obsolete() const
 {
     return true;
 }
