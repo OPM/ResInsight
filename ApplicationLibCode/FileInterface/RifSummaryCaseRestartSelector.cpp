@@ -185,7 +185,6 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const st
 
     RicSummaryCaseRestartDialog::ImportOptions defaultGridImportMode = mapReadOption( prefs->gridImportMode() );
 
-    caf::ProgressInfo progress( initialFiles.size(), QString( "Importing files" ) );
     for ( const RifSummaryCaseFileImportInfo& initialFile : initialFiles )
     {
         RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog( initialFile.summaryFileName(),
@@ -237,8 +236,6 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const st
                 m_gridFiles.push_back( gridFile );
             }
         }
-
-        progress.incrementProgress();
     }
 }
 
