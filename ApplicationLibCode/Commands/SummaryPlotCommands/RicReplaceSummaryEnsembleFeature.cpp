@@ -76,6 +76,9 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
 
             collection->updateFileSetNames();
             collection->updateAllRequiredEditors();
+
+            RiaLogging::info( QString( "Completed replace ensemble, new name is '" ) + summaryEnsemble->name() + "'" );
+
             return;
         }
 

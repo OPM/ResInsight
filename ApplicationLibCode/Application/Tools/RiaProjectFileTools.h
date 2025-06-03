@@ -26,65 +26,59 @@
 
 #include <vector>
 
+class RiaVariableMapper;
+class RimProject;
+
 //==================================================================================================
 //
 //==================================================================================================
-class RiaProjectFileTools
+namespace RiaProjectFileTools
 {
-public:
-    static bool isCandidateVersionNewerThanOther( const QString& candidateProjectFileVersion, const QString& otherProjectFileVersion );
+bool isCandidateVersionNewerThanOther( const QString& candidateProjectFileVersion, const QString& otherProjectFileVersion );
 
-    // Public to be able to unit test function, not intended to be used
-    static void decodeVersionString( const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch, int* developmentId );
+template <typename T>
+std::vector<T*> writableFieldContent( const caf::PdmObjectHandle* object )
+{
+    if ( !object ) return {};
 
-    template <typename T>
-    static std::vector<T*> writableFieldContent( const caf::PdmObjectHandle* object )
+    std::vector<T*> fieldContents;
+
+    std::vector<caf::PdmObjectHandle*> children;
+    for ( const auto& field : object->fields() )
     {
-        if ( !object ) return {};
+        if ( !field ) continue;
 
-        std::vector<T*> fieldContents;
+        if ( field->xmlCapability() && !field->xmlCapability()->isIOWritable() ) continue;
 
-        std::vector<caf::PdmObjectHandle*> children;
-        for ( const auto& field : object->fields() )
+        caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
+        if ( typedField ) fieldContents.push_back( &typedField->v() );
+
+        caf::PdmField<std::vector<T>>* typedFieldInVector = dynamic_cast<caf::PdmField<std::vector<T>>*>( field );
+        if ( typedFieldInVector )
         {
-            if ( !field ) continue;
-
-            if ( field->xmlCapability() && !field->xmlCapability()->isIOWritable() ) continue;
-
-            caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
-            if ( typedField ) fieldContents.push_back( &typedField->v() );
-
-            caf::PdmField<std::vector<T>>* typedFieldInVector = dynamic_cast<caf::PdmField<std::vector<T>>*>( field );
-            if ( typedFieldInVector )
+            for ( T& typedFieldFromVector : typedFieldInVector->v() )
             {
-                for ( T& typedFieldFromVector : typedFieldInVector->v() )
-                {
-                    fieldContents.push_back( &typedFieldFromVector );
-                }
+                fieldContents.push_back( &typedFieldFromVector );
             }
-
-            auto other = field->children();
-            children.insert( children.end(), other.begin(), other.end() );
         }
 
-        for ( const auto& child : children )
-        {
-            auto childObjects = writableFieldContent<T>( child );
-            fieldContents.insert( fieldContents.end(), childObjects.begin(), childObjects.end() );
-        }
-
-        return fieldContents;
+        auto other = field->children();
+        children.insert( children.end(), other.begin(), other.end() );
     }
 
-private:
-    static bool isCandidateNewerThanOther( int candidateMajorVersion,
-                                           int candidateMinorVersion,
-                                           int candidatePatchNumber,
-                                           int candidateDevelopmentId,
-                                           int otherMajorVersion,
-                                           int otherMinorVersion,
-                                           int otherPatchNumber,
-                                           int otherDevelopmentId );
+    for ( const auto& child : children )
+    {
+        auto childObjects = writableFieldContent<T>( child );
+        fieldContents.insert( fieldContents.end(), childObjects.begin(), childObjects.end() );
+    }
 
-    static QString stringOfDigits( const QString& string );
-};
+    return fieldContents;
+}
+
+QString transferPathsToGlobalPathList( RimProject* project );
+void    distributePathsFromGlobalPathList( RimProject* project, const QString& pathList );
+QString updatedFilePathFromPathId( QString filePath, RiaVariableMapper* pathListMapper );
+
+// Public to be able to unit test function
+void decodeVersionString( const QString& projectFileVersion, int* majorVersion, int* minorVersion, int* patch, int* developmentId );
+}; // namespace RiaProjectFileTools
