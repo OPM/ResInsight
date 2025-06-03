@@ -540,12 +540,6 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
         RiaLogging::error( QString( "Fault name '%1' contains spaces" ).arg( faultName ) );
         return;
     }
-    else if ( faultName.length() > 8 )
-    {
-        // Keep going anyway, eclipse files sometimes have longer than
-        // the specified 8 characters in the name without Eclipse complaining
-        RiaLogging::warning( QString( "Fault name '%1' is longer than 8 characters" ).arg( faultName ) );
-    }
 
     std::vector<RigFault::CellAndFace> faultCellAndFaces;
 
@@ -1632,12 +1626,6 @@ void RifEclipseInputFileTools::readFaults( QFile& data, qint64 filePos, cvf::Col
         {
             errorMessages.insert( QString( "Fault name '%1' contains spaces" ).arg( faultName ) );
             continue;
-        }
-        else if ( faultName.length() > 8 )
-        {
-            // Keep going anyway, eclipse files sometimes have longer than
-            // the specified 8 characters in the name without Eclipse complaining
-            warningMessages.insert( QString( "Fault name '%1' is longer than 8 characters" ).arg( faultName ) );
         }
 
         int i1, i2, j1, j2, k1, k2;
