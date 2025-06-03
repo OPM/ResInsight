@@ -78,7 +78,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_importProperties::
     return nullptr;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -86,4 +85,3 @@ std::unique_ptr<caf::PdmObjectHandle> RimcEclipseCase_importProperties::defaultR
 {
     return nullptr;
 }
-

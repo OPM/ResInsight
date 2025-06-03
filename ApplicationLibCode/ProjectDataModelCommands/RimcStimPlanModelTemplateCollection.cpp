@@ -76,7 +76,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelTemplateCollectio
     return appendStimPlanModelTemplate;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
