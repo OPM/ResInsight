@@ -31,6 +31,8 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimIdenticalGridCaseGroup, RimcIdenticalGridC
 RimcIdenticalGridCaseGroup_createStatisticsCase::RimcIdenticalGridCaseGroup_createStatisticsCase( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
+    setNullptrValid( false );
+    setResultPersistent( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -37,6 +37,9 @@ RimcModeledWellPath_appendLateral::RimcModeledWellPath_appendLateral( caf::PdmOb
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Append Well Path Lateral", "", "", "Append Well Path Lateral" );
+    setNullptrValid( false );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableField( &m_tieInDepth, "TieInDepth", 0.0, "", "", "", "Measured Depth on the Parent Well Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_lateralName, "LateralName", "", "", "", "Lateral Name" );
 }

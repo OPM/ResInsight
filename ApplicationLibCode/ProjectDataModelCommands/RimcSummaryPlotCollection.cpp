@@ -44,6 +44,9 @@ RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPl
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Summary Plot", "", "", "Create a new Summary Plot" );
+    setNullptrValid( false );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_summaryCases, "SummaryCases", "", "", "", "Summary Cases" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_ensemble, "Ensemble", "", "", "", "Ensemble" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address string specifying the plot options" );

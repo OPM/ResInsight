@@ -54,6 +54,8 @@ RimcWellPath_addFracture::RimcWellPath_addFracture( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Add StimPlan Fracture", "", "", "Add StimPlan Fracture" );
+    setNullptrValid( false );
+    setResultPersistent( true );
 
     CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanFractureTemplate, "StimPlanFractureTemplate", "", "", "", "StimPlan Fracture Template" );
@@ -132,6 +134,9 @@ RimcWellPath_addThermalFracture::RimcWellPath_addThermalFracture( caf::PdmObject
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Add Thermal Fracture", "", "", "Add Thermal Fracture" );
+    setNullptrValid( false );
+    setResultPersistent( true );
+
 
     CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_fractureTemplate, "FractureTemplate", "", "", "", "Thermal Fracture Template" );
@@ -185,6 +190,9 @@ RimcWellPath_appendPerforationInterval::RimcWellPath_appendPerforationInterval( 
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Append Perforation Interval", "", "", "Append Perforation Interval" );
+    setNullptrValid( false );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableField( &m_startMD, "StartMd", 0.0, "", "", "", "Start Measured Depth" );
     CAF_PDM_InitScriptableField( &m_endMD, "EndMd", 0.0, "", "", "", "End Measured Depth" );
     CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.0, "", "", "", "Diameter" );
@@ -238,6 +246,8 @@ RimcWellPath_multiSegmentWellSettings::RimcWellPath_multiSegmentWellSettings( ca
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "MSW Settings", "", "", "Multi Segment Well Settings" );
+    setNullptrValid( true );
+    setResultPersistent( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,6 +304,9 @@ RimcWellPath_appendFishbones::RimcWellPath_appendFishbones( caf::PdmObjectHandle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Append Fishbones", "", "", "Append Fishbones" );
+    setNullptrValid( true );
+    setResultPersistent( true );
+
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_subLocations, "SubLocations", "SubLocations" );
     auto defaultDrillingType = RimFishbonesDefines::DrillingType::STANDARD;

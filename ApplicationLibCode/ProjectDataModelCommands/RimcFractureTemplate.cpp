@@ -33,6 +33,9 @@ RimcFractureTemplate_setScaleFactors::RimcFractureTemplate_setScaleFactors( caf:
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set Fracture Template Scale Factors", "", "", "Set Fracture Template Scale Factors." );
+    setNullptrValid( true );
+    setResultPersistent( false );
+
     CAF_PDM_InitScriptableField( &m_halfLength, "HalfLength", 1.0, "Half Length" );
     CAF_PDM_InitScriptableField( &m_height, "Height", 1.0, "Height" );
     CAF_PDM_InitScriptableField( &m_dFactor, "DFactor", 1.0, "D Factor" );

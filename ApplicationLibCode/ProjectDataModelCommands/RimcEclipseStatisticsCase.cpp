@@ -37,6 +37,9 @@ RimcEclipseStatisticsCase_setSourceProperties::RimcEclipseStatisticsCase_setSour
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Define Source Properties" );
+    setNullptrValid( true );
+    setResultPersistent( false );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertyType, "PropertyType", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertyNames, "PropertyNames", "" );
 }
@@ -93,6 +96,8 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseStatisticsCase, RimcEclipseStatisti
 RimcEclipseStatisticsCase_computeStatistics::RimcEclipseStatisticsCase_computeStatistics( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
+    setNullptrValid( true );
+    setResultPersistent( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,6 +143,8 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseStatisticsCase, RimcEclipseStatisti
 RimcEclipseStatisticsCase_clearSourceProperties::RimcEclipseStatisticsCase_clearSourceProperties( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
+    setNullptrValid( true );
+    setResultPersistent( false );
 }
 
 //--------------------------------------------------------------------------------------------------

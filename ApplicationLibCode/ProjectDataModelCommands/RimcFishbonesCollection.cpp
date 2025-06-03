@@ -36,6 +36,8 @@ RimcFishbonesCollection_appendFishbones::RimcFishbonesCollection_appendFishbones
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Append Fishbones", "", "", "Append Fishbones" );
+    setNullptrValid( false );
+    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_subLocations, "SubLocations", "SubLocations" );
     CAF_PDM_InitScriptableField( &m_drillingType, "DrillingType", RimFishbonesDefines::DrillingType::STANDARD, "DrillingType" );
@@ -90,6 +92,8 @@ RimcFishbonesCollection_setFixedStartLocation::RimcFishbonesCollection_setFixedS
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set Fixed Start Location", "", "", "" );
+    setNullptrValid( true );
+    setResultPersistent( false );
 
     CAF_PDM_InitScriptableField( &m_location, "Location", 0.0, "Location" );
 }
@@ -141,6 +145,8 @@ RimcFishbonesCollection_setFixedEndLocation::RimcFishbonesCollection_setFixedEnd
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set Fixed End Location", "", "", "" );
+    setNullptrValid( true );
+    setResultPersistent( false );
 
     CAF_PDM_InitScriptableField( &m_location, "Location", 0.0, "Location" );
 }

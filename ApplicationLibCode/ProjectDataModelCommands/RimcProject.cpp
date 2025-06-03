@@ -56,6 +56,9 @@ RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Import Summary Case", "", "", "Import Summary Case" );
+    setNullptrValid( true );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "" );
 }
 
@@ -131,6 +134,9 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );
+    setNullptrValid( true );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableField( &m_caseId, "CaseId", -1, "" );
 }
 
@@ -183,6 +189,9 @@ RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
+    setNullptrValid( true );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_folderName, "FolderName", "" );
 }
 
@@ -194,7 +203,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_surfaceFolder::execute(
     auto                  proj     = RimProject::current();
     RimSurfaceCollection* surfcoll = proj->activeOilField()->surfaceCollection();
 
-    // Blank foldername parameter should return the topmost folder
+    // Blank folder name parameter should return the topmost folder
     if ( m_folderName().isEmpty() ) return surfcoll;
 
     for ( auto s : surfcoll->subCollections() )
@@ -238,6 +247,8 @@ RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::Pdm
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create grid from key values", "", "", "Create Grid From Key Values" );
+    setNullptrValid( true );
+    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "" );
 

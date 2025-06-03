@@ -33,6 +33,9 @@ RimcStimPlanModel_exportToFile::RimcStimPlanModel_exportToFile( caf::PdmObjectHa
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export StimPlan Model Plot", "", "", "Export StimPlan Model Plot to File" );
+    setNullptrValid( true );
+    setResultPersistent( false );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_directoryPath, "DirectoryPath", "", "", "", "Directory Path" );
 }
 

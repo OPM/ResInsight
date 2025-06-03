@@ -37,6 +37,9 @@ RimcRegularSurface_setPropertyFromKey::RimcRegularSurface_setPropertyFromKey( ca
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set property from key", "", "", "Set property from key." );
+    setNullptrValid( true );
+    setResultPersistent( false );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "", "", "", "Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_valueKey, "ValueKey", "", "", "", "Key Value" );
 }
@@ -105,6 +108,9 @@ RimcRegularSurface_setPropertyAsDepth::RimcRegularSurface_setPropertyAsDepth( ca
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set property as depth", "", "", "Set property as depth." );
+    setNullptrValid( true );
+    setResultPersistent( false );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "", "", "", "Name" );
 }
 

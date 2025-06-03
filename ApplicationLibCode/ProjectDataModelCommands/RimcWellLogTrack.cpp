@@ -43,6 +43,9 @@ RimcWellLogTrack_addExtractionCurve::RimcWellLogTrack_addExtractionCurve( caf::P
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Well Log Extraction Curve", "", "", "Create a well log extraction curve" );
+    setNullptrValid( false );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "", "", "", "Case" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertyType, "PropertyType", "", "", "", "Property Type" );

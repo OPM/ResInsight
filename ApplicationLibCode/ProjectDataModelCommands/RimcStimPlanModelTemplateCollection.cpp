@@ -42,6 +42,9 @@ RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::RimcStimPlanMod
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model Template", "", "", "Create a new StimPlan Model Template" );
+    setNullptrValid( false );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "", "", "", "Time Step" );
 

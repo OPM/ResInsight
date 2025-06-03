@@ -35,6 +35,9 @@ RimcThermalFractureTemplate_exportToFile::RimcThermalFractureTemplate_exportToFi
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export Thermal Fracture Template", "", "", "Export Thermal Fracture Template to File" );
+    setNullptrValid( true );
+    setResultPersistent( false );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
 }
@@ -83,6 +86,8 @@ RimcThermalFractureTemplate_timeSteps::RimcThermalFractureTemplate_timeSteps( ca
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Get Thermal Fracture Template Time Steps", "", "", "Get Thermal Fracture Template Time Steps" );
+    setNullptrValid( true );
+    setResultPersistent( false );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,6 +47,8 @@ RimCommandRouter::RimCommandRouter()
 RimCommandRouterMethod::RimCommandRouterMethod( PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
+    setNullptrValid( true );
+    setResultPersistent( false );
 }
 
 //--------------------------------------------------------------------------------------------------

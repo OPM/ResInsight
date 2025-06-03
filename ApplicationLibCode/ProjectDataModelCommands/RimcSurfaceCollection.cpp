@@ -43,6 +43,9 @@ RimcSurfaceCollection_importSurface::RimcSurfaceCollection_importSurface( caf::P
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Import Surface", "", "", "Import a new surface from file" );
+    setNullptrValid( true );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Filename to import surface from" );
 }
 
@@ -92,6 +95,9 @@ RimcSurfaceCollection_addFolder::RimcSurfaceCollection_addFolder( caf::PdmObject
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Add Folder", "", "", "Add a new surface folder" );
+    setNullptrValid( true );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableField( &m_folderName, "FolderName", QString( "Surfaces" ), "", "", "", "New surface folder name" );
 }
 
@@ -143,6 +149,9 @@ RimcSurfaceCollection_newSurface::RimcSurfaceCollection_newSurface( caf::PdmObje
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "New Surface", "", "", "Create a new surface" );
+    setNullptrValid( true );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "" );
     CAF_PDM_InitScriptableField( &m_kIndex, "KIndex", 0, "" );
 }
@@ -192,6 +201,8 @@ RimcSurfaceCollection_newRegularSurface::RimcSurfaceCollection_newRegularSurface
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "New Regular Surface", "", "", "Create a new regular surface" );
+    setNullptrValid( true );
+    setResultPersistent( true );
 
     CAF_PDM_InitScriptableField( &m_name, "Name", QString( "" ), "Name" );
 

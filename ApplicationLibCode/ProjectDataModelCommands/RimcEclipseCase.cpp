@@ -47,6 +47,9 @@ RimcEclipseCase_importProperties::RimcEclipseCase_importProperties( caf::PdmObje
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Import Properties", "", "", "Import Properties" );
+    setNullptrValid( true );
+    setResultPersistent( false );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileNames, "FileNames", "" );
 }
 

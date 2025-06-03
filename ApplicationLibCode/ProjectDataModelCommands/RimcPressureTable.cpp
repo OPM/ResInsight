@@ -32,6 +32,8 @@ RimcPressureTable_addPressure::RimcPressureTable_addPressure( caf::PdmObjectHand
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Add pressure data", "", "", "Add pressure data to pressure table." );
+    setNullptrValid( false );
+    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_depth, "Depth", "", "", "", "Depth: TVDMSL [m]" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressure, "InitialPressure", "", "", "", "Initial Pressure [Bar]" );

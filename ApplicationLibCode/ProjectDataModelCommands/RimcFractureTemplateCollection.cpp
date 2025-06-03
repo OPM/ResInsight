@@ -42,6 +42,9 @@ RimcFractureTemplateCollection_appendFractureTemplate::RimcFractureTemplateColle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new StimPlan Fracture Template" );
+    setNullptrValid( false );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path to StimPlan Countour File" );
 }
 
@@ -89,6 +92,9 @@ RimcFractureTemplateCollection_appendThermalFractureTemplate::RimcFractureTempla
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new Thermal Fracture Template" );
+    setNullptrValid( false );
+    setResultPersistent( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path to Thermal Fracture CSV File" );
 }
 
