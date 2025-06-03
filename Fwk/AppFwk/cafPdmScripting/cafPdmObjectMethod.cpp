@@ -45,7 +45,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
 //--------------------------------------------------------------------------------------------------
 PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self )
     : m_self( self )
-    , m_isNullptrValid( true )
+    , m_isNullptrValid( false )
     , m_isResultPersistent( false )
 {
 }
@@ -55,7 +55,7 @@ PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 bool PdmObjectMethod::isNullptrValidResult() const
 {
-    return isNullptrValidResult_obsolete();
+    return m_isNullptrValid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ bool PdmObjectMethod::isNullptrValidResult() const
 //--------------------------------------------------------------------------------------------------
 bool PdmObjectMethod::resultIsPersistent() const
 {
-    return resultIsPersistent_obsolete();
+    return m_isResultPersistent;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,6 +72,17 @@ bool PdmObjectMethod::resultIsPersistent() const
 void PdmObjectMethod::setNullptrValid( bool isNullptrValid )
 {
     m_isNullptrValid = isNullptrValid;
+
+    if ( isNullptrValid != isNullptrValidResult_obsolete() )
+    {
+        QString boolStr = isNullptrValidResult_obsolete() ? "true" : "false";
+
+        QString text;
+        text += selfClassKeyword();
+        text += QString( " Use setNullptrValid(%1);" ).arg( boolStr );
+
+        qDebug() << text;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +91,16 @@ void PdmObjectMethod::setNullptrValid( bool isNullptrValid )
 void PdmObjectMethod::setResultPersistent( bool isResultPersistent )
 {
     m_isResultPersistent = isResultPersistent;
+    if ( isResultPersistent != resultIsPersistent_obsolete() )
+    {
+        QString boolStr = resultIsPersistent_obsolete() ? "true" : "false";
+
+        QString text;
+        text += selfClassKeyword();
+        text += QString( " Use setResultPersistent(%1);" ).arg( boolStr );
+
+        qDebug() << text;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
