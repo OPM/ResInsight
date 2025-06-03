@@ -64,14 +64,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcModeledWellPath_appendLateral:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcModeledWellPath_appendLateral::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcModeledWellPath_appendLateral::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimModeledWellPath );

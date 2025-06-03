@@ -55,23 +55,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModel_exportToFile::ex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcStimPlanModel_exportToFile::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModel_exportToFile::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModel );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcStimPlanModel_exportToFile::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

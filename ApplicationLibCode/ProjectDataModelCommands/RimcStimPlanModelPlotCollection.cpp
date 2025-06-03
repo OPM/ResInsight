@@ -63,14 +63,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelPlotCollection_ap
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModelPlot );

@@ -112,14 +112,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addFracture::execute(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_addFracture::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addFracture::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
@@ -162,14 +154,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addThermalFracture::e
     }
 
     return wellPathFracture;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcWellPath_addThermalFracture::resultIsPersistent_obsolete() const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,14 +207,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendPerforationInte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_appendPerforationInterval::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_appendPerforationInterval::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimPerforationInterval );
@@ -268,22 +244,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_multiSegmentWellSetti
         return completionSettings->mswCompletionParameters();
     }
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcWellPath_multiSegmentWellSettings::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcWellPath_multiSegmentWellSettings::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,22 +297,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendFishbones::exec
     RiaLogging::error( "No fishbones collection object found, cannot create fishbones object." );
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcWellPath_appendFishbones::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcWellPath_appendFishbones::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

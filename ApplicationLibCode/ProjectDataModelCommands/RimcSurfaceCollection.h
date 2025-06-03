@@ -44,9 +44,7 @@ public:
     RimcSurfaceCollection_importSurface( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<QString> m_fileName;
@@ -63,9 +61,7 @@ public:
     RimcSurfaceCollection_addFolder( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<QString> m_folderName;
@@ -82,9 +78,7 @@ public:
     RimcSurfaceCollection_newSurface( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmPtrField<RimCase*> m_case;
@@ -102,9 +96,7 @@ public:
     RimcSurfaceCollection_newRegularSurface( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<QString> m_name;

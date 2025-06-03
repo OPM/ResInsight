@@ -87,7 +87,6 @@ public:
     RimcExtrudedCurveIntersection_geometry( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
     static std::unique_ptr<RivIntersectionGeometryGeneratorInterface>
@@ -108,7 +107,6 @@ public:
     RimcExtrudedCurveIntersection_geometryResult( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:

@@ -70,14 +70,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcElasticProperties_addPropertyS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcElasticProperties_addPropertyScaling::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcElasticProperties_addPropertyScaling::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimElasticPropertyScaling );

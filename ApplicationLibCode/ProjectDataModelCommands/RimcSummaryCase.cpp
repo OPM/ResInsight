@@ -72,14 +72,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_summaryVectorValues
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_summaryVectorValues::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_summaryVectorValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerDouble );
@@ -126,14 +118,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_availableAddresses:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_availableAddresses::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_availableAddresses::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString );
@@ -168,14 +152,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_availableTimeSteps:
     }
 
     return dataObject;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_availableTimeSteps::resultIsPersistent_obsolete() const
-{
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,14 +225,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_resampleValues::exe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_resampleValues::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_resampleValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcSummaryResampleData );
@@ -317,23 +285,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_setSummaryVectorVal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_setSummaryVectorValues::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_setSummaryVectorValues::defaultResult() const
 {
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_setSummaryVectorValues::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

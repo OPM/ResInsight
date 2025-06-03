@@ -93,14 +93,6 @@ RimWellLogTrack* RimcWellLogPlot_newWellLogTrack::createWellLogTrack( RimWellLog
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellLogPlot_newWellLogTrack::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcWellLogPlot_newWellLogTrack::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogTrack );

@@ -51,14 +51,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcIdenticalGridCaseGroup_createS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcIdenticalGridCaseGroup_createStatisticsCase::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcIdenticalGridCaseGroup_createStatisticsCase::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimEclipseStatisticsCase );

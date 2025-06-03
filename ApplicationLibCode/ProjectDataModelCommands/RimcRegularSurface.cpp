@@ -78,25 +78,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyFrom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcRegularSurface_setPropertyFromKey::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcRegularSurface_setPropertyFromKey::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcRegularSurface_setPropertyFromKey::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimRegularSurface, RimcRegularSurface_setPropertyAsDepth, "SetPropertyAsDepth" );
@@ -140,23 +124,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyAsDe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcRegularSurface_setPropertyAsDepth::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcRegularSurface_setPropertyAsDepth::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcRegularSurface_setPropertyAsDepth::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

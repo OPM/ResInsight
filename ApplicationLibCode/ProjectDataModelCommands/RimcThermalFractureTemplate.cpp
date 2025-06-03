@@ -56,25 +56,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcThermalFractureTemplate_export
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcThermalFractureTemplate_exportToFile::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcThermalFractureTemplate_exportToFile::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimThermalFractureTemplate );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcThermalFractureTemplate_exportToFile::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimThermalFractureTemplate, RimcThermalFractureTemplate_timeSteps, "TimeSteps" );
@@ -107,23 +91,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcThermalFractureTemplate_timeSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcThermalFractureTemplate_timeSteps::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcThermalFractureTemplate_timeSteps::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcThermalFractureTemplate_timeSteps::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

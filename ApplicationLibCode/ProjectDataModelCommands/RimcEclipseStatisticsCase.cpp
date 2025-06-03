@@ -67,25 +67,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseStatisticsCase_setSourc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcEclipseStatisticsCase_setSourceProperties::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcEclipseStatisticsCase_setSourceProperties::defaultResult() const
 {
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcEclipseStatisticsCase_setSourceProperties::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseStatisticsCase, RimcEclipseStatisticsCase_computeStatistics, "compute_statistics" );
@@ -114,25 +98,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseStatisticsCase_computeS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcEclipseStatisticsCase_computeStatistics::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcEclipseStatisticsCase_computeStatistics::defaultResult() const
 {
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcEclipseStatisticsCase_computeStatistics::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseStatisticsCase, RimcEclipseStatisticsCase_clearSourceProperties, "clear_source_properties" );
@@ -170,23 +138,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseStatisticsCase_clearSou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcEclipseStatisticsCase_clearSourceProperties::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcEclipseStatisticsCase_clearSourceProperties::defaultResult() const
 {
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcEclipseStatisticsCase_clearSourceProperties::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

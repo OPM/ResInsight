@@ -69,14 +69,7 @@ public:
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual std::expected<caf::PdmObjectHandle*, QString> execute() = 0;
 
-    // Some execute() methods can return a null pointer as a valid return value.
-    // Return true here to allow this
-    virtual bool isNullptrValidResult_obsolete() const { return false; }
-
     virtual QString selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
-
-    // True if object is a persistent project tree item. False if the object is to be deleted on completion.
-    virtual bool resultIsPersistent_obsolete() const = 0;
 
     // In order for the code generators to inspect the fields in the result object any PdmObjectMethod
     // ... need to provide an implementation that returns the same object type as the execute method.

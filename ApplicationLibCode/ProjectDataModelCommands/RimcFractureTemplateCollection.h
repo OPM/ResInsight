@@ -37,7 +37,6 @@ public:
     RimcFractureTemplateCollection_appendFractureTemplate( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
@@ -55,7 +54,6 @@ public:
     RimcFractureTemplateCollection_appendThermalFractureTemplate( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:

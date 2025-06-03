@@ -341,7 +341,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 QString methodBody = QString( "self._call_pdm_method_void(%1)" ).arg( outputArgumentStrings.join( ", " ) );
                 if ( returnDataType != "None" )
                 {
-                    if ( method->isNullptrValidResult_obsolete() )
+                    if ( method->isNullptrValidResult() )
                     {
                         methodBody = QString( "return self._call_pdm_method_return_optional_value(%1)" )
                                          .arg( outputArgumentStrings.join( ", " ) );

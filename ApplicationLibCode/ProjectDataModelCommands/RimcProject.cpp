@@ -104,25 +104,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryCase::exec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_importSummaryCase::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimProject_importSummaryCase::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSummaryCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimProject_importSummaryCase::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_summaryCase, "summaryCase" );
@@ -159,25 +143,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_summaryCase::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_summaryCase::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimProject_summaryCase::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSummaryCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimProject_summaryCase::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_surfaceFolder, "surfaceFolder" );
@@ -217,25 +185,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_surfaceFolder::execute(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_surfaceFolder::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimProject_surfaceFolder::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimProject_surfaceFolder::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridFromKeyValues, "createGridFromKeyValues" );
@@ -335,23 +287,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProject_createGridFromKeyValues::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimProject_createGridFromKeyValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimCornerPointCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimProject_createGridFromKeyValues::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

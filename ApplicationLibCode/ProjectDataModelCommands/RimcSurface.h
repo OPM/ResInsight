@@ -39,9 +39,7 @@ public:
     RimcSurface_exportToFile( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<QString> m_fileName;

@@ -30,8 +30,6 @@ class RimCommandRouterMethod : public caf::PdmObjectMethod
 public:
     RimCommandRouterMethod( PdmObjectHandle* self );
 
-    bool                             isNullptrValidResult_obsolete() const override;
-    bool                             resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 };
 

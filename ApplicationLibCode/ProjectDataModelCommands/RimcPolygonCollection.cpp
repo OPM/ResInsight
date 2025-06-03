@@ -68,14 +68,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPolygonCollection_createPolygo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcPolygonCollection_createPolygon::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcPolygonCollection_createPolygon::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimPolygon );

@@ -117,14 +117,6 @@ RimWellLogExtractionCurve* RimcWellLogTrack_addExtractionCurve::addExtractionCur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellLogTrack_addExtractionCurve::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcWellLogTrack_addExtractionCurve::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogExtractionCurve );

@@ -241,14 +241,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcExtrudedCurveIntersection_geometry::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcExtrudedCurveIntersection_geometry::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcTriangleGeometry );
@@ -342,14 +334,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
     }
 
     return std::unexpected( "No intersection geometry result found." );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcExtrudedCurveIntersection_geometryResult::resultIsPersistent_obsolete() const
-{
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

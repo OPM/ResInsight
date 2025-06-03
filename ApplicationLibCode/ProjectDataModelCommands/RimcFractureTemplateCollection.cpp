@@ -68,14 +68,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_app
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplateCollection_appendFractureTemplate::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_appendFractureTemplate::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanFractureTemplate );
@@ -113,14 +105,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_app
 
     fractureTemplateCollection->updateAllRequiredEditors();
     return newTemplates[0];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplateCollection_appendThermalFractureTemplate::resultIsPersistent_obsolete() const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

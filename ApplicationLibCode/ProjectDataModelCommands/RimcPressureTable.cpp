@@ -58,14 +58,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPressureTable_addPressure::exe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcPressureTable_addPressure::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcPressureTable_addPressure::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimPressureTableItem );

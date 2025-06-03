@@ -67,25 +67,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_importSurfac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_importSurface::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_importSurface::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSurface );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_importSurface::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,25 +105,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_addFolder::e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_addFolder::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_addFolder::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_addFolder::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,25 +141,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newSurface::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_newSurface::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newSurface::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimGridCaseSurface );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_newSurface::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,23 +209,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_newRegularSurface::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newRegularSurface::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimRegularSurface );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcSurfaceCollection_newRegularSurface::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

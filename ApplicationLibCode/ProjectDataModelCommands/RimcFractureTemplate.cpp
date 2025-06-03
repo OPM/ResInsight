@@ -65,23 +65,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplate_setScaleFacto
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplate_setScaleFactors::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplate_setScaleFactors::defaultResult() const
 {
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplate_setScaleFactors::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

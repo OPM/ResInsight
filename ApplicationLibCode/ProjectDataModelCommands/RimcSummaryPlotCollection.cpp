@@ -96,14 +96,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSummaryPlotCollection_newSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSummaryPlotCollection_newSummaryPlot::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcSummaryPlotCollection_newSummaryPlot::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimSummaryPlot );

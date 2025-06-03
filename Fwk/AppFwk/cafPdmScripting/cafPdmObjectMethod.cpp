@@ -72,17 +72,6 @@ bool PdmObjectMethod::resultIsPersistent() const
 void PdmObjectMethod::setNullptrValid( bool isNullptrValid )
 {
     m_isNullptrValid = isNullptrValid;
-
-    if ( isNullptrValid != isNullptrValidResult_obsolete() )
-    {
-        QString boolStr = isNullptrValidResult_obsolete() ? "true" : "false";
-
-        QString text;
-        text += selfClassKeyword();
-        text += QString( " Use setNullptrValid(%1);" ).arg( boolStr );
-
-        qDebug() << text;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,16 +80,6 @@ void PdmObjectMethod::setNullptrValid( bool isNullptrValid )
 void PdmObjectMethod::setResultPersistent( bool isResultPersistent )
 {
     m_isResultPersistent = isResultPersistent;
-    if ( isResultPersistent != resultIsPersistent_obsolete() )
-    {
-        QString boolStr = resultIsPersistent_obsolete() ? "true" : "false";
-
-        QString text;
-        text += selfClassKeyword();
-        text += QString( " Use setResultPersistent(%1);" ).arg( boolStr );
-
-        qDebug() << text;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

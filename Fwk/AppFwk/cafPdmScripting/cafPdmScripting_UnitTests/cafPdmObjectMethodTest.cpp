@@ -17,8 +17,6 @@ public:
     InheritedDemoObj_appendValves( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
-    bool                                          isNullptrValidResult_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
@@ -34,6 +32,8 @@ InheritedDemoObj_appendValves::InheritedDemoObj_appendValves( caf::PdmObjectHand
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Append Valves", "", "", "Append Valves" );
+    setNullptrValid( true );
+    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_valveLocations, "ValveLocations", "ValveLocations" );
 }
@@ -49,22 +49,6 @@ std::expected<caf::PdmObjectHandle*, QString> InheritedDemoObj_appendValves::exe
     child->m_numbers = m_valveLocations();
     obj->m_simpleObjectsField().push_back( child );
     return obj;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool InheritedDemoObj_appendValves::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool InheritedDemoObj_appendValves::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

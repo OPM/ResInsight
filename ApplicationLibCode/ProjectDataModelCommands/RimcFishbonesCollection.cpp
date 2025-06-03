@@ -70,14 +70,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFishbonesCollection_appendFish
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFishbonesCollection_appendFishbones::resultIsPersistent_obsolete() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcFishbonesCollection_appendFishbones::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFishbones );
@@ -115,25 +107,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFishbonesCollection_setFixedSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFishbonesCollection_setFixedStartLocation::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcFishbonesCollection_setFixedStartLocation::defaultResult() const
 {
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcFishbonesCollection_setFixedStartLocation::isNullptrValidResult_obsolete() const
-{
-    return true;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFishbonesCollection, RimcFishbonesCollection_setFixedEndLocation, "SetFixedEndLocation" );
@@ -168,23 +144,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFishbonesCollection_setFixedEn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFishbonesCollection_setFixedEndLocation::resultIsPersistent_obsolete() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcFishbonesCollection_setFixedEndLocation::defaultResult() const
 {
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcFishbonesCollection_setFixedEndLocation::isNullptrValidResult_obsolete() const
-{
-    return true;
 }

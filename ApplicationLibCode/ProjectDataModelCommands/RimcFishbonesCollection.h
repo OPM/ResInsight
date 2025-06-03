@@ -35,7 +35,6 @@ public:
     RimcFishbonesCollection_appendFishbones( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
@@ -54,10 +53,7 @@ public:
     RimcFishbonesCollection_setFixedStartLocation( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-
-    bool isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<double> m_location;
@@ -74,10 +70,7 @@ public:
     RimcFishbonesCollection_setFixedEndLocation( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent_obsolete() const override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-
-    bool isNullptrValidResult_obsolete() const override;
 
 private:
     caf::PdmField<double> m_location;
