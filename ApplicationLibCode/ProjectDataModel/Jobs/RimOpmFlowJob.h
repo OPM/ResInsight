@@ -93,7 +93,8 @@ private:
 
     caf::PdmField<bool> m_pauseBeforeRun;
     caf::PdmField<bool> m_addToEnsemble;
-    caf::PdmField<int>  m_nextRunId;
+    caf::PdmField<int>  m_currentRunId;
+    caf::PdmField<bool> m_resetRunIdButton;
 
     caf::PdmPtrField<RimWellPath*>            m_wellPath;
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;

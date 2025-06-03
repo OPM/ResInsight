@@ -50,6 +50,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -95,7 +96,10 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_openWellDeckPosition, "OpenWellDeckPosition", -1, "Open Well at Keyword Index" );
     CAF_PDM_InitField( &m_includeMSWData, "IncludeMswData", false, "Add MSW Data" );
     CAF_PDM_InitField( &m_addToEnsemble, "AddToEnsemble", false, "Add Runs to Ensemble" );
-    CAF_PDM_InitField( &m_nextRunId, "NextRunId", 0, "Next Run ID" );
+    CAF_PDM_InitField( &m_currentRunId, "CurrentRunID", 0, "Current Run ID" );
+
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
 
     CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_BY_POSITION ), "Open Well" );
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
@@ -109,6 +113,10 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
     m_runButton.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_resetRunIdButton, "resetRunIdButton", false, " " );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_resetRunIdButton );
+    m_resetRunIdButton.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_openSelectButton, "openSelectButton", false, " " );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_openSelectButton );
@@ -160,6 +168,14 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
             pbAttribute->m_buttonText = "Select Open Keyword Position";
         }
     }
+    else if ( field == &m_resetRunIdButton )
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
+        {
+            pbAttribute->m_buttonText = "Reset Run Id";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,9 +218,13 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     }
 
     auto opmGrp = uiOrdering.addNewGroup( "Opm Flow" );
-    opmGrp->add( &m_addToEnsemble );
-    opmGrp->add( &m_pauseBeforeRun );
     opmGrp->add( &m_runButton );
+    opmGrp->add( &m_addToEnsemble );
+    if ( m_addToEnsemble() )
+    {
+        opmGrp->add( &m_resetRunIdButton );
+    }
+    opmGrp->add( &m_pauseBeforeRun );
 
     uiOrdering.skipRemainingFields();
 }
@@ -249,6 +269,18 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
     {
         m_runButton = false;
         RicRunJobFeature::runJob( this );
+    }
+    else if ( changedField == &m_resetRunIdButton )
+    {
+        m_resetRunIdButton = false;
+        auto reply         = QMessageBox::information( nullptr,
+                                               "Opm Flow Job",
+                                               "Do you want to reset the ensemble run ID to 0?",
+                                               QMessageBox::Yes | QMessageBox::No );
+        if ( reply == QMessageBox::Yes )
+        {
+            m_currentRunId = 0;
+        }
     }
     else if ( changedField == &m_wellOpenKeyword )
     {
@@ -347,7 +379,7 @@ QString RimOpmFlowJob::workingDirectory() const
     }
     else
     {
-        return QString( "%1/run-%2" ).arg( m_workDir().path() ).arg( m_nextRunId() );
+        return QString( "%1/run-%2" ).arg( m_workDir().path() ).arg( m_currentRunId() );
     }
 }
 
@@ -361,7 +393,7 @@ QString RimOpmFlowJob::deckName()
         m_deckName = baseDeckName();
         if ( m_addToEnsemble() )
         {
-            m_deckName = m_deckName + "-" + QString::number( m_nextRunId() );
+            m_deckName = m_deckName + "-" + QString::number( m_currentRunId() );
         }
     }
 
@@ -584,8 +616,8 @@ void RimOpmFlowJob::onCompleted( bool success )
             m_summaryEnsemble->reloadCases();
         }
 
-        m_nextRunId = m_nextRunId + 1;
-        m_deckName  = "";
+        m_currentRunId = m_currentRunId + 1;
+        m_deckName     = "";
     }
     else
     {
