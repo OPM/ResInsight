@@ -276,7 +276,7 @@ std::expected<RigElementType, std::string>
             std::vector<std::pair<int, cvf::Vec3d>> partNodes;
             for ( size_t i = 0; i < vertices.size(); i++ )
             {
-                partNodes.push_back( { i, vertices[i] } );
+                partNodes.push_back( { (int)i, vertices[i] } );
             }
 
             nodes[partId] = partNodes;

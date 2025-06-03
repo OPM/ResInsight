@@ -117,7 +117,10 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
     else
     {
         // All fields will be updated when toggling
-        fieldsToUpdate = selectedFields;
+        for ( auto f : selectedFields )
+        {
+            fieldsToUpdate.push_back( f );
+        }
     }
 
     if ( fieldsToUpdate.empty() ) return;

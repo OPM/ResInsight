@@ -410,7 +410,10 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
     }
     else
     {
-        otherSummaryCases = summaryCases;
+        for ( auto c : summaryCases )
+        {
+            otherSummaryCases.push_back( c );
+        }
     }
 
     if ( !fileSummaryCases.empty() )

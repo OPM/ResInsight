@@ -120,7 +120,8 @@ public:
     void clearScalarResult( RiaDefines::ResultCatType type, const QString& resultName );
     void clearScalarResult( const RigEclipseResultAddress& resultAddress );
     void clearAllResults();
-    void freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> categoriesToExclude, std::optional<size_t> timeStepIndexToRelease );
+    void freeAllocatedResultsData( const std::vector<RiaDefines::ResultCatType>& categoriesToExclude,
+                                   std::optional<size_t>                         timeStepIndexToRelease );
     void eraseAllSourSimData();
     void setRemovedTagOnGeneratedResult( const RigEclipseResultAddress& resultAddress );
 
