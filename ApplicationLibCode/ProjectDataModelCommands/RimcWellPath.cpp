@@ -137,7 +137,6 @@ RimcWellPath_addThermalFracture::RimcWellPath_addThermalFracture( caf::PdmObject
     setNullptrValid( false );
     setResultPersistent( true );
 
-
     CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_fractureTemplate, "FractureTemplate", "", "", "", "Thermal Fracture Template" );
     CAF_PDM_InitScriptableField( &m_placeUsingTemplateData, "PlaceUsingTemplateData", true, "Place using template data" );
@@ -306,7 +305,6 @@ RimcWellPath_appendFishbones::RimcWellPath_appendFishbones( caf::PdmObjectHandle
     CAF_PDM_InitObject( "Append Fishbones", "", "", "Append Fishbones" );
     setNullptrValid( true );
     setResultPersistent( true );
-
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_subLocations, "SubLocations", "SubLocations" );
     auto defaultDrillingType = RimFishbonesDefines::DrillingType::STANDARD;
