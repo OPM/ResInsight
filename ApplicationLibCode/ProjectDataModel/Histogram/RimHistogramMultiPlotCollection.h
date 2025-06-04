@@ -37,9 +37,9 @@ public:
 
     static RimHistogramMultiPlotCollection* instance();
 
-    RimHistogramMultiPlot* appendTableDataObject( const QString& fileName );
+    RimHistogramMultiPlot* appendHistogramMultiPlot();
 
-    std::vector<RimHistogramMultiPlot*> vfpTableData() const;
+    std::vector<RimHistogramMultiPlot*> histogramMultiPlots() const;
 
     void   loadDataAndUpdateAllPlots() override;
     size_t plotCount() const override;

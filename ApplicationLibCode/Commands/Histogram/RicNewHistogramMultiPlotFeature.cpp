@@ -19,7 +19,6 @@
 #include "RicNewHistogramMultiPlotFeature.h"
 
 #include "Histogram/RimHistogramMultiPlotCollection.h"
-// #include "RimProject.h"
 
 #include "cafSelectionManager.h"
 
@@ -49,7 +48,7 @@ void RicNewHistogramMultiPlotFeature::onActionTriggered( bool isChecked )
 
     if ( RimHistogramMultiPlotCollection* coll = selectedItems[0] )
     {
-        coll->appendTableDataObject( "junk" );
+        coll->appendHistogramMultiPlot();
         coll->scheduleUpdateConnectedEditors();
     }
 }

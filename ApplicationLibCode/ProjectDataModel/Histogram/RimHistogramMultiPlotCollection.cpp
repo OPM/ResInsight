@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT( RimHistogramMultiPlotCollection, "RimHistogramMultiPlotColl
 //--------------------------------------------------------------------------------------------------
 RimHistogramMultiPlotCollection::RimHistogramMultiPlotCollection()
 {
-    CAF_PDM_InitObject( "Histogram Plots", ":/VfpPlotCollection.svg" );
+    CAF_PDM_InitObject( "Histogram Plots", ":/MultiPlot16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_histogramMultiPlots, "HistogramMultiPlots", "Histogram Plots" );
 }
@@ -47,41 +47,19 @@ RimHistogramMultiPlotCollection* RimHistogramMultiPlotCollection::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramMultiPlot* RimHistogramMultiPlotCollection::appendTableDataObject( const QString& fileName )
+RimHistogramMultiPlot* RimHistogramMultiPlotCollection::appendHistogramMultiPlot()
 {
-    auto* vfpTableData = new RimHistogramMultiPlot();
-    // vfpTableData->setFileName( fileName );
-    m_histogramMultiPlots.push_back( vfpTableData );
-
-    // vfpTableData->ensureDataIsImported();
-    // auto dataSources = vfpTableData->tableDataSources();
-
-    // if ( !dataSources.empty() )
-    // {
-    //     return dataSources.front();
-    // }
-
-    return nullptr;
+    auto* histogramMultiPlot = new RimHistogramMultiPlot();
+    m_histogramMultiPlots.push_back( histogramMultiPlot );
+    return histogramMultiPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimHistogramMultiPlot*> RimHistogramMultiPlotCollection::vfpTableData() const
+std::vector<RimHistogramMultiPlot*> RimHistogramMultiPlotCollection::histogramMultiPlots() const
 {
     return m_histogramMultiPlots.childrenByType();
-
-    // std::vector<RimHistogramMultiPlot*> tableDataSources;
-
-    //   for ( auto vfpTableData :
-    //   {
-    //       for ( auto table : vfpTableData->tableDataSources() )
-    //       {
-    //           tableDataSources.push_back( table );
-    //       }
-    //   }
-
-    //   return tableDataSources;
 }
 
 //--------------------------------------------------------------------------------------------------
