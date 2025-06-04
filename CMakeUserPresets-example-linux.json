@@ -1,0 +1,27 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "linux-base",
+            "hidden": false,
+            "displayName": "Linux Base",
+            "inherits": "ninja",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "RESINSIGHT_ENABLE_UNITY_BUILD": true,
+                "RESINSIGHT_ENABLE_GRPC": false,
+                "CMAKE_PREFIX_PATH": "/home/builder/qt/6.6.3/gcc_64/lib/cmake"
+            }
+        },
+        {
+            "name": "x64-release",
+            "displayName": "x64 Release",
+            "description": "Linux Release",
+            "inherits": "linux-base",
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+        }
+    ]
+}
