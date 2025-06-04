@@ -51,7 +51,7 @@
 // #include "RimHistogramCase.h"
 // #include "RimHistogramCurve.h"
 // #include "RimHistogramCurveAppearanceCalculator.h"
-// #include "RimHistogramCurveCollection.h"
+#include "RimHistogramCurveCollection.h"
 // #include "RimHistogramCurvesData.h"
 // #include "RimHistogramEnsemble.h"
 // #include "RimHistogramPlotAxisFormatter.h"
@@ -117,8 +117,8 @@ RimHistogramPlot::RimHistogramPlot()
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Histogram Plot" ), "Name" );
     CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves" );
 
-    // CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "" );
-    // m_ensembleCurveSetCollection = new RimEnsembleCurveSetCollection();
+    CAF_PDM_InitFieldNoDefault( &m_histogramCurveCollection, "HistogramCurveCollection", "" );
+    m_histogramCurveCollection = new RimHistogramCurveCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_axisPropertiesArray, "AxisProperties", "Axes", ":/Axes16x16.png" );
     m_axisPropertiesArray.uiCapability()->setUiTreeHidden( false );
@@ -2287,7 +2287,7 @@ void RimHistogramPlot::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 size_t RimHistogramPlot::curveCount() const
 {
-    return m_histogramDataItems.size();
+    return m_histogramCurveCollection->curves().size();
 }
 
 //--------------------------------------------------------------------------------------------------

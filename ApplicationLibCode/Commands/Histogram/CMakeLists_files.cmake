@@ -1,9 +1,11 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewHistogramMultiPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultHistogramPlotFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewHistogramMultiPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultHistogramPlotFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

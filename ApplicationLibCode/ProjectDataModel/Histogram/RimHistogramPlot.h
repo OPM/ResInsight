@@ -24,8 +24,6 @@
 #include "RimPlot.h"
 #include "RimPlotAxisProperties.h"
 
-#include "RigHistogramData.h"
-
 #include "RiuPlotWidget.h"
 
 #include "cafPdmChildArrayField.h"
@@ -36,7 +34,6 @@
 #include <QPointer>
 
 #include <memory>
-#include <set>
 #include <vector>
 
 class PdmUiTreeOrdering;
@@ -47,7 +44,7 @@ class PdmUiTreeOrdering;
 // class RimHistogramCase;
 // class RimHistogramEnsemble;
 // class RimHistogramCurve;
-// class RimHistogramCurveCollection;
+class RimHistogramCurveCollection;
 // class RimEnsembleCurveSet;
 // class RimEnsembleCurveSetCollection;
 // class RimHistogramCurveFilter_OBSOLETE;
@@ -320,7 +317,7 @@ private:
     caf::PdmField<QString> m_fallbackPlotName;
 
     // caf::PdmChildArrayField<RimGridTimeHistoryCurve*>  m_gridTimeHistoryCurves;
-    // caf::PdmChildField<RimHistogramCurveCollection*>     m_histogramCurveCollection;
+    caf::PdmChildField<RimHistogramCurveCollection*> m_histogramCurveCollection;
     // caf::PdmChildField<RimEnsembleCurveSetCollection*> m_ensembleCurveSetCollection;
 
     // caf::PdmChildArrayField<RimAsciiDataCurve*> m_asciiDataCurves;
@@ -333,7 +330,7 @@ private:
     // std::unique_ptr<RimHistogramPlotNameHelper>         m_nameHelperAllCurves;
     // caf::PdmChildField<RimHistogramPlotSourceStepping*> m_sourceStepping;
 
-    std::vector<RigHistogramData> m_histogramDataItems;
+    // std::vector<RigHistogramData> m_histogramDataItems;
 
     bool                  m_isValid;
     RiuPlotWidget::Legend m_legendPosition;

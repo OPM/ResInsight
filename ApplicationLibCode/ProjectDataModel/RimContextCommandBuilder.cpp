@@ -19,6 +19,7 @@
 
 #include "RimContextCommandBuilder.h"
 
+#include "Histogram/RimHistogramMultiPlot.h"
 #include "QuickAccess/RimFieldQuickAccess.h"
 #include "RiaApplication.h"
 
@@ -995,6 +996,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicSnapshotViewToPdfFeature";
+        }
+        else if ( dynamic_cast<RimHistogramMultiPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewDefaultHistogramPlotFeature";
         }
         else if ( dynamic_cast<RimStreamlineInViewCollection*>( firstUiItem ) )
         {
