@@ -366,35 +366,4 @@ bool RifOpmFlowDeckFile::restartAtTimeStep( int timeStep, std::string deckName )
     m_fileDeck->rst_solution( deckName, timeStep );
     m_fileDeck->insert_skiprest();
     return true;
-
-    // Opm::ErrorGuard errors{};
-
-    // const auto solutionFound = m_fileDeck->find( "SOLUTION" );
-    // if ( !solutionFound.has_value() ) return false;
-    // auto& solutionIdx = solutionFound.value();
-
-    //// look for summary or schedule and remove everything from solution up to that keyword
-    // for ( auto it = solutionIdx + 1; it != m_fileDeck->stop(); it++ )
-    //{
-    //     auto& kw = m_fileDeck->operator[]( it );
-    //     if ( !( ( kw.name() == "SUMMARY" ) || ( kw.name() == "SCHEDULE" ) ) ) continue;
-
-    //    m_fileDeck->erase( solutionIdx + 1, --it );
-    //    break;
-    //}
-
-    //// create restart keyword
-
-    // Opm::DeckKeyword restartKw( Opm::ParserKeywords::RESTART{} );
-    // Opm::DeckRecord  restartRec;
-    // restartRec.addItem( item( "ROOTNAME", deckName ) );
-    // restartRec.addItem( item( "REPORTNUMBER", timeStep ) );
-    // restartRec.addItem( item( "SAVEFILE", "" ) );
-    // restartRec.addItem( item( "SAVEFILE_FORMAT", "" ) );
-
-    // restartKw.addRecord( std::move( restartRec ) );
-
-    // m_fileDeck->insert_skiprest()
-
-    //    return false;
 }
