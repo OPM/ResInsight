@@ -96,10 +96,14 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_openWellDeckPosition, "OpenWellDeckPosition", -1, "Open Well at Keyword Index" );
     CAF_PDM_InitField( &m_includeMSWData, "IncludeMswData", false, "Add MSW Data" );
     CAF_PDM_InitField( &m_addToEnsemble, "AddToEnsemble", false, "Add Runs to Ensemble" );
+    CAF_PDM_InitField( &m_useRestart, "UseRestart", false, "Restart Simulation at Well Open Date" );
     CAF_PDM_InitField( &m_currentRunId, "CurrentRunID", 0, "Current Run ID" );
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useRestart );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeMSWData );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addNewWell );
 
     CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_BY_POSITION ), "Open Well" );
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
@@ -204,6 +208,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
             if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
             {
                 wellGrp->add( &m_openTimeStep );
+                wellGrp->add( &m_useRestart );
                 wellGrp->add( &m_includeMSWData );
             }
             else if ( m_wellOpenType == WellOpenType::OPEN_BY_POSITION )
@@ -358,6 +363,27 @@ bool RimOpmFlowJob::openDeckFile()
     }
 
     return m_fileDeck != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::copyUnrstFileToWorkDir()
+{
+    QFileInfo fi( m_deckFileName().path() );
+
+    QString unrstName = fi.absolutePath() + "/" + fi.baseName() + ".UNRST";
+    if ( QFile::exists( unrstName ) )
+    {
+        QString dstName = workingDirectory() + "/" + fi.baseName() + ".UNRST";
+        if ( dstName != unrstName )
+        {
+            QFile::copy( unrstName, dstName );
+        }
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -540,6 +566,21 @@ bool RimOpmFlowJob::onPrepare()
             {
                 RiaLogging::error( "Unable to open new well in DATA file." );
                 return false;
+            }
+
+            if ( m_useRestart() )
+            {
+                if ( !copyUnrstFileToWorkDir() )
+                {
+                    RiaLogging::error( "Unable to locate UNRST file from input case." );
+                    return false;
+                }
+
+                if ( !m_fileDeck->restartAtTimeStep( m_openTimeStep(), baseDeckName().toStdString() ) )
+                {
+                    RiaLogging::error( "Unable to insert restart keywords in DATA file." );
+                    return false;
+                }
             }
         }
         else

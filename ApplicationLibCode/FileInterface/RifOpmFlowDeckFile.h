@@ -48,6 +48,8 @@ public:
     bool openWellAtTimeStep( int timeStep, std::string openText );
     bool openWellAtDeckPosition( int deckPosition, std::string openText );
 
+    bool restartAtTimeStep( int timeStep, std::string deckName );
+
     std::vector<std::string> keywords();
     bool                     hasDatesKeyword();
 
