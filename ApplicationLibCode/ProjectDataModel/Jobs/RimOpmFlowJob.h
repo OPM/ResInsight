@@ -69,6 +69,7 @@ protected:
     void        onCompleted( bool success ) override;
 
     bool openDeckFile();
+    bool copyUnrstFileToWorkDir();
 
 private:
     RimEclipseCase* findExistingCase( QString filename );
@@ -95,6 +96,7 @@ private:
     caf::PdmField<bool> m_addToEnsemble;
     caf::PdmField<int>  m_currentRunId;
     caf::PdmField<bool> m_resetRunIdButton;
+    caf::PdmField<bool> m_useRestart;
 
     caf::PdmPtrField<RimWellPath*>            m_wellPath;
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;

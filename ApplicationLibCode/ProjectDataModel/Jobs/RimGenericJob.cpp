@@ -63,27 +63,26 @@ QString RimGenericJob::workingDirectory() const
 //--------------------------------------------------------------------------------------------------
 bool RimGenericJob::execute()
 {
-    caf::ProgressInfo runProgress( 2, title() );
+    if ( !onPrepare() ) return false;
 
+    bool runOk = false;
     {
-        auto taskPrep = runProgress.task( "Preparing input..." );
+        caf::ProgressInfo runProgress( 1, title() );
 
-        if ( !onPrepare() ) return false;
+        auto taskRun = runProgress.task( "Running job, please wait..." );
+
+        QStringList cmdLine = command();
+        if ( cmdLine.isEmpty() ) return false;
+
+        QString cmd = cmdLine.takeFirst();
+
+        RimProcess process;
+        process.setCommand( cmd );
+        if ( !cmdLine.isEmpty() ) process.addParameters( cmdLine );
+        process.setWorkingDirectory( workingDirectory() );
+
+        runOk = process.execute();
     }
-
-    auto taskRun = runProgress.task( "Running job, please wait..." );
-
-    QStringList cmdLine = command();
-    if ( cmdLine.isEmpty() ) return false;
-
-    QString cmd = cmdLine.takeFirst();
-
-    RimProcess process;
-    process.setCommand( cmd );
-    if ( !cmdLine.isEmpty() ) process.addParameters( cmdLine );
-    process.setWorkingDirectory( workingDirectory() );
-
-    bool runOk = process.execute();
 
     onCompleted( runOk );
 
