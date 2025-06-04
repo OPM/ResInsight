@@ -18,6 +18,7 @@
 
 #include "RicNewHistogramMultiPlotFeature.h"
 
+#include "Histogram/RimHistogramMultiPlot.h"
 #include "Histogram/RimHistogramMultiPlotCollection.h"
 
 #include "cafSelectionManager.h"
@@ -48,7 +49,10 @@ void RicNewHistogramMultiPlotFeature::onActionTriggered( bool isChecked )
 
     if ( RimHistogramMultiPlotCollection* coll = selectedItems[0] )
     {
-        coll->appendHistogramMultiPlot();
+        auto plotWindow = coll->appendHistogramMultiPlot();
+        plotWindow->setAsPlotMdiWindow();
+        plotWindow->setShowWindow( true );
+        plotWindow->loadDataAndUpdate();
         coll->scheduleUpdateConnectedEditors();
     }
 }

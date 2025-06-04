@@ -51,6 +51,7 @@
 // #include "RimHistogramCase.h"
 // #include "RimHistogramCurve.h"
 // #include "RimHistogramCurveAppearanceCalculator.h"
+#include "RimHistogramCurve.h"
 #include "RimHistogramCurveCollection.h"
 // #include "RimHistogramCurvesData.h"
 // #include "RimHistogramEnsemble.h"
@@ -150,7 +151,7 @@ RimHistogramPlot::~RimHistogramPlot()
 
     deletePlotCurvesAndPlotWidget();
 
-    // delete m_histogramCurveCollection;
+    delete m_histogramCurveCollection;
     // delete m_ensembleCurveSetCollection;
 }
 
@@ -951,17 +952,17 @@ void RimHistogramPlot::zoomAll()
 //     }
 // }
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::addCurveNoUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis )
-// {
-//     if ( curve )
-//     {
-//         m_histogramCurveCollection->addCurve( curve );
-//         connectCurveToPlot( curve, false, autoAssignPlotAxis );
-//     }
-// }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramPlot::addCurveNoUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis )
+{
+    if ( curve )
+    {
+        m_histogramCurveCollection->addCurve( curve );
+        connectCurveToPlot( curve, false, autoAssignPlotAxis );
+    }
+}
 
 // //--------------------------------------------------------------------------------------------------
 // ///
@@ -975,29 +976,29 @@ void RimHistogramPlot::zoomAll()
 //     }
 // }
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::connectCurveToPlot( RimHistogramCurve* curve, bool update, bool autoAssignPlotAxis )
-// {
-//     if ( autoAssignPlotAxis ) assignPlotAxis( curve );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramPlot::connectCurveToPlot( RimHistogramCurve* curve, bool update, bool autoAssignPlotAxis )
+{
+    // if ( autoAssignPlotAxis ) assignPlotAxis( curve );
 
-//     connectCurveSignals( curve );
-//     if ( plotWidget() )
-//     {
-//         plotWidget()->ensureAxisIsCreated( curve->axisY() );
+    connectCurveSignals( curve );
+    if ( plotWidget() )
+    {
+        plotWidget()->ensureAxisIsCreated( curve->axisY() );
 
-//         if ( update )
-//         {
-//             curve->setParentPlotAndReplot( plotWidget() );
-//             updateAxes();
-//         }
-//         else
-//         {
-//             curve->setParentPlotNoReplot( plotWidget() );
-//         }
-//     }
-// }
+        if ( update )
+        {
+            curve->setParentPlotAndReplot( plotWidget() );
+            updateAxes();
+        }
+        else
+        {
+            curve->setParentPlotNoReplot( plotWidget() );
+        }
+    }
+}
 
 // //--------------------------------------------------------------------------------------------------
 // ///
@@ -1121,22 +1122,22 @@ void RimHistogramPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
-    // updateStackedCurveData();
+    updateStackedCurveData();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::updateStackedCurveData()
-// {
-//     auto anyStackedCurvesPresent = updateStackedCurveDataForRelevantAxes();
+void RimHistogramPlot::updateStackedCurveData()
+{
+    auto anyStackedCurvesPresent = true; // updateStackedCurveDataForRelevantAxes();
 
-//     if ( plotWidget() && anyStackedCurvesPresent )
-//     {
-//         reattachAllCurves();
-//         scheduleReplotIfVisible();
-//     }
-// }
+    if ( plotWidget() && anyStackedCurvesPresent )
+    {
+        reattachAllCurves();
+        scheduleReplotIfVisible();
+    }
+}
 
 // //--------------------------------------------------------------------------------------------------
 // ///
@@ -1183,10 +1184,10 @@ void RimHistogramPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
 
     // if ( !isPlotEditor ) uiTreeOrdering.add( &m_axisPropertiesArray );
 
-    // for ( auto& curve : m_histogramCurveCollection->curves() )
-    // {
-    //     uiTreeOrdering.add( curve );
-    // }
+    for ( auto& curve : m_histogramCurveCollection->curves() )
+    {
+        uiTreeOrdering.add( curve );
+    }
 
     // for ( auto& curveSet : m_ensembleCurveSetCollection->curveSets() )
     // {
@@ -1212,10 +1213,10 @@ void RimHistogramPlot::onLoadDataAndUpdate()
     auto plotWindow = firstAncestorOrThisOfType<RimMultiPlot>();
     if ( plotWindow == nullptr ) updateMdiWindowVisibility();
 
-    // if ( m_histogramCurveCollection )
-    // {
-    //     m_histogramCurveCollection->loadDataAndUpdate( false );
-    // }
+    if ( m_histogramCurveCollection )
+    {
+        m_histogramCurveCollection->loadDataAndUpdate( false );
+    }
 
     // m_ensembleCurveSetCollection->loadDataAndUpdate( false );
 
@@ -1257,7 +1258,7 @@ void RimHistogramPlot::onLoadDataAndUpdate()
     }
     updateAxes();
 
-    // updateStackedCurveData();
+    updateStackedCurveData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1342,26 +1343,26 @@ void RimHistogramPlot::deletePlotCurvesAndPlotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::connectCurveSignals( RimStackablePlotCurve* curve )
-// {
-//     curve->dataChanged.connect( this, &RimHistogramPlot::curveDataChanged );
-//     curve->visibilityChanged.connect( this, &RimHistogramPlot::curveVisibilityChanged );
-//     curve->appearanceChanged.connect( this, &RimHistogramPlot::curveAppearanceChanged );
-//     curve->stackingChanged.connect( this, &RimHistogramPlot::curveStackingChanged );
-//     curve->stackingColorsChanged.connect( this, &RimHistogramPlot::curveStackingColorsChanged );
-// }
+void RimHistogramPlot::connectCurveSignals( RimStackablePlotCurve* curve )
+{
+    curve->dataChanged.connect( this, &RimHistogramPlot::curveDataChanged );
+    curve->visibilityChanged.connect( this, &RimHistogramPlot::curveVisibilityChanged );
+    curve->appearanceChanged.connect( this, &RimHistogramPlot::curveAppearanceChanged );
+    curve->stackingChanged.connect( this, &RimHistogramPlot::curveStackingChanged );
+    curve->stackingColorsChanged.connect( this, &RimHistogramPlot::curveStackingColorsChanged );
+}
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::disconnectCurveSignals( RimStackablePlotCurve* curve )
-// {
-//     curve->dataChanged.disconnect( this );
-//     curve->visibilityChanged.disconnect( this );
-//     curve->appearanceChanged.disconnect( this );
-//     curve->stackingChanged.disconnect( this );
-//     curve->stackingColorsChanged.disconnect( this );
-// }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramPlot::disconnectCurveSignals( RimStackablePlotCurve* curve )
+{
+    curve->dataChanged.disconnect( this );
+    curve->visibilityChanged.disconnect( this );
+    curve->appearanceChanged.disconnect( this );
+    curve->stackingChanged.disconnect( this );
+    curve->stackingColorsChanged.disconnect( this );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1998,10 +1999,10 @@ RiuPlotWidget* RimHistogramPlot::doCreatePlotViewWidget( QWidget* mainWindowPare
         //     curve->setParentPlotNoReplot( plotWidget() );
         // }
 
-        // if ( m_histogramCurveCollection )
-        // {
-        //     m_histogramCurveCollection->setParentPlotNoReplot( plotWidget() );
-        // }
+        if ( m_histogramCurveCollection )
+        {
+            m_histogramCurveCollection->setParentPlotNoReplot( plotWidget() );
+        }
 
         // if ( m_ensembleCurveSetCollection )
         // {
@@ -2204,22 +2205,10 @@ void RimHistogramPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::reattachAllCurves()
 {
-    // if ( m_histogramCurveCollection )
-    // {
-    //     m_histogramCurveCollection->reattachPlotCurves();
-    // }
-
-    // m_ensembleCurveSetCollection->reattachPlotCurves();
-
-    // for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-    // {
-    //     curve->reattach();
-    // }
-
-    // for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-    // {
-    //     curve->reattach();
-    // }
+    if ( m_histogramCurveCollection )
+    {
+        m_histogramCurveCollection->reattachPlotCurves();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2229,7 +2218,7 @@ void RimHistogramPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     curvesChanged.send();
 
-    // updateStackedCurveData();
+    updateStackedCurveData();
     scheduleReplotIfVisible();
 
     updateAllRequiredEditors();

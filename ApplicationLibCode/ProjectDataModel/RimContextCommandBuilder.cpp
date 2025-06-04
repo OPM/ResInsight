@@ -19,13 +19,14 @@
 
 #include "RimContextCommandBuilder.h"
 
-#include "Histogram/RimHistogramMultiPlot.h"
 #include "QuickAccess/RimFieldQuickAccess.h"
 #include "RiaApplication.h"
 
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Histogram/RimHistogramMultiPlot.h"
+#include "Histogram/RimHistogramPlot.h"
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Rim3dOverlayInfoConfig.h"
@@ -993,13 +994,17 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicSaveMultiPlotTemplateFeature";
             menuBuilder << "RicPasteSummaryMultiPlotFeature";
         }
-        else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
-        {
-            menuBuilder << "RicSnapshotViewToPdfFeature";
-        }
         else if ( dynamic_cast<RimHistogramMultiPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicNewDefaultHistogramPlotFeature";
+        }
+        else if ( dynamic_cast<RimHistogramPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewHistogramCurveFeature";
+        }
+        else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicSnapshotViewToPdfFeature";
         }
         else if ( dynamic_cast<RimStreamlineInViewCollection*>( firstUiItem ) )
         {

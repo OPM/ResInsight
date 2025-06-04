@@ -43,7 +43,7 @@ class PdmUiTreeOrdering;
 // class RimHistogramAddressCollection;
 // class RimHistogramCase;
 // class RimHistogramEnsemble;
-// class RimHistogramCurve;
+class RimHistogramCurve;
 class RimHistogramCurveCollection;
 // class RimEnsembleCurveSet;
 // class RimEnsembleCurveSetCollection;
@@ -95,7 +95,7 @@ public:
     bool autoPlotTitle() const;
 
     // void addCurveAndUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis = true );
-    // void addCurveNoUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis = true );
+    void addCurveNoUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis = true );
 
     // void insertCurve( RimHistogramCurve* curve, size_t insertAtPosition );
 
@@ -229,7 +229,7 @@ private:
     void onCurveCollectionChanged( const SignalEmitter* emitter );
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
-    // void connectCurveToPlot( RimHistogramCurve* curve, bool update, bool autoAssignPlotAxis );
+    void connectCurveToPlot( RimHistogramCurve* curve, bool update, bool autoAssignPlotAxis );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -295,7 +295,7 @@ private:
     //                               const RifEclipseHistogramAddress& addressX,
     //                               RimHistogramCase*                 histogramCaseX );
 
-    // void updateStackedCurveData();
+    void updateStackedCurveData();
     // bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
     // bool updateStackedCurveDataForRelevantAxes();
 
