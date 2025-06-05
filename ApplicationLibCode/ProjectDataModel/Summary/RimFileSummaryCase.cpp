@@ -33,7 +33,6 @@
 #include "RimCalculatedSummaryCurveReader.h"
 #include "RimProject.h"
 #include "RimRftCase.h"
-#include "RimSummaryCalculationCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -113,8 +112,7 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
 
     openAndAttachAdditionalReader();
 
-    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-    m_calculatedSummaryReader                 = new RifCalculatedSummaryCurveReader( calcColl, this );
+    m_calculatedSummaryReader = new RifCalculatedSummaryCurveReader( this );
 
     m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
 }

@@ -101,7 +101,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView( RimEcl
         dynamic_cast<RimEclipseView*>( caf::PdmReferenceHelper::objectFromReference( RimProject::current(), lastUsedViewRef ) );
     if ( lastUsedView )
     {
-        RimEclipseResultCase* lastUsedViewResultCase = lastUsedView->firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
+        RimEclipseResultCase* lastUsedViewResultCase = lastUsedView->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
         if ( lastUsedViewResultCase == resultCase )
         {
@@ -114,7 +114,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView( RimEcl
         RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
         if ( activeView )
         {
-            RimEclipseResultCase* activeViewResultCase = activeView->firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
+            RimEclipseResultCase* activeViewResultCase = activeView->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
             if ( activeViewResultCase == resultCase )
             {

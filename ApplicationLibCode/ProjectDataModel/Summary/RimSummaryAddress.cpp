@@ -46,7 +46,6 @@ void caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setUp()
     addItem( RifAdr::SUMMARY_BLOCK, "SUMMARY_BLOCK", RiaDefines::summaryBlock() );
     addItem( RifAdr::SUMMARY_BLOCK_LGR, "SUMMARY_BLOCK_LGR", RiaDefines::summaryLgrBlock() );
     addItem( RifAdr::SUMMARY_IMPORTED, "SUMMARY_IMPORTED", "Imported" );
-    addItem( RifAdr::SUMMARY_ENSEMBLE_STATISTICS, "SUMMARY_ENSEMBLE_STATISTICS", "Ensemble Statistics" );
     setDefault( RifAdr::SUMMARY_FIELD );
 }
 
@@ -62,6 +61,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitObject( "SummaryAddress", ":/DataVector.svg", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_category, "SummaryVarType", "Type" );
+    CAF_PDM_InitFieldNoDefault( &m_statistics, "StatisticsType", "StatisticsType" );
     CAF_PDM_InitFieldNoDefault( &m_vectorName, "SummaryQuantityName", "Vector" );
     CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region" );
     CAF_PDM_InitFieldNoDefault( &m_regionNumber2, "SummaryRegion2", "Region2" );
@@ -82,6 +82,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
 
     m_category             = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
+    m_statistics           = RifEclipseSummaryAddressDefines::StatisticsType::NONE;
     m_regionNumber         = -1;
     m_regionNumber2        = -1;
     m_wellSegmentNumber    = -1;
@@ -120,6 +121,7 @@ RimSummaryAddress*
 void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 {
     m_category             = addr.category();
+    m_statistics           = addr.statisticsType();
     m_vectorName           = addr.vectorName().c_str();
     m_regionNumber         = addr.regionNumber();
     m_regionNumber2        = addr.regionNumber2();
@@ -147,6 +149,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 RifEclipseSummaryAddress RimSummaryAddress::address() const
 {
     return RifEclipseSummaryAddress( m_category(),
+                                     m_statistics(),
                                      m_vectorName().toStdString(),
                                      m_regionNumber(),
                                      m_regionNumber2(),

@@ -609,7 +609,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( m_xAxisType == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
-            if ( m_xValuesSummaryAddress()->address().category() == SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
+            if ( m_xValuesSummaryAddress()->address().isStatistics() )
             {
                 // Read x and y values from ensemble statistics (not time steps are read)
                 if ( RifSummaryReaderInterface* reader = valuesSummaryReaderX() )
@@ -819,7 +819,7 @@ double RimSummaryCurve::computeCurveZValue()
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED );
         }
-        else if ( sumAddr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
+        else if ( sumAddr.isStatistics() )
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE );
         }

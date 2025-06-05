@@ -263,28 +263,20 @@ void RimSummaryRegressionAnalysisCurve::extractSourceCurveData()
 
     if ( m_dataSourceForRegression() == DataSource::ENSEMBLE )
     {
-        auto findStatisticsCurve = []( RimEnsembleCurveSet* curveSet, const QString& statisticsCurveName ) -> RimSummaryCurve*
+        auto findStatisticsCurve = []( RimEnsembleCurveSet*                            curveSet,
+                                       RifEclipseSummaryAddressDefines::StatisticsType statisticsType ) -> RimSummaryCurve*
         {
             if ( curveSet == nullptr ) return nullptr;
 
-            auto allCurves = curveSet->curves();
-            for ( auto curve : allCurves )
+            for ( auto curve : curveSet->curves() )
             {
                 auto yAddr = curve->summaryAddressY();
-
-                if ( yAddr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
-                {
-                    auto statisticsName = QString::fromStdString( yAddr.ensembleStatisticsVectorName() );
-                    if ( statisticsName == statisticsCurveName )
-                    {
-                        return curve;
-                    }
-                }
+                if ( yAddr.statisticsType() == statisticsType ) return curve;
             }
             return nullptr;
         };
 
-        auto curve = findStatisticsCurve( m_ensembleCurveSet(), m_ensembleStatisticsType().uiText() );
+        auto curve = findStatisticsCurve( m_ensembleCurveSet(), m_ensembleStatisticsType() );
         if ( curve )
         {
             yValues = curve->valuesY();

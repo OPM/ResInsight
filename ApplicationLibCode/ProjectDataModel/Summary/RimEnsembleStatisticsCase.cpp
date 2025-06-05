@@ -20,6 +20,7 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaHashTools.h"
+#include "RiaLogging.h"
 #include "RiaTimeHistoryCurveResampler.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -72,18 +73,19 @@ bool RimEnsembleStatisticsCase::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::vector<double>> RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    auto quantityName = resultAddress.ensembleStatisticsVectorName();
-
-    if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP10() )
-        return { true, m_p10Data };
-    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP50() )
-        return { true, m_p50Data };
-    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP90() )
-        return { true, m_p90Data };
-    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameMean() )
-        return { true, m_meanData };
-
-    return { true, {} };
+    switch ( resultAddress.statisticsType() )
+    {
+        case RifEclipseSummaryAddressDefines::StatisticsType::P10:
+            return { true, m_p10Data };
+        case RifEclipseSummaryAddressDefines::StatisticsType::P50:
+            return { true, m_p50Data };
+        case RifEclipseSummaryAddressDefines::StatisticsType::P90:
+            return { true, m_p90Data };
+        case RifEclipseSummaryAddressDefines::StatisticsType::MEAN:
+            return { true, m_meanData };
+        default:
+            return { true, {} };
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,6 +135,13 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     auto hash = RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves );
     if ( hash == m_hash ) return;
 
+    bool showDebugTiming = false;
+    if ( showDebugTiming )
+    {
+        QString timingText = "RimEnsembleStatisticsCase::calculate" + QString::fromStdString( inputAddress.toEclipseTextAddress() );
+        RiaLogging::resetTimer( timingText );
+    }
+
     m_hash = hash;
 
     clearData();
@@ -148,8 +157,6 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     // The last time step for the individual realizations in an ensemble is usually identical. Add a small threshold to improve robustness.
     const auto timeThreshold = RiaSummaryTools::calculateTimeThreshold( minTime, maxTime );
 
-    RiaDefines::DateTimePeriod period = findBestResamplingPeriod( minTime, maxTime );
-
     RiaTimeHistoryCurveMerger curveMerger;
     for ( const auto& sumCase : summaryCases )
     {
@@ -163,9 +170,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 
             if ( !includeIncompleteCurves && ( timeSteps.back() < timeThreshold ) ) continue;
 
-            const auto [resampledTimeSteps, resampledValues] =
-                RiaSummaryTools::resampledValuesForPeriod( inputAddress, timeSteps, values, period );
-            curveMerger.addCurveData( resampledTimeSteps, resampledValues );
+            curveMerger.addCurveData( timeSteps, values );
         }
     }
 
@@ -178,6 +183,11 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     }
 
     m_timeSteps = curveMerger.allXValues();
+
+    m_p10Data.reserve( m_timeSteps.size() );
+    m_p50Data.reserve( m_timeSteps.size() );
+    m_p90Data.reserve( m_timeSteps.size() );
+    m_meanData.reserve( m_timeSteps.size() );
 
     for ( size_t timeStepIndex = 0; timeStepIndex < m_timeSteps.size(); timeStepIndex++ )
     {
@@ -195,6 +205,11 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         m_p50Data.push_back( p50 );
         m_p90Data.push_back( p90 );
         m_meanData.push_back( mean );
+    }
+
+    if ( showDebugTiming )
+    {
+        RiaLogging::logTimeElapsed( "" );
     }
 }
 

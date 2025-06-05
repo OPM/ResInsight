@@ -34,6 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryCategory category, std::map<SummaryIdentifierType, std::string>& identifiers )
     : m_category( category )
+    , m_statisticsType( StatisticsType::NONE )
     , m_number0( -1 )
     , m_number1( -1 )
     , m_number2( -1 )
@@ -101,6 +102,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryCategory category, st
 ///
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryCategory    category,
+                                                    StatisticsType     statisticsType,
                                                     const std::string& vectorName,
                                                     int                regionNumber,
                                                     int                regionNumber2,
@@ -117,6 +119,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryCategory    category,
                                                     bool               isErrorResult,
                                                     int                id )
     : m_category( category )
+    , m_statisticsType( statisticsType )
     , m_vectorName( vectorName )
     , m_lgrName( lgrName )
     , m_number0( -1 )
@@ -178,7 +181,8 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryCategory    category,
 ///
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::RifEclipseSummaryAddress()
-    : m_category( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+    : m_category( SummaryCategory::SUMMARY_INVALID )
+    , m_statisticsType( StatisticsType::NONE )
     , m_number0( -1 )
     , m_number1( -1 )
     , m_number2( -1 )
@@ -463,17 +467,6 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress( const std::s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress( const std::string& vectorName, const std::string& dataQuantityName )
-{
-    RifEclipseSummaryAddress addr;
-    addr.m_category   = SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS;
-    addr.m_vectorName = vectorName + ":" + dataQuantityName;
-    return addr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::timeAddress()
 {
     RifEclipseSummaryAddress addr;
@@ -517,7 +510,7 @@ bool RifEclipseSummaryAddress::isDependentOnWellName( SummaryCategory category )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddressDefines::SummaryCategory RifEclipseSummaryAddress::category() const
+SummaryCategory RifEclipseSummaryAddress::category() const
 {
     return m_category;
 }
@@ -650,15 +643,6 @@ int RifEclipseSummaryAddress::id() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::ensembleStatisticsVectorName() const
-{
-    QString qName = QString::fromStdString( m_vectorName );
-    return qName.split( ":" )[0].toStdString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::uiText() const
 {
     std::string text;
@@ -671,6 +655,12 @@ std::string RifEclipseSummaryAddress::uiText() const
     if ( !itemText.empty() )
     {
         text += ":" + itemText;
+    }
+
+    if ( isStatistics() )
+    {
+        auto prefix = RifEclipseSummaryAddressDefines::statisticsTypeToString( statisticsType() );
+        text        = prefix + ":" + text;
     }
 
     return text;
@@ -783,7 +773,7 @@ std::string RifEclipseSummaryAddress::toEclipseTextAddress() const
 //--------------------------------------------------------------------------------------------------
 /// Returns the stringified address component requested
 //--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::addressComponentUiText( RifEclipseSummaryAddressDefines::SummaryIdentifierType identifierType ) const
+std::string RifEclipseSummaryAddress::addressComponentUiText( SummaryIdentifierType identifierType ) const
 {
     switch ( identifierType )
     {
@@ -1034,14 +1024,7 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
 {
     if ( !isValidEclipseCategory() ) return false;
 
-    QString quantityForInspection = QString::fromStdString( vectorName() );
-    if ( category() == SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
-    {
-        // Remove statistics text prefix
-        quantityForInspection = quantityForInspection.mid( quantityForInspection.indexOf( ":" ) + 1 );
-    }
-
-    QString qBaseName = QString::fromStdString( baseVectorName( quantityForInspection.toStdString() ) );
+    QString qBaseName = QString::fromStdString( baseVectorName( vectorName() ) );
 
     if ( RiaTextStringTools::isTextEqual( qBaseName, QString( "TCPU" ) ) ) return true;
     if ( RiaTextStringTools::isTextEqual( qBaseName, QString( "ELAPSED" ) ) ) return true;
@@ -1264,7 +1247,6 @@ bool RifEclipseSummaryAddress::isValidEclipseCategory() const
         case SummaryCategory::SUMMARY_WELL_SEGMENT:
         case SummaryCategory::SUMMARY_BLOCK:
         case SummaryCategory::SUMMARY_BLOCK_LGR:
-        case SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS:
             return true;
     }
     return false;
@@ -1339,6 +1321,30 @@ std::pair<int, int> RifEclipseSummaryAddress::regionToRegionPairFromUiText( cons
 
     return std::make_pair( RiaStdStringTools::toInt16( r2r[0].trimmed().toStdString() ),
                            RiaStdStringTools::toInt16( r2r[1].trimmed().toStdString() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isStatistics() const
+{
+    return m_statisticsType != StatisticsType::NONE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+StatisticsType RifEclipseSummaryAddress::statisticsType() const
+{
+    return m_statisticsType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setStatisticsType( StatisticsType type )
+{
+    m_statisticsType = type;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -28,8 +28,6 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimCalculatedSummaryCurveReader.h"
-#include "RimProject.h"
-#include "RimSummaryCalculationCollection.h"
 
 #include "cafUtils.h"
 
@@ -97,8 +95,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
             m_multiSummaryReader = new RifMultipleSummaryReaders;
             m_multiSummaryReader->addReader( m_summaryReader.p() );
 
-            RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-            m_calculatedSummaryReader                 = new RifCalculatedSummaryCurveReader( calcColl, this );
+            m_calculatedSummaryReader = new RifCalculatedSummaryCurveReader( this );
 
             m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
         }

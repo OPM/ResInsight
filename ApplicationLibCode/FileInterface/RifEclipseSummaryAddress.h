@@ -38,6 +38,7 @@ public:
     RifEclipseSummaryAddress();
 
     RifEclipseSummaryAddress( SummaryCategory    category,
+                              StatisticsType     statisticsType,
                               const std::string& vectorName,
                               int                regionNumber,
                               int                regionNumber2,
@@ -90,7 +91,6 @@ public:
     static RifEclipseSummaryAddress
         blockLgrAddress( const std::string& vectorName, const std::string& lgrName, int i, int j, int k, int calculationId = -1 );
     static RifEclipseSummaryAddress importedAddress( const std::string& vectorName, int calculationId = -1 );
-    static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& vectorName, const std::string& datavectorName );
 
     // Special address when time is used as x-axis
     static RifEclipseSummaryAddress timeAddress();
@@ -98,13 +98,17 @@ public:
     static std::string generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,
                                                     const std::string                            jointString = "; " );
 
-    static bool isDependentOnWellName( RifEclipseSummaryAddressDefines::SummaryCategory category );
+    static bool isDependentOnWellName( SummaryCategory category );
 
     // Access methods
 
     SummaryCategory category() const;
     std::string     vectorName() const;
     bool            isHistoryVector() const;
+
+    bool           isStatistics() const;
+    StatisticsType statisticsType() const;
+    void           setStatisticsType( StatisticsType type );
 
     int regionNumber() const;
     int regionNumber2() const;
@@ -122,8 +126,6 @@ public:
     int         id() const;
     std::string blockAsString() const;
     std::string connectionAsString() const;
-
-    std::string ensembleStatisticsVectorName() const;
 
     std::string toEclipseTextAddress() const;
 
@@ -176,6 +178,7 @@ private:
     // evaluated first. This concept is used by <=> operator.
 
     SummaryCategory m_category;
+    StatisticsType  m_statisticsType;
     std::string     m_vectorName;
     std::string     m_name;
     std::string     m_lgrName;

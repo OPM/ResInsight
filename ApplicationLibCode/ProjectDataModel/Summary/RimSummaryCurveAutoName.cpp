@@ -249,9 +249,10 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
             }
         }
 
-        if ( summaryAddress.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
+        if ( summaryAddress.isStatistics() )
         {
-            text = summaryAddress.vectorName();
+            auto prefix = RifEclipseSummaryAddressDefines::statisticsTypeToString( summaryAddress.statisticsType() );
+            text        = prefix + ":" + summaryAddress.vectorName();
         }
 
         if ( m_unit && !unitText.empty() )

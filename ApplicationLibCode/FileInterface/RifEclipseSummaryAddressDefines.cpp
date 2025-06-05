@@ -46,37 +46,6 @@ void caf::AppEnum<RifEclipseSummaryAddressDefines::CurveType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddressDefines::statisticsNameP10()
-{
-    return statisticsTypeToString( StatisticsType::P10 );
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddressDefines::statisticsNameP50()
-{
-    return statisticsTypeToString( StatisticsType::P50 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddressDefines::statisticsNameP90()
-{
-    return statisticsTypeToString( StatisticsType::P90 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddressDefines::statisticsNameMean()
-{
-    return statisticsTypeToString( StatisticsType::MEAN );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddressDefines::statisticsTypeToString( StatisticsType type )
 {
     caf::AppEnum<StatisticsType> enumType( type );

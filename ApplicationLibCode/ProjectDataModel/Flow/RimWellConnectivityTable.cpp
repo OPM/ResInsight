@@ -236,7 +236,7 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
     if ( eclView )
     {
         m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
-        if ( !m_flowDiagSolution )
+        if ( ( m_flowDiagSolution == nullptr ) && ( m_case != nullptr ) )
         {
             m_flowDiagSolution = m_case->defaultFlowDiagSolution();
         }

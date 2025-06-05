@@ -662,7 +662,7 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         RifEclipseSummaryAddress summaryAddress = curveDef.summaryAddressY();
 
         // Ignore ensemble statistics curves
-        if ( summaryAddress.category() == SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS ) continue;
+        if ( summaryAddress.isStatistics() ) continue;
 
         // Select summary category if not already selected
         auto& selectedCategories = m_selectedSummaryCategories();
@@ -1413,9 +1413,6 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::Pdm
     }
 
     sortedCategoriesForUi.push_back( SummaryCategory::SUMMARY_IMPORTED );
-
-    // NB SUMMARY_ENSEMBLE_STATISTICS is intentionally excluded
-    // categoriesForUiDisplay.push_back(SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS);
 
     for ( auto category : sortedCategoriesForUi )
     {

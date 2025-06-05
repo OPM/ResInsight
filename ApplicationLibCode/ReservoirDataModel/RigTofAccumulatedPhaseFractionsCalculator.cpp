@@ -42,6 +42,7 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                                                                       QString               wellname,
                                                                                       size_t                timestep )
 {
+    if ( caseToApply == nullptr ) return;
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
     if ( !eclipseCaseData ) return;
 

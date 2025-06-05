@@ -224,6 +224,18 @@ list(APPEND ALL_SOURCE_FILES ${CPP_SOURCES} ${MOC_SOURCE_FILES}
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
 
+option(RESINSIGHT_ENABLE_DYNAMIC_DEOPTIMALIZATION
+       "Ensable Dynamic Deoptimalization" OFF
+)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_DYNAMIC_DEOPTIMALIZATION)
+if(MSVC AND RESINSIGHT_ENABLE_DYNAMIC_DEOPTIMALIZATION)
+  message("Dynamic Deoptimalization is enabled on : ${PROJECT_NAME}")
+  target_compile_options(${PROJECT_NAME} PRIVATE /dynamicdeopt)
+  target_link_options(${PROJECT_NAME} PRIVATE /DYNAMICDEOPT)
+else()
+  message("Dynamic Deoptimalization is disabled on : ${PROJECT_NAME}")
+endif()
+
 option(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS "Use Precompiled Headers" OFF)
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
 if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
