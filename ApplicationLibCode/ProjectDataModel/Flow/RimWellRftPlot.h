@@ -114,7 +114,7 @@ protected:
 private:
     std::map<QString, QStringList> findWellSources();
     void                           updateEditorsFromPreviousSelection();
-    void                           updateEditorsFromCurves();
+    void                           setSelectedSourcesFromCurves();
     void                           syncCurvesFromUiSelection();
     void                           assignWellPathToExtractionCurves();
 

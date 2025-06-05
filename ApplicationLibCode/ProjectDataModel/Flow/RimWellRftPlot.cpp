@@ -384,7 +384,7 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::updateEditorsFromCurves()
+void RimWellRftPlot::setSelectedSourcesFromCurves()
 {
     std::set<RifDataSourceForRftPlt>                      selectedSources;
     std::set<QDateTime>                                   selectedTimeSteps;
@@ -1218,7 +1218,6 @@ void RimWellRftPlot::onLoadDataAndUpdate()
 
     RimWellLogPlot::onLoadDataAndUpdate();
     createEnsembleCurveSets();
-    updateEditorsFromCurves();
 
     // Update of curve color must happen here when loading data from project file, as the curve color is blended by
     // the background color. The background color is taken from the viewer.
@@ -1246,6 +1245,12 @@ void RimWellRftPlot::initAfterRead()
         delete m_wellLogPlot_OBSOLETE;
         m_wellLogPlot_OBSOLETE = nullptr;
     }
+
+    // TODO: m_selectedSources and m_selectedTimeSteps are not stored in the project file, so we need to set them here
+    // to ensure that the plot is initialized with the correct sources and time steps. Refactor m_selectedSources and m_selectedTimeSteps to
+    // be stored in the project file, and disable storing of curves to the project file. This is a temporary solution to ensure that the
+    // plot is initialized correctly
+    setSelectedSourcesFromCurves();
 
     RimWellLogPlot::initAfterRead();
 }

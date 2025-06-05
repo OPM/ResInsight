@@ -258,7 +258,8 @@ static QProgressDialog* progressDialog()
     static QPointer<QProgressDialog> progDialog;
     if ( progDialog.isNull() && dynamic_cast<QApplication*>( QCoreApplication::instance() ) )
     {
-        progDialog = new QProgressDialog( nullptr, Qt::WindowTitleHint | Qt::WindowSystemMenuHint );
+        progDialog =
+            new QProgressDialog( nullptr, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint );
 
         progDialog->hide();
         progDialog->setAutoClose( false );
