@@ -442,7 +442,7 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( const std::vector<RimSum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::loadFileSummaryCaseData(const std::vector<RimFileSummaryCase*>& fileSummaryCases )
+void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<RimFileSummaryCase*>& fileSummaryCases )
 {
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
