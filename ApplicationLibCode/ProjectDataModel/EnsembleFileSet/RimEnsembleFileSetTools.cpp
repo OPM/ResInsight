@@ -47,7 +47,7 @@ std::vector<RimSummaryEnsemble*> createSummaryEnsemblesFromFileSets( const std::
         ensembles.push_back( ensemble );
     }
 
-    RiaSummaryTools::summaryCaseMainCollection()->updateConnectedEditors();
+    RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();
 
     return ensembles;
 }
