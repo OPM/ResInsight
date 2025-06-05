@@ -719,8 +719,8 @@ void RigCaseCellResultsData::clearAllResults()
 /// Removes all the actual numbers put into this object, and frees up the memory.
 /// Does not touch the metadata in any way
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> categoriesToExclude,
-                                                       std::optional<size_t>                  timeStepIndexToRelease )
+void RigCaseCellResultsData::freeAllocatedResultsData( const std::vector<RiaDefines::ResultCatType>& categoriesToExclude,
+                                                       std::optional<size_t>                         timeStepIndexToRelease )
 {
     for ( size_t resultIdx = 0; resultIdx < m_cellScalarResults.size(); ++resultIdx )
     {
@@ -736,7 +736,7 @@ void RigCaseCellResultsData::freeAllocatedResultsData( std::vector<RiaDefines::R
 
         for ( size_t index = 0; index < m_cellScalarResults[resultIdx].size(); index++ )
         {
-            if ( timeStepIndexToRelease && index != *timeStepIndexToRelease )
+            if ( timeStepIndexToRelease.has_value() && index != timeStepIndexToRelease.value() )
             {
                 // Keep generated results for these time steps
                 continue;
