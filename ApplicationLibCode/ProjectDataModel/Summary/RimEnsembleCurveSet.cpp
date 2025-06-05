@@ -364,9 +364,6 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
 
-    // Recreate the statistics case, as the statistics data is cached internally
-    m_ensembleStatCaseY = std::make_unique<RimEnsembleStatisticsCase>();
-
     m_curveFilters->loadDataAndUpdate();
 
     updateAddressesUiField();

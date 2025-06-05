@@ -465,6 +465,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 {
     // First Close the current project
 
+    caf::ProgressInfo progress( 7, "Loading Project File" );
+    progress.setProgressDescription( "Reading Project Structure from File" );
+
     closeProject();
 
     onProjectBeingOpened();
@@ -537,6 +540,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         m_preferences->writePreferencesToApplicationStore();
     }
 
+    progress.incrementProgress();
+    progress.setProgressDescription( "Loading Grid Data" );
+
     for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
     {
         RimOilField*              oilField       = m_project->oilFields[oilFieldIdx];
@@ -594,6 +600,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         oilField->polygonCollection()->loadData();
     }
 
+    progress.incrementProgress();
+    progress.setProgressDescription( "Loading 2D Plot Data" );
+
     {
         RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
         mainPlotColl->ensureDefaultFlowPlotsAreCreated();
@@ -646,6 +655,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         oilField->surfaceCollection()->loadData();
     }
 
+    progress.incrementProgress();
+    progress.setProgressDescription( "Calculation Grid Statistics" );
+
     // If load action is specified to recalculate statistics, do it now.
     // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will
     // be clamped
@@ -661,6 +673,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             }
         }
     }
+
+    progress.incrementProgress();
+    progress.setProgressDescription( "Create 3D Views" );
 
     // Now load the ReservoirViews for the cases
     // Add all "native" cases in the project
@@ -769,6 +784,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         }
     }
 
+    progress.incrementProgress();
+    progress.setProgressDescription( "Load Summary Data" );
+
     // Init summary case groups
     for ( RimOilField* oilField : m_project->oilFields )
     {
@@ -798,6 +816,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     // current active view ( see restoreTreeViewState() )
     // Default behavior for scripts is to use current active view for data read/write
     onProjectOpened();
+
+    progress.incrementProgress();
+    progress.setProgressDescription( "Performing Grid Calculations" );
 
     // Recalculate the results from grid property calculations.
     // Has to be done late since the results are filtered by view cell visibility
