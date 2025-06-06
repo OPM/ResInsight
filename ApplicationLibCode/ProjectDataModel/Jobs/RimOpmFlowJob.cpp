@@ -80,7 +80,7 @@ void caf::AppEnum<RimOpmFlowJob::WellOpenType>::setUp()
 RimOpmFlowJob::RimOpmFlowJob()
     : m_fileDeckHasDates( false )
 {
-    CAF_PDM_InitObject( "Opm Flow Simulation", ":/gear.svg" );
+    CAF_PDM_InitObject( "Opm Flow Simulation", ":/opm.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_deckFileName, "DeckFile", "Input Data File" );
     m_deckFileName.uiCapability()->setUiReadOnly( true );
@@ -162,6 +162,7 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
         if ( pbAttribute )
         {
             pbAttribute->m_buttonText = "Run Simulation";
+            pbAttribute->m_buttonIcon = QIcon( ":/opm.png" );
         }
     }
     else if ( field == &m_openSelectButton )
@@ -375,7 +376,7 @@ bool RimOpmFlowJob::copyUnrstFileToWorkDir()
     QString unrstName = fi.absolutePath() + "/" + fi.baseName() + ".UNRST";
     if ( QFile::exists( unrstName ) )
     {
-        QString dstName = workingDirectory() + "/" + fi.baseName() + ".UNRST";
+        QString dstName = workingDirectory() + "/" + restartDeckName() + ".UNRST";
         if ( dstName != unrstName )
         {
             QFile::copy( unrstName, dstName );
@@ -433,6 +434,14 @@ QString RimOpmFlowJob::baseDeckName() const
 {
     QFileInfo fi( m_deckFileName().path() );
     return fi.completeBaseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::restartDeckName() const
+{
+    return baseDeckName() + "_RST";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -549,7 +558,7 @@ bool RimOpmFlowJob::onPrepare()
             }
 
             // merge new well settings from resinsight into DATA deck
-            if ( !m_fileDeck->mergeWellDeck( wellTempFile().toStdString() ) )
+            if ( !m_fileDeck->mergeWellDeck( m_openTimeStep(), wellTempFile().toStdString() ) )
             {
                 RiaLogging::error( "Unable to merge new well data into DATA file. Are there WELSPECS and COMPDAT keywords?" );
                 return false;
@@ -576,7 +585,7 @@ bool RimOpmFlowJob::onPrepare()
                     return false;
                 }
 
-                if ( !m_fileDeck->restartAtTimeStep( m_openTimeStep(), baseDeckName().toStdString() ) )
+                if ( !m_fileDeck->restartAtTimeStep( std::max( m_openTimeStep() - 1, 0 ), restartDeckName().toStdString() ) )
                 {
                     RiaLogging::error( "Unable to insert restart keywords in DATA file." );
                     return false;

@@ -42,7 +42,7 @@ public:
     bool loadDeck( std::string filename );
     bool saveDeck( std::string folder, std::string filename );
 
-    bool mergeWellDeck( std::string filename );
+    bool mergeWellDeck( int timeStep, std::string filename );
     bool mergeMswData( std::vector<std::string>& mswFileData );
 
     bool openWellAtTimeStep( int timeStep, std::string openText );

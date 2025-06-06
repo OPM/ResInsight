@@ -77,6 +77,7 @@ private:
     QString         wellTempFile( int timeStep = -1, bool includeMSW = false, bool includeLGR = false ) const;
     QString         openWellTempFile() const;
     QString         baseDeckName() const;
+    QString         restartDeckName() const;
 
     static QString readFileContent( QString filename );
 
