@@ -43,7 +43,7 @@ def add_method(cls: C) -> Callable[[F], F]:
         # Explicitly preserve signature for Sphinx documentation
         wrapper.__name__ = func.__name__
         wrapper.__doc__ = func.__doc__
-        wrapper.__signature__ = inspect.signature(func) # type: ignore
+        wrapper.__signature__ = inspect.signature(func)  # type: ignore
         wrapper.__annotations__ = getattr(func, "__annotations__", {})
 
         # Add the wrapped function to the class
