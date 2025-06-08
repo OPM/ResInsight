@@ -118,6 +118,19 @@ RimEclipseCase* RimEclipseCaseEnsemble::findByDescription( const QString& caseDe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimEclipseCaseEnsemble::findByFileName( const QString& gridFileName ) const
+{
+    for ( RimEclipseCase* rimReservoir : cases() )
+    {
+        if ( gridFileName == rimReservoir->gridFileName() ) return rimReservoir;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimEclipseCaseEnsemble::cases() const
 {
     if ( !m_caseCollection ) return {};

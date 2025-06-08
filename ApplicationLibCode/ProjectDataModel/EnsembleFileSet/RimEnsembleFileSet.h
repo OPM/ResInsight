@@ -56,7 +56,8 @@ public:
     QString                             nameTemplateText() const;
     void                                setAutoName( bool autoName );
 
-    void setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    void                             setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    RiaDefines::EnsembleGroupingMode groupingMode() const;
 
     void reload();
 

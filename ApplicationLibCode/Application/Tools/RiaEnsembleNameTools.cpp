@@ -368,6 +368,25 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( c
             ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
         }
     }
+    else if ( groupingMode == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
+    {
+        std::vector<std::string> allPaths;
+        for ( const auto& fileName : fileNames )
+        {
+            allPaths.push_back( fileName.toStdString() );
+        }
+        auto groupedPaths = RiaEnsembleNameTools::groupFilePathsOpm( allPaths );
+        for ( auto group : groupedPaths )
+        {
+            std::string ensembleName = group.first.first + ", " + group.first.second;
+            QStringList groupPaths;
+            for ( const auto& path : group.second )
+            {
+                groupPaths.push_back( QString::fromStdString( path ) );
+            }
+            ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
+        }
+    }
 
     return ensemblePaths;
 }

@@ -457,6 +457,14 @@ void RimEnsembleFileSet::setGroupingMode( RiaDefines::EnsembleGroupingMode group
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::EnsembleGroupingMode RimEnsembleFileSet::groupingMode() const
+{
+    return m_groupingMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleFileSet::sendFileSetChangedSignal() const
 {
     fileSetChanged.send();

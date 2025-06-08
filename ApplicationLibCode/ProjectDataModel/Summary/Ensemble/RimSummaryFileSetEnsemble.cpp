@@ -63,6 +63,7 @@ RimEnsembleFileSet* RimSummaryFileSetEnsemble::ensembleFileSet()
 void RimSummaryFileSetEnsemble::setEnsembleFileSet( RimEnsembleFileSet* ensembleFileSet )
 {
     m_ensembleFileSet = ensembleFileSet;
+    setGroupingMode( m_ensembleFileSet->groupingMode() );
     connectSignals();
 }
 

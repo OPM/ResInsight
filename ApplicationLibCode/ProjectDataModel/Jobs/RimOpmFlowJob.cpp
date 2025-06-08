@@ -70,7 +70,7 @@ void caf::AppEnum<RimOpmFlowJob::WellOpenType>::setUp()
     addItem( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION, "OpenByPosition", "Select Keyword Position in File" );
     addItem( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE, "AtSelectedDate", "Select a Date" );
 
-    setDefault( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION );
+    setDefault( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE );
 }
 } // namespace caf
 
@@ -91,7 +91,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_gridEnsemble, "GridEnsemble", "Grid Ensemble" );
     CAF_PDM_InitFieldNoDefault( &m_summaryEnsemble, "SummaryEnsemble", "Summary Ensemble" );
 
-    CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", true, "Pause before running OPM Flow" );
+    CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", false, "Pause before running OPM Flow" );
     CAF_PDM_InitField( &m_addNewWell, "AddNewWell", true, "Add New Well" );
     CAF_PDM_InitField( &m_openWellDeckPosition, "OpenWellDeckPosition", -1, "Open Well at Keyword Index" );
     CAF_PDM_InitField( &m_includeMSWData, "IncludeMswData", false, "Add MSW Data" );
@@ -105,7 +105,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeMSWData );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addNewWell );
 
-    CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_BY_POSITION ), "Open Well" );
+    CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_AT_DATE ), "Open Well" );
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_wellOpenKeyword.xmlCapability()->disableIO();
@@ -210,7 +210,14 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
             {
                 wellGrp->add( &m_openTimeStep );
                 wellGrp->add( &m_useRestart );
-                wellGrp->add( &m_includeMSWData );
+                if ( !m_useRestart() )
+                {
+                    wellGrp->add( &m_includeMSWData );
+                }
+                else
+                {
+                    m_includeMSWData = false;
+                }
             }
             else if ( m_wellOpenType == WellOpenType::OPEN_BY_POSITION )
             {
@@ -329,7 +336,7 @@ void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
     QFileInfo fi( eCase->gridFileName() );
     m_deckFileName.setValue( fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension() );
     m_eclipseCase = eCase;
-    m_fileDeck.reset();
+    m_deckFile.reset();
     openDeckFile();
 }
 
@@ -340,7 +347,7 @@ void RimOpmFlowJob::setInputDataFile( QString filename )
 {
     m_deckName = "";
     m_deckFileName.setValue( filename );
-    m_fileDeck.reset();
+    m_deckFile.reset();
     openDeckFile();
 }
 
@@ -349,21 +356,21 @@ void RimOpmFlowJob::setInputDataFile( QString filename )
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::openDeckFile()
 {
-    if ( m_fileDeck == nullptr )
+    if ( m_deckFile == nullptr )
     {
-        m_fileDeck = std::make_unique<RifOpmFlowDeckFile>();
-        if ( m_fileDeck->loadDeck( m_deckFileName().path().toStdString() ) )
+        m_deckFile = std::make_unique<RifOpmFlowDeckFile>();
+        if ( m_deckFile->loadDeck( m_deckFileName().path().toStdString() ) )
         {
-            m_fileDeckHasDates = m_fileDeck->hasDatesKeyword();
+            m_fileDeckHasDates = m_deckFile->hasDatesKeyword();
         }
         else
         {
             m_fileDeckHasDates = false;
-            m_fileDeck.reset();
+            m_deckFile.reset();
         }
     }
 
-    return m_fileDeck != nullptr;
+    return m_deckFile != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,10 +523,8 @@ QStringList RimOpmFlowJob::command()
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::onPrepare()
 {
-    if ( m_wellPath == nullptr ) return false;
-
     // reload file deck to make sure we start with the original
-    m_fileDeck.reset();
+    m_deckFile.reset();
     if ( !openDeckFile() )
     {
         RiaLogging::error( "Unable to open input DATA file " + m_deckFileName().path() );
@@ -529,6 +534,12 @@ bool RimOpmFlowJob::onPrepare()
     // add a new well?
     if ( m_addNewWell() )
     {
+        if ( m_wellPath == nullptr )
+        {
+            RiaLogging::error( "Please select a well path to use." );
+            return false;
+        }
+
         if ( m_includeMSWData && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
         {
             if ( m_eclipseCase() )
@@ -540,7 +551,8 @@ bool RimOpmFlowJob::onPrepare()
                     mswData.push_back( exportMswWellSettings( date, i++ ) );
                 }
 
-                if ( !m_fileDeck->mergeMswData( mswData ) )
+                // TODO - must support restart by defining necessary well things at the timestep set in m_openTimeStep
+                if ( !m_deckFile->mergeMswData( mswData ) )
                 {
                     RiaLogging::error( "Failed to merge MSW data into file deck." );
                     return false;
@@ -558,7 +570,7 @@ bool RimOpmFlowJob::onPrepare()
             }
 
             // merge new well settings from resinsight into DATA deck
-            if ( !m_fileDeck->mergeWellDeck( m_openTimeStep(), wellTempFile().toStdString() ) )
+            if ( !m_deckFile->mergeWellDeck( m_openTimeStep(), wellTempFile().toStdString() ) )
             {
                 RiaLogging::error( "Unable to merge new well data into DATA file. Are there WELSPECS and COMPDAT keywords?" );
                 return false;
@@ -571,7 +583,7 @@ bool RimOpmFlowJob::onPrepare()
         // open new well at selected timestep
         if ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
         {
-            if ( !m_fileDeck->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
+            if ( !m_deckFile->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
             {
                 RiaLogging::error( "Unable to open new well in DATA file." );
                 return false;
@@ -585,7 +597,7 @@ bool RimOpmFlowJob::onPrepare()
                     return false;
                 }
 
-                if ( !m_fileDeck->restartAtTimeStep( std::max( m_openTimeStep() - 1, 0 ), restartDeckName().toStdString() ) )
+                if ( !m_deckFile->restartAtTimeStep( std::max( m_openTimeStep() - 1, 0 ), restartDeckName().toStdString() ) )
                 {
                     RiaLogging::error( "Unable to insert restart keywords in DATA file." );
                     return false;
@@ -594,7 +606,7 @@ bool RimOpmFlowJob::onPrepare()
         }
         else
         {
-            if ( !m_fileDeck->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
+            if ( !m_deckFile->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
             {
                 RiaLogging::error( "Unable to open new well at selected position in DATA file." );
                 return false;
@@ -603,8 +615,8 @@ bool RimOpmFlowJob::onPrepare()
     }
 
     // save DATA file to working folder
-    bool saveOk = m_fileDeck->saveDeck( workingDirectory().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
-    m_fileDeck.reset();
+    bool saveOk = m_deckFile->saveDeck( workingDirectory().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
+    m_deckFile.reset();
 
     if ( m_pauseBeforeRun() )
     {
@@ -627,20 +639,27 @@ void RimOpmFlowJob::onCompleted( bool success )
 {
     if ( !success ) return;
 
-    QString outputEgrid = workingDirectory() + "/" + deckName() + ".EGRID";
-    if ( !QFile::exists( outputEgrid ) ) return;
+    QString outputEgridFileName = workingDirectory() + "/" + deckName() + ".EGRID";
+    if ( !QFile::exists( outputEgridFileName ) ) return;
 
     if ( m_addToEnsemble() )
     {
         // grid ensemble
         if ( m_gridEnsemble() == nullptr )
         {
-            m_gridEnsemble = RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCaseEnsemble( QStringList( outputEgrid ) );
+            m_gridEnsemble = RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCaseEnsemble( QStringList( outputEgridFileName ) );
         }
         else
         {
-            auto* rimResultCase = RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCase( outputEgrid );
-            m_gridEnsemble->addCase( rimResultCase );
+            if ( auto rimResultCase = m_gridEnsemble->findByFileName( outputEgridFileName ) )
+            {
+                rimResultCase->reloadEclipseGridFile();
+            }
+            else
+            {
+                rimResultCase = RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCase( outputEgridFileName );
+                m_gridEnsemble->addCase( rimResultCase );
+            }
 
             for ( auto gridCase : m_gridEnsemble->cases() )
             {
@@ -671,7 +690,7 @@ void RimOpmFlowJob::onCompleted( bool success )
     }
     else
     {
-        if ( auto existingCase = findExistingCase( outputEgrid ) )
+        if ( auto existingCase = findExistingCase( outputEgridFileName ) )
         {
             RimReloadCaseTools::reloadEclipseGridAndSummary( existingCase );
             existingCase->setCustomCaseName( name() );
@@ -679,12 +698,12 @@ void RimOpmFlowJob::onCompleted( bool success )
         }
         else
         {
-            QStringList files( outputEgrid );
+            QStringList files( outputEgridFileName );
 
             RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
             if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( files, true /*create view*/, &newCaseFiles, false /* dialog */ ) )
             {
-                if ( auto newCase = findExistingCase( outputEgrid ) )
+                if ( auto newCase = findExistingCase( outputEgridFileName ) )
                 {
                     newCase->setCustomCaseName( name() );
                     newCase->updateConnectedEditors();
@@ -701,11 +720,9 @@ void RimOpmFlowJob::onCompleted( bool success )
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimOpmFlowJob::findExistingCase( QString filename )
 {
-    RimProject* proj = RimProject::current();
-    if ( proj )
+    if ( RimProject* proj = RimProject::current() )
     {
-        std::vector<RimCase*> cases = proj->allGridCases();
-        for ( RimCase* c : cases )
+        for ( RimCase* c : proj->allGridCases() )
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
             if ( eclipseCase && ( eclipseCase->gridFileName() == filename ) )
@@ -849,7 +866,7 @@ void RimOpmFlowJob::selectOpenWellPosition()
 
     std::vector<std::pair<int, QString>> kwVec;
 
-    auto kws = m_fileDeck->keywords();
+    auto kws = m_deckFile->keywords();
     int  i   = 0;
     for ( auto& kw : kws )
     {

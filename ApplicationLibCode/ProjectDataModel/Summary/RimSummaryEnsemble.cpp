@@ -1060,6 +1060,10 @@ QString RimSummaryEnsemble::ensembleDescription() const
     {
         txt += "The ensemble is grouped by the FMU file folder structure.\n";
     }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
+    {
+        txt += "The ensemble is grouped by the ResInsight Opm Flow file folder structure.\n";
+    }
 
     return txt;
 }
@@ -1115,6 +1119,18 @@ std::pair<std::string, std::string> RimSummaryEnsemble::nameKeys() const
             {
                 key1 = parts1[commonParts - 2];
                 key2 = parts1[commonParts - 1];
+            }
+        }
+    }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
+    {
+        if ( !m_cases.empty() )
+        {
+            auto fileNames = RiaEnsembleNameTools::groupFilePathsOpm( { m_cases[0]->summaryHeaderFilename().toStdString() } );
+            if ( !fileNames.empty() )
+            {
+                key1 = fileNames.begin()->first.first;
+                key2 = fileNames.begin()->first.second;
             }
         }
     }

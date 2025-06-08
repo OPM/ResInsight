@@ -112,6 +112,6 @@ private:
     caf::PdmField<QString> m_wellOpenText;
 
     QString                             m_deckName;
-    std::unique_ptr<RifOpmFlowDeckFile> m_fileDeck;
+    std::unique_ptr<RifOpmFlowDeckFile> m_deckFile;
     bool                                m_fileDeckHasDates;
 };

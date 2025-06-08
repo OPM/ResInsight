@@ -52,7 +52,7 @@ static std::optional<Opm::FileDeck::Index> locateTimeStep( std::unique_ptr<Opm::
         }
         currentStep++;
     }
-    return {};
+    return std::nullopt;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,8 +62,7 @@ static std::optional<Opm::FileDeck::Index> locateKeywordAtTimeStep( std::unique_
 {
     Opm::ErrorGuard errors{};
 
-    int  currentStep = 1;
-    auto startPos    = internal::locateTimeStep( fileDeck, timeStep );
+    auto startPos = internal::locateTimeStep( fileDeck, timeStep );
     if ( startPos.has_value() )
     {
         auto startIdx = startPos.value();
@@ -226,9 +225,8 @@ bool RifOpmFlowDeckFile::mergeWellDeck( int timeStep, std::string filename )
     }
     else
     {
+        // Insert new well into main WELSPECS
         {
-            // Insert new well into WELSPECS
-
             const auto foundWelspecs = m_fileDeck->find( "WELSPECS" );
             if ( !foundWelspecs.has_value() ) return false;
             auto& existing_pos = foundWelspecs.value();
@@ -241,7 +239,7 @@ bool RifOpmFlowDeckFile::mergeWellDeck( int timeStep, std::string filename )
             m_fileDeck->insert( existing_pos, newWelspecsKw );
         }
 
-        // Insert new well data into COMPDAT
+        // Insert new well data into main COMPDAT
         {
             const auto foundCompdat = m_fileDeck->find( "COMPDAT" );
             if ( !foundCompdat.has_value() ) return false;
