@@ -40,9 +40,11 @@ def add_method(cls: C) -> Callable[[F], F]:
             except grpc.RpcError as e:
                 raise RipsError(e.details()) from None
 
-        # Preserve the metadata of the original function
+        # Explicitly preserve signature for Sphinx documentation
         wrapper.__name__ = func.__name__
         wrapper.__doc__ = func.__doc__
+        wrapper.__signature__ = inspect.signature(func)  # type: ignore
+        wrapper.__annotations__ = getattr(func, "__annotations__", {})
 
         # Add the wrapped function to the class
         setattr(cls, func.__name__, wrapper)
