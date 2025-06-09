@@ -45,7 +45,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFishbonesCollection_setFixedStartLocation : public caf::PdmObjectMethod
+class RimcFishbonesCollection_setFixedStartLocation : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -53,7 +53,6 @@ public:
     RimcFishbonesCollection_setFixedStartLocation( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<double> m_location;
@@ -62,7 +61,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFishbonesCollection_setFixedEndLocation : public caf::PdmObjectMethod
+class RimcFishbonesCollection_setFixedEndLocation : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -70,7 +69,6 @@ public:
     RimcFishbonesCollection_setFixedEndLocation( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<double> m_location;

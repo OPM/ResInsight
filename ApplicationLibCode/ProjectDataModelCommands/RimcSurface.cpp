@@ -36,11 +36,9 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurface, RimcSurface_exportToFile, "Export
 ///
 //--------------------------------------------------------------------------------------------------
 RimcSurface_exportToFile::RimcSurface_exportToFile( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export Surface To file", "", "", "Export a surface to file" );
-    setNullptrValid( true );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Filename to export surface to" );
 }
@@ -69,12 +67,4 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurface_exportToFile::execute(
     auto dataObject            = new RimcDataContainerString();
     dataObject->m_stringValues = { m_fileName() };
     return dataObject;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSurface_exportToFile::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString() );
 }

@@ -44,11 +44,9 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_importPropert
 ///
 //--------------------------------------------------------------------------------------------------
 RimcEclipseCase_importProperties::RimcEclipseCase_importProperties( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Import Properties", "", "", "Import Properties" );
-    setNullptrValid( true );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileNames, "FileNames", "" );
 }
@@ -75,13 +73,5 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_importProperties::
     auto eclipseCase = self<RimEclipseCase>();
     eclipseCase->importAsciiInputProperties( propertyFileNames );
 
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcEclipseCase_importProperties::defaultResult() const
-{
     return nullptr;
 }
