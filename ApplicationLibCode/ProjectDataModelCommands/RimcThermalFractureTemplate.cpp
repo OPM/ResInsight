@@ -32,11 +32,9 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimThermalFractureTemplate, RimcThermalFractu
 ///
 //--------------------------------------------------------------------------------------------------
 RimcThermalFractureTemplate_exportToFile::RimcThermalFractureTemplate_exportToFile( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export Thermal Fracture Template", "", "", "Export Thermal Fracture Template to File" );
-    setNullptrValid( true );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
@@ -51,14 +49,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcThermalFractureTemplate_export
     if ( thermalFracture && thermalFracture->fractureDefinition() )
         RifThermalFractureTemplateSurfaceExporter::writeToFile( thermalFracture, m_timeStep(), m_filePath() );
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcThermalFractureTemplate_exportToFile::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimThermalFractureTemplate );
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimThermalFractureTemplate, RimcThermalFractureTemplate_timeSteps, "TimeSteps" );

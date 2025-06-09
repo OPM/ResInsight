@@ -92,7 +92,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimSummaryCase_setSummaryVectorValues : public caf::PdmObjectMethod
+class RimSummaryCase_setSummaryVectorValues : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -100,7 +100,6 @@ public:
     RimSummaryCase_setSummaryVectorValues( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<QString>            m_addressString;

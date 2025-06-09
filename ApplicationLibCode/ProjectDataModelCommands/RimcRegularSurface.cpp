@@ -34,11 +34,9 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimRegularSurface, RimcRegularSurface_setProp
 ///
 //--------------------------------------------------------------------------------------------------
 RimcRegularSurface_setPropertyFromKey::RimcRegularSurface_setPropertyFromKey( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set property from key", "", "", "Set property from key." );
-    setNullptrValid( true );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "", "", "", "Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_valueKey, "ValueKey", "", "", "", "Key Value" );
@@ -75,25 +73,15 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyFrom
     return nullptr;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcRegularSurface_setPropertyFromKey::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( nullptr );
-}
-
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimRegularSurface, RimcRegularSurface_setPropertyAsDepth, "SetPropertyAsDepth" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimcRegularSurface_setPropertyAsDepth::RimcRegularSurface_setPropertyAsDepth( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set property as depth", "", "", "Set property as depth." );
-    setNullptrValid( true );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "", "", "", "Name" );
 }
@@ -119,12 +107,4 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyAsDe
     surface->updateConnectedEditors();
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcRegularSurface_setPropertyAsDepth::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( nullptr );
 }

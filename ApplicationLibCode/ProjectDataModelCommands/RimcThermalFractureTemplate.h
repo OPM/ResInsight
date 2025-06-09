@@ -30,7 +30,7 @@ class RimThermalFractureTemplate;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcThermalFractureTemplate_exportToFile : public caf::PdmObjectMethod
+class RimcThermalFractureTemplate_exportToFile : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -38,7 +38,6 @@ public:
     RimcThermalFractureTemplate_exportToFile( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<QString> m_filePath;

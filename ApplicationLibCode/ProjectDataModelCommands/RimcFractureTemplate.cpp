@@ -30,11 +30,9 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplate, RimcFractureTemplate_set
 ///
 //--------------------------------------------------------------------------------------------------
 RimcFractureTemplate_setScaleFactors::RimcFractureTemplate_setScaleFactors( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set Fracture Template Scale Factors", "", "", "Set Fracture Template Scale Factors." );
-    setNullptrValid( true );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableField( &m_halfLength, "HalfLength", 1.0, "Half Length" );
     CAF_PDM_InitScriptableField( &m_height, "Height", 1.0, "Height" );
@@ -59,13 +57,5 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplate_setScaleFacto
         fractureTemplate->loadDataAndUpdateGeometryHasChanged();
     }
 
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplate_setScaleFactors::defaultResult() const
-{
     return nullptr;
 }
