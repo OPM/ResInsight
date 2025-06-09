@@ -130,3 +130,23 @@ std::vector<QString> caf::PdmObjectMethodFactory::registeredMethodNames( const Q
 
     return methods;
 }
+
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmVoidObjectMethod, "PdmVoidObjectMethod" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmVoidObjectMethod::PdmVoidObjectMethod( PdmObjectHandle* self )
+    : PdmObjectMethod( self )
+{
+    setNullptrValid( true ); // Void methods are allowed to return nullptr
+    setResultPersistent( false ); // Void methods do not return persistent objects
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> PdmVoidObjectMethod::defaultResult() const
+{
+    return std::unique_ptr<PdmObjectHandle>();
+}

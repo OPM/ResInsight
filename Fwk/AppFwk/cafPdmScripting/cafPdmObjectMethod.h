@@ -99,6 +99,17 @@ private:
                                // object to be deleted on completion
 };
 
+class PdmVoidObjectMethod : public PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    PdmVoidObjectMethod( PdmObjectHandle* self );
+
+    // The default result is a nullptr, since this method does not return anything
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override final;
+};
+
 //==================================================================================================
 /// PdmObject script method factory
 /// Register methods with this factory to be able to create and call methods.
