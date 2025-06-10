@@ -59,7 +59,7 @@ RiaPreferencesOpm* RiaPreferencesOpm::current()
 //--------------------------------------------------------------------------------------------------
 void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* opmGrp = uiOrdering.addNewGroup( "OPM Flow Settings" );
+    caf::PdmUiGroup* opmGrp = uiOrdering.addNewGroup( "Opm Flow Settings" );
     opmGrp->add( &m_opmFlowCommand );
     auto wslCmd = RiaWslTools::wslCommand();
     if ( !wslCmd.isEmpty() )
