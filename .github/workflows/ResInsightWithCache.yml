@@ -31,7 +31,6 @@ jobs:
               unity-build: true,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
-              vcpkg-triplet: x64-windows-release,
               qt-version: 6.6.3,
               ri-unit-test-path: "ResInsight-tests",
             }
@@ -46,22 +45,20 @@ jobs:
               unity-build: false,
               publish-to-pypi: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
-              vcpkg-triplet: x64-linux-release,
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
             }
           - {
-              name: "Ubuntu 22.04 clang-16",
-              os: ubuntu-22.04,
-              cc: "clang-16",
-              cxx: "clang++-16",
+              name: "Ubuntu 24.04 clang-19",
+              os: ubuntu-24.04,
+              cc: "clang-19",
+              cxx: "clang++-19",
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: false,
               unity-build: false,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
-              vcpkg-triplet: x64-linux-release,
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
             }
@@ -69,10 +66,7 @@ jobs:
       BUILD_TYPE: Release
       BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
       BUILDCACHE_ACCURACY: SLOPPY
-      USERNAME: magnesj
-      VCPKG_EXE: ${{ github.workspace }}/ThirdParty/vcpkg/vcpkg${{ matrix.config.os == 'windows-2022' && '.exe' || '' }}
-      FEED_URL: https://nuget.pkg.github.com/ceetronsolutions/index.json
-      VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/ceetronsolutions/index.json,readwrite"
+      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
     steps:
       - name: Checkout
@@ -99,62 +93,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r GrpcInterface/Python/build-requirements.txt
-
-      - name: Find CMake path and remove from PATH (Linux)
-        if: contains( matrix.config.os, 'ubuntu')
-        run: |
-          sudo rm -rf /usr/local/bin/cmake*
-          sudo rm -rf /usr/local/share/cmake*
-          sudo rm -rf /usr/local/doc/cmake*
-          sudo rm -rf /usr/local/man/man1/cmake*
-
-          # Try to call CMake (should fail or use a different version if removal was successful)
-          cmake --version || echo "CMake was successfully removed from PATH"
-
-      - name: Find CMake path and remove from PATH (Windows)
-        shell: powershell
-        if: contains( matrix.config.os, 'windows')
-        run: |
-          # Find the current CMake path
-          $cmakePath = (Get-Command cmake -ErrorAction SilentlyContinue).Path
-          Write-Host "Current CMake path: $cmakePath"
-          
-          if ($cmakePath) {
-            # Get the directory containing CMake
-            $cmakeDir = Split-Path -Parent $cmakePath
-            Write-Host "CMake directory: $cmakeDir"
-            
-            # Save the current PATH
-            $currentPath = $env:PATH
-            
-            # Create a new PATH by removing the CMake directory
-            # PowerShell uses semicolons as path separators
-            $newPath = ($currentPath -split ';' | Where-Object { $_ -ne $cmakeDir }) -join ';'
-            
-            # Set the new PATH for this job
-            echo "PATH=$newPath" | Out-File -FilePath $env:GITHUB_ENV -Append
-            
-            # Update the current session PATH for verification purposes
-            $env:PATH = $newPath
-            
-            # Verify the change
-            Write-Host "Updated PATH: $newPath"
-            
-            # Try to call CMake (should fail or use a different version if removal was successful)
-            try {
-              cmake --version
-              Write-Host "CMake is still in PATH (possibly from another location)"
-            } catch {
-              Write-Host "CMake was successfully removed from PATH"
-            }
-          } else {
-            Write-Host "CMake not found in PATH"
-          }
-           
-      - name: Use CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: "~3.26.0"
 
       - name: Use MSVC (Windows)
         uses: ilammy/msvc-dev-cmd@v1
@@ -217,16 +155,14 @@ jobs:
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
-          sudo apt install mono-complete
 
-      - name: Install clang-16
+      - name: Install clang-19
         if: contains( matrix.config.cc, 'clang')
         run: |
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
           sudo apt-get upgrade
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
-          sudo ./llvm.sh 16 all
+          sudo ./llvm.sh 19 all
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -241,44 +177,23 @@ jobs:
         run: |
           ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
 
-      - name: Configure NuGet for binary caching (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
-            sources add \
-            -Source "${{ env.FEED_URL }}" \
-            -StorePasswordInClearText \
-            -Name GitHubPackages \
-            -UserName "${{ env.USERNAME }}" \
-            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
-          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
-            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" \
-            -Source "${{ env.FEED_URL }}"
-        
-      - name: Configure NuGet for binary caching (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          .$(${{ env.VCPKG_EXE }} fetch nuget) `
-            sources add `
-            -Source "${{ env.FEED_URL }}" `
-            -StorePasswordInClearText `
-            -Name GitHubPackages `
-            -UserName "${{ env.USERNAME }}" `
-            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
-          .$(${{ env.VCPKG_EXE }} fetch nuget) `
-            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" `
-            -Source "${{ env.FEED_URL }}"
-
+      - name: Restore vcpkg cache
+        id: vcpkg-cache
+        uses: TAServers/vcpkg-cache@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prefix: vcpkg-${{ matrix.config.cxx}}/
+          
       - name: Configure
         shell: bash
         env:
+          VCPKG_FEATURE_FLAGS: "binarycaching" # Possibly redundant, but explicitly sets the binary caching feature flag
+          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
         run: >
           cmake -S . -B cmakebuild
           -DVCPKG_BUILD_TYPE=release
-          -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=true
@@ -290,7 +205,6 @@ jobs:
           -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
           -DRESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
           -DRESINSIGHT_ENABLE_HDF5=false
-          -DRESINSIGHT_BUILD_LIBS_FROM_SOURCE=false
           -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
           -G Ninja
 
@@ -309,6 +223,14 @@ jobs:
           ls cmakebuild/${{ matrix.config.ri-unit-test-path }}
           cmakebuild/${{ matrix.config.ri-unit-test-path }}
 
+      - name: (Python) Build Python module
+        if: matrix.config.build-python-module
+        shell: bash
+        run: |
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install build wheel
+          cd GrpcInterface/Python
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m build
+
       - name: (Python) Check types using mypy
         if: matrix.config.build-python-module
         shell: bash
@@ -322,9 +244,7 @@ jobs:
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight
         run: |
-          cd GrpcInterface/Python
-          python setup.py sdist          
-          cd rips
+          cd GrpcInterface/Python/rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
 
       - name: Upload python distribution folder
@@ -353,7 +273,7 @@ jobs:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
     
     # If this is a tagged release
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && github.base_ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags') && github.base_ref == 'refs/heads/main'
     steps:
     - name: Download python distribution folder
       uses: actions/download-artifact@v4
@@ -367,6 +287,63 @@ jobs:
     - name: Publish Python package to pypi
       # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
       uses: pypa/gh-action-pypi-publish@release/v1
-      # uncomment the two lines below to publish to test PyPi
-      # with:
-      #   repository-url: https://test.pypi.org/legacy/
+
+  test-pypi-publish:
+    name: Upload build to TestPyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/rips
+    permissions:
+      id-token: write  # Required for trusted publishing  
+      contents: write  # Required to create a tag
+
+    if: github.base_ref == 'dev' || github.ref == 'refs/heads/dev'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Extract version
+      id: get_version
+      run: |
+        # Extract version from ResInsightVersion.cmake file
+        MAJOR=$(grep "RESINSIGHT_MAJOR_VERSION" ResInsightVersion.cmake | sed 's/[^0-9]*//g')
+        MINOR=$(grep "RESINSIGHT_MINOR_VERSION" ResInsightVersion.cmake | sed 's/[^0-9]*//g')
+        PATCH=$(grep "RESINSIGHT_PATCH_VERSION" ResInsightVersion.cmake | sed 's/[^0-9]*//g')
+        VERSION_TEXT=$(grep "RESINSIGHT_VERSION_TEXT" ResInsightVersion.cmake | grep -v "#" | head -1 | cut -d'"' -f2)
+        DEV_VERSION=$(grep "RESINSIGHT_DEV_VERSION" ResInsightVersion.cmake | grep -v "#" | head -1 | cut -d'"' -f2)
+        
+        VERSION="${MAJOR}.${MINOR}.${PATCH}${VERSION_TEXT}${DEV_VERSION}"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Full version: $VERSION"
+        
+        # Check if tag exists
+        git fetch --tags
+        if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          echo "Tag v$VERSION already exists, skipping publish"
+          echo "SHOULD_PUBLISH=false" >> $GITHUB_ENV
+        else
+          echo "Tag v$VERSION does not exist, will publish"
+          echo "SHOULD_PUBLISH=true" >> $GITHUB_ENV
+        fi
+        
+    - name: Create tag
+      if: env.SHOULD_PUBLISH == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag -a "v$VERSION" -m "Dev v$VERSION"
+        git push origin "v$VERSION"
+
+    - name: Download python distribution folder
+      if: env.SHOULD_PUBLISH == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: python-distribution
+        path: dist
+
+    - name: Publish Python package to TestPyPi
+      if: env.SHOULD_PUBLISH == 'true'
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/  
