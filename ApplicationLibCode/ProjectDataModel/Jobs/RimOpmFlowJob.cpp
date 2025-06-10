@@ -358,8 +358,18 @@ bool RimOpmFlowJob::openDeckFile()
 {
     if ( m_deckFile == nullptr )
     {
-        m_deckFile = std::make_unique<RifOpmFlowDeckFile>();
-        if ( m_deckFile->loadDeck( m_deckFileName().path().toStdString() ) )
+        m_deckFile      = std::make_unique<RifOpmFlowDeckFile>();
+        bool deckLoadOk = false;
+        try
+        {
+            deckLoadOk = m_deckFile->loadDeck( m_deckFileName().path().toStdString() );
+        }
+        catch ( std::filesystem::filesystem_error& )
+        {
+            RiaLogging::error( QString( "Failed to open %1, possibly unsupported or incorrect format." ).arg( m_deckFileName().path() ) );
+        }
+
+        if ( deckLoadOk )
         {
             m_fileDeckHasDates = m_deckFile->hasDatesKeyword();
         }

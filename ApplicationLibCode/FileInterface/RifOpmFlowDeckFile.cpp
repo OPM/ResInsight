@@ -304,7 +304,7 @@ bool RifOpmFlowDeckFile::openWellAtDeckPosition( int deckPosition, std::string o
 {
     Opm::ErrorGuard errors{};
 
-    // locate dates keyword for the selected step
+    // locate position in file deck
     int currentPosition = 0;
     for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
     {
