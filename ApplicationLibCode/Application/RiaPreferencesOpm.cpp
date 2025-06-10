@@ -37,6 +37,8 @@ RiaPreferencesOpm::RiaPreferencesOpm()
     m_opmFlowCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run Opm Flow" );
+    CAF_PDM_InitField( &m_useMpi, "useMpi", false, "Use MPI to run Opm Flow" );
+    CAF_PDM_InitField( &m_mpiProcesses, "mpiProcesses", 4, "Number of MPI processes to use" );
 
     CAF_PDM_InitFieldNoDefault( &m_wslDistribution, "wslDistribution", "WSL Distribution to use:" );
     m_wslDistribution.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -67,6 +69,12 @@ void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
         {
             opmGrp->add( &m_wslDistribution );
         }
+    }
+
+    opmGrp->add( &m_useMpi );
+    if ( m_useMpi() )
+    {
+        opmGrp->add( &m_mpiProcesses );
     }
 }
 
@@ -125,4 +133,20 @@ bool RiaPreferencesOpm::validateFlowSettings() const
 bool RiaPreferencesOpm::useWsl() const
 {
     return m_useWsl();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesOpm::useMpi() const
+{
+    return m_useMpi();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferencesOpm::mpiProcesses() const
+{
+    return std::max( 1, m_mpiProcesses() );
 }

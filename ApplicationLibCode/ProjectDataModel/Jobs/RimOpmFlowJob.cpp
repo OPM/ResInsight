@@ -521,6 +521,14 @@ QStringList RimOpmFlowJob::command()
         workDir  = RiaWslTools::convertToWslPath( workDir );
         dataFile = RiaWslTools::convertToWslPath( dataFile );
     }
+
+    if ( opmPref->useMpi() )
+    {
+        cmd.append( "/usr/bin/mpirun" );
+        cmd.append( QString( "-np" ) );
+        cmd.append( QString( "%1" ).arg( opmPref->mpiProcesses() ) );
+    }
+
     cmd.append( opmPref->opmFlowCommand() );
     cmd.append( QString( "--output-dir=%1" ).arg( workDir ) );
     cmd.append( QString( "--ecl-deck-file-name=%1" ).arg( dataFile ) );
