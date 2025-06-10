@@ -558,6 +558,18 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
+        if ( m_wellPath->completionSettings()->wellName().isEmpty() )
+        {
+            RiaLogging::error( "Selected Well Path does not have a WELL NAME set, please check the completion settings." );
+            return false;
+        }
+
+        if ( m_wellPath->completionSettings()->groupName().isEmpty() )
+        {
+            RiaLogging::error( "Selected Well Path does not have a GROUP NAME set, please check the completion settings." );
+            return false;
+        }
+
         if ( m_includeMSWData && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
         {
             if ( m_eclipseCase() )
@@ -569,7 +581,6 @@ bool RimOpmFlowJob::onPrepare()
                     mswData.push_back( exportMswWellSettings( date, i++ ) );
                 }
 
-                // TODO - must support restart by defining necessary well things at the timestep set in m_openTimeStep
                 if ( !m_deckFile->mergeMswData( mswData ) )
                 {
                     RiaLogging::error( "Failed to merge MSW data into file deck." );
