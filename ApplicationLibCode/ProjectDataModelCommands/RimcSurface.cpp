@@ -15,11 +15,11 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimcSurface.h"
 
 #include "RimCase.h"
 #include "RimSurface.h"
-#include "RimcDataContainerString.h"
 
 #include "Surface/RigSurface.h"
 
@@ -55,6 +55,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurface_exportToFile::execute(
     }
 
     RigSurface* surfaceData = surface->surfaceData();
+    if ( !surfaceData )
+    {
+        return std::unexpected( "No surface data found" );
+    }
 
     if ( !RifSurfaceExporter::writeGocadTSurfFile( m_fileName(),
                                                    surface->userDescription(),
@@ -64,7 +68,5 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurface_exportToFile::execute(
         return std::unexpected( QString( "Failed to write surface to file: '%1'" ).arg( m_fileName() ) );
     }
 
-    auto dataObject            = new RimcDataContainerString();
-    dataObject->m_stringValues = { m_fileName() };
-    return dataObject;
+    return nullptr;
 }
