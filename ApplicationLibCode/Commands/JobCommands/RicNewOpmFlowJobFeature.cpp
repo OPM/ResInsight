@@ -90,7 +90,7 @@ void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
 void RicNewOpmFlowJobFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/opm.png" ) );
-    actionToSetup->setText( "New Opm Flow Simulation..." );
+    actionToSetup->setText( "New Opm Flow Simulation... " + RiaDefines::betaFeaturePostfix() );
 }
 
 //--------------------------------------------------------------------------------------------------

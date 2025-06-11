@@ -178,7 +178,7 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
         auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( pbAttribute )
         {
-            pbAttribute->m_buttonText = "Reset Run Id";
+            pbAttribute->m_buttonText = "Reset Ensemble Run Id";
         }
     }
 }
@@ -232,12 +232,14 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
     auto opmGrp = uiOrdering.addNewGroup( "Opm Flow" );
     opmGrp->add( &m_runButton );
+    opmGrp->add( &m_pauseBeforeRun );
     opmGrp->add( &m_addToEnsemble );
     if ( m_addToEnsemble() )
     {
-        opmGrp->add( &m_resetRunIdButton );
+        auto advOpmGrp = opmGrp->addNewGroup( "Advanced" );
+        advOpmGrp->setCollapsedByDefault();
+        advOpmGrp->add( &m_resetRunIdButton );
     }
-    opmGrp->add( &m_pauseBeforeRun );
 
     uiOrdering.skipRemainingFields();
 }

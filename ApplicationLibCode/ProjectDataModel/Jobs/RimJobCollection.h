@@ -43,7 +43,6 @@ public:
     std::vector<RimGenericJob*> jobs() const;
 
 protected:
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
