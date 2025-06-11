@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021    Equinor ASA
+//  Copyright (C) 2025 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,38 +15,34 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include <QObject>
-#include <QProcess>
+#include "RimNamedObject.h"
 
 #include <QString>
 #include <QStringList>
 
-class RimProcessMonitor : public QObject
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimGenericJob : public RimNamedObject
 {
-    Q_OBJECT
+    CAF_PDM_HEADER_INIT;
 
 public:
-    explicit RimProcessMonitor( int processId, bool logStdOutErr = true );
+    RimGenericJob();
+    ~RimGenericJob() override;
 
-    void        clearStdOutErr();
-    QStringList stdOut() const;
-    QStringList stdErr() const;
+    bool execute();
 
-signals:
+protected:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
-public slots:
-    void error( QProcess::ProcessError error );
-    void finished( int exitCode, QProcess::ExitStatus exitStatus );
-    void readyReadStandardError();
-    void readyReadStandardOutput();
-    void started();
-
-private:
-    QString     addPrefix( QString message );
-    int         m_processId;
-    bool        m_logStdOutErr;
-    QStringList m_stdOut;
-    QStringList m_stdErr;
+    virtual QString     title()   = 0;
+    virtual QStringList command() = 0;
+    virtual QString     workingDirectory() const;
+    virtual bool        onPrepare()                 = 0;
+    virtual void        onCompleted( bool success ) = 0;
 };

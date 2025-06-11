@@ -54,8 +54,11 @@ public:
     void                                setUsePathKey2( bool useKey2 );
     std::pair<std::string, std::string> nameKeys() const;
     QString                             nameTemplateText() const;
+    void                                setAutoName( bool autoName );
 
-    void setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    void                             setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
+    RiaDefines::EnsembleGroupingMode groupingMode() const;
+
     void reload();
 
 private:
@@ -68,7 +71,7 @@ private:
 
     QString ensembleInfo() const;
 
-    void sendFileSetChangedSignal();
+    void sendFileSetChangedSignal() const;
 
 private:
     caf::PdmField<QString>           m_pathPattern;

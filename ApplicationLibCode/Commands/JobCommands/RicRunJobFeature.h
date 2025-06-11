@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021    Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,38 +15,24 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include <QObject>
-#include <QProcess>
+#include "cafCmdFeature.h"
 
-#include <QString>
-#include <QStringList>
+class RimGenericJob;
 
-class RimProcessMonitor : public QObject
+//==================================================================================================
+///
+//==================================================================================================
+class RicRunJobFeature : public caf::CmdFeature
 {
-    Q_OBJECT
+    CAF_CMD_HEADER_INIT;
 
 public:
-    explicit RimProcessMonitor( int processId, bool logStdOutErr = true );
+    static bool runJob( RimGenericJob* job );
 
-    void        clearStdOutErr();
-    QStringList stdOut() const;
-    QStringList stdErr() const;
-
-signals:
-
-public slots:
-    void error( QProcess::ProcessError error );
-    void finished( int exitCode, QProcess::ExitStatus exitStatus );
-    void readyReadStandardError();
-    void readyReadStandardOutput();
-    void started();
-
-private:
-    QString     addPrefix( QString message );
-    int         m_processId;
-    bool        m_logStdOutErr;
-    QStringList m_stdOut;
-    QStringList m_stdErr;
+protected:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

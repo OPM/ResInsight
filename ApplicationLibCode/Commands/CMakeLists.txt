@@ -40,6 +40,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     FlowCommands/CMakeLists_files.cmake
     GridCrossPlotCommands/CMakeLists_files.cmake
     GeoMechCommands/CMakeLists_files.cmake
+    JobCommands/CMakeLists_files.cmake
     HoloLensCommands/CMakeLists_files.cmake
     IntersectionBoxCommands/CMakeLists_files.cmake
     IntersectionViewCommands/CMakeLists_files.cmake

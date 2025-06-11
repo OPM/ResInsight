@@ -1222,6 +1222,7 @@ RiaDefines::EnsembleGroupingMode RicRecursiveFileSearchDialog::ensembleGroupingM
     if ( m_ensembleGroupingMode->currentIndex() == 0 ) return RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
     if ( m_ensembleGroupingMode->currentIndex() == 1 ) return RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE;
     if ( m_ensembleGroupingMode->currentIndex() == 2 ) return RiaDefines::EnsembleGroupingMode::NONE;
+    if ( m_ensembleGroupingMode->currentIndex() == 3 ) return RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE;
 
     return RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 }

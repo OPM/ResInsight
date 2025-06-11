@@ -185,6 +185,22 @@ QString RimWellPathCompletionSettings::groupNameForExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletionSettings::wellName() const
+{
+    return m_wellNameForExport();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletionSettings::groupName() const
+{
+    return m_groupName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletionSettings::referenceDepthForExport() const
 {
     std::string refDepth = m_referenceDepth.v().toStdString();

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021    Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,36 +17,34 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <QObject>
-#include <QProcess>
+#include "cafPdmField.h"
+
+#include "cafPdmChildArrayField.h"
+#include "cafPdmObject.h"
 
 #include <QString>
-#include <QStringList>
 
-class RimProcessMonitor : public QObject
+class RimGenericJob;
+
+class RimJobCollection : public caf::PdmObject
 {
-    Q_OBJECT
+    CAF_PDM_HEADER_INIT;
 
 public:
-    explicit RimProcessMonitor( int processId, bool logStdOutErr = true );
+    RimJobCollection();
+    ~RimJobCollection() override;
 
-    void        clearStdOutErr();
-    QStringList stdOut() const;
-    QStringList stdErr() const;
+    void addNewJob( RimGenericJob* newJob );
 
-signals:
+    bool isEmpty();
 
-public slots:
-    void error( QProcess::ProcessError error );
-    void finished( int exitCode, QProcess::ExitStatus exitStatus );
-    void readyReadStandardError();
-    void readyReadStandardOutput();
-    void started();
+    void deleteAllJobs();
+
+    std::vector<RimGenericJob*> jobs() const;
+
+protected:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    QString     addPrefix( QString message );
-    int         m_processId;
-    bool        m_logStdOutErr;
-    QStringList m_stdOut;
-    QStringList m_stdErr;
+    caf::PdmChildArrayField<RimGenericJob*> m_jobs;
 };

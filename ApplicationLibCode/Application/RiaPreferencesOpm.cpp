@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021    Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,154 +16,137 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimProcessMonitor.h"
+#include "RiaPreferencesOpm.h"
 
-#include "RiaLogging.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+#include "RiaWslTools.h"
 
-#include <QProcess>
-#include <QtCore/QtCore>
+#include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiFilePathEditor.h"
+
+CAF_PDM_SOURCE_INIT( RiaPreferencesOpm, "RiaPreferencesOpm" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcessMonitor::RimProcessMonitor( int processId, bool logStdOutErr /*true*/ )
-    : QObject( nullptr )
-    , m_processId( processId )
-    , m_logStdOutErr( logStdOutErr )
+RiaPreferencesOpm::RiaPreferencesOpm()
 {
+    CAF_PDM_InitFieldNoDefault( &m_opmFlowCommand, "opmFlowCommand", "Opm Flow Command to run" );
+    m_opmFlowCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_opmFlowCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run Opm Flow" );
+    CAF_PDM_InitField( &m_useMpi, "useMpi", false, "Use MPI to run Opm Flow" );
+    CAF_PDM_InitField( &m_mpiProcesses, "mpiProcesses", 4, "Number of MPI processes to use" );
+
+    CAF_PDM_InitFieldNoDefault( &m_wslDistribution, "wslDistribution", "WSL Distribution to use:" );
+    m_wslDistribution.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_availableWslDists = RiaWslTools::wslDistributionList();
+    if ( !m_availableWslDists.isEmpty() ) m_wslDistribution = m_availableWslDists.at( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimProcessMonitor::addPrefix( QString message )
+RiaPreferencesOpm* RiaPreferencesOpm::current()
 {
-    return QString( "Process %1: %2" ).arg( m_processId ).arg( message );
+    return RiaApplication::instance()->preferences()->opmPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessMonitor::error( QProcess::ProcessError error )
+void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
 {
-    QString errorStr;
-
-    switch ( error )
+    caf::PdmUiGroup* opmGrp = uiOrdering.addNewGroup( "Opm Flow Settings" );
+    opmGrp->add( &m_opmFlowCommand );
+    auto wslCmd = RiaWslTools::wslCommand();
+    if ( !wslCmd.isEmpty() )
     {
-        case QProcess::FailedToStart:
-            errorStr = "Failed to start";
-            break;
-        case QProcess::Crashed:
-            errorStr = "Crashed";
-            break;
-        case QProcess::Timedout:
-            errorStr = "Timed out";
-            break;
-        case QProcess::ReadError:
-            errorStr = "Read error";
-            break;
-        case QProcess::WriteError:
-            errorStr = "Write error";
-            break;
-        case QProcess::UnknownError:
-        default:
-            errorStr = "Unknown";
-            break;
-    }
-
-    RiaLogging::error( addPrefix( errorStr ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus )
-{
-    if ( !m_logStdOutErr ) return;
-
-    QString finishStr;
-    switch ( exitStatus )
-    {
-        case QProcess::NormalExit:
-            finishStr = QString( "Normal exit, code %1" ).arg( exitCode );
-            break;
-        case QProcess::CrashExit:
-        default:
-            finishStr = QString( "Crash exit, code %1" ).arg( exitCode );
-            break;
-    }
-    RiaLogging::debug( addPrefix( finishStr ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProcessMonitor::readyReadStandardError()
-{
-    QProcess* p = (QProcess*)sender();
-    p->setReadChannel( QProcess::StandardError );
-    while ( p->canReadLine() )
-    {
-        QString line = p->readLine();
-        line         = line.trimmed();
-        if ( line.size() == 0 ) continue;
-        m_stdErr.append( line );
-        if ( m_logStdOutErr )
+        opmGrp->add( &m_useWsl );
+        if ( m_useWsl() )
         {
-            RiaLogging::error( addPrefix( line ) );
+            opmGrp->add( &m_wslDistribution );
         }
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProcessMonitor::readyReadStandardOutput()
-{
-    QProcess* p = (QProcess*)sender();
-    p->setReadChannel( QProcess::StandardOutput );
-    while ( p->canReadLine() )
+    opmGrp->add( &m_useMpi );
+    if ( m_useMpi() )
     {
-        QString line = p->readLine();
-        line         = line.trimmed();
-        if ( line.size() == 0 ) continue;
-        m_stdOut.append( line );
-        if ( m_logStdOutErr )
-        {
-            RiaLogging::info( addPrefix( line ) );
-        }
+        opmGrp->add( &m_mpiProcesses );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessMonitor::started()
+QList<caf::PdmOptionItemInfo> RiaPreferencesOpm::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    if ( m_logStdOutErr ) RiaLogging::debug( addPrefix( "Started" ) );
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_wslDistribution )
+    {
+        for ( auto dist : m_availableWslDists )
+        {
+            options.push_back( caf::PdmOptionItemInfo( dist, QVariant::fromValue( dist ) ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessMonitor::clearStdOutErr()
+QString RiaPreferencesOpm::opmFlowCommand() const
 {
-    m_stdOut.clear();
-    m_stdErr.clear();
+    return m_opmFlowCommand;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimProcessMonitor::stdOut() const
+QStringList RiaPreferencesOpm::wslOptions() const
 {
-    return m_stdOut;
+    QStringList options;
+    if ( m_useWsl() )
+    {
+        options.append( "-d" );
+        options.append( m_wslDistribution() );
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimProcessMonitor::stdErr() const
+bool RiaPreferencesOpm::validateFlowSettings() const
 {
-    return m_stdErr;
+    return m_opmFlowCommand().size() > 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesOpm::useWsl() const
+{
+    return m_useWsl();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesOpm::useMpi() const
+{
+    return m_useMpi();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferencesOpm::mpiProcesses() const
+{
+    return std::max( 1, m_mpiProcesses() );
 }

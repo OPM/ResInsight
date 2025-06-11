@@ -97,7 +97,18 @@ QStringList RimEnsembleFileSet::createPaths( const QString& extension ) const
     {
         if ( m_realizationNumbersReadFromFiles.isEmpty() )
         {
-            auto paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString() );
+            QStringList paths;
+            if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
+            {
+                paths =
+                    RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString(), "run" );
+            }
+            else
+            {
+                paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension,
+                                                                                  internal::placeholderString(),
+                                                                                  "realization" );
+            }
             const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
             m_realizationNumbersReadFromFiles = range;
         }
@@ -236,6 +247,14 @@ void RimEnsembleFileSet::setUsePathKey1( bool useKey1 )
 void RimEnsembleFileSet::setUsePathKey2( bool useKey2 )
 {
     m_useKey2 = useKey2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFileSet::setAutoName( bool autoName )
+{
+    m_autoName = autoName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -393,6 +412,20 @@ std::pair<std::string, std::string> RimEnsembleFileSet::nameKeys() const
             }
         }
     }
+    else if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
+    {
+        auto pathPattern = m_pathPattern + ".SMSPEC";
+        auto paths       = RiaEnsembleImportTools::createPathsFromPattern( pathPattern, "0", internal::placeholderString() );
+        if ( !paths.empty() )
+        {
+            auto fileNames = RiaEnsembleNameTools::groupFilePathsOpm( { paths.front().toStdString() } );
+            if ( !fileNames.empty() )
+            {
+                key1 = fileNames.begin()->first.first;
+                key2 = fileNames.begin()->first.second;
+            }
+        }
+    }
 
     return { key1, key2 };
 }
@@ -424,7 +457,15 @@ void RimEnsembleFileSet::setGroupingMode( RiaDefines::EnsembleGroupingMode group
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFileSet::sendFileSetChangedSignal()
+RiaDefines::EnsembleGroupingMode RimEnsembleFileSet::groupingMode() const
+{
+    return m_groupingMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFileSet::sendFileSetChangedSignal() const
 {
     fileSetChanged.send();
 }

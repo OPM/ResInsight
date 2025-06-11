@@ -20,7 +20,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include <QProcess>
 #include <QString>
 #include <QStringList>
 
@@ -34,7 +33,7 @@ class RimProcess : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimProcess();
+    RimProcess( bool logStdOutErr = true );
     ~RimProcess() override;
 
     void setDescription( QString desc );
@@ -44,6 +43,8 @@ public:
 
     void addEnvironmentVariable( QString name, QString value );
 
+    void setWorkingDirectory( QString directory );
+
     QString commandLine() const;
 
     QString     command() const;
@@ -51,6 +52,9 @@ public:
     int         ID() const;
 
     bool execute( bool enableStdOut = true, bool enableStdErr = true );
+
+    QStringList stdErr() const;
+    QStringList stdOut() const;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -66,9 +70,11 @@ private:
     QStringList            m_arguments;
     caf::PdmField<QString> m_description;
     caf::PdmField<int>     m_id;
+    caf::PdmField<QString> m_workDir;
 
     std::vector<std::pair<QString, QString>> m_environmentVariables;
 
     static int         m_nextProcessId;
     RimProcessMonitor* m_monitor;
+    bool               m_enableLogging;
 };

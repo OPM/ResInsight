@@ -69,6 +69,9 @@ public:
     RimWellPathCompletionSettings( const RimWellPathCompletionSettings& rhs );
     RimWellPathCompletionSettings& operator=( const RimWellPathCompletionSettings& rhs );
 
+    QString groupName() const;
+    QString wellName() const;
+
     void    setWellNameForExport( const QString& name );
     void    updateWellPathNameHasChanged( const QString& newWellPathName, const QString& previousWellPathName );
     QString wellNameForExport() const;

@@ -222,9 +222,33 @@ QStringList createPathsFromPattern( const QString& basePath, const QString& numb
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList getMatchingFiles( const QString& basePath, const QString& regexPattern )
+{
+    QStringList        filePaths;
+    QRegularExpression regex( regexPattern );
+    QDir               baseDir( basePath );
+
+    // Use QDirIterator to traverse the directory recursively
+    QDirIterator it( basePath, QDir::Files, QDirIterator::Subdirectories );
+    while ( it.hasNext() )
+    {
+        QString filePath = it.next();
+        if ( regex.match( filePath ).hasMatch() )
+        {
+            filePaths << baseDir.relativeFilePath( filePath );
+        }
+    }
+
+    return filePaths;
+};
+
+//--------------------------------------------------------------------------------------------------
 /// Find all files matching the path pattern in the file system
 //
-// Example:
+// Example, using enumerationString = "realization":
+//
 // pathPattern = "/myfolder/drogon-varying-grid-geometry/realization-*/iter-0/eclipse/model/DROGON-*.EGRID"
 //
 // basePath will be      "/myfolder/drogon-varying-grid-geometry/"
@@ -235,12 +259,12 @@ QStringList createPathsFromPattern( const QString& basePath, const QString& numb
 // The basePath will be traversed recursively to find all files matching the regex pattern
 //
 //--------------------------------------------------------------------------------------------------
-QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString )
+QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString, const QString& enumerationString )
 {
     auto basePath = pathPattern;
 
     // Find based path up to "/realization"
-    auto realizationPos = basePath.indexOf( "/realization" );
+    auto realizationPos = basePath.indexOf( "/" + enumerationString );
     if ( realizationPos != -1 )
     {
         basePath = basePath.left( realizationPos );
@@ -249,33 +273,14 @@ QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const 
     QString regexPattern = pathPattern;
     regexPattern.replace( placeholderString, "(\\d+)" );
 
-    auto getMatchingFiles = []( const QString& basePath, const QString& regexPattern ) -> QStringList
-    {
-        QStringList        filePaths;
-        QRegularExpression regex( regexPattern );
-
-        // Use QDirIterator to traverse the directory recursively
-        QDirIterator it( basePath, QDir::Files, QDirIterator::Subdirectories );
-        while ( it.hasNext() )
-        {
-            QString filePath = it.next();
-            if ( regex.match( filePath ).hasMatch() )
-            {
-                filePaths << filePath;
-            }
-        }
-
-        return filePaths;
-    };
-
     auto matchingFiles = getMatchingFiles( basePath, regexPattern );
 
     // Sort files by realization number
     std::sort( matchingFiles.begin(),
                matchingFiles.end(),
-               []( const QString& a, const QString& b )
+               [enumerationString]( const QString& a, const QString& b )
                {
-                   QRegularExpression regex( "realization-(\\d+)" );
+                   QRegularExpression regex( enumerationString + "-(\\d+)" );
 
                    auto matchA = regex.match( a );
                    auto matchB = regex.match( b );

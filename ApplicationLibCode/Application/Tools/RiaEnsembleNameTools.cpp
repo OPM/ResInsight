@@ -138,6 +138,35 @@ std::map<std::pair<std::string, std::string>, std::vector<std::string>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<std::pair<std::string, std::string>, std::vector<std::string>>
+    RiaEnsembleNameTools::groupFilePathsOpm( const std::vector<std::string>& filepaths )
+{
+    std::map<std::pair<std::string, std::string>, std::vector<std::string>> groupedPaths;
+
+    // Example path
+    // "f:/Models/scratch/project_a/run-0/PROJECT-0.SMSPEC"
+    //
+    // Regex pattern to extract case folder and name
+    // Group 1: Case folder name (top level folder)
+    // Group 2: Case name
+    std::regex pattern( R"(.*[\\/]+([^\\/]+)[\\/]+run-\d+[\\/]+([^\\/]+).*-\d.SMSPEC)", std::regex::icase );
+
+    for ( const std::string& filepath : filepaths )
+    {
+        std::smatch matches;
+        if ( std::regex_match( filepath, matches, pattern ) )
+        {
+            auto key = std::make_pair( matches[1].str(), matches[2].str() );
+            groupedPaths[key].push_back( filepath );
+        }
+    }
+
+    return groupedPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode folderLevel )
 {
     if ( folderLevel == RiaDefines::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE )
@@ -339,6 +368,25 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( c
             ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
         }
     }
+    else if ( groupingMode == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
+    {
+        std::vector<std::string> allPaths;
+        for ( const auto& fileName : fileNames )
+        {
+            allPaths.push_back( fileName.toStdString() );
+        }
+        auto groupedPaths = RiaEnsembleNameTools::groupFilePathsOpm( allPaths );
+        for ( auto group : groupedPaths )
+        {
+            std::string ensembleName = group.first.first + ", " + group.first.second;
+            QStringList groupPaths;
+            for ( const auto& path : group.second )
+            {
+                groupPaths.push_back( QString::fromStdString( path ) );
+            }
+            ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
+        }
+    }
 
     return ensemblePaths;
 }
@@ -415,7 +463,7 @@ QString RiaEnsembleNameTools::uniqueShortNameForEnsembleCase( RimSummaryCase* su
     summaryFilePaths.push_back( summaryCase->summaryHeaderFilename() );
 
     // Use a small number of names to find a short name for the ensemble, as RiaEnsembleNameTools::uniqueShortName is slow
-    if ( !summaryCases.empty() )
+    if ( summaryCases.size() > 1 )
     {
         const int maxNameCount = 4;
         for ( int i = 0; i < std::min( maxNameCount, static_cast<int>( summaryCases.size() ) ); ++i )
@@ -575,7 +623,10 @@ QString RiaEnsembleNameTools::uniqueShortNameFromComponents( const QString&     
 
     auto        modifyableMap( keyFileComponentsForAllFiles );
     QStringList keyFileComponents = modifyableMap[sourceFileName];
-    if ( keyFileComponents.empty() ) return "Unnamed";
+    if ( keyFileComponents.empty() )
+    {
+        return "Unnamed";
+    }
 
     if ( !ensembleCaseName.isEmpty() )
     {
@@ -596,6 +647,7 @@ QString RiaEnsembleNameTools::uniqueShortNameFromComponents( const QString&     
         {
             keyComponent = keyComponent.replace( numberGroup, "" );
             QString stem = keyComponent.left( RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
+            stem         = stem.remove( "-" );
             if ( !stem.isEmpty() ) subComponents.push_back( stem );
             subComponents.push_back( numberGroup );
         }
