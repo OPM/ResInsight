@@ -61,6 +61,18 @@ TEST( RiaFilePathTools, RealizationName )
 
         EXPECT_EQ( QString( "real-1" ), name );
     }
+
+    {
+        QString     testPath0( "/drogon3d_ahm/run-0/DROGON-0.SMSPEC" );
+        QString     testPath1( "/drogon3d_ahm/run-1/DROGON-1.SMSPEC" );
+        QStringList allPaths = { testPath0, testPath1 };
+
+        QString fileName = "DROGON-0.SMSPEC";
+
+        auto name = RiaEnsembleNameTools::uniqueShortName( testPath1, allPaths, fileName );
+
+        EXPECT_EQ( QString( "run-1" ), name );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
