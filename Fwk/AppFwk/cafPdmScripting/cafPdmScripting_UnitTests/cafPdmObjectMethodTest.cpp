@@ -18,6 +18,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<std::vector<double>> m_valveLocations;
@@ -55,6 +56,14 @@ std::expected<caf::PdmObjectHandle*, QString> InheritedDemoObj_appendValves::exe
 std::unique_ptr<caf::PdmObjectHandle> InheritedDemoObj_appendValves::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new InheritedDemoObj );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString InheritedDemoObj_appendValves::classKeywordReturnedType() const
+{
+    return InheritedDemoObj::classKeywordStatic();
 }
 
 //--------------------------------------------------------------------------------------------------

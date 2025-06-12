@@ -75,6 +75,14 @@ std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_summaryVectorValues::defaul
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerDouble );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCase_summaryVectorValues::classKeywordReturnedType() const
+{
+    return RimcDataContainerDouble::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableAddresses, "availableAddresses" );
 
 //--------------------------------------------------------------------------------------------------
@@ -119,6 +127,14 @@ std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_availableAddresses::default
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCase_availableAddresses::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableTimeSteps, "availableTimeSteps" );
 
 //--------------------------------------------------------------------------------------------------
@@ -154,6 +170,14 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_availableTimeSteps:
 std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_availableTimeSteps::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerTime );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCase_availableTimeSteps::classKeywordReturnedType() const
+{
+    return RimcDataContainerTime::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_resampleValues, "resampleValues" );
@@ -220,6 +244,14 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_resampleValues::exe
 std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_resampleValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcSummaryResampleData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCase_resampleValues::classKeywordReturnedType() const
+{
+    return RimcSummaryResampleData::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_setSummaryVectorValues, "setSummaryValues" );

@@ -89,3 +89,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcRimWellPathGeometryDef_appendNewWellTa
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathTarget );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcRimWellPathGeometryDef_appendNewWellTarget::createdClassKeyword() const
+{
+    return RimWellPathTarget::classKeywordStatic();
+}

@@ -70,3 +70,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcPolygonCollection_createPolygon::defau
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimPolygon );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcPolygonCollection_createPolygon::createdClassKeyword() const
+{
+    return RimPolygon::classKeywordStatic();
+}

@@ -38,6 +38,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<QString> m_addressString;
@@ -55,6 +56,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 };
 
 //==================================================================================================
@@ -69,6 +71,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 };
 
 //==================================================================================================
@@ -83,6 +86,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<QString> m_addressString;

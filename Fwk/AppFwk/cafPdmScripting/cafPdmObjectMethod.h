@@ -87,6 +87,8 @@ public:
     // ... need to provide an implementation that returns the same object type as the execute method.
     virtual std::unique_ptr<PdmObjectHandle> defaultResult() const = 0;
 
+    virtual QString classKeywordReturnedType() const = 0;
+
     bool isNullptrValidResult() const;
     bool resultIsPersistent() const;
 
@@ -118,6 +120,7 @@ public:
 
     // The default result is a nullptr, since this method does not return anything
     std::unique_ptr<PdmObjectHandle> defaultResult() const override final;
+    QString                          classKeywordReturnedType() const override final;
 };
 
 // This is a method that creates a new Pdm object and returns it as the result object
@@ -128,6 +131,9 @@ class PdmObjectCreationMethod : public PdmObjectMethod
 
 public:
     PdmObjectCreationMethod( PdmObjectHandle* self );
+
+    QString         classKeywordReturnedType() const override final;
+    virtual QString createdClassKeyword() const = 0;
 };
 
 //==================================================================================================

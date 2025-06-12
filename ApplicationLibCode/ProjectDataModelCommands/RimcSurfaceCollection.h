@@ -36,7 +36,7 @@ class RimCase;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSurfaceCollection_importSurface : public caf::PdmObjectMethod
+class RimcSurfaceCollection_importSurface : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -45,6 +45,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       createdClassKeyword() const override;
 
 private:
     caf::PdmField<QString> m_fileName;
@@ -53,7 +54,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSurfaceCollection_addFolder : public caf::PdmObjectMethod
+class RimcSurfaceCollection_addFolder : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -62,6 +63,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       createdClassKeyword() const override;
 
 private:
     caf::PdmField<QString> m_folderName;
@@ -70,7 +72,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSurfaceCollection_newSurface : public caf::PdmObjectMethod
+class RimcSurfaceCollection_newSurface : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -79,6 +81,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       createdClassKeyword() const override;
 
 private:
     caf::PdmPtrField<RimCase*> m_case;
@@ -88,7 +91,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSurfaceCollection_newRegularSurface : public caf::PdmObjectMethod
+class RimcSurfaceCollection_newRegularSurface : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -97,6 +100,8 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       createdClassKeyword() const override;
+
 
 private:
     caf::PdmField<QString> m_name;

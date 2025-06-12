@@ -65,3 +65,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelPlotCollection_appendStim
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModelPlot );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::createdClassKeyword() const
+{
+    return RimStimPlanModelPlot::classKeywordStatic();
+}

@@ -54,3 +54,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcIdenticalGridCaseGroup_createStatistic
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimEclipseStatisticsCase );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcIdenticalGridCaseGroup_createStatisticsCase::createdClassKeyword() const
+{
+    return RimEclipseStatisticsCase::classKeywordStatic();
+}

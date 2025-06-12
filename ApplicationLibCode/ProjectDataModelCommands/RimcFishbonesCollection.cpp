@@ -73,6 +73,14 @@ std::unique_ptr<caf::PdmObjectHandle> RimcFishbonesCollection_appendFishbones::d
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFishbones );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcFishbonesCollection_appendFishbones::createdClassKeyword() const
+{
+    return RimFishbones::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFishbonesCollection, RimcFishbonesCollection_setFixedStartLocation, "SetFixedStartLocation" );
 
 //--------------------------------------------------------------------------------------------------

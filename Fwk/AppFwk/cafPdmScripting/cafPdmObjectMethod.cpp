@@ -69,6 +69,14 @@ bool PdmObjectMethod::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString PdmObjectMethod::classKeywordReturnedType() const
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 PdmObjectMethodFactory* PdmObjectMethodFactory::instance()
 {
     static PdmObjectMethodFactory* factory = new PdmObjectMethodFactory;
@@ -133,6 +141,14 @@ std::unique_ptr<caf::PdmObjectHandle> PdmVoidObjectMethod::defaultResult() const
     return std::unique_ptr<PdmObjectHandle>();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmVoidObjectMethod::classKeywordReturnedType() const
+{
+    return {};
+}
+
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectCreationMethod, "PdmObjectCreationMethod" );
 
 //--------------------------------------------------------------------------------------------------
@@ -141,4 +157,12 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectCreationMethod, "PdmObjectCreationMet
 PdmObjectCreationMethod::PdmObjectCreationMethod( PdmObjectHandle* self )
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmObjectCreationMethod::classKeywordReturnedType() const
+{
+    return createdClassKeyword();
 }

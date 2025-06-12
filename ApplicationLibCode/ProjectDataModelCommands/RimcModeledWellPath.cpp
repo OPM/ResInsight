@@ -66,3 +66,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcModeledWellPath_appendLateral::default
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimModeledWellPath );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcModeledWellPath_appendLateral::createdClassKeyword() const
+{
+    return RimModeledWellPath::classKeywordStatic();
+}

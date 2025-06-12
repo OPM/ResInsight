@@ -98,3 +98,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSummaryPlotCollection_newSummaryPlot::
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimSummaryPlot );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcSummaryPlotCollection_newSummaryPlot::createdClassKeyword() const
+{
+    return RimSummaryPlot::classKeywordStatic();
+}

@@ -115,6 +115,14 @@ std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addFracture::defaultResult() 
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_addFracture::createdClassKeyword() const
+{
+    return RimWellPathFracture::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_addThermalFracture, "AddThermalFracture" );
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +166,14 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addThermalFracture::e
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addThermalFracture::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_addThermalFracture::createdClassKeyword() const
+{
+    return RimWellPathFracture::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_appendPerforationInterval, "AppendPerforationInterval" );
@@ -206,6 +222,14 @@ std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_appendPerforationInterval::de
     return std::unique_ptr<caf::PdmObjectHandle>( new RimPerforationInterval );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_appendPerforationInterval::createdClassKeyword() const
+{
+    return RimPerforationInterval::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_multiSegmentWellSettings, "MswSettings" );
 
 //--------------------------------------------------------------------------------------------------
@@ -244,6 +268,14 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_multiSegmentWellSetti
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_multiSegmentWellSettings::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimMswCompletionParameters );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_multiSegmentWellSettings::classKeywordReturnedType() const
+{
+    return RimMswCompletionParameters::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_appendFishbones, "AppendFishbones" );
@@ -295,4 +327,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendFishbones::exec
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_appendFishbones::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFishbones );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_appendFishbones::classKeywordReturnedType() const
+{
+    return RimFishbones::classKeywordStatic();
 }

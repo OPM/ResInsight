@@ -83,3 +83,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcThermalFractureTemplate_timeSteps::def
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcThermalFractureTemplate_timeSteps::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
+}

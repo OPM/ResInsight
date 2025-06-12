@@ -94,3 +94,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcWellLogPlotCollection_newWellLogPlot::
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogPlot );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellLogPlotCollection_newWellLogPlot::createdClassKeyword() const
+{
+    return RimWellLogPlot::classKeywordStatic();
+}

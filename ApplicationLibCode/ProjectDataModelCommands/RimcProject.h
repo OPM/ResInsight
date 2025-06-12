@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimProject_importSummaryCase : public caf::PdmObjectMethod
+class RimProject_importSummaryCase : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -38,6 +38,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       createdClassKeyword() const override;
 
 private:
     caf::PdmField<QString> m_fileName;
@@ -46,7 +47,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimProject_summaryCase : public caf::PdmObjectMethod
+class RimProject_summaryCase : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -55,6 +56,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       createdClassKeyword() const override;
 
 private:
     caf::PdmField<int> m_caseId;
@@ -63,7 +65,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimProject_surfaceFolder : public caf::PdmObjectMethod
+class RimProject_surfaceFolder : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -72,6 +74,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       createdClassKeyword() const override;
 
 private:
     caf::PdmField<QString> m_folderName;
@@ -80,7 +83,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimProject_createGridFromKeyValues : public caf::PdmObjectMethod
+class RimProject_createGridFromKeyValues : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -89,6 +92,7 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       createdClassKeyword() const override;
 
 private:
     caf::PdmField<QString> m_name;

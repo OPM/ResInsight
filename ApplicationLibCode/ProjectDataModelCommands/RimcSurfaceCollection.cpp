@@ -40,7 +40,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_n
 ///
 //--------------------------------------------------------------------------------------------------
 RimcSurfaceCollection_importSurface::RimcSurfaceCollection_importSurface( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+    : caf::PdmObjectCreationMethod( self )
 
 {
     CAF_PDM_InitObject( "Import Surface", "", "", "Import a new surface from file" );
@@ -74,8 +74,16 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_importSurface::defau
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimcSurfaceCollection_importSurface::createdClassKeyword() const
+{
+    return RimFileSurface::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimcSurfaceCollection_addFolder::RimcSurfaceCollection_addFolder( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+    : PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Add Folder", "", "", "Add a new surface folder" );
 
@@ -110,8 +118,16 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_addFolder::defaultRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimcSurfaceCollection_addFolder::createdClassKeyword() const
+{
+    return RimSurfaceCollection::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimcSurfaceCollection_newSurface::RimcSurfaceCollection_newSurface( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+    : PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "New Surface", "", "", "Create a new surface" );
 
@@ -144,8 +160,16 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newSurface::defaultR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimcSurfaceCollection_newSurface::createdClassKeyword() const
+{
+    return RimGridCaseSurface::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimcSurfaceCollection_newRegularSurface::RimcSurfaceCollection_newRegularSurface( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+    : PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "New Regular Surface", "", "", "Create a new regular surface" );
 
@@ -205,4 +229,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSu
 std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newRegularSurface::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimRegularSurface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcSurfaceCollection_newRegularSurface::createdClassKeyword() const
+{
+    return RimRegularSurface::classKeywordStatic();
 }

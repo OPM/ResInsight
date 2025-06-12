@@ -53,7 +53,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_importSummaryCase, "im
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+    : PdmObjectCreationMethod( self )
 
 {
     CAF_PDM_InitObject( "Import Summary Case", "", "", "Import Summary Case" );
@@ -108,13 +108,21 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_importSummaryCase::defaultResul
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSummaryCase );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_importSummaryCase::createdClassKeyword() const
+{
+    return RimFileSummaryCase::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_summaryCase, "summaryCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+    : PdmObjectCreationMethod( self )
 
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );
@@ -146,13 +154,21 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_summaryCase::defaultResult() co
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSummaryCase );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_summaryCase::createdClassKeyword() const
+{
+    return RimFileSummaryCase::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_surfaceFolder, "surfaceFolder" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+    : PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
 
@@ -186,13 +202,21 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_surfaceFolder::defaultResult() 
     return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_surfaceFolder::createdClassKeyword() const
+{
+    return RimSurfaceCollection::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridFromKeyValues, "createGridFromKeyValues" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+    : PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create grid from key values", "", "", "Create Grid From Key Values" );
 
@@ -284,4 +308,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 std::unique_ptr<caf::PdmObjectHandle> RimProject_createGridFromKeyValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimCornerPointCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_createGridFromKeyValues::createdClassKeyword() const
+{
+    return RimCornerPointCase::classKeywordStatic();
 }

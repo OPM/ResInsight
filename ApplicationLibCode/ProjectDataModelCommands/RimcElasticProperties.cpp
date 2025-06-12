@@ -72,3 +72,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcElasticProperties_addPropertyScaling::
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimElasticPropertyScaling );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcElasticProperties_addPropertyScaling::createdClassKeyword() const
+{
+    return RimElasticPropertyScaling::classKeywordStatic();
+}

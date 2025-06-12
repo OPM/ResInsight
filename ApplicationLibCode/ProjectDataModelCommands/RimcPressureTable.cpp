@@ -60,3 +60,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcPressureTable_addPressure::defaultResu
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimPressureTableItem );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcPressureTable_addPressure::createdClassKeyword() const
+{
+    return RimPressureTableItem::classKeywordStatic();
+}

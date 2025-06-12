@@ -119,3 +119,11 @@ std::unique_ptr<caf::PdmObjectHandle> RimcWellLogTrack_addExtractionCurve::defau
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogExtractionCurve );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellLogTrack_addExtractionCurve::createdClassKeyword() const
+{
+    return RimWellLogExtractionCurve::classKeywordStatic();
+}
