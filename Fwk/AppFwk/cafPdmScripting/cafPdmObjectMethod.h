@@ -108,6 +108,7 @@ private:
     ResultType      m_resultType      = ResultType::PERSISTENT_TRUE;
 };
 
+// This is a method that does not return anything, i.e. it returns a nullptr as the result object
 class PdmVoidObjectMethod : public PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
@@ -119,6 +120,8 @@ public:
     std::unique_ptr<PdmObjectHandle> defaultResult() const override final;
 };
 
+// This is a method that creates a new Pdm object and returns it as the result object
+// The object is persistent, i.e. it is stored in the project tree, and must not be deleted by the caller
 class PdmObjectCreationMethod : public PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
