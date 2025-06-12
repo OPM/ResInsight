@@ -182,8 +182,6 @@ RimcExtrudedCurveIntersection_geometry::RimcExtrudedCurveIntersection_geometry( 
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Intersection Geometry" );
-    setNullptrValid( false );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "GeometryType", "Geometry Type" );
 }
@@ -286,8 +284,6 @@ RimcExtrudedCurveIntersection_geometryResult::RimcExtrudedCurveIntersection_geom
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Geometry Result" );
-    setNullptrValid( false );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "GeometryType", "Geometry Type" );
 }

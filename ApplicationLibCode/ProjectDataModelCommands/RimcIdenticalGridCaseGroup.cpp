@@ -32,8 +32,6 @@ RimcIdenticalGridCaseGroup_createStatisticsCase::RimcIdenticalGridCaseGroup_crea
     : caf::PdmObjectCreationMethod( self )
 
 {
-    setNullptrValid( false );
-    setResultPersistent( true );
 }
 
 //--------------------------------------------------------------------------------------------------

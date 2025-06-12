@@ -45,8 +45,6 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
 //--------------------------------------------------------------------------------------------------
 PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self, NullPointerType nullPointerType, ResultType resultType )
     : m_self( self )
-    , m_isNullptrValid( false )
-    , m_isResultPersistent( false )
     , m_nullPointerType( nullPointerType )
     , m_resultType( resultType )
 {
@@ -57,7 +55,7 @@ PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self, NullPointerType nullPoi
 //--------------------------------------------------------------------------------------------------
 bool PdmObjectMethod::isNullptrValidResult() const
 {
-    return m_isNullptrValid;
+    return m_nullPointerType == NullPointerType::NULL_IS_VALID;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,43 +63,7 @@ bool PdmObjectMethod::isNullptrValidResult() const
 //--------------------------------------------------------------------------------------------------
 bool PdmObjectMethod::resultIsPersistent() const
 {
-    return m_isResultPersistent;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmObjectMethod::setNullptrValid( bool isNullptrValid )
-{
-    // Verify that the setting is equal to the null pointer type
-    if ( isNullptrValid && m_nullPointerType != NullPointerType::NULL_IS_VALID )
-    {
-        throw std::runtime_error( "Cannot set nullptr valid to true when null pointer type is not NULL_IS_VALID" );
-    }
-    else if ( !isNullptrValid && m_nullPointerType == NullPointerType::NULL_IS_VALID )
-    {
-        throw std::runtime_error( "Cannot set nullptr valid to false when null pointer type is NULL_IS_VALID" );
-    }
-
-    m_isNullptrValid = isNullptrValid;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmObjectMethod::setResultPersistent( bool isResultPersistent )
-{
-    // Verify that the setting is equal to the result type
-    if ( isResultPersistent && m_resultType != ResultType::PERSISTENT_TRUE )
-    {
-        throw std::runtime_error( "Cannot set result persistent to true when result type is not PERSISTENT_TRUE" );
-    }
-    else if ( !isResultPersistent && m_resultType == ResultType::PERSISTENT_TRUE )
-    {
-        throw std::runtime_error( "Cannot set result persistent to false when result type is PERSISTENT_TRUE" );
-    }
-
-    m_isResultPersistent = isResultPersistent;
+    return m_resultType == ResultType::PERSISTENT_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,8 +123,6 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmVoidObjectMethod, "PdmVoidObjectMethod" );
 PdmVoidObjectMethod::PdmVoidObjectMethod( PdmObjectHandle* self )
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
-    setNullptrValid( true ); // Void methods are allowed to return nullptr
-    setResultPersistent( false ); // Void methods do not return persistent objects
 }
 
 //--------------------------------------------------------------------------------------------------

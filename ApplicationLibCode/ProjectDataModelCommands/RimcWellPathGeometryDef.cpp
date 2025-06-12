@@ -36,8 +36,6 @@ RimcRimWellPathGeometryDef_appendNewWellTarget::RimcRimWellPathGeometryDef_appen
     : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create and Add New Well Target", "", "", "Create and Add New Well Target" );
-    setNullptrValid( false );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinate, "Coordinate", "", "", "", "Coordinate" );
     CAF_PDM_InitScriptableField( &m_isAbsolute, "Absolute", false, "", "", "", "Relative or Absolute Coordinate" );

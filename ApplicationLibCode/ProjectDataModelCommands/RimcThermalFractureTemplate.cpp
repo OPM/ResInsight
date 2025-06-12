@@ -60,8 +60,6 @@ RimcThermalFractureTemplate_timeSteps::RimcThermalFractureTemplate_timeSteps( ca
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Get Thermal Fracture Template Time Steps", "", "", "Get Thermal Fracture Template Time Steps" );
-    setNullptrValid( false );
-    setResultPersistent( false );
 }
 
 //--------------------------------------------------------------------------------------------------

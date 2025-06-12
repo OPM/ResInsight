@@ -38,8 +38,6 @@ RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::RimcStimPlanModelPlotCo
     : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model", "", "", "Create a new StimPlan Model" );
-    setNullptrValid( false );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModel, "StimPlanModel", "", "", "", "StimPlan Model" );
 }

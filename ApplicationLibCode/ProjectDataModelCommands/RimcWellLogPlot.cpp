@@ -42,8 +42,6 @@ RimcWellLogPlot_newWellLogTrack::RimcWellLogPlot_newWellLogTrack( caf::PdmObject
     : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Well Log Track", "", "", "Create a new well log track" );
-    setNullptrValid( false );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_title, "Title", "", "", "", "Title" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "", "", "", "Case" );

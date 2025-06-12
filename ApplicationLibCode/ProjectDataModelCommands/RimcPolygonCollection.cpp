@@ -34,8 +34,6 @@ RimcPolygonCollection_createPolygon::RimcPolygonCollection_createPolygon( caf::P
     : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create and Add New Polygon", "", "", "Create and Add New Polygon" );
-    setNullptrValid( false );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinates, "Coordinates", "Coordinates" );

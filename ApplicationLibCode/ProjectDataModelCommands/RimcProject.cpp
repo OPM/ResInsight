@@ -57,8 +57,6 @@ RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle
 
 {
     CAF_PDM_InitObject( "Import Summary Case", "", "", "Import Summary Case" );
-    setNullptrValid( true );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "" );
 }
@@ -120,8 +118,6 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
 
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );
-    setNullptrValid( true );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableField( &m_caseId, "CaseId", -1, "" );
 }
@@ -159,8 +155,6 @@ RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
-    setNullptrValid( true );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_folderName, "FolderName", "" );
 }
@@ -201,8 +195,6 @@ RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::Pdm
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Create grid from key values", "", "", "Create Grid From Key Values" );
-    setNullptrValid( true );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "" );
 

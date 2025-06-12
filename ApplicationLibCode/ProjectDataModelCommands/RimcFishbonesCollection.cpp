@@ -36,8 +36,6 @@ RimcFishbonesCollection_appendFishbones::RimcFishbonesCollection_appendFishbones
     : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Append Fishbones", "", "", "Append Fishbones" );
-    setNullptrValid( false );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_subLocations, "SubLocations", "SubLocations" );
     CAF_PDM_InitScriptableField( &m_drillingType, "DrillingType", RimFishbonesDefines::DrillingType::STANDARD, "DrillingType" );

@@ -89,8 +89,6 @@ public:
 
     bool isNullptrValidResult() const;
     bool resultIsPersistent() const;
-    void setNullptrValid( bool isNullptrValid );
-    void setResultPersistent( bool isResultPersistent );
 
 protected:
     // Basically the "this" pointer to the object the method belongs to
@@ -105,10 +103,6 @@ protected:
 private:
     friend class PdmObjectScriptingCapability;
     PdmPointer<PdmObjectHandle> m_self;
-
-    bool m_isNullptrValid; // True if execute() can return a null pointer as a valid result
-    bool m_isResultPersistent; // True if the result is a persistent project tree item, false if it is a temporary
-                               // object to be deleted on completion
 
     NullPointerType m_nullPointerType = NullPointerType::NULL_IS_VALID;
     ResultType      m_resultType      = ResultType::PERSISTENT_TRUE;

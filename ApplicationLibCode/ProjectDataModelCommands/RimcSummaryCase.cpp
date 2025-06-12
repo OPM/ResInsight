@@ -41,8 +41,6 @@ RimSummaryCase_summaryVectorValues::RimSummaryCase_summaryVectorValues( caf::Pdm
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Summary Vector Values", "", "", "Get all values for a summary vector" );
-    setNullptrValid( false );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
 }
@@ -86,8 +84,6 @@ RimSummaryCase_availableAddresses::RimSummaryCase_availableAddresses( caf::PdmOb
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Available Addresses" );
-    setNullptrValid( false );
-    setResultPersistent( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,8 +128,6 @@ RimSummaryCase_availableTimeSteps::RimSummaryCase_availableTimeSteps( caf::PdmOb
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Available TimeSteps" );
-    setNullptrValid( false );
-    setResultPersistent( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,8 +165,6 @@ RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHand
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Resample Values" );
-    setNullptrValid( false );
-    setResultPersistent( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
 

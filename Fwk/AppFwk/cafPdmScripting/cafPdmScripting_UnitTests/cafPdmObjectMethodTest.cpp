@@ -32,8 +32,6 @@ InheritedDemoObj_appendValves::InheritedDemoObj_appendValves( caf::PdmObjectHand
     : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Append Valves", "", "", "Append Valves" );
-    setNullptrValid( true );
-    setResultPersistent( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_valveLocations, "ValveLocations", "ValveLocations" );
 }
