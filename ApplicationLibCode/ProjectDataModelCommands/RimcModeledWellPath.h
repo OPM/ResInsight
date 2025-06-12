@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcModeledWellPath_appendLateral : public caf::PdmObjectMethod
+class RimcModeledWellPath_appendLateral : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

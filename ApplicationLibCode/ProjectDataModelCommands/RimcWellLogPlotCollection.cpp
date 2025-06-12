@@ -40,7 +40,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellLogPlotCollection, RimcWellLogPlotColl
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellLogPlotCollection_newWellLogPlot::RimcWellLogPlotCollection_newWellLogPlot( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Well Log Plot", "", "", "Create a new well log plot" );
     setNullptrValid( false );

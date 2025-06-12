@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFractureTemplateCollection_appendFractureTemplate : public caf::PdmObjectMethod
+class RimcFractureTemplateCollection_appendFractureTemplate : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -46,7 +46,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFractureTemplateCollection_appendThermalFractureTemplate : public caf::PdmObjectMethod
+class RimcFractureTemplateCollection_appendThermalFractureTemplate : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

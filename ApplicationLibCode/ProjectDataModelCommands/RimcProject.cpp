@@ -53,7 +53,8 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_importSummaryCase, "im
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+
 {
     CAF_PDM_InitObject( "Import Summary Case", "", "", "Import Summary Case" );
     setNullptrValid( true );
@@ -115,7 +116,8 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_summaryCase, "summaryC
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );
     setNullptrValid( true );
@@ -154,7 +156,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_surfaceFolder, "surfac
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
     setNullptrValid( true );
@@ -196,7 +198,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridFromKeyValue
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_createGridFromKeyValues::RimProject_createGridFromKeyValues( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Create grid from key values", "", "", "Create Grid From Key Values" );
     setNullptrValid( true );

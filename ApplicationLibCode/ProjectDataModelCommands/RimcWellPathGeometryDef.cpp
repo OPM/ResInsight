@@ -33,7 +33,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathGeometryDef, RimcRimWellPathGeomet
 ///
 //--------------------------------------------------------------------------------------------------
 RimcRimWellPathGeometryDef_appendNewWellTarget::RimcRimWellPathGeometryDef_appendNewWellTarget( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create and Add New Well Target", "", "", "Create and Add New Well Target" );
     setNullptrValid( false );

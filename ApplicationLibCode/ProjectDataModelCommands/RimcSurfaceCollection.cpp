@@ -40,7 +40,8 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_n
 ///
 //--------------------------------------------------------------------------------------------------
 RimcSurfaceCollection_importSurface::RimcSurfaceCollection_importSurface( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+
 {
     CAF_PDM_InitObject( "Import Surface", "", "", "Import a new surface from file" );
     setNullptrValid( true );
@@ -76,7 +77,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_importSurface::defau
 ///
 //--------------------------------------------------------------------------------------------------
 RimcSurfaceCollection_addFolder::RimcSurfaceCollection_addFolder( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Add Folder", "", "", "Add a new surface folder" );
     setNullptrValid( true );
@@ -114,7 +115,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_addFolder::defaultRe
 ///
 //--------------------------------------------------------------------------------------------------
 RimcSurfaceCollection_newSurface::RimcSurfaceCollection_newSurface( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "New Surface", "", "", "Create a new surface" );
     setNullptrValid( true );
@@ -150,7 +151,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newSurface::defaultR
 ///
 //--------------------------------------------------------------------------------------------------
 RimcSurfaceCollection_newRegularSurface::RimcSurfaceCollection_newRegularSurface( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "New Regular Surface", "", "", "Create a new regular surface" );
     setNullptrValid( true );

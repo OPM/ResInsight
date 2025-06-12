@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcIdenticalGridCaseGroup_createStatisticsCase : public caf::PdmObjectMethod
+class RimcIdenticalGridCaseGroup_createStatisticsCase : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

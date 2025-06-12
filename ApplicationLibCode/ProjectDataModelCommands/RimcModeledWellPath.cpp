@@ -34,7 +34,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimModeledWellPath, RimcModeledWellPath_appen
 ///
 //--------------------------------------------------------------------------------------------------
 RimcModeledWellPath_appendLateral::RimcModeledWellPath_appendLateral( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Append Well Path Lateral", "", "", "Append Well Path Lateral" );
     setNullptrValid( false );

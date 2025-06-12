@@ -27,7 +27,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFishbonesCollection_appendFishbones : public caf::PdmObjectMethod
+class RimcFishbonesCollection_appendFishbones : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

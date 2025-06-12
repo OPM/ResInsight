@@ -34,7 +34,7 @@ class RimWellPath;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcElasticProperties_addPropertyScaling : public caf::PdmObjectMethod
+class RimcElasticProperties_addPropertyScaling : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

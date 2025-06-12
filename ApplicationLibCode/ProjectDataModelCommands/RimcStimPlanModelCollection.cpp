@@ -37,7 +37,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimStimPlanModelCollection, RimcStimPlanModel
 ///
 //--------------------------------------------------------------------------------------------------
 RimcStimPlanModelCollection_appendStimPlanModel::RimcStimPlanModelCollection_appendStimPlanModel( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model", "", "", "Create a new StimPlan Model" );
     setNullptrValid( false );

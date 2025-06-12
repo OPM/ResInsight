@@ -34,7 +34,7 @@ class RimEclipseCase;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellPath_addFracture : public caf::PdmObjectMethod
+class RimcWellPath_addFracture : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -54,7 +54,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellPath_addThermalFracture : public caf::PdmObjectMethod
+class RimcWellPath_addThermalFracture : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -73,7 +73,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellPath_appendPerforationInterval : public caf::PdmObjectMethod
+class RimcWellPath_appendPerforationInterval : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

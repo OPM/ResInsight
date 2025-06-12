@@ -29,7 +29,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimPressureTable, RimcPressureTable_addPressu
 ///
 //--------------------------------------------------------------------------------------------------
 RimcPressureTable_addPressure::RimcPressureTable_addPressure( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Add pressure data", "", "", "Add pressure data to pressure table." );
     setNullptrValid( false );

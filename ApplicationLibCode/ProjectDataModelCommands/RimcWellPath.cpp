@@ -51,7 +51,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_addFracture, "AddFr
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellPath_addFracture::RimcWellPath_addFracture( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Add StimPlan Fracture", "", "", "Add StimPlan Fracture" );
     setNullptrValid( false );
@@ -123,7 +123,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_addThermalFracture,
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellPath_addThermalFracture::RimcWellPath_addThermalFracture( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Add Thermal Fracture", "", "", "Add Thermal Fracture" );
     setNullptrValid( false );
@@ -170,7 +170,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_appendPerforationIn
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellPath_appendPerforationInterval::RimcWellPath_appendPerforationInterval( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Append Perforation Interval", "", "", "Append Perforation Interval" );
     setNullptrValid( false );
@@ -218,7 +218,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_multiSegmentWellSet
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellPath_multiSegmentWellSettings::RimcWellPath_multiSegmentWellSettings( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "MSW Settings", "", "", "Multi Segment Well Settings" );
     setNullptrValid( true );
@@ -260,7 +260,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_appendFishbones, "A
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellPath_appendFishbones::RimcWellPath_appendFishbones( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Append Fishbones", "", "", "Append Fishbones" );
     setNullptrValid( true );

@@ -33,7 +33,7 @@ class RimWellLogExtractionCurve;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellLogTrack_addExtractionCurve : public caf::PdmObjectMethod
+class RimcWellLogTrack_addExtractionCurve : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

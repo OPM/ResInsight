@@ -32,7 +32,7 @@ class RimWellLogTrack;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellLogPlot_newWellLogTrack : public caf::PdmObjectMethod
+class RimcWellLogPlot_newWellLogTrack : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

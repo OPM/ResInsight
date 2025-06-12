@@ -57,10 +57,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimThermalFractureTemplate, RimcThermalFractu
 ///
 //--------------------------------------------------------------------------------------------------
 RimcThermalFractureTemplate_timeSteps::RimcThermalFractureTemplate_timeSteps( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Get Thermal Fracture Template Time Steps", "", "", "Get Thermal Fracture Template Time Steps" );
-    setNullptrValid( true );
+    setNullptrValid( false );
     setResultPersistent( false );
 }
 

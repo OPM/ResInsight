@@ -30,7 +30,7 @@ class RimStimPlanModel;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcStimPlanModelPlotCollection_appendStimPlanModelPlot : public caf::PdmObjectMethod
+class RimcStimPlanModelPlotCollection_appendStimPlanModelPlot : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

@@ -40,7 +40,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellLogTrack, RimcWellLogTrack_addExtracti
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellLogTrack_addExtractionCurve::RimcWellLogTrack_addExtractionCurve( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Well Log Extraction Curve", "", "", "Create a well log extraction curve" );
     setNullptrValid( false );

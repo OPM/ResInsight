@@ -31,7 +31,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimPolygonCollection, RimcPolygonCollection_c
 ///
 //--------------------------------------------------------------------------------------------------
 RimcPolygonCollection_createPolygon::RimcPolygonCollection_createPolygon( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create and Add New Polygon", "", "", "Create and Add New Polygon" );
     setNullptrValid( false );

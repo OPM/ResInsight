@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcEclipseStatisticsCase_setSourceProperties : public caf::PdmObjectMethod
+class RimcEclipseStatisticsCase_setSourceProperties : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,7 +37,6 @@ public:
     RimcEclipseStatisticsCase_setSourceProperties( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 
 private:
     caf::PdmField<QString>              m_propertyType;
@@ -47,7 +46,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcEclipseStatisticsCase_computeStatistics : public caf::PdmObjectMethod
+class RimcEclipseStatisticsCase_computeStatistics : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -55,13 +54,12 @@ public:
     RimcEclipseStatisticsCase_computeStatistics( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 };
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcEclipseStatisticsCase_clearSourceProperties : public caf::PdmObjectMethod
+class RimcEclipseStatisticsCase_clearSourceProperties : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -69,5 +67,4 @@ public:
     RimcEclipseStatisticsCase_clearSourceProperties( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
 };

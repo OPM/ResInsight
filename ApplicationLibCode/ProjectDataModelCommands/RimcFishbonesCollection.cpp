@@ -33,7 +33,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFishbonesCollection, RimcFishbonesCollecti
 ///
 //--------------------------------------------------------------------------------------------------
 RimcFishbonesCollection_appendFishbones::RimcFishbonesCollection_appendFishbones( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Append Fishbones", "", "", "Append Fishbones" );
     setNullptrValid( false );

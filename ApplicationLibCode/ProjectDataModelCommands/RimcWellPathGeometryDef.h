@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcRimWellPathGeometryDef_appendNewWellTarget : public caf::PdmObjectMethod
+class RimcRimWellPathGeometryDef_appendNewWellTarget : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

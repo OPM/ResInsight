@@ -33,7 +33,7 @@ class RimEclipseCase;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate : public caf::PdmObjectMethod
+class RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

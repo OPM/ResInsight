@@ -39,7 +39,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimStimPlanModelTemplateCollection,
 //--------------------------------------------------------------------------------------------------
 RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate(
     caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model Template", "", "", "Create a new StimPlan Model Template" );
     setNullptrValid( false );

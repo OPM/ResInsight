@@ -30,7 +30,7 @@ class RimStimPlanModel;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellLogPlotCollection_newWellLogPlot : public caf::PdmObjectMethod
+class RimcWellLogPlotCollection_newWellLogPlot : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

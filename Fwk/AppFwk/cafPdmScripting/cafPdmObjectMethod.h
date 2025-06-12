@@ -64,7 +64,19 @@ class PdmObjectMethod : public PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    PdmObjectMethod( PdmObjectHandle* self );
+    enum class NullPointerType
+    {
+        NULL_IS_VALID,
+        NULL_IS_INVALID
+    };
+    enum class ResultType
+    {
+        PERSISTENT_TRUE,
+        PERSISTENT_FALSE
+    };
+
+public:
+    PdmObjectMethod( PdmObjectHandle* self, NullPointerType nullPointerType, ResultType resultType );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual std::expected<caf::PdmObjectHandle*, QString> execute() = 0;
@@ -97,6 +109,9 @@ private:
     bool m_isNullptrValid; // True if execute() can return a null pointer as a valid result
     bool m_isResultPersistent; // True if the result is a persistent project tree item, false if it is a temporary
                                // object to be deleted on completion
+
+    NullPointerType m_nullPointerType = NullPointerType::NULL_IS_VALID;
+    ResultType      m_resultType      = ResultType::PERSISTENT_TRUE;
 };
 
 class PdmVoidObjectMethod : public PdmObjectMethod
@@ -108,6 +123,14 @@ public:
 
     // The default result is a nullptr, since this method does not return anything
     std::unique_ptr<PdmObjectHandle> defaultResult() const override final;
+};
+
+class PdmObjectCreationMethod : public PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    PdmObjectCreationMethod( PdmObjectHandle* self );
 };
 
 //==================================================================================================

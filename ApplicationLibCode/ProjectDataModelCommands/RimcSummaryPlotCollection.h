@@ -35,7 +35,7 @@ class RimSummaryEnsemble;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSummaryPlotCollection_newSummaryPlot : public caf::PdmObjectMethod
+class RimcSummaryPlotCollection_newSummaryPlot : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

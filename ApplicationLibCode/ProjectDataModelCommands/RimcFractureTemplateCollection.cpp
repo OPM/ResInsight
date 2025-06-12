@@ -39,7 +39,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
 ///
 //--------------------------------------------------------------------------------------------------
 RimcFractureTemplateCollection_appendFractureTemplate::RimcFractureTemplateCollection_appendFractureTemplate( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new StimPlan Fracture Template" );
     setNullptrValid( false );
@@ -81,7 +81,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
 ///
 //--------------------------------------------------------------------------------------------------
 RimcFractureTemplateCollection_appendThermalFractureTemplate::RimcFractureTemplateCollection_appendThermalFractureTemplate( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new Thermal Fracture Template" );
     setNullptrValid( false );

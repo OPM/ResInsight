@@ -27,7 +27,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcPressureTable_addPressure : public caf::PdmObjectMethod
+class RimcPressureTable_addPressure : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 

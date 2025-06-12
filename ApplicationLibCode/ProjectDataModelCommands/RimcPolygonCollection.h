@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcPolygonCollection_createPolygon : public caf::PdmObjectMethod
+class RimcPolygonCollection_createPolygon : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
