@@ -43,7 +43,6 @@ public:
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
 
-
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
     caf::PdmField<int>                m_timeStep;
