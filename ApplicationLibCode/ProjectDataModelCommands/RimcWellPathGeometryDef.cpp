@@ -85,15 +85,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRimWellPathGeometryDef_appendN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcRimWellPathGeometryDef_appendNewWellTarget::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathTarget );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcRimWellPathGeometryDef_appendNewWellTarget::createdClassKeyword() const
+QString RimcRimWellPathGeometryDef_appendNewWellTarget::classKeywordReturnedType() const
 {
     return RimWellPathTarget::classKeywordStatic();
 }

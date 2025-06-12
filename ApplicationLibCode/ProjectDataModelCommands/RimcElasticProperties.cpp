@@ -68,15 +68,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcElasticProperties_addPropertyS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcElasticProperties_addPropertyScaling::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimElasticPropertyScaling );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcElasticProperties_addPropertyScaling::createdClassKeyword() const
+QString RimcElasticProperties_addPropertyScaling::classKeywordReturnedType() const
 {
     return RimElasticPropertyScaling::classKeywordStatic();
 }

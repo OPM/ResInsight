@@ -91,15 +91,7 @@ RimWellLogTrack* RimcWellLogPlot_newWellLogTrack::createWellLogTrack( RimWellLog
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellLogPlot_newWellLogTrack::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogTrack );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcWellLogPlot_newWellLogTrack::createdClassKeyword() const
+QString RimcWellLogPlot_newWellLogTrack::classKeywordReturnedType() const
 {
     return RimWellLogTrack::classKeywordStatic();
 }

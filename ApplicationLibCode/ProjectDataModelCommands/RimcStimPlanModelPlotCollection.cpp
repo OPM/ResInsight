@@ -61,15 +61,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelPlotCollection_ap
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModelPlot );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::createdClassKeyword() const
+QString RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::classKeywordReturnedType() const
 {
     return RimStimPlanModelPlot::classKeywordStatic();
 }

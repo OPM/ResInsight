@@ -68,15 +68,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFishbonesCollection_appendFish
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcFishbonesCollection_appendFishbones::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimFishbones );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcFishbonesCollection_appendFishbones::createdClassKeyword() const
+QString RimcFishbonesCollection_appendFishbones::classKeywordReturnedType() const
 {
     return RimFishbones::classKeywordStatic();
 }

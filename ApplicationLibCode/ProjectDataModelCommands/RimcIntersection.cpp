@@ -239,14 +239,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcExtrudedCurveIntersection_geometry::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcTriangleGeometry );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimcExtrudedCurveIntersection_geometry::classKeywordReturnedType() const
 {
     return RimcTriangleGeometry::classKeywordStatic();
@@ -338,14 +330,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
     }
 
     return std::unexpected( "No intersection geometry result found." );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcExtrudedCurveIntersection_geometryResult::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerDouble );
 }
 
 //--------------------------------------------------------------------------------------------------

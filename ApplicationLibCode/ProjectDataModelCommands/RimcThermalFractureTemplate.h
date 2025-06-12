@@ -55,6 +55,5 @@ public:
     RimcThermalFractureTemplate_timeSteps( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
     QString                                       classKeywordReturnedType() const override;
 };

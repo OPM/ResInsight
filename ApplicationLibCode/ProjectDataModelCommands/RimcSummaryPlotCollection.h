@@ -43,9 +43,7 @@ public:
     RimcSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    QString                                       createdClassKeyword() const override;
-
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<QString>                 m_addressString;

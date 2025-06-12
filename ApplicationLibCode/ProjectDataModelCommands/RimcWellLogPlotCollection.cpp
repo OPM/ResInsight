@@ -90,15 +90,7 @@ RimWellLogPlot* RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellLogPlotCollection_newWellLogPlot::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogPlot );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcWellLogPlotCollection_newWellLogPlot::createdClassKeyword() const
+QString RimcWellLogPlotCollection_newWellLogPlot::classKeywordReturnedType() const
 {
     return RimWellLogPlot::classKeywordStatic();
 }

@@ -66,15 +66,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_app
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_appendFractureTemplate::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanFractureTemplate );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcFractureTemplateCollection_appendFractureTemplate::createdClassKeyword() const
+QString RimcFractureTemplateCollection_appendFractureTemplate::classKeywordReturnedType() const
 {
     return RimStimPlanFractureTemplate::classKeywordStatic();
 }
@@ -114,15 +106,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_app
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_appendThermalFractureTemplate::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimThermalFractureTemplate );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcFractureTemplateCollection_appendThermalFractureTemplate::createdClassKeyword() const
+QString RimcFractureTemplateCollection_appendThermalFractureTemplate::classKeywordReturnedType() const
 {
     return RimThermalFractureTemplate::classKeywordStatic();
 }

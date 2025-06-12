@@ -115,15 +115,7 @@ RimWellLogExtractionCurve* RimcWellLogTrack_addExtractionCurve::addExtractionCur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellLogTrack_addExtractionCurve::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogExtractionCurve );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcWellLogTrack_addExtractionCurve::createdClassKeyword() const
+QString RimcWellLogTrack_addExtractionCurve::classKeywordReturnedType() const
 {
     return RimWellLogExtractionCurve::classKeywordStatic();
 }

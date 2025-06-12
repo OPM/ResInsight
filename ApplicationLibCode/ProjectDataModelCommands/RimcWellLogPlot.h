@@ -40,9 +40,7 @@ public:
     RimcWellLogPlot_newWellLogTrack( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    QString                                       createdClassKeyword() const override;
-
+    QString                                       classKeywordReturnedType() const override;
 
     static RimWellLogTrack*
         createWellLogTrack( RimWellLogPlot* wellLogPlot, RimEclipseCase* eclipseCase, RimWellPath* wellPath, const QString& title );

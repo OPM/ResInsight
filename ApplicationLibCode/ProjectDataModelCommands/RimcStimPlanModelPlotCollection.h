@@ -38,9 +38,7 @@ public:
     RimcStimPlanModelPlotCollection_appendStimPlanModelPlot( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    QString                                       createdClassKeyword() const override;
-
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmPtrField<RimStimPlanModel*> m_stimPlanModel;

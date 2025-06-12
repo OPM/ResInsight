@@ -37,7 +37,6 @@ public:
     RimSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
     QString                                       classKeywordReturnedType() const override;
 
 private:
@@ -55,7 +54,6 @@ public:
     RimSummaryCase_availableAddresses( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
     QString                                       classKeywordReturnedType() const override;
 };
 
@@ -70,7 +68,6 @@ public:
     RimSummaryCase_availableTimeSteps( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
     QString                                       classKeywordReturnedType() const override;
 };
 
@@ -85,7 +82,6 @@ public:
     RimSummaryCase_resampleValues( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
     QString                                       classKeywordReturnedType() const override;
 
 private:

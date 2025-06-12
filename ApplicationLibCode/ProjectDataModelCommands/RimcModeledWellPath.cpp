@@ -62,15 +62,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcModeledWellPath_appendLateral:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcModeledWellPath_appendLateral::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimModeledWellPath );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcModeledWellPath_appendLateral::createdClassKeyword() const
+QString RimcModeledWellPath_appendLateral::classKeywordReturnedType() const
 {
     return RimModeledWellPath::classKeywordStatic();
 }

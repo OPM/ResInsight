@@ -29,8 +29,6 @@ class RimCommandRouterMethod : public caf::PdmObjectMethod
 {
 public:
     RimCommandRouterMethod( PdmObjectHandle* self );
-
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 };
 
 //==================================================================================================

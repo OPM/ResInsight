@@ -94,15 +94,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSummaryPlotCollection_newSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSummaryPlotCollection_newSummaryPlot::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimSummaryPlot );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcSummaryPlotCollection_newSummaryPlot::createdClassKeyword() const
+QString RimcSummaryPlotCollection_newSummaryPlot::classKeywordReturnedType() const
 {
     return RimSummaryPlot::classKeywordStatic();
 }

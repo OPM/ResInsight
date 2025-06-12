@@ -103,15 +103,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryCase::exec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimProject_importSummaryCase::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSummaryCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimProject_importSummaryCase::createdClassKeyword() const
+QString RimProject_importSummaryCase::classKeywordReturnedType() const
 {
     return RimFileSummaryCase::classKeywordStatic();
 }
@@ -149,15 +141,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_summaryCase::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimProject_summaryCase::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSummaryCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimProject_summaryCase::createdClassKeyword() const
+QString RimProject_summaryCase::classKeywordReturnedType() const
 {
     return RimFileSummaryCase::classKeywordStatic();
 }
@@ -197,15 +181,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_surfaceFolder::execute(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimProject_surfaceFolder::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimProject_surfaceFolder::createdClassKeyword() const
+QString RimProject_surfaceFolder::classKeywordReturnedType() const
 {
     return RimSurfaceCollection::classKeywordStatic();
 }
@@ -301,19 +277,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 
     return grid;
 }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimProject_createGridFromKeyValues::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimCornerPointCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimProject_createGridFromKeyValues::createdClassKeyword() const
+QString RimProject_createGridFromKeyValues::classKeywordReturnedType() const
 {
     return RimCornerPointCase::classKeywordStatic();
 }

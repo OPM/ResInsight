@@ -76,15 +76,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelCollection_append
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelCollection_appendStimPlanModel::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModel );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcStimPlanModelCollection_appendStimPlanModel::createdClassKeyword() const
+QString RimcStimPlanModelCollection_appendStimPlanModel::classKeywordReturnedType() const
 {
     return RimStimPlanModel::classKeywordStatic();
 }

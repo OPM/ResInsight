@@ -66,15 +66,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPolygonCollection_createPolygo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcPolygonCollection_createPolygon::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimPolygon );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcPolygonCollection_createPolygon::createdClassKeyword() const
+QString RimcPolygonCollection_createPolygon::classKeywordReturnedType() const
 {
     return RimPolygon::classKeywordStatic();
 }

@@ -66,15 +66,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_importSurfac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_importSurface::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSurface );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcSurfaceCollection_importSurface::createdClassKeyword() const
+QString RimcSurfaceCollection_importSurface::classKeywordReturnedType() const
 {
     return RimFileSurface::classKeywordStatic();
 }
@@ -110,15 +102,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_addFolder::e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_addFolder::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcSurfaceCollection_addFolder::createdClassKeyword() const
+QString RimcSurfaceCollection_addFolder::classKeywordReturnedType() const
 {
     return RimSurfaceCollection::classKeywordStatic();
 }
@@ -152,15 +136,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newSurface::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newSurface::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimGridCaseSurface );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcSurfaceCollection_newSurface::createdClassKeyword() const
+QString RimcSurfaceCollection_newSurface::classKeywordReturnedType() const
 {
     return RimGridCaseSurface::classKeywordStatic();
 }
@@ -226,15 +202,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newRegularSurface::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimRegularSurface );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcSurfaceCollection_newRegularSurface::createdClassKeyword() const
+QString RimcSurfaceCollection_newRegularSurface::classKeywordReturnedType() const
 {
     return RimRegularSurface::classKeywordStatic();
 }

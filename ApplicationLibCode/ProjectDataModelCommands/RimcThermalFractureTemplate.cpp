@@ -79,14 +79,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcThermalFractureTemplate_timeSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcThermalFractureTemplate_timeSteps::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimcThermalFractureTemplate_timeSteps::classKeywordReturnedType() const
 {
     return RimcDataContainerString::classKeywordStatic();

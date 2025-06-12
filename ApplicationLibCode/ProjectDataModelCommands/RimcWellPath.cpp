@@ -110,15 +110,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addFracture::execute(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addFracture::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcWellPath_addFracture::createdClassKeyword() const
+QString RimcWellPath_addFracture::classKeywordReturnedType() const
 {
     return RimWellPathFracture::classKeywordStatic();
 }
@@ -163,15 +155,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addThermalFracture::e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addThermalFracture::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcWellPath_addThermalFracture::createdClassKeyword() const
+QString RimcWellPath_addThermalFracture::classKeywordReturnedType() const
 {
     return RimWellPathFracture::classKeywordStatic();
 }
@@ -217,15 +201,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendPerforationInte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_appendPerforationInterval::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimPerforationInterval );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcWellPath_appendPerforationInterval::createdClassKeyword() const
+QString RimcWellPath_appendPerforationInterval::classKeywordReturnedType() const
 {
     return RimPerforationInterval::classKeywordStatic();
 }
@@ -260,14 +236,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_multiSegmentWellSetti
         return completionSettings->mswCompletionParameters();
     }
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_multiSegmentWellSettings::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimMswCompletionParameters );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,14 +287,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendFishbones::exec
     RiaLogging::error( "No fishbones collection object found, cannot create fishbones object." );
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_appendFishbones::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimFishbones );
 }
 
 //--------------------------------------------------------------------------------------------------

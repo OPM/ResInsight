@@ -37,8 +37,7 @@ public:
     RimcRimWellPathGeometryDef_appendNewWellTarget( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    QString                                       createdClassKeyword() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<cvf::Vec3d> m_coordinate;

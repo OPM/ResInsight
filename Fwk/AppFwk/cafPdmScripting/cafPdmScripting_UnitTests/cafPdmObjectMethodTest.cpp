@@ -17,7 +17,6 @@ public:
     InheritedDemoObj_appendValves( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
     QString                                       classKeywordReturnedType() const override;
 
 private:
@@ -48,14 +47,6 @@ std::expected<caf::PdmObjectHandle*, QString> InheritedDemoObj_appendValves::exe
     child->m_numbers = m_valveLocations();
     obj->m_simpleObjectsField().push_back( child );
     return obj;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> InheritedDemoObj_appendValves::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new InheritedDemoObj );
 }
 
 //--------------------------------------------------------------------------------------------------
