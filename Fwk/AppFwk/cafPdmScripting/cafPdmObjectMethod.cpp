@@ -77,6 +77,16 @@ QString PdmObjectMethod::classKeywordReturnedType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString PdmObjectMethod::selfClassKeyword() const
+{
+    if ( !m_self ) return {};
+
+    return m_self->xmlCapability()->classKeyword();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 PdmObjectMethodFactory* PdmObjectMethodFactory::instance()
 {
     static PdmObjectMethodFactory* factory = new PdmObjectMethodFactory;

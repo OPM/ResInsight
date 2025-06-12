@@ -81,7 +81,7 @@ public:
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual std::expected<caf::PdmObjectHandle*, QString> execute() = 0;
 
-    virtual QString selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
+    virtual QString selfClassKeyword() const;
     virtual QString classKeywordReturnedType() const = 0;
 
     bool isNullptrValidResult() const;
