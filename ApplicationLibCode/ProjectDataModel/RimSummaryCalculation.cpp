@@ -326,7 +326,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 {
     QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide( expression );
 
-    RiaTimeHistoryCurveMerger timeHistoryCurveMerger;
+    RiaTimeHistoryCurveMerger timeHistoryCurveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
 
     for ( size_t i = 0; i < variables.size(); i++ )
     {

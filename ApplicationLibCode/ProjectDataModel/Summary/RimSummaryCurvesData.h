@@ -40,13 +40,6 @@ enum class SummaryCurveType
     CURVE_TYPE_OBSERVED = 0x2
 };
 
-enum class ResampleAlgorithm
-{
-    NONE,
-    DATA_DECIDES,
-    PERIOD_END
-};
-
 class RimSummaryCurvesData
 {
 public:
@@ -74,7 +67,6 @@ private:
     static void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, RimSummaryCurvesData* curvesData );
 
     static void prepareCaseCurvesForExport( RiaDefines::DateTimePeriod  period,
-                                            ResampleAlgorithm           algorithm,
                                             const RimSummaryCurvesData& inputCurvesData,
                                             RimSummaryCurvesData*       resultCurvesData );
 
