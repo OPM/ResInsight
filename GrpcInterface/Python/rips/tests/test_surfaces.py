@@ -24,8 +24,7 @@ def test_create_and_export_surface(rips_instance, initialize_test):
         path = Path(tmpdirname, "mysurface.ts")
         print("Temporary folder: ", path.as_posix())
 
-        fname = surface.export_to_file(path.as_posix())
-        assert len(fname.values) == 1
+        surface.export_to_file(path.as_posix())
 
         assert path.exists()
 

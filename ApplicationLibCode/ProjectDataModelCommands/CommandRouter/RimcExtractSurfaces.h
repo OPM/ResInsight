@@ -30,7 +30,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcCommandRouter_extractSurfaces : public RimCommandRouterMethod
+class RimcCommandRouter_extractSurfaces : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 

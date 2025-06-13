@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcIdenticalGridCaseGroup_createStatisticsCase : public caf::PdmObjectMethod
+class RimcIdenticalGridCaseGroup_createStatisticsCase : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,6 +37,5 @@ public:
     RimcIdenticalGridCaseGroup_createStatisticsCase( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 };

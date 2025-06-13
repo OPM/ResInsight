@@ -287,11 +287,12 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
 
                 QString returnDataType = "None";
                 QString returnComment;
-                if ( method->defaultResult() )
+                if ( !method->classKeywordReturnedType().isEmpty() )
                 {
-                    QString classKeyword = method->defaultResult()->xmlCapability()->classKeyword();
-                    returnComment        = classKeyword;
-                    returnDataType = PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
+                    QString classKeywordReturnedType = method->classKeywordReturnedType();
+                    returnComment                    = classKeywordReturnedType;
+                    returnDataType =
+                        PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeywordReturnedType );
 
                     outputArgumentStrings.push_back( QString( "%1" ).arg( returnDataType ) );
 

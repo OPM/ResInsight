@@ -40,9 +40,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellLogTrack, RimcWellLogTrack_addExtracti
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellLogTrack_addExtractionCurve::RimcWellLogTrack_addExtractionCurve( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Well Log Extraction Curve", "", "", "Create a well log extraction curve" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "", "", "", "Case" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertyType, "PropertyType", "", "", "", "Property Type" );
@@ -114,15 +115,7 @@ RimWellLogExtractionCurve* RimcWellLogTrack_addExtractionCurve::addExtractionCur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellLogTrack_addExtractionCurve::resultIsPersistent() const
+QString RimcWellLogTrack_addExtractionCurve::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellLogTrack_addExtractionCurve::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogExtractionCurve );
+    return RimWellLogExtractionCurve::classKeywordStatic();
 }

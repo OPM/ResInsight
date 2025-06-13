@@ -43,9 +43,45 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self )
+PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self, NullPointerType nullPointerType, ResultType resultType )
     : m_self( self )
+    , m_nullPointerType( nullPointerType )
+    , m_resultType( resultType )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmObjectMethod::isNullptrValidResult() const
+{
+    return m_nullPointerType == NullPointerType::NULL_IS_VALID;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmObjectMethod::resultIsPersistent() const
+{
+    return m_resultType == ResultType::PERSISTENT_TRUE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmObjectMethod::classKeywordReturnedType() const
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmObjectMethod::selfClassKeyword() const
+{
+    if ( !m_self ) return {};
+
+    return m_self->xmlCapability()->classKeyword();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,4 +131,32 @@ std::vector<QString> caf::PdmObjectMethodFactory::registeredMethodNames( const Q
     }
 
     return methods;
+}
+
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmVoidObjectMethod, "PdmVoidObjectMethod" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmVoidObjectMethod::PdmVoidObjectMethod( PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmVoidObjectMethod::classKeywordReturnedType() const
+{
+    return {};
+}
+
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectCreationMethod, "PdmObjectCreationMethod" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmObjectCreationMethod::PdmObjectCreationMethod( PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
 }

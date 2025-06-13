@@ -45,30 +45,6 @@ RimCommandRouter::RimCommandRouter()
 ///
 //--------------------------------------------------------------------------------------------------
 RimCommandRouterMethod::RimCommandRouterMethod( PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimCommandRouterMethod::isNullptrValidResult() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimCommandRouterMethod::resultIsPersistent() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimCommandRouterMethod::defaultResult() const
-{
-    return nullptr;
 }

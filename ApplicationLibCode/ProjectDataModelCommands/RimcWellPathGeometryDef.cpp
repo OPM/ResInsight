@@ -33,9 +33,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathGeometryDef, RimcRimWellPathGeomet
 ///
 //--------------------------------------------------------------------------------------------------
 RimcRimWellPathGeometryDef_appendNewWellTarget::RimcRimWellPathGeometryDef_appendNewWellTarget( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create and Add New Well Target", "", "", "Create and Add New Well Target" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinate, "Coordinate", "", "", "", "Coordinate" );
     CAF_PDM_InitScriptableField( &m_isAbsolute, "Absolute", false, "", "", "", "Relative or Absolute Coordinate" );
 
@@ -84,15 +85,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRimWellPathGeometryDef_appendN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcRimWellPathGeometryDef_appendNewWellTarget::resultIsPersistent() const
+QString RimcRimWellPathGeometryDef_appendNewWellTarget::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcRimWellPathGeometryDef_appendNewWellTarget::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathTarget );
+    return RimWellPathTarget::classKeywordStatic();
 }

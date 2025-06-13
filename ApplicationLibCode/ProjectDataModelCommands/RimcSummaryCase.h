@@ -37,8 +37,7 @@ public:
     RimSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<QString> m_addressString;
@@ -55,8 +54,7 @@ public:
     RimSummaryCase_availableAddresses( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 };
 
 //==================================================================================================
@@ -70,8 +68,7 @@ public:
     RimSummaryCase_availableTimeSteps( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 };
 
 //==================================================================================================
@@ -85,8 +82,7 @@ public:
     RimSummaryCase_resampleValues( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<QString> m_addressString;
@@ -96,7 +92,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimSummaryCase_setSummaryVectorValues : public caf::PdmObjectMethod
+class RimSummaryCase_setSummaryVectorValues : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -104,9 +100,6 @@ public:
     RimSummaryCase_setSummaryVectorValues( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString>            m_addressString;

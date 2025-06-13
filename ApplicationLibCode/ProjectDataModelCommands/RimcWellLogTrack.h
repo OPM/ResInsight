@@ -33,7 +33,7 @@ class RimWellLogExtractionCurve;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellLogTrack_addExtractionCurve : public caf::PdmObjectMethod
+class RimcWellLogTrack_addExtractionCurve : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -41,8 +41,7 @@ public:
     RimcWellLogTrack_addExtractionCurve( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
     static RimWellLogExtractionCurve* addExtractionCurve( RimWellLogTrack*          wellLogTrack,
                                                           RimEclipseCase*           eclipseCase,

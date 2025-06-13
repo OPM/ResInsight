@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFractureTemplateCollection_appendFractureTemplate : public caf::PdmObjectMethod
+class RimcFractureTemplateCollection_appendFractureTemplate : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,8 +37,7 @@ public:
     RimcFractureTemplateCollection_appendFractureTemplate( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<QString> m_filePath;
@@ -47,7 +46,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFractureTemplateCollection_appendThermalFractureTemplate : public caf::PdmObjectMethod
+class RimcFractureTemplateCollection_appendThermalFractureTemplate : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -55,8 +54,7 @@ public:
     RimcFractureTemplateCollection_appendThermalFractureTemplate( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<QString> m_filePath;
