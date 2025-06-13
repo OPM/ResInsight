@@ -54,9 +54,10 @@ bool XValueComparator<XValueType>::equals( const XValueType& lhs, const XValueTy
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename XValueType>
-RiaCurveMerger<XValueType>::RiaCurveMerger()
+RiaCurveMerger<XValueType>::RiaCurveMerger( RiaCurveDefines::InterpolationMethod method )
     : m_isXValuesSharedBetweenCurves( false )
     , m_isXValuesMonotonicallyIncreasing( true )
+    , m_interpolationMethod( method )
 {
 }
 
@@ -178,8 +179,10 @@ void RiaCurveMerger<XValueType>::computeInterpolatedValues( bool includeValuesFr
             }
             else
             {
-                interpolValue =
-                    interpolatedYValue( m_allXValues[valueIndex], m_originalValues[curveIdx].first, m_originalValues[curveIdx].second );
+                interpolValue = interpolatedYValue( m_allXValues[valueIndex],
+                                                    m_originalValues[curveIdx].first,
+                                                    m_originalValues[curveIdx].second,
+                                                    m_interpolationMethod );
             }
 
             if ( !RiaCurveDataTools::isValidValue( interpolValue, false ) )
@@ -263,9 +266,10 @@ void RiaCurveMerger<XValueType>::removeValuesForPartialCurves( std::set<XValueTy
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename XValueType>
-double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&              interpolationXValue,
-                                                       const std::vector<XValueType>& xValues,
-                                                       const std::vector<double>&     yValues )
+double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&                    interpolationXValue,
+                                                       const std::vector<XValueType>&       xValues,
+                                                       const std::vector<double>&           yValues,
+                                                       RiaCurveDefines::InterpolationMethod interpolationMethod )
 {
     if ( xValues.empty() ) return HUGE_VAL;
     if ( yValues.size() != xValues.size() ) return HUGE_VAL;
@@ -329,6 +333,16 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
 
                 bool isSecondValid = RiaCurveDataTools::isValidValue( secondValue, removeInterpolatedValues );
                 if ( !isSecondValid ) return HUGE_VAL;
+
+                if ( interpolationMethod == RiaCurveDefines::InterpolationMethod::STEP_RIGHT )
+                {
+                    return secondValue;
+                }
+
+                if ( interpolationMethod == RiaCurveDefines::InterpolationMethod::STEP_LEFT )
+                {
+                    return firstValue;
+                }
 
                 double firstDiff  = fabs( XComparator::diff( interpolationXValue, xValues.at( firstI ) ) );
                 double secondDiff = fabs( XComparator::diff( xValues.at( secondI ), interpolationXValue ) );

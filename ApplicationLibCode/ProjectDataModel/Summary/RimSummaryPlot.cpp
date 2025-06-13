@@ -1730,7 +1730,7 @@ bool RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
 
     if ( stackingItems.empty() ) return true;
 
-    RiaCurveMerger<double>                  curveMerger;
+    RiaCurveMerger<double>                  curveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
     std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
 
     for ( auto stackingItem : stackingItems )

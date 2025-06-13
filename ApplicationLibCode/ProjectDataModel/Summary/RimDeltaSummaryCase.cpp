@@ -316,7 +316,9 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calcula
         return ResultPair();
     }
 
-    RiaTimeHistoryCurveMerger merger;
+    auto                      interpolationMethod = address.hasAccumulatedData() ? RiaCurveDefines::InterpolationMethod::LINEAR
+                                                                                 : RiaCurveDefines::InterpolationMethod::STEP_RIGHT;
+    RiaTimeHistoryCurveMerger merger( interpolationMethod );
     merger.addCurveData( reader1->timeSteps( address ), values1 );
     merger.addCurveData( reader2->timeSteps( address ), values2 );
     merger.computeInterpolatedValues( includeIncompleteCurves );
