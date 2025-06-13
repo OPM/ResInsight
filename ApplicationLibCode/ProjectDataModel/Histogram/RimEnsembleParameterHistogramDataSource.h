@@ -37,11 +37,11 @@ public:
     RimEnsembleParameterHistogramDataSource();
     ~RimEnsembleParameterHistogramDataSource() override;
 
-    std::string         unitNameX() const override;
-    std::vector<double> valuesX() const override;
+    std::string unitNameX() const override;
+    std::string unitNameY() const override;
 
-    std::string         unitNameY() const override;
-    std::vector<double> valuesY() const override;
+    std::vector<double> valuesX( RimHistogramPlot::GraphType graphType ) const override;
+    std::vector<double> valuesY( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const override;
 
     std::string name() const override;
 

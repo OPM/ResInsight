@@ -18,72 +18,26 @@
 
 #include "RimHistogramPlot.h"
 
-#include "RiaColorTables.h"
-#include "RiaColorTools.h"
-#include "RiaCurveMerger.h"
-#include "RiaDefines.h"
 #include "RiaLogging.h"
 #include "RiaPlotDefines.h"
-#include "RiaPreferences.h"
-// #include "RiaPreferencesHistogram.h"
-// #include "RiaRegressionTestRunner.h"
-#include "RiaStdStringTools.h"
-// #include "Histogram/RiaHistogramCurveDefinition.h"
-// #include "Histogram/RiaHistogramDefines.h"
-// #include "Histogram/RiaHistogramPlotTools.h"
-// #include "Histogram/RiaHistogramTools.h"
 
-// #include "RifEclipseHistogramAddressDefines.h"
-
-// #include "HistogramPlotCommands/RicHistogramPlotEditorUi.h"
-
-// #include "Annotations/RimTimeAxisAnnotationUpdater.h"
-// #include "RimAsciiDataCurve.h"
-// #include "RimEnsembleCurveSet.h"
-// #include "RimEnsembleCurveSetCollection.h"
-// #include "RimGridTimeHistoryCurve.h"
-#include "RimMultiPlot.h"
-#include "RimPlotAxisLogRangeCalculator.h"
-// #include "RimProject.h"
-// #include "RimHistogramAddress.h"
-// #include "RimHistogramAddressCollection.h"
-// #include "RimHistogramCalculationCollection.h"
-// #include "RimHistogramCase.h"
-// #include "RimHistogramCurve.h"
-// #include "RimHistogramCurveAppearanceCalculator.h"
 #include "RimHistogramCurve.h"
 #include "RimHistogramCurveCollection.h"
-// #include "RimHistogramCurvesData.h"
-// #include "RimHistogramEnsemble.h"
-// #include "RimHistogramPlotAxisFormatter.h"
-// #include "RimHistogramPlotControls.h"
-// #include "RimHistogramPlotNameHelper.h"
-// #include "RimHistogramTimeAxisProperties.h"
+#include "RimMultiPlot.h"
+#include "RimPlotAxisLogRangeCalculator.h"
 #include "Tools/RimPlotAxisTools.h"
 
-// #include "RiuHistogramQwtPlot.h"
 #include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
-
-// #ifdef USE_QTCHARTS
-// #include "RiuHistogramQtChartsPlot.h"
-// #endif
-
-#include "cvfColor3.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
 
-#include "qwt_date.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_plot_textlabel.h"
 #include "qwt_text.h"
 
 #include <QDateTime>
@@ -97,6 +51,27 @@
 #include <cmath>
 #include <limits>
 #include <set>
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimHistogramPlot::FrequencyType>::setUp()
+{
+    addItem( RimHistogramPlot::FrequencyType::ABSOLUTE_FREQUENCY, "ABSOLUTE_FREQUENCY", "Absolute Frequency" );
+    addItem( RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY, "RELATIVE_FREQUENCY", "Relative Frequency" );
+    addItem( RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY_PERCENT, "RELATIVE_FREQUENCY_PERCENT", "Relative Frequency [%]" );
+    setDefault( RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY_PERCENT );
+}
+template <>
+void caf::AppEnum<RimHistogramPlot::GraphType>::setUp()
+
+{
+    addItem( RimHistogramPlot::GraphType::BAR_GRAPH, "BAR_GRAPH", "Bar Graph" );
+    addItem( RimHistogramPlot::GraphType::LINE_GRAPH, "LINE_GRAPH", "Line Graph" );
+    setDefault( RimHistogramPlot::GraphType::BAR_GRAPH );
+}
+
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimHistogramPlot, "HistogramPlot" );
 
@@ -130,6 +105,9 @@ RimHistogramPlot::RimHistogramPlot()
     auto rightAxis = addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
     rightAxis->setAlwaysRequired( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_histogramFrequencyType, "HistogramFrequencyType", "Frequency" );
+    CAF_PDM_InitFieldNoDefault( &m_graphType, "GraphType", "Graph Type" );
+
     CAF_PDM_InitFieldNoDefault( &m_fallbackPlotName, "AlternateName", "AlternateName" );
     m_fallbackPlotName.uiCapability()->setUiReadOnly( true );
     m_fallbackPlotName.uiCapability()->setUiHidden( true );
@@ -152,7 +130,6 @@ RimHistogramPlot::~RimHistogramPlot()
     deletePlotCurvesAndPlotWidget();
 
     delete m_histogramCurveCollection;
-    // delete m_ensembleCurveSetCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,7 +144,6 @@ void RimHistogramPlot::updateAxes()
 
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
-    // updateTimeAxis( timeAxisProperties() );
 
     updatePlotWidgetFromAxisRanges();
 }
@@ -1111,7 +1087,7 @@ void RimHistogramPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_showPlotLegends ) updateLegend();
 
-    if ( changedField == &m_normalizeCurveYValues )
+    if ( changedField == &m_normalizeCurveYValues || changedField == &m_histogramFrequencyType || changedField == &m_graphType )
     {
         loadDataAndUpdate();
     }
@@ -1180,25 +1156,12 @@ void RimHistogramPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
 {
     if ( !m_isValid ) return;
 
-    // bool isPlotEditor = ( uiConfigName == RicHistogramPlotEditorUi::CONFIGURATION_NAME );
-
-    // if ( !isPlotEditor ) uiTreeOrdering.add( &m_axisPropertiesArray );
+    uiTreeOrdering.add( &m_axisPropertiesArray );
 
     for ( auto& curve : m_histogramCurveCollection->curves() )
     {
         uiTreeOrdering.add( curve );
     }
-
-    // for ( auto& curveSet : m_ensembleCurveSetCollection->curveSets() )
-    // {
-    //     uiTreeOrdering.add( curveSet );
-    // }
-
-    // if ( !isPlotEditor )
-    // {
-    //     uiTreeOrdering.add( &m_gridTimeHistoryCurves );
-    //     uiTreeOrdering.add( &m_asciiDataCurves );
-    // }
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -1965,6 +1928,9 @@ void RimHistogramPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     mainOptions->add( &m_normalizeCurveYValues );
 
+    uiOrdering.add( &m_histogramFrequencyType );
+    uiOrdering.add( &m_graphType );
+
     if ( isMdiWindow() )
     {
         RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
@@ -2638,4 +2604,20 @@ void RimHistogramPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray
 void RimHistogramPlot::onUpdateCurveOrder()
 {
     //    m_histogramCurveCollection->updateCurveOrder();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimHistogramPlot::FrequencyType RimHistogramPlot::frequencyType() const
+{
+    return m_histogramFrequencyType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimHistogramPlot::GraphType RimHistogramPlot::graphType() const
+{
+    return m_graphType();
 }

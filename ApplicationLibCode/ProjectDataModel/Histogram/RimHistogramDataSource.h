@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimHistogramPlot.h"
+
 #include "cafPdmObject.h"
 #include "cafSignal.h"
 
@@ -35,11 +37,11 @@ public:
 
     caf::Signal<> dataSourceChanged;
 
-    virtual std::string         unitNameX() const = 0;
-    virtual std::vector<double> valuesX() const   = 0;
+    virtual std::string unitNameX() const = 0;
+    virtual std::string unitNameY() const = 0;
 
-    virtual std::string         unitNameY() const = 0;
-    virtual std::vector<double> valuesY() const   = 0;
+    virtual std::vector<double> valuesX( RimHistogramPlot::GraphType graphType ) const                                                = 0;
+    virtual std::vector<double> valuesY( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const = 0;
 
     virtual std::string name() const = 0;
 };

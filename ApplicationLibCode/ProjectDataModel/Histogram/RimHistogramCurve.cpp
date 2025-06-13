@@ -124,7 +124,10 @@ std::string RimHistogramCurve::unitNameX() const
 std::vector<double> RimHistogramCurve::valuesY() const
 {
     if ( m_dataSource )
-        return m_dataSource()->valuesY();
+    {
+        RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
+        return m_dataSource()->valuesY( plot->graphType(), plot->frequencyType() );
+    }
     else
         return {};
 }
@@ -135,7 +138,10 @@ std::vector<double> RimHistogramCurve::valuesY() const
 std::vector<double> RimHistogramCurve::valuesX() const
 {
     if ( m_dataSource )
-        return m_dataSource()->valuesX();
+    {
+        RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
+        return m_dataSource()->valuesX( plot->graphType() );
+    }
     else
         return {};
 }

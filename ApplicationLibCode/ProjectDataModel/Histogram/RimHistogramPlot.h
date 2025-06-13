@@ -36,31 +36,14 @@
 #include <memory>
 #include <vector>
 
-class PdmUiTreeOrdering;
-// class RimAsciiDataCurve;
-// class RimGridTimeHistoryCurve;
-// class RimHistogramAddress;
-// class RimHistogramAddressCollection;
-// class RimHistogramCase;
-// class RimHistogramEnsemble;
 class RimHistogramCurve;
 class RimHistogramCurveCollection;
-// class RimEnsembleCurveSet;
-// class RimEnsembleCurveSetCollection;
-// class RimHistogramCurveFilter_OBSOLETE;
-// class RimHistogramTimeAxisProperties;
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
-// class RiuHistogramQwtPlot;
-// class RimHistogramNameHelper;
-// class RimHistogramPlotNameHelper;
 class RimPlotTemplateFileItem;
-// class RimHistogramPlotSourceStepping;
-// class RimTimeAxisAnnotation;
-// class RiaHistogramCurveDefinition;
-// class RifEclipseHistogramAddress;
-// class RiaHistogramCurveAddress;
 class RimStackablePlotCurve;
+
+class PdmUiTreeOrdering;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -85,6 +68,19 @@ public:
     caf::Signal<bool>              autoTitleChanged;
 
 public:
+    enum class FrequencyType
+    {
+        ABSOLUTE_FREQUENCY,
+        RELATIVE_FREQUENCY,
+        RELATIVE_FREQUENCY_PERCENT
+    };
+
+    enum class GraphType
+    {
+        BAR_GRAPH,
+        LINE_GRAPH
+    };
+
     RimHistogramPlot();
     ~RimHistogramPlot() override;
 
@@ -94,26 +90,7 @@ public:
     void enableAutoPlotTitle( bool enable );
     bool autoPlotTitle() const;
 
-    // void addCurveAndUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis = true );
     void addCurveNoUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis = true );
-
-    // void insertCurve( RimHistogramCurve* curve, size_t insertAtPosition );
-
-    // void removeCurve( RimHistogramCurve* curve );
-
-    // void deleteCurve( RimHistogramCurve* curve );
-    // void deleteCurves( const std::vector<RimHistogramCurve*>& curves );
-
-    // void deleteCurvesAssosiatedWithCase( RimHistogramCase* histogramCase );
-
-    // RimEnsembleCurveSetCollection* ensembleCurveSetCollection() const;
-
-    // void addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve );
-    // void deleteUnlockedGridTimeHistoryCurves();
-
-    // std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves() const;
-
-    // void addAsciiDataCruve( RimAsciiDataCurve* curve );
 
     size_t curveCount() const;
 
@@ -135,16 +112,11 @@ public:
     QString asciiDataForPlotExport() const override;
     QString asciiDataForHistogramPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const;
 
-    // std::vector<RimHistogramCurve*>       histogramAndEnsembleCurves() const;
-    // std::set<RiaHistogramCurveDefinition> histogramAndEnsembleCurveDefinitions() const;
-    // std::vector<RimHistogramCurve*> histogramCurves() const;
-    // void                          deleteAllHistogramCurves();
-    // RimHistogramCurveCollection*          histogramCurveCollection() const;
+    FrequencyType frequencyType() const;
+    GraphType     graphType() const;
 
     void updatePlotTitle();
 
-    // const RimHistogramNameHelper* activePlotTitleHelperAllCurves() const;
-    // const RimHistogramNameHelper* plotTitleHelper() const;
     void updateCurveNames();
 
     // void copyAxisPropertiesFromOther( const RimHistogramPlot& sourceHistogramPlot );
@@ -178,12 +150,6 @@ public:
 
     void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
 
-    static constexpr int precision()
-    {
-        // Set precision to 8, as this is the precision used in histogram data in libEcl
-        return 8;
-    }
-
     // std::vector<RimHistogramCurve*>   curvesForStepping() const override;
     // std::vector<RimEnsembleCurveSet*> curveSets() const override;
     // std::vector<RimHistogramCurve*>   allCurves() const override;
@@ -197,17 +163,13 @@ public:
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 
-    // RimHistogramPlotSourceStepping* sourceStepper();
     void scheduleReplotIfVisible();
 
     void enableCurvePointTracking( bool enable );
-    // std::any valueForKey( std::string key ) const override;
 
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
-    // void initAfterRead() override;
-
     bool isDeletable() const override;
 
     // void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
@@ -247,16 +209,9 @@ private slots:
     void onUpdateCurveOrder();
 
 private:
-    // std::vector<RimHistogramCurve*>       visibleHistogramCurvesForAxis( RiuPlotAxis plotAxis ) const;
-    // std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiuPlotAxis plotAxis ) const;
-    // std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiuPlotAxis plotAxis ) const;
-    // bool                                  hasVisibleCurvesForAxis( RiuPlotAxis plotAxis ) const;
-
     void updateNumericalAxis( RiaDefines::PlotAxis plotAxis );
     void updateZoomForAxis( RimPlotAxisPropertiesInterface* axisProperties );
     void updateZoomForNumericalAxis( RimPlotAxisProperties* axisProperties );
-    // void updateTimeAxis( RimHistogramTimeAxisProperties* timeAxisProperties );
-    // void updateZoomForTimeAxis( RimHistogramTimeAxisProperties* timeAxisProperties );
 
     // void createAndSetCustomTimeAxisTickmarks( RimHistogramTimeAxisProperties* timeAxisProperties );
     // void overrideTimeAxisSettingsIfTooManyCustomTickmarks( RimHistogramTimeAxisProperties* timeAxisProperties, bool showMessageBox );
@@ -316,21 +271,16 @@ private:
     caf::PdmField<QString> m_description;
     caf::PdmField<QString> m_fallbackPlotName;
 
-    // caf::PdmChildArrayField<RimGridTimeHistoryCurve*>  m_gridTimeHistoryCurves;
     caf::PdmChildField<RimHistogramCurveCollection*> m_histogramCurveCollection;
-    // caf::PdmChildField<RimEnsembleCurveSetCollection*> m_ensembleCurveSetCollection;
-
-    // caf::PdmChildArrayField<RimAsciiDataCurve*> m_asciiDataCurves;
 
     caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisPropertiesArray;
 
+    caf::PdmField<caf::AppEnum<FrequencyType>> m_histogramFrequencyType;
+    caf::PdmField<caf::AppEnum<GraphType>>     m_graphType;
+
     std::unique_ptr<RiuPlotWidget> m_histogramPlot;
-    // std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
 
-    // std::unique_ptr<RimHistogramPlotNameHelper>         m_nameHelperAllCurves;
     // caf::PdmChildField<RimHistogramPlotSourceStepping*> m_sourceStepping;
-
-    // std::vector<RigHistogramData> m_histogramDataItems;
 
     bool                  m_isValid;
     RiuPlotWidget::Legend m_legendPosition;

@@ -18,6 +18,7 @@
 
 #include "RimEnsembleParameterHistogramDataSource.h"
 
+#include "Histogram/RimHistogramPlot.h"
 #include "RiaLogging.h"
 
 #include "RimProject.h"
@@ -142,7 +143,7 @@ std::string RimEnsembleParameterHistogramDataSource::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimEnsembleParameterHistogramDataSource::valuesX() const
+std::vector<double> RimEnsembleParameterHistogramDataSource::valuesX( RimHistogramPlot::GraphType graphType ) const
 {
     std::vector<double> values;
     if ( m_ensemble )
@@ -155,8 +156,16 @@ std::vector<double> RimEnsembleParameterHistogramDataSource::valuesX() const
             double binSize = ( max - min ) / m_numBins;
             for ( int i = 0; i < m_numBins; i++ )
             {
-                values.push_back( min + binSize * i );
-                values.push_back( min + binSize * ( i + 1 ) );
+                if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
+                {
+                    values.push_back( min + binSize * i );
+                    values.push_back( min + binSize * ( i + 1 ) );
+                }
+                else if ( graphType == RimHistogramPlot::GraphType::LINE_GRAPH )
+                {
+                    double centerOfBin = min + binSize * i + binSize / 2.0;
+                    values.push_back( centerOfBin );
+                }
             }
         }
     }
@@ -166,7 +175,8 @@ std::vector<double> RimEnsembleParameterHistogramDataSource::valuesX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimEnsembleParameterHistogramDataSource::valuesY() const
+std::vector<double> RimEnsembleParameterHistogramDataSource::valuesY( RimHistogramPlot::GraphType     graphType,
+                                                                      RimHistogramPlot::FrequencyType frequencyType ) const
 {
     if ( m_ensemble )
     {
@@ -192,11 +202,22 @@ std::vector<double> RimEnsembleParameterHistogramDataSource::valuesY() const
 
             RiaLogging::info( QString( "%1: P10=%2 Mean=%3 P90=%4" ).arg( QString::fromStdString( name() ) ).arg( p10 ).arg( p50 ).arg( p90 ) );
 
+            double sumElements = 0.0;
+            for ( double value : histogram )
+                sumElements += value;
+
             std::vector<double> frequencies;
             for ( size_t frequency : histogram )
             {
-                frequencies.push_back( static_cast<double>( frequency ) );
-                frequencies.push_back( static_cast<double>( frequency ) );
+                double value = frequency;
+                if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY ) value /= sumElements;
+                if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY_PERCENT ) value = value / sumElements * 100.0;
+
+                frequencies.push_back( value );
+                if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
+                {
+                    frequencies.push_back( value );
+                }
             }
             return frequencies;
         }
