@@ -18,11 +18,10 @@
 
 #include "RicNewHistogramCurveFeature.h"
 
-// #include "RiaColorTables.h"
+#include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 
-// #include "Histogram/RiaHistogramTools.h"
-// #include "RimHistogramCaseMainCollection.h"
+#include "Histogram/RimEnsembleParameterHistogramDataSource.h"
 #include "Histogram/RimHistogramCurve.h"
 #include "Histogram/RimHistogramCurveCollection.h"
 #include "Histogram/RimHistogramPlot.h"
@@ -60,15 +59,17 @@ void RicNewHistogramCurveFeature::onActionTriggered( bool isChecked )
     {
         RimHistogramCurve* newCurve = new RimHistogramCurve();
 
-        // Use same counting as RicNewHistogramEnsembleCurveSetFeature::onActionTriggered
-        // cvf::Color3f curveColor = RiaColorTables::histogramCurveDefaultPaletteColors().cycledColor3f( plot->singleColorCurveCount() );
-        // newCurve->setColor( curveColor );
+        auto dataSource = new RimEnsembleParameterHistogramDataSource();
+        newCurve->setDataSource( dataSource );
+
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( plot->curveCount() );
+        newCurve->setColor( curveColor );
+        newCurve->setIsStacked( true );
+        newCurve->setFillColor( curveColor );
 
         plot->addCurveNoUpdate( newCurve );
-        // newCurve->setHistogramCaseY( defaultCase );
 
         plot->loadDataAndUpdate();
-        // plot->histogramCurveCollection()->updateAllRequiredEditors();
 
         RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
         mainPlotWindow->updateMultiPlotToolBar();

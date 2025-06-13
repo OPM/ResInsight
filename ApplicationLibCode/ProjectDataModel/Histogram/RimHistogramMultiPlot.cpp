@@ -199,61 +199,25 @@ void RimHistogramMultiPlot::updateAfterPlotRemove()
     onPlotAdditionOrRemoval();
 }
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// std::vector<RimEnsembleCurveSet*> RimHistogramMultiPlot::curveSets() const
-// {
-//     std::vector<RimEnsembleCurveSet*> curveSets;
-
-//     for ( auto histogramPlot : histogramPlots() )
-//     {
-//         for ( auto curveSet : histogramPlot->curveSets() )
-//         {
-//             curveSets.push_back( curveSet );
-//         }
-//     }
-
-//     return curveSets;
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// std::vector<RimHistogramCurve*> RimHistogramMultiPlot::allCurves() const
-// {
-//     std::vector<RimHistogramCurve*> curves;
-
-//     for ( auto histogramPlot : histogramPlots() )
-//     {
-//         for ( auto curve : histogramPlot->allCurves() )
-//         {
-//             curves.push_back( curve );
-//         }
-//     }
-
-//     return curves;
-// }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimHistogramMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto axesGroup = uiOrdering.addNewGroup( "Axes" );
-    axesGroup->add( &m_axisRangeAggregation );
-    axesGroup->add( &m_linkSubPlotAxes );
-    axesGroup->add( &m_autoAdjustAppearance );
+    // auto axesGroup = uiOrdering.addNewGroup( "Axes" );
+    // axesGroup->add( &m_axisRangeAggregation );
+    // axesGroup->add( &m_linkSubPlotAxes );
+    // axesGroup->add( &m_autoAdjustAppearance );
 
     // auto readOutGroup = uiOrdering.addNewGroup( "Mouse Cursor Readout" );
     // m_readOutSettings->uiOrdering( uiConfigName, *readOutGroup );
 
-    auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
-    plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
-    plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
+    // auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
+    // plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
+    // plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
 
-    auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
-    dataSourceGroup->setCollapsedByDefault();
+    // auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
+    // dataSourceGroup->setCollapsedByDefault();
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
     titlesGroup->setCollapsedByDefault();
@@ -383,23 +347,22 @@ void RimHistogramMultiPlot::updatePlotTitles()
     {
         // populateNameHelper( m_nameHelper.get() );
 
-        // auto title = m_nameHelper->plotTitle();
+        QString title;
 
-        // if ( title.isEmpty() )
-        // {
-        //     auto collections = RimMainPlotCollection::current()->histogramMultiPlotCollection();
+        if ( title.isEmpty() )
+        {
+            auto collections = RimMainPlotCollection::current()->histogramMultiPlotCollection();
 
-        //     size_t index = 0;
-        //     for ( auto p : collections->multiPlots() )
-        //     {
-        //         index++;
-        //         if ( p == this ) break;
-        //     }
+            size_t index = 0;
+            for ( auto p : collections->histogramMultiPlots() )
+            {
+                index++;
+                if ( p == this ) break;
+            }
 
-        //     title = QString( "Plot %1" ).arg( index );
-        // }
+            title = QString( "Plot %1" ).arg( index );
+        }
 
-        QString title = "FIXME";
         setMultiPlotTitle( title );
     }
 

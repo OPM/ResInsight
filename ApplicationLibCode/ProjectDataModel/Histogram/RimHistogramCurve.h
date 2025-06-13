@@ -23,14 +23,10 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include "RiaDateTimeDefines.h"
-#include "RiaDefines.h"
-
 #include "RimStackablePlotCurve.h"
 
-#include "cafAppEnum.h"
-
 class RimPlotAxisPropertiesInterface;
+class RimHistogramDataSource;
 
 //==================================================================================================
 ///
@@ -91,6 +87,8 @@ public:
     // virtual bool isRegressionCurve() const;
     void updateLegendEntryVisibilityNoPlotUpdate() override;
 
+    void setDataSource( RimHistogramDataSource* dataSource );
+
 protected:
     // RimPlotCurve overrides
     QString createCurveAutoName() override;
@@ -118,6 +116,8 @@ protected:
 
     void hideXAxisGroup();
 
+    void onDataSourceChanged( const caf::SignalEmitter* emitter );
+
 private:
     // void calculateCurveInterpolationFromAddress();
     // void calculateCurveTypeFromAddress();
@@ -125,28 +125,8 @@ private:
     // static void appendOptionItemsForHistogramAddresses( QList<caf::PdmOptionItemInfo>* options, RimHistogramCase* histogramCase );
 
 private:
-    // Y values
-    // caf::PdmPtrField<RimHistogramCase*>                 m_yValuesHistogramCase;
-    // caf::PdmChildField<RimHistogramAddress*>            m_yValuesHistogramAddress;
-    // caf::PdmField<RifEclipseHistogramAddress>           m_yValuesHistogramAddressUiField;
-    // caf::PdmField<bool>                               m_yPushButtonSelectHistogramAddress;
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;
-    // caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_yValuesResampling;
-
-    // caf::PdmField<caf::AppEnum<RiaDefines::HistogramCurveTypeMode>>           m_yCurveTypeMode;
-    // caf::PdmField<caf::AppEnum<RifEclipseHistogramAddressDefines::CurveType>> m_yCurveType;
-
-    // X values
-    // caf::PdmField<caf::AppEnum<RiaDefines::HorizontalAxisType>> m_xAxisType;
-    // caf::PdmPtrField<RimHistogramCase*>                           m_xValuesHistogramCase;
-    // caf::PdmChildField<RimHistogramAddress*>                      m_xValuesHistogramAddress;
-    // caf::PdmField<RifEclipseHistogramAddress>                     m_xValuesHistogramAddressUiField;
-    // caf::PdmField<bool>                                         m_xPushButtonSelectHistogramAddress;
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_xPlotAxisProperties;
 
-    // caf::PdmChildField<RimHistogramCurveAutoName*>      m_curveNameConfig;
-    // caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
-    // caf::PdmField<bool>                               m_isTopZWithinCategory;
-
-    // bool m_showXAxisGroup = true;
+    caf::PdmChildField<RimHistogramDataSource*> m_dataSource;
 };

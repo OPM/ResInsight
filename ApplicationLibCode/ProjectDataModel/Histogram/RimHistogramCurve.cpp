@@ -18,43 +18,20 @@
 
 #include "RimHistogramCurve.h"
 
-#include "RiaColorTables.h"
-#include "RiaCurveMerger.h"
 #include "RiaGuiApplication.h"
-#include "RiaLogging.h"
 #include "RiaPlotDefines.h"
-// #include "RiaPreferencesHistogram.h"
-#include "RiaQDateTimeTools.h"
-#include "RiaResultNames.h"
 
-#include "RimEclipseResultCase.h"
+#include "RimHistogramDataSource.h"
 #include "RimHistogramPlot.h"
-#// include "RimEnsembleCurveSet.h"
-// #include "RimEnsembleCurveSetCollection.h"
-// #
-// include "RimMultipleHistogramPlotNameHelper.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
-// #include "RimHistogramAddress.h"
-// #include "RimHistogramCalculationCollection.h"
-// #include "RimHistogramCase.h"
-// #include "RimHistogramCurveAutoName.h"
-// #include "RimHistogramCurveCollection.h"
-// #include "RimHistogramEnsemble.h"
-// #include "RimHistogramMultiPlot.h"
-// #include "RimHistogramPlot.h"
-// #include "RimHistogramTimeAxisProperties.h"
 #include "RimTools.h"
 
 #include "RiuPlotAxis.h"
+#include "RiuPlotCurve.h"
 #include "RiuPlotMainWindow.h"
-#include "RiuQwtPlotCurve.h"
-// #include "RiuHistogramVectorSelectionDialog.h"
 
 #include "cafAssert.h"
-#include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimHistogramCurve, "HistogramCurve" );
@@ -66,12 +43,9 @@ RimHistogramCurve::RimHistogramCurve()
 {
     CAF_PDM_InitObject( "Histogram Curve", ":/SummaryCurve16x16.png" );
 
-    // Y Values
-
-    // X Values
-
-    CAF_PDM_InitFieldNoDefault( &m_yPlotAxisProperties, "Axis", "Axis" );
-    CAF_PDM_InitFieldNoDefault( &m_xPlotAxisProperties, "XAxis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_yPlotAxisProperties, "YAxis", "Y Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_xPlotAxisProperties, "XAxis", "X Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_dataSource, "DataSource", "Data Source" );
 
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );
@@ -100,6 +74,20 @@ RimHistogramCurve::~RimHistogramCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::setDataSource( RimHistogramDataSource* dataSource )
+{
+    m_dataSource = dataSource;
+
+    if ( m_dataSource )
+    {
+        m_dataSource->uiCapability()->setUiTreeHidden( true );
+        m_dataSource->dataSourceChanged.connect( this, &RimHistogramCurve::onDataSourceChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimHistogramCurve::axisX() const
 {
     if ( m_xPlotAxisProperties )
@@ -113,10 +101,10 @@ RiuPlotAxis RimHistogramCurve::axisX() const
 //--------------------------------------------------------------------------------------------------
 std::string RimHistogramCurve::unitNameY() const
 {
-    // RifHistogramReaderInterface* reader = valuesHistogramReaderY();
-    // if ( reader ) return reader->unitName( histogramAddressY() );
-
-    return "unit y";
+    if ( m_dataSource )
+        return m_dataSource()->unitNameY();
+    else
+        return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,10 +112,10 @@ std::string RimHistogramCurve::unitNameY() const
 //--------------------------------------------------------------------------------------------------
 std::string RimHistogramCurve::unitNameX() const
 {
-    // RifHistogramReaderInterface* reader = valuesHistogramReaderX();
-    // if ( reader ) return reader->unitName( histogramAddressX() );
-
-    return "unit x";
+    if ( m_dataSource )
+        return m_dataSource()->unitNameX();
+    else
+        return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,82 +123,22 @@ std::string RimHistogramCurve::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimHistogramCurve::valuesY() const
 {
-    // RifHistogramReaderInterface* reader = valuesHistogramReaderY();
-
-    // if ( !reader ) return {};
-
-    // RifEclipseHistogramAddress addr = m_yValuesHistogramAddress()->address();
-
-    // auto [isOk, values] = reader->values( addr );
-    // if ( values.empty() ) return values;
-
-    // RimHistogramPlot* plot         = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
-    // bool              isNormalized = plot->isNormalizationEnabled();
-    // if ( isNormalized )
-    // {
-    //     auto   minMaxPair = std::minmax_element( values.begin(), values.end() );
-    //     double min        = *minMaxPair.first;
-    //     double max        = *minMaxPair.second;
-    //     double range      = max - min;
-
-    //     for ( double& v : values )
-    //     {
-    //         v = ( v - min ) / range;
-    //     }
-    // }
-
-    std::vector<double> values = { 1.2, 3.4, 5.6, 7.4, 9.9 };
-
-    return values;
+    if ( m_dataSource )
+        return m_dataSource()->valuesY();
+    else
+        return {};
 }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// std::vector<double> RimHistogramCurve::errorValuesY() const
-// {
-//     RifHistogramReaderInterface* reader = valuesHistogramReaderY();
-//     if ( !reader ) return {};
-
-//     RifEclipseHistogramAddress addr = errorHistogramAddressY();
-//     if ( !reader->hasAddress( addr ) ) return {};
-
-//     auto [isOk, values] = reader->values( addr );
-//     return values;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimHistogramCurve::valuesX() const
 {
-    std::vector<double> values = { 1.2, 3.4, 5.6, 7.4, 9.9 };
-    return values;
+    if ( m_dataSource )
+        return m_dataSource()->valuesX();
+    else
+        return {};
 }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// RifEclipseHistogramAddressDefines::CurveType RimHistogramCurve::curveType() const
-// {
-//     return m_yCurveType();
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramCurve::setAxisTypeX( RiaDefines::HorizontalAxisType axisType )
-// {
-//     m_xAxisType = axisType;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// RiaDefines::HorizontalAxisType RimHistogramCurve::axisTypeX() const
-// {
-//     return m_xAxisType();
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -233,15 +161,6 @@ RiuPlotAxis RimHistogramCurve::axisY() const
     else
         return RiuPlotAxis::defaultLeft();
 }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// bool RimHistogramCurve::isEnsembleCurve() const
-// {
-//     auto curveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
-//     return curveSet != nullptr;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -291,28 +210,12 @@ QList<caf::PdmOptionItemInfo> RimHistogramCurve::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 QString RimHistogramCurve::createCurveAutoName()
 {
-    // const RimHistogramNameHelper*              currentPlotNameHelper = nullptr;
-    // std::vector<const RimHistogramNameHelper*> plotNameHelpers;
-    // {
-    //     auto plot = firstAncestorOrThisOfType<RimHistogramPlot>();
-    //     if ( plot )
-    //     {
-    //         currentPlotNameHelper = plot->plotTitleHelper();
-    //         if ( currentPlotNameHelper ) plotNameHelpers.push_back( currentPlotNameHelper );
-    //     }
-    // }
-    // {
-    //     RimHistogramMultiPlot* histogramMultiPlot = firstAncestorOrThisOfType<RimHistogramMultiPlot>();
-    //     if ( histogramMultiPlot )
-    //     {
-    //         auto nameHelper = histogramMultiPlot->nameHelper();
-    //         if ( nameHelper ) plotNameHelpers.push_back( nameHelper );
-    //     }
-    // }
+    QString curveName = "";
+    if ( m_dataSource )
+    {
+        curveName = QString::fromStdString( m_dataSource->name() );
+    }
 
-    // RimMultiHistogramPlotNameHelper multiNameHelper( plotNameHelpers );
-
-    QString curveName = "auto name"; // m_curveNameConfig->curveName( curveAddress(), currentPlotNameHelper, &multiNameHelper );
     if ( curveName.isEmpty() )
     {
         curveName = "Curve Name Placeholder";
@@ -585,26 +488,22 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 {
     RimPlotCurve::updateFieldUiState();
 
+    if ( m_dataSource )
     {
-        QString          curveDataGroupName = "Histogram Vector";
-        caf::PdmUiGroup* curveDataGroup     = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "curveDataGroupName" );
-        curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
-
-        // caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Properties" );
-        // detailGroup->setCollapsedByDefault();
-        // // detailGroup->add( &m_yCurveTypeMode );
-        // // detailGroup->add( &m_yCurveType );
-        // m_yCurveType.uiCapability()->setUiReadOnly( m_yCurveTypeMode() == RiaDefines::HistogramCurveTypeMode::AUTO );
+        caf::PdmUiGroup* dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
+        m_dataSource->uiOrdering( uiConfigName, *dataSourceGroup );
     }
 
-    // if ( m_showXAxisGroup )
     // {
-    //     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Histogram Vector X Axis" );
-    //     curveDataGroup->add( &m_xAxisType, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
-    //     curveDataGroup->add( &m_xValuesHistogramCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
-    //     curveDataGroup->add( &m_xValuesHistogramAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-    //     curveDataGroup->add( &m_xPushButtonSelectHistogramAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
-    //     curveDataGroup->add( &m_xPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+    //     QString          curveDataGroupName = "Histogram Vector";
+    //     caf::PdmUiGroup* curveDataGroup     = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "curveDataGroupName" );
+    //     curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+
+    //     // caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Properties" );
+    //     // detailGroup->setCollapsedByDefault();
+    //     // // detailGroup->add( &m_yCurveTypeMode );
+    //     // // detailGroup->add( &m_yCurveType );
+    //     // m_yCurveType.uiCapability()->setUiReadOnly( m_yCurveTypeMode() == RiaDefines::HistogramCurveTypeMode::AUTO );
     // }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
@@ -625,33 +524,6 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 
     uiOrdering.skipRemainingFields();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramCurve::appendOptionItemsForHistogramAddresses( QList<caf::PdmOptionItemInfo>* options, RimHistogramCase* histogramCase )
-// {
-//     if ( histogramCase )
-//     {
-//         RifHistogramReaderInterface* reader = histogramCase->histogramReader();
-//         if ( reader )
-//         {
-//             const std::set<RifEclipseHistogramAddress> allAddresses = reader->allResultAddresses();
-
-//             for ( auto& address : allAddresses )
-//             {
-//                 if ( address.isErrorResult() ) continue;
-
-//                 std::string name = address.uiText();
-//                 QString     s    = QString::fromStdString( name );
-//                 options->push_back( caf::PdmOptionItemInfo( s, QVariant::fromValue( address ) ) );
-//             }
-//         }
-
-//         options->push_front(
-//             caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), QVariant::fromValue( RifEclipseHistogramAddress() ) ) );
-//     }
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -890,4 +762,12 @@ bool RimHistogramCurve::canCurveBeAttached() const
     // if ( ensembleCurveSet ) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
 
     return isVisibleInPossibleParent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::onDataSourceChanged( const caf::SignalEmitter* emitter )
+{
+    loadAndUpdateDataAndPlot();
 }
