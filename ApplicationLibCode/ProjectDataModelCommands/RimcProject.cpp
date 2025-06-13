@@ -114,7 +114,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_summaryCase, "summaryC
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
-    : PdmObjectCreationMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );

@@ -46,7 +46,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimProject_summaryCase : public caf::PdmObjectCreationMethod
+class RimProject_summaryCase : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
