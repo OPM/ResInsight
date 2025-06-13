@@ -22,6 +22,16 @@
 
 #include <ctime>
 
+namespace RiaCurveDefines
+{
+enum class InterpolationMethod
+{
+    STEP_LEFT,
+    STEP_RIGHT,
+    LINEAR
+};
+}
+
 template <typename XValueType>
 class XValueComparator
 {
@@ -39,7 +49,8 @@ class RiaCurveMerger
 {
 public:
     using XComparator = XValueComparator<XValueType>;
-    RiaCurveMerger();
+
+    RiaCurveMerger( RiaCurveDefines::InterpolationMethod method );
 
     void   addCurveData( const std::vector<XValueType>& xValues, const std::vector<double>& yValues );
     size_t curveCount() const;
@@ -63,8 +74,10 @@ public:
 public:
     // Helper methods, available as public to be able to access from unit tests
 
-    static double
-        interpolatedYValue( const XValueType& xValue, const std::vector<XValueType>& curveXValues, const std::vector<double>& curveYValues );
+    static double interpolatedYValue( const XValueType&                    xValue,
+                                      const std::vector<XValueType>&       curveXValues,
+                                      const std::vector<double>&           curveYValues,
+                                      RiaCurveDefines::InterpolationMethod interpolationMethod );
 
 private:
     void        computeUnionOfXValues( bool includeValuesFromPartialCurves );
@@ -78,8 +91,9 @@ private:
     std::vector<XValueType>          m_allXValues;
     std::vector<std::vector<double>> m_interpolatedValuesForAllCurves;
 
-    bool m_isXValuesSharedBetweenCurves;
-    bool m_isXValuesMonotonicallyIncreasing;
+    bool                                 m_isXValuesSharedBetweenCurves;
+    bool                                 m_isXValuesMonotonicallyIncreasing;
+    RiaCurveDefines::InterpolationMethod m_interpolationMethod;
 };
 
 using RiaTimeHistoryCurveMerger = RiaCurveMerger<time_t>;

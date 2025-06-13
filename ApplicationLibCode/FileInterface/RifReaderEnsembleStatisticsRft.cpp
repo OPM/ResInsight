@@ -220,7 +220,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const QString& wellNam
         // The TVD values is extracted from the first summary case
 
         RifEclipseRftAddress              mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::MD );
-        RiaCurveMerger<double>            curveMerger;
+        RiaCurveMerger<double>            curveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
         RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
 
         for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
@@ -247,7 +247,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const QString& wellNam
         // Compute statistics based on TVD depths. No measured depth can be estimated.
         // This concept works well for vertical wells, but does not work for horizontal wells.
 
-        RiaCurveMerger<double>            curveMerger;
+        RiaCurveMerger<double>            curveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
         RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
         RifEclipseRftAddress              tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
 

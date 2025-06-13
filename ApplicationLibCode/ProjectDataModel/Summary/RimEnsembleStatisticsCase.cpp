@@ -157,7 +157,9 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     // The last time step for the individual realizations in an ensemble is usually identical. Add a small threshold to improve robustness.
     const auto timeThreshold = RiaSummaryTools::calculateTimeThreshold( minTime, maxTime );
 
-    RiaTimeHistoryCurveMerger curveMerger;
+    auto                      interpolationMethod = inputAddress.hasAccumulatedData() ? RiaCurveDefines::InterpolationMethod::LINEAR
+                                                                                      : RiaCurveDefines::InterpolationMethod::STEP_RIGHT;
+    RiaTimeHistoryCurveMerger curveMerger( interpolationMethod );
     for ( const auto& sumCase : summaryCases )
     {
         const auto& reader = sumCase->summaryReader();
