@@ -631,7 +631,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
                 else
                 {
-                    RiaTimeHistoryCurveMerger curveMerger;
+                    RiaTimeHistoryCurveMerger curveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
                     curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
                     curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
 
@@ -1258,7 +1258,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         if ( !curveValuesX.empty() && !curveValuesY.empty() )
         {
-            RiaTimeHistoryCurveMerger curveMerger;
+            RiaTimeHistoryCurveMerger curveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
             curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
             curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
 

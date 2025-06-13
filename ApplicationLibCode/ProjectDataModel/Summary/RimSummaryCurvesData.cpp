@@ -156,8 +156,8 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
 
     std::vector<RimSummaryCurvesData> exportData( 2 );
 
-    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::DATA_DECIDES, summaryCurvesData, &exportData[0] );
-    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::PERIOD_END, gridCurvesData, &exportData[1] );
+    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, summaryCurvesData, &exportData[0] );
+    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, gridCurvesData, &exportData[1] );
 
     RimSummaryCurvesData::appendToExportData( out, exportData, showTimeAsLongString );
 
@@ -279,7 +279,6 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePeriod  period,
-                                                       ResampleAlgorithm           algorithm,
                                                        const RimSummaryCurvesData& inputCurvesData,
                                                        RimSummaryCurvesData*       resultCurvesData )
 {
