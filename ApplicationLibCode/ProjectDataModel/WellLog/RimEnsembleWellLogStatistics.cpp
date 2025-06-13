@@ -85,8 +85,8 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFil
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFile*>& wellLogFiles, const QString& wellLogChannelName )
 {
-    RiaCurveMerger<double> curveMerger;
-    RiaCurveMerger<double> tvdCurveMerger;
+    RiaCurveMerger<double> curveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
+    RiaCurveMerger<double> tvdCurveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
 
     RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
 
