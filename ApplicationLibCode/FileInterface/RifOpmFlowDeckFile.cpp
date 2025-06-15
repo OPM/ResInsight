@@ -27,6 +27,7 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/D.hpp"
 
 #include <format>
+#include <memory>
 #include <optional>
 
 namespace internal
@@ -112,7 +113,7 @@ bool RifOpmFlowDeckFile::loadDeck( std::string filename )
 
     auto deck = Opm::Parser{}.parseFile( filename, defaultParseContext(), errors );
 
-    m_fileDeck.reset( new Opm::FileDeck( deck ) );
+    m_fileDeck = std::make_unique<Opm::FileDeck>( deck );
 
     return true;
 }
