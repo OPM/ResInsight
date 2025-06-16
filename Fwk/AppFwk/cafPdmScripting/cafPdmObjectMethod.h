@@ -64,23 +64,28 @@ class PdmObjectMethod : public PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    PdmObjectMethod( PdmObjectHandle* self );
+    enum class NullPointerType
+    {
+        NULL_IS_VALID,
+        NULL_IS_INVALID
+    };
+    enum class ResultType
+    {
+        PERSISTENT_TRUE,
+        PERSISTENT_FALSE
+    };
+
+public:
+    PdmObjectMethod( PdmObjectHandle* self, NullPointerType nullPointerType, ResultType resultType );
 
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual std::expected<caf::PdmObjectHandle*, QString> execute() = 0;
 
-    // Some execute() methods can return a null pointer as a valid return value.
-    // Return true here to allow this
-    virtual bool isNullptrValidResult() const { return false; }
+    virtual QString selfClassKeyword() const;
+    virtual QString classKeywordReturnedType() const = 0;
 
-    virtual QString selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
-
-    // True if object is a persistent project tree item. False if the object is to be deleted on completion.
-    virtual bool resultIsPersistent() const = 0;
-
-    // In order for the code generators to inspect the fields in the result object any PdmObjectMethod
-    // ... need to provide an implementation that returns the same object type as the execute method.
-    virtual std::unique_ptr<PdmObjectHandle> defaultResult() const = 0;
+    bool isNullptrValidResult() const;
+    bool resultIsPersistent() const;
 
 protected:
     // Basically the "this" pointer to the object the method belongs to
@@ -95,6 +100,30 @@ protected:
 private:
     friend class PdmObjectScriptingCapability;
     PdmPointer<PdmObjectHandle> m_self;
+
+    NullPointerType m_nullPointerType = NullPointerType::NULL_IS_VALID;
+    ResultType      m_resultType      = ResultType::PERSISTENT_TRUE;
+};
+
+// This is a method that does not return anything, i.e. it returns a nullptr as the result object
+class PdmVoidObjectMethod : public PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    PdmVoidObjectMethod( PdmObjectHandle* self );
+
+    QString classKeywordReturnedType() const override final;
+};
+
+// This is a method that creates a new Pdm object and returns it as the result object
+// The object is persistent, i.e. it is stored in the project tree, and must not be deleted by the caller
+class PdmObjectCreationMethod : public PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    PdmObjectCreationMethod( PdmObjectHandle* self );
 };
 
 //==================================================================================================

@@ -35,9 +35,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimStimPlanModelPlotCollection,
 ///
 //--------------------------------------------------------------------------------------------------
 RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::RimcStimPlanModelPlotCollection_appendStimPlanModelPlot( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model", "", "", "Create a new StimPlan Model" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModel, "StimPlanModel", "", "", "", "StimPlan Model" );
 }
 
@@ -60,15 +61,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcStimPlanModelPlotCollection_ap
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::resultIsPersistent() const
+QString RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModelPlot );
+    return RimStimPlanModelPlot::classKeywordStatic();
 }

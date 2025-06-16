@@ -40,9 +40,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellLogPlotCollection, RimcWellLogPlotColl
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellLogPlotCollection_newWellLogPlot::RimcWellLogPlotCollection_newWellLogPlot( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Well Log Plot", "", "", "Create a new well log plot" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "", "", "", "Case" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
 
@@ -89,15 +90,7 @@ RimWellLogPlot* RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellLogPlotCollection_newWellLogPlot::resultIsPersistent() const
+QString RimcWellLogPlotCollection_newWellLogPlot::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellLogPlotCollection_newWellLogPlot::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellLogPlot );
+    return RimWellLogPlot::classKeywordStatic();
 }

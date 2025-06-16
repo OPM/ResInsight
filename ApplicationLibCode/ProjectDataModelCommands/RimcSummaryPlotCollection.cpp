@@ -41,9 +41,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryPlotCollection, RimcSummaryPlotColl
 ///
 //--------------------------------------------------------------------------------------------------
 RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Summary Plot", "", "", "Create a new Summary Plot" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_summaryCases, "SummaryCases", "", "", "", "Summary Cases" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_ensemble, "Ensemble", "", "", "", "Ensemble" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address string specifying the plot options" );
@@ -93,15 +94,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSummaryPlotCollection_newSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSummaryPlotCollection_newSummaryPlot::resultIsPersistent() const
+QString RimcSummaryPlotCollection_newSummaryPlot::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSummaryPlotCollection_newSummaryPlot::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimSummaryPlot );
+    return RimSummaryPlot::classKeywordStatic();
 }

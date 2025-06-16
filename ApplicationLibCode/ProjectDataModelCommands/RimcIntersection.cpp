@@ -179,9 +179,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection, RimcExtrudedCur
 ///
 //--------------------------------------------------------------------------------------------------
 RimcExtrudedCurveIntersection_geometry::RimcExtrudedCurveIntersection_geometry( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Intersection Geometry" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "GeometryType", "Geometry Type" );
 }
 
@@ -238,17 +239,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcExtrudedCurveIntersection_geometry::resultIsPersistent() const
+QString RimcExtrudedCurveIntersection_geometry::classKeywordReturnedType() const
 {
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcExtrudedCurveIntersection_geometry::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcTriangleGeometry );
+    return RimcTriangleGeometry::classKeywordStatic();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,9 +281,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection, RimcExtrudedCur
 ///
 //--------------------------------------------------------------------------------------------------
 RimcExtrudedCurveIntersection_geometryResult::RimcExtrudedCurveIntersection_geometryResult( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Geometry Result" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "GeometryType", "Geometry Type" );
 }
 
@@ -341,15 +335,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcExtrudedCurveIntersection_geom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcExtrudedCurveIntersection_geometryResult::resultIsPersistent() const
+QString RimcExtrudedCurveIntersection_geometryResult::classKeywordReturnedType() const
 {
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcExtrudedCurveIntersection_geometryResult::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerDouble );
+    return RimcDataContainerDouble::classKeywordStatic();
 }

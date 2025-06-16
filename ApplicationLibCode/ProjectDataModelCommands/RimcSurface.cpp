@@ -15,11 +15,11 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimcSurface.h"
 
 #include "RimCase.h"
 #include "RimSurface.h"
-#include "RimcDataContainerString.h"
 
 #include "Surface/RigSurface.h"
 
@@ -36,9 +36,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurface, RimcSurface_exportToFile, "Export
 ///
 //--------------------------------------------------------------------------------------------------
 RimcSurface_exportToFile::RimcSurface_exportToFile( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export Surface To file", "", "", "Export a surface to file" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Filename to export surface to" );
 }
 
@@ -54,6 +55,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurface_exportToFile::execute(
     }
 
     RigSurface* surfaceData = surface->surfaceData();
+    if ( !surfaceData )
+    {
+        return std::unexpected( "No surface data found" );
+    }
 
     if ( !RifSurfaceExporter::writeGocadTSurfFile( m_fileName(),
                                                    surface->userDescription(),
@@ -63,31 +68,5 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurface_exportToFile::execute(
         return std::unexpected( QString( "Failed to write surface to file: '%1'" ).arg( m_fileName() ) );
     }
 
-    auto dataObject            = new RimcDataContainerString();
-    dataObject->m_stringValues = { m_fileName() };
-    return dataObject;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcSurface_exportToFile::resultIsPersistent() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSurface_exportToFile::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcSurface_exportToFile::isNullptrValidResult() const
-{
-    return true;
+    return nullptr;
 }

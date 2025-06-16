@@ -38,9 +38,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_summaryVectorV
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase_summaryVectorValues::RimSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Summary Vector Values", "", "", "Get all values for a summary vector" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
 }
 
@@ -69,17 +70,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_summaryVectorValues
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_summaryVectorValues::resultIsPersistent() const
+QString RimSummaryCase_summaryVectorValues::classKeywordReturnedType() const
 {
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_summaryVectorValues::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerDouble );
+    return RimcDataContainerDouble::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableAddresses, "availableAddresses" );
@@ -88,7 +81,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableAddre
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase_availableAddresses::RimSummaryCase_availableAddresses( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Available Addresses" );
 }
@@ -121,17 +114,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_availableAddresses:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_availableAddresses::resultIsPersistent() const
+QString RimSummaryCase_availableAddresses::classKeywordReturnedType() const
 {
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_availableAddresses::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString );
+    return RimcDataContainerString::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableTimeSteps, "availableTimeSteps" );
@@ -140,7 +125,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableTimeS
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase_availableTimeSteps::RimSummaryCase_availableTimeSteps( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Available TimeSteps" );
 }
@@ -166,17 +151,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_availableTimeSteps:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_availableTimeSteps::resultIsPersistent() const
+QString RimSummaryCase_availableTimeSteps::classKeywordReturnedType() const
 {
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_availableTimeSteps::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerTime );
+    return RimcDataContainerTime::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_resampleValues, "resampleValues" );
@@ -185,9 +162,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_resampleValues
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Resample Values" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resamplingPeriod, "ResamplingPeriod", "", "", "", "Resampling Period" );
@@ -239,17 +217,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_resampleValues::exe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_resampleValues::resultIsPersistent() const
+QString RimSummaryCase_resampleValues::classKeywordReturnedType() const
 {
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_resampleValues::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimcSummaryResampleData );
+    return RimcSummaryResampleData::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_setSummaryVectorValues, "setSummaryValues" );
@@ -258,7 +228,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_setSummaryVect
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase_setSummaryVectorValues::RimSummaryCase_setSummaryVectorValues( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Set Summary Values" );
 
@@ -300,28 +270,4 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_setSummaryVectorVal
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_setSummaryVectorValues::resultIsPersistent() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_setSummaryVectorValues::defaultResult() const
-{
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryCase_setSummaryVectorValues::isNullptrValidResult() const
-{
-    return true;
 }

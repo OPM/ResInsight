@@ -39,9 +39,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
 ///
 //--------------------------------------------------------------------------------------------------
 RimcFractureTemplateCollection_appendFractureTemplate::RimcFractureTemplateCollection_appendFractureTemplate( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new StimPlan Fracture Template" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path to StimPlan Countour File" );
 }
 
@@ -65,17 +66,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_app
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplateCollection_appendFractureTemplate::resultIsPersistent() const
+QString RimcFractureTemplateCollection_appendFractureTemplate::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_appendFractureTemplate::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanFractureTemplate );
+    return RimStimPlanFractureTemplate::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
@@ -86,9 +79,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
 ///
 //--------------------------------------------------------------------------------------------------
 RimcFractureTemplateCollection_appendThermalFractureTemplate::RimcFractureTemplateCollection_appendThermalFractureTemplate( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new Thermal Fracture Template" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path to Thermal Fracture CSV File" );
 }
 
@@ -112,15 +106,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFractureTemplateCollection_app
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplateCollection_appendThermalFractureTemplate::resultIsPersistent() const
+QString RimcFractureTemplateCollection_appendThermalFractureTemplate::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_appendThermalFractureTemplate::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimThermalFractureTemplate );
+    return RimThermalFractureTemplate::classKeywordStatic();
 }

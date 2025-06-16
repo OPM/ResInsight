@@ -30,7 +30,7 @@ class RimStimPlanModel;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcStimPlanModel_exportToFile : public caf::PdmObjectMethod
+class RimcStimPlanModel_exportToFile : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -38,9 +38,6 @@ public:
     RimcStimPlanModel_exportToFile( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
-    bool                                          isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_directoryPath;

@@ -29,7 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcPolygonCollection_createPolygon : public caf::PdmObjectMethod
+class RimcPolygonCollection_createPolygon : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,8 +37,7 @@ public:
     RimcPolygonCollection_createPolygon( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    bool                                          resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle>              defaultResult() const override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<QString>                 m_name;

@@ -29,7 +29,8 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimIdenticalGridCaseGroup, RimcIdenticalGridC
 ///
 //--------------------------------------------------------------------------------------------------
 RimcIdenticalGridCaseGroup_createStatisticsCase::RimcIdenticalGridCaseGroup_createStatisticsCase( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
+
 {
 }
 
@@ -49,15 +50,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcIdenticalGridCaseGroup_createS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcIdenticalGridCaseGroup_createStatisticsCase::resultIsPersistent() const
+QString RimcIdenticalGridCaseGroup_createStatisticsCase::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcIdenticalGridCaseGroup_createStatisticsCase::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimEclipseStatisticsCase );
+    return RimEclipseStatisticsCase::classKeywordStatic();
 }

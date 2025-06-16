@@ -31,9 +31,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimPolygonCollection, RimcPolygonCollection_c
 ///
 //--------------------------------------------------------------------------------------------------
 RimcPolygonCollection_createPolygon::RimcPolygonCollection_createPolygon( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Create and Add New Polygon", "", "", "Create and Add New Polygon" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinates, "Coordinates", "Coordinates" );
 }
@@ -65,15 +66,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPolygonCollection_createPolygo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcPolygonCollection_createPolygon::resultIsPersistent() const
+QString RimcPolygonCollection_createPolygon::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcPolygonCollection_createPolygon::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimPolygon );
+    return RimPolygon::classKeywordStatic();
 }

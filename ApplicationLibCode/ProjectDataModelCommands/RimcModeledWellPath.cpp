@@ -34,9 +34,10 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimModeledWellPath, RimcModeledWellPath_appen
 ///
 //--------------------------------------------------------------------------------------------------
 RimcModeledWellPath_appendLateral::RimcModeledWellPath_appendLateral( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Append Well Path Lateral", "", "", "Append Well Path Lateral" );
+
     CAF_PDM_InitScriptableField( &m_tieInDepth, "TieInDepth", 0.0, "", "", "", "Measured Depth on the Parent Well Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_lateralName, "LateralName", "", "", "", "Lateral Name" );
 }
@@ -61,15 +62,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcModeledWellPath_appendLateral:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcModeledWellPath_appendLateral::resultIsPersistent() const
+QString RimcModeledWellPath_appendLateral::classKeywordReturnedType() const
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcModeledWellPath_appendLateral::defaultResult() const
-{
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimModeledWellPath );
+    return RimModeledWellPath::classKeywordStatic();
 }
