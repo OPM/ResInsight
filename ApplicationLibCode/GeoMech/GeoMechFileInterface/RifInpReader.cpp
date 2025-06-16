@@ -591,7 +591,7 @@ std::vector<double> RifInpReader::frameTimes( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 int RifInpReader::frameCount( int stepIndex ) const
 {
-    return static_cast<int>(frameTimes( stepIndex ).size());
+    return static_cast<int>( frameTimes( stepIndex ).size() );
 }
 
 //--------------------------------------------------------------------------------------------------
