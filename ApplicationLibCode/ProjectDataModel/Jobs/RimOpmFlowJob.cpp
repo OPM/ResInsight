@@ -706,7 +706,7 @@ void RimOpmFlowJob::onCompleted( bool success )
             QString pattern   = m_workDir().path() + "/run-*/" + baseDeckName() + "-*";
             auto    fileSet   = RimEnsembleFileSetTools::createEnsembleFileSetFromOpm( pattern, name() );
             auto    ensembles = RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( { fileSet } );
-            if ( ensembles.size() > 0 )
+            if ( !ensembles.empty() )
             {
                 m_summaryEnsemble = ensembles[0];
             }
