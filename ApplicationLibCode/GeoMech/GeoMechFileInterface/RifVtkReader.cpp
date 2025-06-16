@@ -142,7 +142,7 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
 
         std::map<int, int> nodeIdToIdxMap;
 
-        int nodeCount = partNodes.size();
+        int nodeCount = static_cast<int>( partNodes.size() );
         femPart->nodes().nodeIds.resize( nodeCount );
         femPart->nodes().coordinates.resize( nodeCount );
 
@@ -160,7 +160,7 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
         // Extract elements
         std::vector<std::pair<int, std::vector<int>>> partElements = elements[partId];
 
-        int elmCount = partElements.size();
+        int elmCount = static_cast<int>( partElements.size() );
         femPart->preAllocateElementStorage( elmCount );
 
         std::vector<int> indexBasedConnectivities;
@@ -274,7 +274,7 @@ std::expected<RigElementType, std::string>
         if ( isFirst )
         {
             std::vector<std::pair<int, cvf::Vec3d>> partNodes;
-            for ( size_t i = 0; i < vertices.size(); i++ )
+            for ( int i = 0; i < static_cast<int>( vertices.size() ); i++ )
             {
                 partNodes.push_back( { i, vertices[i] } );
             }
@@ -284,7 +284,7 @@ std::expected<RigElementType, std::string>
             std::vector<std::pair<int, std::vector<int>>> partElements;
 
             int numNodesPerElement = 8;
-            int numCells           = connectivity.size() / numNodesPerElement;
+            int numCells           = static_cast<int>( connectivity.size() / numNodesPerElement );
             for ( int i = 0; i < numCells; i++ )
             {
                 std::vector<int> els( numNodesPerElement );
@@ -342,7 +342,7 @@ std::vector<double> RifVtkReader::frameTimes( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 int RifVtkReader::frameCount( int stepIndex ) const
 {
-    return frameTimes( stepIndex ).size();
+    return static_cast<int>( frameTimes( stepIndex ).size() );
 }
 
 //--------------------------------------------------------------------------------------------------
