@@ -107,14 +107,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(Commands PRIVATE -Wno-deprecated-declarations)
 endif()
 
-if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
-  if(MSVC)
-    target_compile_options(Commands PRIVATE /WX)
-  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_compile_options(Commands PRIVATE -Werror)
-  endif()
-endif()
-
 if(MSVC)
   # The following warnings are supposed to be used in ResInsight, but
   # temporarily disabled to avoid too much noise warning C4245: 'return':
@@ -138,6 +130,6 @@ if(MSVC)
 
 endif()
 
-set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache)
+set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache ResInsightCommonSettings)
+target_link_libraries(Commands PRIVATE ${LINK_LIBRARIES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
