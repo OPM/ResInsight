@@ -130,6 +130,7 @@ if(MSVC)
 
 endif()
 
-set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache ResInsightCommonSettings)
+set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache
+                   ResInsightCommonSettings
+)
 target_link_libraries(Commands PRIVATE ${LINK_LIBRARIES})
-

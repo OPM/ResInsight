@@ -20,5 +20,7 @@ add_library(
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(RifGeoMechFileInterface PUBLIC RigGeoMechDataModel LibCore )
+target_link_libraries(
+  RifGeoMechFileInterface PUBLIC RigGeoMechDataModel LibCore
+)
 target_link_libraries(RifGeoMechFileInterface PRIVATE ResInsightCommonSettings)

@@ -328,8 +328,7 @@ endif()
 target_link_libraries(
   ApplicationLibCode PUBLIC ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES}
 )
-target_link_libraries(
-  ApplicationLibCode PRIVATE ResInsightCommonSettings)
+target_link_libraries(ApplicationLibCode PRIVATE ResInsightCommonSettings)
 
 target_include_directories(
   ${PROJECT_NAME}
