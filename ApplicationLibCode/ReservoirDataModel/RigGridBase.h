@@ -114,6 +114,8 @@ public:
     bool cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const override;
     void cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
 
+    std::vector<size_t> neighborCells( size_t cellIndex, bool ignoreInvalidKLayers = false ) const;
+
 protected:
     size_t m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t m_cellCountIJK;

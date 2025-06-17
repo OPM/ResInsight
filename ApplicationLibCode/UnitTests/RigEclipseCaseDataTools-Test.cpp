@@ -25,8 +25,11 @@
 
 #include "RimEclipseResultCase.h"
 
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCaseDataTools.h"
+#include "RigEclipseResultAddress.h"
+#include "RigEclipseResultTools.h"
 #include "RigMainGrid.h"
 #include "Well/RigSimWellData.h"
 
@@ -289,4 +292,207 @@ TEST( RigEclipseCaseDataToolsTest, ExpandBoundingBoxIjkWithPadding )
     ASSERT_LE( expandedMin3.x(), expandedMax3.x() ) << "Upper boundary expanded Min I should be <= Max I";
     ASSERT_LE( expandedMin3.y(), expandedMax3.y() ) << "Upper boundary expanded Min J should be <= Max J";
     ASSERT_LE( expandedMin3.z(), expandedMax3.z() ) << "Upper boundary expanded Min K should be <= Max K";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseCaseDataToolsTest, CreateVisibilityFromIjkBounds )
+{
+    // Load the BRUGGE test model using RifReaderEclipseOutput
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "Case_with_10_timesteps/Real0" );
+    ASSERT_TRUE( subFolderExists ) << "Could not find test model directory";
+
+    QString filename( "BRUGGE_0000.EGRID" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    ASSERT_TRUE( QFile::exists( filePath ) ) << "BRUGGE test model file does not exist: " << filePath.toStdString();
+
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          eclipseCase = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    bool                             success            = readerInterfaceEcl->open( filePath, eclipseCase.p() );
+    ASSERT_TRUE( success ) << "Could not load BRUGGE test model";
+
+    ASSERT_NE( eclipseCase->mainGrid(), nullptr ) << "Main grid should not be null";
+    ASSERT_GT( eclipseCase->mainGrid()->cellCount(), 0 ) << "Grid should contain cells";
+
+    // Get grid dimensions for test validation
+    size_t gridCellCountI = eclipseCase->mainGrid()->cellCountI();
+    size_t gridCellCountJ = eclipseCase->mainGrid()->cellCountJ();
+    size_t gridCellCountK = eclipseCase->mainGrid()->cellCountK();
+    size_t totalCellCount = eclipseCase->mainGrid()->cellCount();
+
+    // Test case 1: Basic visibility generation with small bounds
+    cvf::Vec3st minIjk( 5, 5, 5 );
+    cvf::Vec3st maxIjk( 10, 10, 8 );
+
+    auto visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, maxIjk );
+
+    ASSERT_FALSE( visibility.isNull() ) << "Visibility array should not be null";
+    ASSERT_EQ( visibility->size(), totalCellCount ) << "Visibility array should match total cell count";
+
+    // Count visible cells and verify they match expected IJK range
+    size_t expectedVisibleCells = ( maxIjk.x() - minIjk.x() + 1 ) * ( maxIjk.y() - minIjk.y() + 1 ) * ( maxIjk.z() - minIjk.z() + 1 );
+    size_t actualVisibleCells   = 0;
+
+    for ( size_t i = 0; i < totalCellCount; ++i )
+    {
+        if ( visibility->val( i ) )
+        {
+            actualVisibleCells++;
+        }
+    }
+
+    ASSERT_EQ( actualVisibleCells, expectedVisibleCells ) << "Number of visible cells should match IJK range volume";
+
+    // Test case 2: Verify specific cells within bounds are visible
+    for ( size_t i = minIjk.x(); i <= maxIjk.x(); ++i )
+    {
+        for ( size_t j = minIjk.y(); j <= maxIjk.y(); ++j )
+        {
+            for ( size_t k = minIjk.z(); k <= maxIjk.z(); ++k )
+            {
+                size_t cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( i, j, k );
+                ASSERT_TRUE( visibility->val( cellIndex ) ) << "Cell at IJK (" << i << "," << j << "," << k << ") should be visible";
+            }
+        }
+    }
+
+    // Test case 3: Verify cells outside bounds are invisible
+    for ( size_t i = 0; i < std::min( minIjk.x(), size_t( 3 ) ); ++i )
+    {
+        for ( size_t j = 0; j < std::min( minIjk.y(), size_t( 3 ) ); ++j )
+        {
+            for ( size_t k = 0; k < std::min( minIjk.z(), size_t( 3 ) ); ++k )
+            {
+                size_t cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( i, j, k );
+                ASSERT_FALSE( visibility->val( cellIndex ) ) << "Cell at IJK (" << i << "," << j << "," << k << ") should be invisible";
+            }
+        }
+    }
+
+    // Test case 4: Edge case - single cell bounds
+    cvf::Vec3st singleCellMin( 2, 2, 2 );
+    cvf::Vec3st singleCellMax( 2, 2, 2 );
+
+    auto singleCellVisibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), singleCellMin, singleCellMax );
+
+    ASSERT_FALSE( singleCellVisibility.isNull() ) << "Single cell visibility should not be null";
+
+    size_t singleCellVisibleCount = 0;
+    for ( size_t i = 0; i < totalCellCount; ++i )
+    {
+        if ( singleCellVisibility->val( i ) )
+        {
+            singleCellVisibleCount++;
+        }
+    }
+
+    ASSERT_EQ( singleCellVisibleCount, 1 ) << "Exactly one cell should be visible for single cell bounds";
+
+    // Verify the correct single cell is visible
+    size_t expectedSingleCellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( 2, 2, 2 );
+    ASSERT_TRUE( singleCellVisibility->val( expectedSingleCellIndex ) ) << "The specified single cell should be visible";
+
+    // Test case 5: Error handling - invalid inputs
+    auto invalidVisibility1 = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( nullptr, minIjk, maxIjk );
+    ASSERT_TRUE( invalidVisibility1.isNull() ) << "Null case data should return null visibility";
+
+    auto invalidVisibility2 = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), cvf::Vec3st::UNDEFINED, maxIjk );
+    ASSERT_TRUE( invalidVisibility2.isNull() ) << "Undefined minIjk should return null visibility";
+
+    auto invalidVisibility3 = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, cvf::Vec3st::UNDEFINED );
+    ASSERT_TRUE( invalidVisibility3.isNull() ) << "Undefined maxIjk should return null visibility";
+
+    // Test case 6: Boundary conditions - bounds at grid limits
+    cvf::Vec3st gridMinBounds( 0, 0, 0 );
+    cvf::Vec3st gridMaxBounds( gridCellCountI - 1, gridCellCountJ - 1, gridCellCountK - 1 );
+
+    auto fullGridVisibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), gridMinBounds, gridMaxBounds );
+
+    ASSERT_FALSE( fullGridVisibility.isNull() ) << "Full grid visibility should not be null";
+
+    size_t fullGridVisibleCount = 0;
+    for ( size_t i = 0; i < totalCellCount; ++i )
+    {
+        if ( fullGridVisibility->val( i ) )
+        {
+            fullGridVisibleCount++;
+        }
+    }
+
+    ASSERT_EQ( fullGridVisibleCount, totalCellCount ) << "All cells should be visible when using full grid bounds";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseCaseDataToolsTest, GenerateBorderResultFromIjkBounds )
+{
+    // Load the BRUGGE test model using RifReaderEclipseOutput
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "Case_with_10_timesteps/Real0" );
+    ASSERT_TRUE( subFolderExists ) << "Could not find test model directory";
+
+    QString filename( "BRUGGE_0000.EGRID" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    ASSERT_TRUE( QFile::exists( filePath ) ) << "BRUGGE test model file does not exist: " << filePath.toStdString();
+
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          eclipseCase = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    bool                             success            = readerInterfaceEcl->open( filePath, eclipseCase.p() );
+    ASSERT_TRUE( success ) << "Could not load BRUGGE test model";
+
+    resultCase->setReservoirData( eclipseCase.p() );
+
+    // Define IJK bounds for testing
+    cvf::Vec3st minIjk( 20, 20, 5 );
+    cvf::Vec3st maxIjk( 30, 30, 8 );
+
+    // Create visibility from IJK bounds
+    auto visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, maxIjk );
+    ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
+
+    // Generate border result using the custom visibility
+    RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility, "BORDNUM" );
+
+    // Verify that the result was created
+    auto resultsData = resultCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    ASSERT_NE( resultsData, nullptr ) << "Results data should not be null";
+
+    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BORDNUM" );
+    ASSERT_TRUE( resultsData->hasResultEntry( resultAddress ) ) << "BORDNUM result should exist";
+
+    // Get the result data and verify it contains expected values
+    const std::vector<double>& resultVector = resultsData->cellScalarResults( resultAddress, 0 );
+    ASSERT_GT( resultVector.size(), 0 ) << "Result vector should not be empty";
+
+    // Count cells with different values
+    int invisibleCells = 0;
+    int borderCells    = 0;
+    int interiorCells  = 0;
+
+    for ( double value : resultVector )
+    {
+        int intValue = static_cast<int>( value );
+        if ( intValue == RigEclipseResultTools::BorderType::INVISIBLE_CELL )
+            invisibleCells++;
+        else if ( intValue == RigEclipseResultTools::BorderType::BORDER_CELL )
+            borderCells++;
+        else if ( intValue == RigEclipseResultTools::BorderType::INTERIOR_CELL )
+            interiorCells++;
+    }
+
+    // Verify that we have all three types of cells
+    ASSERT_GT( invisibleCells, 0 ) << "Should have invisible cells (value 0)";
+    ASSERT_GT( borderCells, 0 ) << "Should have border cells (value 1)";
+    ASSERT_GE( interiorCells, 0 ) << "May have interior cells (value 2)";
+
+    // The total should match the number of active cells
+    int totalCells = invisibleCells + borderCells + interiorCells;
+    ASSERT_EQ( totalCells, static_cast<int>( resultVector.size() ) ) << "Total should match result vector size";
 }

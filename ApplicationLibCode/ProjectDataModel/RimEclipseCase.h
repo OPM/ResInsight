@@ -135,6 +135,8 @@ public:
 
     void updateResultAddressCollection();
 
+    void setReservoirData( RigEclipseCaseData* eclipseCase );
+
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -145,7 +147,6 @@ protected:
     // Internal methods
 protected:
     void                      computeCachedData();
-    void                      setReservoirData( RigEclipseCaseData* eclipseCase );
     std::vector<QString>      additionalFiles() const;
     RimEclipseViewCollection* globalViewCollection() const;
     void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
