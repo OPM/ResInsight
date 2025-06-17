@@ -507,6 +507,58 @@ cvf::BoundingBox RigGridBase::boundingBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigGridBase::neighborCells( size_t cellIndex, bool ignoreInvalidKLayers ) const
+{
+    auto ijk = ijkFromCellIndex( cellIndex );
+    if ( !ijk.has_value() ) return {};
+    auto& ijkVec = ijk.value();
+
+    std::vector<size_t> neighbors;
+
+    for ( auto face : { FaceType::NEG_I, FaceType::NEG_J, FaceType::NEG_K, FaceType::POS_I, FaceType::POS_J, FaceType::POS_K } )
+    {
+        size_t ni, nj, nk;
+        neighborIJKAtCellFace( ijkVec.i(), ijkVec.j(), ijkVec.k(), face, &ni, &nj, &nk );
+        if ( nk > cellCountK() ) continue;
+        if ( isCellValid( ni, nj, nk ) )
+        {
+            auto neighborIdx = cellIndexFromIJKUnguarded( ni, nj, nk );
+            neighbors.push_back( neighborIdx );
+        }
+        else if ( face == FaceType::NEG_K )
+        {
+            while ( ignoreInvalidKLayers && ( nk > 1 ) )
+            {
+                nk--;
+                if ( isCellValid( ni, nj, nk ) )
+                {
+                    auto neighborIdx = cellIndexFromIJKUnguarded( ni, nj, nk );
+                    neighbors.push_back( neighborIdx );
+                    break;
+                }
+            }
+        }
+        else if ( face == FaceType::POS_K )
+        {
+            while ( ignoreInvalidKLayers && ( nk < cellCountK() ) )
+            {
+                nk++;
+                if ( isCellValid( ni, nj, nk ) )
+                {
+                    auto neighborIdx = cellIndexFromIJKUnguarded( ni, nj, nk );
+                    neighbors.push_back( neighborIdx );
+                    break;
+                }
+            }
+        }
+    }
+
+    return neighbors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                             i,
                                                      size_t                             j,
                                                      size_t                             k,
