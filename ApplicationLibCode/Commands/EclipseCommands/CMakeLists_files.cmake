@@ -1,5 +1,6 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAddEclipseInputPropertyFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicAddEclipseBorderResultFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicComputeStatisticsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCaseGroupFromFilesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCaseNewGroupExec.h
@@ -27,6 +28,7 @@ set(SOURCE_GROUP_HEADER_FILES
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAddEclipseInputPropertyFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicAddEclipseBorderResultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicComputeStatisticsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCaseGroupFromFilesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCaseNewGroupExec.cpp

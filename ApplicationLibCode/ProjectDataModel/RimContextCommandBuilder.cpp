@@ -233,6 +233,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportContourMapToTextFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
             menuBuilder << "RicAddEclipseInputPropertyFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicAddEclipseBorderResultFeature";
         }
         else if ( dynamic_cast<RimEclipseContourMapViewCollection*>( firstUiItem ) )
         {
