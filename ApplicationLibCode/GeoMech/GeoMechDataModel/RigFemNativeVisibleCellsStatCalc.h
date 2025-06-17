@@ -63,7 +63,7 @@ private:
             int         elmCount = part->elementCount();
             m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
 
-            auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+            auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( static_cast<int>( timeStepIndex ) );
 
             const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, stepIdx, frameIdx );
 
