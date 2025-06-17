@@ -112,8 +112,8 @@ add_library(
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(LINK_LIBRARIES LibCore cafPdmCvf cafTensor cafUserInterface CommonCode
-                   ResultStatisticsCache
+target_link_libraries(
+  RigGeoMechDataModel PUBLIC LibCore cafPdmCvf cafTensor cafUserInterface
+                             CommonCode ResultStatisticsCache
 )
-
-target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
+target_link_libraries(RigGeoMechDataModel PRIVATE ResInsightCommonSettings)

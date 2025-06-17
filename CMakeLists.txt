@@ -28,6 +28,9 @@ include(FetchContent)
 
 project(ResInsight)
 
+# Include common settings
+include(cmake/ResInsightCommonSettings.cmake)
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0)
     message(

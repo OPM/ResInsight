@@ -19,10 +19,6 @@ endif()
 # Open GL
 find_package(OpenGL)
 
-option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
-       "Treat warnings as errors (stops build)" OFF
-)
-
 find_package(
   Qt6
   COMPONENTS Core
@@ -256,14 +252,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   )
 endif()
 
-if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
-  if(MSVC)
-    target_compile_options(ApplicationLibCode PRIVATE /WX)
-  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_compile_options(ApplicationLibCode PRIVATE -Werror)
-  endif()
-endif()
-
 if(MSVC)
   # The following warnings are supposed to be used in ResInsight, but
   # temporarily disabled to avoid too much noise warning C4245: 'return':
@@ -338,8 +326,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 target_link_libraries(
-  ${PROJECT_NAME} PUBLIC ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES}
+  ApplicationLibCode PUBLIC ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES}
 )
+target_link_libraries(ApplicationLibCode PRIVATE ResInsightCommonSettings)
 
 target_include_directories(
   ${PROJECT_NAME}
