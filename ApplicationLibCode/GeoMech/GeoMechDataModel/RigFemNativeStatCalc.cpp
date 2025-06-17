@@ -41,7 +41,7 @@ void RigFemNativeStatCalc::minMaxCellScalarValues( size_t timeStepIndex, double&
     {
         auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
 
-        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( static_cast<int>( timeStepIndex ) );
         const std::vector<float>& values = frames->frameData( stepIdx, frameIdx );
 
         size_t i;
@@ -73,7 +73,7 @@ void RigFemNativeStatCalc::posNegClosestToZero( size_t timeStepIndex, double& po
     {
         auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
 
-        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( static_cast<int>( timeStepIndex ) );
         const std::vector<float>& values = frames->frameData( stepIdx, frameIdx );
 
         for ( size_t i = 0; i < values.size(); i++ )
@@ -106,7 +106,7 @@ void RigFemNativeStatCalc::valueSumAndSampleCount( size_t timeStepIndex, double&
     for ( int pIdx = 0; pIdx < partCount; ++pIdx )
     {
         auto frames              = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
-        auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( static_cast<int>( timeStepIndex ) );
 
         const std::vector<float>& values          = frames->frameData( stepIdx, frameIdx );
         size_t                    undefValueCount = 0;
@@ -137,7 +137,7 @@ void RigFemNativeStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, R
     {
         auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
 
-        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( static_cast<int>( timeStepIndex ) );
         const std::vector<float>& values = frames->frameData( stepIdx, frameIdx );
 
         histogramCalculator.addData( values );
@@ -153,7 +153,7 @@ void RigFemNativeStatCalc::uniqueValues( size_t timeStepIndex, std::set<int>& va
     {
         auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
 
-        auto [stepIdx, frameIdx]              = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( static_cast<int>( timeStepIndex ) );
         const std::vector<float>& floatValues = frames->frameData( stepIdx, frameIdx );
 
         for ( size_t i = 0; i < floatValues.size(); i++ )

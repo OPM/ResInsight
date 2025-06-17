@@ -146,11 +146,11 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 
         std::map<int, int> nodeIdToIdxMap;
 
-        int nodeCount = partNodes.size();
+        auto nodeCount = partNodes.size();
         femPart->nodes().nodeIds.resize( nodeCount );
         femPart->nodes().coordinates.resize( nodeCount );
 
-        for ( int nIdx = 0; nIdx < nodeCount; ++nIdx )
+        for ( int nIdx = 0; nIdx < static_cast<int>( nodeCount ); ++nIdx )
         {
             auto [nodeId, pos]             = partNodes[nIdx];
             femPart->nodes().nodeIds[nIdx] = nodeId;
@@ -164,7 +164,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
         // Extract elements
         std::vector<std::pair<int, std::vector<int>>> partElements = elements[partId];
 
-        int elmCount = partElements.size();
+        auto elmCount = static_cast<int>( partElements.size() );
         femPart->preAllocateElementStorage( elmCount );
 
         std::vector<int> indexBasedConnectivities;
@@ -283,7 +283,7 @@ RigElementType RifInpReader::read( std::istream&                                
             {
                 stepName = parseLabel( line, "name" );
                 stepNames.push_back( stepName );
-                stepId = stepNames.size() - 1;
+                stepId = static_cast<int>( stepNames.size() - 1 );
             }
             else if ( uppercasedLine.starts_with( "*END STEP" ) )
             {
@@ -591,7 +591,7 @@ std::vector<double> RifInpReader::frameTimes( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 int RifInpReader::frameCount( int stepIndex ) const
 {
-    return frameTimes( stepIndex ).size();
+    return static_cast<int>( frameTimes( stepIndex ).size() );
 }
 
 //--------------------------------------------------------------------------------------------------
