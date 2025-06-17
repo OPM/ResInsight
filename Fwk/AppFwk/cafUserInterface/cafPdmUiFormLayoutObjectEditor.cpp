@@ -492,8 +492,18 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
     for ( it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it )
     {
-        PdmUiFieldEditorHandle* fvh = it->second;
-        delete fvh;
+        if ( PdmUiFieldEditorHandle* fvh = it->second )
+        {
+            if ( auto editor = fvh->editorWidget() )
+            {
+                // Trigger a hide event the editor to allow it to clean up. This is required to persist the changes in
+                // the editor when changing to a different dock widget.
+                // https://github.com/OPM/ResInsight/issues/12599
+                editor->hide();
+            }
+
+            delete fvh;
+        }
     }
     m_fieldViews.clear();
 
