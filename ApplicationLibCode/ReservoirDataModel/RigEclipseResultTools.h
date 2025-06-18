@@ -22,10 +22,13 @@
 #include <vector>
 
 class RimEclipseCase;
+class RimEclipseView;
 
 namespace RigEclipseResultTools
 {
 
 void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& intValues );
+
+void generateBorderResult( RimEclipseView* eclipseView );
 
 } // namespace RigEclipseResultTools

@@ -21,21 +21,13 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 
-#include "RicImportGeneralDataFeature.h"
-
-#include "RimEclipseCellColors.h"
-#include "RimEclipseInputCase.h"
-#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimRoffCase.h"
-
-#include "Riu3DMainWindowTools.h"
-#include "RiuFileDialogTools.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultTools.h"
+#include "RigMainGrid.h"
 
 #include "cafSelectionManager.h"
 
@@ -50,34 +42,10 @@ CAF_CMD_SOURCE_INIT( RicAddEclipseBorderResultFeature, "RicAddEclipseBorderResul
 //--------------------------------------------------------------------------------------------------
 void RicAddEclipseBorderResultFeature::onActionTriggered( bool isChecked )
 {
-    RimEclipseView* eclipseView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
-    if ( !eclipseView ) return;
-    if ( auto eCase = eclipseView->firstAncestorOrThisOfType<RimEclipseCase>() )
+    if ( RimEclipseView* eclipseView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() )
     {
-        auto visibility = eclipseView->currentTotalCellVisibility();
-
-        auto activeReservoirCellIdxs =
-            eCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
-        int numActiveCells = static_cast<int>( activeReservoirCellIdxs.size() );
-
-        std::vector<int> result;
-        result.resize( numActiveCells, 0 );
-
-        int i = 0;
-        // go through all cells, only check those visible
-        for ( auto cellIdx : activeReservoirCellIdxs )
-        {
-            if ( visibility->val( cellIdx ) )
-            {
-                result[i] = 1;
-            }
-
-            i++;
-        }
-
-        RigEclipseResultTools::createResultVector( *eCase, "BORDER", result );
-
-        eCase->updateConnectedEditors();
+        RigEclipseResultTools::generateBorderResult( eclipseView );
+        eclipseView->scheduleCreateDisplayModelAndRedraw();
     }
 }
 
