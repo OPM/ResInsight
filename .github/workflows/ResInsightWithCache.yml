@@ -106,7 +106,7 @@ jobs:
           elseif ("${{ runner.os }}" STREQUAL "macOS")
             set(buildcache_suffix "macos.zip")
           elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(buildcache_suffix "linux.tar.gz")
+            set(buildcache_suffix "linux-amd64.tar.gz")
           endif()
 
           set(buildcache_url "https://gitlab.com/bits-n-bites/buildcache/-/releases/permalink/latest/downloads/buildcache-${buildcache_suffix}")
