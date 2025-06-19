@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPlotDefines.h"
 
+#include "RimHistogramCurveCollection.h"
 #include "RimHistogramDataSource.h"
 #include "RimHistogramPlot.h"
 #include "RimPlotAxisProperties.h"
@@ -63,13 +64,13 @@ RimHistogramCurve::~RimHistogramCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimHistogramCurve::setTopOrBottomAxisX( RiuPlotAxis plotAxis )
-// {
-//     CAF_ASSERT( plotAxis.isHorizontal() );
+void RimHistogramCurve::setTopOrBottomAxisX( RiuPlotAxis plotAxis )
+{
+    CAF_ASSERT( plotAxis.isHorizontal() );
 
-//     RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
-//     m_xPlotAxisProperties  = plot->axisPropertiesForPlotAxis( plotAxis );
-// }
+    RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
+    m_xPlotAxisProperties  = plot->axisPropertiesForPlotAxis( plotAxis );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -174,21 +175,8 @@ RiuPlotAxis RimHistogramCurve::axisY() const
 QList<caf::PdmOptionItemInfo> RimHistogramCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimPlotCurve::calculateValueOptions( fieldNeedingOptions );
-    if ( !options.isEmpty() ) return options;
-
-    // auto createOptionsForHistogramCase = []( RimHistogramCase* histogramCase, QList<caf::PdmOptionItemInfo>& options )
-    // {
-    //     RimProject*                    proj  = RimProject::current();
-    //     std::vector<RimHistogramCase*> cases = proj->allHistogramCases();
-
-    //     options = RiaHistogramTools::optionsForHistogramCases( cases );
-
-    //     if ( !options.empty() )
-    //     {
-    //         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
-    //     }
-    // };
-
+    if ( !options.isEmpty() )
+        return options;
     else if ( fieldNeedingOptions == &m_yPlotAxisProperties )
     {
         auto plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
@@ -249,8 +237,6 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     updateConnectedEditors();
 
-    // setZIndexFromCurveInfo();
-
     if ( isChecked() )
     {
         std::vector<double> curveValuesX = valuesX();
@@ -260,138 +246,7 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( axisY() );
 
         setSamplesFromXYValues( curveValuesX, curveValuesY, useLogarithmicScale );
-
-        // bool shouldPopulateViewWithEmptyData = false;
-
-        // if ( m_xAxisType == RiaDefines::HorizontalAxisType::HISTOGRAM_VECTOR )
-        // {
-        //     if ( m_xValuesHistogramAddress()->address().isStatistics() )
-        //     {
-        //         // Read x and y values from ensemble statistics (not time steps are read)
-        //         if ( RifHistogramReaderInterface* reader = valuesHistogramReaderX() )
-        //         {
-        //             auto [isOkX, curveValuesX] = reader->values( m_xValuesHistogramAddress->address() );
-        //             auto [isOkY, curveValuesY] = reader->values( m_yValuesHistogramAddress->address() );
-        //             setSamplesFromXYValues( curveValuesX, curveValuesY, useLogarithmicScale );
-        //         }
-        //     }
-        //     else
-        //     {
-        //         auto curveTimeStepsX = timeStepsX();
-        //         auto curveTimeStepsY = timeStepsY();
-
-        //         if ( curveValuesY.empty() || curveValuesX.empty() )
-        //         {
-        //             shouldPopulateViewWithEmptyData = true;
-        //         }
-        //         else
-        //         {
-        //             RiaTimeHistoryCurveMerger curveMerger;
-        //             curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
-        //             curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
-
-        //             bool includeValuesFromPartialCurves = true;
-        //             curveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
-
-        //             if ( !curveMerger.allXValues().empty() )
-        //             {
-        //                 setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
-        //                                         curveMerger.interpolatedYValuesForAllXValues( 1 ),
-        //                                         useLogarithmicScale );
-        //             }
-        //             else
-        //             {
-        //                 shouldPopulateViewWithEmptyData = true;
-        //             }
-        //         }
-        //     }
-        // }
-        // else
-        // {
-        //     std::vector<time_t> curveTimeStepsY = timeStepsY();
-        //     if ( plot->timeAxisProperties() && !curveTimeStepsY.empty() && curveTimeStepsY.size() == curveValuesY.size() )
-        //     {
-        //         if ( plot->timeAxisProperties()->timeMode() == RimHistogramTimeAxisProperties::DATE )
-        //         {
-        //             RifEclipseHistogramAddress errAddress;
-        //             std::vector<double>        errValues;
-
-        //             if ( auto reader = valuesHistogramReaderY() )
-        //             {
-        //                 errAddress = reader->errorAddress( histogramAddressY() );
-        //                 errValues  = reader->values( errAddress ).second;
-        //             }
-
-        //             if ( errAddress.isValid() )
-        //             {
-        //                 auto timeSteps = RiuQwtPlotCurve::fromTime_t( curveTimeStepsY );
-
-        //                 if ( !errValues.empty() )
-        //                 {
-        //                     setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, useLogarithmicScale );
-        //                 }
-        //                 else
-        //                 {
-        //                     setSamplesFromXYValues( timeSteps, curveValuesY, useLogarithmicScale );
-        //                 }
-        //             }
-        //             else
-        //             {
-        //                 if ( m_yValuesResampling() != RiaDefines::DateTimePeriod::NONE )
-        //                 {
-        //                     auto [resampledTimeSteps, resampledValues] =
-        //                         RiaHistogramTools::resampledValuesForPeriod( m_yValuesHistogramAddress->address(),
-        //                                                                      curveTimeStepsY,
-        //                                                                      curveValuesY,
-        //                                                                      m_yValuesResampling() );
-
-        //                     if ( !resampledValues.empty() && !resampledTimeSteps.empty() )
-        //                     {
-        //                         // When values are resampled, each time step value is reported at the end of each
-        //                         // resampling period. Insert a duplicate of the first value at the start of the time
-        //                         // series to make curve start at the very first reported time step.
-
-        //                         resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
-        //                         resampledValues.insert( resampledValues.begin(), resampledValues.front() );
-
-        //                         setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, useLogarithmicScale );
-        //                     }
-        //                 }
-        //                 else
-        //                 {
-        //                     setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, useLogarithmicScale );
-        //                 }
-        //             }
-        //         }
-        //         else
-        //         {
-        //             double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
-
-        //             std::vector<double> timeFromSimulationStart;
-        //             if ( !curveTimeStepsY.empty() )
-        //             {
-        //                 time_t startDate = curveTimeStepsY[0];
-        //                 for ( const auto& date : curveTimeStepsY )
-        //                 {
-        //                     timeFromSimulationStart.push_back( timeScale * ( date - startDate ) );
-        //                 }
-        //             }
-
-        //             setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, useLogarithmicScale );
-        //         }
-        //     }
-        //     else
-        //     {
-        //         shouldPopulateViewWithEmptyData = true;
-        //     }
-
-        // updateTimeAnnotations();
     }
-
-    // if ( shouldPopulateViewWithEmptyData )
-    // {
-    //     setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), useLogarithmicScale );
-    // }
 
     if ( updateParentPlot && hasParentPlot() )
     {
@@ -475,21 +330,6 @@ double RimHistogramCurve::computeCurveZValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistogramCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    // if ( &m_yPushButtonSelectHistogramAddress == field || &m_xPushButtonSelectHistogramAddress == field )
-    // {
-    //     caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-    //     if ( attrib )
-    //     {
-    //         attrib->m_buttonText = "...";
-    //     }
-    // }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimPlotCurve::updateFieldUiState();
@@ -499,18 +339,6 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         caf::PdmUiGroup* dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
         m_dataSource->uiOrdering( uiConfigName, *dataSourceGroup );
     }
-
-    // {
-    //     QString          curveDataGroupName = "Histogram Vector";
-    //     caf::PdmUiGroup* curveDataGroup     = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "curveDataGroupName" );
-    //     curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
-
-    //     // caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Properties" );
-    //     // detailGroup->setCollapsedByDefault();
-    //     // // detailGroup->add( &m_yCurveTypeMode );
-    //     // // detailGroup->add( &m_yCurveType );
-    //     // m_yCurveType.uiCapability()->setUiReadOnly( m_yCurveTypeMode() == RiaDefines::HistogramCurveTypeMode::AUTO );
-    // }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
     RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
@@ -522,11 +350,6 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     nameGroup->setCollapsedByDefault();
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
-
-    // if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
-    // {
-    //     m_curveNameConfig->uiOrdering( uiConfigName, *nameGroup );
-    // }
 
     uiOrdering.skipRemainingFields();
 }
@@ -582,68 +405,6 @@ void RimHistogramCurve::updatePlotAxis()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimHistogramCurve::setCurveAppearanceFromCaseType()
-// {
-//     if ( m_yValuesHistogramCase )
-//     {
-//         if ( m_yValuesHistogramCase->isObservedData() )
-//         {
-//             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-//             setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
-
-//             return;
-//         }
-//     }
-
-//     if ( m_yValuesHistogramAddress && m_yValuesHistogramAddress->address().isHistoryVector() )
-//     {
-//         RiaPreferencesHistogram* prefs = RiaPreferencesHistogram::current();
-
-//         if ( prefs->defaultHistogramHistoryCurveStyle() == RiaPreferencesHistogram::HistogramHistoryCurveStyleMode::SYMBOLS )
-//         {
-//             setSymbolEdgeColor( m_curveAppearance->color() );
-
-//             setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
-//             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-//         }
-//         else if ( prefs->defaultHistogramHistoryCurveStyle() ==
-//         RiaPreferencesHistogram::HistogramHistoryCurveStyleMode::SYMBOLS_AND_LINES )
-//         {
-//             setSymbolEdgeColor( m_curveAppearance->color() );
-
-//             setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
-//             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-//         }
-//         else if ( prefs->defaultHistogramHistoryCurveStyle() == RiaPreferencesHistogram::HistogramHistoryCurveStyleMode::LINES )
-//         {
-//             setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
-//             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-//         }
-
-//         return;
-//     }
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramCurve::setDefaultCurveAppearance()
-// {
-//     auto plot = firstAncestorOrThisOfType<RimHistogramPlot>();
-//     if ( plot ) plot->applyDefaultCurveAppearances( { this } );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramCurve::setAsTopZWithinCategory( bool enable )
-// {
-//     m_isTopZWithinCategory = enable;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
@@ -651,29 +412,6 @@ void RimHistogramCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     auto plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
 
     bool loadAndUpdate = false;
-    // bool crossPlotTestForMatchingTimeSteps = false;
-
-    //  if ( &m_xAxisType == changedField )
-    // {
-    //     if ( m_xAxisType() == RiaDefines::HorizontalAxisType::TIME )
-    //     {
-    //         m_xPlotAxisProperties = plot->timeAxisProperties();
-    //     }
-    //     else if ( m_xAxisType() == RiaDefines::HorizontalAxisType::HISTOGRAM_VECTOR )
-    //     {
-    //         if ( !m_xValuesHistogramCase() )
-    //         {
-    //             m_xValuesHistogramCase = m_yValuesHistogramCase();
-    //             m_xValuesHistogramAddress->setAddress( m_yValuesHistogramAddress()->address() );
-    //         }
-
-    //         plot->findOrAssignPlotAxisX( this );
-    //     }
-    //     plot->updateAxes();
-    //     plot->updatePlotTitle();
-    //     plot->zoomAll();
-    //     loadAndUpdate = true;
-    // }
     if ( &m_showCurve == changedField )
     {
         plot->updateAxes();
@@ -723,31 +461,8 @@ void RimHistogramCurve::loadAndUpdateDataAndPlot()
 void RimHistogramCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
     if ( !m_plotCurve ) return;
-    // if ( firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return;
 
     bool showLegendInPlot = m_showLegend();
-    // if ( auto histogramPlot = firstAncestorOrThisOfType<RimHistogramPlot>() )
-    // {
-    //     bool anyCalculated = false;
-    //     for ( const auto c : histogramPlot->histogramCurves() )
-    //     {
-    //         if ( c->histogramAddressY().isCalculated() )
-    //         {
-    //             // Never hide the legend for calculated curves, as the curve legend is used to
-    //             // show some essential auto generated data
-    //             anyCalculated = true;
-    //         }
-    //     }
-
-    //     auto isMultiPlot = ( firstAncestorOrThisOfType<RimMultiPlot>() != nullptr );
-
-    //     if ( !anyCalculated && isMultiPlot && histogramPlot->ensembleCurveSetCollection()->curveSets().empty() &&
-    //          histogramPlot->curveCount() == 1 )
-    //     {
-    //         // Disable display of legend if the histogram plot has only one single curve
-    //         showLegendInPlot = false;
-    //     }
-    // }
 
     m_plotCurve->setVisibleInLegend( showLegendInPlot );
 }
@@ -761,11 +476,8 @@ bool RimHistogramCurve::canCurveBeAttached() const
 
     bool isVisibleInPossibleParent = true;
 
-    // auto histogramCurveCollection = firstAncestorOrThisOfType<RimHistogramCurveCollection>();
-    // if ( histogramCurveCollection ) isVisibleInPossibleParent = histogramCurveCollection->isCurvesVisible();
-
-    // auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
-    // if ( ensembleCurveSet ) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
+    auto histogramCurveCollection = firstAncestorOrThisOfType<RimHistogramCurveCollection>();
+    if ( histogramCurveCollection ) isVisibleInPossibleParent = histogramCurveCollection->isCurvesVisible();
 
     return isVisibleInPossibleParent;
 }

@@ -44,15 +44,7 @@ public:
 
     bool isCurvesVisible();
 
-    // void             setCurveForSourceStepping( RimHistogramCurve* curve );
-    // RimHistogramCurve* curveForSourceStepping() const;
-
-    // RimHistogramPlotSourceStepping* sourceSteppingObject() const;
-
-    // std::set<RiaDefines::HorizontalAxisType> horizontalAxisTypes() const;
     std::vector<RimHistogramCurve*> curves() const;
-
-    // void setCurveAsTopZWithinCategory( RimHistogramCurve* curve );
 
     void loadDataAndUpdate( bool updateParentPlot );
 
@@ -64,14 +56,11 @@ private:
     void detachPlotCurves();
     void reattachPlotCurves();
 
-    // RimHistogramCurve* findRimCurveFromPlotCurve( const RiuPlotCurve* curve ) const;
-
     void addCurve( RimHistogramCurve* curve );
     void insertCurve( RimHistogramCurve* curve, size_t index );
     void deleteCurve( RimHistogramCurve* curve );
     void removeCurve( RimHistogramCurve* curve );
 
-    // void deleteCurvesAssosiatedWithCase( RimHistogramCase* histogramCase );
     void deleteAllCurves();
     void updateCaseNameHasChanged();
 

@@ -96,9 +96,6 @@ public:
 
     void detachAllCurves() override;
     void reattachAllCurves() override;
-    void updateCaseNameHasChanged();
-
-    // void updateAndRedrawTimeAnnotations();
     void updateAnnotationsInPlotWidget();
 
     void updateAxes() override;
@@ -151,15 +148,12 @@ public:
     void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
 
     // std::vector<RimHistogramCurve*>   curvesForStepping() const override;
-    // std::vector<RimEnsembleCurveSet*> curveSets() const override;
-    // std::vector<RimHistogramCurve*>   allCurves() const override;
 
     std::vector<RimPlotAxisProperties*> plotAxes( RimPlotAxisProperties::Orientation orientation ) const;
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
     RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
     RimPlotAxisProperties*          addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
-    // void                            findOrAssignPlotAxisX( RimHistogramCurve* curve );
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 
@@ -237,11 +231,14 @@ private:
 
     std::vector<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
+    std::vector<RimHistogramCurve*> histogramCurves() const;
+    std::vector<RimHistogramCurve*> visibleHistogramCurvesForAxis( RiuPlotAxis plotAxis ) const;
+
     // void timeAxisSettingsChanged( const caf::SignalEmitter* emitter );
     // void timeAxisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter );
 
     // void ensureRequiredAxisObjectsForCurves();
-    // void assignPlotAxis( RimHistogramCurve* curve );
+    void assignPlotAxis( RimHistogramCurve* curve );
     // void assignYPlotAxis( RimHistogramCurve* curve );
     // void assignXPlotAxis( RimHistogramCurve* curve );
 

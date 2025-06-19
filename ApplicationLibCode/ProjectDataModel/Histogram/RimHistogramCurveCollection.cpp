@@ -18,17 +18,12 @@
 
 #include "RimHistogramCurveCollection.h"
 
-// #include "RimHistogramCase.h"
 #include "RimHistogramCurve.h"
 #include "RimHistogramPlot.h"
-
-// #include "RiuHistogramQwtPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
-
-#include "qwt_plot.h"
 
 #include <QKeyEvent>
 
@@ -144,22 +139,6 @@ void RimHistogramCurveCollection::reattachPlotCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// RimHistogramCurve* RimHistogramCurveCollection::findRimCurveFromPlotCurve( const RiuPlotCurve* curve ) const
-// {
-//     for ( RimHistogramCurve* rimCurve : m_curves )
-//     {
-//         if ( rimCurve->isSameCurve( curve ) )
-//         {
-//             return rimCurve;
-//         }
-//     }
-
-//     return nullptr;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramCurveCollection::addCurve( RimHistogramCurve* curve )
 {
     if ( curve )
@@ -217,30 +196,6 @@ std::vector<RimHistogramCurve*> RimHistogramCurveCollection::curves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimHistogramCurveCollection::deleteCurvesAssosiatedWithCase( RimHistogramCase* histogramCase )
-// {
-//     std::vector<RimHistogramCurve*> histogramCurvesToDelete;
-
-//     for ( RimHistogramCurve* histogramCurve : m_curves )
-//     {
-//         if ( !histogramCurve ) continue;
-//         if ( !histogramCurve->histogramCaseY() ) continue;
-
-//         if ( histogramCurve->histogramCaseY() == histogramCase )
-//         {
-//             histogramCurvesToDelete.push_back( histogramCurve );
-//         }
-//     }
-//     for ( RimHistogramCurve* histogramCurve : histogramCurvesToDelete )
-//     {
-//         m_curves.removeChild( histogramCurve );
-//         delete histogramCurve;
-//     }
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramCurveCollection::deleteAllCurves()
 {
     m_curves.deleteChildren();
@@ -280,41 +235,6 @@ std::vector<caf::PdmFieldHandle*> RimHistogramCurveCollection::fieldsToShowInToo
 {
     return {}; // m_ySourceStepping()->fieldsToShowInToolbar();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramCurveCollection::setCurveAsTopZWithinCategory( RimHistogramCurve* curve )
-// {
-//     // for ( const auto& c : m_curves )
-//     // {
-//     //     // if ( c == curve )
-//     //     // {
-//     //     //     c->setAsTopZWithinCategory( true );
-//     //     // }
-//     //     // else
-//     //     // {
-//     //     //     c->setAsTopZWithinCategory( false );
-//     //     // }
-
-//     //     // c->setZIndexFromCurveInfo();
-//     // }
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// std::set<RiaDefines::HorizontalAxisType> RimHistogramCurveCollection::horizontalAxisTypes() const
-// {
-//     std::set<RiaDefines::HorizontalAxisType> axisTypes;
-
-//     for ( const auto& curve : m_curves )
-//     {
-//         axisTypes.insert( curve->axisTypeX() );
-//     }
-
-//     return axisTypes;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -105,6 +105,9 @@ RimHistogramPlot::RimHistogramPlot()
     auto rightAxis = addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
     rightAxis->setAlwaysRequired( true );
 
+    auto bottomAxis = addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
+    bottomAxis->setAlwaysRequired( true );
+
     CAF_PDM_InitFieldNoDefault( &m_histogramFrequencyType, "HistogramFrequencyType", "Frequency" );
     CAF_PDM_InitFieldNoDefault( &m_graphType, "GraphType", "Graph Type" );
 
@@ -112,10 +115,6 @@ RimHistogramPlot::RimHistogramPlot()
     m_fallbackPlotName.uiCapability()->setUiReadOnly( true );
     m_fallbackPlotName.uiCapability()->setUiHidden( true );
     m_fallbackPlotName.xmlCapability()->disableIO();
-
-    // setPlotInfoLabel( "Filters Active" );
-
-    // ensureRequiredAxisObjectsForCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,53 +292,13 @@ void RimHistogramPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 //     return ensembleCurveSetCollection()->curveSets();
 // }
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// std::vector<RimHistogramCurve*> RimHistogramPlot::allCurves() const
-// {
-//     return histogramCurves();
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// std::vector<RimHistogramCurve*> RimHistogramPlot::histogramAndEnsembleCurves() const
-// {
-//     std::vector<RimHistogramCurve*> curves = histogramCurves();
-
-//     for ( const auto& curveSet : ensembleCurveSetCollection()->curveSets() )
-//     {
-//         for ( const auto& curve : curveSet->curves() )
-//         {
-//             curves.push_back( curve );
-//         }
-//     }
-//     return curves;
-// }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// std::set<RiaHistogramCurveDefinition> RimHistogramPlot::histogramAndEnsembleCurveDefinitions() const
-// {
-//     std::set<RiaHistogramCurveDefinition> allCurveDefs;
-
-//     for ( const auto& curve : histogramAndEnsembleCurves() )
-//     {
-//         allCurveDefs.insert( RiaHistogramCurveDefinition( curve->histogramCaseY(), curve->histogramAddressY(), curve->isEnsembleCurve() )
-//         );
-//     }
-//     return allCurveDefs;
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// std::vector<RimHistogramCurve*> RimHistogramPlot::histogramCurves() const
-// {
-//     return m_histogramCurveCollection->curves();
-// }
+std::vector<RimHistogramCurve*> RimHistogramPlot::histogramCurves() const
+{
+    return m_histogramCurveCollection->curves();
+}
 
 // //--------------------------------------------------------------------------------------------------
 // ///
@@ -644,20 +603,17 @@ void RimHistogramPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
             auto* axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
             if ( !axisProps ) continue;
 
-            // if ( axisProperties->isActive() && hasVisibleCurvesForAxis( riuPlotAxis ) )
-            // {
-            //     plotWidget()->enableAxis( riuPlotAxis, true );
-            // }
-            // else
-            // {
-            //     plotWidget()->enableAxis( riuPlotAxis, false );
-            // }
+            bool hasVisibleCurveForAxis = !visibleHistogramCurvesForAxis( riuPlotAxis ).empty();
+            bool shouldEnable           = axisProperties->isActive() && hasVisibleCurveForAxis;
+            plotWidget()->enableAxis( riuPlotAxis, shouldEnable );
 
-            // if ( !hasVisibleCurvesForAxis( riuPlotAxis ) )
+            // if ( !hasVisibleCurveForAxis )
             // {
             //     axisProps->setNameForUnusedAxis();
             // }
             // else
+            // {
+            // }
             // {
             //     // std::set<QString> timeHistoryQuantities;
 
@@ -693,52 +649,46 @@ void RimHistogramPlot::updateZoomForAxis( RimPlotAxisPropertiesInterface* axisPr
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::updateZoomForNumericalAxis( RimPlotAxisProperties* axisProperties )
 {
-    // if ( !axisProperties ) return;
+    if ( !axisProperties ) return;
 
-    // const auto plotAxis = axisProperties->plotAxis();
-    // if ( axisProperties->isAutoZoom() )
-    // {
-    //     if ( axisProperties->isLogarithmicScaleEnabled() )
-    //     {
-    //         plotWidget()->setAxisScaleType( plotAxis, RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
-    //         std::vector<const RimPlotCurve*> plotCurves;
+    const auto plotAxis = axisProperties->plotAxis();
+    if ( axisProperties->isAutoZoom() )
+    {
+        if ( axisProperties->isLogarithmicScaleEnabled() )
+        {
+            plotWidget()->setAxisScaleType( plotAxis, RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
+            std::vector<const RimPlotCurve*> plotCurves;
 
-    //         for ( RimHistogramCurve* c : visibleHistogramCurvesForAxis( plotAxis ) )
-    //         {
-    //             plotCurves.push_back( c );
-    //         }
+            for ( RimHistogramCurve* c : visibleHistogramCurvesForAxis( plotAxis ) )
+            {
+                plotCurves.push_back( c );
+            }
 
-    //         double                        min, max;
-    //         RimPlotAxisLogRangeCalculator calc( plotAxis.axis(), plotCurves );
-    //         calc.computeAxisRange( &min, &max );
+            double                        min, max;
+            RimPlotAxisLogRangeCalculator calc( plotAxis.axis(), plotCurves );
+            calc.computeAxisRange( &min, &max );
 
-    //         if ( axisProperties->isAxisInverted() )
-    //         {
-    //             std::swap( min, max );
-    //         }
+            if ( axisProperties->isAxisInverted() )
+            {
+                std::swap( min, max );
+            }
 
-    //         plotWidget()->setAxisScale( axisProperties->plotAxis(), min, max );
-    //     }
-    //     else if ( ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT || plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-    //     &&
-    //               isOnlyWaterCutCurvesVisible( plotAxis ) )
-    //     {
-    //         plotWidget()->setAxisScale( axisProperties->plotAxis(), 0.0, 1.0 );
-    //     }
-    //     else
-    //     {
-    //         plotWidget()->setAxisAutoScale( axisProperties->plotAxis(), true );
-    //     }
-    // }
-    // else
-    // {
-    //     double min = axisProperties->visibleRangeMin();
-    //     double max = axisProperties->visibleRangeMax();
-    //     if ( axisProperties->isAxisInverted() ) std::swap( min, max );
-    //     plotWidget()->setAxisScale( axisProperties->plotAxis(), min, max );
-    // }
+            plotWidget()->setAxisScale( axisProperties->plotAxis(), min, max );
+        }
+        else
+        {
+            plotWidget()->setAxisAutoScale( axisProperties->plotAxis(), true );
+        }
+    }
+    else
+    {
+        double min = axisProperties->visibleRangeMin();
+        double max = axisProperties->visibleRangeMax();
+        if ( axisProperties->isAxisInverted() ) std::swap( min, max );
+        plotWidget()->setAxisScale( axisProperties->plotAxis(), min, max );
+    }
 
-    // plotWidget()->setAxisInverted( axisProperties->plotAxis(), axisProperties->isAxisInverted() );
+    plotWidget()->setAxisInverted( axisProperties->plotAxis(), axisProperties->isAxisInverted() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -825,37 +775,23 @@ void RimHistogramPlot::scheduleReplotIfVisible()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// std::vector<RimHistogramCurve*> RimHistogramPlot::visibleHistogramCurvesForAxis( RiuPlotAxis plotAxis ) const
-// {
-//     std::vector<RimHistogramCurve*> curves;
+std::vector<RimHistogramCurve*> RimHistogramPlot::visibleHistogramCurvesForAxis( RiuPlotAxis plotAxis ) const
+{
+    std::vector<RimHistogramCurve*> curves;
 
-//     if ( m_histogramCurveCollection && m_histogramCurveCollection->isCurvesVisible() )
-//     {
-//         for ( RimHistogramCurve* curve : m_histogramCurveCollection->curves() )
-//         {
-//             if ( curve->isChecked() && ( curve->axisY() == plotAxis || curve->axisX() == plotAxis ) )
-//             {
-//                 curves.push_back( curve );
-//             }
-//         }
-//     }
+    if ( m_histogramCurveCollection && m_histogramCurveCollection->isCurvesVisible() )
+    {
+        for ( RimHistogramCurve* curve : m_histogramCurveCollection->curves() )
+        {
+            if ( curve->isChecked() && ( curve->axisY() == plotAxis || curve->axisX() == plotAxis ) )
+            {
+                curves.push_back( curve );
+            }
+        }
+    }
 
-//     // if ( m_ensembleCurveSetCollection && m_ensembleCurveSetCollection->isCurveSetsVisible() )
-//     // {
-//     //     for ( RimEnsembleCurveSet* curveSet : m_ensembleCurveSetCollection->curveSets() )
-//     //     {
-//     //         for ( RimHistogramCurve* curve : curveSet->curves() )
-//     //         {
-//     //             if ( curve->isChecked() && ( curve->axisY() == plotAxis || curve->axisX() == plotAxis ) )
-//     //             {
-//     //                 curves.push_back( curve );
-//     //             }
-//     //         }
-//     //     }
-//     // }
-
-//     return curves;
-// }
+    return curves;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -891,17 +827,6 @@ RimPlotAxisPropertiesInterface* RimHistogramPlot::axisPropertiesForPlotAxis( Riu
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimHistogramPlot::updateCaseNameHasChanged()
-{
-    // if ( m_histogramCurveCollection )
-    // {
-    //     m_histogramCurveCollection->updateCaseNameHasChanged();
-    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -957,7 +882,7 @@ void RimHistogramPlot::addCurveNoUpdate( RimHistogramCurve* curve, bool autoAssi
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::connectCurveToPlot( RimHistogramCurve* curve, bool update, bool autoAssignPlotAxis )
 {
-    // if ( autoAssignPlotAxis ) assignPlotAxis( curve );
+    if ( autoAssignPlotAxis ) assignPlotAxis( curve );
 
     connectCurveSignals( curve );
     if ( plotWidget() )
@@ -1181,31 +1106,6 @@ void RimHistogramPlot::onLoadDataAndUpdate()
         m_histogramCurveCollection->loadDataAndUpdate( false );
     }
 
-    // m_ensembleCurveSetCollection->loadDataAndUpdate( false );
-
-    // for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-    // {
-    //     curve->loadDataAndUpdate( false );
-    // }
-
-    // for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-    // {
-    //     curve->loadDataAndUpdate( false );
-    // }
-
-    // // Load data for regression curves, as they depend on data loaded by curves updated previously in this function
-    // if ( m_histogramCurveCollection )
-    // {
-    //     auto curves = m_histogramCurveCollection->curves();
-    //     for ( auto c : curves )
-    //     {
-    //         if ( c->isRegressionCurve() )
-    //         {
-    //             c->loadDataAndUpdate( false );
-    //         }
-    //     }
-    // }
-
     if ( plotWidget() )
     {
         if ( m_showPlotLegends && !isSubPlot() )
@@ -1239,18 +1139,6 @@ void RimHistogramPlot::updatePlotWidgetFromAxisRanges()
     plotWidget()->updateAxes();
     updateAxisRangesFromPlotWidget();
     plotWidget()->updateZoomDependentCurveProperties();
-
-    // // Must create and set new custom tickmarks for time axis after zoom update
-    // auto* timeAxisProps = timeAxisProperties();
-    // if ( timeAxisProps && timeAxisProps->tickmarkType() == RimHistogramTimeAxisProperties::TickmarkType::TICKMARK_CUSTOM )
-    // {
-    //     // Protection against too many custom tickmarks
-    //     const bool showErrorMessageBox = false;
-    //     overrideTimeAxisSettingsIfTooManyCustomTickmarks( timeAxisProps, showErrorMessageBox );
-
-    //     // Create and set tickmarks based on settings
-    //     createAndSetCustomTimeAxisTickmarks( timeAxisProps );
-    // }
 
     scheduleReplotIfVisible();
 }
@@ -1430,23 +1318,12 @@ std::vector<RimPlotCurve*> RimHistogramPlot::visibleCurvesForLegend()
 {
     std::vector<RimPlotCurve*> curves;
 
-    // for ( auto c : histogramCurves() )
-    // {
-    //     if ( !c->isChecked() ) continue;
-    //     if ( !c->showInLegend() ) continue;
-    //     curves.push_back( c );
-    // }
-
-    // for ( auto curveSet : curveSets() )
-    // {
-    //     if ( !curveSet->isCurvesVisible() ) continue;
-    //     if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ) )
-    //     {
-    //         auto curveSetCurves = curveSet->curves();
-
-    //         if ( !curveSetCurves.empty() ) curves.push_back( curveSetCurves.front() );
-    //     }
-    // }
+    for ( auto c : histogramCurves() )
+    {
+        if ( !c->isChecked() ) continue;
+        if ( !c->showInLegend() ) continue;
+        curves.push_back( c );
+    }
 
     return curves;
 }
@@ -1472,15 +1349,10 @@ void RimHistogramPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
                                         fixedUpPlotAxis.index() );
 
         // // Move all attached curves
-        // for ( auto curve : histogramCurves() )
-        // {
-        //     if ( curve->axisY() == oldPlotAxis ) curve->setLeftOrRightAxisY( fixedUpPlotAxis );
-        // }
-
-        // for ( auto curveSet : ensembleCurveSetCollection()->curveSets() )
-        // {
-        //     if ( curveSet->axisY() == oldPlotAxis ) curveSet->setLeftOrRightAxisY( fixedUpPlotAxis );
-        // }
+        for ( auto curve : histogramCurves() )
+        {
+            if ( curve->axisY() == oldPlotAxis ) curve->setLeftOrRightAxisY( fixedUpPlotAxis );
+        }
 
         // Remove the now unused axis (but keep the default axis)
         if ( oldPlotAxis != RiuPlotAxis::defaultLeft() && oldPlotAxis != RiuPlotAxis::defaultRight() )
@@ -1955,25 +1827,10 @@ RiuPlotWidget* RimHistogramPlot::doCreatePlotViewWidget( QWidget* mainWindowPare
             plotWidget()->ensureAxisIsCreated( axisProperties->plotAxis() );
         }
 
-        // for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-        // {
-        //     curve->setParentPlotNoReplot( plotWidget() );
-        // }
-
-        // for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-        // {
-        //     curve->setParentPlotNoReplot( plotWidget() );
-        // }
-
         if ( m_histogramCurveCollection )
         {
             m_histogramCurveCollection->setParentPlotNoReplot( plotWidget() );
         }
-
-        // if ( m_ensembleCurveSetCollection )
-        // {
-        //     m_ensembleCurveSetCollection->setParentPlotNoReplot( plotWidget() );
-        // }
 
         connect( plotWidget(), SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
 
@@ -1992,62 +1849,6 @@ void RimHistogramPlot::deleteViewWidget()
 {
     deletePlotCurvesAndPlotWidget();
 }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::initAfterRead()
-// {
-//     RimViewWindow::initAfterRead();
-
-//     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.10.2" ) )
-//     {
-//         auto copyAxis = [this]( RiuPlotAxis axis, auto sourceObject )
-//         {
-//             auto axisProperties = axisPropertiesForPlotAxis( axis );
-//             if ( axisProperties )
-//             {
-//                 QString data = sourceObject->writeObjectToXmlString();
-
-//                 // This operation will overwrite the plot axis side, default is left
-//                 axisProperties->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
-
-//                 auto plotAxisProperties = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
-//                 if ( plotAxisProperties )
-//                 {
-//                     // Reset the plot axis for the axis property
-//                     plotAxisProperties->setNameAndAxis( axisProperties->objectName(), axisProperties->axisTitleText(), axis.axis(), 0 );
-//                 }
-//             }
-//         };
-
-//     }
-
-//     for ( const auto& axisProperties : m_axisPropertiesArray )
-//     {
-//         auto plotAxisProperties = dynamic_cast<RimPlotAxisProperties*>( axisProperties.p() );
-//         if ( plotAxisProperties )
-//         {
-//             connectAxisSignals( plotAxisProperties );
-//         }
-//         auto* timeAxis = dynamic_cast<RimHistogramTimeAxisProperties*>( axisProperties.p() );
-//         if ( timeAxis )
-//         {
-//             timeAxis->settingsChanged.connect( this, &RimHistogramPlot::timeAxisSettingsChanged );
-//             timeAxis->requestLoadDataAndUpdate.connect( this, &RimHistogramPlot::timeAxisSettingsChangedReloadRequired );
-//         }
-//     }
-
-//     for ( auto curve : histogramCurves() )
-//     {
-//         connectCurveSignals( curve );
-//     }
-
-//     for ( auto curve : gridTimeHistoryCurves() )
-//     {
-//         connectCurveSignals( curve );
-//     }
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -2291,11 +2092,11 @@ std::vector<RimPlotAxisProperties*> RimHistogramPlot::plotAxes( RimPlotAxisPrope
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::assignPlotAxis( RimHistogramCurve* destinationCurve )
-// {
-//     assignXPlotAxis( destinationCurve );
-//     assignYPlotAxis( destinationCurve );
-// }
+void RimHistogramPlot::assignPlotAxis( RimHistogramCurve* destinationCurve )
+{
+    destinationCurve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+    destinationCurve->setTopOrBottomAxisX( RiuPlotAxis::defaultBottom() );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -2603,7 +2404,7 @@ void RimHistogramPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::onUpdateCurveOrder()
 {
-    //    m_histogramCurveCollection->updateCurveOrder();
+    m_histogramCurveCollection->updateCurveOrder();
 }
 
 //--------------------------------------------------------------------------------------------------

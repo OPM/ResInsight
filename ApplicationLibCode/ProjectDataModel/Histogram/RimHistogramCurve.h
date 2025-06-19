@@ -41,50 +41,18 @@ public:
     ~RimHistogramCurve() override;
 
     // Y Axis functions
-    // RimHistogramCase*             histogramCaseY() const;
-    // RifEclipseHistogramAddress    histogramAddressY() const;
     std::string                 unitNameY() const;
     virtual std::vector<double> valuesY() const;
+    void                        setLeftOrRightAxisY( RiuPlotAxis plotAxis );
+    RiuPlotAxis                 axisY() const;
 
-    // RifEclipseHistogramAddress    errorHistogramAddressY() const;
-    // std::vector<double>         errorValuesY() const;
-    void        setLeftOrRightAxisY( RiuPlotAxis plotAxis );
-    RiuPlotAxis axisY() const;
-    // virtual std::vector<time_t> timeStepsY() const;
-    // double                      yValueAtTimeT( time_t time ) const;
-    // void                        setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
-
-    // RifEclipseHistogramAddressDefines::CurveType curveType() const;
-
-    // // X Axis functions
-    //  void setAxisTypeX( RiaDefines::HorizontalAxisType axisType );
-    // RiaDefines::HorizontalAxisType axisTypeX() const;
-    // RimHistogramCase*                histogramCaseX() const;
-    // RifEclipseHistogramAddress       histogramAddressX() const;
+    // X Axis functions
     std::string                 unitNameX() const;
     virtual std::vector<double> valuesX() const;
-
-    // void        setHistogramCaseX( RimHistogramCase* sumCase );
-    // void        setHistogramAddressX( const RifEclipseHistogramAddress& address );
-    // void        setTopOrBottomAxisX( RiuPlotAxis plotAxis );
-    RiuPlotAxis axisX() const;
-
-    // // Other
-    // bool isEnsembleCurve() const;
+    void                        setTopOrBottomAxisX( RiuPlotAxis plotAxis );
+    RiuPlotAxis                 axisX() const;
 
     void updatePlotAxis();
-    // void enableVectorNameInCurveName( bool enable );
-
-    // QString curveExportDescription( const RifEclipseHistogramAddress& address ) const override;
-    // void    setCurveAppearanceFromCaseType();
-    // void    setDefaultCurveAppearance();
-
-    // void setAsTopZWithinCategory( bool enable );
-    // void setZIndexFromCurveInfo();
-
-    // RiaDefines::PhaseType phaseType() const override;
-
-    // virtual bool isRegressionCurve() const;
     void updateLegendEntryVisibilityNoPlotUpdate() override;
 
     void setDataSource( RimHistogramDataSource* dataSource );
@@ -99,30 +67,18 @@ protected:
 
     void updateLegendsInPlot() override;
 
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    // void   initAfterRead() override;
+    void   defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     double computeCurveZValue() override;
-
-    // virtual std::vector<time_t> timeStepsX() const;
-
-    // virtual void updateTimeAnnotations();
-    bool canCurveBeAttached() const override;
+    bool   canCurveBeAttached() const override;
 
     // Overridden PDM methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void hideXAxisGroup();
 
     void onDataSourceChanged( const caf::SignalEmitter* emitter );
-
-private:
-    // void calculateCurveInterpolationFromAddress();
-    // void calculateCurveTypeFromAddress();
-
-    // static void appendOptionItemsForHistogramAddresses( QList<caf::PdmOptionItemInfo>* options, RimHistogramCase* histogramCase );
 
 private:
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;
