@@ -1463,6 +1463,12 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             {
                 uiTreeOrdering.add( m_mainPlotCollection->vfpPlotCollection() );
             }
+
+            if ( m_mainPlotCollection->histogramMultiPlotCollection() )
+            {
+                uiTreeOrdering.add( m_mainPlotCollection->histogramMultiPlotCollection() );
+            }
+
 #ifdef USE_QTCHARTS
             if ( m_mainPlotCollection->gridStatisticsPlotCollection() || m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
             {

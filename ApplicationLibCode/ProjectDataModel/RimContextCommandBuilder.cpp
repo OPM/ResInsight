@@ -25,6 +25,8 @@
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Histogram/RimHistogramMultiPlot.h"
+#include "Histogram/RimHistogramPlot.h"
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Rim3dOverlayInfoConfig.h"
@@ -991,6 +993,25 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicSnapshotViewToPdfFeature";
             menuBuilder << "RicSaveMultiPlotTemplateFeature";
             menuBuilder << "RicPasteSummaryMultiPlotFeature";
+        }
+        else if ( dynamic_cast<RimHistogramMultiPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewDefaultHistogramPlotFeature";
+        }
+        else if ( dynamic_cast<RimHistogramPlot*>( firstUiItem ) )
+        {
+            menuBuilder.subMenuStart( "New Histogram Curve" );
+
+            // TODO: make an enum of these?
+            std::vector<QString> curveTypes = { "Ensemble Parameter", "Grid Statistics", "Summary Vector" };
+
+            for ( const QString& curveType : curveTypes )
+            {
+                QString menuText = curveType;
+                menuBuilder.addCmdFeatureWithUserData( "RicNewHistogramCurveFeature", menuText, QVariant( curveType ) );
+            }
+
+            menuBuilder.subMenuEnd();
         }
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {

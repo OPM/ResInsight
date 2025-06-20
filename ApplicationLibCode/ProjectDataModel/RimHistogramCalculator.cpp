@@ -250,25 +250,28 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
     {
         RigEclipseResultAddress eclResAddr  = eclResultDefinition->eclipseResultAddress();
         RigCaseCellResultsData* cellResults = eclResultDefinition->currentGridCellResults();
-        if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
+        if ( cellResults && eclResAddr.isValid() )
         {
-            cellResults->setStatisticsDataCacheNumBins( eclResAddr, m_numBins );
-            cellResults->minMaxCellScalarValues( eclResAddr, histData.min, histData.max );
-            cellResults->p10p90CellScalarValues( eclResAddr, histData.p10, histData.p90 );
-            cellResults->meanCellScalarValues( eclResAddr, histData.mean );
-            cellResults->sumCellScalarValues( eclResAddr, histData.sum );
-            cellResults->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
-            histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr );
-        }
-        else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
-        {
-            cellResults->setStatisticsDataCacheNumBins( eclResAddr, m_numBins );
-            cellResults->minMaxCellScalarValues( eclResAddr, timeStep, histData.min, histData.max );
-            cellResults->p10p90CellScalarValues( eclResAddr, timeStep, histData.p10, histData.p90 );
-            cellResults->meanCellScalarValues( eclResAddr, timeStep, histData.mean );
-            cellResults->sumCellScalarValues( eclResAddr, timeStep, histData.sum );
-            cellResults->mobileVolumeWeightedMean( eclResAddr, timeStep, histData.weightedMean );
-            histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr, timeStep );
+            if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
+            {
+                cellResults->setStatisticsDataCacheNumBins( eclResAddr, m_numBins );
+                cellResults->minMaxCellScalarValues( eclResAddr, histData.min, histData.max );
+                cellResults->p10p90CellScalarValues( eclResAddr, histData.p10, histData.p90 );
+                cellResults->meanCellScalarValues( eclResAddr, histData.mean );
+                cellResults->sumCellScalarValues( eclResAddr, histData.sum );
+                cellResults->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
+                histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr );
+            }
+            else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
+            {
+                cellResults->setStatisticsDataCacheNumBins( eclResAddr, m_numBins );
+                cellResults->minMaxCellScalarValues( eclResAddr, timeStep, histData.min, histData.max );
+                cellResults->p10p90CellScalarValues( eclResAddr, timeStep, histData.p10, histData.p90 );
+                cellResults->meanCellScalarValues( eclResAddr, timeStep, histData.mean );
+                cellResults->sumCellScalarValues( eclResAddr, timeStep, histData.sum );
+                cellResults->mobileVolumeWeightedMean( eclResAddr, timeStep, histData.weightedMean );
+                histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr, timeStep );
+            }
         }
     }
     else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
