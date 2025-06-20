@@ -99,6 +99,7 @@ list(
   FileInterface/CMakeLists_files.cmake
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
+  ProjectDataModel/Appearance/CMakeLists_files.cmake
   ProjectDataModel/CorrelationPlots/CMakeLists_files.cmake
   ProjectDataModel/ContourMap/CMakeLists_files.cmake
   ProjectDataModel/Cloud/CMakeLists_files.cmake
