@@ -44,4 +44,12 @@ public:
     virtual std::vector<double> valuesY( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const = 0;
 
     virtual std::string name() const = 0;
+
+    static std::vector<double> computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType );
+    static std::vector<double> computeHistogramFrequencies( const std::vector<size_t>&      values,
+                                                            RimHistogramPlot::GraphType     graphType,
+                                                            RimHistogramPlot::FrequencyType frequencyType );
+    static std::vector<double> computeHistogramFrequencies( const std::vector<double>&      values,
+                                                            RimHistogramPlot::GraphType     graphType,
+                                                            RimHistogramPlot::FrequencyType frequencyType );
 };

@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 
 #include "Histogram/RimEnsembleParameterHistogramDataSource.h"
+#include "Histogram/RimEnsembleSummaryVectorHistogramDataSource.h"
 #include "Histogram/RimGridStatisticsHistogramDataSource.h"
 #include "Histogram/RimHistogramCurve.h"
 #include "Histogram/RimHistogramCurveCollection.h"
@@ -62,7 +63,7 @@ void RicNewHistogramCurveFeature::onActionTriggered( bool isChecked )
         else if ( dataSourceType == "Grid Statistics" )
             return new RimGridStatisticsHistogramDataSource();
         else if ( dataSourceType == "Summary Vector" )
-            return nullptr;
+            return new RimEnsembleSummaryVectorHistogramDataSource();
         return nullptr;
     };
 

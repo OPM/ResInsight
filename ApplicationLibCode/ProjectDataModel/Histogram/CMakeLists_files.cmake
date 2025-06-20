@@ -1,5 +1,6 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleParameterHistogramDataSource.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleSummaryVectorHistogramDataSource.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsHistogramDataSource.h
     ${CMAKE_CURRENT_LIST_DIR}/RimHistogramCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimHistogramCurveCollection.h
@@ -11,6 +12,7 @@ set(SOURCE_GROUP_HEADER_FILES
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleParameterHistogramDataSource.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleSummaryVectorHistogramDataSource.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsHistogramDataSource.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimHistogramCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimHistogramCurveCollection.cpp

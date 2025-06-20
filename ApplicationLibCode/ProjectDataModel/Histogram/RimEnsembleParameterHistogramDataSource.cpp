@@ -18,9 +18,9 @@
 
 #include "RimEnsembleParameterHistogramDataSource.h"
 
-#include "Histogram/RimHistogramPlot.h"
 #include "RiaLogging.h"
 
+#include "Histogram/RimHistogramPlot.h"
 #include "RimProject.h"
 #include "RimSummaryEnsemble.h"
 
@@ -145,31 +145,14 @@ std::string RimEnsembleParameterHistogramDataSource::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimEnsembleParameterHistogramDataSource::valuesX( RimHistogramPlot::GraphType graphType ) const
 {
-    std::vector<double> values;
-    if ( m_ensemble )
-    {
-        auto parameter = m_ensemble->ensembleParameter( m_parameter );
-        if ( parameter.isNumeric() && parameter.isValid() )
-        {
-            double min     = parameter.minValue;
-            double max     = parameter.maxValue;
-            double binSize = ( max - min ) / m_numBins;
-            for ( int i = 0; i < m_numBins; i++ )
-            {
-                if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
-                {
-                    values.push_back( min + binSize * i );
-                    values.push_back( min + binSize * ( i + 1 ) );
-                }
-                else if ( graphType == RimHistogramPlot::GraphType::LINE_GRAPH )
-                {
-                    double centerOfBin = min + binSize * i + binSize / 2.0;
-                    values.push_back( centerOfBin );
-                }
-            }
-        }
-    }
-    return values;
+    if ( !m_ensemble ) return {};
+
+    auto parameter = m_ensemble->ensembleParameter( m_parameter );
+    if ( !parameter.isNumeric() || !parameter.isValid() ) return {};
+
+    double min = parameter.minValue;
+    double max = parameter.maxValue;
+    return computeHistogramBins( min, max, m_numBins, graphType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,52 +161,31 @@ std::vector<double> RimEnsembleParameterHistogramDataSource::valuesX( RimHistogr
 std::vector<double> RimEnsembleParameterHistogramDataSource::valuesY( RimHistogramPlot::GraphType     graphType,
                                                                       RimHistogramPlot::FrequencyType frequencyType ) const
 {
-    if ( m_ensemble )
+    if ( !m_ensemble ) return {};
+
+    auto parameter = m_ensemble->ensembleParameter( m_parameter );
+    if ( !parameter.isNumeric() || !parameter.isValid() ) return {};
+
+    std::vector<double> values;
+    for ( const QVariant& v : parameter.values )
     {
-        auto parameter = m_ensemble->ensembleParameter( m_parameter );
-        if ( parameter.isNumeric() && parameter.isValid() )
-        {
-            std::vector<double> values;
-            for ( const QVariant& v : parameter.values )
-            {
-                values.push_back( v.toDouble() );
-            }
-
-            double min = parameter.minValue;
-            double max = parameter.maxValue;
-
-            std::vector<size_t>    histogram;
-            RigHistogramCalculator histCalc( min, max, m_numBins, &histogram );
-            histCalc.addData( values );
-
-            double p10 = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::REGULAR );
-            double p50 = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::REGULAR );
-            double p90 = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::REGULAR );
-
-            RiaLogging::info( QString( "%1: P10=%2 Mean=%3 P90=%4" ).arg( QString::fromStdString( name() ) ).arg( p10 ).arg( p50 ).arg( p90 ) );
-
-            double sumElements = 0.0;
-            for ( double value : histogram )
-                sumElements += value;
-
-            std::vector<double> frequencies;
-            for ( size_t frequency : histogram )
-            {
-                double value = frequency;
-                if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY ) value /= sumElements;
-                if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY_PERCENT ) value = value / sumElements * 100.0;
-
-                frequencies.push_back( value );
-                if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
-                {
-                    frequencies.push_back( value );
-                }
-            }
-            return frequencies;
-        }
+        values.push_back( v.toDouble() );
     }
 
-    return {};
+    double min = parameter.minValue;
+    double max = parameter.maxValue;
+
+    std::vector<size_t>    histogram;
+    RigHistogramCalculator histCalc( min, max, m_numBins, &histogram );
+    histCalc.addData( values );
+
+    double p10 = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::REGULAR );
+    double p50 = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::REGULAR );
+    double p90 = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::REGULAR );
+
+    RiaLogging::info( QString( "%1: P10=%2 Mean=%3 P90=%4" ).arg( QString::fromStdString( name() ) ).arg( p10 ).arg( p50 ).arg( p90 ) );
+
+    return computeHistogramFrequencies( values, graphType, frequencyType );
 }
 
 //--------------------------------------------------------------------------------------------------

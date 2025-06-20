@@ -35,3 +35,65 @@ RimHistogramDataSource::RimHistogramDataSource()
 RimHistogramDataSource::~RimHistogramDataSource()
 {
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimHistogramDataSource::computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType )
+{
+    const double binSize = ( max - min ) / numBins;
+
+    std::vector<double> values;
+    for ( int i = 0; i < numBins; i++ )
+    {
+        if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
+        {
+            values.push_back( min + binSize * i );
+            values.push_back( min + binSize * ( i + 1 ) );
+        }
+        else if ( graphType == RimHistogramPlot::GraphType::LINE_GRAPH )
+        {
+            double centerOfBin = min + binSize * i + binSize / 2.0;
+            values.push_back( centerOfBin );
+        }
+    }
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimHistogramDataSource::computeHistogramFrequencies( const std::vector<size_t>&      values,
+                                                                         RimHistogramPlot::GraphType     graphType,
+                                                                         RimHistogramPlot::FrequencyType frequencyType )
+{
+    std::vector<double> valuesAsDouble( values.begin(), values.end() );
+    return computeHistogramFrequencies( valuesAsDouble, graphType, frequencyType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimHistogramDataSource::computeHistogramFrequencies( const std::vector<double>&      values,
+                                                                         RimHistogramPlot::GraphType     graphType,
+                                                                         RimHistogramPlot::FrequencyType frequencyType )
+{
+    double sumElements = 0.0;
+    for ( double value : values )
+        sumElements += value;
+
+    std::vector<double> frequencies;
+    for ( double frequency : values )
+    {
+        double value = frequency;
+        if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY ) value /= sumElements;
+        if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY_PERCENT ) value = value / sumElements * 100.0;
+
+        frequencies.push_back( value );
+        if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
+        {
+            frequencies.push_back( value );
+        }
+    }
+    return frequencies;
+}
