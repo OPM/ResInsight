@@ -489,20 +489,23 @@ void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled( bool isExpa
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
 {
-    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
-    for ( it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it )
+    // Trigger a hide event the editor to allow it to clean up. This is required to persist the changes in
+    // the editor when changing to a different dock widget. Hide all editors before deleting them.
+    // https://github.com/OPM/ResInsight/issues/12599
+    for ( const auto& [fieldHandle, fieldEditor] : m_fieldViews )
     {
-        if ( PdmUiFieldEditorHandle* fvh = it->second )
+        if ( fieldEditor && fieldEditor->editorWidget() )
         {
-            if ( auto editor = fvh->editorWidget() )
-            {
-                // Trigger a hide event the editor to allow it to clean up. This is required to persist the changes in
-                // the editor when changing to a different dock widget.
-                // https://github.com/OPM/ResInsight/issues/12599
-                editor->hide();
-            }
+            fieldEditor->editorWidget()->hide();
+        }
+    }
 
-            delete fvh;
+    // Delete all field editors, make sure this is done after the field editors have been hidden
+    for ( const auto& [fieldHandle, fieldEditor] : m_fieldViews )
+    {
+        if ( fieldEditor )
+        {
+            delete fieldEditor;
         }
     }
     m_fieldViews.clear();
