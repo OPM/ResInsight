@@ -26,8 +26,6 @@
 #include "RimProject.h"
 #include "RimTools.h"
 
-#include "RigStatisticsMath.h"
-
 #include "cafPdmUiComboBoxEditor.h"
 
 CAF_PDM_XML_SOURCE_INIT( RimGridStatisticsHistogramDataSource, "GridStatisticsHistogramDataSource" );
@@ -66,7 +64,7 @@ RimGridStatisticsHistogramDataSource::~RimGridStatisticsHistogramDataSource()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimGridStatisticsHistogramDataSource::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options; // = RimStatisticsPlot::calculateValueOptions( fieldNeedingOptions );
+    QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_case )
     {
@@ -84,8 +82,7 @@ QList<caf::PdmOptionItemInfo> RimGridStatisticsHistogramDataSource::calculateVal
     }
     else if ( fieldNeedingOptions == &m_cellFilterView )
     {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
-        if ( eclipseCase )
+        if ( RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() ) )
         {
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
             for ( RimEclipseView* view : eclipseCase->reservoirViews() )
@@ -127,8 +124,7 @@ void RimGridStatisticsHistogramDataSource::fieldChangedByUi( const caf::PdmField
 {
     if ( changedField == &m_case )
     {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-        if ( eclipseCase )
+        if ( RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() ) )
         {
             m_property->setEclipseCase( eclipseCase );
             m_property->updateConnectedEditors();
@@ -188,11 +184,8 @@ std::vector<double> RimGridStatisticsHistogramDataSource::valuesY( RimHistogramP
 //--------------------------------------------------------------------------------------------------
 RigHistogramData RimGridStatisticsHistogramDataSource::createStatisticsData() const
 {
-    std::unique_ptr<RimHistogramCalculator> histogramCalculator;
-    histogramCalculator = std::make_unique<RimHistogramCalculator>();
+    std::unique_ptr<RimHistogramCalculator> histogramCalculator = std::make_unique<RimHistogramCalculator>();
     histogramCalculator->setNumBins( static_cast<size_t>( m_numBins() ) );
-
-    RigHistogramData histogramData;
 
     RimHistogramCalculator::StatisticsCellRangeType cellRange = RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
 
@@ -209,15 +202,13 @@ RigHistogramData RimGridStatisticsHistogramDataSource::createStatisticsData() co
         // Filter by visible cells of the view
         cellRange                   = RimHistogramCalculator::StatisticsCellRangeType::VISIBLE_CELLS;
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView.value() );
-        histogramData               = histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+        return histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
     }
     else
     {
         RimEclipseView* eclipseView = nullptr;
-        histogramData               = histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+        return histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
     }
-
-    return histogramData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,13 +224,9 @@ std::string RimGridStatisticsHistogramDataSource::name() const
 
     auto createTimeStepString = [this]() -> QString
     {
-        QString timeStepStr = "";
         if ( m_case() && m_property->hasDynamicResult() )
         {
-            if ( m_timeStep == -1 )
-            {
-                return "All Time Steps";
-            }
+            if ( m_timeStep == -1 ) return "All Time Steps";
             return m_case->timeStepStrings()[m_timeStep];
         }
 
