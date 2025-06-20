@@ -706,9 +706,11 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
     if ( auto widget = plotTrack->plotWidget() )
     {
-        auto formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( m_selectedTimeSteps() );
+        // Create curves with no content to display in the curve legend section. Ensures a consistent legend for both ensemble and
+        // statistics curves.
 
-        for ( auto [curveSet, dateTime] : curveSetsForLegend )
+        auto formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( m_selectedTimeSteps() );
+        for ( const auto& [curveSet, dateTime] : curveSetsForLegend )
         {
             auto riuCurve = widget->createPlotCurve( nullptr, "" );
             riuCurve->attachToPlot( plotTrack->plotWidget() );
@@ -1330,6 +1332,7 @@ bool RimWellRftPlot::useUndoRedoForFieldChanged()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::deleteViewWidget()
 {
+    // Required to detach curves before view widget is deleted. The Qwt plot curves are implicitly deleted when the view widget is deleted.
     detachAndDeleteLegendCurves();
 
     RimDepthTrackPlot::deleteViewWidget();
