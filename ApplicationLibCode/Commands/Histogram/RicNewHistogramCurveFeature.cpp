@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 
 #include "Histogram/RimEnsembleParameterHistogramDataSource.h"
+#include "Histogram/RimGridStatisticsHistogramDataSource.h"
 #include "Histogram/RimHistogramCurve.h"
 #include "Histogram/RimHistogramCurveCollection.h"
 #include "Histogram/RimHistogramPlot.h"
@@ -54,12 +55,23 @@ void RicNewHistogramCurveFeature::onActionTriggered( bool isChecked )
     RimProject*        project = app->project();
     CAF_ASSERT( project );
 
+    auto getDataSourceFromString = []( const QString& dataSourceType ) -> RimHistogramDataSource*
+    {
+        if ( dataSourceType == "Ensemble Parameter" )
+            return new RimEnsembleParameterHistogramDataSource();
+        else if ( dataSourceType == "Grid Statistics" )
+            return new RimGridStatisticsHistogramDataSource();
+        else if ( dataSourceType == "Summary Vector" )
+            return nullptr;
+        return nullptr;
+    };
+
     RimHistogramPlot* plot = selectedHistogramPlot();
     if ( plot )
     {
         RimHistogramCurve* newCurve = new RimHistogramCurve();
 
-        auto dataSource = new RimEnsembleParameterHistogramDataSource();
+        RimHistogramDataSource* dataSource = getDataSourceFromString( userData().toString() );
         newCurve->setDataSource( dataSource );
 
         cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( plot->curveCount() );

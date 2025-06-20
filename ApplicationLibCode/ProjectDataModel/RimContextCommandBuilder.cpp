@@ -1000,7 +1000,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimHistogramPlot*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewHistogramCurveFeature";
+            menuBuilder.subMenuStart( "New Histogram Curve" );
+
+            // TODO: make an enum of these?
+            std::vector<QString> curveTypes = { "Ensemble Parameter", "Grid Statistics", "Summary Vector" };
+
+            for ( const QString& curveType : curveTypes )
+            {
+                QString menuText = curveType;
+                menuBuilder.addCmdFeatureWithUserData( "RicNewHistogramCurveFeature", menuText, QVariant( curveType ) );
+            }
+
+            menuBuilder.subMenuEnd();
         }
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {
