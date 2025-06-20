@@ -31,6 +31,7 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -138,33 +139,10 @@ void RimHistogramPlot::updateAxes()
 {
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
-
-    updateAnnotationsInPlotWidget();
-
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
     updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
 
     updatePlotWidgetFromAxisRanges();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimHistogramPlot::updateAnnotationsInPlotWidget()
-{
-    // if ( m_histogramPlot ) m_histogramPlot->clearAnnotationObjects();
-
-    // if ( !plotWidget() ) return;
-
-    // if ( timeAxisProperties() )
-    // {
-    //     m_histogramPlot->updateAnnotationObjects( timeAxisProperties() );
-    // }
-
-    // if ( auto leftYAxisProperties = axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) )
-    // {
-    //     m_histogramPlot->updateAnnotationObjects( leftYAxisProperties );
-    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,21 +163,6 @@ bool RimHistogramPlot::isCurveHighlightSupported() const
 {
     return true;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// RimHistogramTimeAxisProperties* RimHistogramPlot::timeAxisProperties()
-// {
-//     // Find the first time axis (which is correct since there is only one).
-//     // for ( const auto& ap : m_axisPropertiesArray )
-//     // {
-//     //     auto* timeAxis = dynamic_cast<RimHistogramTimeAxisProperties*>( ap.p() );
-//     //     if ( timeAxis ) return timeAxis;
-//     // }
-
-//     return nullptr;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -287,14 +250,6 @@ void RimHistogramPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// std::vector<RimEnsembleCurveSet*> RimHistogramPlot::curveSets() const
-// {
-//     return ensembleCurveSetCollection()->curveSets();
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimHistogramCurve*> RimHistogramPlot::histogramCurves() const
 {
     return m_histogramCurveCollection->curves();
@@ -321,13 +276,6 @@ std::vector<RimHistogramCurve*> RimHistogramPlot::histogramCurves() const
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::updatePlotTitle()
 {
-    // m_nameHelperAllCurves->clear();
-    // updateNameHelperWithCurveData( m_nameHelperAllCurves.get() );
-    // if ( m_useAutoPlotTitle )
-    // {
-    //     m_description = m_nameHelperAllCurves->plotTitle();
-    // }
-
     if ( m_description().isEmpty() )
     {
         auto multiPlot = firstAncestorOrThisOfType<RimMultiPlot>();
@@ -350,73 +298,6 @@ void RimHistogramPlot::updatePlotTitle()
         scheduleReplotIfVisible();
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// const RimHistogramNameHelper* RimHistogramPlot::activePlotTitleHelperAllCurves() const
-// {
-//     if ( m_useAutoPlotTitle() )
-//     {
-//         return m_nameHelperAllCurves.get();
-//     }
-
-//     return nullptr;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::copyAxisPropertiesFromOther( const RimHistogramPlot& sourceHistogramPlot )
-// {
-//     for ( auto ap : sourceHistogramPlot.allPlotAxes() )
-//     {
-//         QString data = ap->writeObjectToXmlString();
-
-//         auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxis() );
-//         if ( axisProperty )
-//         {
-//             axisProperty->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
-//         }
-//     }
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisType, const RimHistogramPlot& sourceHistogramPlot )
-// {
-//     for ( auto ap : sourceHistogramPlot.allPlotAxes() )
-//     {
-//         if ( ap->plotAxis().axis() != plotAxisType ) continue;
-
-//         QString data = ap->writeObjectToXmlString();
-
-//         auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxis() );
-//         if ( axisProperty )
-//         {
-//             axisProperty->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
-//         }
-//     }
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::copyMatchingAxisPropertiesFromOther( const RimHistogramPlot& histogramPlot )
-// {
-//     for ( auto apToCopy : histogramPlot.allPlotAxes() )
-//     {
-//         for ( auto ap : allPlotAxes() )
-//         {
-//             if ( ap->objectName().compare( apToCopy->objectName() ) == 0 )
-//             {
-//                 QString data = apToCopy->writeObjectToXmlString();
-//                 ap->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
-//             }
-//         }
-//     }
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -447,10 +328,10 @@ void RimHistogramPlot::updateLegend()
             plotWidget()->clearLegend();
         }
 
-        // for ( auto c : histogramCurves() )
-        // {
-        //     c->updateLegendEntryVisibilityNoPlotUpdate();
-        // }
+        for ( auto c : histogramCurves() )
+        {
+            c->updateLegendEntryVisibilityNoPlotUpdate();
+        }
     }
 
     reattachAllCurves();
@@ -467,108 +348,6 @@ void RimHistogramPlot::setLegendPosition( RiuPlotWidget::Legend position )
 {
     m_legendPosition = position;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// size_t RimHistogramPlot::singleColorCurveCount() const
-// {
-//     auto allCurveSets = ensembleCurveSetCollection()->curveSets();
-
-//     size_t colorIndex =
-//         std::count_if( allCurveSets.begin(),
-//                        allCurveSets.end(),
-//                        []( RimEnsembleCurveSet* curveSet )
-//                        { return RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ); } );
-
-//     colorIndex += curveCount();
-
-//     return colorIndex;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimHistogramPlot::applyDefaultCurveAppearances()
-{
-    // applyDefaultCurveAppearances( histogramCurves() );
-    // applyDefaultCurveAppearances( ensembleCurveSetCollection()->curveSets() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::applyDefaultCurveAppearances( std::vector<RimHistogramCurve*> curvesToUpdate )
-// {
-//     // std::set<RiaHistogramCurveDefinition> allCurveDefs = histogramAndEnsembleCurveDefinitions();
-//     // RimHistogramCurveAppearanceCalculator curveLookCalc( allCurveDefs );
-
-//     // for ( auto& curve : curvesToUpdate )
-//     // {
-//     //     curve->resetAppearance();
-//     //     curveLookCalc.setupCurveLook( curve );
-//     // }
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveSet*> ensembleCurvesToUpdate )
-// {
-//     // std::vector<QColor> usedColors;
-//     // for ( auto c : ensembleCurveSetCollection()->curveSets() )
-//     // {
-//     //     // ensembleCurvesToUpdate can be present in the ensembleCurveSetCollection()->curveSets() vector, exclude this from used
-//     //     // colors
-//     //     if ( std::find( ensembleCurvesToUpdate.begin(), ensembleCurvesToUpdate.end(), c ) == ensembleCurvesToUpdate.end() )
-//     //     {
-//     //         usedColors.push_back( c->mainEnsembleColor() );
-//     //     }
-//     // }
-
-//     for ( auto curveSet : ensembleCurvesToUpdate )
-//     {
-//         cvf::Color3f curveColor = cvf::Color3f::ORANGE;
-
-//         // const auto adr = curveSet->histogramAddressY();
-//         // if ( adr.isHistoryVector() )
-//         // {
-//         //     curveColor = RiaPreferencesHistogram::current()->historyCurveContrastColor();
-//         // }
-//         // else
-//         // {
-//         //     if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ) )
-//         //     {
-//         //         std::vector<QColor> candidateColors;
-//         //         if ( RiaPreferencesHistogram::current()->colorCurvesByPhase() )
-//         //         {
-//         //             // Put the the phase color as first candidate, will then be used if there is only one ensemble in the plot
-//         //             candidateColors.push_back( RiaColorTools::toQColor( RimHistogramCurveAppearanceCalculator::assignColorByPhase( adr
-//         )
-//         //             ) );
-//         //         }
-
-//         //         auto histogramColors = RiaColorTables::histogramCurveDefaultPaletteColors();
-//         //         for ( int i = 0; i < static_cast<int>( histogramColors.size() ); i++ )
-//         //         {
-//         //             candidateColors.push_back( histogramColors.cycledQColor( i ) );
-//         //         }
-
-//         //         for ( const auto& candidateCol : candidateColors )
-//         //         {
-//         //             if ( std::find( usedColors.begin(), usedColors.end(), candidateCol ) == usedColors.end() )
-//         //             {
-//         //                 curveColor = RiaColorTools::fromQColorTo3f( candidateCol );
-//         //                 usedColors.push_back( candidateCol );
-//         //                 break;
-//         //             }
-//         //         }
-//         //     }
-//         // }
-
-//         curveSet->setColor( curveColor );
-//     }
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -606,22 +385,6 @@ void RimHistogramPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
             bool hasVisibleCurveForAxis = !visibleHistogramCurvesForAxis( riuPlotAxis ).empty();
             bool shouldEnable           = axisProperties->isActive() && hasVisibleCurveForAxis;
             plotWidget()->enableAxis( riuPlotAxis, shouldEnable );
-
-            // if ( !hasVisibleCurveForAxis )
-            // {
-            //     axisProps->setNameForUnusedAxis();
-            // }
-            // else
-            // {
-            // }
-            // {
-            //     // std::set<QString> timeHistoryQuantities;
-
-            //     // RimHistogramPlotAxisFormatter calc( axisProps, {}, curveDefs, visibleAsciiDataCurvesForAxis( riuPlotAxis ),
-            //     // timeHistoryQuantities );
-
-            //     // calc.applyAxisPropertiesToPlot( plotWidget() );
-            // }
 
             plotWidget()->enableAxisNumberLabels( riuPlotAxis, axisProps->showNumbers() );
         }
@@ -702,71 +465,6 @@ void RimHistogramPlot::enableCurvePointTracking( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// RiuPlotAxis RimHistogramPlot::plotAxisForTime()
-// {
-//     return RiuPlotAxis::defaultBottom();
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::findOrAssignPlotAxisX( RimHistogramCurve* curve )
-// {
-//     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
-//     {
-//         if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
-//         {
-//             auto propertyAxis = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
-//             if ( propertyAxis )
-//             {
-//                 curve->setTopOrBottomAxisX( propertyAxis->plotAxis() );
-
-//                 return;
-//             }
-//         }
-//     }
-
-//     if ( curve->histogramCaseX() != nullptr )
-//     {
-//         if ( !plotWidget() )
-//         {
-//             // Assign a default bottom axis if no plot widget is present. This can happens during project load and transformation to new
-//             // cross plot structure in RimMainPlotCollection::initAfterRead()
-
-//             QString axisObjectName = "New Axis";
-//             if ( !curve->histogramAddressX().uiText().empty() )
-//                 axisObjectName = QString::fromStdString( curve->histogramAddressX().uiText() );
-
-//             RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultBottomForHistogramVectors();
-//             addNewAxisProperties( newPlotAxis, axisObjectName );
-
-//             curve->setTopOrBottomAxisX( newPlotAxis );
-
-//             return;
-//         }
-
-//         if ( plotWidget()->isMultiAxisSupported() )
-//         {
-//             QString axisObjectName = "New Axis";
-//             if ( !curve->histogramAddressX().uiText().empty() )
-//                 axisObjectName = QString::fromStdString( curve->histogramAddressX().uiText() );
-
-//             RiuPlotAxis newPlotAxis = plotWidget()->createNextPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-//             addNewAxisProperties( newPlotAxis, axisObjectName );
-//             if ( plotWidget() )
-//             {
-//                 plotWidget()->ensureAxisIsCreated( newPlotAxis );
-//             }
-
-//             updateAxes();
-//             curve->setTopOrBottomAxisX( newPlotAxis );
-//         }
-//     }
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::scheduleReplotIfVisible()
 {
     if ( showWindow() && plotWidget() ) plotWidget()->scheduleReplot();
@@ -796,29 +494,6 @@ std::vector<RimHistogramCurve*> RimHistogramPlot::visibleHistogramCurvesForAxis(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// bool RimHistogramPlot::hasVisibleCurvesForAxis( RiuPlotAxis plotAxis ) const
-// {
-//     if ( !visibleHistogramCurvesForAxis( plotAxis ).empty() )
-//     {
-//         return true;
-//     }
-
-//     if ( !visibleTimeHistoryCurvesForAxis( plotAxis ).empty() )
-//     {
-//         return true;
-//     }
-
-//     if ( !visibleAsciiDataCurvesForAxis( plotAxis ).empty() )
-//     {
-//         return true;
-//     }
-
-//     return false;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimPlotAxisPropertiesInterface* RimHistogramPlot::axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const
 {
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
@@ -844,18 +519,6 @@ void RimHistogramPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::addCurveAndUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis )
-// {
-//     if ( curve )
-//     {
-//         m_histogramCurveCollection->addCurve( curve );
-//         connectCurveToPlot( curve, true, autoAssignPlotAxis );
-//     }
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::addCurveNoUpdate( RimHistogramCurve* curve, bool autoAssignPlotAxis )
 {
     if ( curve )
@@ -864,18 +527,6 @@ void RimHistogramPlot::addCurveNoUpdate( RimHistogramCurve* curve, bool autoAssi
         connectCurveToPlot( curve, false, autoAssignPlotAxis );
     }
 }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::insertCurve( RimHistogramCurve* curve, size_t insertAtPosition )
-// {
-//     if ( curve )
-//     {
-//         m_histogramCurveCollection->insertCurve( curve, insertAtPosition );
-//         connectCurveToPlot( curve, false, true );
-//     }
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1000,11 +651,10 @@ void RimHistogramPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         if ( !m_useAutoPlotTitle )
         {
             // When auto name of plot is turned off, update the auto name for all curves
-
-            // for ( auto c : histogramCurves() )
-            // {
-            //     c->updateCurveNameNoLegendUpdate();
-            // }
+            for ( auto c : histogramCurves() )
+            {
+                c->updateCurveNameNoLegendUpdate();
+            }
         }
 
         titleChanged.send();
@@ -1039,24 +689,6 @@ void RimHistogramPlot::updateStackedCurveData()
         scheduleReplotIfVisible();
     }
 }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// bool RimHistogramPlot::updateStackedCurveDataForRelevantAxes()
-// {
-//     bool anyStackedCurvesPresent = false;
-//     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
-//     {
-//         if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-//              axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-//         {
-//             anyStackedCurvesPresent |= updateStackedCurveDataForAxis( axisProperties->plotAxis() );
-//         }
-//     }
-
-//     return anyStackedCurvesPresent;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1404,355 +1036,6 @@ bool RimHistogramPlot::autoPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// RimHistogramPlot::CurveInfo RimHistogramPlot::handleHistogramCaseDrop( RimHistogramCase* histogramCase )
-// {
-//     std::map<std::pair<RifEclipseHistogramAddress, RifEclipseHistogramAddress>, std::set<RimHistogramCase*>> dataVectorMap;
-
-//     for ( auto& curve : histogramCurves() )
-//     {
-//         const auto addr  = curve->histogramAddressY();
-//         const auto addrX = curve->histogramAddressX();
-
-//         // NB! This concept is used to make it possible to avoid adding curves for a case that is already present
-//         // To be complete, the histogramCaseX() should also be checked, but this is not done for now
-//         dataVectorMap[std::make_pair( addr, addrX )].insert( curve->histogramCaseY() );
-//     }
-
-//     std::vector<RimHistogramCurve*> curves;
-
-//     for ( const auto& [addressPair, cases] : dataVectorMap )
-//     {
-//         if ( cases.count( histogramCase ) > 0 ) continue;
-
-//         const auto& [addrY, addrX] = addressPair;
-
-//         curves.push_back( addNewCurve( addrY, histogramCase, addrX, histogramCase ) );
-//     }
-
-//     return { .curveCount = static_cast<int>( curves.size() ), .curves = curves, .curveSets = {} };
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// RimHistogramPlot::CurveInfo RimHistogramPlot::handleEnsembleDrop( RimHistogramEnsemble* ensemble )
-// {
-//     int                               newCurves = 0;
-//     std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
-
-//     std::map<RiaHistogramCurveAddress, std::set<RimHistogramEnsemble*>> dataVectorMap;
-
-//     for ( auto& curve : curveSets() )
-//     {
-//         const auto addr = curve->curveAddress();
-//         dataVectorMap[addr].insert( curve->histogramEnsemble() );
-//     }
-
-//     for ( const auto& [addr, ensembles] : dataVectorMap )
-//     {
-//         if ( ensembles.count( ensemble ) > 0 ) continue;
-
-//         auto curveSet = RiaHistogramPlotTools::addNewEnsembleCurve( this, addr, ensemble );
-//         curveSetsToUpdate.push_back( curveSet );
-//         newCurves++;
-//     }
-
-//     return { newCurves, {}, curveSetsToUpdate };
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// RimHistogramPlot::CurveInfo RimHistogramPlot::handleAddressCollectionDrop( RimHistogramAddressCollection* addressCollection )
-// {
-//     int                               newCurves = 0;
-//     std::vector<RimHistogramCurve*>   curves;
-//     std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
-
-//     auto droppedName = addressCollection->name().toStdString();
-
-//     auto histogramCase = RiaHistogramTools::histogramCaseById( addressCollection->caseId() );
-//     auto ensembleCase  = RiaHistogramTools::ensembleById( addressCollection->ensembleId() );
-
-//     std::vector<RiaHistogramCurveDefinition>                     sourceCurveDefs;
-//     std::map<RiaHistogramCurveDefinition, std::set<std::string>> newCurveDefsWithObjectNames;
-
-//     if ( histogramCase && !ensembleCase )
-//     {
-//         for ( auto& curve : histogramCurves() )
-//         {
-//             sourceCurveDefs.push_back( curve->curveDefinition() );
-//         }
-//     }
-
-//     if ( ensembleCase )
-//     {
-//         auto curveSets = m_ensembleCurveSetCollection->curveSets();
-//         for ( auto curveSet : curveSets )
-//         {
-//             sourceCurveDefs.emplace_back( ensembleCase, curveSet->curveAddress() );
-//         }
-//     }
-
-//     for ( auto& curveDef : sourceCurveDefs )
-//     {
-//         auto       newCurveDef = curveDef;
-//         const auto curveAdr    = newCurveDef.histogramAddressY();
-
-//         std::string objectIdentifierString;
-//         if ( ( curveAdr.category() == RifEclipseHistogramAddressDefines::HistogramCategory::HISTOGRAM_WELL ) &&
-//              ( addressCollection->contentType() == RimHistogramAddressCollection::CollectionContentType::WELL ) )
-//         {
-//             objectIdentifierString = curveAdr.wellName();
-//         }
-//         else if ( ( curveAdr.category() == RifEclipseHistogramAddressDefines::HistogramCategory::HISTOGRAM_GROUP ) &&
-//                   ( addressCollection->contentType() == RimHistogramAddressCollection::CollectionContentType::GROUP ) )
-//         {
-//             objectIdentifierString = curveAdr.groupName();
-//         }
-//         else if ( ( curveAdr.category() == RifEclipseHistogramAddressDefines::HistogramCategory::HISTOGRAM_NETWORK ) &&
-//                   ( addressCollection->contentType() == RimHistogramAddressCollection::CollectionContentType::NETWORK ) )
-//         {
-//             objectIdentifierString = curveAdr.networkName();
-//         }
-//         else if ( ( curveAdr.category() == RifEclipseHistogramAddressDefines::HistogramCategory::HISTOGRAM_REGION ) &&
-//                   ( addressCollection->contentType() == RimHistogramAddressCollection::CollectionContentType::REGION ) )
-//         {
-//             objectIdentifierString = std::to_string( curveAdr.regionNumber() );
-//         }
-//         else if ( ( curveAdr.category() == RifEclipseHistogramAddressDefines::HistogramCategory::HISTOGRAM_WELL_SEGMENT ) &&
-//                   ( addressCollection->contentType() == RimHistogramAddressCollection::CollectionContentType::WELL_SEGMENT ) )
-//         {
-//             objectIdentifierString = std::to_string( curveAdr.wellSegmentNumber() );
-//         }
-
-//         if ( !objectIdentifierString.empty() )
-//         {
-//             newCurveDef.setIdentifierText( curveAdr.category(), droppedName );
-
-//             newCurveDefsWithObjectNames[newCurveDef].insert( objectIdentifierString );
-//             const auto& addr = curveDef.histogramAddressY();
-//             if ( !addr.isHistoryVector() && RiaPreferencesHistogram::current()->appendHistoryVectors() )
-//             {
-//                 auto historyAddr = addr;
-//                 historyAddr.setVectorName( addr.vectorName() + RifEclipseHistogramAddressDefines::historyIdentifier() );
-
-//                 auto historyCurveDef = newCurveDef;
-//                 historyCurveDef.setHistogramAddressY( historyAddr );
-//                 newCurveDefsWithObjectNames[historyCurveDef].insert( objectIdentifierString );
-//             }
-//         }
-//     }
-
-//     for ( auto& [curveDef, objectNames] : newCurveDefsWithObjectNames )
-//     {
-//         // Skip adding new curves if the object name is already present for the curve definition
-//         if ( objectNames.count( droppedName ) > 0 ) continue;
-
-//         if ( curveDef.ensemble() )
-//         {
-//             auto addresses = curveDef.ensemble()->ensembleHistogramAddresses();
-//             if ( addresses.find( curveDef.histogramAddressY() ) != addresses.end() )
-//             {
-//                 auto curveSet = RiaHistogramPlotTools::addNewEnsembleCurve( this, curveDef.histogramCurveAddress(), curveDef.ensemble()
-//                 ); curveSetsToUpdate.push_back( curveSet ); newCurves++;
-//             }
-//         }
-//         else if ( curveDef.histogramCaseY() )
-//         {
-//             if ( curveDef.histogramCaseY()->histogramReader() &&
-//                  curveDef.histogramCaseY()->histogramReader()->hasAddress( curveDef.histogramAddressY() ) )
-//             {
-//                 auto curve = addNewCurve( curveDef.histogramAddressY(),
-//                                           curveDef.histogramCaseY(),
-//                                           curveDef.histogramAddressX(),
-//                                           curveDef.histogramCaseX() );
-//                 curves.push_back( curve );
-//                 if ( curveDef.histogramCaseX() )
-//                 {
-//                     curve->setAxisTypeX( RiaDefines::HorizontalAxisType::HISTOGRAM_VECTOR );
-//                     curve->setHistogramCaseX( curveDef.histogramCaseX() );
-//                     curve->setHistogramAddressX( curveDef.histogramAddressX() );
-//                     findOrAssignPlotAxisX( curve );
-//                 }
-//                 newCurves++;
-//             }
-//         }
-//     }
-
-//     return { newCurves, curves, curveSetsToUpdate };
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// RimHistogramPlot::CurveInfo RimHistogramPlot::handleHistogramAddressDrop( RimHistogramAddress* histogramAddr )
-// {
-//     int                               newCurves = 0;
-//     std::vector<RimHistogramCurve*>   curves;
-//     std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
-
-//     std::vector<RifEclipseHistogramAddress> newCurveAddresses;
-//     newCurveAddresses.push_back( histogramAddr->address() );
-//     if ( !histogramAddr->address().isHistoryVector() && RiaPreferencesHistogram::current()->appendHistoryVectors() )
-//     {
-//         auto historyAddr = histogramAddr->address();
-//         historyAddr.setVectorName( histogramAddr->address().vectorName() + RifEclipseHistogramAddressDefines::historyIdentifier() );
-//         newCurveAddresses.push_back( historyAddr );
-//     }
-
-//     if ( histogramAddr->isEnsemble() )
-//     {
-//         std::map<RifEclipseHistogramAddress, std::set<RimHistogramEnsemble*>> dataVectorMap;
-
-//         for ( auto& curve : curveSets() )
-//         {
-//             const auto addr = curve->histogramAddressY();
-//             dataVectorMap[addr].insert( curve->histogramEnsemble() );
-//         }
-
-//         auto ensemble = RiaHistogramTools::ensembleById( histogramAddr->ensembleId() );
-//         if ( ensemble )
-//         {
-//             for ( const auto& droppedAddress : newCurveAddresses )
-//             {
-//                 auto addresses = ensemble->ensembleHistogramAddresses();
-//                 if ( addresses.find( droppedAddress ) == addresses.end() ) continue;
-
-//                 bool skipAddress = false;
-//                 if ( dataVectorMap.count( droppedAddress ) > 0 )
-//                 {
-//                     skipAddress = ( dataVectorMap[droppedAddress].count( ensemble ) > 0 );
-//                 }
-
-//                 if ( !skipAddress )
-//                 {
-//                     auto curveSet =
-//                         RiaHistogramPlotTools::addNewEnsembleCurve( this,
-//                                                                     RiaHistogramCurveAddress( RifEclipseHistogramAddress::timeAddress(),
-//                                                                                               droppedAddress ),
-//                                                                     ensemble );
-
-//                     curveSetsToUpdate.push_back( curveSet );
-//                     newCurves++;
-//                 }
-//             }
-//         }
-//     }
-//     else
-//     {
-//         std::map<RifEclipseHistogramAddress, std::set<RimHistogramCase*>> dataVectorMap;
-
-//         for ( auto& curve : histogramCurves() )
-//         {
-//             const auto addr = curve->histogramAddressY();
-//             dataVectorMap[addr].insert( curve->histogramCaseY() );
-//         }
-
-//         auto histogramCase = RiaHistogramTools::histogramCaseById( histogramAddr->caseId() );
-//         if ( histogramCase )
-//         {
-//             for ( const auto& droppedAddress : newCurveAddresses )
-//             {
-//                 if ( !histogramCase->histogramReader() || !histogramCase->histogramReader()->hasAddress( droppedAddress ) ) continue;
-
-//                 bool skipAddress = false;
-
-//                 if ( dataVectorMap.count( droppedAddress ) > 0 )
-//                 {
-//                     skipAddress = ( dataVectorMap[droppedAddress].count( histogramCase ) > 0 );
-//                 }
-
-//                 if ( !skipAddress )
-//                 {
-//                     curves.push_back( addNewCurve( droppedAddress, histogramCase, RifEclipseHistogramAddress::timeAddress(), nullptr ) );
-//                     newCurves++;
-//                 }
-//             }
-//         }
-//     }
-//     return { newCurves, curves, curveSetsToUpdate };
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
-// {
-//     CurveInfo curveInfo;
-//     for ( auto obj : objects )
-//     {
-//         if ( auto histogramCase = dynamic_cast<RimHistogramCase*>( obj ) )
-//         {
-//             curveInfo.appendCurveInfo( handleHistogramCaseDrop( histogramCase ) );
-//         }
-//         else if ( auto ensemble = dynamic_cast<RimHistogramEnsemble*>( obj ) )
-//         {
-//             curveInfo.appendCurveInfo( handleEnsembleDrop( ensemble ) );
-//         }
-//         else if ( auto histogramAddr = dynamic_cast<RimHistogramAddress*>( obj ) )
-//         {
-//             curveInfo.appendCurveInfo( handleHistogramAddressDrop( histogramAddr ) );
-//         }
-
-//         else if ( auto addressCollection = dynamic_cast<RimHistogramAddressCollection*>( obj ) )
-//         {
-//             if ( addressCollection->isFolder() )
-//             {
-//                 for ( auto coll : addressCollection->subFolders() )
-//                 {
-//                     auto localInfo = handleAddressCollectionDrop( coll );
-//                     curveInfo.appendCurveInfo( localInfo );
-//                 }
-//             }
-//             else
-//             {
-//                 curveInfo.appendCurveInfo( handleAddressCollectionDrop( addressCollection ) );
-//             }
-//         }
-//     }
-
-//     if ( curveInfo.curveCount > 0 )
-//     {
-//         applyDefaultCurveAppearances( curveInfo.curves );
-//         applyDefaultCurveAppearances( curveInfo.curveSets );
-
-//         loadDataAndUpdate();
-//         zoomAll();
-
-//         curvesChanged.send();
-//     }
-
-//     updateConnectedEditors();
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// RimHistogramCurve* RimHistogramPlot::addNewCurve( const RifEclipseHistogramAddress& address,
-//                                                   RimHistogramCase*                 histogramCase,
-//                                                   const RifEclipseHistogramAddress& addressX,
-//                                                   RimHistogramCase*                 histogramCaseX )
-// {
-//     auto newCurve = RiaHistogramPlotTools::createCurve( histogramCase, address );
-
-//     // This address is RifEclipseHistogramAddress::time() if the curve is a time plot. Otherwise it is the address of the histogram vector
-//     // used for the x-axis
-//     if ( addressX.category() != RifEclipseHistogramAddressDefines::HistogramCategory::HISTOGRAM_TIME )
-//     {
-//         newCurve->setAxisTypeX( RiaDefines::HorizontalAxisType::HISTOGRAM_VECTOR );
-//         newCurve->setHistogramAddressX( addressX );
-//         newCurve->setHistogramCaseX( histogramCaseX );
-//     }
-
-//     addCurveNoUpdate( newCurve );
-
-//     return newCurve;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::onPlotZoomed()
 {
     // Disable auto scale in plot engine
@@ -1853,44 +1136,6 @@ void RimHistogramPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::updateNameHelperWithCurveData( RimHistogramPlotNameHelper* nameHelper ) const
-// {
-//     if ( !nameHelper ) return;
-
-//     nameHelper->clear();
-//     std::vector<RiaHistogramCurveAddress> addresses;
-//     std::vector<RimHistogramCase*>        sumCases;
-//     std::vector<RimHistogramEnsemble*>    ensembleCases;
-
-//     if ( m_histogramCurveCollection && m_histogramCurveCollection->isCurvesVisible() )
-//     {
-//         for ( RimHistogramCurve* curve : m_histogramCurveCollection->curves() )
-//         {
-//             addresses.push_back( curve->curveAddress() );
-//             sumCases.push_back( curve->histogramCaseY() );
-
-//             if ( curve->histogramCaseX() )
-//             {
-//                 sumCases.push_back( curve->histogramCaseX() );
-//             }
-//         }
-//     }
-
-//     for ( auto curveSet : m_ensembleCurveSetCollection->curveSets() )
-//     {
-//         addresses.push_back( curveSet->curveAddress() );
-//         ensembleCases.push_back( curveSet->histogramEnsemble() );
-//     }
-
-//     nameHelper->clear();
-//     nameHelper->appendAddresses( addresses );
-//     nameHelper->setHistogramCases( sumCases );
-//     nameHelper->setEnsembleCases( ensembleCases );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::doUpdateLayout()
 {
     updateFonts();
@@ -1903,27 +1148,10 @@ void RimHistogramPlot::doUpdateLayout()
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::detachAllPlotItems()
 {
-    // if ( m_histogramCurveCollection )
-    // {
-    //     m_histogramCurveCollection->detachPlotCurves();
-    // }
-
-    // if ( m_ensembleCurveSetCollection )
-    // {
-    //     m_ensembleCurveSetCollection->detachPlotCurves();
-    // }
-
-    // for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
-    // {
-    //     curve->detach();
-    // }
-
-    // for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
-    // {
-    //     curve->detach();
-    // }
-
-    // m_plotInfoLabel->detach();
+    if ( m_histogramCurveCollection )
+    {
+        m_histogramCurveCollection->detachPlotCurves();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1931,10 +1159,10 @@ void RimHistogramPlot::detachAllPlotItems()
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::deleteAllPlotCurves()
 {
-    // for ( auto* c : histogramCurves() )
-    // {
-    //     c->deletePlotCurve();
-    // }
+    for ( auto* c : histogramCurves() )
+    {
+        c->deletePlotCurve();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1942,21 +1170,16 @@ void RimHistogramPlot::deleteAllPlotCurves()
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::updateCurveNames()
 {
-    // if ( m_histogramCurveCollection->isCurvesVisible() )
-    // {
-    //     for ( auto c : histogramCurves() )
-    //     {
-    //         if ( c->isChecked() )
-    //         {
-    //             c->updateCurveNameNoLegendUpdate();
-    //         }
-    //     }
-    // }
-
-    // for ( auto curveSet : m_ensembleCurveSetCollection->curveSets() )
-    // {
-    //     curveSet->updateEnsembleLegendItem();
-    // }
+    if ( m_histogramCurveCollection->isCurvesVisible() )
+    {
+        for ( auto c : histogramCurves() )
+        {
+            if ( c->isChecked() )
+            {
+                c->updateCurveNameNoLegendUpdate();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1996,18 +1219,18 @@ void RimHistogramPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
 {
-    // auto wrapper = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
-    // if ( !wrapper ) return;
+    auto wrapper = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !wrapper ) return;
 
-    // auto qwtPlotItem = wrapper->qwtPlotItem();
-    // if ( !qwtPlotItem ) return;
+    auto qwtPlotItem = wrapper->qwtPlotItem();
+    if ( !qwtPlotItem ) return;
 
-    // auto riuPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( qwtPlotItem );
-    // if ( !riuPlotCurve ) return;
+    auto riuPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( qwtPlotItem );
+    if ( !riuPlotCurve ) return;
 
-    // auto rimPlotCurve = riuPlotCurve->ownerRimCurve();
+    auto rimPlotCurve = riuPlotCurve->ownerRimCurve();
 
-    // RiuPlotMainWindowTools::selectOrToggleObject( rimPlotCurve, toggle );
+    RiuPlotMainWindowTools::selectOrToggleObject( rimPlotCurve, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2101,263 +1324,6 @@ void RimHistogramPlot::assignPlotAxis( RimHistogramCurve* destinationCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// auto countAxes = []( const std::vector<RimPlotAxisPropertiesInterface*>& axes, RiaDefines::PlotAxis axis )
-// { return std::count_if( axes.begin(), axes.end(), [axis]( const auto& ap ) { return ap->plotAxis().axis() == axis; } ); };
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::assignYPlotAxis( RimHistogramCurve* curve )
-// {
-// enum class AxisAssignmentStrategy
-// {
-//     ALTERNATING,
-//     USE_MATCHING_UNIT,
-//     USE_MATCHING_VECTOR
-// };
-
-// auto strategy = AxisAssignmentStrategy::USE_MATCHING_UNIT;
-
-// auto destinationUnit = RiaStdStringTools::toUpper( curve->unitNameY() );
-// if ( destinationUnit.empty() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-
-// auto anyCurveWithUnitText = [this, curve]
-// {
-//     for ( auto c : histogramCurves() )
-//     {
-//         if ( c == curve ) continue;
-
-//         if ( !c->unitNameY().empty() ) return true;
-//     }
-
-//     return false;
-// };
-
-// if ( !anyCurveWithUnitText() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-
-// if ( strategy == AxisAssignmentStrategy::USE_MATCHING_VECTOR )
-// {
-//     // Special handling if curve unit is matching. Try to match on histogram vector name to avoid creation of new axis
-
-//     for ( auto c : histogramCurves() )
-//     {
-//         if ( c == curve ) continue;
-
-//         auto incomingAxisText = RimPlotAxisTools::axisTextForAddress( curve->histogramAddressY() );
-//         auto currentAxisText  = RimPlotAxisTools::axisTextForAddress( c->histogramAddressY() );
-//         if ( incomingAxisText == currentAxisText )
-//         {
-//             curve->setLeftOrRightAxisY( c->axisY() );
-//             return;
-//         }
-//     }
-// }
-// else if ( strategy == AxisAssignmentStrategy::USE_MATCHING_UNIT )
-// {
-//     for ( auto c : histogramCurves() )
-//     {
-//         if ( c == curve ) continue;
-
-//         auto currentUnit = RiaStdStringTools::toUpper( c->unitNameY() );
-//         if ( currentUnit == destinationUnit )
-//         {
-//             for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
-//             {
-//                 if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-//                      axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-//                 {
-//                     curve->setLeftOrRightAxisY( c->axisY() );
-
-//                     return;
-//                 }
-//             }
-//         }
-//     }
-
-//     strategy = AxisAssignmentStrategy::ALTERNATING;
-// }
-
-// auto isDefaultLeftAndRightUsed = [this]( RimHistogramCurve* currentCurve ) -> std::pair<bool, bool>
-// {
-//     bool defaultLeftUsed  = false;
-//     bool defaultRightUsed = false;
-
-//     for ( auto c : histogramCurves() )
-//     {
-//         if ( c == currentCurve ) continue;
-
-//         if ( c->axisY() == RiuPlotAxis::defaultLeft() ) defaultLeftUsed = true;
-//         if ( c->axisY() == RiuPlotAxis::defaultRight() ) defaultRightUsed = true;
-//     }
-
-//     return std::make_pair( defaultLeftUsed, defaultRightUsed );
-// };
-
-// auto [defaultLeftUsed, defaultRightUsed] = isDefaultLeftAndRightUsed( curve );
-// if ( !defaultLeftUsed )
-// {
-//     curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
-//     return;
-// }
-
-// if ( !defaultRightUsed )
-// {
-//     curve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
-//     return;
-// }
-
-// RiaDefines::PlotAxis plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
-// if ( strategy == AxisAssignmentStrategy::ALTERNATING )
-// {
-//     size_t axisCountLeft  = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-//     size_t axisCountRight = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
-
-//     if ( axisCountLeft > axisCountRight ) plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
-// }
-
-// if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
-// {
-//     auto newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
-//     addNewAxisProperties( newPlotAxis, "New Axis" );
-
-//     curve->setLeftOrRightAxisY( newPlotAxis );
-//     return;
-// }
-
-// // If we get here, we have no more axes to assign to, use left axis as fallback
-// curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
-//}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimHistogramPlot::assignXPlotAxis( RimHistogramCurve* curve )
-// {
-// RiuPlotAxis newPlotAxis = RimHistogramPlot::plotAxisForTime();
-
-// if ( curve->axisTypeX() == RiaDefines::HorizontalAxisType::HISTOGRAM_VECTOR )
-// {
-//     enum class AxisAssignmentStrategy
-//     {
-//         ALL_TOP,
-//         ALL_BOTTOM,
-//         ALTERNATING,
-//         USE_MATCHING_UNIT,
-//         USE_MATCHING_VECTOR
-//     };
-
-//     auto strategy = AxisAssignmentStrategy::USE_MATCHING_UNIT;
-
-//     auto destinationUnit = RiaStdStringTools::toUpper( curve->unitNameX() );
-//     if ( destinationUnit.empty() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-
-//     auto anyCurveWithUnitText = [this, curve]
-//     {
-//         for ( auto c : histogramCurves() )
-//         {
-//             if ( c == curve ) continue;
-
-//             if ( !c->unitNameX().empty() ) return true;
-//         }
-
-//         return false;
-//     };
-
-//     if ( !anyCurveWithUnitText() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-
-//     if ( strategy == AxisAssignmentStrategy::USE_MATCHING_VECTOR )
-//     {
-//         // Special handling if curve unit is matching. Try to match on histogram vector name to avoid creation of new axis
-
-//         for ( auto c : histogramCurves() )
-//         {
-//             if ( c == curve ) continue;
-
-//             auto incomingAxisText = RimPlotAxisTools::axisTextForAddress( curve->histogramAddressY() );
-//             auto currentAxisText  = RimPlotAxisTools::axisTextForAddress( c->histogramAddressY() );
-//             if ( incomingAxisText == currentAxisText )
-//             {
-//                 curve->setTopOrBottomAxisX( c->axisX() );
-//                 return;
-//             }
-//         }
-//     }
-//     else if ( strategy == AxisAssignmentStrategy::USE_MATCHING_UNIT )
-//     {
-//         bool isTopUsed    = false;
-//         bool isBottomUsed = false;
-
-//         for ( auto c : histogramCurves() )
-//         {
-//             if ( c == curve ) continue;
-
-//             if ( c->axisX() == RiuPlotAxis::defaultTop() ) isTopUsed = true;
-//             if ( c->axisX() == RiuPlotAxis::defaultBottomForHistogramVectors() ) isBottomUsed = true;
-
-//             auto currentUnit = RiaStdStringTools::toUpper( c->unitNameX() );
-
-//             if ( currentUnit == destinationUnit )
-//             {
-//                 for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
-//                 {
-//                     if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP ||
-//                          axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
-//                     {
-//                         curve->setTopOrBottomAxisX( c->axisX() );
-
-//                         return;
-//                     }
-//                 }
-//             }
-//         }
-
-//         if ( !isTopUsed )
-//         {
-//             curve->setTopOrBottomAxisX( RiuPlotAxis::defaultTop() );
-//             return;
-//         }
-
-//         if ( !isBottomUsed )
-//         {
-//             curve->setTopOrBottomAxisX( RiuPlotAxis::defaultBottomForHistogramVectors() );
-//             return;
-//         }
-
-//         strategy = AxisAssignmentStrategy::ALTERNATING;
-//     }
-
-//     RiaDefines::PlotAxis plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_TOP;
-
-//     if ( strategy == AxisAssignmentStrategy::ALTERNATING )
-//     {
-//         size_t axisCountTop = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_TOP );
-//         size_t axisCountBot = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-
-//         if ( axisCountTop > axisCountBot ) plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
-//     }
-//     else if ( strategy == AxisAssignmentStrategy::ALL_TOP )
-//     {
-//         plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_TOP;
-//     }
-//     else if ( strategy == AxisAssignmentStrategy::ALL_BOTTOM )
-//     {
-//         plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
-//     }
-
-//     RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultBottomForHistogramVectors();
-//     if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
-//     {
-//         newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
-//         addNewAxisProperties( newPlotAxis, "New Axis" );
-//     }
-// }
-
-// curve->setTopOrBottomAxisX( newPlotAxis );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     if ( childArray == &m_axisPropertiesArray )
@@ -2390,14 +1356,6 @@ void RimHistogramPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray
         }
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// RimHistogramPlotSourceStepping* RimHistogramPlot::sourceStepper()
-// {
-//     return m_sourceStepping();
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///

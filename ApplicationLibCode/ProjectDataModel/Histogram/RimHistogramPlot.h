@@ -96,7 +96,7 @@ public:
 
     void detachAllCurves() override;
     void reattachAllCurves() override;
-    void updateAnnotationsInPlotWidget();
+    // void updateAnnotationsInPlotWidget();
 
     void updateAxes() override;
 

@@ -185,7 +185,7 @@ std::vector<double> RimEnsembleParameterHistogramDataSource::valuesY( RimHistogr
 
     RiaLogging::info( QString( "%1: P10=%2 Mean=%3 P90=%4" ).arg( QString::fromStdString( name() ) ).arg( p10 ).arg( p50 ).arg( p90 ) );
 
-    return computeHistogramFrequencies( values, graphType, frequencyType );
+    return computeHistogramFrequencies( histogram, graphType, frequencyType );
 }
 
 //--------------------------------------------------------------------------------------------------
