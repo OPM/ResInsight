@@ -506,7 +506,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
     RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
     if ( !plotTrack ) return;
 
-    if ( auto widget = plotTrack->plotWidget() )
+    if ( plotTrack->plotWidget() )
     {
         detachAndDeleteLegendCurves();
     }
