@@ -227,6 +227,8 @@ auto RifDataSourceForRftPlt::operator<=>( const RifDataSourceForRftPlt& addr2 ) 
         }
         return eclCase() <=> addr2.eclCase();
     }
+
+    return this <=> &addr2;
 }
 
 //--------------------------------------------------------------------------------------------------
