@@ -120,6 +120,22 @@ cvf::Color3f RimCurveSetAppearance::statisticsCurveColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCurveSetAppearance::setColorMode( ColorModeEnum colorMode )
+{
+    m_colorMode = colorMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCurveSetAppearance::setEnsembleParameter( const QString& ensembleParameter )
+{
+    m_ensembleParameter = ensembleParameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimCurveSetAppearance::legendConfig() const
 {
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR ||
