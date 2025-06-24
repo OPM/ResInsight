@@ -57,7 +57,6 @@ RimSeismicData::RimSeismicData()
     , m_filereader( nullptr )
     , m_nErrorsLogged( 0 )
     , m_fileDataRange( 0, 0 )
-    , m_activeDataRange( 0, 0 )
 {
     CAF_PDM_InitObject( "SeismicData", ":/SeismicData24x24.png" );
 
@@ -262,7 +261,26 @@ void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     auto cmGroup = uiOrdering.addNewGroup( "Color Mapping" );
     m_legendConfig->defineUiOrderingColorOnly( cmGroup );
     cmGroup->add( &m_userClipValue );
-    cmGroup->add( &m_userMuteThreshold );
+
+    if ( !m_userClipValue().first )
+    {
+        cmGroup->add( &m_userMinMaxEnabled );
+        if ( m_userMinMaxEnabled )
+        {
+            cmGroup->add( &m_userMinValue );
+            cmGroup->add( &m_userMaxValue );
+            m_userMuteThreshold = std::make_pair( false, m_userMuteThreshold().second );
+        }
+        else
+        {
+            cmGroup->add( &m_userMuteThreshold );
+        }
+    }
+    else
+    {
+        cmGroup->add( &m_userMuteThreshold );
+        m_userMinMaxEnabled = false;
+    }
 
     auto metaGroup = uiOrdering.addNewGroup( "File Information" );
     metaGroup->add( &m_metadata );
@@ -412,53 +430,11 @@ int RimSeismicData::toZIndex( double z ) const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicData::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_userMuteThreshold ) || ( changedField == &m_userClipValue ) )
+    if ( ( changedField == &m_userMuteThreshold ) || ( changedField == &m_userClipValue ) || ( changedField == &m_userMinMaxEnabled ) ||
+         ( changedField == &m_userMaxValue ) || ( changedField == &m_userMinValue ) )
     {
         updateDataRange( true );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicData::updateDataRange( bool updatePlot )
-{
-    m_clippedHistogramXvalues.clear();
-    m_clippedHistogramYvalues.clear();
-    m_clippedAlphaValues.clear();
-
-    auto [clipEnabled, clipValue] = m_userClipValue();
-
-    if ( clipEnabled )
-    {
-        m_activeDataRange = std::make_pair( -clipValue, clipValue );
-    }
-    else
-    {
-        m_activeDataRange = std::make_pair( m_fileDataRange.first, m_fileDataRange.second );
-        clipValue         = m_fileDataRange.second;
-    }
-
-    const int nVals = (int)m_histogramXvalues.size();
-
-    for ( int i = 0; i < nVals; i++ )
-    {
-        double tmp = std::abs( m_histogramXvalues[i] );
-        if ( tmp > clipValue ) continue;
-        m_clippedHistogramXvalues.push_back( m_histogramXvalues[i] );
-        m_clippedHistogramYvalues.push_back( m_histogramYvalues[i] );
-    }
-
-    double maxRawValue = *std::max_element( m_clippedHistogramYvalues.begin(), m_clippedHistogramYvalues.end() );
-    for ( auto val : m_clippedHistogramYvalues )
-    {
-        m_clippedAlphaValues.push_back( 1.0 - std::clamp( val / maxRawValue, 0.0, 1.0 ) );
-    }
-
-    m_alphaValueMapper->setDataRangeAndAlphas( m_activeDataRange.first, m_activeDataRange.second, m_clippedAlphaValues );
-    m_legendConfig->setUserDefinedRange( m_activeDataRange.first, m_activeDataRange.second );
-
-    if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( (RimSeismicDataInterface*)this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -484,9 +460,9 @@ std::pair<int, int> RimSeismicData::convertToInlineXline( cvf::Vec3d worldCoords
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimSeismicData::dataRangeMinMax() const
+std::pair<double, double> RimSeismicData::sourceDataRangeMinMax() const
 {
-    return m_activeDataRange;
+    return m_fileDataRange;
 }
 
 //--------------------------------------------------------------------------------------------------

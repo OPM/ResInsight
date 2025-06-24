@@ -67,7 +67,7 @@ public:
 
     float valueAt( cvf::Vec3d worldCoord ) override;
 
-    std::pair<double, double> dataRangeMinMax() const override;
+    std::pair<double, double> sourceDataRangeMinMax() const override;
 
     void ensureFileReaderIsInitialized();
 
@@ -82,7 +82,6 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    void updateDataRange( bool updatePlot );
     bool openFileIfNotOpen();
     void logError( QString msg );
 
@@ -99,7 +98,6 @@ private:
     cvf::Vec3i                m_inlineInfo;
     cvf::Vec3i                m_xlineInfo;
     std::vector<cvf::Vec3d>   m_worldOutline;
-    std::pair<double, double> m_activeDataRange;
     std::pair<double, double> m_fileDataRange;
 
     std::shared_ptr<RifSeismicReader> m_filereader;

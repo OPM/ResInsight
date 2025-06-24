@@ -59,7 +59,9 @@ public:
     virtual RimSeismicAlphaMapper*  alphaValueMapper() const;
     virtual double                  inlineSpacing();
 
-    void addSeismicOutline( RigPolyLinesData* pld );
+    void addSeismicOutline( RigPolyLinesData* pld ) const;
+
+    std::pair<double, double> dataRangeMinMax() const;
 
     // interface to be implemented by subclasses
 public:
@@ -75,6 +77,8 @@ public:
     virtual int xlineMax() const  = 0;
     virtual int xlineStep() const = 0;
 
+    virtual std::pair<double, double> sourceDataRangeMinMax() const = 0;
+
     virtual std::vector<cvf::Vec3d> worldOutline() const = 0;
 
     virtual cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth ) = 0;
@@ -87,8 +91,6 @@ public:
 
     virtual float valueAt( cvf::Vec3d worldCoord ) = 0;
 
-    virtual std::pair<double, double> dataRangeMinMax() const = 0;
-
     virtual std::string userDescription() const = 0;
 
     // optional subclass overrides
@@ -99,19 +101,24 @@ public:
     virtual std::vector<double> alphaValues() const;
 
 protected:
-    void initColorLegend();
+    void         initColorLegend();
+    virtual void updateDataRange( bool updatePlot );
 
 protected:
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     std::shared_ptr<RimSeismicAlphaMapper>      m_alphaValueMapper;
     std::shared_ptr<cvf::BoundingBox>           m_boundingBox;
 
-    std::vector<double> m_histogramXvalues;
-    std::vector<double> m_histogramYvalues;
-    std::vector<double> m_clippedHistogramXvalues;
-    std::vector<double> m_clippedHistogramYvalues;
-    std::vector<double> m_clippedAlphaValues;
+    std::pair<double, double> m_activeDataRange;
+    std::vector<double>       m_histogramXvalues;
+    std::vector<double>       m_histogramYvalues;
+    std::vector<double>       m_clippedHistogramXvalues;
+    std::vector<double>       m_clippedHistogramYvalues;
+    std::vector<double>       m_clippedAlphaValues;
 
     caf::PdmField<std::pair<bool, double>> m_userClipValue;
     caf::PdmField<std::pair<bool, double>> m_userMuteThreshold;
+    caf::PdmField<bool>                    m_userMinMaxEnabled;
+    caf::PdmField<double>                  m_userMinValue;
+    caf::PdmField<double>                  m_userMaxValue;
 };

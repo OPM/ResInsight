@@ -67,7 +67,7 @@ public:
 
     float valueAt( cvf::Vec3d worldCoord ) override;
 
-    std::pair<double, double> dataRangeMinMax() const override;
+    std::pair<double, double> sourceDataRangeMinMax() const override;
 
     QString fullName() const;
 
@@ -86,7 +86,6 @@ protected:
     std::shared_ptr<ZGYAccess::SeismicSliceData> difference( ZGYAccess::SeismicSliceData* data1, ZGYAccess::SeismicSliceData* data2 );
 
 private:
-    void updateDataRange( bool updatePlot );
     void updateMetaData();
     bool isInputDataOK() const;
     void generateHistogram();
@@ -97,7 +96,6 @@ private:
     caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData1;
     caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData2;
 
-    std::pair<double, double> m_activeDataRange;
     std::pair<double, double> m_fileDataRange;
 
     bool m_inputDataOK;

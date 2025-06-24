@@ -59,6 +59,8 @@ void RimSeismicAlphaMapper::setDataRangeAndAlphas( double minVal, double maxVal,
 //--------------------------------------------------------------------------------------------------
 cvf::ubyte RimSeismicAlphaMapper::alphaValue( double dataValue ) const
 {
+    if ( m_alphavalues.empty() ) return 255;
+
     int index = (int)( m_scaleFactor * ( dataValue - m_minValue ) );
     index     = std::clamp( index, 0, (int)( m_alphavalues.size() - 1 ) );
 

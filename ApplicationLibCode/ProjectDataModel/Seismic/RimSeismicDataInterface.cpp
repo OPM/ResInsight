@@ -18,6 +18,9 @@
 
 #include "RimSeismicDataInterface.h"
 
+#include "RiuMainWindow.h"
+#include "RiuSeismicHistogramPanel.h"
+
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 
@@ -31,6 +34,8 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimSeismicDataInterface, "SeismicDataInterface
 ///
 //--------------------------------------------------------------------------------------------------
 RimSeismicDataInterface::RimSeismicDataInterface()
+    : m_activeDataRange( 0, 0 )
+
 {
     CAF_PDM_InitObject( "SeismicDataBase" );
 
@@ -44,6 +49,10 @@ RimSeismicDataInterface::RimSeismicDataInterface()
                        "Mute Threshold",
                        "",
                        "Samples with an absolute value below the threshold will be replaced with 0." );
+
+    CAF_PDM_InitField( &m_userMinMaxEnabled, "userMinMaxEnabled", false, "Custom Data Min/Max " );
+    CAF_PDM_InitField( &m_userMinValue, "userMinValue", 0.0, "Minimum Data Value" );
+    CAF_PDM_InitField( &m_userMaxValue, "userMaxValue", 1.0, "Maximum Data Value" );
 
     m_alphaValueMapper = std::make_shared<RimSeismicAlphaMapper>();
     m_boundingBox      = std::make_shared<cvf::BoundingBox>();
@@ -155,7 +164,7 @@ double RimSeismicDataInterface::inlineSpacing()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicDataInterface::addSeismicOutline( RigPolyLinesData* pld )
+void RimSeismicDataInterface::addSeismicOutline( RigPolyLinesData* pld ) const
 {
     if ( pld == nullptr ) return;
 
@@ -187,4 +196,82 @@ void RimSeismicDataInterface::addSeismicOutline( RigPolyLinesData* pld )
         box.push_back( outline[7] );
         pld->addPolyLine( box );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimSeismicDataInterface::dataRangeMinMax() const
+{
+    return m_activeDataRange;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicDataInterface::updateDataRange( bool updatePlot )
+{
+    m_clippedHistogramXvalues.clear();
+    m_clippedHistogramYvalues.clear();
+    m_clippedAlphaValues.clear();
+
+    if ( !hasValidData() )
+    {
+        if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( (RimSeismicDataInterface*)nullptr );
+        return;
+    }
+
+    auto [srcDataMin, srcDataMax] = sourceDataRangeMinMax();
+
+    auto [clipEnabled, clipValueMax] = m_userClipValue();
+    double clipValueMin              = -clipValueMax;
+
+    if ( clipEnabled )
+    {
+        m_activeDataRange = std::make_pair( clipValueMin, clipValueMax );
+    }
+    else
+    {
+        if ( m_userMinMaxEnabled() )
+        {
+            m_legendConfig->resetUserDefinedValues();
+            m_legendConfig->scheduleUpdateConnectedEditors();
+            m_activeDataRange = std::make_pair( m_userMinValue, m_userMaxValue );
+            clipValueMax      = m_userMaxValue;
+            clipValueMin      = m_userMinValue;
+        }
+        else
+        {
+            clipValueMax      = std::max( std::abs( srcDataMin ), std::abs( srcDataMax ) );
+            clipValueMin      = -clipValueMax;
+            m_activeDataRange = std::make_pair( clipValueMin, clipValueMax );
+        }
+    }
+
+    const int nVals = (int)m_histogramXvalues.size();
+
+    for ( int i = 0; i < nVals; i++ )
+    {
+        double tmp = std::abs( m_histogramXvalues[i] );
+        if ( tmp > clipValueMax ) continue;
+        if ( tmp < clipValueMin ) continue;
+        m_clippedHistogramXvalues.push_back( m_histogramXvalues[i] );
+        m_clippedHistogramYvalues.push_back( m_histogramYvalues[i] );
+    }
+
+    if ( !m_clippedHistogramYvalues.empty() )
+    {
+        double maxRawValue = *std::max_element( m_clippedHistogramYvalues.begin(), m_clippedHistogramYvalues.end() );
+        for ( auto val : m_clippedHistogramYvalues )
+        {
+            m_clippedAlphaValues.push_back( 1.0 - std::clamp( val / maxRawValue, 0.0, 1.0 ) );
+        }
+    }
+
+    m_alphaValueMapper->setDataRangeAndAlphas( m_activeDataRange.first, m_activeDataRange.second, m_clippedAlphaValues );
+    m_legendConfig->setCenterLegendAroundZero( !m_userMinMaxEnabled() );
+    m_legendConfig->setUserDefinedRange( m_activeDataRange.first, m_activeDataRange.second );
+    m_legendConfig->scheduleUpdateConnectedEditors();
+
+    if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( (RimSeismicDataInterface*)this );
 }
