@@ -61,7 +61,6 @@ CAF_PDM_SOURCE_INIT( RimSeismicDifferenceData, "SeismicDifferenceData" );
 //--------------------------------------------------------------------------------------------------
 RimSeismicDifferenceData::RimSeismicDifferenceData()
     : m_fileDataRange( 0, 0 )
-    , m_activeDataRange( 0, 0 )
     , m_inputDataOK( false )
 {
     CAF_PDM_InitObject( "SeismicDifferenceData", ":/SeismicDelta16x16.png" );
@@ -188,6 +187,15 @@ void RimSeismicDifferenceData::updateMetaData()
     m_inputDataOK = false;
     if ( ( m_seismicData1 == nullptr ) || ( m_seismicData2 == nullptr ) ) return;
 
+    if ( auto seis1 = dynamic_cast<RimSeismicData*>( m_seismicData1() ) )
+    {
+        seis1->ensureFileReaderIsInitialized();
+    }
+    if ( auto seis2 = dynamic_cast<RimSeismicData*>( m_seismicData2() ) )
+    {
+        seis2->ensureFileReaderIsInitialized();
+    }
+
     m_inputDataOK = m_seismicData1->gridIsEqual( m_seismicData2 );
 
     if ( !m_inputDataOK ) return;
@@ -226,7 +234,26 @@ void RimSeismicDifferenceData::defineUiOrdering( QString uiConfigName, caf::PdmU
     auto cmGroup = uiOrdering.addNewGroup( "Color Mapping" );
     m_legendConfig->defineUiOrderingColorOnly( cmGroup );
     cmGroup->add( &m_userClipValue );
-    cmGroup->add( &m_userMuteThreshold );
+
+    if ( !m_userClipValue().first )
+    {
+        cmGroup->add( &m_userMinMaxEnabled );
+        if ( m_userMinMaxEnabled )
+        {
+            cmGroup->add( &m_userMinValue );
+            cmGroup->add( &m_userMaxValue );
+            m_userMuteThreshold = std::make_pair( false, m_userMuteThreshold().second );
+        }
+        else
+        {
+            cmGroup->add( &m_userMuteThreshold );
+        }
+    }
+    else
+    {
+        cmGroup->add( &m_userMuteThreshold );
+        m_userMinMaxEnabled = false;
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -340,7 +367,8 @@ int RimSeismicDifferenceData::xlineStep() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicDifferenceData::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_userMuteThreshold ) || ( changedField == &m_userClipValue ) )
+    if ( ( changedField == &m_userMuteThreshold ) || ( changedField == &m_userClipValue ) || ( changedField == &m_userMinMaxEnabled ) ||
+         ( changedField == &m_userMaxValue ) || ( changedField == &m_userMinValue ) )
     {
         updateDataRange( true );
     }
@@ -349,55 +377,6 @@ void RimSeismicDifferenceData::fieldChangedByUi( const caf::PdmFieldHandle* chan
         updateMetaData();
         updateDataRange( true );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicDifferenceData::updateDataRange( bool updatePlot )
-{
-    m_clippedHistogramXvalues.clear();
-    m_clippedHistogramYvalues.clear();
-    m_clippedAlphaValues.clear();
-
-    if ( !isInputDataOK() )
-    {
-        if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( (RimSeismicDataInterface*)nullptr );
-        return;
-    }
-
-    auto [clipEnabled, clipValue] = m_userClipValue();
-
-    if ( clipEnabled )
-    {
-        m_activeDataRange = std::make_pair( -clipValue, clipValue );
-    }
-    else
-    {
-        m_activeDataRange = std::make_pair( m_fileDataRange.first, m_fileDataRange.second );
-        clipValue         = m_fileDataRange.second;
-    }
-
-    const int nVals = (int)m_histogramXvalues.size();
-
-    for ( int i = 0; i < nVals; i++ )
-    {
-        double tmp = std::abs( m_histogramXvalues[i] );
-        if ( tmp > clipValue ) continue;
-        m_clippedHistogramXvalues.push_back( m_histogramXvalues[i] );
-        m_clippedHistogramYvalues.push_back( m_histogramYvalues[i] );
-    }
-
-    double maxRawValue = *std::max_element( m_clippedHistogramYvalues.begin(), m_clippedHistogramYvalues.end() );
-    for ( auto val : m_clippedHistogramYvalues )
-    {
-        m_clippedAlphaValues.push_back( 1.0 - std::clamp( val / maxRawValue, 0.0, 1.0 ) );
-    }
-
-    m_alphaValueMapper->setDataRangeAndAlphas( m_activeDataRange.first, m_activeDataRange.second, m_clippedAlphaValues );
-    m_legendConfig->setUserDefinedRange( m_activeDataRange.first, m_activeDataRange.second );
-
-    if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( (RimSeismicDataInterface*)this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,10 +402,10 @@ std::pair<int, int> RimSeismicDifferenceData::convertToInlineXline( cvf::Vec3d w
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimSeismicDifferenceData::dataRangeMinMax() const
+std::pair<double, double> RimSeismicDifferenceData::sourceDataRangeMinMax() const
 {
     if ( !isInputDataOK() ) return { 0, 0 };
-    return m_activeDataRange;
+    return m_fileDataRange;
 }
 
 //--------------------------------------------------------------------------------------------------
