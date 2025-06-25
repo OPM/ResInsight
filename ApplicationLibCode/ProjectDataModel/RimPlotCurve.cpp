@@ -727,6 +727,14 @@ void RimPlotCurve::setFillColor( const cvf::Color3f& fillColor )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setFillColorTransparency( float fillColorTransparency )
+{
+    m_curveAppearance->setFillColorTransparency( fillColorTransparency );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::showInLegend() const
 {
     return m_showLegend;
@@ -1007,9 +1015,8 @@ void RimPlotCurve::updateCurveAppearance()
     QColor fillColor = RiaColorTools::toQColor( m_curveAppearance->fillColor() );
 
     fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
+    fillColor.setAlphaF( m_curveAppearance->fillColorTransparency() );
 
-    // TODO: this is a workaround. Create proper api for setting fill color transparency.
-    fillColor.setAlphaF( 0.5 );
     QBrush fillBrush( fillColor, fillStyle() );
     m_plotCurve->setAppearance( m_curveAppearance->lineStyle(),
                                 m_curveAppearance->interpolation(),

@@ -77,6 +77,7 @@ public:
     virtual Qt::BrushStyle              fillStyle() const;
     void                                setFillStyle( Qt::BrushStyle brushStyle );
     void                                setFillColor( const cvf::Color3f& fillColor );
+    void                                setFillColorTransparency( float fillColorTransparency );
 
     bool isChecked() const;
     void setCheckState( bool isChecked );

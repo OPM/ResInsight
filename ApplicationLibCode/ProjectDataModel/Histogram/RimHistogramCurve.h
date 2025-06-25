@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "RimHistogramPlot.h"
 #include "RimStackablePlotCurve.h"
 
 class RimPlotAxisPropertiesInterface;
@@ -56,6 +57,7 @@ public:
     void updateLegendEntryVisibilityNoPlotUpdate() override;
 
     void setDataSource( RimHistogramDataSource* dataSource );
+    void setAppearanceFromGraphType( RimHistogramPlot::GraphType graphType );
 
 protected:
     // RimPlotCurve overrides

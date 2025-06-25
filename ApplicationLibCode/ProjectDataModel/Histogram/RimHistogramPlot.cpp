@@ -545,6 +545,14 @@ void RimHistogramPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_showPlotLegends ) updateLegend();
 
+    if ( changedField == &m_graphType )
+    {
+        for ( auto c : histogramCurves() )
+        {
+            c->setAppearanceFromGraphType( m_graphType() );
+        }
+    }
+
     if ( changedField == &m_normalizeCurveYValues || changedField == &m_histogramFrequencyType || changedField == &m_graphType )
     {
         loadDataAndUpdate();
