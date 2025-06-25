@@ -405,3 +405,14 @@ void RimHistogramCurve::onDataSourceChanged( const caf::SignalEmitter* emitter )
 {
     loadAndUpdateDataAndPlot();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::setAppearanceFromGraphType( RimHistogramPlot::GraphType graphType )
+{
+    auto fillType = graphType == RimHistogramPlot::GraphType::BAR_GRAPH ? Qt::SolidPattern : Qt::NoBrush;
+    setFillStyle( fillType );
+    float transparency = graphType == RimHistogramPlot::GraphType::BAR_GRAPH ? 0.2 : 1.0;
+    setFillColorTransparency( transparency );
+}

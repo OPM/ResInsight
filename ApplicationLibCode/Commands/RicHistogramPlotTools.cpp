@@ -44,10 +44,10 @@ void RicHistogramPlotTools::createHistogramCurve( RimHistogramPlot* plot, RimHis
     RimHistogramCurve* newCurve = new RimHistogramCurve();
 
     newCurve->setDataSource( dataSource );
+    newCurve->setAppearanceFromGraphType( plot->graphType() );
 
     cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( plot->curveCount() );
     newCurve->setColor( curveColor );
-    newCurve->setIsStacked( true );
     newCurve->setFillColor( curveColor );
 
     plot->addCurveNoUpdate( newCurve );

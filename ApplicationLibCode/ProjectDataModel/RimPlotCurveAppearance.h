@@ -86,6 +86,9 @@ public:
     void         setFillColor( const cvf::Color3f& fillColor );
     cvf::Color3f fillColor() const;
 
+    void  setFillColorTransparency( float fillColorTransparency );
+    float fillColorTransparency() const;
+
     float curveFittingTolerance() const;
 
     void                                           setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
@@ -101,7 +104,9 @@ protected:
     // Overridden PDM methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    void initAfterRead() override;
 
 protected:
     caf::PdmField<QString> m_symbolLabel;
@@ -117,6 +122,7 @@ protected:
     caf::PdmField<LineStyle>          m_lineStyle;
     caf::PdmField<FillStyle>          m_fillStyle;
     caf::PdmField<cvf::Color3f>       m_fillColor;
+    caf::PdmField<float>              m_fillColorTransparency;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
     caf::PdmField<LabelPosition>      m_symbolLabelPosition;
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;

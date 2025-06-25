@@ -22,8 +22,7 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
-
-#include "cvfAssert.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotCurveAppearance, "PlotCurveAppearance" );
 
@@ -89,6 +88,8 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
 
     CAF_PDM_InitField( &m_curveColor, "Color", RiaColorTools::textColor3f(), "Color" );
     CAF_PDM_InitField( &m_fillColor, "FillColor", cvf::Color3f( -1.0, -1.0, -1.0 ), "Fill Color" );
+    CAF_PDM_InitField( &m_fillColorTransparency, "FillColorTransparency", 1.0f, "Fill Color Transparency" );
+    m_fillColorTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_curveThickness, "Thickness", 1, "Line Thickness" );
     m_curveThickness.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -142,6 +143,22 @@ void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
 
     appearanceChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance ::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_fillColorTransparency )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_minimum = 0.0;
+            myAttr->m_maximum = 1.0;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,8 +224,10 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     if ( m_fillStyle != Qt::BrushStyle::NoBrush )
     {
         uiOrdering.add( &m_fillColor );
+        uiOrdering.add( &m_fillColorTransparency );
     }
     m_fillColor.uiCapability()->setUiHidden( !m_fillOptionsVisible );
+    m_fillColorTransparency.uiCapability()->setUiHidden( !m_fillOptionsVisible );
 
     uiOrdering.add( &m_curveInterpolation );
     m_curveInterpolation.uiCapability()->setUiHidden( !m_interpolationVisible );
@@ -414,6 +433,22 @@ void RimPlotCurveAppearance::setFillStyle( Qt::BrushStyle brushStyle )
 void RimPlotCurveAppearance::setFillColor( const cvf::Color3f& fillColor )
 {
     m_fillColor = fillColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::setFillColorTransparency( float fillColorTransparency )
+{
+    m_fillColorTransparency = fillColorTransparency;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+float RimPlotCurveAppearance::fillColorTransparency() const
+{
+    return m_fillColorTransparency;
 }
 
 //--------------------------------------------------------------------------------------------------
