@@ -91,16 +91,12 @@ QList<caf::PdmOptionItemInfo> RimEnsembleSummaryVectorHistogramDataSource::calcu
     {
         if ( m_ensemble )
         {
-            std::set<time_t> allTimeSteps     = m_ensemble->ensembleTimeSteps();
-            QString          dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
-
+            std::set<time_t>       allTimeSteps = m_ensemble->ensembleTimeSteps();
             std::vector<QDateTime> allDateTimes;
             for ( time_t timeStep : allTimeSteps )
             {
                 QDateTime dateTime = RiaQDateTimeTools::fromTime_t( timeStep );
-                options.push_back(
-                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ), dateTime ) );
+                options.push_back( caf::PdmOptionItemInfo( formatDateTime( dateTime ), dateTime ) );
             }
         }
     }
@@ -280,6 +276,7 @@ std::string RimEnsembleSummaryVectorHistogramDataSource::name() const
     std::string name = "";
     if ( m_ensemble ) name = m_ensemble->name().toStdString();
     if ( !m_summaryAddress->address().uiText().empty() ) name += ", " + m_summaryAddress->address().uiText();
+    if ( m_timeStep().isValid() ) name += ", " + formatDateTime( m_timeStep() ).toStdString();
 
     return name;
 }
@@ -307,4 +304,14 @@ void RimEnsembleSummaryVectorHistogramDataSource::setSummaryAddress( RifEclipseS
 void RimEnsembleSummaryVectorHistogramDataSource::setTimeStep( QDateTime& timeStep )
 {
     m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleSummaryVectorHistogramDataSource::formatDateTime( const QDateTime& dateTime ) const
+{
+    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                    RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+    return RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString );
 }
