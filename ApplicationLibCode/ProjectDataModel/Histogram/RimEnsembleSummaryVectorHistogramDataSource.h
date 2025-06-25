@@ -61,6 +61,8 @@ protected:
     void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryEnsemble* summaryCaseGroup );
     std::vector<double> extractValuesFromEnsemble() const;
 
+    QString formatDateTime( const QDateTime& dateTime ) const;
+
     caf::PdmPtrField<RimSummaryEnsemble*>   m_ensemble;
     caf::PdmChildField<RimSummaryAddress*>  m_summaryAddress;
     caf::PdmField<RifEclipseSummaryAddress> m_summaryAddressUiField;
