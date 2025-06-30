@@ -190,7 +190,7 @@ std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList
 QStringList RicImportWellPaths::wellPathNameFilters()
 {
     QStringList nameFilters;
-    nameFilters << "*.json" << "*.asc" << " *.asci" << "*.ascii" << "*.dev";
+    nameFilters << "*.json" << "*.asc" << " *.asci" << "*.ascii" << "*.dev" << "*.rmswell";
     return nameFilters;
 }
 

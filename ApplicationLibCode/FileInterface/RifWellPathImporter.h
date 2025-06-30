@@ -71,6 +71,7 @@ private:
     static WellMetaData readJsonWellMetaData( const QString& filePath );
     static WellMetaData readAsciiWellMetaData( const QString& filePath, size_t indexInFile );
     static bool         isJsonFile( const QString& filePath );
+    static bool         isRmsWellFile( const QString& filePath );
 
 private:
     std::map<QString, std::vector<RifWellPathImporter::WellData>> m_fileNameToWellDataGroupMap;
