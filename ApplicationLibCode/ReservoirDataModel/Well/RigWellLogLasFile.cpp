@@ -58,11 +58,20 @@ bool RigWellLogLasFile::open( const QString& fileName, QString* errorMessage )
 {
     close();
 
+    auto guessFormatFromFileExtension = []( const QString& filePath )
+    {
+        QFileInfo fi( filePath );
+        if ( fi.suffix().toUpper() == "RMSWELL" )
+            return NRLib::Well::RMS;
+        else
+            return NRLib::Well::LAS;
+    };
+
     NRLib::Well* well = nullptr;
 
     try
     {
-        int wellFormat = NRLib::Well::LAS;
+        int wellFormat = guessFormatFromFileExtension( fileName );
 
         well = NRLib::Well::ReadWell( RiaStringEncodingTools::toNativeEncoded( fileName ).data(), wellFormat );
         if ( !well )
@@ -96,7 +105,7 @@ bool RigWellLogLasFile::open( const QString& fileName, QString* errorMessage )
         wellLogNames.append( logName );
 
         // 2018-11-09 Added MD https://github.com/OPM/ResInsight/issues/3641
-        if ( logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH" || logName.toUpper() == "MD" )
+        if ( logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH" || logName.toUpper() == "MD" || logName.toUpper() == "MDEPTH" )
         {
             m_depthLogName = logName;
         }
