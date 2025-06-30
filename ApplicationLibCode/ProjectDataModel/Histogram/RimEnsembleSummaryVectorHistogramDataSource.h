@@ -48,8 +48,7 @@ public:
     std::string unitNameX() const override;
     std::string unitNameY() const override;
 
-    std::vector<double> valuesX( RimHistogramPlot::GraphType graphType ) const override;
-    std::vector<double> valuesY( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const override;
+    HistogramResult compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const override;
 
     std::string name() const override;
 

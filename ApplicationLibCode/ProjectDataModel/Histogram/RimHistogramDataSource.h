@@ -22,6 +22,7 @@
 
 #include "cafPdmObject.h"
 #include "cafSignal.h"
+#include <limits>
 
 //==================================================================================================
 ///
@@ -32,6 +33,22 @@ class RimHistogramDataSource : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    struct HistogramResult
+    {
+        HistogramResult()
+            : p10( std::numeric_limits<double>::infinity() )
+            , p90( std::numeric_limits<double>::infinity() )
+            , mean( std::numeric_limits<double>::infinity() )
+        {
+        }
+
+        std::vector<double> valuesX;
+        std::vector<double> valuesY;
+        double              p10;
+        double              p90;
+        double              mean;
+    };
+
     RimHistogramDataSource();
     ~RimHistogramDataSource() override;
 
@@ -40,8 +57,7 @@ public:
     virtual std::string unitNameX() const = 0;
     virtual std::string unitNameY() const = 0;
 
-    virtual std::vector<double> valuesX( RimHistogramPlot::GraphType graphType ) const                                                = 0;
-    virtual std::vector<double> valuesY( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const = 0;
+    virtual HistogramResult compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const = 0;
 
     virtual std::string name() const = 0;
 

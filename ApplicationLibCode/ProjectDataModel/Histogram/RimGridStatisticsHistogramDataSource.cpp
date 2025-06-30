@@ -156,27 +156,25 @@ std::string RimGridStatisticsHistogramDataSource::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGridStatisticsHistogramDataSource::valuesX( RimHistogramPlot::GraphType graphType ) const
+RimHistogramDataSource::HistogramResult RimGridStatisticsHistogramDataSource::compute( RimHistogramPlot::GraphType     graphType,
+                                                                                       RimHistogramPlot::FrequencyType frequencyType ) const
 {
+    RimHistogramDataSource::HistogramResult result;
+
     RigHistogramData histogramData = createStatisticsData();
-    if ( !histogramData.isHistogramVectorValid() ) return {};
+    if ( !histogramData.isHistogramVectorValid() ) return result;
 
     double min = histogramData.min;
     double max = histogramData.max;
 
-    return computeHistogramBins( min, max, m_numBins, graphType );
-}
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType );
+    result.valuesY = computeHistogramFrequencies( histogramData.histogram, graphType, frequencyType );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimGridStatisticsHistogramDataSource::valuesY( RimHistogramPlot::GraphType     graphType,
-                                                                   RimHistogramPlot::FrequencyType frequencyType ) const
-{
-    RigHistogramData histogramData = createStatisticsData();
-    if ( !histogramData.isHistogramVectorValid() ) return {};
+    result.p10  = histogramData.p10;
+    result.mean = histogramData.mean;
+    result.p90  = histogramData.p90;
 
-    return computeHistogramFrequencies( histogramData.histogram, graphType, frequencyType );
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------

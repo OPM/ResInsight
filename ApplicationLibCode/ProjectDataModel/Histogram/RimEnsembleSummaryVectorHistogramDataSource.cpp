@@ -229,43 +229,31 @@ std::vector<double> RimEnsembleSummaryVectorHistogramDataSource::extractValuesFr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimEnsembleSummaryVectorHistogramDataSource::valuesX( RimHistogramPlot::GraphType graphType ) const
+RimHistogramDataSource::HistogramResult RimEnsembleSummaryVectorHistogramDataSource::compute( RimHistogramPlot::GraphType graphType,
+                                                                                              RimHistogramPlot::FrequencyType frequencyType ) const
 {
+    RimHistogramDataSource::HistogramResult result;
+
     std::vector<double> values = extractValuesFromEnsemble();
-    if ( values.empty() ) return {};
+    if ( values.empty() ) return result;
 
     auto [min_it, max_it] = std::minmax_element( values.begin(), values.end() );
 
-    double min = *min_it;
-    double max = *max_it;
-    return computeHistogramBins( min, max, m_numBins, graphType );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimEnsembleSummaryVectorHistogramDataSource::valuesY( RimHistogramPlot::GraphType     graphType,
-                                                                          RimHistogramPlot::FrequencyType frequencyType ) const
-{
-    std::vector<double> values = extractValuesFromEnsemble();
-    if ( values.empty() ) return {};
-
-    auto [min_it, max_it] = std::minmax_element( values.begin(), values.end() );
-
-    double min = *min_it;
-    double max = *max_it;
+    double min     = *min_it;
+    double max     = *max_it;
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType );
 
     std::vector<size_t>    histogram;
     RigHistogramCalculator histCalc( min, max, m_numBins, &histogram );
     histCalc.addData( values );
 
-    double p10 = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::REGULAR );
-    double p50 = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::REGULAR );
-    double p90 = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::REGULAR );
+    result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType );
 
-    RiaLogging::info( QString( "%1: P10=%2 Mean=%3 P90=%4" ).arg( QString::fromStdString( name() ) ).arg( p10 ).arg( p50 ).arg( p90 ) );
+    result.p10  = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::SWITCHED );
+    result.mean = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::SWITCHED );
+    result.p90  = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::SWITCHED );
 
-    return computeHistogramFrequencies( histogram, graphType, frequencyType );
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
