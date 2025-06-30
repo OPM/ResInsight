@@ -93,7 +93,7 @@ RimWellLogLasFile* RimWellLogLasFile::readWellLogFile( const QString& logFilePat
 
     RimWellLogLasFile* wellLogFile = nullptr;
 
-    if ( fi.suffix().toUpper().compare( "LAS" ) == 0 )
+    if ( fi.suffix().toUpper().compare( "LAS" ) == 0 || fi.suffix().toUpper().compare( "RMSWELL" ) == 0 )
     {
         wellLogFile = new RimWellLogLasFile();
         wellLogFile->setFileName( logFilePath );
