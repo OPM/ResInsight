@@ -18,6 +18,7 @@
 
 #include "RimHistogramCurve.h"
 
+#include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPlotDefines.h"
 
@@ -28,12 +29,16 @@
 #include "RimProject.h"
 #include "RimTools.h"
 
+#include "RiuPlotAnnotationTool.h"
 #include "RiuPlotAxis.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafAssert.h"
 #include "cafPdmUiTreeOrdering.h"
+
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimHistogramCurve, "HistogramCurve" );
 
@@ -49,10 +54,14 @@ RimHistogramCurve::RimHistogramCurve()
     CAF_PDM_InitFieldNoDefault( &m_dataSource, "DataSource", "Data Source" );
     m_dataSource.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitField( &m_showPercentiles, "ShowPercentiles", true, "Show P10, Mean, and P90" );
+
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );
 
     setDeletable( true );
+
+    m_annotationTool = std::make_unique<RiuPlotAnnotationTool>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +137,7 @@ std::vector<double> RimHistogramCurve::valuesY() const
     if ( m_dataSource )
     {
         RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
-        return m_dataSource()->valuesY( plot->graphType(), plot->frequencyType() );
+        return m_dataSource()->compute( plot->graphType(), plot->frequencyType() ).valuesY;
     }
     else
         return {};
@@ -142,7 +151,7 @@ std::vector<double> RimHistogramCurve::valuesX() const
     if ( m_dataSource )
     {
         RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
-        return m_dataSource()->valuesX( plot->graphType() );
+        return m_dataSource()->compute( plot->graphType(), plot->frequencyType() ).valuesX;
     }
     else
         return {};
@@ -238,15 +247,45 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     updateConnectedEditors();
 
-    if ( isChecked() )
-    {
-        std::vector<double> curveValuesX = valuesX();
-        std::vector<double> curveValuesY = valuesY();
+    m_annotationTool->detachAllAnnotations();
 
-        auto plot                = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
+    if ( isChecked() && m_dataSource() )
+    {
+        RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
+
+        auto result = m_dataSource->compute( plot->graphType(), plot->frequencyType() );
+
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( axisY() );
 
-        setSamplesFromXYValues( curveValuesX, curveValuesY, useLogarithmicScale );
+        QColor color = RiaColorTools::toQColor( m_curveAppearance->color() );
+        if ( plot->plotWidget() )
+        {
+            if ( m_showPercentiles() )
+            {
+                QwtPlot* qwtPlot = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() )->qwtPlot();
+
+                QString                   autoName    = createCurveAutoName();
+                std::map<QString, double> percentiles = { { QString( "P10: %1" ).arg( autoName ), result.p10 },
+                                                          { QString( "Mean: %1" ).arg( autoName ), result.mean },
+                                                          { QString( "P90: %1" ).arg( autoName ), result.p90 } };
+
+                for ( const auto& [name, value] : percentiles )
+                {
+                    if ( !std::isinf( value ) )
+                    {
+                        m_annotationTool->attachAnnotationLine( qwtPlot,
+                                                                color,
+                                                                name,
+                                                                Qt::PenStyle::DashDotDotLine,
+                                                                value,
+                                                                RiaDefines::Orientation::VERTICAL,
+                                                                Qt::AlignmentFlag::AlignCenter );
+                    }
+                }
+            }
+        }
+
+        setSamplesFromXYValues( result.valuesX, result.valuesY, useLogarithmicScale );
     }
 
     if ( updateParentPlot && hasParentPlot() )
@@ -306,6 +345,8 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
+    uiOrdering.add( &m_showPercentiles );
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -344,6 +385,10 @@ void RimHistogramCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         updateXAxisInPlot( axisX() );
         plot->updateAxes();
         dataChanged.send();
+    }
+    else if ( changedField == &m_showPercentiles )
+    {
+        loadAndUpdate = true;
     }
 
     if ( loadAndUpdate )

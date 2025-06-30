@@ -143,28 +143,19 @@ std::string RimEnsembleParameterHistogramDataSource::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimEnsembleParameterHistogramDataSource::valuesX( RimHistogramPlot::GraphType graphType ) const
+RimHistogramDataSource::HistogramResult RimEnsembleParameterHistogramDataSource::compute( RimHistogramPlot::GraphType graphType,
+                                                                                          RimHistogramPlot::FrequencyType frequencyType ) const
 {
-    if ( !m_ensemble ) return {};
+    RimHistogramDataSource::HistogramResult result;
+
+    if ( !m_ensemble ) return result;
 
     auto parameter = m_ensemble->ensembleParameter( m_parameter );
-    if ( !parameter.isNumeric() || !parameter.isValid() ) return {};
+    if ( !parameter.isNumeric() || !parameter.isValid() ) return result;
 
-    double min = parameter.minValue;
-    double max = parameter.maxValue;
-    return computeHistogramBins( min, max, m_numBins, graphType );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimEnsembleParameterHistogramDataSource::valuesY( RimHistogramPlot::GraphType     graphType,
-                                                                      RimHistogramPlot::FrequencyType frequencyType ) const
-{
-    if ( !m_ensemble ) return {};
-
-    auto parameter = m_ensemble->ensembleParameter( m_parameter );
-    if ( !parameter.isNumeric() || !parameter.isValid() ) return {};
+    double min     = parameter.minValue;
+    double max     = parameter.maxValue;
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType );
 
     std::vector<double> values;
     for ( const QVariant& v : parameter.values )
@@ -172,20 +163,17 @@ std::vector<double> RimEnsembleParameterHistogramDataSource::valuesY( RimHistogr
         values.push_back( v.toDouble() );
     }
 
-    double min = parameter.minValue;
-    double max = parameter.maxValue;
-
     std::vector<size_t>    histogram;
     RigHistogramCalculator histCalc( min, max, m_numBins, &histogram );
     histCalc.addData( values );
 
-    double p10 = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::REGULAR );
-    double p50 = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::REGULAR );
-    double p90 = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::REGULAR );
+    result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType );
 
-    RiaLogging::info( QString( "%1: P10=%2 Mean=%3 P90=%4" ).arg( QString::fromStdString( name() ) ).arg( p10 ).arg( p50 ).arg( p90 ) );
+    result.p10  = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::SWITCHED );
+    result.mean = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::SWITCHED );
+    result.p90  = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::SWITCHED );
 
-    return computeHistogramFrequencies( histogram, graphType, frequencyType );
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiuPlotAnnotationTool.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -86,4 +87,8 @@ private:
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_xPlotAxisProperties;
 
     caf::PdmChildField<RimHistogramDataSource*> m_dataSource;
+
+    caf::PdmField<bool> m_showPercentiles;
+
+    std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 };
