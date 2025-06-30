@@ -23,6 +23,7 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RifJsonEncodeDecode.h"
+#include "RifRmsWellPathReader.h"
 
 #include "cafUtils.h"
 
@@ -44,6 +45,10 @@ RifWellPathImporter::WellData RifWellPathImporter::readWellData( const QString& 
     if ( isJsonFile( filePath ) )
     {
         return readJsonWellData( filePath );
+    }
+    else if ( isRmsWellFile( filePath ) )
+    {
+        return RifRmsWellPathReader::readWellData( filePath );
     }
     else
     {
@@ -94,6 +99,11 @@ size_t RifWellPathImporter::wellDataCount( const QString& filePath )
         // Only support JSON files with single well data currently
         return 1;
     }
+    else if ( isRmsWellFile( filePath ) )
+    {
+        // Only support JSON files with single well data currently
+        return 1;
+    }
     else
     {
         std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it = m_fileNameToWellDataGroupMap.find( filePath );
@@ -119,6 +129,15 @@ bool RifWellPathImporter::isJsonFile( const QString& filePath )
 {
     QFileInfo fileInfo( filePath );
     return ( fileInfo.suffix().compare( "json" ) == 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifWellPathImporter::isRmsWellFile( const QString& filePath )
+{
+    QFileInfo fileInfo( filePath );
+    return ( fileInfo.suffix().compare( "rmswell" ) == 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
