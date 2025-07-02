@@ -88,7 +88,10 @@ private:
 
     caf::PdmChildField<RimHistogramDataSource*> m_dataSource;
 
-    caf::PdmField<bool> m_showPercentiles;
+    caf::PdmField<bool> m_showP10Curve;
+    caf::PdmField<bool> m_showP90Curve;
+    caf::PdmField<bool> m_showMeanCurve;
+    caf::PdmField<bool> m_showValue;
 
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 };
