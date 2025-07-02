@@ -42,6 +42,7 @@ public:
     bool        useWsl() const;
     bool        useMpi() const;
     int         mpiProcesses() const;
+    QString     mpirunCommand() const;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -52,6 +53,7 @@ private:
     caf::PdmField<QString> m_wslDistribution;
     caf::PdmField<bool>    m_useMpi;
     caf::PdmField<int>     m_mpiProcesses;
+    caf::PdmField<QString> m_mpirunCommand;
 
     QStringList m_availableWslDists;
 };

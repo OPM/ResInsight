@@ -40,6 +40,10 @@ RiaPreferencesOpm::RiaPreferencesOpm()
     CAF_PDM_InitField( &m_useMpi, "useMpi", false, "Use MPI to run Opm Flow" );
     CAF_PDM_InitField( &m_mpiProcesses, "mpiProcesses", 4, "Number of MPI processes to use" );
 
+    CAF_PDM_InitField( &m_mpirunCommand, "mpirunCommand", QString( "/usr/bin/mpirun" ), "Path to mpirun command" );
+    m_mpirunCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_mpirunCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     CAF_PDM_InitFieldNoDefault( &m_wslDistribution, "wslDistribution", "WSL Distribution to use:" );
     m_wslDistribution.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_availableWslDists = RiaWslTools::wslDistributionList();
@@ -75,6 +79,7 @@ void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
     if ( m_useMpi() )
     {
         opmGrp->add( &m_mpiProcesses );
+        opmGrp->add( &m_mpirunCommand );
     }
 }
 
@@ -102,6 +107,14 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesOpm::calculateValueOptions( const ca
 QString RiaPreferencesOpm::opmFlowCommand() const
 {
     return m_opmFlowCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesOpm::mpirunCommand() const
+{
+    return m_mpirunCommand;
 }
 
 //--------------------------------------------------------------------------------------------------
