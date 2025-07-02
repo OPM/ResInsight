@@ -59,7 +59,9 @@ public:
                                Qt::PenStyle            penStyle,
                                const double            position,
                                RiaDefines::Orientation orientation,
-                               Qt::Alignment           horizontalAlignment );
+                               Qt::Alignment           horizontalAlignment,
+                               int                     lineWidth        = 1,
+                               RiaDefines::Orientation labelOrientation = RiaDefines::Orientation::HORIZONTAL );
 
     void attachAnnotationRange( QwtPlot*                plot,
                                 const QColor&           color,
@@ -95,7 +97,9 @@ private:
                                    const QColor&           color               = QColor( 0, 0, 100 ),
                                    const QColor&           textColor           = QColor( 0, 0, 100 ),
                                    Qt::Alignment           horizontalAlignment = Qt::AlignRight,
-                                   int                     fontSize            = 0 );
+                                   int                     fontSize            = 0,
+                                   int                     lineWidth           = 1,
+                                   RiaDefines::Orientation labelOrientation    = RiaDefines::Orientation::HORIZONTAL );
 
 private:
     QPointer<QwtPlot>         m_plot;
