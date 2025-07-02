@@ -54,7 +54,10 @@ RimHistogramCurve::RimHistogramCurve()
     CAF_PDM_InitFieldNoDefault( &m_dataSource, "DataSource", "Data Source" );
     m_dataSource.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_showPercentiles, "ShowPercentiles", true, "Show P10, Mean, and P90" );
+    CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10" );
+    CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P90" );
+    CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean" );
+    CAF_PDM_InitField( &m_showValue, "ShowValue", true, "Show Value" );
 
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );
@@ -260,27 +263,35 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
         QColor color = RiaColorTools::toQColor( m_curveAppearance->color() );
         if ( plot->plotWidget() )
         {
-            if ( m_showPercentiles() )
+            QwtPlot* qwtPlot = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() )->qwtPlot();
+
+            auto makeCurveName = []( const QString& pType, const QString& valueName, double value, bool showValue ) -> QString
             {
-                QwtPlot* qwtPlot = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() )->qwtPlot();
+                QString prefix = "  ";
+                QString str    = QString( "%1%2: %3" ).arg( prefix ).arg( pType ).arg( valueName );
+                if ( showValue )
+                    return str + QString( " (%1)" ).arg( value );
+                else
+                    return str;
+            };
 
-                QString                   autoName    = createCurveAutoName();
-                std::map<QString, double> percentiles = { { QString( "P10: %1" ).arg( autoName ), result.p10 },
-                                                          { QString( "Mean: %1" ).arg( autoName ), result.mean },
-                                                          { QString( "P90: %1" ).arg( autoName ), result.p90 } };
+            QString                   autoName = createCurveAutoName();
+            std::map<QString, double> percentiles;
+            if ( m_showP10Curve ) percentiles[makeCurveName( "P10", autoName, result.p10, m_showValue() )] = result.p10;
+            if ( m_showP90Curve ) percentiles[makeCurveName( "P90", autoName, result.p90, m_showValue() )] = result.p90;
+            if ( m_showMeanCurve ) percentiles[makeCurveName( "Mean", autoName, result.mean, m_showValue() )] = result.mean;
 
-                for ( const auto& [name, value] : percentiles )
+            for ( const auto& [name, value] : percentiles )
+            {
+                if ( !std::isinf( value ) )
                 {
-                    if ( !std::isinf( value ) )
-                    {
-                        m_annotationTool->attachAnnotationLine( qwtPlot,
-                                                                color,
-                                                                name,
-                                                                Qt::PenStyle::DashDotDotLine,
-                                                                value,
-                                                                RiaDefines::Orientation::VERTICAL,
-                                                                Qt::AlignmentFlag::AlignCenter );
-                    }
+                    m_annotationTool->attachAnnotationLine( qwtPlot,
+                                                            color,
+                                                            name,
+                                                            Qt::PenStyle::DashDotDotLine,
+                                                            value,
+                                                            RiaDefines::Orientation::VERTICAL,
+                                                            Qt::AlignmentFlag::AlignCenter );
                 }
             }
         }
@@ -345,7 +356,11 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
-    uiOrdering.add( &m_showPercentiles );
+    auto group = uiOrdering.addNewGroup( "Statistics" );
+    group->add( &m_showP90Curve );
+    group->add( &m_showMeanCurve );
+    group->add( &m_showP10Curve );
+    group->add( &m_showValue );
 
     uiOrdering.skipRemainingFields();
 }
@@ -386,7 +401,8 @@ void RimHistogramCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         plot->updateAxes();
         dataChanged.send();
     }
-    else if ( changedField == &m_showPercentiles )
+    else if ( changedField == &m_showP10Curve || changedField == &m_showMeanCurve || changedField == &m_showP90Curve ||
+              changedField == &m_showValue )
     {
         loadAndUpdate = true;
     }
