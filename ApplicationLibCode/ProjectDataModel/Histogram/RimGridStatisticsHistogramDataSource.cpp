@@ -239,3 +239,15 @@ std::string RimGridStatisticsHistogramDataSource::name() const
 
     return nameTags.join( ", " ).toStdString();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridStatisticsHistogramDataSource ::initAfterRead()
+{
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+    if ( eclipseCase )
+    {
+        m_property->setEclipseCase( eclipseCase );
+    }
+}
