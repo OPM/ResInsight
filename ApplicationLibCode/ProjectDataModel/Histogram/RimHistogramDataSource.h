@@ -59,6 +59,8 @@ public:
 
     virtual HistogramResult compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const = 0;
 
+    virtual void setDefaults() = 0;
+
     virtual std::string name() const = 0;
 
     static std::vector<double> computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType );

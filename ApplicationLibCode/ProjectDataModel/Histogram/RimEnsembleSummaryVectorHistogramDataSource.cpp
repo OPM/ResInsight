@@ -303,3 +303,25 @@ QString RimEnsembleSummaryVectorHistogramDataSource::formatDateTime( const QDate
                                                                     RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
     return RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleSummaryVectorHistogramDataSource::setDefaults()
+{
+    RimProject* proj = RimProject::current();
+
+    std::vector<RimSummaryEnsemble*> ensembles = proj->summaryEnsembles();
+    if ( !ensembles.empty() )
+    {
+        m_ensemble = ensembles[0];
+        auto addr  = RifEclipseSummaryAddress::fieldAddress( "FOPT" );
+        setSummaryAddress( addr );
+        std::set<time_t> allTimeSteps = m_ensemble->ensembleTimeSteps();
+        if ( !allTimeSteps.empty() )
+        {
+            QDateTime dateTime = RiaQDateTimeTools::fromTime_t( *( allTimeSteps.rbegin() ) );
+            setTimeStep( dateTime );
+        }
+    }
+}

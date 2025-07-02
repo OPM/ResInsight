@@ -251,3 +251,28 @@ void RimGridStatisticsHistogramDataSource ::initAfterRead()
         m_property->setEclipseCase( eclipseCase );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridStatisticsHistogramDataSource::setDefaults()
+{
+    RimProject* project = RimProject::current();
+    if ( project )
+    {
+        if ( !project->eclipseCases().empty() )
+        {
+            RimEclipseCase* eclipseCase = project->eclipseCases().front();
+            m_case                      = eclipseCase;
+            m_property->setEclipseCase( eclipseCase );
+
+            m_property->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
+            m_property->setResultVariable( "PORO" );
+
+            if ( eclipseCase && !eclipseCase->reservoirViews().empty() )
+            {
+                m_cellFilterView.setValue( eclipseCase->reservoirViews().front() );
+            }
+        }
+    }
+}
