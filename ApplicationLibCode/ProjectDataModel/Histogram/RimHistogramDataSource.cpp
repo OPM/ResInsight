@@ -48,8 +48,17 @@ std::vector<double> RimHistogramDataSource::computeHistogramBins( double min, do
     {
         if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
         {
-            values.push_back( min + binSize * i );
-            values.push_back( min + binSize * ( i + 1 ) );
+            const double binMin = min + binSize * i;
+            const double binMax = min + binSize * ( i + 1 );
+
+            // Close first on left side
+            if ( i == 0 ) values.push_back( binMin );
+
+            values.push_back( binMin );
+            values.push_back( binMax );
+
+            // Close last bar on right side
+            if ( i == numBins - 1 ) values.push_back( binMax );
         }
         else if ( graphType == RimHistogramPlot::GraphType::LINE_GRAPH )
         {
@@ -83,14 +92,24 @@ std::vector<double> RimHistogramDataSource::computeHistogramFrequencies( const s
         sumElements += value;
 
     std::vector<double> frequencies;
-    for ( double frequency : values )
+    for ( size_t i = 0; i < values.size(); i++ )
     {
-        double value = frequency;
+        double value = values[i];
         if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY ) value /= sumElements;
         if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY_PERCENT ) value = value / sumElements * 100.0;
 
-        frequencies.push_back( value );
         if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
+        {
+            // Close first bar on left side
+            if ( i == 0 ) frequencies.push_back( 0.0 );
+
+            frequencies.push_back( value );
+            frequencies.push_back( value );
+
+            // Close last bar on right side
+            if ( i == values.size() - 1 ) frequencies.push_back( 0.0 );
+        }
+        else if ( graphType == RimHistogramPlot::GraphType::LINE_GRAPH )
         {
             frequencies.push_back( value );
         }
