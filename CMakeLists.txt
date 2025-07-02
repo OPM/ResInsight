@@ -803,7 +803,7 @@ else()
       libopenvds.so
       libopenvds.so.3
       libopenvds.so.3.4.6
-      libopenvds-85fcb584.so.3.4.6
+      libopenvds-e6a44892.so.3.4.6
       libsegyutils.so
       libsegyutils.so.3
       libsegyutils.so.3.4.6
@@ -1052,7 +1052,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.4.6
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-85fcb584.so.3.4.6
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-e6a44892.so.3.4.6
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.4.6
