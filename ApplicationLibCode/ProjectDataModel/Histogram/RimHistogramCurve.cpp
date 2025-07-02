@@ -291,7 +291,9 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                                             Qt::PenStyle::DashDotDotLine,
                                                             value,
                                                             RiaDefines::Orientation::VERTICAL,
-                                                            Qt::AlignmentFlag::AlignCenter );
+                                                            Qt::AlignmentFlag::AlignLeft,
+                                                            3,
+                                                            RiaDefines::Orientation::VERTICAL );
                 }
             }
         }

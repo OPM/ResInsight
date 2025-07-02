@@ -18,6 +18,7 @@
 
 #include "RiuPlotAnnotationTool.h"
 
+#include "RiaPlotDefines.h"
 #include "RimPlotAxisAnnotation.h"
 #include "RiuGuiTheme.h"
 #include "RiuQwtPlotCurveDefines.h"
@@ -193,7 +194,9 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
                                                   Qt::PenStyle            penStyle,
                                                   const double            position,
                                                   RiaDefines::Orientation orientation,
-                                                  Qt::Alignment           horizontalAlignment )
+                                                  Qt::Alignment           horizontalAlignment,
+                                                  int                     lineWidth,
+                                                  RiaDefines::Orientation labelOrientation )
 {
     m_plot = plot;
 
@@ -205,7 +208,17 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
         textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
     }
 
-    RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, penStyle, color, textColor, horizontalAlignment );
+    RiuPlotAnnotationTool::setLineProperties( line,
+                                              annotationText,
+                                              orientation,
+                                              position,
+                                              penStyle,
+                                              color,
+                                              textColor,
+                                              horizontalAlignment,
+                                              0,
+                                              lineWidth,
+                                              labelOrientation );
     m_plotItems.push_back( line );
     line->attach( m_plot );
 }
@@ -413,12 +426,14 @@ void RiuPlotAnnotationTool::setLineProperties( QwtPlotMarker*          line,
                                                const QColor&           color /*= QColor( 0, 0, 100 )*/,
                                                const QColor&           textColor /*= QColor( 0, 0, 100 )*/,
                                                Qt::Alignment           horizontalAlignment /*= Qt::AlignRight*/,
-                                               int                     fontSize /*= 0 */ )
+                                               int                     fontSize /*= 0 */,
+                                               int                     lineWidth,
+                                               RiaDefines::Orientation labelOrientation )
 {
     QPen curvePen;
     curvePen.setStyle( lineStyle );
     curvePen.setColor( color );
-    curvePen.setWidth( 1 );
+    curvePen.setWidth( lineWidth );
 
     line->setLinePen( curvePen );
     QwtText label( name );
@@ -426,6 +441,8 @@ void RiuPlotAnnotationTool::setLineProperties( QwtPlotMarker*          line,
     if ( fontSize > 0 ) label.setFont( QFont( label.font().key(), fontSize ) );
     line->setLabel( label );
     line->setLabelAlignment( horizontalAlignment | Qt::AlignBottom );
+
+    line->setLabelOrientation( labelOrientation == RiaDefines::Orientation::HORIZONTAL ? Qt::Horizontal : Qt::Vertical );
 
     if ( orientation == RiaDefines::Orientation::HORIZONTAL )
     {
