@@ -526,7 +526,7 @@ QStringList RimOpmFlowJob::command()
 
     if ( opmPref->useMpi() )
     {
-        cmd.append( "/usr/bin/mpirun" );
+        cmd.append( opmPref->mpirunCommand() );
         cmd.append( QString( "-np" ) );
         cmd.append( QString( "%1" ).arg( opmPref->mpiProcesses() ) );
     }
