@@ -50,6 +50,8 @@ public:
 
     HistogramResult compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const override;
 
+    void setDefaults() override;
+
     std::string name() const override;
 
 protected:

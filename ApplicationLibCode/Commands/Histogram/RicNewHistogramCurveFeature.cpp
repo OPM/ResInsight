@@ -66,6 +66,7 @@ void RicNewHistogramCurveFeature::onActionTriggered( bool isChecked )
     if ( plot )
     {
         RimHistogramDataSource* dataSource = getDataSourceFromString( userData().toString() );
+        dataSource->setDefaults();
         RicHistogramPlotTools::createHistogramCurve( plot, dataSource );
     }
 }

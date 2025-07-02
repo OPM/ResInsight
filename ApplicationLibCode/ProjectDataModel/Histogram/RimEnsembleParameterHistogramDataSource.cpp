@@ -203,3 +203,25 @@ void RimEnsembleParameterHistogramDataSource::setEnsemble( RimSummaryEnsemble* e
 {
     m_ensemble = ensemble;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleParameterHistogramDataSource::setDefaults()
+{
+    std::vector<RimSummaryEnsemble*> ensembles = RimProject::current()->summaryEnsembles();
+    if ( !ensembles.empty() )
+    {
+        m_ensemble      = ensembles[0];
+        auto parameters = m_ensemble->variationSortedEnsembleParameters();
+        // Find first valid numeric parameter
+        for ( const RigEnsembleParameter& p : m_ensemble->variationSortedEnsembleParameters() )
+        {
+            if ( p.isNumeric() && p.isValid() )
+            {
+                m_parameter = p.name;
+                break;
+            }
+        }
+    }
+}
