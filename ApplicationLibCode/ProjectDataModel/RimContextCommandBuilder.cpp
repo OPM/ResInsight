@@ -160,10 +160,6 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
-#ifdef USE_QTCHARTS
-#include "RimEnsembleFractureStatisticsPlotCollection.h"
-#endif
-
 #include "RiuMainWindow.h"
 
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
@@ -656,12 +652,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateSaturationPressurePlotsFeature";
         }
-#ifdef USE_QTCHARTS
-        else if ( dynamic_cast<RimEnsembleFractureStatisticsPlotCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicCreateEnsembleFractureStatisticsPlotFeature";
-        }
-#endif
         else if ( dynamic_cast<RimGridCrossPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteGridCrossPlotDataSetFeature";
@@ -996,7 +986,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuStart( "New Histogram Curve" );
 
             // TODO: make an enum of these?
-            std::vector<QString> curveTypes = { "Ensemble Parameter", "Grid Statistics", "Summary Vector" };
+            std::vector<QString> curveTypes = { "Ensemble Parameter", "Grid Statistics", "Summary Vector", "Ensemble Fracture Statistics" };
 
             for ( const QString& curveType : curveTypes )
             {

@@ -95,10 +95,6 @@
 #include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
 
-#ifdef USE_QTCHARTS
-#include "RimGridStatisticsPlot.h"
-#endif
-
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
 #include "RiuTools.h"
@@ -850,17 +846,6 @@ void RimEclipseView::onCreateDisplayModel()
             caf::SelectionManager::instance()->setSelectedItems( selectedItems );
         }
     }
-
-#ifdef USE_QTCHARTS
-    std::vector<RimGridStatisticsPlot*> gridStatisticsPlots = objectsWithReferringPtrFieldsOfType<RimGridStatisticsPlot>();
-    for ( auto gridStatisticsPlot : gridStatisticsPlots )
-    {
-        if ( gridStatisticsPlot != nullptr )
-        {
-            gridStatisticsPlot->cellFilterViewUpdated();
-        }
-    }
-#endif
 
     std::vector<RimGridStatisticsHistogramDataSource*> gridStatisticsHistogramDataSources =
         objectsWithReferringPtrFieldsOfType<RimGridStatisticsHistogramDataSource>();

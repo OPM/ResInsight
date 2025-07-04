@@ -125,10 +125,9 @@ private:
     caf::PdmChildField<RimStimPlanModelPlotCollection*>      m_stimPlanModelPlotCollection;
     caf::PdmChildField<RimVfpPlotCollection*>                m_vfpPlotCollection;
     caf::PdmChildField<RimHistogramMultiPlotCollection*>     m_histogramMultiPlotCollection;
-#ifdef USE_QTCHARTS
-    caf::PdmChildField<RimGridStatisticsPlotCollection*>             m_gridStatisticsPlotCollection;
-    caf::PdmChildField<RimEnsembleFractureStatisticsPlotCollection*> m_ensembleFractureStatisticsPlotCollection;
-#endif
+
+    caf::PdmChildField<RimGridStatisticsPlotCollection*>             m_gridStatisticsPlotCollection_OBSOLETE;
+    caf::PdmChildField<RimEnsembleFractureStatisticsPlotCollection*> m_ensembleFractureStatisticsPlotCollection_OBSOLETE;
 
     caf::PdmField<bool> m_show;
 

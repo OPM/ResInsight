@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
-#include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 #include "RiaNumberFormat.h"
 #include "RiaPreferences.h"
@@ -34,11 +33,8 @@
 #include "RigStatisticsMath.h"
 #include "RigStimPlanFractureDefinition.h"
 
-#ifdef USE_QTCHARTS
-#include "RimEnsembleFractureStatisticsPlot.h"
-#endif
+#include "Histogram/RimEnsembleFractureHistogramDataSource.h"
 #include "RimFractureTemplateCollection.h"
-#include "RimHistogramCalculator.h"
 #include "RimProject.h"
 #include "RimStimPlanFractureTemplate.h"
 
@@ -288,15 +284,13 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
     {
         loadAndUpdateData();
 
-#ifdef USE_QTCHARTS
         // Update referring plots
         std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
         for ( caf::PdmObjectHandle* obj : referringObjects )
         {
-            auto plot = dynamic_cast<RimEnsembleFractureStatisticsPlot*>( obj );
+            auto plot = dynamic_cast<RimEnsembleFractureHistogramDataSource*>( obj );
             if ( plot ) plot->loadDataAndUpdate();
         }
-#endif
     }
 }
 

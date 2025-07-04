@@ -102,12 +102,6 @@
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
-#ifdef USE_QTCHARTS
-#include "RimEnsembleFractureStatisticsPlotCollection.h"
-#include "RimGridStatisticsPlot.h"
-#include "RimGridStatisticsPlotCollection.h"
-#endif
-
 #include "RiuPlotMainWindow.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -1469,17 +1463,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 uiTreeOrdering.add( m_mainPlotCollection->histogramMultiPlotCollection() );
             }
 
-#ifdef USE_QTCHARTS
-            if ( m_mainPlotCollection->gridStatisticsPlotCollection() || m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
-            {
-                auto statisticsItemCollection = uiTreeOrdering.add( "Statistics Plots", ":/Folder.png" );
-                if ( m_mainPlotCollection->gridStatisticsPlotCollection() )
-                    statisticsItemCollection->add( m_mainPlotCollection->gridStatisticsPlotCollection() );
-
-                if ( m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
-                    statisticsItemCollection->add( m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
-            }
-#endif
             uiTreeOrdering.add( automationSettings() );
         }
     }

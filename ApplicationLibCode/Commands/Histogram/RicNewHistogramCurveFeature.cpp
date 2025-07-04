@@ -20,14 +20,15 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RicHistogramPlotTools.h"
+
+#include "Histogram/RimEnsembleFractureHistogramDataSource.h"
 #include "Histogram/RimEnsembleParameterHistogramDataSource.h"
 #include "Histogram/RimEnsembleSummaryVectorHistogramDataSource.h"
 #include "Histogram/RimGridStatisticsHistogramDataSource.h"
 #include "Histogram/RimHistogramCurve.h"
 #include "Histogram/RimHistogramCurveCollection.h"
 #include "Histogram/RimHistogramPlot.h"
-#include "RicHistogramPlotTools.h"
-#include "RimProject.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -59,6 +60,8 @@ void RicNewHistogramCurveFeature::onActionTriggered( bool isChecked )
             return new RimGridStatisticsHistogramDataSource();
         else if ( dataSourceType == "Summary Vector" )
             return new RimEnsembleSummaryVectorHistogramDataSource();
+        else if ( dataSourceType == "Ensemble Fracture Statistics" )
+            return new RimEnsembleFractureHistogramDataSource();
         return nullptr;
     };
 
