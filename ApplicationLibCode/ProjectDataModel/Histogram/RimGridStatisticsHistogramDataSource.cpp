@@ -276,3 +276,11 @@ void RimGridStatisticsHistogramDataSource::setDefaults()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridStatisticsHistogramDataSource::cellFilterViewUpdated()
+{
+    dataSourceChanged.send();
+}
