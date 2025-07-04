@@ -20,6 +20,7 @@
 
 #include "Histogram/RimHistogramPlot.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimHistogramCalculator.h"
@@ -282,5 +283,31 @@ void RimGridStatisticsHistogramDataSource::setDefaults()
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsHistogramDataSource::cellFilterViewUpdated()
 {
+    dataSourceChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridStatisticsHistogramDataSource::loadDataAndUpdate()
+{
+    dataSourceChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridStatisticsHistogramDataSource::setPropertiesFromView( RimEclipseView* view )
+{
+    CAF_ASSERT( view );
+
+    m_case = view->ownerCase();
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+    if ( eclipseCase ) m_property->setEclipseCase( eclipseCase );
+
+    const RimEclipseResultDefinition* resDef = dynamic_cast<const RimEclipseResultDefinition*>( view->cellResult() );
+    if ( resDef ) m_property->simpleCopy( resDef );
+
     dataSourceChanged.send();
 }

@@ -20,14 +20,11 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RicHistogramPlotTools.h"
+
+#include "Histogram/RimGridStatisticsHistogramDataSource.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimGridStatisticsPlot.h"
-#include "RimGridStatisticsPlotCollection.h"
-#include "RimMainPlotCollection.h"
-
-#include "RiuPlotMainWindow.h"
-#include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
 
@@ -38,22 +35,15 @@ CAF_CMD_SOURCE_INIT( RicCreateGridStatisticsPlotFeature, "RicCreateGridStatistic
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridStatisticsPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimGridStatisticsPlotCollection* collection = RimMainPlotCollection::current()->gridStatisticsPlotCollection();
+    auto multiplot     = RicHistogramPlotTools::addNewHistogramMultiplot();
+    auto histogramPlot = RicHistogramPlotTools::addNewHistogramPlot( multiplot );
 
-    RimGridStatisticsPlot* plot = new RimGridStatisticsPlot();
+    auto dataSource = new RimGridStatisticsHistogramDataSource();
+    RicHistogramPlotTools::createHistogramCurve( histogramPlot, dataSource );
 
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
-    if ( activeView ) plot->setPropertiesFromView( activeView );
-
-    plot->zoomAll();
-    plot->updateConnectedEditors();
-    plot->setAsPlotMdiWindow();
-    plot->loadDataAndUpdate();
-
-    collection->addGridStatisticsPlot( plot );
-    collection->updateAllRequiredEditors();
+    if ( activeView ) dataSource->setPropertiesFromView( activeView );
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    RiuPlotMainWindowTools::onObjectAppended( plot );
 }
 
 //--------------------------------------------------------------------------------------------------

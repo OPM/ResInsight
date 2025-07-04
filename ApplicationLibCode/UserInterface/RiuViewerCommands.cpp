@@ -618,9 +618,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
 
-#ifdef USE_QTCHARTS
             menuBuilder << "RicCreateGridStatisticsPlotFeature";
-#endif
             menuBuilder << "RicShowGridStatisticsFeature";
             menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
             menuBuilder << "RicSelectColorResult";
