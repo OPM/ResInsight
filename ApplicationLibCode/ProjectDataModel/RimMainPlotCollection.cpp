@@ -113,12 +113,6 @@ RimMainPlotCollection::RimMainPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_histogramMultiPlotCollection, "HistogramMultiPlotCollection", "" );
 
-#ifdef USE_QTCHARTS
-    CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "" );
-
-    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection, "EnsembleFractureStatisticsPlotCollection", "" );
-#endif
-
     m_wellLogPlotCollection               = new RimWellLogPlotCollection();
     m_rftPlotCollection                   = new RimRftPlotCollection();
     m_pltPlotCollection                   = new RimPltPlotCollection();
@@ -134,10 +128,12 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_stimPlanModelPlotCollection         = new RimStimPlanModelPlotCollection;
     m_vfpPlotCollection                   = new RimVfpPlotCollection();
     m_histogramMultiPlotCollection        = new RimHistogramMultiPlotCollection();
-#ifdef USE_QTCHARTS
-    m_gridStatisticsPlotCollection             = new RimGridStatisticsPlotCollection;
-    m_ensembleFractureStatisticsPlotCollection = new RimEnsembleFractureStatisticsPlotCollection;
-#endif
+
+    CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection_OBSOLETE, "GridStatisticsPlotCollection", "" );
+    m_gridStatisticsPlotCollection_OBSOLETE = new RimGridStatisticsPlotCollection;
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection_OBSOLETE, "EnsembleFractureStatisticsPlotCollection", "" );
+    m_ensembleFractureStatisticsPlotCollection_OBSOLETE = new RimEnsembleFractureStatisticsPlotCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection_OBSOLETE, "SummaryPlotCollection", "Summary Plots" );
     m_summaryPlotCollection_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -344,7 +340,7 @@ RimHistogramMultiPlotCollection* RimMainPlotCollection::histogramMultiPlotCollec
 //--------------------------------------------------------------------------------------------------
 RimGridStatisticsPlotCollection* RimMainPlotCollection::gridStatisticsPlotCollection() const
 {
-    return m_gridStatisticsPlotCollection();
+    return m_gridStatisticsPlotCollection_OBSOLETE();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,7 +348,7 @@ RimGridStatisticsPlotCollection* RimMainPlotCollection::gridStatisticsPlotCollec
 //--------------------------------------------------------------------------------------------------
 RimEnsembleFractureStatisticsPlotCollection* RimMainPlotCollection::ensembleFractureStatisticsPlotCollection() const
 {
-    return m_ensembleFractureStatisticsPlotCollection();
+    return m_ensembleFractureStatisticsPlotCollection_OBSOLETE();
 }
 #endif
 
