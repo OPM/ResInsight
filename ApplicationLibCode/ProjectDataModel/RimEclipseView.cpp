@@ -42,6 +42,7 @@
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
+#include "Histogram/RimGridStatisticsHistogramDataSource.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dOverlayInfoConfig.h"
@@ -860,6 +861,16 @@ void RimEclipseView::onCreateDisplayModel()
         }
     }
 #endif
+
+    std::vector<RimGridStatisticsHistogramDataSource*> gridStatisticsHistogramDataSources =
+        objectsWithReferringPtrFieldsOfType<RimGridStatisticsHistogramDataSource>();
+    for ( auto gridStatisticsPlot : gridStatisticsHistogramDataSources )
+    {
+        if ( gridStatisticsPlot != nullptr )
+        {
+            gridStatisticsPlot->cellFilterViewUpdated();
+        }
+    }
 
     RicExportToSharingServerScheduler::instance()->scheduleUpdateSession();
 }
