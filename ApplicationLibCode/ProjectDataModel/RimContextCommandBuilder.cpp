@@ -162,7 +162,6 @@
 
 #ifdef USE_QTCHARTS
 #include "RimEnsembleFractureStatisticsPlotCollection.h"
-#include "RimGridStatisticsPlotCollection.h"
 #endif
 
 #include "RiuMainWindow.h"
@@ -658,10 +657,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicCreateSaturationPressurePlotsFeature";
         }
 #ifdef USE_QTCHARTS
-        else if ( dynamic_cast<RimGridStatisticsPlotCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicCreateGridStatisticsPlotFeature";
-        }
         else if ( dynamic_cast<RimEnsembleFractureStatisticsPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateEnsembleFractureStatisticsPlotFeature";
@@ -871,9 +866,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<Rim3dOverlayInfoConfig*>( firstUiItem ) )
         {
-#ifdef USE_QTCHARTS
             menuBuilder << "RicCreateGridStatisticsPlotFeature";
-#endif
             menuBuilder << "RicShowGridStatisticsFeature";
         }
         else if ( dynamic_cast<RimValveTemplateCollection*>( firstUiItem ) )

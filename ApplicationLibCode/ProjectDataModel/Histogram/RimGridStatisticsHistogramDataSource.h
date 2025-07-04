@@ -28,6 +28,7 @@ class RimSummaryEnsemble;
 class RimCase;
 class RimGridView;
 class RimEclipseResultDefinition;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -51,6 +52,10 @@ public:
     void setDefaults() override;
 
     void cellFilterViewUpdated();
+
+    void loadDataAndUpdate();
+
+    void setPropertiesFromView( RimEclipseView* view );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
