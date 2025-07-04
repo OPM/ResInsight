@@ -1916,6 +1916,8 @@ void RimSummaryPlot::updateAxisRangesFromPlotWidget()
     {
         if ( !axisProperties ) continue;
 
+        if ( !plotWidget()->axisEnabled( axisProperties->plotAxis() ) ) continue;
+
         auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxis() );
         if ( axisProperties->isAxisInverted() ) std::swap( axisMin, axisMax );
 
