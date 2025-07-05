@@ -171,6 +171,11 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
                                                          const RimSummaryCase*         summaryCase,
                                                          const RigEnsembleParameter&   ensembleParam )
 {
+    if ( !summaryCase || !legendConfig )
+    {
+        return RiaColorTables::undefinedCellColor();
+    }
+
     if ( ensembleParam.isText() )
     {
         QString tValue = summaryCase->hasCaseRealizationParameters()

@@ -303,7 +303,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilter::calculateValueOptions( con
         auto curveSet = parentCurveSet();
         if ( curveSet )
         {
-            auto params = curveSet->ensembleParameters( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE );
+            auto params = curveSet->ensembleParameters( RimCurveAppearanceDefines::ParameterSorting::ABSOLUTE_VALUE );
             for ( const auto& [param, corr] : params )
             {
                 options.push_back( caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( param.name ).arg( corr ), param.name ) );
@@ -789,7 +789,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
     {
         if ( !selectedEnsembleParameter().isValid() )
         {
-            auto ensParams = parentCurveSet()->ensembleParameters( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE );
+            auto ensParams = parentCurveSet()->ensembleParameters( RimCurveAppearanceDefines::ParameterSorting::ABSOLUTE_VALUE );
             if ( !ensParams.empty() )
             {
                 m_ensembleParameterName = ensParams.front().first.name;
