@@ -184,6 +184,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           prefix: vcpkg-${{ matrix.config.cxx}}/
           
+      - name: Print CMake version
+        shell: bash
+        run: |
+         if [ "$RUNNER_OS" = "Windows" ]; then
+           EXEC_PATH=$(where.exe cmake | head -n 1)
+         else
+           EXEC_PATH=$(which cmake)
+         fi
+         echo "Executable path: $EXEC_PATH"
+         "$EXEC_PATH" --version    
+
       - name: Configure
         shell: bash
         env:
