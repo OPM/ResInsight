@@ -13,7 +13,8 @@
                 "RESINSIGHT_TREAT_WARNINGS_AS_ERRORS": true,
                 "RESINSIGHT_ENABLE_UNITY_BUILD": false,
                 "RESINSIGHT_ENABLE_GRPC": false,
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
+                "CMAKE_POLICY_VERSION_MINIMUM": "3.5"
             }
         }
     ]

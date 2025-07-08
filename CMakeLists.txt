@@ -1,14 +1,6 @@
 # The way boost is configured and used in Boost 1.86 requires CMake 3.26
 cmake_minimum_required(VERSION 3.26)
 
-# Check if CMake version is 4.0 or higher
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.0)
-  message(
-    FATAL_ERROR
-      "CMake version ${CMAKE_VERSION} detected. We are investigating issues for CMake 4. Use CMake 3.x to build ResInsight."
-  )
-endif()
-
 cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
