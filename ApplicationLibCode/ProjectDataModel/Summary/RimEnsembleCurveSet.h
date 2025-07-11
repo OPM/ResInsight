@@ -25,6 +25,7 @@
 #include "Summary/RiaSummaryCurveAddress.h"
 #include "Summary/RiaSummaryDefines.h"
 
+#include "Appearance/RimCurveAppearanceDefines.h"
 #include "RimEnsembleCrossPlotStatisticsCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleCurveSetInterface.h"
@@ -85,18 +86,6 @@ public:
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
     using LineStyle          = caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>;
     using PointSymbol        = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>;
-
-    enum class ParameterSorting
-    {
-        ABSOLUTE_VALUE,
-        ALPHABETICALLY
-    };
-
-    enum class AppearanceMode
-    {
-        DEFAULT,
-        CUSTOM
-    };
 
 public:
     RimEnsembleCurveSet();
@@ -160,7 +149,7 @@ public:
     void                              updateAllTextInPlot();
     std::vector<RigEnsembleParameter> variationSortedEnsembleParameters() const;
 
-    std::vector<std::pair<RigEnsembleParameter, double>> ensembleParameters( ParameterSorting sortingMode ) const;
+    std::vector<std::pair<RigEnsembleParameter, double>> ensembleParameters( RimCurveAppearanceDefines::ParameterSorting sortingMode ) const;
 
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();
@@ -264,22 +253,22 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::HorizontalAxisType>> m_xAxisType;
     caf::PdmChildField<RimSummaryAddressSelector*>              m_xAddressSelector;
 
-    caf::PdmField<ColorModeEnum>                                       m_colorMode;
-    caf::PdmField<cvf::Color3f>                                        m_mainEnsembleColor;
-    caf::PdmField<cvf::Color3f>                                        m_colorForRealizations;
-    caf::PdmField<double>                                              m_colorTransparency;
-    caf::PdmField<QString>                                             m_ensembleParameter;
-    caf::PdmField<caf::AppEnum<RimEnsembleCurveSet::ParameterSorting>> m_ensembleParameterSorting;
+    caf::PdmField<ColorModeEnum>                                             m_colorMode;
+    caf::PdmField<cvf::Color3f>                                              m_mainEnsembleColor;
+    caf::PdmField<cvf::Color3f>                                              m_colorForRealizations;
+    caf::PdmField<double>                                                    m_colorTransparency;
+    caf::PdmField<QString>                                                   m_ensembleParameter;
+    caf::PdmField<caf::AppEnum<RimCurveAppearanceDefines::ParameterSorting>> m_ensembleParameterSorting;
 
-    caf::PdmField<caf::AppEnum<AppearanceMode>> m_useCustomAppearance;
-    caf::PdmField<LineStyle>                    m_lineStyle;
-    caf::PdmField<PointSymbol>                  m_pointSymbol;
-    caf::PdmField<int>                          m_symbolSize;
+    caf::PdmField<caf::AppEnum<RimCurveAppearanceDefines::AppearanceMode>> m_useCustomAppearance;
+    caf::PdmField<LineStyle>                                               m_lineStyle;
+    caf::PdmField<PointSymbol>                                             m_pointSymbol;
+    caf::PdmField<int>                                                     m_symbolSize;
 
-    caf::PdmField<caf::AppEnum<AppearanceMode>> m_statisticsUseCustomAppearance;
-    caf::PdmField<LineStyle>                    m_statisticsLineStyle;
-    caf::PdmField<PointSymbol>                  m_statisticsPointSymbol;
-    caf::PdmField<int>                          m_statisticsSymbolSize;
+    caf::PdmField<caf::AppEnum<RimCurveAppearanceDefines::AppearanceMode>> m_statisticsUseCustomAppearance;
+    caf::PdmField<LineStyle>                                               m_statisticsLineStyle;
+    caf::PdmField<PointSymbol>                                             m_statisticsPointSymbol;
+    caf::PdmField<int>                                                     m_statisticsSymbolSize;
 
     caf::PdmChildArrayField<RimSummaryAddress*>   m_objectiveValuesSummaryAddresses;
     caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;
