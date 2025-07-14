@@ -86,19 +86,14 @@ void RifReaderEnsembleStatisticsRft::values( const RifEclipseRftAddress& rftAddr
 {
     if ( !m_summaryCaseCollection ) return;
 
-    CAF_ASSERT( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::MD ||
-                rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::TVD ||
-                rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN ||
-                rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10 ||
-                rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 ||
-                rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90 ||
-                rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
-
     auto it = m_cachedValues.find( rftAddress );
     if ( it == m_cachedValues.end() )
     {
         calculateStatistics( rftAddress.wellName(), rftAddress.timeStep() );
     }
+
+    // The function calculateStatistics will store values in the value cache if the processing is successful. If the processing fails, the
+    // assignment will create an entry in the cache with an empty vector
     *values = m_cachedValues[rftAddress];
 }
 
