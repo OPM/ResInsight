@@ -22,7 +22,8 @@
 
 #include "cvfCollection.h"
 
-#include <list>
+#include <memory>
+#include <vector>
 
 //==================================================================================================
 ///
@@ -32,8 +33,8 @@ class RifMultipleSummaryReaders : public RifSummaryReaderInterface
 public:
     RifMultipleSummaryReaders();
 
-    void addReader( RifSummaryReaderInterface* reader );
-    void removeReader( RifSummaryReaderInterface* reader );
+    int  addReader( std::unique_ptr<RifSummaryReaderInterface> reader );
+    void removeReader( int serialNumber );
 
     std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
@@ -43,5 +44,5 @@ public:
     void buildMetaData() override;
 
 private:
-    cvf::Collection<RifSummaryReaderInterface> m_readers;
+    std::vector<std::unique_ptr<RifSummaryReaderInterface>> m_readers;
 };

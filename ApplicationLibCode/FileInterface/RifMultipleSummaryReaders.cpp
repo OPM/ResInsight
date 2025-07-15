@@ -27,25 +27,30 @@ RifMultipleSummaryReaders::RifMultipleSummaryReaders() = default;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifMultipleSummaryReaders::addReader( RifSummaryReaderInterface* reader )
+int RifMultipleSummaryReaders::addReader( std::unique_ptr<RifSummaryReaderInterface> reader )
 {
-    for ( auto existingReader : m_readers )
-    {
-        if ( existingReader.p() == reader ) return;
-    }
-
     m_readers.push_back( reader );
 
     buildMetaData();
+
+    return reader->serialNumber();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifMultipleSummaryReaders::removeReader( RifSummaryReaderInterface* reader )
+void RifMultipleSummaryReaders::removeReader( int serialNumber )
 {
-    m_readers.erase( reader );
-    buildMetaData();
+    auto reader = std::find_if( m_readers.begin(),
+                                m_readers.end(),
+                                [serialNumber]( const std::unique_ptr<RifSummaryReaderInterface>& r )
+                                { return r->serialNumber() == serialNumber; } );
+
+    if ( reader != m_readers.end() )
+    {
+        m_readers.erase( reader );
+        buildMetaData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +113,7 @@ void RifMultipleSummaryReaders::buildMetaData()
     for ( auto& reader : m_readers )
     {
         // TODO: hack. Find a better way to rebuild calculated summary meta data.
-        auto calcReader = dynamic_cast<RifCalculatedSummaryCurveReader*>( reader.p() );
+        auto calcReader = dynamic_cast<RifCalculatedSummaryCurveReader*>( reader.get() );
         if ( calcReader ) calcReader->buildMetaData();
 
         {
