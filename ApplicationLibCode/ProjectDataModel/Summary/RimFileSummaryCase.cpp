@@ -97,12 +97,15 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
     //
     // https://github.com/OPM/ResInsight/issues/11342
 
+    m_multiSummaryReader        = std::make_unique<RifMultipleSummaryReaders>();
+    m_fileSummaryReaderId       = -1;
+    m_additionalSummaryReaderId = -1;
+
     auto reader = RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger );
     if ( !reader ) return;
 
     m_fileSummaryReaderId = reader->serialNumber();
 
-    m_multiSummaryReader = std::make_unique<RifMultipleSummaryReaders>();
     m_multiSummaryReader->addReader( std::move( reader ) );
 
     openAndAttachAdditionalReader();
@@ -184,7 +187,7 @@ std::unique_ptr<RifSummaryReaderInterface> RimFileSummaryCase::findRelatedFilesA
             auto summaryReader = std::make_unique<RifSummaryReaderAggregator>( summaryFileNames );
             if ( !summaryReader->createReadersAndImportMetaData( threadSafeLogger ) )
             {
-                return {};
+                return nullptr;
             }
 
             return summaryReader;
