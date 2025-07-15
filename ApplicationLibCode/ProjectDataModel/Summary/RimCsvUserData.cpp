@@ -25,7 +25,6 @@
 #include "RifKeywordVectorUserData.h"
 #include "RifMultipleSummaryReaders.h"
 #include "RifSummaryReaderInterface.h"
-#include "RifSummaryReaderMultipleFiles.h"
 
 #include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 

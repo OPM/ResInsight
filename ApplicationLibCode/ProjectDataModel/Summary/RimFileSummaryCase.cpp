@@ -28,7 +28,7 @@
 #include "RifProjectSummaryDataWriter.h"
 #include "RifReaderEclipseSummary.h"
 #include "RifReaderOpmRft.h"
-#include "RifSummaryReaderMultipleFiles.h"
+#include "RifSummaryReaderAggregator.h"
 
 #include "RimCalculatedSummaryCurveReader.h"
 #include "RimProject.h"
@@ -188,7 +188,7 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
             // The ordering in intended to be start of history first, so we reverse the ordering
             std::reverse( summaryFileNames.begin(), summaryFileNames.end() );
 
-            auto summaryReader = new RifSummaryReaderMultipleFiles( summaryFileNames );
+            auto summaryReader = new RifSummaryReaderAggregator ( summaryFileNames );
             if ( !summaryReader->createReadersAndImportMetaData( threadSafeLogger ) )
             {
                 delete summaryReader;
@@ -201,7 +201,7 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
 
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
 
-    // All restart data is taken care of by RifSummaryReaderMultipleFiles, never read restart data from native file
+    // All restart data is taken care of by RifSummaryReaderAggregator, never read restart data from native file
     // readers
     if ( !summaryFileReader->open( headerFileName, threadSafeLogger ) )
     {
