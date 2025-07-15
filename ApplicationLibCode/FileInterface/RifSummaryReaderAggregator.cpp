@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifSummaryReaderMultipleFiles.h"
+#include "RifSummaryReaderAggregator.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderMultipleFiles::RifSummaryReaderMultipleFiles( const std::vector<std::string>& filesOrderedByStartOfHistory )
+RifSummaryReaderAggregator ::RifSummaryReaderAggregator( const std::vector<std::string>& filesOrderedByStartOfHistory )
     : m_fileNames( filesOrderedByStartOfHistory )
 {
 }
@@ -36,7 +36,7 @@ RifSummaryReaderMultipleFiles::RifSummaryReaderMultipleFiles( const std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<time_t> RifSummaryReaderMultipleFiles::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifSummaryReaderAggregator ::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     return m_aggregatedTimeSteps;
 }
@@ -44,7 +44,7 @@ std::vector<time_t> RifSummaryReaderMultipleFiles::timeSteps( const RifEclipseSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::vector<double>> RifSummaryReaderMultipleFiles::values( const RifEclipseSummaryAddress& resultAddress ) const
+std::pair<bool, std::vector<double>> RifSummaryReaderAggregator ::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     std::vector<double> values;
     for ( const auto& reader : m_summaryReaders )
@@ -78,7 +78,7 @@ std::pair<bool, std::vector<double>> RifSummaryReaderMultipleFiles::values( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifSummaryReaderMultipleFiles::unitName( const RifEclipseSummaryAddress& resultAddress ) const
+std::string RifSummaryReaderAggregator ::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( !m_summaryReaders.empty() ) return m_summaryReaders.front()->unitName( resultAddress );
 
@@ -88,7 +88,7 @@ std::string RifSummaryReaderMultipleFiles::unitName( const RifEclipseSummaryAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::EclipseUnitSystem RifSummaryReaderMultipleFiles::unitSystem() const
+RiaDefines::EclipseUnitSystem RifSummaryReaderAggregator ::unitSystem() const
 {
     if ( !m_summaryReaders.empty() ) return m_summaryReaders.front()->unitSystem();
 
@@ -98,7 +98,7 @@ RiaDefines::EclipseUnitSystem RifSummaryReaderMultipleFiles::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RifSummaryReaderMultipleFiles::timeStepCount( RifSummaryReaderInterface* reader ) const
+size_t RifSummaryReaderAggregator ::timeStepCount( RifSummaryReaderInterface* reader ) const
 {
     auto it = m_valueCountForReader.find( reader );
     if ( it != m_valueCountForReader.end() )
@@ -112,7 +112,7 @@ size_t RifSummaryReaderMultipleFiles::timeStepCount( RifSummaryReaderInterface* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryReaderMultipleFiles::createReadersAndImportMetaData( RiaThreadSafeLogger* threadSafeLogger )
+bool RifSummaryReaderAggregator ::createReadersAndImportMetaData( RiaThreadSafeLogger* threadSafeLogger )
 {
     for ( const auto& fileName : m_fileNames )
     {
@@ -149,7 +149,7 @@ bool RifSummaryReaderMultipleFiles::createReadersAndImportMetaData( RiaThreadSaf
 // from the last reader to the first
 //
 //--------------------------------------------------------------------------------------------------
-void RifSummaryReaderMultipleFiles::calculateOverlappingTimeSteps()
+void RifSummaryReaderAggregator ::calculateOverlappingTimeSteps()
 {
     if ( m_summaryReaders.empty() ) return;
 
