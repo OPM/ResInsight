@@ -104,21 +104,19 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
     //
     // https://github.com/OPM/ResInsight/issues/11342
 
-    if ( auto reader = RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger ) )
-    {
-        m_multiSummaryReader  = std::make_unique<RifMultipleSummaryReaders>();
-        m_fileSummaryReaderId = m_multiSummaryReader->addReader( std::move( reader ) );
+    auto reader = RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger );
+    if ( !reader ) return;
 
-        openAndAttachAdditionalReader();
+    m_multiSummaryReader  = std::make_unique<RifMultipleSummaryReaders>();
+    m_fileSummaryReaderId = m_multiSummaryReader->addReader( std::move( reader ) );
 
-        // auto ptr = new RifCalculatedSummaryCurveReader( this );
-        auto ptr = std::make_unique<RifCalculatedSummaryCurveReader>( this );
+    openAndAttachAdditionalReader();
 
-        // m_multiSummaryReader->addReader( std::move( ptr ) );
-        m_multiSummaryReader->addReader( std::move( ptr ) );
-    }
+    // auto ptr = new RifCalculatedSummaryCurveReader( this );
+    auto ptr = std::make_unique<RifCalculatedSummaryCurveReader>( this );
 
-    m_multiSummaryReader = nullptr;
+    // m_multiSummaryReader->addReader( std::move( ptr ) );
+    m_multiSummaryReader->addReader( std::move( ptr ) );
 }
 
 //--------------------------------------------------------------------------------------------------
