@@ -41,5 +41,5 @@ public:
     RifSummaryReaderInterface* summaryReader() override;
 
 private:
-    cvf::ref<RifReaderObservedData> m_summaryReader;
+    std::unique_ptr<RifReaderObservedData> m_summaryReader;
 };

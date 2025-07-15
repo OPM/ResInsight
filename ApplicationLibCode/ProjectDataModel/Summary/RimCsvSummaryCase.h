@@ -53,7 +53,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    cvf::ref<RifSummaryReaderInterface>   m_summaryReader;
-    caf::PdmField<caf::AppEnum<FileType>> m_fileType;
-    caf::PdmField<QDateTime>              m_startDate;
+    std::unique_ptr<RifSummaryReaderInterface> m_summaryReader;
+    caf::PdmField<caf::AppEnum<FileType>>      m_fileType;
+    caf::PdmField<QDateTime>                   m_startDate;
 };

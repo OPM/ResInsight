@@ -107,15 +107,15 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
     if ( auto reader = RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger ) )
     {
         m_multiSummaryReader  = std::make_unique<RifMultipleSummaryReaders>();
-        m_fileSummaryReaderId = m_multiSummaryReader->addReader( std::make_unique<RifSummaryReaderInterface>( reader ) );
+        m_fileSummaryReaderId = m_multiSummaryReader->addReader( std::move( reader ) );
 
         openAndAttachAdditionalReader();
 
-        auto ptr = new RifCalculatedSummaryCurveReader( this );
-        // auto ptr = std::make_unique<RifCalculatedSummaryCurveReader>( this );
+        // auto ptr = new RifCalculatedSummaryCurveReader( this );
+        auto ptr = std::make_unique<RifCalculatedSummaryCurveReader>( this );
 
         // m_multiSummaryReader->addReader( std::move( ptr ) );
-        m_multiSummaryReader->addReader( std::make_unique<RifSummaryReaderInterface>( ptr ) );
+        m_multiSummaryReader->addReader( std::move( ptr ) );
     }
 
     m_multiSummaryReader = nullptr;
@@ -163,9 +163,9 @@ void RimFileSummaryCase::createRftReaderInterface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString&       headerFileName,
-                                                                                bool                 lookForRestartFiles,
-                                                                                RiaThreadSafeLogger* threadSafeLogger )
+std::unique_ptr<RifSummaryReaderInterface> RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString&       headerFileName,
+                                                                                                bool                 lookForRestartFiles,
+                                                                                                RiaThreadSafeLogger* threadSafeLogger )
 {
     if ( lookForRestartFiles )
     {
@@ -192,24 +192,22 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
             // The ordering in intended to be start of history first, so we reverse the ordering
             std::reverse( summaryFileNames.begin(), summaryFileNames.end() );
 
-            auto summaryReader = new RifSummaryReaderAggregator( summaryFileNames );
+            auto summaryReader = std::make_unique<RifSummaryReaderAggregator>( summaryFileNames );
             if ( !summaryReader->createReadersAndImportMetaData( threadSafeLogger ) )
             {
-                delete summaryReader;
-                return nullptr;
+                return {};
             }
 
             return summaryReader;
         }
     }
 
-    RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
+    auto summaryFileReader = std::make_unique<RifReaderEclipseSummary>();
 
     // All restart data is taken care of by RifSummaryReaderAggregator, never read restart data from native file
     // readers
     if ( !summaryFileReader->open( headerFileName, threadSafeLogger ) )
     {
-        delete summaryFileReader;
         return nullptr;
     }
 

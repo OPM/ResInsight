@@ -60,7 +60,7 @@ public:
     void setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
     void onProjectBeingSaved();
 
-    static RifSummaryReaderInterface*
+    static std::unique_ptr<RifSummaryReaderInterface>
         findRelatedFilesAndCreateReader( const QString& headerFileName, bool lookForRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
 protected:

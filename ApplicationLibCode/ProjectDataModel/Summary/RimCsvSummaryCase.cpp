@@ -74,11 +74,11 @@ void RimCsvSummaryCase::createSummaryReaderInterface()
     {
         if ( m_fileType == FileType::REVEAL )
         {
-            auto    reader = new RifRevealCsvSummaryReader;
+            auto    reader = std::make_unique<RifRevealCsvSummaryReader>();
             QString errorMessage;
             if ( auto [ok, caseName] = reader->parse( summaryHeaderFilename(), &errorMessage ); ok )
             {
-                m_summaryReader = reader;
+                m_summaryReader = std::move( reader );
                 m_displayName   = caseName;
             }
             else
@@ -89,11 +89,11 @@ void RimCsvSummaryCase::createSummaryReaderInterface()
         }
         else if ( m_fileType == FileType::STIMPLAN )
         {
-            auto    reader = new RifStimPlanCsvSummaryReader;
+            auto    reader = std::make_unique<RifStimPlanCsvSummaryReader>();
             QString errorMessage;
             if ( auto [ok, caseName] = reader->parse( summaryHeaderFilename(), m_startDate, &errorMessage ); ok )
             {
-                m_summaryReader = reader;
+                m_summaryReader = std::move( reader );
                 m_displayName   = caseName;
             }
             else
@@ -110,11 +110,11 @@ void RimCsvSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimCsvSummaryCase::summaryReader()
 {
-    if ( m_summaryReader.isNull() )
+    if ( !m_summaryReader )
     {
         createSummaryReaderInterface();
     }
-    return m_summaryReader.p();
+    return m_summaryReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------
