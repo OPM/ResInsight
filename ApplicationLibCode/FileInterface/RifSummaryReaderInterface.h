@@ -34,10 +34,11 @@ class QDateTime;
 //
 //
 //==================================================================================================
-class RifSummaryReaderInterface : public cvf::Object
+class RifSummaryReaderInterface
 {
 public:
     RifSummaryReaderInterface();
+    virtual ~RifSummaryReaderInterface() = default;
 
     bool hasAddress( const RifEclipseSummaryAddress& resultAddress ) const;
 
