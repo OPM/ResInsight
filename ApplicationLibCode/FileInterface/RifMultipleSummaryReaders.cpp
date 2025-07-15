@@ -27,15 +27,11 @@ RifMultipleSummaryReaders::RifMultipleSummaryReaders() = default;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifMultipleSummaryReaders::addReader( std::unique_ptr<RifSummaryReaderInterface> reader )
+void RifMultipleSummaryReaders::addReader( std::unique_ptr<RifSummaryReaderInterface> reader )
 {
-    auto serialNumber = reader->serialNumber();
-
     m_readers.push_back( std::move( reader ) );
 
     buildMetaData();
-
-    return serialNumber;
 }
 
 //--------------------------------------------------------------------------------------------------

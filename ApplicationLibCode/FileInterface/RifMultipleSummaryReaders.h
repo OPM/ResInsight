@@ -33,7 +33,7 @@ class RifMultipleSummaryReaders : public RifSummaryReaderInterface
 public:
     RifMultipleSummaryReaders();
 
-    int                        addReader( std::unique_ptr<RifSummaryReaderInterface> reader );
+    void addReader( std::unique_ptr<RifSummaryReaderInterface> reader );
     RifSummaryReaderInterface* findReader( int serialNumber ) const;
     void                       removeReader( int serialNumber );
 

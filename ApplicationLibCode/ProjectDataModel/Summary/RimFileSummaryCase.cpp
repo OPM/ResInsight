@@ -100,16 +100,14 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
     auto reader = RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger );
     if ( !reader ) return;
 
-    m_multiSummaryReader  = std::make_unique<RifMultipleSummaryReaders>();
-    m_fileSummaryReaderId = m_multiSummaryReader->addReader( std::move( reader ) );
+    m_fileSummaryReaderId = reader->serialNumber();
+
+    m_multiSummaryReader = std::make_unique<RifMultipleSummaryReaders>();
+    m_multiSummaryReader->addReader( std::move( reader ) );
 
     openAndAttachAdditionalReader();
 
-    // auto ptr = new RifCalculatedSummaryCurveReader( this );
-    auto ptr = std::make_unique<RifCalculatedSummaryCurveReader>( this );
-
-    // m_multiSummaryReader->addReader( std::move( ptr ) );
-    m_multiSummaryReader->addReader( std::move( ptr ) );
+    m_multiSummaryReader->addReader( std::make_unique<RifCalculatedSummaryCurveReader>( this ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,7 +262,8 @@ void RimFileSummaryCase::openAndAttachAdditionalReader()
     auto isValid             = opmCommonReader->open( additionalSummaryFilePath, includeRestartFiles, nullptr );
     if ( isValid )
     {
-        // m_additionalSummaryReaderId = m_multiSummaryReader->addReader( std::move( opmCommonReader ) );
+        m_additionalSummaryReaderId = opmCommonReader->serialNumber();
+        m_multiSummaryReader->addReader( std::move( opmCommonReader ) );
     }
 }
 
