@@ -29,11 +29,29 @@ RifMultipleSummaryReaders::RifMultipleSummaryReaders() = default;
 //--------------------------------------------------------------------------------------------------
 int RifMultipleSummaryReaders::addReader( std::unique_ptr<RifSummaryReaderInterface> reader )
 {
-    m_readers.push_back( reader );
+    auto serialNumber = reader->serialNumber();
+
+    m_readers.push_back( std::move( reader ) );
 
     buildMetaData();
 
-    return reader->serialNumber();
+    return serialNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifSummaryReaderInterface* RifMultipleSummaryReaders::findReader( int serialNumber ) const
+{
+    auto reader = std::find_if( m_readers.begin(),
+                                m_readers.end(),
+                                [serialNumber]( const std::unique_ptr<RifSummaryReaderInterface>& r )
+                                { return r->serialNumber() == serialNumber; } );
+    if ( reader != m_readers.end() )
+    {
+        return reader->get();
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

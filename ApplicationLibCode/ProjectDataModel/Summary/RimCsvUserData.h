@@ -51,8 +51,6 @@ public:
 
 private:
     caf::PdmChildField<RicPasteAsciiDataToSummaryPlotFeatureUi*> m_parseOptions;
-    cvf::ref<RifSummaryReaderInterface>                          m_summaryReader;
-    cvf::ref<RifCalculatedSummaryCurveReader>                    m_calculatedSummaryReader;
-    cvf::ref<RifMultipleSummaryReaders>                          m_multiSummaryReader;
+    std::unique_ptr<RifMultipleSummaryReaders>                   m_multiSummaryReader;
     QString                                                      m_errorText;
 };

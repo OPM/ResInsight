@@ -63,7 +63,7 @@ std::pair<bool, QString> RifRevealCsvSummaryReader::parse( const QString& fileNa
     for ( auto p : parts )
     {
         p.prepend( "Name,Date" );
-        cvf::ref<RifRevealCsvSectionSummaryReader> sectionReader = new RifRevealCsvSectionSummaryReader;
+        auto sectionReader = std::make_unique<RifRevealCsvSectionSummaryReader>();
 
         // The first part is field data, and the rest is well data
         auto defaultCategory = isFirst ? RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD
@@ -75,7 +75,7 @@ std::pair<bool, QString> RifRevealCsvSummaryReader::parse( const QString& fileNa
             return std::make_pair( false, "" );
         }
 
-        addReader( sectionReader.p() );
+        addReader( std::move( sectionReader ) );
 
         isFirst = false;
     }

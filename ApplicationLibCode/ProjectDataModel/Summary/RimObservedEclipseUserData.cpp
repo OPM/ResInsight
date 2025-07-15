@@ -57,7 +57,8 @@ RimObservedEclipseUserData::~RimObservedEclipseUserData()
 void RimObservedEclipseUserData::createSummaryReaderInterface()
 {
     m_multiSummaryReader = nullptr;
-    m_summaryReader      = nullptr;
+
+    std::unique_ptr<RifSummaryReaderInterface> myReader = nullptr;
 
     if ( caf::Utils::fileExists( summaryHeaderFilename() ) )
     {
@@ -75,29 +76,27 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
 
         if ( RifKeywordVectorParser::canBeParsed( fileContents ) )
         {
-            RifKeywordVectorUserData* keywordVectorUserData = new RifKeywordVectorUserData();
-            if ( keywordVectorUserData->parse( fileContents, customWellName() ) )
+            auto candidate = std::make_unique<RifKeywordVectorUserData>();
+            if ( candidate->parse( fileContents, customWellName() ) )
             {
-                m_summaryReader = keywordVectorUserData;
+                myReader = std::move( candidate );
             }
         }
         else
         {
-            RifColumnBasedUserData* columnBaseUserData = new RifColumnBasedUserData();
-            if ( columnBaseUserData->parse( fileContents, &m_errorText ) )
+            auto candidate = std::make_unique<RifColumnBasedUserData>();
+            if ( candidate->parse( fileContents, &m_errorText ) )
             {
-                m_summaryReader = columnBaseUserData;
+                myReader = std::move( candidate );
             }
         }
 
-        if ( m_summaryReader.notNull() )
+        if ( myReader )
         {
-            m_multiSummaryReader = new RifMultipleSummaryReaders;
-            m_multiSummaryReader->addReader( m_summaryReader.p() );
+            m_multiSummaryReader = std::make_unique<RifMultipleSummaryReaders>();
+            m_multiSummaryReader->addReader( std::move( myReader ) );
 
-            m_calculatedSummaryReader = new RifCalculatedSummaryCurveReader( this );
-
-            m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
+            m_multiSummaryReader->addReader( std::make_unique<RifCalculatedSummaryCurveReader>( this ) );
         }
     }
 }
@@ -107,11 +106,11 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimObservedEclipseUserData::summaryReader()
 {
-    if ( m_multiSummaryReader.isNull() )
+    if ( !m_multiSummaryReader )
     {
         createSummaryReaderInterface();
     }
-    return m_multiSummaryReader.p();
+    return m_multiSummaryReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,8 +46,6 @@ public:
     QString errorMessagesFromReader() override;
 
 private:
-    cvf::ref<RifSummaryReaderInterface>       m_summaryReader;
-    cvf::ref<RifCalculatedSummaryCurveReader> m_calculatedSummaryReader;
-    cvf::ref<RifMultipleSummaryReaders>       m_multiSummaryReader;
-    QString                                   m_errorText;
+    std::unique_ptr<RifMultipleSummaryReaders> m_multiSummaryReader;
+    QString                             m_errorText;
 };
