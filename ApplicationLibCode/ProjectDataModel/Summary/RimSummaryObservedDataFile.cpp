@@ -35,12 +35,6 @@ RimSummaryObservedDataFile::RimSummaryObservedDataFile()
     m_summaryHeaderFilename.uiCapability()->setUiName( "File" );
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryObservedDataFile::~RimSummaryObservedDataFile()
-{
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

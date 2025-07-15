@@ -35,7 +35,6 @@ class RimSummaryObservedDataFile : public RimObservedSummaryData
 
 public:
     RimSummaryObservedDataFile();
-    ~RimSummaryObservedDataFile() override;
 
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;

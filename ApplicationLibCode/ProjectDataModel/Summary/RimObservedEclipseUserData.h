@@ -37,7 +37,6 @@ class RimObservedEclipseUserData : public RimObservedSummaryData
 
 public:
     RimObservedEclipseUserData();
-    ~RimObservedEclipseUserData() override;
 
     void createSummaryReaderInterface() override;
 
@@ -47,5 +46,5 @@ public:
 
 private:
     std::unique_ptr<RifMultipleSummaryReaders> m_multiSummaryReader;
-    QString                             m_errorText;
+    QString                                    m_errorText;
 };

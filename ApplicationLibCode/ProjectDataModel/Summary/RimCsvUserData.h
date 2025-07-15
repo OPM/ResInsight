@@ -39,7 +39,6 @@ class RimCsvUserData : public RimObservedSummaryData
 
 public:
     RimCsvUserData();
-    ~RimCsvUserData() override;
 
     void createSummaryReaderInterface() override;
 

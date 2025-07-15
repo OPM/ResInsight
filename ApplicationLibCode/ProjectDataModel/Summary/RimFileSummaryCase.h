@@ -43,7 +43,6 @@ class RimFileSummaryCase : public RimSummaryCase
 
 public:
     RimFileSummaryCase();
-    ~RimFileSummaryCase() override;
 
     QString summaryHeaderFilename() const override;
     QString caseName() const override;
