@@ -23,7 +23,7 @@
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseSummary.h"
-#include "RifSummaryReaderMultipleFiles.h"
+#include "RifSummaryReaderAggregator.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -85,8 +85,8 @@ TEST( DISABLED_RifEclipseSummaryTest, TestRestartSummaryFileReferences_02 )
             smspecFilesNewFirst.push_back( s.toStdString() );
         }
 
-        RifSummaryReaderMultipleFiles multipleSummaryFiles( smspecFilesNewFirst );
-        auto                          ts = multipleSummaryFiles.timeSteps( {} );
+        RifSummaryReaderAggregator multipleSummaryFiles( smspecFilesNewFirst );
+        auto                       ts = multipleSummaryFiles.timeSteps( {} );
         std::cout << ts.size();
     }
 

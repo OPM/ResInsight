@@ -32,10 +32,10 @@ class RiaThreadSafeLogger;
 // ordered, and the start of history at the front of the vector
 //
 //==================================================================================================
-class RifSummaryReaderMultipleFiles : public RifSummaryReaderInterface
+class RifSummaryReaderAggregator : public RifSummaryReaderInterface
 {
 public:
-    RifSummaryReaderMultipleFiles( const std::vector<std::string>& filesOrderedByStartOfHistory );
+    RifSummaryReaderAggregator( const std::vector<std::string>& filesOrderedByStartOfHistory );
 
     bool createReadersAndImportMetaData( RiaThreadSafeLogger* threadSafeLogger );
 

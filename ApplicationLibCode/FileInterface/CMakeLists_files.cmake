@@ -65,7 +65,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifParameterXmlReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderMultipleFiles.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderAggregator.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclEclipseSummary.h
     ${CMAKE_CURRENT_LIST_DIR}/RifWellIAFileWriter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.h
@@ -176,7 +176,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderMultipleFiles.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderAggregator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclEclipseSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellIAFileWriter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.cpp
