@@ -293,7 +293,7 @@ RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimFileSummaryCase::rftReader()
 {
-    if ( m_summaryEclipseRftReader )
+    if ( !m_summaryEclipseRftReader )
     {
         createRftReaderInterface();
     }
