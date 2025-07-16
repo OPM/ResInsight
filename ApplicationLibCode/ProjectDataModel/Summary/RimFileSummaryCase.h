@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cvfObject.h"
 
+#include <memory>
+
 class RifReaderRftInterface;
 class RifReaderOpmRft;
 class RifReaderEclipseSummary;

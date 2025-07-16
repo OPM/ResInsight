@@ -19,11 +19,14 @@
 #pragma once
 
 #include "RifReaderFmuRft.h"
+
 #include "RimNamedObject.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+
+#include <memory>
 
 class RimObservedFmuRftData : public RimNamedObject
 {

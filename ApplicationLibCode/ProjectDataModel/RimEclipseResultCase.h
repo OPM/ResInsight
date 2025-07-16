@@ -27,6 +27,8 @@
 #include "cafFilePath.h"
 #include "cafPdmProxyValueField.h"
 
+#include <memory>
+
 class RifReaderRftInterface;
 class RifReaderEclipseRft;
 class RifReaderOpmRft;
