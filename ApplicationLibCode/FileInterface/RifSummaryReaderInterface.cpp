@@ -106,5 +106,11 @@ bool RifSummaryReaderInterface::hasAddress( const RifEclipseSummaryAddress& resu
     static const RifEclipseSummaryAddress defaultAdr = RifEclipseSummaryAddress();
     if ( resultAddress == defaultAdr ) return true;
 
-    return ( m_allResultAddresses.count( resultAddress ) > 0 );
+    if ( !m_allResultAddresses.empty() )
+    {
+        return ( m_allResultAddresses.count( resultAddress ) > 0 );
+    }
+
+    const auto& [isOk, vals] = values( resultAddress );
+    return isOk && !vals.empty();
 }
