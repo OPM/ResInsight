@@ -149,4 +149,3 @@ int RifMultipleSummaryReaders::keywordCount() const
 
     return RifSummaryReaderInterface::keywordCount();
 }
-
