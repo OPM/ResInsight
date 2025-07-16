@@ -36,7 +36,7 @@ class RifReaderOpmRft : public RifReaderRftInterface
 public:
     RifReaderOpmRft( const QString& fileName );
     RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName );
-    virtual ~RifReaderOpmRft();
+    ~RifReaderOpmRft() override;
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;

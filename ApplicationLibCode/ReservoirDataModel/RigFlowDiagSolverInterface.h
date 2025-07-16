@@ -62,7 +62,7 @@ private:
 class RigEclipseCaseData;
 class RigOpmFlowDiagStaticData;
 
-class RigFlowDiagSolverInterface : public cvf::Object
+class RigFlowDiagSolverInterface
 {
 public:
     struct FlowCharacteristicsResultFrame
@@ -131,7 +131,7 @@ public:
 
 public:
     explicit RigFlowDiagSolverInterface( RimEclipseResultCase* eclipseCase );
-    ~RigFlowDiagSolverInterface() override;
+    virtual ~RigFlowDiagSolverInterface();
 
     RigFlowDiagTimeStepResult calculate( size_t                                   timeStepIdx,
                                          RigFlowDiagResultAddress::PhaseSelection phaseSelection,

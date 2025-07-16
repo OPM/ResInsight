@@ -264,7 +264,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         caf::ProgressInfo progInfo( 50, "Reading Eclipse Grid File", false /*do not delay*/ );
         progInfo.setNextProgressIncrement( 49 );
 
-        m_flowDagSolverInterface = new RigFlowDiagSolverInterface( this );
+        m_flowDagSolverInterface = std::make_unique<RigFlowDiagSolverInterface>( this );
 
         CVF_ASSERT( eclipseCaseData() );
         CVF_ASSERT( readerInterface.notNull() );
@@ -602,7 +602,7 @@ std::vector<RimFlowDiagSolution*> RimEclipseResultCase::flowDiagSolutions()
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagSolverInterface* RimEclipseResultCase::flowDiagSolverInterface()
 {
-    return m_flowDagSolverInterface.p();
+    return m_flowDagSolverInterface.get();
 }
 
 //--------------------------------------------------------------------------------------------------

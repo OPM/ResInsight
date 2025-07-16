@@ -23,8 +23,6 @@
 #include "RiaCurveMerger.h"
 #include "RiaWeightedMeanCalculator.h"
 
-#include "cvfObject.h"
-
 class RimSummaryEnsemble;
 class RimEclipseCase;
 class RigWellPath;
