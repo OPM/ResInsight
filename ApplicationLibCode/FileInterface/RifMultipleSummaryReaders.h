@@ -41,6 +41,7 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
     void buildMetaData() override;
+    int  keywordCount() const override;
 
 private:
     std::vector<std::unique_ptr<RifSummaryReaderInterface>> m_readers;

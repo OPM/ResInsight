@@ -124,7 +124,6 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
         if ( !isValid && prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
         {
             auto opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
-
             opmCommonReader->useEnhancedSummaryFiles( prefSummary->useEnhancedSummaryDataFiles() );
             opmCommonReader->createEnhancedSummaryFiles( prefSummary->createEnhancedSummaryDataFiles() );
             isValid = opmCommonReader->open( headerFileName, false, threadSafeLogger );
@@ -146,11 +145,6 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
         {
             m_summaryReader = std::move( libeclReader );
         }
-    }
-
-    if ( isValid )
-    {
-        buildMetaData();
     }
 
     return isValid;
@@ -234,10 +228,10 @@ void RifReaderEclipseSummary::buildMetaData()
     m_allResultAddresses.clear();
     m_allErrorAddresses.clear();
 
-    auto reader = currentSummaryReader();
-
-    if ( reader )
+    if ( auto reader = currentSummaryReader() )
     {
+        reader->buildMetaData();
+
         m_allResultAddresses = reader->allResultAddresses();
         m_allErrorAddresses  = reader->allErrorAddresses();
     }
@@ -281,11 +275,19 @@ void RifReaderEclipseSummary::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RifReaderEclipseSummary::keywordCount() const
+{
+    if ( m_summaryReader ) return m_summaryReader->keywordCount();
+
+    return RifSummaryReaderInterface::keywordCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RifReaderEclipseSummary::currentSummaryReader() const
 {
-    if ( m_summaryReader ) return m_summaryReader.get();
-
-    return nullptr;
+    return m_summaryReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------

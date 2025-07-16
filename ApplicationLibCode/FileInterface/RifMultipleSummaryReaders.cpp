@@ -30,14 +30,9 @@ RifMultipleSummaryReaders::RifMultipleSummaryReaders() = default;
 //--------------------------------------------------------------------------------------------------
 void RifMultipleSummaryReaders::addReader( std::unique_ptr<RifSummaryReaderInterface> reader )
 {
-    if ( findReader( reader->serialNumber() ) != nullptr )
-    {
-        // Do not add duplicate readers
-        return;
-    }
-    m_readers.push_back( std::move( reader ) );
+    if ( findReader( reader->serialNumber() ) != nullptr ) return;
 
-    buildMetaData();
+    m_readers.push_back( std::move( reader ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +64,6 @@ void RifMultipleSummaryReaders::removeReader( int serialNumber )
     if ( reader != m_readers.end() )
     {
         m_readers.erase( reader );
-        buildMetaData();
     }
 }
 
@@ -132,18 +126,25 @@ void RifMultipleSummaryReaders::buildMetaData()
 
     for ( auto& reader : m_readers )
     {
-        // TODO: hack. Find a better way to rebuild calculated summary meta data.
-        auto calcReader = dynamic_cast<RifCalculatedSummaryCurveReader*>( reader.get() );
-        if ( calcReader ) calcReader->buildMetaData();
+        reader->buildMetaData();
 
-        {
-            auto resultAddresses = reader->allResultAddresses();
-            m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );
-        }
+        auto resultAddresses = reader->allResultAddresses();
+        m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );
 
-        {
-            auto errorResultAddresses = reader->allErrorAddresses();
-            m_allErrorAddresses.insert( errorResultAddresses.begin(), errorResultAddresses.end() );
-        }
+        auto errorResultAddresses = reader->allErrorAddresses();
+        m_allErrorAddresses.insert( errorResultAddresses.begin(), errorResultAddresses.end() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifMultipleSummaryReaders::keywordCount() const
+{
+    for ( const auto& r : m_readers )
+    {
+        if ( r->keywordCount() > 0 ) return r->keywordCount();
+    }
+
+    return RifSummaryReaderInterface::keywordCount();
 }

@@ -79,9 +79,12 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
+    int keywordCount() const override;
+
 private:
     void buildMetaData() override;
     bool openFileReader( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    void populateTimeSteps();
 
     static void    increaseEsmryFileCount();
     static QString enhancedSummaryFilename( const QString& fileName );
