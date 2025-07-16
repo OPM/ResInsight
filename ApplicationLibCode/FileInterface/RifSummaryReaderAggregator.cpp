@@ -111,19 +111,6 @@ int RifSummaryReaderAggregator::keywordCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSummaryReaderAggregator::skipAddressBuild( bool skipAddressBuild )
-{
-    m_skipAddressBuild = skipAddressBuild;
-
-    for ( const auto& reader : m_summaryReaders )
-    {
-        reader->skipAddressBuild( skipAddressBuild );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RifSummaryReaderAggregator::buildMetaData()
 {
     for ( const auto& reader : m_summaryReaders )
@@ -163,8 +150,7 @@ bool RifSummaryReaderAggregator::createReadersAndImportMetaData( RiaThreadSafeLo
     for ( const auto& fileName : m_fileNames )
     {
         auto candidate = std::make_unique<RifReaderEclipseSummary>();
-        candidate->skipAddressBuild( m_skipAddressBuild );
-        auto result = candidate->open( QString::fromStdString( fileName ), threadSafeLogger, m_skipAddressBuild );
+        auto result    = candidate->open( QString::fromStdString( fileName ), threadSafeLogger );
         if ( result )
         {
             m_summaryReaders.push_back( std::move( candidate ) );

@@ -80,7 +80,6 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
     int  keywordCount() const override;
-    void skipAddressBuild( bool skipAddressBuild ) override;
 
 private:
     void buildMetaData() override;

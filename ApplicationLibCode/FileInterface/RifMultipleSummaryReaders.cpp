@@ -150,13 +150,3 @@ int RifMultipleSummaryReaders::keywordCount() const
     return RifSummaryReaderInterface::keywordCount();
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifMultipleSummaryReaders::skipAddressBuild( bool skipAddressBuild )
-{
-    for ( auto& r : m_readers )
-    {
-        r->skipAddressBuild( skipAddressBuild );
-    }
-}

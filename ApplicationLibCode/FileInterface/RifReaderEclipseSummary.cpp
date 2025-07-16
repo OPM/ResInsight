@@ -124,8 +124,6 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
         if ( !isValid && prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
         {
             auto opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
-            opmCommonReader->skipAddressBuild( skipBuildMetaData );
-
             opmCommonReader->useEnhancedSummaryFiles( prefSummary->useEnhancedSummaryDataFiles() );
             opmCommonReader->createEnhancedSummaryFiles( prefSummary->createEnhancedSummaryDataFiles() );
             isValid = opmCommonReader->open( headerFileName, false, threadSafeLogger );
@@ -282,14 +280,6 @@ int RifReaderEclipseSummary::keywordCount() const
     if ( m_summaryReader ) return m_summaryReader->keywordCount();
 
     return RifSummaryReaderInterface::keywordCount();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::skipAddressBuild( bool skipAddressBuild )
-{
-    if ( m_summaryReader ) m_summaryReader->skipAddressBuild( skipAddressBuild );
 }
 
 //--------------------------------------------------------------------------------------------------

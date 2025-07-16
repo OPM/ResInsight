@@ -56,7 +56,6 @@ public:
 
     virtual void buildMetaData();
     virtual int  keywordCount() const;
-    virtual void skipAddressBuild( bool skipAddressBuild );
 
     int serialNumber() const;
 

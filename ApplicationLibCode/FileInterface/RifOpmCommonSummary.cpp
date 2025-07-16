@@ -260,14 +260,6 @@ int RifOpmCommonEclipseSummary::keywordCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::skipAddressBuild( bool skipAddressBuild )
-{
-    m_skipBuildOfMetaData = skipAddressBuild;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RifOpmCommonEclipseSummary::buildMetaData()
 {
     std::vector<std::string> keywords;

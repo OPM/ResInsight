@@ -45,7 +45,6 @@ public:
     void buildMetaData() override;
 
     int keywordCount() const override;
-    void skipAddressBuild( bool skipAddressBuild ) override;
 
 private:
     std::vector<std::unique_ptr<RifSummaryReaderInterface>> m_readers;
