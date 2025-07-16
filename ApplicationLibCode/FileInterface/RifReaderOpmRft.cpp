@@ -58,7 +58,7 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 /// This is required to avoid including the OPM library in the header file
 //--------------------------------------------------------------------------------------------------
-RifReaderOpmRft::~RifReaderOpmRft( ) = default;
+RifReaderOpmRft::~RifReaderOpmRft() = default;
 
 //--------------------------------------------------------------------------------------------------
 ///
