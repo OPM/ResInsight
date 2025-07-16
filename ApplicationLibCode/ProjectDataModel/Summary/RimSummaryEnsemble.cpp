@@ -370,9 +370,8 @@ void RimSummaryEnsemble::setAsEnsemble( bool isEnsemble )
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryEnsemble::ensembleSummaryAddresses() const
 {
-    std::set<RifEclipseSummaryAddress> addresses;
-    size_t                             maxAddrCount = 0;
-    int                                maxAddrIndex = -1;
+    int maxAddrCount = 0;
+    int maxAddrIndex = -1;
 
     for ( int i = 0; i < (int)m_cases.size(); i++ )
     {
@@ -382,21 +381,32 @@ std::set<RifEclipseSummaryAddress> RimSummaryEnsemble::ensembleSummaryAddresses(
         RifSummaryReaderInterface* reader = currCase->summaryReader();
         if ( !reader ) continue;
 
-        size_t addrCount = reader->allResultAddresses().size();
+        auto addrCount = reader->keywordCount();
         if ( addrCount > maxAddrCount )
         {
             maxAddrCount = addrCount;
-            maxAddrIndex = (int)i;
+            maxAddrIndex = i;
         }
     }
 
-    if ( maxAddrIndex >= 0 && m_cases[maxAddrIndex]->summaryReader() )
+    if ( maxAddrIndex < 0 )
     {
-        const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
-        addresses.insert( addrs.begin(), addrs.end() );
+        return {};
     }
 
-    return addresses;
+    auto reader = m_cases[maxAddrIndex]->summaryReader();
+
+    if ( !reader )
+    {
+        return {};
+    }
+
+    if ( reader->allResultAddresses().empty() )
+    {
+        reader->buildMetaData();
+    }
+
+    return reader->allResultAddresses();
 }
 
 //--------------------------------------------------------------------------------------------------

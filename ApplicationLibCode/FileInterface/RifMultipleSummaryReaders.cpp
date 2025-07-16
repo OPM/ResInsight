@@ -30,8 +30,6 @@ RifMultipleSummaryReaders::RifMultipleSummaryReaders() = default;
 void RifMultipleSummaryReaders::addReader( std::unique_ptr<RifSummaryReaderInterface> reader )
 {
     m_readers.push_back( std::move( reader ) );
-
-    buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +61,6 @@ void RifMultipleSummaryReaders::removeReader( int serialNumber )
     if ( reader != m_readers.end() )
     {
         m_readers.erase( reader );
-        buildMetaData();
     }
 }
 
@@ -126,9 +123,7 @@ void RifMultipleSummaryReaders::buildMetaData()
 
     for ( auto& reader : m_readers )
     {
-        // TODO: hack. Find a better way to rebuild calculated summary meta data.
-        auto calcReader = dynamic_cast<RifCalculatedSummaryCurveReader*>( reader.get() );
-        if ( calcReader ) calcReader->buildMetaData();
+        reader->buildMetaData();
 
         {
             auto resultAddresses = reader->allResultAddresses();
@@ -139,5 +134,29 @@ void RifMultipleSummaryReaders::buildMetaData()
             auto errorResultAddresses = reader->allErrorAddresses();
             m_allErrorAddresses.insert( errorResultAddresses.begin(), errorResultAddresses.end() );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifMultipleSummaryReaders::keywordCount() const
+{
+    for ( const auto& r : m_readers )
+    {
+        if ( r->keywordCount() > 0 ) return r->keywordCount();
+    }
+
+    return RifSummaryReaderInterface::keywordCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifMultipleSummaryReaders::skipAddressBuild( bool skipAddressBuild )
+{
+    for ( auto& r : m_readers )
+    {
+        r->skipAddressBuild( skipAddressBuild );
     }
 }

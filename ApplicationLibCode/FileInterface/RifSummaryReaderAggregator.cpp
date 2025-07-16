@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderAggregator ::RifSummaryReaderAggregator( const std::vector<std::string>& filesOrderedByStartOfHistory )
+RifSummaryReaderAggregator::RifSummaryReaderAggregator( const std::vector<std::string>& filesOrderedByStartOfHistory )
     : m_fileNames( filesOrderedByStartOfHistory )
 {
 }
@@ -36,7 +36,7 @@ RifSummaryReaderAggregator ::RifSummaryReaderAggregator( const std::vector<std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<time_t> RifSummaryReaderAggregator ::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifSummaryReaderAggregator::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     return m_aggregatedTimeSteps;
 }
@@ -44,7 +44,7 @@ std::vector<time_t> RifSummaryReaderAggregator ::timeSteps( const RifEclipseSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::vector<double>> RifSummaryReaderAggregator ::values( const RifEclipseSummaryAddress& resultAddress ) const
+std::pair<bool, std::vector<double>> RifSummaryReaderAggregator::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     std::vector<double> values;
     for ( const auto& reader : m_summaryReaders )
@@ -78,7 +78,7 @@ std::pair<bool, std::vector<double>> RifSummaryReaderAggregator ::values( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifSummaryReaderAggregator ::unitName( const RifEclipseSummaryAddress& resultAddress ) const
+std::string RifSummaryReaderAggregator::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( !m_summaryReaders.empty() ) return m_summaryReaders.front()->unitName( resultAddress );
 
@@ -88,7 +88,7 @@ std::string RifSummaryReaderAggregator ::unitName( const RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::EclipseUnitSystem RifSummaryReaderAggregator ::unitSystem() const
+RiaDefines::EclipseUnitSystem RifSummaryReaderAggregator::unitSystem() const
 {
     if ( !m_summaryReaders.empty() ) return m_summaryReaders.front()->unitSystem();
 
@@ -98,7 +98,33 @@ RiaDefines::EclipseUnitSystem RifSummaryReaderAggregator ::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RifSummaryReaderAggregator ::timeStepCount( RifSummaryReaderInterface* reader ) const
+int RifSummaryReaderAggregator::keywordCount() const
+{
+    for ( const auto& reader : m_summaryReaders )
+    {
+        if ( reader->keywordCount() > 0 ) return reader->keywordCount();
+    }
+
+    return RifSummaryReaderInterface::keywordCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifSummaryReaderAggregator::skipAddressBuild( bool skipAddressBuild )
+{
+    m_skipAddressBuild = skipAddressBuild;
+
+    for ( const auto& reader : m_summaryReaders )
+    {
+        reader->skipAddressBuild( skipAddressBuild );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifSummaryReaderAggregator::timeStepCount( RifSummaryReaderInterface* reader ) const
 {
     auto it = m_valueCountForReader.find( reader );
     if ( it != m_valueCountForReader.end() )
@@ -112,12 +138,13 @@ size_t RifSummaryReaderAggregator ::timeStepCount( RifSummaryReaderInterface* re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryReaderAggregator ::createReadersAndImportMetaData( RiaThreadSafeLogger* threadSafeLogger )
+bool RifSummaryReaderAggregator::createReadersAndImportMetaData( RiaThreadSafeLogger* threadSafeLogger )
 {
     for ( const auto& fileName : m_fileNames )
     {
         auto candidate = std::make_unique<RifReaderEclipseSummary>();
-        auto result    = candidate->open( QString::fromStdString( fileName ), threadSafeLogger );
+        candidate->skipAddressBuild( m_skipAddressBuild );
+        auto result = candidate->open( QString::fromStdString( fileName ), threadSafeLogger, m_skipAddressBuild );
         if ( result )
         {
             m_summaryReaders.push_back( std::move( candidate ) );
@@ -149,7 +176,7 @@ bool RifSummaryReaderAggregator ::createReadersAndImportMetaData( RiaThreadSafeL
 // from the last reader to the first
 //
 //--------------------------------------------------------------------------------------------------
-void RifSummaryReaderAggregator ::calculateOverlappingTimeSteps()
+void RifSummaryReaderAggregator::calculateOverlappingTimeSteps()
 {
     if ( m_summaryReaders.empty() ) return;
 

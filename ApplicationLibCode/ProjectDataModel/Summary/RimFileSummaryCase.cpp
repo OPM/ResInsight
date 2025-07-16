@@ -198,7 +198,7 @@ std::unique_ptr<RifSummaryReaderInterface> RimFileSummaryCase::findRelatedFilesA
 
     // All restart data is taken care of by RifSummaryReaderAggregator, never read restart data from native file
     // readers
-    if ( !summaryFileReader->open( headerFileName, threadSafeLogger ) )
+    if ( !summaryFileReader->open( headerFileName, threadSafeLogger, false ) )
     {
         return nullptr;
     }

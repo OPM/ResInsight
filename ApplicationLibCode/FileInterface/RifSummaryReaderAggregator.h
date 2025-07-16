@@ -44,6 +44,9 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
+    int  keywordCount() const override;
+    void skipAddressBuild( bool skipAddressBuild ) override;
+
 private:
     size_t timeStepCount( RifSummaryReaderInterface* reader ) const;
     void   calculateOverlappingTimeSteps();
@@ -54,4 +57,6 @@ private:
 
     std::map<RifSummaryReaderInterface*, size_t> m_valueCountForReader;
     std::vector<time_t>                          m_aggregatedTimeSteps;
+
+    bool m_skipAddressBuild = false;
 };

@@ -47,7 +47,7 @@ public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary() override;
 
-    bool open( const QString& headerFileName, RiaThreadSafeLogger* threadSafeLogger );
+    bool open( const QString& headerFileName, RiaThreadSafeLogger* threadSafeLogger, bool skipBuildMetaData = false );
 
     std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
@@ -55,6 +55,9 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
     void                                 buildMetaData() override;
+
+    int  keywordCount() const override;
+    void skipAddressBuild( bool skipAddressBuild ) override;
 
 private:
     RifSummaryReaderInterface* currentSummaryReader() const;

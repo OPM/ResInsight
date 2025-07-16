@@ -55,6 +55,8 @@ public:
     virtual RiaDefines::EclipseUnitSystem unitSystem() const                                              = 0;
 
     virtual void buildMetaData();
+    virtual int  keywordCount() const;
+    virtual void skipAddressBuild( bool skipAddressBuild );
 
     int serialNumber() const;
 
