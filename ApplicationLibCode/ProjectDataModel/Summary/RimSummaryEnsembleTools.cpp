@@ -472,3 +472,35 @@ void RimSummaryEnsembleTools::resetHighlightAllPlots()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryEnsembleTools::caseWithMostKeywords( const std::vector<RimSummaryCase*>& sourceCases )
+{
+    int maxAddrCount = 0;
+    int maxAddrIndex = -1;
+
+    for ( int i = 0; i < (int)sourceCases.size(); i++ )
+    {
+        RimSummaryCase* currCase = sourceCases[i];
+        if ( !currCase ) continue;
+
+        RifSummaryReaderInterface* reader = currCase->summaryReader();
+        if ( !reader ) continue;
+
+        auto addrCount = reader->keywordCount();
+        if ( addrCount > maxAddrCount )
+        {
+            maxAddrCount = addrCount;
+            maxAddrIndex = i;
+        }
+    }
+
+    if ( maxAddrIndex < 0 )
+    {
+        return nullptr;
+    }
+
+    return sourceCases[maxAddrIndex];
+}

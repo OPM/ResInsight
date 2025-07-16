@@ -47,6 +47,8 @@ public:
     int  keywordCount() const override;
     void skipAddressBuild( bool skipAddressBuild ) override;
 
+    void buildMetaData() override;
+
 private:
     size_t timeStepCount( RifSummaryReaderInterface* reader ) const;
     void   calculateOverlappingTimeSteps();

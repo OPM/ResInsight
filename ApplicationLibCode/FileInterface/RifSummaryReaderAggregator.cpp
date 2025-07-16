@@ -124,6 +124,26 @@ void RifSummaryReaderAggregator::skipAddressBuild( bool skipAddressBuild )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifSummaryReaderAggregator::buildMetaData()
+{
+    for ( const auto& reader : m_summaryReaders )
+    {
+        reader->buildMetaData();
+        {
+            auto resultAddresses = reader->allResultAddresses();
+            m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );
+        }
+
+        {
+            auto errorResultAddresses = reader->allErrorAddresses();
+            m_allErrorAddresses.insert( errorResultAddresses.begin(), errorResultAddresses.end() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RifSummaryReaderAggregator::timeStepCount( RifSummaryReaderInterface* reader ) const
 {
     auto it = m_valueCountForReader.find( reader );

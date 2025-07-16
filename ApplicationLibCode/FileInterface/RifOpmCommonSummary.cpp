@@ -159,6 +159,8 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
 
     if ( !m_standardReader && !m_enhancedReader ) return false;
 
+    populateTimeSteps();
+
     return true;
 }
 

@@ -370,43 +370,20 @@ void RimSummaryEnsemble::setAsEnsemble( bool isEnsemble )
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryEnsemble::ensembleSummaryAddresses() const
 {
-    int maxAddrCount = 0;
-    int maxAddrIndex = -1;
-
-    for ( int i = 0; i < (int)m_cases.size(); i++ )
+    if ( auto caseWithMostKeywords = RimSummaryEnsembleTools::caseWithMostKeywords( m_cases.childrenByType() ) )
     {
-        RimSummaryCase* currCase = m_cases[i];
-        if ( !currCase ) continue;
-
-        RifSummaryReaderInterface* reader = currCase->summaryReader();
-        if ( !reader ) continue;
-
-        auto addrCount = reader->keywordCount();
-        if ( addrCount > maxAddrCount )
+        if ( auto reader = caseWithMostKeywords->summaryReader() )
         {
-            maxAddrCount = addrCount;
-            maxAddrIndex = i;
+            if ( reader->allResultAddresses().empty() )
+            {
+                reader->buildMetaData();
+            }
+
+            return caseWithMostKeywords->summaryReader()->allResultAddresses();
         }
     }
 
-    if ( maxAddrIndex < 0 )
-    {
-        return {};
-    }
-
-    auto reader = m_cases[maxAddrIndex]->summaryReader();
-
-    if ( !reader )
-    {
-        return {};
-    }
-
-    if ( reader->allResultAddresses().empty() )
-    {
-        reader->buildMetaData();
-    }
-
-    return reader->allResultAddresses();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
