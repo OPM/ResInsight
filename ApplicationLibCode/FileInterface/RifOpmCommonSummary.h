@@ -79,7 +79,7 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
-    int  keywordCount() const override;
+    int keywordCount() const override;
 
 private:
     void buildMetaData() override;
