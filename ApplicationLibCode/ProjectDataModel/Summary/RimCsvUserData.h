@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "RimObservedSummaryData.h"
 #include "RifMultipleSummaryReaders.h"
+#include "RimObservedSummaryData.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
