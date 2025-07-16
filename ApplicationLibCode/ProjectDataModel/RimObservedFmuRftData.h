@@ -44,7 +44,7 @@ protected:
     void initAfterRead() override;
 
 private:
-    cvf::ref<RifReaderFmuRft> m_fmuRftReader;
+    std::unique_ptr<RifReaderFmuRft> m_fmuRftReader;
 
     caf::PdmField<caf::FilePath>                  m_directoryPath;
     caf::PdmField<QString>                        m_directoryPath_OBSOLETE;

@@ -63,7 +63,7 @@ void RimPressureDepthData::setFilePath( const QString& path )
 //--------------------------------------------------------------------------------------------------
 void RimPressureDepthData::createRftReaderInterface()
 {
-    m_fmuRftReader = new RifReaderPressureDepthData( m_filePath().path() );
+    m_fmuRftReader = std::make_unique<RifReaderPressureDepthData>( m_filePath().path() );
     m_fmuRftReader->load();
 }
 
@@ -72,12 +72,12 @@ void RimPressureDepthData::createRftReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimPressureDepthData::rftReader()
 {
-    if ( m_fmuRftReader.isNull() )
+    if ( !m_fmuRftReader )
     {
         createRftReaderInterface();
     }
 
-    return m_fmuRftReader.p();
+    return m_fmuRftReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,9 +101,9 @@ bool RimPressureDepthData::hasWell( const QString& wellPathName ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimPressureDepthData::wellNames() const
 {
-    if ( m_fmuRftReader.p() )
+    if ( m_fmuRftReader )
     {
-        std::set<QString> wellNames = const_cast<RifReaderPressureDepthData*>( m_fmuRftReader.p() )->wellNames();
+        std::set<QString> wellNames = m_fmuRftReader->wellNames();
         return std::vector<QString>( wellNames.begin(), wellNames.end() );
     }
     return {};

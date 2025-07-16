@@ -57,7 +57,7 @@ void RimObservedFmuRftData::setDirectoryPath( const QString& path )
 //--------------------------------------------------------------------------------------------------
 void RimObservedFmuRftData::createRftReaderInterface()
 {
-    m_fmuRftReader = new RifReaderFmuRft( m_directoryPath().path() );
+    m_fmuRftReader = std::make_unique<RifReaderFmuRft>( m_directoryPath().path() );
     m_fmuRftReader->importData();
 }
 
@@ -66,12 +66,12 @@ void RimObservedFmuRftData::createRftReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimObservedFmuRftData::rftReader()
 {
-    if ( m_fmuRftReader.isNull() )
+    if ( m_fmuRftReader )
     {
         createRftReaderInterface();
     }
 
-    return m_fmuRftReader.p();
+    return m_fmuRftReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,9 +95,9 @@ bool RimObservedFmuRftData::hasWell( const QString& wellPathName ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimObservedFmuRftData::wells() const
 {
-    if ( m_fmuRftReader.p() )
+    if ( m_fmuRftReader )
     {
-        std::set<QString> wellNames = const_cast<RifReaderFmuRft*>( m_fmuRftReader.p() )->wellNames();
+        std::set<QString> wellNames = m_fmuRftReader->wellNames();
         return std::vector<QString>( wellNames.begin(), wellNames.end() );
     }
     return std::vector<QString>();
@@ -108,9 +108,9 @@ std::vector<QString> RimObservedFmuRftData::wells() const
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimObservedFmuRftData::labels( const RifEclipseRftAddress& rftAddress )
 {
-    if ( m_fmuRftReader.p() )
+    if ( m_fmuRftReader )
     {
-        return const_cast<RifReaderFmuRft*>( m_fmuRftReader.p() )->labels( rftAddress );
+        return m_fmuRftReader->labels( rftAddress );
     }
     return {};
 }

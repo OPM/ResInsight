@@ -43,7 +43,7 @@ public:
     std::vector<QString> wellNames() const;
 
 private:
-    cvf::ref<RifReaderPressureDepthData> m_fmuRftReader;
+    std::unique_ptr<RifReaderPressureDepthData> m_fmuRftReader;
 
     caf::PdmField<caf::FilePath>                  m_filePath;
     caf::PdmProxyValueField<std::vector<QString>> m_wells;

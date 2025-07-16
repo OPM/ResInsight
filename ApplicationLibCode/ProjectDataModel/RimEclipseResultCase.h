@@ -94,8 +94,8 @@ private:
 private:
     cvf::ref<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
 
-    cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
-    cvf::ref<RifReaderOpmRft>     m_readerOpmRft;
+    std::unique_ptr<RifReaderEclipseRft> m_readerEclipseRft;
+    std::unique_ptr<RifReaderOpmRft>     m_readerOpmRft;
 
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;

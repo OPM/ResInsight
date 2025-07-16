@@ -24,8 +24,6 @@
 #include <string>
 #include <vector>
 
-#include "cvfObject.h"
-
 #include <QDateTime>
 
 namespace caf
@@ -37,7 +35,7 @@ class VecIjk;
 //
 //
 //==================================================================================================
-class RifReaderEclipseRft : public RifReaderRftInterface, public cvf::Object
+class RifReaderEclipseRft : public RifReaderRftInterface
 {
 public:
     RifReaderEclipseRft( const QString& fileName );

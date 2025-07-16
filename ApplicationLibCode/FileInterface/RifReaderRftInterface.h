@@ -36,6 +36,8 @@ class RigEclipseWellLogExtractor;
 class RifReaderRftInterface
 {
 public:
+    virtual ~RifReaderRftInterface();
+
     std::set<RifEclipseRftAddress>         eclipseRftAddresses( const QString& wellName, const QDateTime& timeStep );
     virtual std::set<RifEclipseRftAddress> eclipseRftAddresses()                                                         = 0;
     virtual void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) = 0;
