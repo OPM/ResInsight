@@ -425,11 +425,11 @@ void RimEclipseResultCase::ensureRftDataIsImported()
     {
         if ( m_useOpmRftReader )
         {
-            m_readerOpmRft = new RifReaderOpmRft( rftFileInfo.filePath() );
+            m_readerOpmRft = std::make_unique<RifReaderOpmRft>( rftFileInfo.filePath() );
         }
         else
         {
-            m_readerEclipseRft = new RifReaderEclipseRft( rftFileInfo.filePath() );
+            m_readerEclipseRft = std::make_unique<RifReaderEclipseRft>( rftFileInfo.filePath() );
         }
     }
 
@@ -612,9 +612,9 @@ RifReaderRftInterface* RimEclipseResultCase::rftReader()
 {
     ensureRftDataIsImported();
 
-    if ( m_useOpmRftReader ) return m_readerOpmRft.p();
+    if ( m_useOpmRftReader ) return m_readerOpmRft.get();
 
-    return m_readerEclipseRft.p();
+    return m_readerEclipseRft.get();
 }
 
 //--------------------------------------------------------------------------------------------------

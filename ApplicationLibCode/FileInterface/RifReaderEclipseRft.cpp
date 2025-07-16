@@ -155,7 +155,7 @@ std::set<RifEclipseRftAddress> RifReaderEclipseRft::eclipseRftAddresses()
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values )
 {
-    CVF_ASSERT( values );
+    if ( !values ) return;
 
     if ( !m_ecl_rft_file )
     {

@@ -215,13 +215,13 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderOpmRft* RimFileSummaryCase::createOpmRftReader( const QString& rftFileName, const QString& dataDeckFileName )
+std::unique_ptr<RifReaderOpmRft> RimFileSummaryCase::createOpmRftReader( const QString& rftFileName, const QString& dataDeckFileName )
 {
     QFileInfo fi( rftFileName );
 
     if ( fi.exists() )
     {
-        return new RifReaderOpmRft( rftFileName, dataDeckFileName );
+        return std::make_unique<RifReaderOpmRft>( rftFileName, dataDeckFileName );
     }
 
     return nullptr;
@@ -293,11 +293,11 @@ RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimFileSummaryCase::rftReader()
 {
-    if ( m_summaryEclipseRftReader.isNull() )
+    if ( !m_summaryEclipseRftReader )
     {
         createRftReaderInterface();
     }
-    return m_summaryEclipseRftReader.p();
+    return m_summaryEclipseRftReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------

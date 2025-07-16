@@ -64,6 +64,8 @@ public:
                 return RiaDefines::ResultDataType::DOUBLE;
             case RifEclipseKeywordValueCount::KeywordDataType::INTEGER:
                 return RiaDefines::ResultDataType::INTEGER;
+            case RifEclipseKeywordValueCount::KeywordDataType::UNKNOWN:
+                return RiaDefines::ResultDataType::UNKNOWN;
         }
 
         return RiaDefines::ResultDataType::UNKNOWN;

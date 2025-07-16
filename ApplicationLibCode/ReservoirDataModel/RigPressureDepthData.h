@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QString>
 
+#include <memory>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------

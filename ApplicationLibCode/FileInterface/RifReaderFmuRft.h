@@ -23,8 +23,6 @@
 #include <string>
 #include <vector>
 
-#include "cvfObject.h"
-
 #include <QDateTime>
 #include <QDir>
 
@@ -32,7 +30,7 @@
 //
 //
 //==================================================================================================
-class RifReaderFmuRft : public RifReaderRftInterface, public cvf::Object
+class RifReaderFmuRft : public RifReaderRftInterface
 {
 private:
     struct WellDate

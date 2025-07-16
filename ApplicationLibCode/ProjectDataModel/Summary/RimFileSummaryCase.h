@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cvfObject.h"
 
+#include <memory>
+
 class RifReaderRftInterface;
 class RifReaderOpmRft;
 class RifReaderEclipseSummary;
@@ -73,13 +75,13 @@ private:
     QString        additionalSummaryDataFilePath() const;
     static QString createAdditionalSummaryFileName();
 
-    static RifReaderOpmRft* createOpmRftReader( const QString& rftFileName, const QString& dataDeckFileName );
+    static std::unique_ptr<RifReaderOpmRft> createOpmRftReader( const QString& rftFileName, const QString& dataDeckFileName );
 
 private:
     cvf::ref<RifSummaryReaderInterface>       m_fileSummaryReader;
     cvf::ref<RifCalculatedSummaryCurveReader> m_calculatedSummaryReader;
     cvf::ref<RifMultipleSummaryReaders>       m_multiSummaryReader;
-    cvf::ref<RifReaderOpmRft>                 m_summaryEclipseRftReader;
+    std::unique_ptr<RifReaderOpmRft>          m_summaryEclipseRftReader;
     caf::PdmField<bool>                       m_includeRestartFiles;
 
     caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;

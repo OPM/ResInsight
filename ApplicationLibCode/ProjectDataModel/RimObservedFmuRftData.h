@@ -19,11 +19,14 @@
 #pragma once
 
 #include "RifReaderFmuRft.h"
+
 #include "RimNamedObject.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+
+#include <memory>
 
 class RimObservedFmuRftData : public RimNamedObject
 {
@@ -44,7 +47,7 @@ protected:
     void initAfterRead() override;
 
 private:
-    cvf::ref<RifReaderFmuRft> m_fmuRftReader;
+    std::unique_ptr<RifReaderFmuRft> m_fmuRftReader;
 
     caf::PdmField<caf::FilePath>                  m_directoryPath;
     caf::PdmField<QString>                        m_directoryPath_OBSOLETE;

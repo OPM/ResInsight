@@ -21,8 +21,6 @@
 #include "RifReaderEclipseRft.h"
 #include "RifRftSegment.h"
 
-#include "cvfObject.h"
-
 #include <memory>
 
 namespace Opm
@@ -33,11 +31,12 @@ namespace EclIO
 } // namespace EclIO
 } // namespace Opm
 
-class RifReaderOpmRft : public RifReaderRftInterface, public cvf::Object
+class RifReaderOpmRft : public RifReaderRftInterface
 {
 public:
     RifReaderOpmRft( const QString& fileName );
     RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName );
+    virtual ~RifReaderOpmRft();
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;

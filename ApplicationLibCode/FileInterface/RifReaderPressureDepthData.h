@@ -35,7 +35,7 @@
 //
 //
 //==================================================================================================
-class RifReaderPressureDepthData : public RifReaderRftInterface, public cvf::Object
+class RifReaderPressureDepthData : public RifReaderRftInterface
 {
 public:
     RifReaderPressureDepthData( const QString& filePath );
