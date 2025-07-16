@@ -31,6 +31,7 @@ struct CreateConfig
     RiaDefines::FileType fileType;
     bool                 ensembleOrGroup;
     bool                 allowDialogs;
+    bool                 buildSummaryAddresses = true;
 };
 std::vector<RimSummaryCase*> createSummaryCasesFromFiles( const QStringList& fileNames, CreateConfig createConfig );
 

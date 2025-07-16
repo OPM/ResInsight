@@ -24,7 +24,9 @@
 #include "Summary/RiaSummaryTools.h"
 
 #include "RifSummaryCaseRestartSelector.h"
+#include "RifSummaryReaderInterface.h"
 
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 
 #include <QDirIterator>
@@ -77,6 +79,20 @@ std::vector<RimSummaryCase*> createSummaryCasesFromFiles( const QStringList& fil
     {
         std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos( importFileInfos, true );
         newCases.insert( newCases.end(), sumCases.begin(), sumCases.end() );
+    }
+
+    if ( createConfig.buildSummaryAddresses )
+    {
+        // Build summary addresses for the new cases. This is disabled for ensemble import, as the buildup of summary addresses for
+        // individual cases is not required and is resource demanding. Summary addresses are called explicit in
+        // RimSummaryEnsemble::ensembleSummaryAddresses()
+        for ( auto& sumCase : newCases )
+        {
+            if ( auto reader = sumCase->summaryReader() )
+            {
+                reader->buildMetaData();
+            }
+        }
     }
 
     return newCases;
