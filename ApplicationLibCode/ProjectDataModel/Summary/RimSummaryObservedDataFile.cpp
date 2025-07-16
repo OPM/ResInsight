@@ -38,16 +38,9 @@ RimSummaryObservedDataFile::RimSummaryObservedDataFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryObservedDataFile::~RimSummaryObservedDataFile()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryObservedDataFile::createSummaryReaderInterface()
 {
-    m_summaryReader = new RifReaderObservedData;
+    m_summaryReader = std::make_unique<RifReaderObservedData>();
 
     if ( !m_summaryReader->open( summaryHeaderFilename(), identifierName(), summaryCategory() ) )
     {
@@ -60,9 +53,9 @@ void RimSummaryObservedDataFile::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimSummaryObservedDataFile::summaryReader()
 {
-    if ( m_summaryReader.isNull() )
+    if ( !m_summaryReader )
     {
         createSummaryReaderInterface();
     }
-    return m_summaryReader.p();
+    return m_summaryReader.get();
 }

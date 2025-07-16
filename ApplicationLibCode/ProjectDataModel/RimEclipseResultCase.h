@@ -94,7 +94,7 @@ private:
     void                         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    cvf::ref<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
+    std::unique_ptr<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
 
     std::unique_ptr<RifReaderEclipseRft> m_readerEclipseRft;
     std::unique_ptr<RifReaderOpmRft>     m_readerOpmRft;

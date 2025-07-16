@@ -193,9 +193,7 @@ RigFlowDiagSolverInterface::RigFlowDiagSolverInterface( RimEclipseResultCase* ec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface()
-{
-}
+RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface() = default;
 
 //--------------------------------------------------------------------------------------------------
 ///

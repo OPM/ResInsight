@@ -35,11 +35,10 @@ class RimSummaryObservedDataFile : public RimObservedSummaryData
 
 public:
     RimSummaryObservedDataFile();
-    ~RimSummaryObservedDataFile() override;
 
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
 
 private:
-    cvf::ref<RifReaderObservedData> m_summaryReader;
+    std::unique_ptr<RifReaderObservedData> m_summaryReader;
 };

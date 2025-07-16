@@ -54,7 +54,6 @@ public:
 
 public:
     RimSummaryCase();
-    ~RimSummaryCase() override;
 
     virtual QString                      summaryHeaderFilename() const;
     QString                              displayCaseName() const;

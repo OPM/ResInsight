@@ -20,7 +20,6 @@
 #include "RimSummaryCase.h"
 
 #include "cafPdmField.h"
-#include "cvfObject.h"
 
 #include <memory>
 
@@ -45,7 +44,6 @@ class RimFileSummaryCase : public RimSummaryCase
 
 public:
     RimFileSummaryCase();
-    ~RimFileSummaryCase() override;
 
     QString summaryHeaderFilename() const override;
     QString caseName() const override;
@@ -62,7 +60,7 @@ public:
     void setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
     void onProjectBeingSaved();
 
-    static RifSummaryReaderInterface*
+    static std::unique_ptr<RifSummaryReaderInterface>
         findRelatedFilesAndCreateReader( const QString& headerFileName, bool lookForRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
 protected:
@@ -78,14 +76,14 @@ private:
     static std::unique_ptr<RifReaderOpmRft> createOpmRftReader( const QString& rftFileName, const QString& dataDeckFileName );
 
 private:
-    cvf::ref<RifSummaryReaderInterface>       m_fileSummaryReader;
-    cvf::ref<RifCalculatedSummaryCurveReader> m_calculatedSummaryReader;
-    cvf::ref<RifMultipleSummaryReaders>       m_multiSummaryReader;
-    std::unique_ptr<RifReaderOpmRft>          m_summaryEclipseRftReader;
-    caf::PdmField<bool>                       m_includeRestartFiles;
+    std::unique_ptr<RifMultipleSummaryReaders> m_multiSummaryReader;
+    int                                        m_fileSummaryReaderId       = -1;
+    int                                        m_additionalSummaryReaderId = -1;
+    std::unique_ptr<RifReaderOpmRft>           m_summaryEclipseRftReader;
 
-    caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;
-    cvf::ref<RifOpmCommonEclipseSummary> m_additionalSummaryFileReader;
+    caf::PdmField<bool> m_includeRestartFiles;
+
+    caf::PdmField<caf::FilePath> m_additionalSummaryFilePath;
 
     caf::PdmChildField<RimRftCase*> m_rftCase;
 

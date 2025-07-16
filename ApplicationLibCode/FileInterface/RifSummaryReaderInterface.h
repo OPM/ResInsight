@@ -21,8 +21,6 @@
 #include "RiaDefines.h"
 #include "RifEclipseSummaryAddress.h"
 
-#include "cvfObject.h"
-
 #include <map>
 #include <set>
 #include <string>
@@ -34,10 +32,11 @@ class QDateTime;
 //
 //
 //==================================================================================================
-class RifSummaryReaderInterface : public cvf::Object
+class RifSummaryReaderInterface
 {
 public:
     RifSummaryReaderInterface();
+    virtual ~RifSummaryReaderInterface() = default;
 
     bool hasAddress( const RifEclipseSummaryAddress& resultAddress ) const;
 
