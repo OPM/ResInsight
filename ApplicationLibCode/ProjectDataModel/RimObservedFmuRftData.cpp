@@ -66,7 +66,7 @@ void RimObservedFmuRftData::createRftReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimObservedFmuRftData::rftReader()
 {
-    if ( m_fmuRftReader )
+    if ( !m_fmuRftReader )
     {
         createRftReaderInterface();
     }
