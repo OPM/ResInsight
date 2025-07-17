@@ -372,7 +372,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryEnsemble::ensembleSummaryAddresses(
 {
     // For performance reasons, we only return the addresses from the case with the most keywords.
     // Calling buildMetaData() on all realizations is expensive
-    if ( auto caseWithMostKeywords = RimSummaryEnsembleTools::caseWithMostKeywords( m_cases.childrenByType() ) )
+    if ( auto caseWithMostKeywords = RimSummaryEnsembleTools::caseWithMostDataObjects( m_cases.childrenByType() ) )
     {
         if ( auto reader = caseWithMostKeywords->summaryReader() )
         {

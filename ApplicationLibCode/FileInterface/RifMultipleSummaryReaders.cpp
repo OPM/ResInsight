@@ -143,7 +143,7 @@ size_t RifMultipleSummaryReaders::keywordCount() const
 {
     for ( const auto& r : m_readers )
     {
-        if ( r->addressCount() > 0 ) return r->keywordCount();
+        if ( r->keywordCount() > 0 ) return r->keywordCount();
     }
 
     return 0;

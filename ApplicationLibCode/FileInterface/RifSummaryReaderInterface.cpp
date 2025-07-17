@@ -77,7 +77,7 @@ int RifSummaryReaderInterface::serialNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RifSummaryReaderInterface::addressCount() const
+size_t RifSummaryReaderInterface::dataObjectCount() const
 {
     if ( !m_allResultAddresses.empty() ) return m_allResultAddresses.size();
 
@@ -115,6 +115,8 @@ bool RifSummaryReaderInterface::hasAddress( const RifEclipseSummaryAddress& resu
         return ( m_allResultAddresses.count( resultAddress ) > 0 );
     }
 
+    // This is a fallback for cases where no addresses are present, such as when the summary reader is not yet initialized.
+    // This function should not be used in performance-critical code paths.
     const auto& [isOk, vals] = values( resultAddress );
     return isOk && !vals.empty();
 }

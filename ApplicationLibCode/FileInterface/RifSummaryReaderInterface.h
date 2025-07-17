@@ -56,8 +56,8 @@ public:
 
     int serialNumber() const;
 
-    // Returns the number of result addresses. If no addresses are present, return keywordCount()
-    size_t addressCount() const;
+    // Returns the number of result addresses. If no addresses are present, keywordCount() is returned.
+    size_t dataObjectCount() const;
 
 protected:
     // The keywordCount is considered a internal method, not to be used by clients. Add a friend class to allow access
