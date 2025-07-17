@@ -13,6 +13,38 @@ static const QString CASE_REAL_TEST_DATA_DIRECTORY_01 = QString( "%1/RifCaseReal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RifCaseRealizationParametersReaderTest, MixOfTabAndWhiteSpace )
+{
+    RifCaseRealizationParametersReader reader( CASE_REAL_TEST_DATA_DIRECTORY_01 + "parameters-mix-tab-whitespace.txt" );
+
+    try
+    {
+        reader.parse();
+
+        const std::shared_ptr<RigCaseRealizationParameters>    parameters( reader.parameters() );
+        std::map<QString, RigCaseRealizationParameters::Value> params = parameters->parameters();
+
+        std::vector<std::pair<QString, double>> expectedValues = { { "LETSWOF:L_1OW", 1.83555 },
+                                                                   { "LETSWOF:E_1OW", 5.84645 },
+                                                                   { "LETSWOF:T_1OW", 1.46894 },
+                                                                   { "LETSWOF:L_1WO", 4.9974 },
+                                                                   { "LETSWOF:E_1WO", 3.38433e-05 } };
+
+        for ( const auto& expected : expectedValues )
+        {
+            EXPECT_EQ( expected.second, params[expected.first].numericValue() )
+                << "Parameter value mismatch for: " << expected.first.toStdString();
+        }
+    }
+    catch ( ... )
+    {
+        EXPECT_TRUE( false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RifCaseRealizationParametersReaderTest, LocatorTestSuccess )
 {
     QString file     = RifCaseRealizationParametersFileLocator::locate( CASE_REAL_TEST_DATA_DIRECTORY_01 + "4/3/2" );
