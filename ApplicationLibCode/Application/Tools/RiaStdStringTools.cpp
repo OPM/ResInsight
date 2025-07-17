@@ -68,7 +68,7 @@ std::string RiaStdStringTools::removeWhitespace( const std::string& line )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::isNumber( const std::string& s, char decimalPoint )
+bool RiaStdStringTools::isNumber( std::string_view s, char decimalPoint )
 {
     if ( s.empty() ) return false;
     if ( findCharMatchCount( s, decimalPoint ) > 1 ) return false;
@@ -222,7 +222,34 @@ std::string RiaStdStringTools::joinStrings( const std::vector<std::string>& s, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RiaStdStringTools::findCharMatchCount( const std::string& s, char c )
+std::pair<std::string_view, std::string_view> RiaStdStringTools::splitAtWhitespace( std::string_view str )
+{
+    const char* data = str.data();
+    const char* end  = data + str.size();
+    const char* pos  = data;
+
+    // Find separator, which is the first whitespace character
+    while ( pos < end && str.find_first_of( WHITESPACE, pos - data ) != pos - data )
+        ++pos;
+
+    if ( pos >= end ) return { str, {} };
+
+    std::string_view first( data, pos - data );
+
+    // Skip all whitespace characters
+    pos = data + str.find_first_not_of( WHITESPACE, pos - data );
+
+    if ( pos >= end ) return { first, {} };
+
+    std::string_view second( pos, end - pos );
+
+    return { first, second };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RiaStdStringTools::findCharMatchCount( std::string_view s, char c )
 {
     size_t count = 0;
     size_t pos   = 0;
