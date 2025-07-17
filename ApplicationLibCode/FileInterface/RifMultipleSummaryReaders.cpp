@@ -139,12 +139,12 @@ void RifMultipleSummaryReaders::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifMultipleSummaryReaders::keywordCount() const
+size_t RifMultipleSummaryReaders::keywordCount() const
 {
     for ( const auto& r : m_readers )
     {
-        if ( r->keywordCount() > 0 ) return r->keywordCount();
+        if ( r->addressCount() > 0 ) return r->keywordCount();
     }
 
-    return RifSummaryReaderInterface::keywordCount();
+    return 0;
 }

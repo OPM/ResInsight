@@ -243,7 +243,7 @@ RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifOpmCommonEclipseSummary::keywordCount() const
+size_t RifOpmCommonEclipseSummary::keywordCount() const
 {
     if ( m_enhancedReader )
     {
@@ -254,7 +254,7 @@ int RifOpmCommonEclipseSummary::keywordCount() const
         return m_standardReader->keywordList().size();
     }
 
-    return RifSummaryReaderInterface::keywordCount();
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

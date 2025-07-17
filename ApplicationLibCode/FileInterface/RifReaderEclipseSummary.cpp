@@ -275,11 +275,11 @@ void RifReaderEclipseSummary::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifReaderEclipseSummary::keywordCount() const
+size_t RifReaderEclipseSummary::keywordCount() const
 {
     if ( m_summaryReader ) return m_summaryReader->keywordCount();
 
-    return RifSummaryReaderInterface::keywordCount();
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

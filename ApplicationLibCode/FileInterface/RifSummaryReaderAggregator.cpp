@@ -98,14 +98,14 @@ RiaDefines::EclipseUnitSystem RifSummaryReaderAggregator::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifSummaryReaderAggregator::keywordCount() const
+size_t RifSummaryReaderAggregator::keywordCount() const
 {
     for ( const auto& reader : m_summaryReaders )
     {
         if ( reader->keywordCount() > 0 ) return reader->keywordCount();
     }
 
-    return RifSummaryReaderInterface::keywordCount();
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

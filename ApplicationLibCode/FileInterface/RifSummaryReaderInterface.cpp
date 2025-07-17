@@ -61,9 +61,9 @@ void RifSummaryReaderInterface::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifSummaryReaderInterface::keywordCount() const
+size_t RifSummaryReaderInterface::keywordCount() const
 {
-    return -1;
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,6 +72,17 @@ int RifSummaryReaderInterface::keywordCount() const
 int RifSummaryReaderInterface::serialNumber() const
 {
     return m_serialNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifSummaryReaderInterface::addressCount() const
+{
+    if ( !m_allResultAddresses.empty() ) return m_allResultAddresses.size();
+
+    // Fallback to keyword count if no addresses are available. This can happen if an ensemble creates addresses for only a single realization.
+    return keywordCount();
 }
 
 //--------------------------------------------------------------------------------------------------

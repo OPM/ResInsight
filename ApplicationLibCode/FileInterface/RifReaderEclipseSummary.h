@@ -56,9 +56,9 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
     void                                 buildMetaData() override;
 
-    int keywordCount() const override;
 
 private:
+    size_t                     keywordCount() const override;
     RifSummaryReaderInterface* currentSummaryReader() const;
 
 private:
