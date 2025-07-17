@@ -116,39 +116,32 @@ void RifCaseRealizationParametersReader::parse()
     int         lineNo = 0;
     QStringList errors;
 
+    const auto decimalPoint = QLocale::c().decimalPoint().toLatin1()[0];
+
     while ( !dataStream.atEnd() )
     {
         QString line = dataStream.readLine();
 
         lineNo++;
-        QStringList cols = RifFileParseTools::splitLineAndTrim( line, QRegularExpression( "[ \t]" ), true );
 
-        if ( cols.size() != 2 )
+        auto [name, parameterValue] = RiaStdStringTools::splitAtWhitespace( RiaStdStringTools::trimString( line.toStdString() ) );
+
+        if ( name.empty() || parameterValue.empty() )
         {
-            errors << QString( "RifEnsembleParametersReader: Invalid file format in line %1" ).arg( lineNo );
-
+            errors << QString( "RifCaseRealizationParametersReader: Invalid file format in line %1" ).arg( lineNo );
             continue;
         }
 
-        QString& name     = cols[0];
-        QString& strValue = cols[1];
-
-        if ( RiaTextStringTools::isNumber( strValue, QLocale::c().decimalPoint() ) )
+        if ( RiaStdStringTools::isNumber( parameterValue, decimalPoint ) )
         {
-            bool   parseOk = true;
-            double value   = QLocale::c().toDouble( strValue, &parseOk );
-            if ( parseOk )
-            {
-                m_parameters->addParameter( name, value );
-            }
-            else
-            {
-                errors << QString( "RifEnsembleParametersReader: Invalid number format in line %1" ).arg( lineNo );
-            }
+            double doubleValue = 0.0;
+            RiaStdStringTools::toDouble( parameterValue, doubleValue );
+            m_parameters->addParameter( QString::fromUtf8( name.data(), name.size() ), doubleValue );
         }
         else
         {
-            m_parameters->addParameter( name, strValue );
+            m_parameters->addParameter( QString::fromUtf8( name.data(), name.size() ),
+                                        QString::fromUtf8( parameterValue.data(), parameterValue.size() ) );
         }
     }
 
