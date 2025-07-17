@@ -109,6 +109,16 @@ bool RimSummaryCase::showVectorItemsInProjectTree() const
 void RimSummaryCase::setShowVectorItemsInProjectTree( bool enable )
 {
     m_showSubNodesInTree = enable;
+
+    if ( m_showSubNodesInTree )
+    {
+        if ( auto reader = summaryReader() )
+        {
+            // If the reader has no result addresses, we need to build the metadata to populate the data vector folders
+            reader->createAddressesIfRequired();
+        }
+    }
+
     updateConnectedEditors();
 }
 

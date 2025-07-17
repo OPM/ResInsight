@@ -58,14 +58,13 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
     {
         if ( !summaryCase ) continue;
 
-        if ( auto reader = summaryCase->summaryReader() )
+        if ( summaryCase->showVectorItemsInProjectTree() )
         {
-            reader->buildMetaData();
-
-            if ( summaryCase->showVectorItemsInProjectTree() )
+            if ( auto reader = summaryCase->summaryReader() )
             {
-                summaryCase->onCalculationUpdated();
+                reader->createAndSetAddresses();
             }
+            summaryCase->onCalculationUpdated();
         }
     }
 
@@ -77,7 +76,7 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
 
         if ( auto reader = obs->summaryReader() )
         {
-            reader->buildMetaData();
+            reader->createAndSetAddresses();
             obs->onCalculationUpdated();
         }
     }

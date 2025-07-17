@@ -158,7 +158,7 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
 
     if ( !m_standardReader && !m_enhancedReader ) return false;
 
-    buildMetaData();
+    populateTimeSteps();
 
     return true;
 }
@@ -176,11 +176,22 @@ std::vector<time_t> RifOpmCommonEclipseSummary::timeSteps( const RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::vector<double>> RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
+    std::string keyword;
+
     auto it = m_summaryAddressToKeywordMap.find( resultAddress );
     if ( it != m_summaryAddressToKeywordMap.end() )
     {
+        keyword = it->second;
+    }
+    else
+    {
+        // For ensembles, the result address may not be in the map, so we try to convert it to a text address
+        keyword = resultAddress.toEclipseTextAddress();
+    }
+
+    if ( !keyword.empty() )
+    {
         std::vector<double> values;
-        auto                keyword = it->second;
         if ( m_enhancedReader )
         {
             auto fileValues = m_enhancedReader->get( keyword );
@@ -232,41 +243,37 @@ RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::buildMetaData()
+size_t RifOpmCommonEclipseSummary::keywordCount() const
 {
-    std::vector<std::string> keywords;
-    Opm::time_point          startOfSimulation;
-    std::vector<float>       daysSinceStartOfSimulation;
-
     if ( m_enhancedReader )
     {
-        keywords          = m_enhancedReader->keywordList();
-        startOfSimulation = m_enhancedReader->startdate();
-
-        if ( m_enhancedReader->numberOfTimeSteps() > 0 )
-        {
-            daysSinceStartOfSimulation = m_enhancedReader->get( "TIME" );
-        }
+        return m_enhancedReader->keywordList().size();
     }
     else if ( m_standardReader )
     {
-        keywords          = m_standardReader->keywordList();
-        startOfSimulation = m_standardReader->startdate();
-        if ( m_standardReader->numberOfTimeSteps() > 0 )
-        {
-            daysSinceStartOfSimulation = m_standardReader->get( "TIME" );
-        }
+        return m_standardReader->keywordList().size();
     }
 
-    const auto   startAsTimeT    = std::chrono::system_clock::to_time_t( startOfSimulation );
-    const double secondsInOneDay = 24 * 3600;
-    for ( const auto& days : daysSinceStartOfSimulation )
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOpmCommonEclipseSummary::createAndSetAddresses()
+{
+    std::vector<std::string> keywords;
+
+    if ( m_enhancedReader )
     {
-        m_timeSteps.push_back( startAsTimeT + days * secondsInOneDay );
+        keywords = m_enhancedReader->keywordList();
+    }
+    else if ( m_standardReader )
+    {
+        keywords = m_standardReader->keywordList();
     }
 
     auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( keywords );
-
     m_allResultAddresses         = addresses;
     m_summaryAddressToKeywordMap = addressMap;
 }
@@ -342,7 +349,45 @@ bool RifOpmCommonEclipseSummary::openFileReader( const QString& fileName, bool i
         return false;
     }
 
+    populateTimeSteps();
+
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOpmCommonEclipseSummary::populateTimeSteps()
+{
+    m_timeSteps.clear();
+
+    Opm::time_point    startOfSimulation;
+    std::vector<float> daysSinceStartOfSimulation;
+
+    if ( m_enhancedReader )
+    {
+        startOfSimulation = m_enhancedReader->startdate();
+
+        if ( m_enhancedReader->numberOfTimeSteps() > 0 )
+        {
+            daysSinceStartOfSimulation = m_enhancedReader->get( "TIME" );
+        }
+    }
+    else if ( m_standardReader )
+    {
+        startOfSimulation = m_standardReader->startdate();
+        if ( m_standardReader->numberOfTimeSteps() > 0 )
+        {
+            daysSinceStartOfSimulation = m_standardReader->get( "TIME" );
+        }
+    }
+
+    const auto   startAsTimeT    = std::chrono::system_clock::to_time_t( startOfSimulation );
+    const double secondsInOneDay = 24 * 3600;
+    for ( const auto& days : daysSinceStartOfSimulation )
+    {
+        m_timeSteps.push_back( startAsTimeT + days * secondsInOneDay );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -75,8 +75,6 @@ bool RifEclEclipseSummary::open( const QString& headerFileName, RiaThreadSafeLog
         m_unitSystem = RifEclipseSummaryTools::readUnitSystem( m_ecl_sum );
     }
 
-    buildMetaData();
-
     return true;
 }
 
@@ -314,7 +312,7 @@ int RifEclEclipseSummary::indexFromAddress( const RifEclipseSummaryAddress& resu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclEclipseSummary::buildMetaData()
+void RifEclEclipseSummary::createAndSetAddresses()
 {
     m_allResultAddresses.clear();
     m_resultAddressToErtNodeIdx.clear();

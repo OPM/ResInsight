@@ -44,4 +44,6 @@ void                         selectSummaryCasesInProjectTree( const std::vector<
 void                         highlightCurvesForSummaryCases( const std::vector<RimSummaryCase*>& sourceCases );
 void                         resetHighlightAllPlots();
 
+RimSummaryCase* caseWithMostDataObjects( const std::vector<RimSummaryCase*>& sourceCases );
+
 } // namespace RimSummaryEnsembleTools

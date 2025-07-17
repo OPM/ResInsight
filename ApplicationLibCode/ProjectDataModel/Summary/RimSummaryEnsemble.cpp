@@ -370,33 +370,21 @@ void RimSummaryEnsemble::setAsEnsemble( bool isEnsemble )
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryEnsemble::ensembleSummaryAddresses() const
 {
-    std::set<RifEclipseSummaryAddress> addresses;
-    size_t                             maxAddrCount = 0;
-    int                                maxAddrIndex = -1;
-
-    for ( int i = 0; i < (int)m_cases.size(); i++ )
+    // For performance reasons, we only return the addresses from the case with the most keywords.
+    // Calling buildMetaData() on all realizations is expensive
+    if ( auto caseWithMostKeywords = RimSummaryEnsembleTools::caseWithMostDataObjects( m_cases.childrenByType() ) )
     {
-        RimSummaryCase* currCase = m_cases[i];
-        if ( !currCase ) continue;
-
-        RifSummaryReaderInterface* reader = currCase->summaryReader();
-        if ( !reader ) continue;
-
-        size_t addrCount = reader->allResultAddresses().size();
-        if ( addrCount > maxAddrCount )
+        if ( auto reader = caseWithMostKeywords->summaryReader() )
         {
-            maxAddrCount = addrCount;
-            maxAddrIndex = (int)i;
+            // If the reader has no addresses, we need to build the metadata to populate them
+            // This is typically the case for newly created cases or cases that have not been read yet
+            reader->createAddressesIfRequired();
+
+            return reader->allResultAddresses();
         }
     }
 
-    if ( maxAddrIndex >= 0 && m_cases[maxAddrIndex]->summaryReader() )
-    {
-        const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
-        addresses.insert( addrs.begin(), addrs.end() );
-    }
-
-    return addresses;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

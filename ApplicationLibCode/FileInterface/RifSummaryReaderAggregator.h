@@ -44,7 +44,10 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
+    void createAndSetAddresses() override;
+
 private:
+    size_t keywordCount() const override;
     size_t timeStepCount( RifSummaryReaderInterface* reader ) const;
     void   calculateOverlappingTimeSteps();
 

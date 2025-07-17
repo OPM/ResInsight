@@ -54,8 +54,27 @@ RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress( const RifEclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSummaryReaderInterface::buildMetaData()
+void RifSummaryReaderInterface::createAndSetAddresses()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifSummaryReaderInterface::createAddressesIfRequired()
+{
+    if ( m_allResultAddresses.empty() )
+    {
+        createAndSetAddresses();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifSummaryReaderInterface::keywordCount() const
+{
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +83,17 @@ void RifSummaryReaderInterface::buildMetaData()
 int RifSummaryReaderInterface::serialNumber() const
 {
     return m_serialNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifSummaryReaderInterface::dataObjectCount() const
+{
+    if ( !m_allResultAddresses.empty() ) return m_allResultAddresses.size();
+
+    // Fallback to keyword count if no addresses are available. This can happen if an ensemble creates addresses for only a single realization.
+    return keywordCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,5 +121,13 @@ bool RifSummaryReaderInterface::hasAddress( const RifEclipseSummaryAddress& resu
     static const RifEclipseSummaryAddress defaultAdr = RifEclipseSummaryAddress();
     if ( resultAddress == defaultAdr ) return true;
 
-    return ( m_allResultAddresses.count( resultAddress ) > 0 );
+    if ( !m_allResultAddresses.empty() )
+    {
+        return ( m_allResultAddresses.count( resultAddress ) > 0 );
+    }
+
+    // This is a fallback for cases where no addresses are present, such as when the summary reader is not yet initialized.
+    // This function should not be used in performance-critical code paths.
+    const auto& [isOk, vals] = values( resultAddress );
+    return isOk && !vals.empty();
 }

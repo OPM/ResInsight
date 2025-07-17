@@ -52,11 +52,21 @@ public:
     virtual std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const = 0;
     virtual RiaDefines::EclipseUnitSystem unitSystem() const                                              = 0;
 
-    virtual void buildMetaData();
+    virtual void createAndSetAddresses();
+    void         createAddressesIfRequired();
 
     int serialNumber() const;
 
+    // Returns the number of result addresses. If no addresses are present, keywordCount() is returned.
+    size_t dataObjectCount() const;
+
 protected:
+    // The keywordCount is considered a internal method, not to be used by clients. Add a friend class to allow access
+    friend class RifSummaryReaderAggregator;
+    friend class RifMultipleSummaryReaders;
+    friend class RifReaderEclipseSummary;
+    virtual size_t keywordCount() const;
+
     void increaseSerialNumber();
 
     std::set<RifEclipseSummaryAddress> m_allResultAddresses; // Result and error addresses
