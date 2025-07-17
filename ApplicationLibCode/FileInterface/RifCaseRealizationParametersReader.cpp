@@ -116,39 +116,39 @@ void RifCaseRealizationParametersReader::parse()
     int         lineNo = 0;
     QStringList errors;
 
+    const auto decimalPoint = RiaStdStringTools::decimalPoint();
+
     while ( !dataStream.atEnd() )
     {
         QString line = dataStream.readLine();
 
         lineNo++;
-        QStringList cols = RifFileParseTools::splitLineAndTrim( line, QRegularExpression( "[ \t]" ), true );
 
-        if ( cols.size() != 2 )
+        const auto stdLine                = line.toStdString();
+        const auto trimmedLine            = RiaStdStringTools::trimString( stdLine );
+        const auto [name, parameterValue] = RiaStdStringTools::splitAtWhitespace( trimmedLine );
+
+        if ( name.empty() || parameterValue.empty() )
         {
-            errors << QString( "RifEnsembleParametersReader: Invalid file format in line %1" ).arg( lineNo );
-
+            errors << QString( "RifCaseRealizationParametersReader: Invalid file format in line %1" ).arg( lineNo );
             continue;
         }
 
-        QString& name     = cols[0];
-        QString& strValue = cols[1];
-
-        if ( RiaTextStringTools::isNumber( strValue, QLocale::c().decimalPoint() ) )
+        if ( RiaStdStringTools::isNumber( parameterValue, decimalPoint ) )
         {
-            bool   parseOk = true;
-            double value   = QLocale::c().toDouble( strValue, &parseOk );
-            if ( parseOk )
+            double doubleValue = 0.0;
+            if ( RiaStdStringTools::toDouble( parameterValue, doubleValue ) )
             {
-                m_parameters->addParameter( name, value );
+                m_parameters->addParameter( QString::fromStdString( std::string( name ) ), doubleValue );
             }
             else
             {
-                errors << QString( "RifEnsembleParametersReader: Invalid number format in line %1" ).arg( lineNo );
+                errors << QString( "RifCaseRealizationParametersReader: Invalid number format in line %1" ).arg( lineNo );
             }
         }
         else
         {
-            m_parameters->addParameter( name, strValue );
+            m_parameters->addParameter( QString::fromStdString( std::string( name ) ), QString::fromStdString( std::string( parameterValue ) ) );
         }
     }
 
