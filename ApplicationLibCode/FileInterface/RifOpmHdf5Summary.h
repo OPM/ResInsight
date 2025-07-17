@@ -62,7 +62,7 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
 private:
-    void buildMetaData() override;
+    void createAndSetAddresses() override;
     bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
 private:

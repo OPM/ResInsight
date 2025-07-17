@@ -111,11 +111,11 @@ size_t RifSummaryReaderAggregator::keywordCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSummaryReaderAggregator::buildMetaData()
+void RifSummaryReaderAggregator::createAndSetAddresses()
 {
     for ( const auto& reader : m_summaryReaders )
     {
-        reader->buildMetaData();
+        reader->createAndSetAddresses();
 
         auto resultAddresses = reader->allResultAddresses();
         m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );

@@ -171,7 +171,7 @@ QString RimSummaryCaseSumo::caseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseSumo::buildMetaData()
+void RimSummaryCaseSumo::createAndSetAddresses()
 {
     if ( m_ensemble )
     {

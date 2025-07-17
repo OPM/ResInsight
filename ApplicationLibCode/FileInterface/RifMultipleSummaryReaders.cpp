@@ -119,14 +119,14 @@ RiaDefines::EclipseUnitSystem RifMultipleSummaryReaders::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifMultipleSummaryReaders::buildMetaData()
+void RifMultipleSummaryReaders::createAndSetAddresses()
 {
     m_allErrorAddresses.clear();
     m_allResultAddresses.clear();
 
     for ( auto& reader : m_readers )
     {
-        reader->buildMetaData();
+        reader->createAndSetAddresses();
 
         auto resultAddresses = reader->allResultAddresses();
         m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );

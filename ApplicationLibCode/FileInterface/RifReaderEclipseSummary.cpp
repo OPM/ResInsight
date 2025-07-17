@@ -223,14 +223,14 @@ std::vector<time_t> RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryA
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::buildMetaData()
+void RifReaderEclipseSummary::createAndSetAddresses()
 {
     m_allResultAddresses.clear();
     m_allErrorAddresses.clear();
 
     if ( auto reader = currentSummaryReader() )
     {
-        reader->buildMetaData();
+        reader->createAndSetAddresses();
 
         m_allResultAddresses = reader->allResultAddresses();
         m_allErrorAddresses  = reader->allErrorAddresses();

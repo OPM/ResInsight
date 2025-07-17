@@ -54,18 +54,18 @@ RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress( const RifEclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSummaryReaderInterface::buildMetaData()
+void RifSummaryReaderInterface::createAndSetAddresses()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSummaryReaderInterface::ensureMetaDataIsPresent()
+void RifSummaryReaderInterface::createAddressesIfRequired()
 {
     if ( m_allResultAddresses.empty() )
     {
-        buildMetaData();
+        createAndSetAddresses();
     }
 }
 

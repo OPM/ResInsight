@@ -90,7 +90,7 @@ std::vector<RimSummaryCase*> createSummaryCasesFromFiles( const QStringList& fil
         {
             if ( auto reader = sumCase->summaryReader() )
             {
-                reader->buildMetaData();
+                reader->createAndSetAddresses();
             }
         }
     }

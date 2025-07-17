@@ -58,7 +58,7 @@ public:
 
 private:
     int  indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
-    void buildMetaData() override;
+    void createAndSetAddresses() override;
 
 private:
     ecl_sum_type*          m_ecl_sum;

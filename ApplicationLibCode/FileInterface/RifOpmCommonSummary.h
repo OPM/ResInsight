@@ -81,7 +81,7 @@ public:
 
 private:
     size_t keywordCount() const override;
-    void   buildMetaData() override;
+    void createAndSetAddresses() override;
     bool   openFileReader( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
     void   populateTimeSteps();
 

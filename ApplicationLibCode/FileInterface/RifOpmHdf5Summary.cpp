@@ -163,7 +163,7 @@ RiaDefines::EclipseUnitSystem RifOpmHdf5Summary::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmHdf5Summary::buildMetaData()
+void RifOpmHdf5Summary::createAndSetAddresses()
 {
     if ( m_eSmry )
     {

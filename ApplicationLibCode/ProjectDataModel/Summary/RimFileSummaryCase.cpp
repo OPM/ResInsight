@@ -355,7 +355,7 @@ void RimFileSummaryCase::setSummaryData( const std::string& keyword, const std::
     projectSummaryDataWriter.clearErrorMessages();
 
     openAndAttachAdditionalReader();
-    m_multiSummaryReader->buildMetaData();
+    m_multiSummaryReader->createAndSetAddresses();
 }
 
 //--------------------------------------------------------------------------------------------------

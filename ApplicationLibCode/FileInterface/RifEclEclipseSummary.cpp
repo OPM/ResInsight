@@ -312,7 +312,7 @@ int RifEclEclipseSummary::indexFromAddress( const RifEclipseSummaryAddress& resu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclEclipseSummary::buildMetaData()
+void RifEclEclipseSummary::createAndSetAddresses()
 {
     m_allResultAddresses.clear();
     m_resultAddressToErtNodeIdx.clear();

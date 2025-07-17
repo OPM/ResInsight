@@ -79,7 +79,7 @@ std::pair<bool, QString> RifRevealCsvSummaryReader::parse( const QString& fileNa
     }
 
     // Build metadata to populate the result addresses based on the readers
-    buildMetaData();
+    createAndSetAddresses();
 
     return std::make_pair( true, caseName );
 }

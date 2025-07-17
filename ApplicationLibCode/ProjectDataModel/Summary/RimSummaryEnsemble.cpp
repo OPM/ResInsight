@@ -378,7 +378,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryEnsemble::ensembleSummaryAddresses(
         {
             // If the reader has no addresses, we need to build the metadata to populate them
             // This is typically the case for newly created cases or cases that have not been read yet
-            reader->ensureMetaDataIsPresent();
+            reader->createAddressesIfRequired();
 
             return reader->allResultAddresses();
         }

@@ -260,7 +260,7 @@ size_t RifOpmCommonEclipseSummary::keywordCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::buildMetaData()
+void RifOpmCommonEclipseSummary::createAndSetAddresses()
 {
     std::vector<std::string> keywords;
 

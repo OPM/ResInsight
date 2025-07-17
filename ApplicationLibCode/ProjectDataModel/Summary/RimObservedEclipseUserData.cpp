@@ -89,7 +89,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
             m_multiSummaryReader = std::make_unique<RifMultipleSummaryReaders>();
             m_multiSummaryReader->addReader( std::move( myReader ) );
             m_multiSummaryReader->addReader( std::make_unique<RifCalculatedSummaryCurveReader>( this ) );
-            m_multiSummaryReader->buildMetaData();
+            m_multiSummaryReader->createAndSetAddresses();
         }
     }
 }
