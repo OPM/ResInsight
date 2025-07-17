@@ -23,19 +23,55 @@
 
 #include <QString>
 
+#include <array>
 #include <charconv>
 #include <regex>
 #include <sstream>
 
-const std::string WHITESPACE = " \n\r\t\f\v";
+// Lookup table for fast whitespace checking
+// Using array of 256 elements (all possible char values)
+// where true means the character is whitespace
+namespace
+{
+// Create a compile-time whitespace lookup table
+constexpr std::array<bool, 256> createWhitespaceTable()
+{
+    std::array<bool, 256> table = {}; // Initialize all to false
+
+    // Mark standard whitespace characters as true
+    table[' ']  = true; // space
+    table['\n'] = true; // newline
+    table['\r'] = true; // carriage return
+    table['\t'] = true; // tab
+    table['\f'] = true; // form feed
+    table['\v'] = true; // vertical tab
+
+    return table;
+}
+
+// Create the lookup table at compile time
+constexpr auto WHITESPACE_TABLE = createWhitespaceTable();
+
+// Helper function to check if a character is whitespace
+constexpr bool isWhitespace( unsigned char c )
+{
+    return WHITESPACE_TABLE[c];
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::string_view RiaStdStringTools::leftTrimString( std::string_view s )
 {
-    size_t start = s.find_first_not_of( WHITESPACE );
-    return ( start == std::string::npos ) ? "" : s.substr( start );
+    const char* data = s.data();
+    const char* end  = data + s.size();
+
+    // Find first non-whitespace character
+    while ( data < end && isWhitespace( static_cast<unsigned char>( *data ) ) )
+        ++data;
+
+    return std::string_view( data, end - data );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,8 +79,14 @@ std::string_view RiaStdStringTools::leftTrimString( std::string_view s )
 //--------------------------------------------------------------------------------------------------
 std::string_view RiaStdStringTools::rightTrimString( std::string_view s )
 {
-    size_t end = s.find_last_not_of( WHITESPACE );
-    return ( end == std::string::npos ) ? "" : s.substr( 0, end + 1 );
+    const char* data = s.data();
+    const char* end  = data + s.size();
+
+    // Find last non-whitespace character
+    while ( end > data && isWhitespace( static_cast<unsigned char>( *( end - 1 ) ) ) )
+        --end;
+
+    return std::string_view( data, end - data );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +110,17 @@ std::string RiaStdStringTools::removeWhitespace( const std::string& line )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::isNumber( const std::string& s, char decimalPoint )
+char RiaStdStringTools::decimalPoint()
+{
+    std::locale loc;
+    char        decimalPoint = std::use_facet<std::numpunct<char>>( loc ).decimal_point();
+    return decimalPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::isNumber( std::string_view s, char decimalPoint )
 {
     if ( s.empty() ) return false;
     if ( findCharMatchCount( s, decimalPoint ) > 1 ) return false;
@@ -222,7 +274,42 @@ std::string RiaStdStringTools::joinStrings( const std::vector<std::string>& s, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RiaStdStringTools::findCharMatchCount( const std::string& s, char c )
+std::pair<std::string_view, std::string_view> RiaStdStringTools::splitAtWhitespace( std::string_view str )
+{
+    const char* data = str.data();
+    const char* end  = data + str.size();
+    const char* pos  = data;
+
+    // Skip leading whitespace
+    while ( pos < end && isWhitespace( static_cast<unsigned char>( *pos ) ) )
+        ++pos;
+
+    // Beginning of first token
+    const char* firstStart = pos;
+
+    // Find end of first token (first whitespace character)
+    while ( pos < end && !isWhitespace( static_cast<unsigned char>( *pos ) ) )
+        ++pos;
+
+    if ( pos >= end ) return {};
+
+    std::string_view first( firstStart, pos - firstStart );
+
+    // Skip all whitespace characters
+    while ( pos < end && isWhitespace( static_cast<unsigned char>( *pos ) ) )
+        ++pos;
+
+    if ( pos >= end ) return { first, {} };
+
+    std::string_view second( pos, end - pos );
+
+    return { first, rightTrimString( second ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RiaStdStringTools::findCharMatchCount( std::string_view s, char c )
 {
     size_t count = 0;
     size_t pos   = 0;
