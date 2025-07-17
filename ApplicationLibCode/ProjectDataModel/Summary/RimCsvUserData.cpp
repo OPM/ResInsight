@@ -69,7 +69,6 @@ void RimCsvUserData::createSummaryReaderInterface()
         {
             m_multiSummaryReader = std::make_unique<RifMultipleSummaryReaders>();
             m_multiSummaryReader->addReader( std::move( csvUserData ) );
-
             m_multiSummaryReader->addReader( std::make_unique<RifCalculatedSummaryCurveReader>( this ) );
         }
     }

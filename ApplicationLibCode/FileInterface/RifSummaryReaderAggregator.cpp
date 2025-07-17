@@ -98,6 +98,36 @@ RiaDefines::EclipseUnitSystem RifSummaryReaderAggregator::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RifSummaryReaderAggregator::keywordCount() const
+{
+    for ( const auto& reader : m_summaryReaders )
+    {
+        if ( reader->keywordCount() > 0 ) return reader->keywordCount();
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifSummaryReaderAggregator::createAndSetAddresses()
+{
+    for ( const auto& reader : m_summaryReaders )
+    {
+        reader->createAndSetAddresses();
+
+        auto resultAddresses = reader->allResultAddresses();
+        m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );
+
+        auto errorResultAddresses = reader->allErrorAddresses();
+        m_allErrorAddresses.insert( errorResultAddresses.begin(), errorResultAddresses.end() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RifSummaryReaderAggregator::timeStepCount( RifSummaryReaderInterface* reader ) const
 {
     auto it = m_valueCountForReader.find( reader );
@@ -129,15 +159,11 @@ bool RifSummaryReaderAggregator::createReadersAndImportMetaData( RiaThreadSafeLo
     // Aggregate result addresses
     for ( const auto& reader : m_summaryReaders )
     {
-        {
-            auto resultAddresses = reader->allResultAddresses();
-            m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );
-        }
+        auto resultAddresses = reader->allResultAddresses();
+        m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );
 
-        {
-            auto errorResultAddresses = reader->allErrorAddresses();
-            m_allErrorAddresses.insert( errorResultAddresses.begin(), errorResultAddresses.end() );
-        }
+        auto errorResultAddresses = reader->allErrorAddresses();
+        m_allErrorAddresses.insert( errorResultAddresses.begin(), errorResultAddresses.end() );
     }
 
     return true;

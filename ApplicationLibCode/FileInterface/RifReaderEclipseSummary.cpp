@@ -124,7 +124,6 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
         if ( !isValid && prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
         {
             auto opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
-
             opmCommonReader->useEnhancedSummaryFiles( prefSummary->useEnhancedSummaryDataFiles() );
             opmCommonReader->createEnhancedSummaryFiles( prefSummary->createEnhancedSummaryDataFiles() );
             isValid = opmCommonReader->open( headerFileName, false, threadSafeLogger );
@@ -146,11 +145,6 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
         {
             m_summaryReader = std::move( libeclReader );
         }
-    }
-
-    if ( isValid )
-    {
-        buildMetaData();
     }
 
     return isValid;
@@ -229,15 +223,15 @@ std::vector<time_t> RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryA
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::buildMetaData()
+void RifReaderEclipseSummary::createAndSetAddresses()
 {
     m_allResultAddresses.clear();
     m_allErrorAddresses.clear();
 
-    auto reader = currentSummaryReader();
-
-    if ( reader )
+    if ( auto reader = currentSummaryReader() )
     {
+        reader->createAndSetAddresses();
+
         m_allResultAddresses = reader->allResultAddresses();
         m_allErrorAddresses  = reader->allErrorAddresses();
     }
@@ -281,11 +275,19 @@ void RifReaderEclipseSummary::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RifReaderEclipseSummary::keywordCount() const
+{
+    if ( m_summaryReader ) return m_summaryReader->keywordCount();
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RifReaderEclipseSummary::currentSummaryReader() const
 {
-    if ( m_summaryReader ) return m_summaryReader.get();
-
-    return nullptr;
+    return m_summaryReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------

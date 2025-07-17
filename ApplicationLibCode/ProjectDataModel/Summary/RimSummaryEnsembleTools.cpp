@@ -472,3 +472,37 @@ void RimSummaryEnsembleTools::resetHighlightAllPlots()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryEnsembleTools::caseWithMostDataObjects( const std::vector<RimSummaryCase*>& sourceCases )
+{
+    size_t maxAddrCount = 0;
+    size_t maxAddrIndex = sourceCases.size();
+
+    for ( size_t i = 0; i < sourceCases.size(); i++ )
+    {
+        auto currCase = sourceCases[i];
+        if ( !currCase ) continue;
+
+        auto reader = currCase->summaryReader();
+        if ( !reader ) continue;
+
+        // If no RifSummaryAddress is created, the number of keywords on file is returned. This can be the case for a realization in an
+        // ensemble.
+        auto addrCount = reader->dataObjectCount();
+        if ( addrCount > maxAddrCount )
+        {
+            maxAddrCount = addrCount;
+            maxAddrIndex = i;
+        }
+    }
+
+    if ( maxAddrIndex < sourceCases.size() )
+    {
+        return sourceCases[maxAddrIndex];
+    }
+
+    return nullptr;
+}
