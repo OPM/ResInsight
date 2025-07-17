@@ -53,6 +53,7 @@ public:
     virtual RiaDefines::EclipseUnitSystem unitSystem() const                                              = 0;
 
     virtual void buildMetaData();
+    void         ensureMetaDataIsPresent();
 
     int serialNumber() const;
 

@@ -126,7 +126,7 @@ void RifMultipleSummaryReaders::buildMetaData()
 
     for ( auto& reader : m_readers )
     {
-        reader->buildMetaData();
+        reader->ensureMetaDataIsPresent();
 
         auto resultAddresses = reader->allResultAddresses();
         m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );

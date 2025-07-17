@@ -112,11 +112,8 @@ void RimSummaryCase::setShowVectorItemsInProjectTree( bool enable )
 
     if ( auto reader = summaryReader() )
     {
-        if ( reader->allResultAddresses().empty() )
-        {
-            // If the reader has no result addresses, we need to build the metadata to populate the data vector folders
-            reader->buildMetaData();
-        }
+        // If the reader has no result addresses, we need to build the metadata to populate the data vector folders
+        reader->ensureMetaDataIsPresent();
     }
 
     updateConnectedEditors();

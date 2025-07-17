@@ -230,7 +230,7 @@ void RifReaderEclipseSummary::buildMetaData()
 
     if ( auto reader = currentSummaryReader() )
     {
-        reader->buildMetaData();
+        reader->ensureMetaDataIsPresent();
 
         m_allResultAddresses = reader->allResultAddresses();
         m_allErrorAddresses  = reader->allErrorAddresses();

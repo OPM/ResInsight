@@ -75,8 +75,6 @@ bool RifEclEclipseSummary::open( const QString& headerFileName, RiaThreadSafeLog
         m_unitSystem = RifEclipseSummaryTools::readUnitSystem( m_ecl_sum );
     }
 
-    buildMetaData();
-
     return true;
 }
 

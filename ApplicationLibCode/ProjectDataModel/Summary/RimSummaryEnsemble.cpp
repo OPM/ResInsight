@@ -376,14 +376,11 @@ std::set<RifEclipseSummaryAddress> RimSummaryEnsemble::ensembleSummaryAddresses(
     {
         if ( auto reader = caseWithMostKeywords->summaryReader() )
         {
-            if ( reader->allResultAddresses().empty() )
-            {
-                // If the reader has no addresses, we need to build the metadata to populate them
-                // This is typically the case for newly created cases or cases that have not been read yet
-                reader->buildMetaData();
-            }
+            // If the reader has no addresses, we need to build the metadata to populate them
+            // This is typically the case for newly created cases or cases that have not been read yet
+            reader->ensureMetaDataIsPresent();
 
-            return caseWithMostKeywords->summaryReader()->allResultAddresses();
+            return reader->allResultAddresses();
         }
     }
 
