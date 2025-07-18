@@ -467,6 +467,13 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath( QString proje
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier )
 {
+    bool showDebugTiming = false;
+    if ( showDebugTiming )
+    {
+        QString timingText = "RiaApplication::loadProject";
+        RiaLogging::resetTimer( timingText );
+    }
+
     // First Close the current project
 
     caf::ProgressInfo progress( 100, "Loading Project File" );
@@ -845,6 +852,11 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
 
         RiaLogging::info( QString( "Completed open of project file : '%1'" ).arg( projectFileName ) );
+    }
+
+    if ( showDebugTiming )
+    {
+        RiaLogging::logTimeElapsed( "" );
     }
 
     return true;
