@@ -811,7 +811,10 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             if ( !sumMainCollection ) continue;
 
             sumMainCollection->updateAutoShortName();
-            auto stepSize = std::max( 1, int( taskSteps / sumMainCollection->summaryEnsembles().size() ) );
+            int stepSize = 1; // Default step size
+            if (sumMainCollection->summaryEnsembles().size() > 0) {
+                stepSize = std::max( 1, int( taskSteps / sumMainCollection->summaryEnsembles().size() ) );
+            }
             for ( auto ensemble : sumMainCollection->summaryEnsembles() )
             {
                 auto ensembleTask = progress.task( QString( "Loading Summary Ensemble '%1'" ).arg( ensemble->name() ), stepSize );
