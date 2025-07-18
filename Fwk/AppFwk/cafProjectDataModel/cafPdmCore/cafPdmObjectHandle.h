@@ -118,7 +118,8 @@ private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmObjectHandle );
 
     // Fields
-    std::vector<PdmFieldHandle*> m_fields;
+    std::vector<PdmFieldHandle*>       m_fields;
+    std::map<QString, PdmFieldHandle*> m_fieldKeywords;
 
     // Capabilities
     std::vector<std::pair<PdmObjectCapability*, bool>> m_capabilities;
