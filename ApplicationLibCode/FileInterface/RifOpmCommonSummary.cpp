@@ -176,28 +176,16 @@ std::vector<time_t> RifOpmCommonEclipseSummary::timeSteps( const RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::vector<double>> RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    std::string keyword;
-
-    auto it = m_summaryAddressToKeywordMap.find( resultAddress );
-    if ( it != m_summaryAddressToKeywordMap.end() )
-    {
-        keyword = it->second;
-    }
-    else
-    {
-        // For ensembles, the result address may not be in the map, so we try to convert it to a text address
-        keyword = resultAddress.toEclipseTextAddress();
-    }
-
+    std::string keyword = keywordForAddress( resultAddress );
     if ( !keyword.empty() )
     {
         std::vector<double> values;
-        if ( m_enhancedReader )
+        if ( m_enhancedReader && m_enhancedReader->hasKey( keyword ) )
         {
             auto fileValues = m_enhancedReader->get( keyword );
             values.insert( values.begin(), fileValues.begin(), fileValues.end() );
         }
-        else if ( m_standardReader )
+        else if ( m_standardReader && m_standardReader->hasKey( keyword ) )
         {
             auto fileValues = m_standardReader->get( keyword );
             values.insert( values.begin(), fileValues.begin(), fileValues.end() );
@@ -214,15 +202,15 @@ std::pair<bool, std::vector<double>> RifOpmCommonEclipseSummary::values( const R
 std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
     std::string nameString;
-    auto        it = m_summaryAddressToKeywordMap.find( resultAddress );
-    if ( it != m_summaryAddressToKeywordMap.end() )
+
+    std::string keyword = keywordForAddress( resultAddress );
+    if ( !keyword.empty() )
     {
-        auto keyword = it->second;
-        if ( m_enhancedReader )
+        if ( m_enhancedReader && m_enhancedReader->hasKey( keyword ) )
         {
             nameString = m_enhancedReader->get_unit( keyword );
         }
-        else if ( m_standardReader )
+        else if ( m_standardReader && m_standardReader->hasKey( keyword ) )
         {
             nameString = m_standardReader->get_unit( keyword );
         }
@@ -388,6 +376,21 @@ void RifOpmCommonEclipseSummary::populateTimeSteps()
     {
         m_timeSteps.push_back( startAsTimeT + days * secondsInOneDay );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RifOpmCommonEclipseSummary::keywordForAddress( const RifEclipseSummaryAddress& address ) const
+{
+    auto it = m_summaryAddressToKeywordMap.find( address );
+    if ( it != m_summaryAddressToKeywordMap.end() )
+    {
+        return it->second;
+    }
+
+    // For ensembles, the address may not be in the map, so we try to convert it to a text address
+    return address.toEclipseTextAddress();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -80,10 +80,11 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
 private:
-    size_t keywordCount() const override;
-    void   createAndSetAddresses() override;
-    bool   openFileReader( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
-    void   populateTimeSteps();
+    size_t      keywordCount() const override;
+    void        createAndSetAddresses() override;
+    bool        openFileReader( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    void        populateTimeSteps();
+    std::string keywordForAddress( const RifEclipseSummaryAddress& address ) const;
 
     static void    increaseEsmryFileCount();
     static QString enhancedSummaryFilename( const QString& fileName );
