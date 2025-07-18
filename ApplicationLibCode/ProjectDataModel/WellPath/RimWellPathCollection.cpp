@@ -710,8 +710,6 @@ RimWellPath* RimWellPathCollection::mostRecentlyUpdatedWellPath()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::readWellPathFormationFiles()
 {
-    caf::ProgressInfo progress( m_wellPaths.size(), "Reading well picks from file" );
-
     for ( const auto& wellPath : m_wellPaths )
     {
         QString errorMessage;
@@ -719,9 +717,6 @@ void RimWellPathCollection::readWellPathFormationFiles()
         {
             RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
-
-        progress.setProgressDescription( QString( "Reading formation file for %1" ).arg( wellPath->name() ) );
-        progress.incrementProgress();
     }
 }
 
