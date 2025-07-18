@@ -183,10 +183,17 @@ void PdmObjectHandle::addField( PdmFieldHandle* field, const QString& keyword )
     field->m_ownerObject = this;
 
     CAF_ASSERT( !keyword.isEmpty() );
-    CAF_ASSERT( this->findField( keyword ) == nullptr );
+
+    auto it = m_fieldKeywords.find( keyword );
+    if ( it != m_fieldKeywords.end() )
+    {
+        // This should never happen, as the keyword is unique.
+        CAF_ASSERT( false );
+    }
 
     field->setKeyword( keyword );
     m_fields.push_back( field );
+    m_fieldKeywords[keyword] = field;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,11 +209,15 @@ caf::PdmObjectHandle* PdmObjectHandle::doCopyObject() const
 //--------------------------------------------------------------------------------------------------
 [[nodiscard]] PdmFieldHandle* PdmObjectHandle::findField( const QString& keyword ) const
 {
-    std::vector<PdmFieldHandle*> fields = this->fields();
-
-    for ( size_t it = 0; it < fields.size(); it++ )
+    auto fieldIt = m_fieldKeywords.find( keyword );
+    if ( fieldIt != m_fieldKeywords.end() )
     {
-        PdmFieldHandle* field = fields[it];
+        return fieldIt->second;
+    }
+
+    std::vector<PdmFieldHandle*> fields = this->fields();
+    for ( const auto field : fields )
+    {
         if ( field->matchesKeyword( keyword ) )
         {
             return field;

@@ -100,17 +100,9 @@ private:
     bool hasDataVector( const QString quantityName ) const;
     bool hasDataVector( const std::string quantityName ) const;
 
-    void addAddress( const RifEclipseSummaryAddress& address, int caseId, int ensembleId = -1 );
-    void addToSubfolder( QString                         foldername,
-                         CollectionContentType           folderType,
-                         const RifEclipseSummaryAddress& address,
-                         int                             caseId,
-                         int                             ensembleId = -1 );
-
-    void addToSubfolderTree( std::vector<std::pair<QString, CollectionContentType>> folders,
-                             const RifEclipseSummaryAddress&                        address,
-                             int                                                    caseId,
-                             int                                                    ensembleId = -1 );
+    void addAddress( RimSummaryAddress* address );
+    void addToSubfolder( QString foldername, CollectionContentType folderType, RimSummaryAddress* address );
+    void addToSubfolderTree( std::vector<std::pair<QString, CollectionContentType>> folders, RimSummaryAddress* address );
 
     QString iconResourceText() const;
 
