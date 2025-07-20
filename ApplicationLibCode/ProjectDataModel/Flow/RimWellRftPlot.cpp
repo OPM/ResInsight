@@ -1194,6 +1194,20 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::onLoadDataAndUpdate()
 {
+    if ( !m_isInitialized )
+    {
+        // TODO: m_selectedSources and m_selectedTimeSteps are not stored in the project file, so we need to set them here
+        // to ensure that the plot is initialized with the correct sources and time steps. Refactor m_selectedSources and
+        // m_selectedTimeSteps to be stored in the project file, and disable storing of curves to the project file. This is a temporary
+        // solution to ensure that the plot is initialized correctly setSelectedSourcesFromCurves();
+        //
+        // This function call was previously in initAfterRead, and triggered opening of the grid model. Moved here to allow 3D views to
+        // trigger open of grid model
+
+        setSelectedSourcesFromCurves();
+        m_isInitialized = true;
+    }
+
     if ( m_isOnLoad )
     {
         if ( plotCount() > 0 )
@@ -1245,12 +1259,6 @@ void RimWellRftPlot::initAfterRead()
         delete m_wellLogPlot_OBSOLETE;
         m_wellLogPlot_OBSOLETE = nullptr;
     }
-
-    // TODO: m_selectedSources and m_selectedTimeSteps are not stored in the project file, so we need to set them here
-    // to ensure that the plot is initialized with the correct sources and time steps. Refactor m_selectedSources and m_selectedTimeSteps to
-    // be stored in the project file, and disable storing of curves to the project file. This is a temporary solution to ensure that the
-    // plot is initialized correctly
-    setSelectedSourcesFromCurves();
 
     RimWellLogPlot::initAfterRead();
 }
