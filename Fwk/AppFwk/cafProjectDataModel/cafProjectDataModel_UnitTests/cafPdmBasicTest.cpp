@@ -233,6 +233,33 @@ TEST( BaseTest, Delete )
     delete s2;
 }
 
+TEST( BaseTest, CreateObjectInMultipleThreads )
+{
+    // When creating PDM objects in a multi threaded loop, we need to make sure that the AppEnum and Enum objects are
+    // initialized. This will happen once as part of the initialization when the first object of the type is
+    // instantiated. Further instantiation of the same type will not cause any initialization, as all other access is
+    // read-only.
+
+    // At this point in this test file InheritedDemoObj has not yet been initialized. Create a dummy object to ensure the
+    // PDM system is initialized. When the PDM system is initialized, all access to AppEnum and EnumMapper is read only
+    InheritedDemoObj dummy;
+
+    const int                      objectCount = 10000;
+    std::vector<InheritedDemoObj*> rimAddresses;
+    rimAddresses.resize( objectCount );
+
+#pragma omp parallel for
+    for ( int i = 0; i < objectCount; ++i )
+    {
+        rimAddresses[i] = new InheritedDemoObj;
+    }
+
+    for ( int i = 0; i < objectCount; ++i )
+    {
+        delete rimAddresses[i];
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// This is a testbed to try out different aspects, instead of having a main in a prototype program
 /// To be disabled when everything gets more mature.
