@@ -579,6 +579,12 @@ std::vector<RimPressureDepthData*> pressureDepthData()
 //--------------------------------------------------------------------------------------------------
 std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromGridCase( RimEclipseCase* gridCase )
 {
+    if ( !gridCase ) return {};
+
+    // Make sure the grid model is opened. This is required to read out time step dates. If no 3D views are present, the grid model is not
+    // yet opened.
+    gridCase->openEclipseGridFile();
+
     const RigEclipseCaseData* const             eclipseCaseData = gridCase->eclipseCaseData();
     std::pair<RigEclipseResultAddress, QString> resultDataInfo  = pressureResultDataInfo( eclipseCaseData );
 
