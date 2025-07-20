@@ -257,6 +257,14 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     std::vector<RimSummaryAddress*> rimAddresses;
     rimAddresses.resize( sortedAddresses.size() );
 
+    // Make sure that the first object is created in the main thread. This is needed to avoid a race condition related to initialization of
+    // static data for a PDM object.
+    // See CreateObjectInMultipleThreads test in cafPdmBasicTest.cpp
+    // This is a workaround until initialization of PDM objects is thread safe.
+    {
+        RimSummaryAddress dummyObject;
+    }
+
 #pragma omp parallel for
     for ( int i = 0; i < static_cast<int>( sortedAddresses.size() ); ++i )
     {
