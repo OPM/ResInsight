@@ -54,6 +54,7 @@ class RiaRftPltCurveDefinition;
 class RifDataSourceForRftPlt;
 class RifEclipseRftAddress;
 class RiuDraggableOverlayFrame;
+class RimDataSourceForRftPlt;
 
 namespace cvf
 {
@@ -108,6 +109,7 @@ protected:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
+    void setupBeforeSave() override;
     void initAfterRead() override;
     bool useUndoRedoForFieldChanged() override;
 
@@ -117,6 +119,7 @@ private:
     void                           setSelectedSourcesFromCurves();
     void                           syncCurvesFromUiSelection();
     void                           assignWellPathToExtractionCurves();
+    void                           syncSourcesIoFieldFromGuiField();
 
     RimObservedFmuRftData* findObservedFmuData( const QString& wellPathName, const QDateTime& timeStep ) const;
 
@@ -157,6 +160,7 @@ private:
     caf::PdmField<bool>    m_showErrorInObservedData;
 
     caf::PdmField<std::vector<RifDataSourceForRftPlt>> m_selectedSources;
+    caf::PdmChildArrayField<RimDataSourceForRftPlt*>   m_selectedSourcesForIo;
     caf::PdmField<std::vector<QDateTime>>              m_selectedTimeSteps;
 
     caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*> m_ensembleCurveSets;
