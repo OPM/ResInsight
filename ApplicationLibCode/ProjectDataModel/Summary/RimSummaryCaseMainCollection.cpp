@@ -365,6 +365,15 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
     std::vector<RimSummaryCase*> sumCases = allSummaryCases();
 
     RimSummaryCaseMainCollection::loadSummaryCaseData( sumCases );
+
+    // Create addresses for all single summary cases (not part of an ensemble)
+    for ( auto sumCase : topLevelSummaryCases() )
+    {
+        if ( sumCase->summaryReader() )
+        {
+            sumCase->summaryReader()->createAddressesIfRequired();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

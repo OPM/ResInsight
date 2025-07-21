@@ -50,6 +50,8 @@ RimSummaryCalculation* RimSummaryCalculationCollection::createCalculation() cons
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
 {
+    if ( calculations().empty() ) return;
+
     // Refresh data sources tree
     // Refresh meta data for all summary cases and rebuild AddressNodes in the summary tree
     RimSummaryCaseMainCollection* summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection();
