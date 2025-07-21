@@ -130,6 +130,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryFileSetEnsemble::calculateValueOptions( 
 void RimSummaryFileSetEnsemble::onFileSetChanged( const caf::SignalEmitter* emitter )
 {
     createSummaryCasesFromEnsembleFileSet();
+    RiaSummaryTools::updateConnectedPlots( this );
     buildChildNodes();
     updateAllRequiredEditors();
 }
@@ -177,8 +178,6 @@ void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet()
             summaryCase->updateAutoShortName();
         }
     }
-
-    RiaSummaryTools::updateConnectedPlots( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,6 +231,7 @@ void RimSummaryFileSetEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         connectSignals();
         createSummaryCasesFromEnsembleFileSet();
+        RiaSummaryTools::updateConnectedPlots( this );
         caseNameChanged.send();
     }
 }
@@ -241,7 +241,10 @@ void RimSummaryFileSetEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimSummaryFileSetEnsemble::onLoadDataAndUpdate()
 {
-    if ( m_cases.empty() ) createSummaryCasesFromEnsembleFileSet();
+    if ( m_cases.empty() )
+    {
+        createSummaryCasesFromEnsembleFileSet();
+    }
 
     RimSummaryEnsemble::onLoadDataAndUpdate();
 }
