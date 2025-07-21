@@ -29,6 +29,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 
+#include "RimDataSourceForRftPlt.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
@@ -108,9 +109,10 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
 
+    CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "SourcesForIo", "SourcesForIo" );
+
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedTimeSteps.xmlCapability()->disableIO();
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
@@ -386,31 +388,45 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::setSelectedSourcesFromCurves()
 {
-    std::set<RifDataSourceForRftPlt>                      selectedSources;
-    std::set<QDateTime>                                   selectedTimeSteps;
-    std::map<QDateTime, std::set<RifDataSourceForRftPlt>> selectedTimeStepsMap;
-
-    for ( const RiaRftPltCurveDefinition& curveDef : curveDefsFromCurves() )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2025.04.3" ) )
     {
-        if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
-        {
-            selectedSources.insert( RifDataSourceForRftPlt( curveDef.address().wellLogFile() ) );
-        }
-        else if ( ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT ) && curveDef.address().ensemble() )
-        {
-            selectedSources.insert( RifDataSourceForRftPlt( curveDef.address().ensemble() ) );
-        }
-        else
-            selectedSources.insert( curveDef.address() );
+        std::set<RifDataSourceForRftPlt>                      selectedSources;
+        std::set<QDateTime>                                   selectedTimeSteps;
+        std::map<QDateTime, std::set<RifDataSourceForRftPlt>> selectedTimeStepsMap;
 
-        auto newTimeStepMap = std::map<QDateTime, std::set<RifDataSourceForRftPlt>>{
-            { curveDef.timeStep(), std::set<RifDataSourceForRftPlt>{ curveDef.address() } } };
-        RimWellPlotTools::addTimeStepsToMap( selectedTimeStepsMap, newTimeStepMap );
-        selectedTimeSteps.insert( curveDef.timeStep() );
+        for ( const RiaRftPltCurveDefinition& curveDef : curveDefsFromCurves() )
+        {
+            if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
+            {
+                selectedSources.insert( RifDataSourceForRftPlt( curveDef.address().wellLogFile() ) );
+            }
+            else if ( ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT ) && curveDef.address().ensemble() )
+            {
+                selectedSources.insert( RifDataSourceForRftPlt( curveDef.address().ensemble() ) );
+            }
+            else
+                selectedSources.insert( curveDef.address() );
+
+            auto newTimeStepMap = std::map<QDateTime, std::set<RifDataSourceForRftPlt>>{
+                { curveDef.timeStep(), std::set<RifDataSourceForRftPlt>{ curveDef.address() } } };
+            RimWellPlotTools::addTimeStepsToMap( selectedTimeStepsMap, newTimeStepMap );
+            selectedTimeSteps.insert( curveDef.timeStep() );
+        }
+
+        // Storage of time steps to the project file was changed in 2025.04.3
+        m_selectedSources   = std::vector<RifDataSourceForRftPlt>( selectedSources.begin(), selectedSources.end() );
+        m_selectedTimeSteps = std::vector<QDateTime>( selectedTimeSteps.begin(), selectedTimeSteps.end() );
+
+        return;
     }
 
-    m_selectedSources   = std::vector<RifDataSourceForRftPlt>( selectedSources.begin(), selectedSources.end() );
-    m_selectedTimeSteps = std::vector<QDateTime>( selectedTimeSteps.begin(), selectedTimeSteps.end() );
+    std::vector<RifDataSourceForRftPlt> selectedSources;
+    for ( RimDataSourceForRftPlt* addr : m_selectedSourcesForIo )
+    {
+        selectedSources.push_back( addr->address() );
+    }
+
+    m_selectedSources = selectedSources;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1250,6 +1266,14 @@ void RimWellRftPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::setupBeforeSave()
+{
+    syncSourcesIoFieldFromGuiField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::initAfterRead()
 {
     if ( m_wellLogPlot_OBSOLETE )
@@ -1313,6 +1337,19 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
                 }
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::syncSourcesIoFieldFromGuiField()
+{
+    m_selectedSourcesForIo.deleteChildren();
+
+    for ( const RifDataSourceForRftPlt& addr : m_selectedSources() )
+    {
+        m_selectedSourcesForIo.push_back( new RimDataSourceForRftPlt( addr ) );
     }
 }
 
