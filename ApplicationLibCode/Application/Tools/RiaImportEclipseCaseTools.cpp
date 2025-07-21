@@ -32,6 +32,7 @@
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderSettings.h"
 #include "RifSummaryCaseRestartSelector.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RigGridManager.h"
 
@@ -126,6 +127,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
 
             for ( RimSummaryCase* newSumCase : candidateCases )
             {
+                newSumCase->summaryReader()->createAddressesIfRequired();
+
                 RimSummaryEnsemble* existingCollection = nullptr;
                 auto existingSummaryCase = sumCaseColl->findTopLevelSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
                 if ( existingSummaryCase )
