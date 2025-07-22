@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <iterator> // for std::distance within Qt
+
 #include <QDataStream>
 
 #include <string>

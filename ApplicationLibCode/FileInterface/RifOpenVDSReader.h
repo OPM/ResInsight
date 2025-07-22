@@ -71,9 +71,14 @@ protected:
 
 private:
     QString                                            m_filename;
-    OpenVDS::VDS*                                      m_handle;
-    OpenVDS::VolumeDataLayout const*                   m_layout;
     int                                                m_dataChannelToUse;
-    std::unique_ptr<OpenVDS::IJKCoordinateTransformer> m_coordinateTransform;
     std::unique_ptr<ZGYAccess::HistogramData>          m_histogram;
+
+#if HAVE_OPENVDS
+    OpenVDS::VDS*                                      m_handle = nullptr;
+    OpenVDS::VolumeDataLayout const*                   m_layout = nullptr;
+    std::unique_ptr<OpenVDS::IJKCoordinateTransformer> m_coordinateTransform;
+#else
+    void* m_handle = nullptr;
+#endif // HAVE_OPENVDS
 };

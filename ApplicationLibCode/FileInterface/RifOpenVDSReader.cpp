@@ -23,10 +23,12 @@
 #include <zgyaccess/zgy_histogram.h>
 #include <zgyaccess/zgyreader.h>
 
+#if HAVE_OPENVDS
 #include <OpenVDS/IJKCoordinateTransformer.h>
 #include <OpenVDS/OpenVDS.h>
 #include <OpenVDS/VolumeDataAccess.h>
 #include <OpenVDS/VolumeDataLayout.h>
+#endif // HAVE_OPENVDS
 
 #include "cvfBoundingBox.h"
 
@@ -39,9 +41,7 @@ constexpr int VDS_Z_DIM      = 0;
 //--------------------------------------------------------------------------------------------------
 RifOpenVDSReader::RifOpenVDSReader()
     : m_filename( "" )
-    , m_handle( nullptr )
     , m_dataChannelToUse( 0 )
-    , m_layout( nullptr )
 {
 }
 
@@ -62,6 +62,7 @@ bool RifOpenVDSReader::open( QString filename )
 
     m_filename = filename;
 
+#if HAVE_OPENVDS
     try
     {
         OpenVDS::Error error;
@@ -89,6 +90,11 @@ bool RifOpenVDSReader::open( QString filename )
     }
 
     return true;
+
+#else // HAVE_OPENVDS
+    m_handle = nullptr;
+    return false;
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,11 +112,15 @@ bool RifOpenVDSReader::isValid()
 {
     if ( !isOpen() ) return false;
 
+#if HASE_OPENVDS
     auto iAxis = m_layout->GetAxisDescriptor( VDS_INLINE_DIM );
     auto xAxis = m_layout->GetAxisDescriptor( VDS_XLINE_DIM );
     auto zAxis = m_layout->GetAxisDescriptor( VDS_Z_DIM );
 
     return ( iAxis.GetCoordinateStep() > 0 ) && ( xAxis.GetCoordinateStep() > 0 ) && ( zAxis.GetCoordinateStep() > 0 );
+#else // HAVE_OPENVDS
+    return false;
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,6 +130,7 @@ void RifOpenVDSReader::close()
 {
     if ( !isOpen() ) return;
 
+    #if HAVE_OPENVDS
     try
     {
         OpenVDS::Close( m_handle );
@@ -130,10 +141,12 @@ void RifOpenVDSReader::close()
 
     m_handle = nullptr;
     m_layout = nullptr;
+#endif // HAVE_OPENVDS
 
     return;
 }
 
+#if HAVE_OPENVDS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -170,6 +183,7 @@ QString openvds_axisToString( OpenVDS::VolumeDataAxisDescriptor axis )
 {
     return QString( "%1 - %2, step %3" ).arg( axis.GetCoordinateMin() ).arg( axis.GetCoordinateMax() ).arg( axis.GetCoordinateStep() );
 }
+#endif // HAVE_OPENVDS
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -180,6 +194,7 @@ std::vector<std::pair<QString, QString>> RifOpenVDSReader::metaData()
 
     if ( !isOpen() ) return retValues;
 
+#if HAVE_OPENVDS
     QString version( OpenVDS::GetOpenVDSVersion() );
     retValues.push_back( std::make_pair( QString( "Open VDS version" ), QString( OpenVDS::GetOpenVDSVersion() ) ) );
 
@@ -211,6 +226,7 @@ std::vector<std::pair<QString, QString>> RifOpenVDSReader::metaData()
 
         if ( chanName.toLower() == "amplitude" ) m_dataChannelToUse = i;
     }
+#endif // HAVE_OPENVDS
 
     return retValues;
 }
@@ -222,6 +238,7 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
 {
     if ( !isOpen() ) return;
 
+#if HAVE_OPENVDS
     auto iMinMaxStep = inlineMinMaxStep();
     auto xMinMaxStep = xlineMinMaxStep();
 
@@ -277,6 +294,7 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
         xvals = m_histogram->Xvalues;
         yvals = m_histogram->Yvalues;
     }
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,9 +303,12 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
 std::pair<double, double> RifOpenVDSReader::dataRange()
 {
     if ( !isOpen() ) return { 0.0, 0.0 };
-
+#if HAVE_OPENVDS
     auto chanDesc = m_layout->GetChannelDescriptor( m_dataChannelToUse );
     return { chanDesc.GetValueRangeMin(), chanDesc.GetValueRangeMax() };
+#else // HAVE_OPENVDS
+    return { 0.0, 0.0 };
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -297,6 +318,7 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
 {
     if ( !isOpen() ) return {};
 
+#if HAVE_OPENVDS
     auto iAxis = m_layout->GetAxisDescriptor( VDS_INLINE_DIM );
     auto xAxis = m_layout->GetAxisDescriptor( VDS_XLINE_DIM );
     auto zAxis = m_layout->GetAxisDescriptor( VDS_Z_DIM );
@@ -329,6 +351,9 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
     }
 
     return retval;
+#else // HAVE_OPENVDS
+    return {};
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,8 +362,11 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
 double RifOpenVDSReader::zStep()
 {
     if ( !isOpen() ) return 0.0;
-
+#if HAVE_OPENVDS
     return m_layout->GetAxisDescriptor( VDS_Z_DIM ).GetCoordinateStep();
+#else // HAVE_OPENVDS
+    return 0.0;
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -347,8 +375,11 @@ double RifOpenVDSReader::zStep()
 int RifOpenVDSReader::zSize()
 {
     if ( !isOpen() ) return 0;
-
+#if HAVE_OPENVDS
     return m_layout->GetAxisDescriptor( VDS_Z_DIM ).GetNumSamples();
+#else // HAVE_OPENVDS
+    return 0;
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -358,9 +389,13 @@ cvf::Vec3i RifOpenVDSReader::minMaxStep( int dimension )
 {
     if ( !isOpen() ) return { 0, 0, 0 };
 
+#if HAVE_OPENVDS
     auto axis = m_layout->GetAxisDescriptor( dimension );
 
     return { (int)( axis.GetCoordinateMin() + 0.5 ), (int)( axis.GetCoordinateMax() + 0.5 ), (int)( axis.GetCoordinateStep() + 0.5 ) };
+#else // HAVE_OPENVDS
+    return { 0, 0, 0 };
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,7 +403,11 @@ cvf::Vec3i RifOpenVDSReader::minMaxStep( int dimension )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3i RifOpenVDSReader::inlineMinMaxStep()
 {
+#if HAVE_OPENVDS
     return minMaxStep( VDS_INLINE_DIM );
+#else // HAVE_OPENVDS
+    return { 0, 0, 0 };
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -376,7 +415,11 @@ cvf::Vec3i RifOpenVDSReader::inlineMinMaxStep()
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3i RifOpenVDSReader::xlineMinMaxStep()
 {
+#if HAVE_OPENVDS
     return minMaxStep( VDS_XLINE_DIM );
+#else // HAVE_OPENVDS
+    return { 0, 0, 0 };
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -386,8 +429,12 @@ cvf::Vec3d RifOpenVDSReader::convertToWorldCoords( int iLine, int xLine, double 
 {
     if ( !isOpen() ) return { 0, 0, 0 };
 
+#if HAVE_OPENVDS
     auto world = m_coordinateTransform->AnnotationToWorld( OpenVDS::DoubleVector3( iLine, xLine, depth ) );
     return { world.X, world.Y, depth };
+#else // HAVE_OPENVDS
+    return { 0, 0, 0 };
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,8 +444,12 @@ std::pair<int, int> RifOpenVDSReader::convertToInlineXline( double worldx, doubl
 {
     if ( !isOpen() ) return { 0, 0 };
 
+#if HAVE_OPENVDS
     auto annot = m_coordinateTransform->WorldToAnnotation( OpenVDS::DoubleVector3( worldx, worldy, 0 ) );
     return { (int)( annot.X + 0.5 ), (int)( annot.Y + 0.5 ) };
+#else // HAVE_OPENVDS
+    return { 0, 0 };
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -409,6 +460,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 {
     if ( !isOpen() ) return nullptr;
 
+#if HAVE_OPENVDS
     if ( zStartIndex < 0 )
     {
         zStartIndex = 0;
@@ -490,6 +542,9 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     if ( !success ) retData.reset();
 
     return retData;
+#else // HAVE_OPENVDS
+    return nullptr;
+#endif // HAVE_OPENVDS
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -499,6 +554,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inline
 {
     if ( !isOpen() ) return nullptr;
 
+#if HAVE_OPENVDS
     if ( zStartIndex < 0 )
     {
         zStartIndex = 0;
@@ -542,4 +598,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inline
     if ( !success ) retData.reset();
 
     return retData;
+#else // HAVE_OPENVDS
+    return nullptr;
+#endif // HAVE_OPENVDS
 }
