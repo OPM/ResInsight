@@ -95,6 +95,7 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     m_ensembleDescription.registerGetMethod( this, &RimSummaryEnsemble::ensembleDescription );
     m_ensembleDescription.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_ensembleDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_ensembleDescription.xmlCapability()->disableIO();
 
     m_commonAddressCount = 0;
 }
