@@ -20,7 +20,7 @@
 
 #include "RiaStdStringTools.h"
 #include "RifEclipseSummaryAddress.h"
-#include "RifOpmCommonSummary.h"
+#include "RifOpmSummaryTools.h"
 
 #include "cafAppEnum.h"
 
@@ -84,7 +84,7 @@ RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvi
         return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
     }
 
-    if ( auto category = RifOpmCommonSummaryTools::categoryFromKeyword( vectorName );
+    if ( auto category = RifOpmSummaryTools::categoryFromKeyword( vectorName );
          category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
     {
         return category;

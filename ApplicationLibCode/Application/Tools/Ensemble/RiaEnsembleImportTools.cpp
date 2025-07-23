@@ -77,7 +77,8 @@ std::vector<RimSummaryCase*> createSummaryCasesFromFiles( const QStringList& fil
 
     if ( !importFileInfos.empty() )
     {
-        std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos( importFileInfos, true );
+        const bool                   readStateFromFirstFile = true;
+        std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos( importFileInfos, readStateFromFirstFile );
         newCases.insert( newCases.end(), sumCases.begin(), sumCases.end() );
     }
 

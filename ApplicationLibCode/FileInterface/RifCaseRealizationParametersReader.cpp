@@ -17,11 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifCaseRealizationParametersReader.h"
-#include "RifFileParseTools.h"
 
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
+
+#include "RifFileParseTools.h"
+#include "RifOpmSummaryTools.h"
 
 #include <QDir>
 #include <QString>
@@ -287,23 +289,11 @@ int RifCaseRealizationParametersFileLocator::realizationNumber( const QString& m
     QDir    dir( modelPath );
     QString absolutePath = dir.absolutePath();
 
-    return realizationNumberFromFullPath( absolutePath );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RifCaseRealizationParametersFileLocator::realizationNumberFromFullPath( const QString& path )
-{
-    int resultIndex = -1;
-
-    QRegularExpression      pattern( "realization-(\\d+)", QRegularExpression::CaseInsensitiveOption );
-    QRegularExpressionMatch match = pattern.match( path );
-
-    if ( match.hasMatch() )
+    auto realizationNumber = RifOpmSummaryTools::extractRealizationNumber( absolutePath );
+    if ( realizationNumber.has_value() )
     {
-        resultIndex = match.captured( 1 ).toInt();
+        return realizationNumber.value();
     }
 
-    return resultIndex;
+    return -1;
 }

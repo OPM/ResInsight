@@ -122,7 +122,9 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
                                                                               : nullptr;
         if ( sumCaseColl )
         {
-            std::vector<RimSummaryCase*> candidateCases = sumCaseColl->createSummaryCasesFromFileInfos( summaryFileInfos );
+            const bool                   readStateFromFirstFile = false;
+            std::vector<RimSummaryCase*> candidateCases =
+                sumCaseColl->createSummaryCasesFromFileInfos( summaryFileInfos, readStateFromFirstFile );
             std::vector<RimSummaryCase*> duplicatedCases;
 
             for ( RimSummaryCase* newSumCase : candidateCases )

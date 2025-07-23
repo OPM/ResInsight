@@ -4,6 +4,7 @@
 
 #include "RifCaseRealizationParametersReader.h"
 #include "RifFileParseTools.h"
+#include "RifOpmSummaryTools.h"
 
 #include <QString>
 #include <numeric>
@@ -102,7 +103,7 @@ TEST( RifCaseRealizationParametersReaderTest, FindRealizationNumber )
     QString filePath = "d:/gitroot-ceesol/ResInsight-regression-test/ModelData/ensemble_reek_with_params/realization-"
                        "7/iter-0/eclipse/model/3_R001_REEK-7.SMSPEC";
 
-    int realisationNumber = RifCaseRealizationParametersFileLocator::realizationNumberFromFullPath( filePath );
-
-    EXPECT_EQ( 7, realisationNumber );
+    auto realisationNumber = RifOpmSummaryTools::extractRealizationNumber( filePath );
+    EXPECT_TRUE( realisationNumber.has_value() );
+    EXPECT_EQ( 7, realisationNumber.value() );
 }

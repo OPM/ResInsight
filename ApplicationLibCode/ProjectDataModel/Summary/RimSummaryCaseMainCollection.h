@@ -52,6 +52,7 @@ public:
     std::vector<RimSummaryEnsemble*> summaryEnsembles() const;
 
     std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
+                                                                  bool                                             readStateFromFirstFile,
                                                                   bool                                             showProgress = false );
 
     RimSummaryCase* findTopLevelSummaryCaseFromFileName( const QString& fileName ) const;
@@ -82,8 +83,8 @@ public:
 private:
     void initAfterRead() override;
 
-    static void                loadSummaryCaseData( const std::vector<RimSummaryCase*>& summaryCases );
-    static void                loadFileSummaryCaseData( const std::vector<RimFileSummaryCase*>& fileSummaryCases );
+    static void loadSummaryCaseData( const std::vector<RimSummaryCase*>& summaryCases, bool extractStateFromFirstCase );
+    static void loadFileSummaryCaseData( const std::vector<RimFileSummaryCase*>& fileSummaryCases, bool extractStateFromFirstCase );
     static RimSummaryEnsemble* defaultAllocator();
 
     void onCaseNameChanged( const SignalEmitter* emitter );
