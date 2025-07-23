@@ -19,6 +19,8 @@
 
 #include "RimSummaryCase.h"
 
+#include "RifEnsembleImportConfig.h"
+
 #include "cafPdmField.h"
 
 #include <memory>
@@ -48,9 +50,9 @@ public:
     QString summaryHeaderFilename() const override;
     QString caseName() const override;
 
-    void                       createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger );
-    void                       createSummaryReaderInterface() override;
-    void                       createRftReaderInterface() override;
+    void createSummaryReaderInterfaceThreadSafe( RifEnsembleImportConfig ensembleImportState, RiaThreadSafeLogger* threadSafeLogger );
+    void createSummaryReaderInterface() override;
+    void createRftReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
     RifReaderRftInterface*     rftReader() override;
     void                       searchForWseglinkAndRecreateRftReader();
@@ -60,8 +62,10 @@ public:
     void setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
     void onProjectBeingSaved();
 
-    static std::unique_ptr<RifSummaryReaderInterface>
-        findRelatedFilesAndCreateReader( const QString& headerFileName, bool lookForRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    static std::unique_ptr<RifSummaryReaderInterface> findRelatedFilesAndCreateReader( const QString&          headerFileName,
+                                                                                       bool                    lookForRestartFiles,
+                                                                                       RifEnsembleImportConfig ensembleImportState,
+                                                                                       RiaThreadSafeLogger*    threadSafeLogger );
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;

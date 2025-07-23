@@ -110,6 +110,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifFileTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkImportUtil.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRmsWellPathReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmSummaryTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleImportConfig.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -217,6 +219,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkImportUtil.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRmsWellPathReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmSummaryTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleImportConfig.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

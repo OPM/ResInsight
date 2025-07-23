@@ -22,7 +22,7 @@
 #include "RiaStdStringTools.h"
 
 #include "RifHdf5SummaryReader.h"
-#include "RifOpmCommonSummary.h"
+#include "RifOpmSummaryTools.h"
 
 #ifdef _MSC_VER
 // Disable warning from external library to make sure treat warnings as error works
@@ -167,7 +167,7 @@ void RifOpmHdf5Summary::createAndSetAddresses()
 {
     if ( m_eSmry )
     {
-        auto [addresses, smspecIndices, addressToKeywordMap] = RifOpmCommonSummaryTools::buildAddressesSmspecAndKeywordMap( m_eSmry.get() );
+        auto [addresses, smspecIndices, addressToKeywordMap] = RifOpmSummaryTools::buildAddressesSmspecAndKeywordMap( m_eSmry.get() );
         m_allResultAddresses                                 = addresses;
         m_adrToSmspecIndices                                 = smspecIndices;
         m_summaryAddressToKeywordMap                         = addressToKeywordMap;

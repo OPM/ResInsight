@@ -79,6 +79,15 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_showPdfExportDialog, "showPdfExportDialog", true, "Show PDF Export Dialog" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showPdfExportDialog );
 
+    CAF_PDM_InitField( &m_useImprovedSummaryImport, "useImprovedSummaryImport", false, "Use Improved Summary Import" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useImprovedSummaryImport );
+
+    CAF_PDM_InitField( &m_useMultiThreadingForSummary_TEMPORARY,
+                       "useMultiThreadingForSummary",
+                       true,
+                       "Use Multithreading for Summary Import (TEMPORARY)" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useMultiThreadingForSummary_TEMPORARY );
+
     CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)" );
     CAF_PDM_InitField( &m_exportScalingFactor, "exportScalingFactor", -1.0, "Export Scaling Factor (<0 disable)" );
 
@@ -223,6 +232,22 @@ double RiaPreferencesSystem::exportPdfScalingFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::useImprovedSummaryImport() const
+{
+    return m_useImprovedSummaryImport();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::useMultiThreadingForSummaryImport() const
+{
+    return m_useMultiThreadingForSummary_TEMPORARY();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaPreferencesSystem::logToFile() const
 {
     return m_logToFile();
@@ -283,6 +308,12 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Developer Settings" );
         group->add( &m_keywordsForLogging );
         group->add( &m_gtestFilter );
+    }
+
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary Settings - July 2025" );
+        group->add( &m_useImprovedSummaryImport );
+        group->add( &m_useMultiThreadingForSummary_TEMPORARY );
     }
 }
 

@@ -24,7 +24,7 @@
 #include "RiaStdStringTools.h"
 
 #include "RifHdf5Exporter.h"
-#include "RifOpmCommonSummary.h"
+#include "RifOpmSummaryTools.h"
 #include "RifSummaryReaderInterface.h"
 
 #ifdef _MSC_VER
@@ -222,7 +222,7 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
     const std::string datasetName( "values" );
 
     std::map<std::string, std::vector<RifEclipseSummaryAddress>> mapVectorNameToSummaryAddresses;
-    auto [addresses, addressToKeywordMap] = RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( sourceSummaryData.keywordList() );
+    auto [addresses, addressToKeywordMap] = RifOpmSummaryTools::buildAddressesAndKeywordMap( sourceSummaryData.keywordList() );
     for ( const auto& adr : addresses )
     {
         auto vectorName = adr.vectorName();
