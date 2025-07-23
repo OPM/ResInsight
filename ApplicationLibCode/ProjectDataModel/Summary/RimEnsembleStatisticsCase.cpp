@@ -137,12 +137,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     auto hash = RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves );
     if ( hash == m_hash ) return;
 
-    bool showDebugTiming = false;
-    if ( showDebugTiming )
-    {
-        QString timingText = "RimEnsembleStatisticsCase::calculate" + QString::fromStdString( inputAddress.toEclipseTextAddress() );
-        RiaLogging::resetTimer( timingText );
-    }
+    auto startTime = RiaLogging::currentTime();
 
     m_hash = hash;
 
@@ -211,9 +206,11 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         m_meanData.push_back( mean );
     }
 
+    bool showDebugTiming = false;
     if ( showDebugTiming )
     {
-        RiaLogging::logTimeElapsed( "" );
+        QString timingText = "RimEnsembleStatisticsCase::calculate" + QString::fromStdString( inputAddress.toEclipseTextAddress() );
+        RiaLogging::logElapsedTime( timingText, startTime );
     }
 }
 

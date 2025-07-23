@@ -45,22 +45,22 @@ TEST( OpmSummaryTests, DISABLED_PerformanceReadOfRestartFilename )
 
     const int N = 100;
 
-    RiaLogging::resetTimer( "Starting opm-common" );
+    auto startTime = RiaLogging::currentTime();
     for ( int i = 0; i < N; i++ )
     {
         std::vector<QString> warnings;
         auto                 restartFileInfos = RifEclipseSummaryTools::getRestartFileNamesOpm( filePath, warnings );
     }
-    RiaLogging::logTimeElapsed( "Completed opm-common" );
+    RiaLogging::logElapsedTime( "Completed opm-common", startTime );
 
-    RiaLogging::resetTimer( "Starting resdata" );
+    auto startTime2 = RiaLogging::currentTime();
     for ( int i = 0; i < N; i++ )
     {
         std::vector<QString> warnings;
         auto                 restartFileInfos = RifEclipseSummaryTools::getRestartFileNames( filePath, warnings );
     }
 
-    RiaLogging::logTimeElapsed( "Completed resdata" );
+    RiaLogging::logElapsedTime( "Completed resdata", startTime2 );
 }
 
 //--------------------------------------------------------------------------------------------------

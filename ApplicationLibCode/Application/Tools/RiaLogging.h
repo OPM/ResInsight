@@ -74,8 +74,8 @@ public:
 
     static void errorInMessageBox( QWidget* parent, const QString& title, const QString& text );
 
-    static void resetTimer( const QString& message );
-    static void logTimeElapsed( const QString& message );
+    static std::chrono::time_point<std::chrono::high_resolution_clock> currentTime();
+    static void logElapsedTime( const QString& message, const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime );
 
 private:
     static void setLastMessage( const QString& message );
@@ -83,7 +83,6 @@ private:
 
 private:
     static std::vector<std::unique_ptr<RiaLogger>>                     sm_logger;
-    static std::chrono::time_point<std::chrono::high_resolution_clock> sm_startTime;
     static QString                                                     sm_lastMessage;
     static std::chrono::time_point<std::chrono::high_resolution_clock> sm_lastMessageTime;
 };
