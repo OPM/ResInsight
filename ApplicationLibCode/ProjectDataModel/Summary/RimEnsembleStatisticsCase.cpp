@@ -73,7 +73,7 @@ bool RimEnsembleStatisticsCase::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::vector<double>> RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( resultAddress.isErrorResult() ) return std::make_pair( false, std::vector<double>{} );
+    if ( resultAddress.isErrorResult() ) return { true, {} };
 
     switch ( resultAddress.statisticsType() )
     {
