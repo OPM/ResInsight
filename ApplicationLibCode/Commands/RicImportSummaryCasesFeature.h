@@ -44,7 +44,6 @@ public:
                                                                                             bool               doCreateDefaultPlot );
 
     static void addSummaryCases( const std::vector<RimSummaryCase*>& cases );
-    static void addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases );
 
     static RicRecursiveFileSearchDialogResult runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle,
                                                                                        const QString& pathCacheName );

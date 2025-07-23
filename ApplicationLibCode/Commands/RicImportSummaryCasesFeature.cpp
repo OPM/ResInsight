@@ -88,8 +88,6 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    addCasesToGroupIfRelevant( cases );
-
     for ( const auto& rimCase : cases )
         app->addToRecentFiles( rimCase->summaryHeaderFilename() );
 
@@ -179,30 +177,6 @@ void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummary
     if ( expandFirstCase && !cases.empty() )
     {
         RiuPlotMainWindowTools::setExpanded( cases.front() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases )
-{
-    std::vector<RimSummaryEnsemble*> selectedColl = caf::selectedObjectsByTypeStrict<RimSummaryEnsemble*>();
-
-    if ( selectedColl.size() == 1 )
-    {
-        RimSummaryEnsemble*           coll     = selectedColl.front();
-        RimSummaryCaseMainCollection* mainColl = coll->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
-
-        if ( mainColl )
-        {
-            for ( const auto sumCase : cases )
-            {
-                mainColl->removeCase( sumCase );
-                selectedColl.front()->addCase( sumCase );
-            }
-            mainColl->updateConnectedEditors();
-        }
     }
 }
 
