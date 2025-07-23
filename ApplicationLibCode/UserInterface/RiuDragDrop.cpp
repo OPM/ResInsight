@@ -325,7 +325,8 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
             }
             else if ( dynamic_cast<RimSummaryCaseMainCollection*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimSummaryCase>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimSummaryCase>::containsTypedObjects( m_dragItems ) ||
+                     RiuTypedPdmObjects<RimSummaryEnsemble>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
@@ -610,9 +611,9 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
                                                        RimSummaryCaseMainCollection* summaryCaseDropTarget,
                                                        int                           insertAtPosition )
 {
-    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
+    if ( action != Qt::MoveAction ) return false;
 
-    if ( action != Qt::MoveAction || summaryCases.empty() ) return false;
+    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
@@ -637,6 +638,13 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
         {
             parentContainer->moveCase( summaryCase, insertAtPosition );
         }
+    }
+
+    auto ensembles = RiuTypedPdmObjects<RimSummaryEnsemble>::typedObjectsFromGroup( draggedObjects );
+    if ( ensembles.size() == 1 )
+    {
+        auto ensemble = ensembles.front();
+        summaryCaseDropTarget->moveEnsemble( ensemble, insertAtPosition );
     }
 
     return true;

@@ -68,6 +68,7 @@ public:
                                      std::function<RimSummaryEnsemble*()> allocator = defaultAllocator );
     void                removeEnsemble( RimSummaryEnsemble* ensemble );
     void                addEnsemble( RimSummaryEnsemble* ensemble );
+    void                moveEnsemble( RimSummaryEnsemble* ensemble, int destinationIndex );
 
     void loadAllSummaryCaseData();
 
