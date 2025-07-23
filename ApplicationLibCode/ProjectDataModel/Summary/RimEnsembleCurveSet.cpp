@@ -907,6 +907,8 @@ void RimEnsembleCurveSet::setDefaultTimeRange()
 {
     m_minTimeSliderPosition = 90;
     m_maxTimeSliderPosition = 100;
+
+    updateMaxMinAndDefaultValues();
 }
 
 //--------------------------------------------------------------------------------------------------
