@@ -109,6 +109,7 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
     caf::PdmFieldReorderCapability::addToField( &m_cases );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembles, "SummaryCaseCollections", "" );
+    caf::PdmFieldReorderCapability::addToField( &m_ensembles );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,16 +216,24 @@ void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& ca
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Lambda function to move an object in a child array field
+//--------------------------------------------------------------------------------------------------
+auto moveObjectInChildArrayField = []( auto& childArrayField, auto* object, int destinationIndex )
+{
+    auto currentIndex = childArrayField.indexOf( object );
+    if ( currentIndex < childArrayField.size() )
+    {
+        childArrayField.erase( currentIndex );
+        childArrayField.insertAt( std::min( destinationIndex, static_cast<int>( childArrayField.size() ) ), object );
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::moveCase( RimSummaryCase* summaryCase, int destinationIndex )
 {
-    auto currentIndex = m_cases.indexOf( summaryCase );
-    if ( currentIndex < m_cases.size() )
-    {
-        m_cases.erase( currentIndex );
-        m_cases.insertAt( std::min( destinationIndex, (int)m_cases.size() ), summaryCase );
-    }
+    moveObjectInChildArrayField( m_cases, summaryCase, destinationIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,6 +271,14 @@ RimSummaryEnsemble* RimSummaryCaseMainCollection::addEnsemble( const std::vector
     addEnsemble( ensemble );
 
     return ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::moveEnsemble( RimSummaryEnsemble* ensemble, int destinationIndex )
+{
+    moveObjectInChildArrayField( m_ensembles, ensemble, destinationIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
