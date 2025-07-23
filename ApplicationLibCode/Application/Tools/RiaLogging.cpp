@@ -207,7 +207,6 @@ bool RiaLogging::isSameMessage( const QString& message )
 //==================================================================================================
 
 std::vector<std::unique_ptr<RiaLogger>>                     RiaLogging::sm_logger;
-std::chrono::time_point<std::chrono::high_resolution_clock> RiaLogging::sm_startTime;
 QString                                                     RiaLogging::sm_lastMessage;
 std::chrono::time_point<std::chrono::high_resolution_clock> RiaLogging::sm_lastMessageTime;
 
@@ -343,21 +342,19 @@ void RiaLogging::errorInMessageBox( QWidget* parent, const QString& title, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::resetTimer( const QString& message )
+std::chrono::time_point<std::chrono::high_resolution_clock> RiaLogging::currentTime()
 {
-    sm_startTime = std::chrono::high_resolution_clock::now();
-
-    if ( !message.isEmpty() ) RiaLogging::debug( message );
+    return std::chrono::high_resolution_clock::now();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::logTimeElapsed( const QString& message )
+void RiaLogging::logElapsedTime( const QString& message, const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime )
 {
     auto end = std::chrono::high_resolution_clock::now();
 
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end - sm_startTime );
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end - startTime );
     auto text     = message + QString( " (duration : %1 milliseconds)" ).arg( duration.count() );
 
     RiaLogging::debug( text );
