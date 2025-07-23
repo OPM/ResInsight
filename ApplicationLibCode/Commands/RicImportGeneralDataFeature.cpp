@@ -354,7 +354,6 @@ bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringLis
     auto [isOk, newCases] = RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( fileNames, doCreateDefaultPlot );
     if ( isOk )
     {
-        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( newCases );
         for ( const RimSummaryCase* newCase : newCases )
         {
             RiaApplication::instance()->addToRecentFiles( newCase->summaryHeaderFilename() );
