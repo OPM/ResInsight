@@ -176,8 +176,6 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
     auto candidateEsmryFileName = enhancedSummaryFilename( fileName );
     auto smspecFileName         = smspecSummaryFilename( fileName );
 
-    RiaLogging::debug( "RifOpmSummaryTools::isEsmryConversionRequired" );
-
     if ( !QFile::exists( candidateEsmryFileName ) && QFile::exists( smspecFileName ) )
     {
         return true;

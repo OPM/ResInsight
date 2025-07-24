@@ -96,7 +96,10 @@ RiaPreferencesSystem::RiaPreferencesSystem()
                        EclipseTextFileReaderModeType( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE ),
                        "Eclipse Text File Import mode (GRDECL)" );
 
-    CAF_PDM_InitField( &m_keywordsForLogging, "KeywordsForLogging", QString(), "Keywords to enable debug logging, separated by semicolon" );
+    CAF_PDM_InitField( &m_keywordsForLogging,
+                       "KeywordsForLogging",
+                       QString(),
+                       "Keywords to enable debug logging, separated by semicolon.\nType 'enable-all' to enable logging for all objects." );
 }
 
 //--------------------------------------------------------------------------------------------------
