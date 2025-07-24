@@ -100,14 +100,13 @@ QStringList RimEnsembleFileSet::createPaths( const QString& extension ) const
             QStringList paths;
             if ( m_groupingMode() == RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE )
             {
-                paths =
-                    RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension, internal::placeholderString(), "run" );
+                paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem_obsolete( pathPatternWithExtension,
+                                                                                           internal::placeholderString(),
+                                                                                           "run" );
             }
             else
             {
-                paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPatternWithExtension,
-                                                                                  internal::placeholderString(),
-                                                                                  "realization" );
+                paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( m_pathPattern(), extension, internal::placeholderString() );
             }
             const auto [pattern, range]       = RiaEnsembleImportTools::findPathPattern( paths, internal::placeholderString() );
             m_realizationNumbersReadFromFiles = range;

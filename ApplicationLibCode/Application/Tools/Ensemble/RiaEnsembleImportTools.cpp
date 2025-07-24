@@ -18,6 +18,7 @@
 
 #include "RiaEnsembleImportTools.h"
 
+#include "RiaFileSearchTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
@@ -275,8 +276,12 @@ QStringList getMatchingFiles( const QString& basePath, const QString& regexPatte
 //
 // The basePath will be traversed recursively to find all files matching the regex pattern
 //
+//
+// MSJ 2025-07-24: !! This function is obsolete and should not be used. Replace with createPathsBySearchingFileSystem !!
+//
 //--------------------------------------------------------------------------------------------------
-QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& placeholderString, const QString& enumerationString )
+QStringList
+    createPathsBySearchingFileSystem_obsolete( const QString& pathPattern, const QString& placeholderString, const QString& enumerationString )
 {
     auto basePath = pathPattern;
 
@@ -314,6 +319,46 @@ QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const 
                } );
 
     return matchingFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& extension, const QString& placeholderString )
+{
+    auto firstPlaceholderIndex = pathPattern.indexOf( placeholderString );
+    if ( firstPlaceholderIndex == -1 ) return {};
+
+    auto afterFirstPlaceholder = pathPattern.mid( firstPlaceholderIndex );
+
+    auto slashIndex = pathPattern.lastIndexOf( '/', firstPlaceholderIndex );
+    if ( slashIndex == -1 ) return {};
+
+    QString pathFilter;
+    auto    lastSlashIndex = afterFirstPlaceholder.lastIndexOf( '/' );
+    if ( lastSlashIndex != -1 )
+    {
+        pathFilter = afterFirstPlaceholder.left( lastSlashIndex + 1 );
+    }
+
+    pathFilter += "*";
+
+    QString basePath = pathPattern.left( slashIndex + 1 );
+
+    QStringList folders;
+    RiaFileSearchTools::findMatchingFoldersRecursively( basePath, pathFilter, folders );
+
+    QStringList fileFilters;
+    if ( extension.startsWith( '*' ) )
+    {
+        fileFilters.push_back( extension );
+    }
+    else
+    {
+        fileFilters.push_back( "*" + extension );
+    }
+
+    return RiaFileSearchTools::findFilesInFolders( folders, fileFilters );
 }
 
 } // namespace RiaEnsembleImportTools
