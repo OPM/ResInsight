@@ -77,6 +77,30 @@ void RiuPlotMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caf::PdmObject* RiuPlotMainWindowTools::firstVisibleAncestorOrThis( const caf::PdmObject* object )
+{
+    if ( RiaGuiApplication::isRunning() )
+    {
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+
+        auto current = const_cast<caf::PdmObject*>( object );
+        while ( current )
+        {
+            if ( mpw->getTreeViewWithItem( current ) )
+            {
+                return current;
+            }
+
+            current = current->firstAncestorOfType<caf::PdmObject>();
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::toggleItemInSelection( const caf::PdmObject* object )
 {
     if ( RiaGuiApplication::isRunning() )
