@@ -85,23 +85,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-namespace caf
-{
-template <>
-void AppEnum<RimEnsembleCurveSet::ParameterSorting>::setUp()
-{
-    addItem( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE, "ABSOLUTE_VALUE", "Absolute Correlation" );
-    addItem( RimEnsembleCurveSet::ParameterSorting::ALPHABETICALLY, "ALPHABETICALLY", "Alphabetically" );
-    setDefault( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE );
-}
-template <>
-void AppEnum<RimEnsembleCurveSet::AppearanceMode>::setUp()
-{
-    addItem( RimEnsembleCurveSet::AppearanceMode::DEFAULT, "DEFAULT", "Default" );
-    addItem( RimEnsembleCurveSet::AppearanceMode::CUSTOM, "CUSTOM", "Custom" );
-    setDefault( RimEnsembleCurveSet::AppearanceMode::DEFAULT );
-}
-} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
@@ -1330,7 +1313,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     caf::PdmUiGroup* statAppearance = statGroup->addNewGroupWithKeyword( "Appearance", "StatisticsAppearance" );
     statAppearance->add( &m_statisticsUseCustomAppearance );
-    if ( m_statisticsUseCustomAppearance() == AppearanceMode::CUSTOM )
+    if ( m_statisticsUseCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::CUSTOM )
     {
         statAppearance->add( &m_statisticsLineStyle );
         statAppearance->add( &m_statisticsPointSymbol );
@@ -1495,7 +1478,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     }
 
     colorsGroup->add( &m_useCustomAppearance );
-    if ( m_useCustomAppearance() == AppearanceMode::CUSTOM )
+    if ( m_useCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::CUSTOM )
     {
         colorsGroup->add( &m_lineStyle );
         colorsGroup->add( &m_pointSymbol );
@@ -2213,7 +2196,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 }
                 curve->setLineThickness( lineThickness );
 
-                if ( m_useCustomAppearance() == AppearanceMode::CUSTOM )
+                if ( m_useCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::CUSTOM )
                 {
                     curve->setLineStyle( m_lineStyle() );
                     curve->setSymbol( m_pointSymbol() );
@@ -2365,7 +2348,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
             curve->setCheckState( isCurvesVisible() );
 
-            if ( m_statisticsUseCustomAppearance() == AppearanceMode::DEFAULT )
+            if ( m_statisticsUseCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::DEFAULT )
             {
                 auto symbol = statisticsCurveSymbolFromAddress( address.summaryAddressY() );
                 curve->setSymbol( symbol );
@@ -2469,17 +2452,18 @@ std::vector<RigEnsembleParameter> RimEnsembleCurveSet::variationSortedEnsemblePa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<RigEnsembleParameter, double>> RimEnsembleCurveSet::ensembleParameters( ParameterSorting sortingMode ) const
+std::vector<std::pair<RigEnsembleParameter, double>>
+    RimEnsembleCurveSet::ensembleParameters( RimCurveAppearanceDefines::ParameterSorting sortingMode ) const
 {
     RimSummaryEnsemble* ensemble = m_yValuesSummaryEnsemble;
     if ( ensemble )
     {
-        if ( sortingMode == ParameterSorting::ABSOLUTE_VALUE )
+        if ( sortingMode == RimCurveAppearanceDefines::ParameterSorting::ABSOLUTE_VALUE )
         {
             return ensemble->correlationSortedEnsembleParameters( summaryAddressY() );
         }
 
-        if ( sortingMode == ParameterSorting::ALPHABETICALLY )
+        if ( sortingMode == RimCurveAppearanceDefines::ParameterSorting::ALPHABETICALLY )
         {
             auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddressY() );
             std::sort( parameters.begin(),

@@ -18,10 +18,7 @@
 
 #pragma once
 
-#include "RimEnsembleCurveSetColorManager.h"
-#include "RimViewWindow.h"
 #include "RimWellLogPlot.h"
-#include "RimWellRftEnsembleCurveSet.h"
 
 #include "RifDataSourceForRftPltQMetaType.h"
 
@@ -30,10 +27,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cvfCollection.h"
 
-#include <QDate>
-#include <QMetaType>
 #include <QPointer>
 
 #include <map>
@@ -55,6 +49,8 @@ class RifDataSourceForRftPlt;
 class RifEclipseRftAddress;
 class RiuDraggableOverlayFrame;
 class RimDataSourceForRftPlt;
+class RiuPlotCurve;
+class RimWellRftEnsembleCurveSet;
 
 namespace cvf
 {
@@ -100,7 +96,7 @@ public:
 
     void rebuildCurves();
 
-protected:
+private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
@@ -112,8 +108,8 @@ protected:
     void setupBeforeSave() override;
     void initAfterRead() override;
     bool useUndoRedoForFieldChanged() override;
+    void deleteViewWidget() override;
 
-private:
     std::map<QString, QStringList> findWellSources();
     void                           updateEditorsFromPreviousSelection();
     void                           setSelectedSourcesFromCurves();
@@ -149,6 +145,8 @@ private:
     std::vector<RimSummaryEnsemble*> selectedEnsembles() const;
     void                             createEnsembleCurveSets();
 
+    void detachAndDeleteLegendCurves();
+
 private:
     friend class RimWellRftEnsembleCurveSet;
 
@@ -171,6 +169,8 @@ private:
     std::map<RifDataSourceForRftPlt, cvf::Color3f>           m_dataSourceColors;
     std::map<QDateTime, RiuPlotCurveSymbol::PointSymbolEnum> m_timeStepSymbols;
     bool                                                     m_isOnLoad;
+
+    std::vector<RiuPlotCurve*> m_legendPlotCurves;
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
     bool                                m_isInitialized = false;
