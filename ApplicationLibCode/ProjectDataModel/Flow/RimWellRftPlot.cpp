@@ -340,6 +340,8 @@ void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSu
 
     createEnsembleCurveSets();
     syncCurvesFromUiSelection();
+
+    m_isInitialized = true;
 }
 
 //--------------------------------------------------------------------------------------------------
