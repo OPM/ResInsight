@@ -858,7 +858,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RiaApplication" );
     if ( isLoggingEnabled )
     {
-        RiaLogging::logElapsedTime( QString( "Project file '%1' loaded" ).arg( projectFileName ), startTime );
+        RiaLogging::logElapsedTime( QString( "Opened project file '%1' " ).arg( projectFileName ), startTime );
     }
 
     return true;
