@@ -20,6 +20,7 @@
 
 #include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
+#include "RiaFileSearchTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaStdStringTools.h"
 #include "RiaStringListSerializer.h"
@@ -717,96 +718,35 @@ QStringList RicRecursiveFileSearchDialog::findMatchingFiles()
 {
     if ( cleanTextFromPathFilterField().isEmpty() ) return QStringList();
 
-    QStringList dirs;
+    auto updateDirSearchStatus = [&]( const QString& text ) -> bool
+    {
+        if ( m_isCancelPressed ) return false;
+        updateStatus( SEARCHING_FOR_DIRS, text );
+        QApplication::processEvents();
+        return true;
+    };
+
+    auto updateFileSearchStatus = [&]( const QString& text ) -> bool
+    {
+        if ( m_isCancelPressed ) return false;
+        updateStatus( SEARCHING_FOR_FILES, text );
+        QApplication::processEvents();
+        return true;
+    };
 
     QString pathFilter = pathFilterWithoutStartSeparator();
     QString rootDir    = rootDirWithEndSeparator();
     if ( rootDir.size() > 1 && rootDir.endsWith( RiaFilePathTools::separator() ) ) rootDir.chop( 1 );
 
-    buildDirectoryListRecursiveSimple( rootDir, pathFilter, &dirs );
+    QStringList matchingFolders;
+    RiaFileSearchTools::findMatchingFoldersRecursively( rootDir, pathFilter, matchingFolders, updateDirSearchStatus );
+    if ( m_isCancelPressed ) return {};
 
-    return findFilesInDirs( dirs );
-}
+    QStringList fileNameFilters = createFileNameFilterList();
+    auto        files           = RiaFileSearchTools::findFilesInFolders( matchingFolders, fileNameFilters, updateFileSearchStatus );
+    if ( m_isCancelPressed ) return {};
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicRecursiveFileSearchDialog::buildDirectoryListRecursiveSimple( const QString& currentDirFullPathNoEndSeparator,
-                                                                      const QString& currentPathFilterNoEndSeparator,
-                                                                      QStringList*   accumulatedDirs )
-{
-    QString currDir    = currentDirFullPathNoEndSeparator;
-    QString pathFilter = currentPathFilterNoEndSeparator;
-
-    if ( m_isCancelPressed )
-    {
-        accumulatedDirs->clear();
-        return;
-    }
-
-    updateStatus( SEARCHING_FOR_DIRS, currDir );
-    QApplication::processEvents();
-
-    if ( pathFilter.isEmpty() )
-    {
-        accumulatedDirs->push_back( currentDirFullPathNoEndSeparator );
-        return;
-    }
-
-    QStringList pathFilterPartList = pathFilter.split( RiaFilePathTools::separator() );
-    QDir        qdir( currDir, pathFilterPartList[0], QDir::NoSort, QDir::Dirs | QDir::NoDotAndDotDot );
-    QStringList subDirs = qdir.entryList();
-
-    if ( pathFilterPartList.size() == 1 && pathFilterPartList[0] == "*" )
-    {
-        accumulatedDirs->push_back( currDir );
-    }
-
-    for ( const QString& subDir : subDirs )
-    {
-        QString fullPath = qdir.absoluteFilePath( subDir );
-        QString nextPathFilter;
-
-        if ( pathFilterPartList.size() == 1 && pathFilterPartList[0] == "*" )
-        {
-            nextPathFilter = "*";
-        }
-        else
-        {
-            auto pf = pathFilterPartList;
-            pf.removeFirst();
-            nextPathFilter = pf.join( RiaFilePathTools::separator() );
-        }
-
-        buildDirectoryListRecursiveSimple( fullPath, nextPathFilter, accumulatedDirs );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList RicRecursiveFileSearchDialog::findFilesInDirs( const QStringList& dirs )
-{
-    QStringList allFiles;
-    QStringList filters = createFileNameFilterList();
-
-    for ( const auto& dir : dirs )
-    {
-        QDir        qdir( dir );
-        QStringList files = qdir.entryList( filters, QDir::Files );
-
-        if ( m_isCancelPressed ) return QStringList();
-
-        updateStatus( SEARCHING_FOR_FILES, qdir.absolutePath() );
-        QApplication::processEvents();
-
-        for ( QString file : files )
-        {
-            QString absFilePath = qdir.absoluteFilePath( file );
-            allFiles.append( absFilePath );
-        }
-    }
-    return allFiles;
+    return files;
 }
 
 //--------------------------------------------------------------------------------------------------
