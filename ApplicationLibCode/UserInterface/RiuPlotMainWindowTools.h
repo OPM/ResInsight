@@ -36,6 +36,9 @@ public:
     static void selectOrToggleObject( const caf::PdmObject* object, bool toggle );
     static void refreshToolbars();
 
+    // Returns the first visible ancestor of the object, or the object itself if it is visible.
+    static const caf::PdmObject* firstVisibleAncestorOrThis( const caf::PdmObject* object );
+
     // Use this function to select (and expand) an object in the project tree and update tool bars. Use the second
     // parameter to expand a different object than the object to be selected.
     static void onObjectAppended( const caf::PdmObject* objectToSelect, const caf::PdmObject* objectToExpand = nullptr );

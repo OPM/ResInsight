@@ -574,7 +574,10 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
              ( mouseEvent->button() == Qt::LeftButton || mouseEvent->button() == Qt::RightButton ) && m_plotDefinition )
         {
             // Select the plot clicked at in the Project Tree for both left and right mouse button clicks
-            RiuPlotMainWindowTools::selectAsCurrentItem( m_plotDefinition );
+            // If we have plots contained in other plots, select the first visible plot item in the hierarchy
+
+            auto firstVisibleItem = RiuPlotMainWindowTools::firstVisibleAncestorOrThis( m_plotDefinition );
+            RiuPlotMainWindowTools::selectAsCurrentItem( firstVisibleItem );
         }
 
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
