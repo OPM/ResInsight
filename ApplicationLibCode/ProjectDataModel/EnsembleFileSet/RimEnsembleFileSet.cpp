@@ -142,16 +142,12 @@ void RimEnsembleFileSet::findAndSetPathPatternAndRangeString( const QStringList&
     m_pathPattern                     = noExtension;
     m_realizationNumbersReadFromFiles = rangeString;
 
-    auto createdPaths = RiaEnsembleImportTools::createPathsFromPattern( pattern, rangeString, internal::placeholderString() );
-    if ( createdPaths.size() == filePaths.size() )
-    {
-        // If incoming files count matches the generated file count, use '*' to represent all
-        m_realizationSubSet = internal::placeholderString();
-    }
-    else
-    {
-        m_realizationSubSet = rangeString;
-    }
+    // When all files in an ensemble are selected, we could get the same behaviour if set the range string to a wildcard. Avoid this now, as
+    // the performance is worse using a wildcard.
+    // https://github.com/OPM/ResInsight/issues/12660
+    // https://github.com/OPM/ResInsight/issues/12663
+
+    m_realizationSubSet = rangeString;
 
     sendFileSetChangedSignal();
 }
