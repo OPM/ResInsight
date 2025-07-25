@@ -21,10 +21,15 @@
 #include "RiaStdStringTools.h"
 
 #include <filesystem>
-#include <spanstream>
-#include <sstream>
+#include <version>
 #include <string>
 #include <vector>
+#if __cpp_lib_spanstream >= 202106L
+#include <spanstream>
+#else
+#include <sstream>
+#endif
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -180,7 +185,11 @@ std::vector<RifVtkImportUtil::PvdDataset> RifVtkImportUtil::parsePvdDatasets( co
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RifVtkImportUtil::parseVec3ds( std::string_view text )
 {
+#if __cpp_lib_spanstream >= 202106L
     std::ispanstream iss( text );
+#else
+    std::istringstream iss( (std::string( text )) );
+#endif
 
     std::vector<cvf::Vec3d> vecs;
 
@@ -204,7 +213,11 @@ std::vector<cvf::Vec3d> RifVtkImportUtil::parseVec3ds( std::string_view text )
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RifVtkImportUtil::parseVec3fs( std::string_view text )
 {
+#if __cpp_lib_spanstream >= 202106L
     std::ispanstream iss( text );
+#else
+    std::istringstream iss( (std::string( text )) );
+#endif
 
     std::vector<cvf::Vec3f> vecs;
 

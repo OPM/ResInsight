@@ -30,11 +30,16 @@
 
 #include <QDir>
 
+#include <version>
+
+#if __cpp_lib_stacktrace >= 202011L
 #include <stacktrace>
+#endif
 
 namespace internal
 {
 // Custom formatter for stacktrace
+#if __cpp_lib_stacktrace >= 202011L
 std::string formatStacktrace( const std::stacktrace& st )
 {
     std::stringstream ss;
@@ -46,6 +51,7 @@ std::string formatStacktrace( const std::stacktrace& st )
     }
     return ss.str();
 }
+#endif
 } // namespace internal
 
 //--------------------------------------------------------------------------------------------------
@@ -67,10 +73,11 @@ void manageSegFailure( int signalCode )
         {
             fileLogger->error( str.toStdString().data() );
 
+#if __cpp_lib_stacktrace >= 202011L
             auto        st      = std::stacktrace::current();
             std::string message = "Stack trace:\n" + internal::formatStacktrace( st );
             logger->error( message.data() );
-
+#endif
             fileLogger->flush();
         }
     }

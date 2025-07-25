@@ -33,10 +33,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17.0)
     message(
       FATAL_ERROR
-        "Minimum supported version is Clang 19, detected version: ${CMAKE_CXX_COMPILER_VERSION}"
+        "Minimum supported version is Clang 17, detected version: ${CMAKE_CXX_COMPILER_VERSION}"
     )
   endif()
 endif()
@@ -426,34 +426,43 @@ endif()
 # OpenVDS seismic file access
 # ##############################################################################
 
-message(STATUS "Starting download of external library OpenVDS ...")
-
 if(MSVC)
+  message(STATUS "Starting download of external library OpenVDS ...")
   FetchContent_Declare(
     openvds
     URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-win.zip
   )
-else()
+elseif(LINUX)
+  message(STATUS "Starting download of external library OpenVDS ...")
   FetchContent_Declare(
     openvds
     URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-manylinux_2014.tar.gz
   )
+else()
+  message(
+    WARNING
+      "OpenVDS is not supported on this platform. Compiling without OpenVDS support."
+  )
 endif()
 
-FetchContent_MakeAvailable(openvds)
-message(STATUS "... completed download of external library OpenVDS")
+if(MSVC OR LINUX)
+  FetchContent_MakeAvailable(openvds)
+  message(STATUS "... completed download of external library OpenVDS")
 
-set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
-message(STATUS "Using OpenVDS api from : ${RESINSIGHT_OPENVDS_API_DIR}")
+  set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
+  message(STATUS "Using OpenVDS api from : ${RESINSIGHT_OPENVDS_API_DIR}")
+endif()
 
 if(MSVC)
   list(APPEND EXTERNAL_LINK_LIBRARIES
        ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/openvds.lib
   )
-else()
+  add_compile_definitions(HAVE_OPENVDS)
+elseif(LINUX)
   list(APPEND EXTERNAL_LINK_LIBRARIES
        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
   )
+  add_compile_definitions(HAVE_OPENVDS)
 endif()
 
 # ##############################################################################
@@ -785,8 +794,7 @@ if(MSVC)
     endforeach(HDF5_DLL_NAME)
   endif()
 
-else()
-  # Linux
+elseif(LINUX)
 
   # OpenVDS lib files
   list(APPEND RI_FILENAMES ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport)
@@ -805,7 +813,7 @@ else()
          ${RESINSIGHT_OPENVDS_API_DIR}/lib64/${OPENVDS_LIB_NAME}
     )
   endforeach(OPENVDS_LIB_NAME)
-endif(MSVC)
+endif()
 
 # ##############################################################################
 # Unity Build
@@ -1039,7 +1047,7 @@ if(RESINSIGHT_BUNDLE_TESTMODELS)
   )
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(Linux)
   set(OPENVDS_SHARED_LIB_FILES
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
