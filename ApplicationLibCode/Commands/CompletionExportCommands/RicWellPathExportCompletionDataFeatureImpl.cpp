@@ -493,6 +493,16 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     {
         double transmissibility = completion.transmissibility();
 
+        if ( transmissibility < 0.0 )
+        {
+            QString errorMessage = QString( "Negative transmissibility value (%1) in cell %3" )
+                                       .arg( transmissibility )
+                                       .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
+            RiaLogging::error( errorMessage );
+            resultCompletion.addMetadata( "ERROR", errorMessage );
+            continue;
+        }
+
         diameterCalculator.addValueAndWeight( completion.diameter(), transmissibility );
         skinFactorCalculator.addValueAndWeight( completion.skinFactor(), transmissibility );
 
@@ -515,6 +525,9 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
 
         for ( const RigCompletionData& completion : completions )
         {
+            // Error is reported in the loop above, so we can skip this completion
+            if ( completion.transmissibility() < 0.0 ) continue;
+
             resultCompletion.m_metadata.reserve( resultCompletion.m_metadata.size() + completion.m_metadata.size() );
             resultCompletion.m_metadata.insert( resultCompletion.m_metadata.end(), completion.m_metadata.begin(), completion.m_metadata.end() );
 
