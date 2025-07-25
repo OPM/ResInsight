@@ -103,6 +103,8 @@ void RimCsvSummaryCase::createSummaryReaderInterface()
             }
         }
     }
+
+    if ( m_summaryReader ) m_summaryReader->createAndSetAddresses();
 }
 
 //--------------------------------------------------------------------------------------------------
