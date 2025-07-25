@@ -375,6 +375,8 @@ void RimDeltaSummaryCase::createSummaryReaderInterface()
 
         if ( m_summaryCase1->summaryReader() )
         {
+            m_summaryCase1->summaryReader()->createAddressesIfRequired();
+
             auto adr = m_summaryCase1->summaryReader()->allResultAddresses();
             m_allResultAddresses.insert( adr.begin(), adr.end() );
         }
@@ -388,6 +390,8 @@ void RimDeltaSummaryCase::createSummaryReaderInterface()
 
         if ( m_summaryCase2->summaryReader() )
         {
+            m_summaryCase2->summaryReader()->createAddressesIfRequired();
+
             auto adr = m_summaryCase2->summaryReader()->allResultAddresses();
             m_allResultAddresses.insert( adr.begin(), adr.end() );
         }

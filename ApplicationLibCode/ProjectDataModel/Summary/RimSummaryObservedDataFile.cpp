@@ -46,6 +46,10 @@ void RimSummaryObservedDataFile::createSummaryReaderInterface()
     {
         m_summaryReader = nullptr;
     }
+    else
+    {
+        m_summaryReader->createAndSetAddresses();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
