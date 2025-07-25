@@ -140,6 +140,21 @@ void RimSummaryMultiPlotCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                                                       std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_summaryMultiPlots )
+    {
+        for ( auto& plot : m_summaryMultiPlots )
+        {
+            plot->updateMdiWindowVisibility();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const
 {
     for ( RimSummaryMultiPlot* multiPlot : multiPlots() )

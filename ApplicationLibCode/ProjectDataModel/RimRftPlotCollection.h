@@ -73,6 +73,9 @@ public:
     size_t                             plotCount() const override;
 
 private:
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
+
+private:
     caf::PdmChildArrayField<RimWellLogPlot*>    m_rftPlots;
     cvf::Collection<RigEclipseWellLogExtractor> m_extractors;
     cvf::Collection<RigGeoMechWellLogExtractor> m_geomExtractors;

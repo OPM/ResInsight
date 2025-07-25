@@ -52,13 +52,13 @@ public:
 
     void updateSummaryNameHasChanged();
 
-protected:
+private:
+    void initAfterRead() override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
     void onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate );
     void onRefreshTree( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotRequesting );
-
-    void initAfterRead() override;
 
 private:
     caf::PdmChildArrayField<RimSummaryMultiPlot*> m_summaryMultiPlots;

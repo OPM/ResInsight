@@ -233,6 +233,24 @@ size_t RimRftPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRftPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_rftPlots )
+    {
+        for ( auto plot : m_rftPlots )
+        {
+            plot->updateMdiWindowVisibility();
+            if ( plot->showWindow() )
+            {
+                plot->loadDataAndUpdate();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRftPlotCollection::addPlot( gsl::not_null<RimWellLogPlot*> newPlot )
 {
     m_rftPlots.push_back( newPlot );
