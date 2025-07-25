@@ -23,16 +23,13 @@
 #include "Well/RigWellPath.h"
 
 #include "RimModeledWellPath.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
-#include "RimWellPathTarget.h"
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cafSelectionManager.h"
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
@@ -56,42 +53,21 @@ void RicDuplicateWellPathFeature::onActionTriggered( bool isChecked )
     auto sourceWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimModeledWellPath>();
     if ( !sourceWellPath ) return;
 
-    RimProject* project = RimProject::current();
-    if ( project && RimProject::current()->activeOilField() )
+    RimProject*            project            = RimProject::current();
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( project && wellPathCollection )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
-        {
-            auto newModeledWellPath = new RimModeledWellPath();
+        auto   newModeledWellPath    = sourceWellPath->copyObject<RimModeledWellPath>();
+        size_t modelledWellpathCount = wellPathCollection->modelledWellPathCount();
+        newModeledWellPath->setName( "Well-" + QString::number( modelledWellpathCount + 1 ) );
+        newModeledWellPath->setWellPathColor( RiaColorTables::editableWellPathsPaletteColors().cycledColor3f( modelledWellpathCount ) );
 
-            newModeledWellPath->setUnitSystem( project->commonUnitSystemForAllCases() );
+        wellPathCollection->addWellPaths( { newModeledWellPath } );
+        newModeledWellPath->createWellPathGeometry();
 
-            size_t modelledWellpathCount = wellPathCollection->modelledWellPathCount();
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
 
-            newModeledWellPath->setName( "Well-" + QString::number( modelledWellpathCount + 1 ) );
-            newModeledWellPath->setWellPathColor( RiaColorTables::editableWellPathsPaletteColors().cycledColor3f( modelledWellpathCount ) );
-
-            wellPathCollection->addWellPaths( { newModeledWellPath } );
-            wellPathCollection->uiCapability()->updateConnectedEditors();
-
-            if ( sourceWellPath->wellPathGeometry() && sourceWellPath->wellPathGeometry()->measuredDepths().size() > 2 )
-            {
-                auto destinationGeometryDef = newModeledWellPath->geometryDefinition();
-
-                std::vector<cvf::Vec3d> targetCoordinates;
-
-                for ( auto target : sourceWellPath->geometryDefinition()->activeWellTargets( false ) )
-                {
-                    targetCoordinates.push_back( target->targetPointXYZ() );
-                }
-                destinationGeometryDef->createAndInsertTargets( targetCoordinates );
-                newModeledWellPath->createWellPathGeometry();
-            }
-
-            project->scheduleCreateDisplayModelAndRedrawAllViews();
-
-            Riu3DMainWindowTools::selectAsCurrentItem( newModeledWellPath->geometryDefinition() );
-        }
+        Riu3DMainWindowTools::selectAsCurrentItem( newModeledWellPath->geometryDefinition() );
     }
 }
 
