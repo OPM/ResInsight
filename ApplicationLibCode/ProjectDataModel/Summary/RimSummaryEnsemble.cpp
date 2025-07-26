@@ -96,8 +96,6 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     m_ensembleDescription.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_ensembleDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_ensembleDescription.xmlCapability()->disableIO();
-
-    m_commonAddressCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +137,7 @@ void RimSummaryEnsemble::removeCase( RimSummaryCase* summaryCase, bool notifyCha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
+void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase, bool notifyChange )
 {
     summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
 
@@ -156,7 +154,7 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
         if ( !derivedEnsemble ) continue;
 
         derivedEnsemble->createDerivedEnsembleCases();
-        derivedEnsemble->updateReferringCurveSetsZoomAll();
+        if ( notifyChange ) derivedEnsemble->updateReferringCurveSetsZoomAll();
     }
 
     if ( m_isEnsemble )
@@ -165,7 +163,7 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase )
         calculateEnsembleParametersIntersectionHash();
     }
 
-    updateReferringCurveSetsZoomAll();
+    if ( notifyChange ) updateReferringCurveSetsZoomAll();
 
     clearChildNodes();
 }
@@ -191,7 +189,7 @@ RimSummaryCase* RimSummaryEnsemble::firstSummaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summaryCases )
+void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summaryCases, bool notifyChange )
 {
     m_cases.deleteChildrenAsync();
 
@@ -215,7 +213,7 @@ void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summa
     if ( lastCase )
     {
         // Add the last case, and update connected plots
-        addCase( lastCase );
+        addCase( lastCase, notifyChange );
     }
 }
 
@@ -630,7 +628,7 @@ RigEnsembleParameter RimSummaryEnsemble::ensembleParameter( const QString& param
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::calculateEnsembleParametersIntersectionHash()
 {
-    m_commonAddressCount = RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( allSummaryCases() );
+    RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( allSummaryCases() );
 }
 
 //--------------------------------------------------------------------------------------------------

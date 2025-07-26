@@ -54,7 +54,7 @@ private:
     void onFileSetChanged( const caf::SignalEmitter* emitter );
     void onFileSetNameChanged( const caf::SignalEmitter* emitter );
 
-    void createSummaryCasesFromEnsembleFileSet();
+    void createSummaryCasesFromEnsembleFileSet( bool notifyChange );
     void connectSignals();
 
 private:

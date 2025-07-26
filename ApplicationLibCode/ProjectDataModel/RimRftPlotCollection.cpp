@@ -25,6 +25,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
+#include "RimTools.h"
 #include "RimWellLogPlot.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -228,6 +229,17 @@ void RimRftPlotCollection::loadDataAndUpdateAllPlots()
 size_t RimRftPlotCollection::plotCount() const
 {
     return m_rftPlots.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_rftPlots )
+    {
+        RimTools::updateViewWindowContent( updatedObjects );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

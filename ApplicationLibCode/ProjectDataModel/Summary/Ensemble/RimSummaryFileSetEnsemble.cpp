@@ -129,7 +129,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryFileSetEnsemble::calculateValueOptions( 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryFileSetEnsemble::onFileSetChanged( const caf::SignalEmitter* emitter )
 {
-    createSummaryCasesFromEnsembleFileSet();
+    bool notifyChange = true;
+    createSummaryCasesFromEnsembleFileSet( notifyChange );
     RiaSummaryTools::updateConnectedPlots( this );
     buildChildNodes();
     updateAllRequiredEditors();
@@ -146,7 +147,7 @@ void RimSummaryFileSetEnsemble::onFileSetNameChanged( const caf::SignalEmitter* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet()
+void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet( bool notifyChange )
 {
     m_cases.deleteChildrenAsync();
 
@@ -168,7 +169,7 @@ void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet()
             return;
         }
 
-        replaceCases( newCases );
+        replaceCases( newCases, notifyChange );
 
         // Update name of cases and ensemble after all cases are added
         for ( auto summaryCase : newCases )
@@ -230,7 +231,8 @@ void RimSummaryFileSetEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* cha
     if ( changedField == &m_ensembleFileSet )
     {
         connectSignals();
-        createSummaryCasesFromEnsembleFileSet();
+        bool notifyChange = true;
+        createSummaryCasesFromEnsembleFileSet( notifyChange );
         RiaSummaryTools::updateConnectedPlots( this );
         caseNameChanged.send();
     }
@@ -243,7 +245,8 @@ void RimSummaryFileSetEnsemble::onLoadDataAndUpdate()
 {
     if ( m_cases.empty() )
     {
-        createSummaryCasesFromEnsembleFileSet();
+        bool notifyChange = false;
+        createSummaryCasesFromEnsembleFileSet( notifyChange );
     }
 
     RimSummaryEnsemble::onLoadDataAndUpdate();
