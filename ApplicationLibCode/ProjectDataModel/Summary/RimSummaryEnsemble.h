@@ -57,8 +57,8 @@ public:
     ~RimSummaryEnsemble() override;
 
     void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
-    void addCase( RimSummaryCase* summaryCase );
-    void replaceCases( const std::vector<RimSummaryCase*>& summaryCases );
+    void addCase( RimSummaryCase* summaryCase, bool notifyChange = true );
+    void replaceCases( const std::vector<RimSummaryCase*>& summaryCases, bool notifyChange = true );
 
     virtual void reloadCases();
 
