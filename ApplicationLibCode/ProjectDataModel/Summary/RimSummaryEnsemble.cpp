@@ -96,8 +96,6 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     m_ensembleDescription.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_ensembleDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_ensembleDescription.xmlCapability()->disableIO();
-
-    m_commonAddressCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -630,7 +628,7 @@ RigEnsembleParameter RimSummaryEnsemble::ensembleParameter( const QString& param
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::calculateEnsembleParametersIntersectionHash()
 {
-    m_commonAddressCount = RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( allSummaryCases() );
+    RimSummaryEnsembleTools::calculateEnsembleParametersIntersectionHash( allSummaryCases() );
 }
 
 //--------------------------------------------------------------------------------------------------

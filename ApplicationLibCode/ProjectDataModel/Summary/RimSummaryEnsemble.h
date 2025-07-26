@@ -169,8 +169,6 @@ private:
 
     caf::PdmField<int> m_ensembleId;
 
-    size_t m_commonAddressCount; // if different address count among cases, set to 0
-
     mutable std::vector<RigEnsembleParameter>  m_cachedSortedEnsembleParameters;
     std::unique_ptr<RiaSummaryAddressAnalyzer> m_analyzer;
 
