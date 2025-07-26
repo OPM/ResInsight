@@ -86,5 +86,5 @@ public:
 
     static void optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>& wellPaths, QList<caf::PdmOptionItemInfo>* options );
 
-    static void updatePlotContent( std::vector<caf::PdmObjectHandle*>& updatedObjects );
+    static void updateViewWindowContent( std::vector<caf::PdmObjectHandle*>& objects );
 };

@@ -146,7 +146,7 @@ void RimSummaryMultiPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHa
 {
     if ( childArray == &m_summaryMultiPlots )
     {
-        RimTools::updatePlotContent( updatedObjects );
+        RimTools::updateViewWindowContent( updatedObjects );
     }
 }
 

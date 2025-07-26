@@ -238,7 +238,7 @@ void RimRftPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* chi
 {
     if ( childArray == &m_rftPlots )
     {
-        RimTools::updatePlotContent( updatedObjects );
+        RimTools::updateViewWindowContent( updatedObjects );
     }
 }
 

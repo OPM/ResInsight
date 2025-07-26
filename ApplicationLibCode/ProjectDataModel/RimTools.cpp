@@ -640,21 +640,22 @@ void RimTools::optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// This function is intended to be called when multiple views are toggled or displayed. Can be called from a plot collection in
+/// onChildrenUpdated()
 //--------------------------------------------------------------------------------------------------
-void RimTools::updatePlotContent( std::vector<caf::PdmObjectHandle*>& updatedObjects )
+void RimTools::updateViewWindowContent( std::vector<caf::PdmObjectHandle*>& objects )
 {
-    for ( auto& obj : updatedObjects )
+    for ( auto& obj : objects )
     {
-        if ( auto plot = dynamic_cast<RimViewWindow*>( obj ) )
+        if ( auto viewWindow = dynamic_cast<RimViewWindow*>( obj ) )
         {
-            if ( plot->showWindow() )
+            if ( viewWindow->showWindow() )
             {
-                plot->loadDataAndUpdate();
+                viewWindow->loadDataAndUpdate();
             }
             else
             {
-                plot->updateMdiWindowVisibility();
+                viewWindow->updateMdiWindowVisibility();
             }
         }
     }
