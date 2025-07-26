@@ -145,9 +145,19 @@ void RimSummaryMultiPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHa
 {
     if ( childArray == &m_summaryMultiPlots )
     {
-        for ( auto& plot : m_summaryMultiPlots )
+        for ( auto& in : updatedObjects )
         {
-            plot->updateMdiWindowVisibility();
+            if ( auto plot = dynamic_cast<RimViewWindow*>( in ) )
+            {
+                if ( plot->showWindow() )
+                {
+                    plot->loadDataAndUpdate();
+                }
+                else
+                {
+                    plot->updateMdiWindowVisibility();
+                }
+            }
         }
     }
 }
