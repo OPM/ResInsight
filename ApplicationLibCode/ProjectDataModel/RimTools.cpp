@@ -40,6 +40,7 @@
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicDifferenceData.h"
 #include "RimSurfaceCollection.h"
+#include "RimViewWindow.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -635,6 +636,27 @@ void RimTools::optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>
     for ( auto wellPath : wellPaths )
     {
         options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::updatePlotContent( std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    for ( auto& obj : updatedObjects )
+    {
+        if ( auto plot = dynamic_cast<RimViewWindow*>( obj ) )
+        {
+            if ( plot->showWindow() )
+            {
+                plot->loadDataAndUpdate();
+            }
+            else
+            {
+                plot->updateMdiWindowVisibility();
+            }
+        }
     }
 }
 

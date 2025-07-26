@@ -20,6 +20,7 @@
 #include "RimProject.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimTools.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -145,20 +146,7 @@ void RimSummaryMultiPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHa
 {
     if ( childArray == &m_summaryMultiPlots )
     {
-        for ( auto& in : updatedObjects )
-        {
-            if ( auto plot = dynamic_cast<RimViewWindow*>( in ) )
-            {
-                if ( plot->showWindow() )
-                {
-                    plot->loadDataAndUpdate();
-                }
-                else
-                {
-                    plot->updateMdiWindowVisibility();
-                }
-            }
-        }
+        RimTools::updatePlotContent( updatedObjects );
     }
 }
 

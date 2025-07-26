@@ -25,6 +25,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
+#include "RimTools.h"
 #include "RimWellLogPlot.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -237,14 +238,7 @@ void RimRftPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* chi
 {
     if ( childArray == &m_rftPlots )
     {
-        for ( auto plot : m_rftPlots )
-        {
-            plot->updateMdiWindowVisibility();
-            if ( plot->showWindow() )
-            {
-                plot->loadDataAndUpdate();
-            }
-        }
+        RimTools::updatePlotContent( updatedObjects );
     }
 }
 
