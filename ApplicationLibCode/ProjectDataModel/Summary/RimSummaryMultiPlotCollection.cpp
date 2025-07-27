@@ -20,6 +20,7 @@
 #include "RimProject.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimTools.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -135,6 +136,18 @@ void RimSummaryMultiPlotCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering
         uiTreeOrdering.add( plot );
     }
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                                                       std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_summaryMultiPlots )
+    {
+        RimTools::updateViewWindowContent( updatedObjects );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

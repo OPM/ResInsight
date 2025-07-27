@@ -32,7 +32,8 @@ class QDateTime;
 namespace caf
 {
 class PdmOptionItemInfo;
-}
+class PdmObjectHandle;
+} // namespace caf
 
 class RimGeoMechCase;
 class RimEclipseCase;
@@ -84,4 +85,6 @@ public:
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 
     static void optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>& wellPaths, QList<caf::PdmOptionItemInfo>* options );
+
+    static void updateViewWindowContent( std::vector<caf::PdmObjectHandle*>& objects );
 };

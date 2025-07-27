@@ -40,6 +40,7 @@
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicDifferenceData.h"
 #include "RimSurfaceCollection.h"
+#include "RimViewWindow.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -635,6 +636,28 @@ void RimTools::optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>
     for ( auto wellPath : wellPaths )
     {
         options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// This function is intended to be called when multiple views are toggled or displayed. Can be called from a plot collection in
+/// onChildrenUpdated()
+//--------------------------------------------------------------------------------------------------
+void RimTools::updateViewWindowContent( std::vector<caf::PdmObjectHandle*>& objects )
+{
+    for ( auto& obj : objects )
+    {
+        if ( auto viewWindow = dynamic_cast<RimViewWindow*>( obj ) )
+        {
+            if ( viewWindow->showWindow() )
+            {
+                viewWindow->loadDataAndUpdate();
+            }
+            else
+            {
+                viewWindow->updateMdiWindowVisibility();
+            }
+        }
     }
 }
 
