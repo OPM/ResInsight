@@ -149,20 +149,20 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
         auto [ownerOfChildArrayField, childArrayFieldHandle] = RicToggleItemsFeatureImpl::findOwnerAndChildArrayField( fieldsToUpdate.front() );
         if ( ownerOfChildArrayField && childArrayFieldHandle )
         {
-            std::vector<caf::PdmObjectHandle*> objs;
+            std::vector<caf::PdmObjectHandle*> updatedObjects;
 
-            for ( auto f : fieldsToUpdate )
+            for ( const auto& field : fieldsToUpdate )
             {
                 // Skip the last field, since it is already handled
-                if ( f == lastField ) continue;
+                if ( field == lastField ) continue;
 
-                if ( auto obj = f->ownerObject() )
+                if ( const auto& obj = field->ownerObject() )
                 {
-                    objs.push_back( obj );
+                    updatedObjects.push_back( obj );
                 }
             }
 
-            ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
+            ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, updatedObjects );
         }
     }
 }
