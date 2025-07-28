@@ -70,21 +70,22 @@ void PdmDocument::setFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::readFile()
+std::vector<QString> PdmDocument::readFile( const std::vector<PdmDeprecation>& deprecations )
 {
     QFile xmlFile( m_fileName );
-    if ( !xmlFile.open( QIODevice::ReadOnly | QIODevice::Text ) ) return;
+    if ( !xmlFile.open( QIODevice::ReadOnly | QIODevice::Text ) ) return {};
 
-    readFile( &xmlFile );
+    return readFile( &xmlFile, deprecations );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::readFile( QIODevice* xmlFile )
+std::vector<QString> PdmDocument::readFile( QIODevice* xmlFile, const std::vector<PdmDeprecation>& deprecations )
 {
     QXmlStreamReader xmlStream( xmlFile );
 
+    std::vector<QString> deprecationMessages;
     while ( !xmlStream.atEnd() )
     {
         xmlStream.readNext();
@@ -92,11 +93,17 @@ void PdmDocument::readFile( QIODevice* xmlFile )
         {
             if ( !matchesClassKeyword( xmlStream.name().toString() ) )
             {
-                return;
+                return deprecationMessages;
             }
-            readFields( xmlStream, PdmDefaultObjectFactory::instance(), false );
+            auto deprecationMessagesForField =
+                readFields( xmlStream, PdmDefaultObjectFactory::instance(), false, deprecations );
+            deprecationMessages.insert( deprecationMessages.end(),
+                                        deprecationMessagesForField.begin(),
+                                        deprecationMessagesForField.end() );
         }
     }
+
+    return deprecationMessages;
 }
 
 //--------------------------------------------------------------------------------------------------

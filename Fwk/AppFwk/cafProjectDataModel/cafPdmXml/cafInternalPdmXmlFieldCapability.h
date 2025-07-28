@@ -30,9 +30,11 @@ public:
 
     // Xml Serializing
 public:
-    void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-    bool resolveReferences() override;
+    std::vector<QString> readFieldData( QXmlStreamReader&                       xmlStream,
+                                        PdmObjectFactory*                       objectFactory,
+                                        const std::vector<caf::PdmDeprecation>& deprecations = {} ) override;
+    void                 writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+    bool                 resolveReferences() override;
 
     bool isVectorField() const override;
 
@@ -59,10 +61,12 @@ public:
 
     // Xml Serializing
 public:
-    void    readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
-    void    writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-    bool    resolveReferences() override;
-    QString referenceString() const override;
+    std::vector<QString> readFieldData( QXmlStreamReader&                       xmlStream,
+                                        PdmObjectFactory*                       objectFactoryconst,
+                                        const std::vector<caf::PdmDeprecation>& deprecations = {} ) override;
+    void                 writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+    bool                 resolveReferences() override;
+    QString              referenceString() const override;
 
 private:
     FieldType* m_field;
@@ -90,10 +94,12 @@ public:
 
     // Xml Serializing
 public:
-    void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-    bool resolveReferences() override;
-    bool isVectorField() const override;
+    std::vector<QString> readFieldData( QXmlStreamReader&                       xmlStream,
+                                        PdmObjectFactory*                       objectFactory,
+                                        const std::vector<caf::PdmDeprecation>& deprecations = {} ) override;
+    void                 writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+    bool                 resolveReferences() override;
+    bool                 isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -120,9 +126,11 @@ public:
 
     // Xml Serializing
 public:
-    void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-    bool resolveReferences() override;
+    std::vector<QString> readFieldData( QXmlStreamReader&                       xmlStream,
+                                        PdmObjectFactory*                       objectFactory,
+                                        const std::vector<caf::PdmDeprecation>& deprecations = {} ) override;
+    void                 writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+    bool                 resolveReferences() override;
 
 private:
     FieldType* m_field;
@@ -146,10 +154,12 @@ public:
 
     // Xml Serializing
 public:
-    void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-    bool resolveReferences() override;
-    bool isVectorField() const override;
+    std::vector<QString> readFieldData( QXmlStreamReader&                       xmlStream,
+                                        PdmObjectFactory*                       objectFactory,
+                                        const std::vector<caf::PdmDeprecation>& deprecations = {} ) override;
+    void                 writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+    bool                 resolveReferences() override;
+    bool                 isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -174,10 +184,12 @@ public:
 
     // Xml Serializing
 public:
-    void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
-    void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
-    bool resolveReferences() override;
-    bool isVectorField() const override;
+    std::vector<QString> readFieldData( QXmlStreamReader&                       xmlStream,
+                                        PdmObjectFactory*                       objectFactory,
+                                        const std::vector<caf::PdmDeprecation>& deprecations = {} ) override;
+    void                 writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+    bool                 resolveReferences() override;
+    bool                 isVectorField() const override;
 
 private:
     FieldType* m_field;
