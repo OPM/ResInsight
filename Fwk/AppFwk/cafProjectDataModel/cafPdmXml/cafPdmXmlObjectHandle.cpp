@@ -42,8 +42,12 @@ PdmXmlObjectHandle* xmlObj( PdmObjectHandle* obj )
 /// This makes attribute based field storage possible.
 /// Leaves the xmlStream pointing to the EndElement of the PdmObject.
 //--------------------------------------------------------------------------------------------------
-void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory, bool isCopyOperation )
+std::vector<QString> PdmXmlObjectHandle::readFields( QXmlStreamReader&                  xmlStream,
+                                                     PdmObjectFactory*                  objectFactory,
+                                                     bool                               isCopyOperation,
+                                                     const std::vector<PdmDeprecation>& deprecations )
 {
+    std::vector<QString>        deprecationMessages;
     bool                        isObjectFinished = false;
     QXmlStreamReader::TokenType type;
     while ( !isObjectFinished )
@@ -87,7 +91,11 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                         // After reading, the xmlStream is supposed to point to the first token after the field
                         // content. (typically an "endElement")
                         xmlStream.readNext();
-                        xmlFieldHandle->readFieldData( xmlStream, objectFactory );
+                        std::vector<QString> deprecationMessagesForField =
+                            xmlFieldHandle->readFieldData( xmlStream, objectFactory, deprecations );
+                        deprecationMessages.insert( deprecationMessages.end(),
+                                                    deprecationMessagesForField.begin(),
+                                                    deprecationMessagesForField.end() );
                     }
                     else
                     {
@@ -99,10 +107,28 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                     // Debug text is commented out, as this code is relatively often reached. Consider a new logging
                     // concept to receive this information
                     //
-                    // std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Could not find a field with
-                    // name "
-                    // << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data()
-                    // << std::endl;
+                    // std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Could not find a field with name "
+                    //           << name.toLatin1().data()
+                    //           << " in the current object : " << classKeyword().toLatin1().data() << std::endl;
+
+                    auto findDeprecation = []( const std::vector<PdmDeprecation>& deprecations,
+                                               const QString&                     objectKeyword,
+                                               const QString& fieldKeyword ) -> std::optional<PdmDeprecation>
+                    {
+                        for ( const PdmDeprecation& deprecation : deprecations )
+                        {
+                            if ( deprecation.fieldKeyword == fieldKeyword && deprecation.objectKeyword == objectKeyword )
+                                return deprecation;
+                        }
+
+                        return {};
+                    };
+
+                    auto deprecation = findDeprecation( deprecations, classKeyword(), name );
+                    if ( deprecation )
+                    {
+                        deprecationMessages.push_back( deprecation.value().message );
+                    }
 
                     xmlStream.skipCurrentElement();
                 }
@@ -112,7 +138,6 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
             case QXmlStreamReader::EndElement:
             {
                 // End of object.
-                QString name     = xmlStream.name().toString(); // For debugging
                 isObjectFinished = true;
             }
             break;
@@ -130,6 +155,8 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
             break;
         }
     }
+
+    return deprecationMessages;
 }
 //--------------------------------------------------------------------------------------------------
 ///

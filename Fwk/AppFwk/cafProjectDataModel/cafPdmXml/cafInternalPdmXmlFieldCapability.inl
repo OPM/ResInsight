@@ -30,12 +30,15 @@ bool caf::PdmFieldXmlCap<FieldType>::isVectorField() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-void caf::PdmFieldXmlCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
+std::vector<QString> caf::PdmFieldXmlCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                    PdmObjectFactory* objectFactory,
+                                                                    const std::vector<caf::PdmDeprecation>& deprecations )
 {
     this->assertValid();
     typename FieldType::FieldDataType value;
     PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, xmlStream, objectFactory );
     m_field->setValue( value );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,12 +69,15 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
+std::vector<QString>
+    caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                     PdmObjectFactory*,
+                                                                     const std::vector<caf::PdmDeprecation>& deprecations )
 {
     this->assertValid();
 
     PdmFieldIOHelper::skipComments( xmlStream );
-    if ( !xmlStream.isCharacters() ) return;
+    if ( !xmlStream.isCharacters() ) return {};
 
     QString dataString = xmlStream.text().toString();
 
@@ -92,6 +98,8 @@ void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStream
 
     m_referenceString = dataString;
     m_field->setRawPtr( NULL );
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,12 +151,15 @@ QString caf::PdmFieldXmlCap<PdmPtrField<DataType*>>::referenceString() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* )
+std::vector<QString>
+    caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                          PdmObjectFactory*,
+                                                                          const std::vector<caf::PdmDeprecation>& deprecations )
 {
     this->assertValid();
 
     PdmFieldIOHelper::skipComments( xmlStream );
-    if ( !xmlStream.isCharacters() ) return;
+    if ( !xmlStream.isCharacters() ) return {};
 
     QString dataString = xmlStream.text().toString();
 
@@ -163,6 +174,8 @@ void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlS
 
     m_referenceString = dataString;
     m_field->clearWithoutDelete();
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,13 +241,15 @@ bool caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::isVectorField() cons
 //--------------------------------------------------------------------------------------------------
 
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                        PdmObjectFactory* objectFactory )
+std::vector<QString>
+    caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                       PdmObjectFactory* objectFactory,
+                                                                       const std::vector<caf::PdmDeprecation>& deprecations )
 {
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
     if ( !xmlStream.isStartElement() )
     {
-        return; // This happens when the field is "shortcut" empty (written like: <ElementName/>)
+        return {}; // This happens when the field is "shortcut" empty (written like: <ElementName/>)
     }
 
     QString          className = xmlStream.name().toString();
@@ -254,7 +269,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
 
             xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
             xmlStream.skipCurrentElement(); // Skip to the endelement of this field
-            return;
+            return {};
         }
         else
         {
@@ -267,7 +282,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
                 xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
                 xmlStream.skipCurrentElement(); // Skip to the endelement of this field
 
-                return;
+                return {};
             }
 
             m_field->m_fieldValue.setRawPtr( obj );
@@ -295,18 +310,20 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
         xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
         xmlStream.skipCurrentElement(); // Skip to the endelement of this field
 
-        return;
+        return {};
     }
 
     // Everything seems ok, so read the contents of the object:
 
-    xmlObject->readFields( xmlStream, objectFactory, false );
+    std::vector<QString> deprecationMessages = xmlObject->readFields( xmlStream, objectFactory, false, deprecations );
 
     // Make stream point to endElement of this field
 
     QXmlStreamReader::TokenType type = xmlStream.readNext();
     Q_UNUSED( type );
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
+
+    return deprecationMessages;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,11 +386,14 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::writeFieldData( QX
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                             PdmObjectFactory* objectFactory )
+std::vector<QString>
+    caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                            PdmObjectFactory* objectFactory,
+                                                                            const std::vector<caf::PdmDeprecation>& deprecations )
 {
     m_field->deleteChildren();
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
+    std::vector<QString> deprecationMessages;
     while ( xmlStream.isStartElement() )
     {
         QString className = xmlStream.name().toString();
@@ -418,7 +438,11 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXm
             continue;
         }
 
-        xmlObject->readFields( xmlStream, objectFactory, false );
+        std::vector<QString> deprecationMessagesForField =
+            xmlObject->readFields( xmlStream, objectFactory, false, deprecations );
+        deprecationMessages.insert( deprecationMessages.end(),
+                                    deprecationMessagesForField.begin(),
+                                    deprecationMessagesForField.end() );
 
         m_field->m_pointers.push_back( PdmPointer<DataType>() );
         m_field->m_pointers.back().setRawPtr( obj );
@@ -431,6 +455,8 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXm
         Q_UNUSED( type );
         PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
     }
+
+    return deprecationMessages;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -469,13 +495,16 @@ bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::isVectorField() 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                               PdmObjectFactory* objectFactory )
+std::vector<QString> caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::readFieldData(
+    QXmlStreamReader&                       xmlStream,
+    PdmObjectFactory*                       objectFactory,
+    const std::vector<caf::PdmDeprecation>& deprecations )
 {
     this->assertValid();
     typename FieldType::FieldDataType value;
     PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, xmlStream, objectFactory );
     m_field->setValue( value );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
