@@ -473,8 +473,11 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
     caf::ProgressInfo progress( 100, "Loading Project File" );
 
+    bool logTiming = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RiaApplication" );
+
     {
-        auto task = progress.task( "Reading Project Structure from File", 10 );
+        QString taskName = QString( "Reading Project Structure from File" );
+        auto    task     = progress.task( taskName, 10 );
 
         closeProject();
 
@@ -547,10 +550,13 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         {
             m_preferences->writePreferencesToApplicationStore();
         }
+
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
     }
 
     {
-        auto task = progress.task( "Loading Grid Data", 10 );
+        QString taskName = QString( "Loading Grid Data" );
+        auto    task     = progress.task( taskName, 10 );
 
         for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
         {
@@ -608,9 +614,13 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
             oilField->polygonCollection()->loadData();
         }
+
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
     }
+
     {
-        auto task = progress.task( "Loading 2D Plot Data", 10 );
+        QString taskName = QString( "Loading Data for 2D Plots" );
+        auto    task     = progress.task( taskName, 10 );
 
         {
             RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
@@ -663,10 +673,13 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
             oilField->surfaceCollection()->loadData();
         }
+
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
     }
 
     {
-        auto task = progress.task( "Calculation Grid Statistics", 10 );
+        QString taskName = QString( "Calculation Statistics for Grid Case Groups" );
+        auto    task     = progress.task( taskName, 10 );
 
         // If load action is specified to recalculate statistics, do it now.
         // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will
@@ -683,10 +696,13 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                 }
             }
         }
+
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
     }
 
     {
-        auto task = progress.task( "Creating 3D Views", 10 );
+        QString taskName = QString( "Loading 3D Views" );
+        auto    task     = progress.task( taskName, 10 );
 
         // Now load the ReservoirViews for the cases
         // Add all "native" cases in the project
@@ -794,6 +810,8 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                 seisView->loadDataAndUpdate();
             }
         }
+
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
     }
 
     {
@@ -837,10 +855,13 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         // current active view ( see restoreTreeViewState() )
         // Default behavior for scripts is to use current active view for data read/write
         onProjectOpened();
+
+        if ( logTiming ) RiaLogging::logElapsedTime( "Load Summary Data", startTime );
     }
 
     {
-        auto task = progress.task( "Performing Grid Calculations", 10 );
+        QString taskName = QString( "Grid Cells Calculations" );
+        auto    task     = progress.task( taskName, 10 );
 
         // Recalculate the results from grid property calculations.
         // Has to be done late since the results are filtered by view cell visibility
@@ -852,13 +873,17 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
 
-        RiaLogging::info( QString( "Completed open of project file : '%1'" ).arg( projectFileName ) );
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
     }
 
-    bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RiaApplication" );
-    if ( isLoggingEnabled )
+    auto logText = QString( "Project file '%1' loaded successfully." ).arg( projectFileName );
+    if ( logTiming )
     {
-        RiaLogging::logElapsedTime( QString( "Opened project file '%1' " ).arg( projectFileName ), startTime );
+        RiaLogging::logElapsedTime( logText, startTime );
+    }
+    else
+    {
+        RiaLogging::info( logText );
     }
 
     return true;
