@@ -117,6 +117,7 @@
 #include "cafPdmCodeGenerator.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmDeprecation.h"
 #include "cafPdmMarkdownBuilder.h"
 #include "cafPdmMarkdownGenerator.h"
 #include "cafPdmScriptIOMessages.h"
@@ -491,7 +492,12 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         }
 
         m_project->setFileName( fullPathProjectFileName );
-        m_project->readFile();
+        std::vector<QString> deprecationMessages = m_project->readFile( defaultDeprecations() );
+        for ( const QString& deprecationMessage : deprecationMessages )
+        {
+            RiaLogging::info( deprecationMessage );
+        }
+
         m_project->updatesAfterProjectFileIsRead();
 
         // Apply any modifications to the loaded project before we go ahead and load actual data
@@ -1815,4 +1821,12 @@ void RiaApplication::initializeDataLoadController()
 RiaKeyValueStore<char>* RiaApplication::keyValueStore() const
 {
     return m_keyValueStore.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmDeprecation> RiaApplication::defaultDeprecations()
+{
+    return {};
 }

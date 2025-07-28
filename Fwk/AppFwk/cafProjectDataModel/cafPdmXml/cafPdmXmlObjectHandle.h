@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cafPdmDeprecation.h"
 #include "cafPdmObjectCapability.h"
 
 #include <QString>
@@ -45,8 +46,11 @@ public:
 
     // Main XML serialization methods that is used internally by the document serialization system
     // Not supposed to be used directly.
-    void readFields( QXmlStreamReader& inputStream, PdmObjectFactory* objectFactory, bool isCopyOperation );
-    void writeFields( QXmlStreamWriter& outputStream ) const;
+    std::vector<QString> readFields( QXmlStreamReader&                  inputStream,
+                                     PdmObjectFactory*                  objectFactory,
+                                     bool                               isCopyOperation,
+                                     const std::vector<PdmDeprecation>& deprecations = {} );
+    void                 writeFields( QXmlStreamWriter& outputStream ) const;
 
     /// Check if a string is a valid Xml element name
     static bool isValidXmlElementName( const QString& name );

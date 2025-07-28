@@ -36,44 +36,15 @@
 
 #pragma once
 
-#include "cafPdmDeprecation.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-class QXmlStreamWriter;
+#include <QString>
 
 namespace caf
 {
-//==================================================================================================
-/// The PdmDocument class is the main class to do file based IO,
-/// and is also supposed to act as the overall container of the objects read.
-//==================================================================================================
-class PdmDocument : public PdmObject
+struct PdmDeprecation
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    PdmDocument();
-
-    QString fileName() const;
-    void    setFileName( const QString& fileName );
-
-    std::vector<QString> readFile( const std::vector<PdmDeprecation>& deprecations = {} );
-    bool                 writeFile();
-
-    static void updateUiIconStateRecursively( PdmObjectHandle* root );
-
-protected:
-    QString               documentAsString();
-    const PdmFieldHandle* fileNameHandle() const;
-
-private:
-    void                 writeDocumentToXmlStream( QXmlStreamWriter& xmlStream );
-    std::vector<QString> readFile( QIODevice* device, const std::vector<PdmDeprecation>& deprecations );
-    void                 writeFile( QIODevice* device );
-
-private:
-    PdmField<QString> m_fileName;
+    QString objectKeyword;
+    QString fieldKeyword;
+    QString lastValidVersion;
+    QString message;
 };
-
-} // End of namespace caf
+} //namespace caf

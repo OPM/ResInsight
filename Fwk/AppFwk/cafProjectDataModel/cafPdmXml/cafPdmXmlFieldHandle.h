@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cafPdmDeprecation.h"
 #include "cafPdmFieldCapability.h"
 #include <QString>
 
@@ -39,8 +40,10 @@ public:
 
     QString dataTypeName() const;
 
-    virtual void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) = 0;
-    virtual void writeFieldData( QXmlStreamWriter& xmlStream ) const                           = 0;
+    virtual std::vector<QString> readFieldData( QXmlStreamReader&                       xmlStream,
+                                                PdmObjectFactory*                       objectFactory,
+                                                const std::vector<caf::PdmDeprecation>& deprecations = {} ) = 0;
+    virtual void                 writeFieldData( QXmlStreamWriter& xmlStream ) const                        = 0;
 
     virtual bool resolveReferences() = 0;
 

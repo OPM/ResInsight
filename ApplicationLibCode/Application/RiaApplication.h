@@ -22,6 +22,7 @@
 #include "KeyValueStore/RiaKeyValueStore.h"
 #include "RiaDefines.h"
 
+#include "cafPdmDeprecation.h"
 #include "cafPdmPointer.h"
 #include "cvfObject.h"
 
@@ -224,6 +225,8 @@ protected:
     void resetProject();
 
     bool generateCode( const QString& outputPath, gsl::not_null<QString*> errMsg );
+
+    static std::vector<caf::PdmDeprecation> defaultDeprecations();
 
 protected:
     void initializeDataLoadController();
