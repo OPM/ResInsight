@@ -322,17 +322,26 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calcula
     merger.addCurveData( reader1->timeSteps( address ), values1 );
     merger.addCurveData( reader2->timeSteps( address ), values2 );
     merger.computeInterpolatedValues( includeIncompleteCurves );
-
-    const std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues( 0 );
-    const std::vector<double>& allValues2 = merger.interpolatedYValuesForAllXValues( 1 );
+    if ( merger.curveCount() < 2 )
+    {
+        // If we have less than two curves, we cannot calculate a delta
+        return ResultPair();
+    }
 
     size_t sampleCount = merger.allXValues().size();
+    if ( sampleCount == 0 )
+    {
+        return ResultPair();
+    }
 
     std::vector<double> calculatedValues;
     calculatedValues.reserve( sampleCount );
 
     int clampedIndexCase1 = std::min( fixedTimeStepCase1, static_cast<int>( values1.size() ) );
     int clampedIndexCase2 = std::min( fixedTimeStepCase2, static_cast<int>( values2.size() ) );
+
+    const std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues( 0 );
+    const std::vector<double>& allValues2 = merger.interpolatedYValuesForAllXValues( 1 );
 
     for ( size_t i = 0; i < sampleCount; i++ )
     {
