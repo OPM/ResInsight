@@ -860,8 +860,8 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     }
 
     {
-        QString taskName = QString( "Cell Grid Calculations" );
-        auto    task     = progress.task( "Performing Grid Calculations", 10 );
+        QString taskName = QString( "Grid Cells Calculations" );
+        auto    task     = progress.task( taskName, 10 );
 
         // Recalculate the results from grid property calculations.
         // Has to be done late since the results are filtered by view cell visibility
@@ -876,8 +876,15 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
     }
 
-    RiaLogging::info( QString( "Completed open of project file : '%1'" ).arg( projectFileName ) );
-    if ( logTiming ) RiaLogging::logElapsedTime( QString( "Opened project file '%1' " ).arg( projectFileName ), startTime );
+    auto logText = QString( "Project file '%1' loaded successfully." ).arg( projectFileName );
+    if ( logTiming )
+    {
+        RiaLogging::logElapsedTime( logText, startTime );
+    }
+    else
+    {
+        RiaLogging::info( logText );
+    }
 
     return true;
 }
