@@ -610,11 +610,6 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
 
         RimEnsembleCurveSet* newCurveSet = editedCurveSet->clone();
         m_targetPlot->ensembleCurveSetCollection()->addCurveSet( newCurveSet );
-        for ( const auto& editedCurve : newCurveSet->curves() )
-        {
-            copyEnsembleCurveAndAddToCurveSet( editedCurve, editedCurveSet );
-        }
-
         newCurveSet->setParentPlotNoReplot( m_targetPlot->plotWidget() );
     }
 
@@ -642,27 +637,6 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
     bool autoAssignAxis = true;
     plot->addCurveNoUpdate( curveCopy, autoAssignAxis );
 
-    curveCopy->initAfterReadRecursively();
-    curveCopy->loadDataAndUpdate( false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve, RimEnsembleCurveSet* curveSet, bool forceVisible )
-{
-    auto curveCopy = curve->copyObject<RimSummaryCurve>();
-    CVF_ASSERT( curveCopy );
-
-    if ( forceVisible )
-    {
-        curveCopy->setCheckState( true );
-    }
-
-    curveSet->addCurve( curveCopy );
-
-    // The curve creator is not a descendant of the project, and need to be set manually
-    curveCopy->setSummaryCaseY( curve->summaryCaseY() );
     curveCopy->initAfterReadRecursively();
     curveCopy->loadDataAndUpdate( false );
 }
