@@ -97,37 +97,25 @@ CAF_PDM_SOURCE_INIT( RimEnsembleCurveSet, "RimEnsembleCurveSet" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
-{
-    if ( isFiltered() )
-    {
-        menuBuilder << "RicCreateEnsembleFromFilteredCasesFeature";
-    }
-
-    menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
-    menuBuilder << "Separator";
-    menuBuilder << "RicSetSourceSteppingEnsembleCurveSetFeature";
-    menuBuilder << "RicClearSourceSteppingEnsembleCurveSetFeature";
-    menuBuilder << "Separator";
-    menuBuilder << "RicNewEnsembleCurveFilterFeature";
-    menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet::RimEnsembleCurveSet()
     : filterChanged( this )
     , m_hash( 0 )
+    , m_realizationHash( 0 )
 
 {
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "EnsembleCurveSet", "Ensemble Curve Set" );
-    m_curves.uiCapability()->setUiTreeChildrenHidden( false );
+    CAF_PDM_InitFieldNoDefault( &m_realizationCurves, "EnsembleCurveSet", "Ensemble Curve Set" );
+    m_realizationCurves.uiCapability()->setUiTreeChildrenHidden( false );
     // The summary curves are always recreated in loadDataAndUpdate(), so we can disable IO for curves. This will reduce the size of the
     // project files.
-    m_curves.xmlCapability()->disableIO();
+    m_realizationCurves.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_statisticsCurves, "StatisticsCurves", "Statistics Curves" );
+    m_statisticsCurves.uiCapability()->setUiTreeChildrenHidden( false );
+    // The summary curves are always recreated in loadDataAndUpdate(), so we can disable IO for curves. This will reduce the size of the
+    // project files.
+    m_statisticsCurves.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
@@ -277,7 +265,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet::~RimEnsembleCurveSet()
 {
-    m_curves.deleteChildren();
+    m_realizationCurves.deleteChildren();
+    m_statisticsCurves.deleteChildren();
 
     auto parentPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( parentPlot && parentPlot->plotWidget() )
@@ -368,7 +357,7 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
-    for ( RimSummaryCurve* curve : m_curves )
+    for ( RimSummaryCurve* curve : curves() )
     {
         curve->setParentPlotNoReplot( plot );
     }
@@ -379,7 +368,7 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::deletePlotCurves()
 {
-    for ( RimSummaryCurve* curve : m_curves )
+    for ( RimSummaryCurve* curve : curves() )
     {
         curve->deletePlotCurve();
     }
@@ -396,15 +385,15 @@ void RimEnsembleCurveSet::deletePlotCurves()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::reattachPlotCurves()
 {
-    for ( RimSummaryCurve* curve : m_curves )
+    for ( RimSummaryCurve* curve : curves() )
     {
         bool updateParentPlot = false;
         curve->reattach( updateParentPlot );
     }
 
-    if ( !m_curves.empty() )
+    if ( !curves().empty() )
     {
-        auto firstCurve = m_curves[0];
+        auto firstCurve = curves()[0];
 
         firstCurve->replotParentPlot();
     }
@@ -413,7 +402,7 @@ void RimEnsembleCurveSet::reattachPlotCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::addCurve( RimSummaryCurve* curve )
+void RimEnsembleCurveSet::addRealizationCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
@@ -421,19 +410,7 @@ void RimEnsembleCurveSet::addCurve( RimSummaryCurve* curve )
         if ( plot && plot->plotWidget() ) curve->setParentPlotNoReplot( plot->plotWidget() );
 
         curve->setColor( m_colorForRealizations );
-        m_curves.push_back( curve );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::deleteCurve( RimSummaryCurve* curve )
-{
-    if ( curve )
-    {
-        m_curves.removeChild( curve );
-        delete curve;
+        m_realizationCurves.push_back( curve );
     }
 }
 
@@ -677,7 +654,10 @@ RiaSummaryCurveAddress RimEnsembleCurveSet::curveAddress() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 {
-    return m_curves.childrenByType();
+    std::vector<RimSummaryCurve*> allCurves  = m_realizationCurves.childrenByType();
+    auto                          statCurves = m_statisticsCurves.childrenByType();
+    allCurves.insert( allCurves.end(), statCurves.begin(), statCurves.end() );
+    return allCurves;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -693,20 +673,7 @@ RimCustomObjectiveFunctionCollection* RimEnsembleCurveSet::customObjectiveFuncti
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::deleteEnsembleCurves()
 {
-    std::vector<size_t> curvesIndexesToDelete;
-    for ( size_t c = 0; c < m_curves.size(); c++ )
-    {
-        RimSummaryCurve* curve = m_curves[c];
-        if ( !curve->summaryAddressY().isStatistics() ) curvesIndexesToDelete.push_back( c );
-    }
-
-    while ( !curvesIndexesToDelete.empty() )
-    {
-        size_t currIndex = curvesIndexesToDelete.back();
-        delete m_curves[currIndex];
-        m_curves.erase( currIndex );
-        curvesIndexesToDelete.pop_back();
-    }
+    m_realizationCurves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -714,20 +681,7 @@ void RimEnsembleCurveSet::deleteEnsembleCurves()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::deleteStatisticsCurves()
 {
-    std::vector<size_t> curvesIndexesToDelete;
-    for ( size_t c = 0; c < m_curves.size(); c++ )
-    {
-        RimSummaryCurve* curve = m_curves[c];
-        if ( curve->summaryAddressY().isStatistics() ) curvesIndexesToDelete.push_back( c );
-    }
-
-    while ( !curvesIndexesToDelete.empty() )
-    {
-        size_t currIndex = curvesIndexesToDelete.back();
-        delete m_curves[currIndex];
-        m_curves.erase( currIndex );
-        curvesIndexesToDelete.pop_back();
-    }
+    m_statisticsCurves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1326,6 +1280,26 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimEnsembleCurveSet::realizationCurves() const
+{
+    return m_realizationCurves.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::deleteRealizationCurve( RimSummaryCurve* curve )
+{
+    if ( curve )
+    {
+        m_realizationCurves.removeChild( curve );
+        delete curve;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 {
     auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
@@ -1780,9 +1754,9 @@ RiaSummaryCurveDefinitionAnalyser* RimEnsembleCurveSet::getOrCreateSelectedCurve
 std::vector<RiaSummaryCurveDefinition> RimEnsembleCurveSet::curveDefinitions() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefs;
-    for ( auto dataEntry : m_curves() )
+    for ( auto curve : curves() )
     {
-        curveDefs.push_back( dataEntry->curveDefinition() );
+        curveDefs.push_back( curve->curveDefinition() );
     }
 
     return curveDefs;
@@ -2054,14 +2028,10 @@ void RimEnsembleCurveSet::updateCurveColors()
 {
     updateLegendTitle();
 
-    // Find the curves to color (skip the statistics)
-    std::vector<RimSummaryCurve*> curvesToColor;
+    std::vector<RimSummaryCurve*> curvesToColor = realizationCurves();
     std::vector<RimSummaryCase*>  summaryCases;
-    for ( auto& curve : m_curves )
+    for ( auto& curve : curvesToColor )
     {
-        if ( curve->summaryAddressY().isStatistics() ) continue;
-
-        curvesToColor.push_back( curve );
         summaryCases.push_back( curve->summaryCaseY() );
     }
 
@@ -2148,91 +2118,68 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 {
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    deleteEnsembleCurves();
-    deleteStatisticsCurves();
-
-    if ( plot && plot->plotWidget() )
+    auto addressText        = m_yValuesSummaryAddress()->address().toEclipseTextAddress();
+    auto newRealizationHash = RiaHashTools::hash( sumCases, addressText );
+    if ( newRealizationHash != m_realizationHash )
     {
-        if ( plot->legendsVisible() ) plot->plotWidget()->updateLegend();
-        plot->scheduleReplotIfVisible();
-        plot->updateAxes();
-        plot->updatePlotInfoLabel();
-
-        // Always recreate the plot curve for the legend text to ensure the ordering is correct
-        // The ordering of legend items depends on the order the curves are added to the plot
-        //
-        // https://github.com/OPM/ResInsight/issues/12259
-        //
-        m_plotCurveForLegendText.reset( plot->plotWidget()->createPlotCurve( nullptr, "" ) );
-
-        int curveThickness = 3;
-        m_plotCurveForLegendText->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
-                                                 RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
-                                                 curveThickness,
-                                                 RiaColorTools::toQColor( m_mainEnsembleColor() ) );
-        m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
-        updateEnsembleLegendItem();
+        deleteEnsembleCurves();
     }
 
-    if ( m_statistics->hideEnsembleCurves() ) return;
-
-    RimSummaryAddress* addr = m_yValuesSummaryAddress();
-    if ( plot && addr->address().category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+    const bool showRealizationCurves = !m_statistics->hideEnsembleCurves() && isCurvesVisible();
+    if ( !showRealizationCurves )
     {
-        if ( isCurvesVisible() )
+        for ( auto c : realizationCurves() )
         {
-            std::vector<RimSummaryCurve*> newSummaryCurves;
-
-            for ( auto& sumCase : sumCases )
-            {
-                auto curve = RiaSummaryPlotTools::createCurve( sumCase, addr->address() );
-                curve->setResampling( m_resampling() );
-
-                int lineThickness = 1;
-                if ( addr->address().isHistoryVector() )
-                {
-                    lineThickness = 2;
-                    curve->setCurveAppearanceFromCaseType();
-                }
-                curve->setLineThickness( lineThickness );
-
-                if ( m_useCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::CUSTOM )
-                {
-                    curve->setLineStyle( m_lineStyle() );
-                    curve->setSymbol( m_pointSymbol() );
-                    curve->setSymbolSize( m_symbolSize() );
-                }
-
-                addCurve( curve );
-
-                curve->setLeftOrRightAxisY( axisY() );
-                if ( isXAxisSummaryVector() )
-                {
-                    curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
-                    curve->setSummaryCaseX( sumCase );
-                    curve->setSummaryAddressX( m_xAddressSelector->summaryAddress() );
-                    if ( m_xAddressSelector->plotAxisProperties() )
-                        curve->setTopOrBottomAxisX( m_xAddressSelector->plotAxisProperties()->plotAxis() );
-                }
-
-                newSummaryCurves.push_back( curve );
-            }
-
-#pragma omp parallel for
-            for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
-            {
-                newSummaryCurves[i]->valuesX();
-            }
-
-            for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
-            {
-                newSummaryCurves[i]->loadDataAndUpdate( false );
-                newSummaryCurves[i]->updatePlotAxis();
-                newSummaryCurves[i]->setShowInLegend( false );
-            }
+            c->setCheckState( false );
+            c->updateCurveVisibility( false );
         }
     }
-    updateCurveColors();
+
+    deleteStatisticsCurves();
+
+    recreatePlotCurveForLegend( plot );
+
+    if ( showRealizationCurves )
+    {
+        RimSummaryAddress* addr = m_yValuesSummaryAddress();
+        if ( plot && addr->address().category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+        {
+            {
+                std::vector<RimSummaryCurve*> newSummaryCurves;
+
+                if ( newRealizationHash != m_realizationHash )
+                {
+                    newSummaryCurves = createCurves( sumCases, *addr );
+
+                    for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+                    {
+                        newSummaryCurves[i]->valuesX();
+                    }
+                }
+                else
+                {
+                    newSummaryCurves = realizationCurves();
+
+                    for ( auto c : realizationCurves() )
+                    {
+                        c->setCheckState( true );
+                        c->updateCurveVisibility( false );
+                    }
+                }
+
+                for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+                {
+                    newSummaryCurves[i]->loadDataAndUpdate( false );
+                    newSummaryCurves[i]->updatePlotAxis();
+                    newSummaryCurves[i]->setShowInLegend( false );
+                }
+            }
+        }
+        updateCurveColors();
+
+        // Set hash when curves has been created or updated
+        m_realizationHash = newRealizationHash;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2342,7 +2289,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         {
             auto curve = RiaSummaryPlotTools::createCurve( summaryCase, address.summaryAddressY() );
             curve->setParentPlotNoReplot( plot->plotWidget() );
-            m_curves.push_back( curve );
+            m_statisticsCurves.push_back( curve );
+
             curve->setColor( m_statistics->color() );
             curve->setResampling( m_resampling() );
 
@@ -2382,7 +2330,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
             curve->setShowInLegend( m_statistics->showStatisticsCurveLegends() );
 
-            curve->updateCurveVisibility();
+            curve->updateCurveVisibility( false );
             curve->loadDataAndUpdate( false );
             curve->updatePlotAxis();
         }
@@ -2749,5 +2697,118 @@ void RimEnsembleCurveSet::initAfterRead()
         {
             m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    if ( isFiltered() )
+    {
+        menuBuilder << "RicCreateEnsembleFromFilteredCasesFeature";
+    }
+
+    menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicSetSourceSteppingEnsembleCurveSetFeature";
+    menuBuilder << "RicClearSourceSteppingEnsembleCurveSetFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicNewEnsembleCurveFilterFeature";
+    menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimEnsembleCurveSet::createCurves( const std::vector<RimSummaryCase*>& sumCases, const RimSummaryAddress& addr )
+{
+    std::vector<RimSummaryCurve*> newSummaryCurves;
+    newSummaryCurves.resize( sumCases.size() );
+
+    {
+        // Make sure static CAF data for the summary curve is initialized. This is required before we create curves in the multi-threaded
+        // loop below.
+        RimSummaryCurve dummy;
+    }
+
+#pragma omp parallel for
+    for ( int i = 0; i < static_cast<int>( sumCases.size() ); i++ )
+    {
+        auto* sumCase = sumCases[i];
+        auto  curve   = RiaSummaryPlotTools::createCurve( sumCase, addr.address() );
+        curve->setResampling( m_resampling() );
+
+        int lineThickness = 1;
+        if ( addr.address().isHistoryVector() )
+        {
+            lineThickness = 2;
+            curve->setCurveAppearanceFromCaseType();
+        }
+        curve->setLineThickness( lineThickness );
+
+        if ( m_useCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::CUSTOM )
+        {
+            curve->setLineStyle( m_lineStyle() );
+            curve->setSymbol( m_pointSymbol() );
+            curve->setSymbolSize( m_symbolSize() );
+        }
+
+        if ( isXAxisSummaryVector() )
+        {
+            curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+            curve->setSummaryCaseX( sumCase );
+            curve->setSummaryAddressX( m_xAddressSelector->summaryAddress() );
+            if ( m_xAddressSelector->plotAxisProperties() )
+                curve->setTopOrBottomAxisX( m_xAddressSelector->plotAxisProperties()->plotAxis() );
+        }
+
+        curve->setColor( m_colorForRealizations );
+
+        newSummaryCurves[i] = curve;
+    }
+
+    auto plot       = firstAncestorOrThisOfType<RimSummaryPlot>();
+    auto plotWidget = plot ? plot->plotWidget() : nullptr;
+
+    // These operations are not thread safe. They will update the parent plot and manipulate structures in Qwt that are not thread safe.
+    for ( auto* curve : newSummaryCurves )
+    {
+        curve->setParentPlotNoReplot( plotWidget );
+        m_realizationCurves.push_back( curve );
+
+        curve->setLeftOrRightAxisY( axisY() );
+    }
+
+    return newSummaryCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::recreatePlotCurveForLegend( RimSummaryPlot* plot )
+{
+    if ( plot && plot->plotWidget() )
+    {
+        if ( plot->legendsVisible() ) plot->plotWidget()->updateLegend();
+        plot->scheduleReplotIfVisible();
+        plot->updateAxes();
+        plot->updatePlotInfoLabel();
+
+        // Always recreate the plot curve for the legend text to ensure the ordering is correct
+        // The ordering of legend items depends on the order the curves are added to the plot
+        //
+        // https://github.com/OPM/ResInsight/issues/12259
+        //
+        m_plotCurveForLegendText.reset( plot->plotWidget()->createPlotCurve( nullptr, "" ) );
+
+        int curveThickness = 3;
+        m_plotCurveForLegendText->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
+                                                 RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
+                                                 curveThickness,
+                                                 RiaColorTools::toQColor( m_mainEnsembleColor() ) );
+        m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
+        updateEnsembleLegendItem();
     }
 }

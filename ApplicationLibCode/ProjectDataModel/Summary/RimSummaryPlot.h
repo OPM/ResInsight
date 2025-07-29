@@ -104,7 +104,6 @@ public:
 
     void removeCurve( RimSummaryCurve* curve );
 
-    void deleteCurve( RimSummaryCurve* curve );
     void deleteCurves( const std::vector<RimSummaryCurve*>& curves );
 
     void deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase );

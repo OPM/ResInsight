@@ -66,6 +66,7 @@ class RiuPlotWidget;
 class RiuPlotCurve;
 class RimPlotAxisPropertiesInterface;
 class RimSummaryAddressSelector;
+class RimSummaryPlot;
 class RimTimeAxisAnnotation;
 
 class QwtPlot;
@@ -106,8 +107,8 @@ public:
     void deletePlotCurves();
     void reattachPlotCurves();
 
-    void addCurve( RimSummaryCurve* curve );
-    void deleteCurve( RimSummaryCurve* curve );
+    void addRealizationCurve( RimSummaryCurve* curve );
+    void deleteRealizationCurve( RimSummaryCurve* curve );
 
     void                          setSummaryAddressY( RifEclipseSummaryAddress address );
     void                          setCurveAddress( RiaSummaryCurveAddress address );
@@ -207,6 +208,8 @@ private:
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
+    std::vector<RimSummaryCurve*> realizationCurves() const;
+
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -238,9 +241,13 @@ private:
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
+    std::vector<RimSummaryCurve*> createCurves( const std::vector<RimSummaryCase*>& sumCases, const RimSummaryAddress& addr );
+    void                          recreatePlotCurveForLegend( RimSummaryPlot* plot );
+
 private:
     caf::PdmField<bool>                       m_showCurves;
-    caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
+    caf::PdmChildArrayField<RimSummaryCurve*> m_realizationCurves;
+    caf::PdmChildArrayField<RimSummaryCurve*> m_statisticsCurves;
 
     caf::PdmPointer<RimSummaryCurve> m_currentSummaryCurve;
 
@@ -312,4 +319,5 @@ private:
 
     QList<caf::PdmOptionItemInfo> m_cachedAddressOptions;
     size_t                        m_hash;
+    size_t                        m_realizationHash;
 };
