@@ -73,7 +73,6 @@ void RiuSummaryMultiPlotBook::createPages()
         }
 
         page->addPlot( plotWidgets[visibleIndex] );
-        page->performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
 
         col += colSpan;
         if ( col >= columns )
