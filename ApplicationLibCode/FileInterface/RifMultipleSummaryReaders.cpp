@@ -74,7 +74,8 @@ std::vector<time_t> RifMultipleSummaryReaders::timeSteps( const RifEclipseSummar
 {
     for ( const auto& r : m_readers )
     {
-        if ( r->hasAddress( resultAddress ) ) return r->timeSteps( resultAddress );
+        const auto& timeSteps = r->timeSteps( resultAddress );
+        if ( !timeSteps.empty() ) return timeSteps;
     }
 
     return {};
@@ -87,7 +88,8 @@ std::pair<bool, std::vector<double>> RifMultipleSummaryReaders::values( const Ri
 {
     for ( const auto& r : m_readers )
     {
-        if ( r->hasAddress( resultAddress ) ) return r->values( resultAddress );
+        const auto& okAndValues = r->values( resultAddress );
+        if ( okAndValues.first && !okAndValues.second.empty() ) return okAndValues;
     }
 
     return { false, {} };
@@ -100,7 +102,8 @@ std::string RifMultipleSummaryReaders::unitName( const RifEclipseSummaryAddress&
 {
     for ( const auto& r : m_readers )
     {
-        if ( r->hasAddress( resultAddress ) ) return r->unitName( resultAddress );
+        auto name = r->unitName( resultAddress );
+        if ( !name.empty() ) return name;
     }
 
     return {};
