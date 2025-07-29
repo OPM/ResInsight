@@ -560,12 +560,7 @@ endif()
 find_package(
   Qt6
   COMPONENTS
-  REQUIRED
-  Core
-  Gui
-  OpenGL
-  Network
-  Widgets
+  REQUIRED Core Gui OpenGL Network Widgets
 )
 set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::Network Qt6::Widgets)
 qt_standard_project_setup()
