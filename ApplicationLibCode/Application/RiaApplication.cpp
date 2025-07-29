@@ -30,6 +30,7 @@
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaOpenMPTools.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesOsdu.h"
@@ -1590,6 +1591,12 @@ void RiaApplication::initialize()
     caf::SelectionManager::instance()->setPdmRootObject( project() );
 
     initializeDataLoadController();
+
+    const auto& [enabled, maxThreads] = RiaPreferencesSystem::current()->maximumNumberOfThreads();
+    if ( enabled )
+    {
+        RiaOpenMPTools::setMaxThreads( maxThreads );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

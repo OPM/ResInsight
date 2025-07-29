@@ -60,6 +60,8 @@ public:
     bool useImprovedSummaryImport() const;
     bool useMultiThreadingForSummaryImport() const;
 
+    std::pair<bool, int> maximumNumberOfThreads() const;
+
     bool logToFile() const;
 
     EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
@@ -97,4 +99,6 @@ private:
     caf::PdmField<EclipseTextFileReaderModeType> m_eclipseReaderMode;
 
     caf::PdmField<QString> m_keywordsForLogging;
+
+    caf::PdmField<std::pair<bool, QString>> m_maximumNumberOfThreads;
 };

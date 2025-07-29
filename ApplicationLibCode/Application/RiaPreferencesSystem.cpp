@@ -21,6 +21,7 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 
@@ -100,6 +101,9 @@ RiaPreferencesSystem::RiaPreferencesSystem()
                        "KeywordsForLogging",
                        QString(),
                        "Keywords to enable debug logging, separated by semicolon.\nType 'enable-all' to enable logging for all objects." );
+
+    CAF_PDM_InitField( &m_maximumNumberOfThreads, "maximumNumberOfThreads", std::make_pair( false, QString( "4" ) ), "Maximum Number of Threads" );
+    m_maximumNumberOfThreads.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,6 +255,16 @@ bool RiaPreferencesSystem::useMultiThreadingForSummaryImport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<bool, int> RiaPreferencesSystem::maximumNumberOfThreads() const
+{
+    const auto& [enabled, text] = m_maximumNumberOfThreads();
+
+    return { enabled, text.toInt() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaPreferencesSystem::logToFile() const
 {
     return m_logToFile();
@@ -318,6 +332,8 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         group->add( &m_useImprovedSummaryImport );
         group->add( &m_useMultiThreadingForSummary_TEMPORARY );
     }
+
+    uiOrdering.add( &m_maximumNumberOfThreads );
 }
 
 //--------------------------------------------------------------------------------------------------
