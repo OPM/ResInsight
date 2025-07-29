@@ -1436,14 +1436,6 @@ void RimSummaryPlot::removeCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::deleteCurve( RimSummaryCurve* curve )
-{
-    deleteCurves( { curve } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
 {
     for ( const auto curve : curves )
@@ -1468,7 +1460,7 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
                 {
                     if ( c == curve )
                     {
-                        curveSet->deleteCurve( curve );
+                        curveSet->deleteRealizationCurve( curve );
                         if ( curveSet->curves().empty() )
                         {
                             if ( curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::BY_ENSEMBLE_PARAM && plotWidget() &&
