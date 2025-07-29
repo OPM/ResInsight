@@ -422,6 +422,16 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   endif()
 endif()
 
+if(UNIX)
+  execute_process(
+    COMMAND date "+%Y-%m-%d %H:%M:%S"
+    OUTPUT_VARIABLE RESINSIGHT_BUILD_DATE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+else()
+  string(TIMESTAMP RESINSIGHT_BUILD_DATE "%Y-%m-%d %H:%M:%S")
+endif()
+
 # ##############################################################################
 # OpenVDS seismic file access
 # ##############################################################################

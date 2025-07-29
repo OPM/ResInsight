@@ -172,8 +172,8 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
     }
 
     dlg.addVersionEntry( " ", "" );
-    QString nowDate = QDateTime::currentDateTime().toString( "yyyy-MMM-dd" );
-    dlg.addVersionEntry( "", QString( "Build date: " ) + nowDate );
+    QString buildDate = RESINSIGHT_BUILD_DATE;
+    dlg.addVersionEntry( "", QString( "Build date: " ) + buildDate );
     dlg.addVersionEntry( "", "SHA " + QString( RESINSIGHT_GIT_HASH ) );
 
     dlg.create();
