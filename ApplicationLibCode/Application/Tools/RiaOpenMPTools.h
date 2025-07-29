@@ -25,7 +25,7 @@
 //==================================================================================================
 namespace RiaOpenMPTools
 {
-int availableThreadCount();
-int currentThreadIndex();
+int  availableThreadCount();
+int  currentThreadIndex();
 void setMaxThreads( int numberOfThreads );
 }; // namespace RiaOpenMPTools
