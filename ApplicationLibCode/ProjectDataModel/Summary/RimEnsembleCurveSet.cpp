@@ -359,6 +359,7 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
     for ( RimSummaryCurve* curve : curves() )
     {
+        // This operation will recreate the plot curve if not present, but no data is loaded
         curve->setParentPlotNoReplot( plot );
     }
 }
@@ -2144,35 +2145,37 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
         RimSummaryAddress* addr = m_yValuesSummaryAddress();
         if ( plot && addr->address().category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
         {
+            if ( newRealizationHash != m_realizationHash )
             {
-                std::vector<RimSummaryCurve*> newSummaryCurves;
+                deleteEnsembleCurves();
 
-                if ( newRealizationHash != m_realizationHash )
+                createCurves( sumCases, *addr );
+            }
+            else
+            {
+                for ( auto c : realizationCurves() )
                 {
-                    newSummaryCurves = createCurves( sumCases, *addr );
+                    c->setCheckState( true );
+                    c->updateCurveVisibility( false );
+                }
+            }
 
-                    for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+            auto curves = realizationCurves();
+            for ( int i = 0; i < (int)curves.size(); ++i )
+            {
+                // When the curves are created, they contain no data. Curves can be reattached to the plot without loading of data in
+                // setParentPlotNoReplot(). Check if the curves need to load data.
+                if ( auto plotCurve = curves[i]->plotCurve() )
+                {
+                    auto sampleCount = plotCurve->numSamples();
+                    if ( sampleCount == 0 )
                     {
-                        newSummaryCurves[i]->valuesX();
+                        curves[i]->loadDataAndUpdate( false );
                     }
                 }
-                else
-                {
-                    newSummaryCurves = realizationCurves();
 
-                    for ( auto c : realizationCurves() )
-                    {
-                        c->setCheckState( true );
-                        c->updateCurveVisibility( false );
-                    }
-                }
-
-                for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
-                {
-                    newSummaryCurves[i]->loadDataAndUpdate( false );
-                    newSummaryCurves[i]->updatePlotAxis();
-                    newSummaryCurves[i]->setShowInLegend( false );
-                }
+                curves[i]->updatePlotAxis();
+                curves[i]->setShowInLegend( false );
             }
         }
         updateCurveColors();
@@ -2722,7 +2725,7 @@ void RimEnsembleCurveSet::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuild
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimEnsembleCurveSet::createCurves( const std::vector<RimSummaryCase*>& sumCases, const RimSummaryAddress& addr )
+void RimEnsembleCurveSet::createCurves( const std::vector<RimSummaryCase*>& sumCases, const RimSummaryAddress& addr )
 {
     std::vector<RimSummaryCurve*> newSummaryCurves;
     newSummaryCurves.resize( sumCases.size() );
@@ -2780,8 +2783,6 @@ std::vector<RimSummaryCurve*> RimEnsembleCurveSet::createCurves( const std::vect
 
         curve->setLeftOrRightAxisY( axisY() );
     }
-
-    return newSummaryCurves;
 }
 
 //--------------------------------------------------------------------------------------------------

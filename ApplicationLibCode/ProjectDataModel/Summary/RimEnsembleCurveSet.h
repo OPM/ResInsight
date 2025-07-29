@@ -241,8 +241,8 @@ private:
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
-    std::vector<RimSummaryCurve*> createCurves( const std::vector<RimSummaryCase*>& sumCases, const RimSummaryAddress& addr );
-    void                          recreatePlotCurveForLegend( RimSummaryPlot* plot );
+    void createCurves( const std::vector<RimSummaryCase*>& sumCases, const RimSummaryAddress& addr );
+    void recreatePlotCurveForLegend( RimSummaryPlot* plot );
 
 private:
     caf::PdmField<bool>                       m_showCurves;
