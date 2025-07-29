@@ -48,3 +48,13 @@ int RiaOpenMPTools::currentThreadIndex()
 
     return myThread;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaOpenMPTools::setMaxThreads( int numberOfThreads )
+{
+#ifdef USE_OPENMP
+    omp_set_num_threads( numberOfThreads );
+#endif
+}
