@@ -570,17 +570,9 @@ endif()
 find_package(
   Qt6
   COMPONENTS
-  REQUIRED
-  Core
-  Gui
-  OpenGL
-  Network
-  Widgets
-  Charts
+  REQUIRED Core Gui OpenGL Network Widgets
 )
-set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::Network Qt6::Widgets
-                 Qt6::Charts
-)
+set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::Network Qt6::Widgets)
 qt_standard_project_setup()
 
 # Disable use of foreach
@@ -588,12 +580,6 @@ add_definitions(-DQT_NO_FOREACH)
 
 # Open GL
 find_package(OpenGL)
-
-# ##############################################################################
-# QtCharts
-# ##############################################################################
-set(RESINSIGHT_USE_QT_CHARTS ON)
-add_definitions(-DUSE_QTCHARTS)
 
 # ##############################################################################
 # Qwt

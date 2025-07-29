@@ -40,9 +40,6 @@
 #include "RiuQwtPlotLegend.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
-#ifdef USE_QTCHARTS
-#include "RiuQtChartsPlotWidget.h"
-#endif
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafSelectionManager.h"
@@ -200,15 +197,6 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
                              SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
                              SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
             qwtPlotWidget->connect( legend, SIGNAL( clicked( const QVariant&, int ) ), SLOT( onLegendClicked( const QVariant&, int ) ) );
-        }
-        else
-        {
-#ifdef USE_QTCHARTS
-            auto qtchartPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
-            legend->connect( qtchartPlotWidget,
-                             SIGNAL( legendDataChanged( const QList<QwtLegendData>& ) ),
-                             SLOT( updateLegend( const QList<QwtLegendData>& ) ) );
-#endif
         }
 
         QObject::connect( legend, SIGNAL( legendUpdated() ), this, SLOT( onLegendUpdated() ) );

@@ -32,7 +32,6 @@ find_package(
              PrintSupport
              Svg
              Sql
-  OPTIONAL_COMPONENTS Charts
 )
 set(QT_LIBRARIES
     Qt6::Core
@@ -46,7 +45,6 @@ set(QT_LIBRARIES
     Qt6::PrintSupport
     Qt6::Svg
     Qt6::Sql
-    Qt6::Charts
 )
 qt_standard_project_setup()
 
