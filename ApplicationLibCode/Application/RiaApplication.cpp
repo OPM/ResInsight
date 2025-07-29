@@ -1828,5 +1828,14 @@ RiaKeyValueStore<char>* RiaApplication::keyValueStore() const
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmDeprecation> RiaApplication::defaultDeprecations()
 {
-    return {};
+    return {
+        caf::PdmDeprecation{ .objectKeyword    = "GridStatisticsPlots",
+                             .fieldKeyword     = "GridStatisticsPlot",
+                             .lastValidVersion = "v2025.04.4",
+                             .message          = "Found deprecated grid statistics plot in project file. Please recreate the plot." },
+        caf::PdmDeprecation{ .objectKeyword    = "EnsembleFractureStatisticsPlots",
+                             .fieldKeyword     = "EnsembleFractureStatisticsPlot",
+                             .lastValidVersion = "v2025.04.4",
+                             .message = "Found deprecated ensemble fracture statistics plots in project file. Please recreate the plot." },
+    };
 }
