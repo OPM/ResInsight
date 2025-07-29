@@ -43,8 +43,6 @@ public:
     bool isRunningRegressionTests() const;
     bool useOpenMPForGeometryCreation() const;
 
-    RiaRegressionTest::PlotEngine overridePlotEngine() const;
-
     static void updateRegressionTest( const QString& testRootPath );
 
     static void setDefaultSnapshotSizeFor3dViews();

@@ -232,9 +232,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_writeEchoInGrdeclFiles, "writeEchoInGrdeclFiles", false, "Write NOECHO and ECHO in GRDECL files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_writeEchoInGrdeclFiles );
 
-    CAF_PDM_InitField( &m_useQtChartsPlotByDefault, "useQtChartsPlotByDefault", false, "Use QtChart as Default Plot Type" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useQtChartsPlotByDefault );
-
     CAF_PDM_InitFieldNoDefault( &m_gridCalculationExpressionFolder, "gridCalculationExpressionFolder", "Grid Calculation Expression Folder" );
     CAF_PDM_InitFieldNoDefault( &m_summaryCalculationExpressionFolder,
                                 "summaryCalculationExpressionFolder",
@@ -460,9 +457,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         pageSetup->appendToRow( &m_pageRightMargin );
         pageSetup->add( &m_pageTopMargin );
         pageSetup->appendToRow( &m_pageBottomMargin );
-
-        generalGrp->add( &m_useQtChartsPlotByDefault );
-        m_useQtChartsPlotByDefault.uiCapability()->setUiHidden( true );
 
         QString unitLabel = " [mm]";
         if ( QPageSize( m_pageSize() ).definitionUnits() == QPageSize::Inch )
@@ -834,14 +828,6 @@ void RiaPreferences::setLastUsedPlotTemplatePath( const QString& templatePath )
 bool RiaPreferences::openExportedPdfInViewer() const
 {
     return m_openExportedPdfInViewer;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::useQtChartsAsDefaultPlotType() const
-{
-    return m_useQtChartsPlotByDefault;
 }
 
 //--------------------------------------------------------------------------------------------------
