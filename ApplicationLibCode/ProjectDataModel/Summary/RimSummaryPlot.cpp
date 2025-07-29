@@ -1103,15 +1103,12 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
     auto curves = visibleSummaryCurvesForAxis( plotAxis );
     if ( curves.empty() ) return false;
 
-    size_t waterCutCurveCount = 0;
-    for ( auto c : curves )
+    for ( const auto& c : curves )
     {
         auto quantityName = c->summaryAddressY().vectorName();
-
-        if ( RiaStdStringTools::endsWith( quantityName, "WCT" ) ) waterCutCurveCount++;
+        if ( !RiaStdStringTools::endsWith( quantityName, "WCT" ) ) return false;
     }
-
-    return ( waterCutCurveCount == curves.size() );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
