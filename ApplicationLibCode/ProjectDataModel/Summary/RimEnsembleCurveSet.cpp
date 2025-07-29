@@ -2172,7 +2172,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                     auto sampleCount = plotCurve->numSamples();
                     if ( sampleCount == 0 )
                     {
-                        curves[i]->valuesX();
+                        curves[i]->valuesY();
+                        
                     }
                 }
             }
