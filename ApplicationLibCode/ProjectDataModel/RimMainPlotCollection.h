@@ -47,11 +47,6 @@ class RimVfpPlotCollection;
 class RimPlotCollection;
 class RimHistogramMultiPlotCollection;
 
-#ifdef USE_QTCHARTS
-class RimGridStatisticsPlotCollection;
-class RimEnsembleFractureStatisticsPlotCollection;
-#endif
-
 //==================================================================================================
 ///
 ///
@@ -80,11 +75,6 @@ public:
     RimStimPlanModelPlotCollection*      stimPlanModelPlotCollection() const;
     RimVfpPlotCollection*                vfpPlotCollection() const;
     RimHistogramMultiPlotCollection*     histogramMultiPlotCollection() const;
-
-#ifdef USE_QTCHARTS
-    RimGridStatisticsPlotCollection*             gridStatisticsPlotCollection() const;
-    RimEnsembleFractureStatisticsPlotCollection* ensembleFractureStatisticsPlotCollection() const;
-#endif
 
     void deleteAllContainedObjects();
     void updateCurrentTimeStepInPlots();
@@ -125,9 +115,6 @@ private:
     caf::PdmChildField<RimStimPlanModelPlotCollection*>      m_stimPlanModelPlotCollection;
     caf::PdmChildField<RimVfpPlotCollection*>                m_vfpPlotCollection;
     caf::PdmChildField<RimHistogramMultiPlotCollection*>     m_histogramMultiPlotCollection;
-
-    caf::PdmChildField<RimGridStatisticsPlotCollection*>             m_gridStatisticsPlotCollection_OBSOLETE;
-    caf::PdmChildField<RimEnsembleFractureStatisticsPlotCollection*> m_ensembleFractureStatisticsPlotCollection_OBSOLETE;
 
     caf::PdmField<bool> m_show;
 

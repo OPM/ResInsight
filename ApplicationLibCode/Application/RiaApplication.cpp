@@ -1860,5 +1860,7 @@ RiaKeyValueStore<char>* RiaApplication::keyValueStore() const
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmDeprecation> RiaApplication::defaultDeprecations()
 {
+    // Deprecations can be used for adding info messages when pdm fields have been removed.
+    // To extend the concept to pdm objects more work is needed.
     return {};
 }

@@ -254,27 +254,5 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCornerPointCase.cpp
 )
 
-if(RESINSIGHT_USE_QT_CHARTS)
-  list(
-    APPEND
-    SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.h
-  )
-
-  list(
-    APPEND
-    SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsPlot.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlot.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlotCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.cpp
-  )
-endif()
-
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
