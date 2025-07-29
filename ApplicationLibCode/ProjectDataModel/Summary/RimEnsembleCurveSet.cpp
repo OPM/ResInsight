@@ -2173,7 +2173,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                     if ( sampleCount == 0 )
                     {
                         curves[i]->valuesY();
-                        
                     }
                 }
             }
