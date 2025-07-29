@@ -31,7 +31,6 @@
 #include "RimSummaryEnsemble.h"
 #include "Tools/RimPlotAxisTools.h"
 
-#include "RiuQtChartsPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 #include "RiuSummaryQwtPlot.h"
@@ -84,27 +83,6 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
     }
 
     RimPlotAxisTools::applyAxisScaleDraw( plotWidget, axis, m_axisProperties );
-
-#ifdef USE_QTCHARTS
-    auto qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
-    if ( qtChartsPlotWidget )
-    {
-        auto mapToRiaNumberFormatType = []( RimPlotAxisProperties::NumberFormatType formatType )
-        {
-            if ( formatType == RimPlotAxisProperties::NumberFormatType::NUMBER_FORMAT_DECIMAL )
-                return RiaNumberFormat::NumberFormatType::FIXED;
-
-            if ( formatType == RimPlotAxisProperties::NumberFormatType::NUMBER_FORMAT_SCIENTIFIC )
-                return RiaNumberFormat::NumberFormatType::SCIENTIFIC;
-
-            return RiaNumberFormat::NumberFormatType::AUTO;
-        };
-
-        auto    formatType = mapToRiaNumberFormatType( m_axisProperties->numberFormat() );
-        QString format     = RiaNumberFormat::sprintfFormat( formatType, m_axisProperties->decimalCount() );
-        qtChartsPlotWidget->setAxisFormat( axis, format );
-    }
-#endif
 
     {
         if ( m_axisProperties->isLogarithmicScaleEnabled() )

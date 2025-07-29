@@ -319,9 +319,6 @@ private:
     static RiuPlotAxis plotAxisForTime();
 
 private:
-#ifdef USE_QTCHARTS
-    caf::PdmField<bool> m_useQtChartsPlot;
-#endif
     caf::PdmField<bool> m_normalizeCurveYValues;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;

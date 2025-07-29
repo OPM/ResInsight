@@ -22,15 +22,6 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
 
-template <>
-void caf::AppEnum<RiaRegressionTest::PlotEngine>::setUp()
-{
-    addItem( RiaRegressionTest::PlotEngine::USE_QWT, "USE_QWT", "Use Qwt" );
-    addItem( RiaRegressionTest::PlotEngine::USER_QTCHARTS, "USER_QTCHARTS", "Use QtCharts" );
-    addItem( RiaRegressionTest::PlotEngine::NONE, "NONE", "None" );
-    setDefault( RiaRegressionTest::PlotEngine::NONE );
-}
-
 CAF_PDM_SOURCE_INIT( RiaRegressionTest, "RiaRegressionTest" );
 
 //--------------------------------------------------------------------------------------------------
@@ -83,8 +74,6 @@ RiaRegressionTest::RiaRegressionTest()
 
     CAF_PDM_InitField( &invalidateExternalFilePaths, "invalidateExternalFilePaths", false, "Invalidate External File Paths" );
     CAF_PDM_InitField( &activateObjectsInPropertyEditor, "activateObjectsInPropertyEditor", false, "Activate Objects In Property Editor" );
-
-    CAF_PDM_InitFieldNoDefault( &overridePlotEngine, "forcePlotEngine", "Force Plot Engine" );
 
     CAF_PDM_InitField( &exportSnapshots3dViews, "exportSnapshots3dViews", true, "Export Snapshots 3D Views" );
     CAF_PDM_InitField( &exportSnapshotsPlots, "exportSnapshotsPlots", true, "Export Snapshots Plots" );

@@ -86,7 +86,6 @@ public:
     QString     lastUsedPlotTemplateAbsolutePath() const;
     void        setLastUsedPlotTemplatePath( const QString& templatePath );
     bool        openExportedPdfInViewer() const;
-    bool        useQtChartsAsDefaultPlotType() const;
     bool        writeEchoInGrdeclFiles() const;
 
     RiaDefines::ThemeEnum guiTheme() const;
@@ -198,7 +197,6 @@ private:
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<int>           m_maxPlotTemplateFoldersDepth;
     caf::PdmField<caf::FilePath> m_lastUsedPlotTemplate;
-    caf::PdmField<bool>          m_useQtChartsPlotByDefault;
 
     caf::PdmField<caf::FilePath> m_gridCalculationExpressionFolder;
     caf::PdmField<caf::FilePath> m_summaryCalculationExpressionFolder;
