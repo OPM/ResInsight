@@ -296,7 +296,7 @@ void RimPlotCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurvePresentation( bool updatePlotLegendAndTitle )
 {
-    updateCurveVisibility();
+    updateCurveVisibility( false );
 
     if ( updatePlotLegendAndTitle )
     {
@@ -1078,15 +1078,15 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveVisibility()
+void RimPlotCurve::updateCurveVisibility( bool updateParentPlot )
 {
     if ( canCurveBeAttached() )
     {
-        reattach();
+        reattach( updateParentPlot );
     }
     else
     {
-        detach();
+        detach( updateParentPlot );
     }
 }
 
