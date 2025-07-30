@@ -439,7 +439,7 @@ LasWell::GetRecord(std:: ifstream           & fin,
       record.insert(record.end(), items.begin(), items.end());
     }
   }
-  return(true);
+  return(!record.empty());
 }
 
 void LasWell::AddLog(const std::string         & name,
