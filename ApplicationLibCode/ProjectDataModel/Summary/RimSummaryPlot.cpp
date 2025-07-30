@@ -1103,15 +1103,12 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
     auto curves = visibleSummaryCurvesForAxis( plotAxis );
     if ( curves.empty() ) return false;
 
-    size_t waterCutCurveCount = 0;
-    for ( auto c : curves )
+    for ( const auto& c : curves )
     {
         auto quantityName = c->summaryAddressY().vectorName();
-
-        if ( RiaStdStringTools::endsWith( quantityName, "WCT" ) ) waterCutCurveCount++;
+        if ( !RiaStdStringTools::endsWith( quantityName, "WCT" ) ) return false;
     }
-
-    return ( waterCutCurveCount == curves.size() );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1439,14 +1436,6 @@ void RimSummaryPlot::removeCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::deleteCurve( RimSummaryCurve* curve )
-{
-    deleteCurves( { curve } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
 {
     for ( const auto curve : curves )
@@ -1471,7 +1460,7 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
                 {
                     if ( c == curve )
                     {
-                        curveSet->deleteCurve( curve );
+                        curveSet->deleteRealizationCurve( curve );
                         if ( curveSet->curves().empty() )
                         {
                             if ( curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::BY_ENSEMBLE_PARAM && plotWidget() &&
