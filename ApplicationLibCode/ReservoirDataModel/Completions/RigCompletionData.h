@@ -25,6 +25,8 @@
 #include <cafPdmObject.h>
 #include <cafPdmPointer.h>
 
+#include <map>
+#include <optional>
 #include <vector>
 
 //==================================================================================================
@@ -84,6 +86,7 @@ public:
     void setSecondOrderingValue( double orderingValue );
     void setDiameter( double diameter );
     void setTransmissibility( double transmissibility );
+    void setDepthRange( double startMD, double endMD );
 
     void setTransAndWPImultBackgroundDataFromFishbone( double        transmissibility,
                                                        double        skinFactor,
@@ -133,7 +136,6 @@ public:
     double                                    skinFactor() const;
     double                                    dFactor() const;
     CellDirection                             direction() const;
-    size_t                                    count() const;
     double                                    wpimult() const;
     CompletionType                            completionType() const;
     bool                                      isMainBore() const;
@@ -143,6 +145,8 @@ public:
 
     void                  setSourcePdmObject( const caf::PdmObject* object );
     const caf::PdmObject* sourcePdmObject() const;
+
+    std::map<QString, QString> parameterMap();
 
     std::vector<RigCompletionMetaData> m_metadata;
 
@@ -157,9 +161,11 @@ private:
     double                    m_dFactor; // TODO: Remove, always use default in Eclipse?
     CellDirection             m_direction;
 
+    std::optional<double> m_startMD; // start MD in completion cell
+    std::optional<double> m_endMD; // end MD in completion cell
+
     bool m_isMainBore; // to use mainbore for Eclipse calculation
 
-    size_t m_count; // TODO: Remove, usage replaced by WPImult
     double m_wpimult;
 
     CompletionType m_completionType;
