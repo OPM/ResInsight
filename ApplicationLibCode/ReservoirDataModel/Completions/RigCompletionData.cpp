@@ -39,12 +39,13 @@ RigCompletionData::RigCompletionData( const QString& wellName, const RigCompleti
     , m_skinFactor( std::numeric_limits<double>::infinity() )
     , m_dFactor( std::numeric_limits<double>::infinity() )
     , m_direction( CellDirection::DIR_UNDEF )
-    , m_count( 1 )
     , m_wpimult( std::numeric_limits<double>::infinity() )
     , m_isMainBore( false )
     , m_completionType( CompletionType::CT_UNDEFINED )
     , m_firstOrderingValue( orderingValue )
     , m_secondOrderingValue( std::numeric_limits<double>::infinity() )
+    , m_startMD( std::nullopt )
+    , m_endMD( std::nullopt )
 {
 }
 
@@ -375,14 +376,6 @@ RigCompletionData::CellDirection RigCompletionData::direction() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCompletionData::count() const
-{
-    return m_count;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RigCompletionData::wpimult() const
 {
     return m_wpimult;
@@ -436,9 +429,53 @@ const caf::PdmObject* RigCompletionData::sourcePdmObject() const
     return m_sourcePdmObject;
 }
 
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RigCompletionData::parameterMap()
+{
+    std::map<QString, QString> parameters;
+    parameters["wellName"]            = m_wellName;
+    parameters["cellIndex"]           = m_cellIndex.oneBasedLocalCellIndexString();
+    parameters["cellI"]               = QString::number( m_cellIndex.localCellIndexI() );
+    parameters["cellJ"]               = QString::number( m_cellIndex.localCellIndexJ() );
+    parameters["cellK"]               = QString::number( m_cellIndex.localCellIndexK() );
+    parameters["saturation"]          = QString::number( m_saturation );
+    parameters["transmissibility"]    = QString::number( m_transmissibility );
+    parameters["diameter"]            = QString::number( m_diameter );
+    parameters["kh"]                  = QString::number( m_kh );
+    parameters["skinFactor"]          = QString::number( m_skinFactor );
+    parameters["dFactor"]             = QString::number( m_dFactor );
+    parameters["direction"]           = QString::number( static_cast<int>( m_direction ) );
+    parameters["wpimult"]             = QString::number( m_wpimult );
+    parameters["completionType"]      = QString::number( static_cast<int>( m_completionType ) );
+    parameters["isMainBore"]          = m_isMainBore ? "True" : "False";
+    parameters["firstOrderingValue"]  = QString::number( m_firstOrderingValue );
+    parameters["secondOrderingValue"] = QString::number( m_secondOrderingValue );
+    if ( m_startMD.has_value() )
+    {
+        parameters["startMD"] = QString::number( m_startMD.value() );
+    }
+    if ( m_endMD.has_value() )
+    {
+        parameters["endMD"] = QString::number( m_endMD.value() );
+    }
+    if ( !m_metadata.empty() )
+    {
+        QStringList metadataList;
+        for ( const auto& meta : m_metadata )
+        {
+            metadataList.append( meta.name + ": " + meta.comment );
+        }
+        parameters["metadata"] = metadataList.join( ", " );
+    }
+
+    return parameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigCompletionData::copy( RigCompletionData& target, const RigCompletionData& from )
 {
     target.m_metadata            = from.m_metadata;
@@ -452,10 +489,20 @@ void RigCompletionData::copy( RigCompletionData& target, const RigCompletionData
     target.m_dFactor             = from.m_dFactor;
     target.m_direction           = from.m_direction;
     target.m_isMainBore          = from.m_isMainBore;
-    target.m_count               = from.m_count;
     target.m_wpimult             = from.m_wpimult;
     target.m_completionType      = from.m_completionType;
     target.m_firstOrderingValue  = from.m_firstOrderingValue;
     target.m_secondOrderingValue = from.m_secondOrderingValue;
     target.m_sourcePdmObject     = from.m_sourcePdmObject;
+    target.m_startMD             = from.m_startMD;
+    target.m_endMD               = from.m_endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCompletionData::setDepthRange( double startMD, double endMD )
+{
+    m_startMD = startMD;
+    m_endMD   = endMD;
 }
