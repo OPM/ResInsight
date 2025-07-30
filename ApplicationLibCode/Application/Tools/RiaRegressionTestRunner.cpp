@@ -23,6 +23,7 @@
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTest.h"
 #include "RiaTextFileCompare.h"
@@ -30,9 +31,6 @@
 
 #include "RicfCommandFileExecutor.h"
 
-#include "Rim3dView.h"
-#include "RimCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultAddress.h"
 #include "RimFaultInView.h"
 #include "RimMainPlotCollection.h"
@@ -45,7 +43,6 @@
 #include "RiuMainWindow.h"
 #include "RiuMainWindowTools.h"
 #include "RiuPlotMainWindow.h"
-#include "RiuViewer.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
@@ -239,6 +236,8 @@ void RiaRegressionTestRunner::runRegressionTest()
                 logInfoTextWithTimeInSeconds( timeStamp, "Initializing test :" + testCaseFolder.absolutePath() );
 
                 app->loadProject( testCaseFolder.filePath( projectFileName ), RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() );
+
+                RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
 
                 QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
                 if ( regressionTestConfig.exportSnapshots3dViews )
