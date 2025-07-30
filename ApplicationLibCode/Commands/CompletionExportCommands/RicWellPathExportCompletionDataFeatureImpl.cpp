@@ -1219,6 +1219,8 @@ std::vector<RigCompletionData>
                                                                             dFactor,
                                                                             kh,
                                                                             direction );
+                completion.setDepthRange( cell.startMD, cell.endMD );
+
                 completion.addMetadata( "Perforation Completion",
                                         QString( "MD In: %1 - MD Out: %2" ).arg( cell.startMD ).arg( cell.endMD ) +
                                             QString( " Transmissibility: " ) + QString::number( transmissibility ) );
