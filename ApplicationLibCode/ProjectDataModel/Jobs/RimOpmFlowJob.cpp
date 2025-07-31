@@ -60,6 +60,8 @@
 #include <QMessageBox>
 #include <QTextStream>
 
+#include <filesystem>
+
 CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 
 namespace caf
