@@ -43,5 +43,9 @@ public:
                            rips::KeyValueStoreOutputChunk*         reply,
                            RiaKeyValueStoreStateHandler*           stateHandler );
 
+    grpc::Status RemoveValue( grpc::ServerContext*                    context,
+                              const rips::KeyValueStoreRemoveRequest* request,
+                              rips::Empty*                            reply ) override;
+
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

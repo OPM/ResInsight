@@ -555,3 +555,14 @@ def key_values(self, key):
         for value in chunk.values:
             all_values.append(value)
     return all_values
+
+
+@add_method(Project)
+def remove_key_values(self, key):
+    """Remove the values for a given key in the key-value store.
+
+    Arguments:
+        key(str): The key.
+    """
+    request = KeyValueStore_pb2.KeyValueStoreRemoveRequest(name=key)
+    self.__key_value_store_stub.RemoveValue(request)

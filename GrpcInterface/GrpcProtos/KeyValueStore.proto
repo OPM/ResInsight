@@ -9,6 +9,7 @@ service KeyValueStore {
       returns (ClientToServerStreamReply) {}
   rpc GetValue(KeyValueStoreOutputRequest)
       returns (stream KeyValueStoreOutputChunk) {}
+  rpc RemoveValue(KeyValueStoreRemoveRequest) returns (Empty) {}
 }
 
 message KeyValueStoreInputChunk {
@@ -29,3 +30,5 @@ message KeyValueStoreChunk { repeated float values = 1; }
 message KeyValueStoreOutputRequest { string name = 1; }
 
 message KeyValueStoreOutputChunk { repeated float values = 1; }
+
+message KeyValueStoreRemoveRequest { string name = 1; }
