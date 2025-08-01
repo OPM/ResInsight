@@ -7,6 +7,7 @@ import "Definitions.proto";
 service KeyValueStore {
   rpc SetValue(stream KeyValueStoreInputChunk)
       returns (ClientToServerStreamReply) {}
+  rpc GetValue(KeyValueStoreOutputRequest) returns (stream KeyValueStoreOutputChunk) {}
 }
 
 message KeyValueStoreInputChunk {
@@ -23,3 +24,10 @@ message KeyValueInputParameters {
 }
 
 message KeyValueStoreChunk { repeated float values = 1; }
+
+message KeyValueStoreOutputRequest {
+  string name = 1;
+}
+
+message KeyValueStoreOutputChunk { repeated float values = 1; }
+
