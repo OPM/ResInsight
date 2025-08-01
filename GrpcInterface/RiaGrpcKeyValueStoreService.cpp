@@ -198,6 +198,9 @@ grpc::Status RiaGrpcKeyValueStoreService::SetValue( grpc::ServerContext*        
     return stateHandler->receiveStreamRequest( request, reply );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcKeyValueStoreService::GetValue( grpc::ServerContext*                    context,
                                                     const rips::KeyValueStoreOutputRequest* request,
                                                     rips::KeyValueStoreOutputChunk*         reply,
@@ -209,19 +212,39 @@ grpc::Status RiaGrpcKeyValueStoreService::GetValue( grpc::ServerContext*        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcKeyValueStoreService::RemoveValue( grpc::ServerContext*                    context,
+                                                       const rips::KeyValueStoreRemoveRequest* request,
+                                                       rips::Empty*                            reply )
+{
+    std::string name = request->name();
+
+    if ( !RiaApplication::instance()->keyValueStore()->exists( name ) )
+        return grpc::Status( grpc::NOT_FOUND, "No matching key found." );
+
+    RiaApplication::instance()->keyValueStore()->remove( name );
+    return Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcKeyValueStoreService::createCallbacks()
 {
     using Self = RiaGrpcKeyValueStoreService;
 
     std::vector<RiaGrpcCallbackInterface*> callbacks;
-    callbacks = {
-        new RiaGrpcClientToServerStreamCallback<Self,
-                                                KeyValueStoreInputChunk,
-                                                ClientToServerStreamReply,
-                                                RiaKeyValueStoreStateHandler>( this,
-                                                                               &Self::SetValue,
-                                                                               &Self::RequestSetValue,
-                                                                               new RiaKeyValueStoreStateHandler( true ) ) };
+    callbacks = { new RiaGrpcClientToServerStreamCallback<Self,
+                                                          KeyValueStoreInputChunk,
+                                                          ClientToServerStreamReply,
+                                                          RiaKeyValueStoreStateHandler>( this,
+                                                                                         &Self::SetValue,
+                                                                                         &Self::RequestSetValue,
+                                                                                         new RiaKeyValueStoreStateHandler(
+                                                                                             true ) ),
+                  new RiaGrpcUnaryCallback<Self, rips::KeyValueStoreRemoveRequest, rips::Empty>( this,
+                                                                                                 &Self::RemoveValue,
+                                                                                                 &Self::RequestRemoveValue ) };
+
     for ( int i = 0; i < NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS; ++i )
     {
         callbacks.push_back(
