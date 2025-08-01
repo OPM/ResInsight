@@ -237,7 +237,7 @@ QString RimWellRftPlot::associatedSimWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSummaryEnsemble*> dataSource )
+void RimWellRftPlot::setOrInitializeDataSources( const std::vector<RifDataSourceForRftPlt>& sourcesToSelect )
 {
     std::map<QString, QStringList> wellSources = findWellSources();
     if ( m_wellPathNameOrSimWellName() == "None" && !wellSources.empty() )
@@ -245,49 +245,37 @@ void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSu
         m_wellPathNameOrSimWellName = wellSources.begin()->first;
     }
 
-    RimSummaryEnsemble* ensemble    = nullptr;
-    RimSummaryCase*     summaryCase = nullptr;
-
-    if ( auto summaryCollection = std::get_if<RimSummaryEnsemble*>( &dataSource ) )
-    {
-        ensemble = *summaryCollection;
-    }
-    else if ( auto sumCase = std::get_if<RimSummaryCase*>( &dataSource ) )
-    {
-        summaryCase = *sumCase;
-    }
-
-    bool summaryOrEnsembleSelected = ( summaryCase || ensemble );
-
-    std::vector<RifDataSourceForRftPlt> sourcesToSelect;
+    std::vector<RifDataSourceForRftPlt> dataSources;
     const QString                       simWellName = associatedSimWellName();
 
-    if ( !summaryOrEnsembleSelected )
+    if ( !sourcesToSelect.empty() )
     {
+        // If the selection is provided, use it directly
+        dataSources = sourcesToSelect;
+    }
+    else
+    {
+        // If no selection is provided, build the selection based on available data sources
+
         for ( RimEclipseResultCase* const rftCase : RimWellPlotTools::rftCasesForWell( simWellName ) )
         {
-            sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, rftCase ) );
+            dataSources.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, rftCase ) );
         }
 
         for ( RimEclipseResultCase* const gridCase : RimWellPlotTools::gridCasesForWell( simWellName ) )
         {
-            sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, gridCase ) );
+            dataSources.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, gridCase ) );
         }
 
         for ( RimSummaryEnsemble* const ensemble : RimWellPlotTools::rftEnsemblesForWell( simWellName ) )
         {
-            sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
+            dataSources.push_back( RifDataSourceForRftPlt( ensemble ) );
         }
 
         for ( auto singleCase : RiaSummaryTools::singleTopLevelSummaryCases() )
         {
-            sourcesToSelect.push_back( RifDataSourceForRftPlt( singleCase, nullptr, nullptr ) );
+            dataSources.push_back( RifDataSourceForRftPlt( singleCase, nullptr, nullptr ) );
         }
-    }
-    else
-    {
-        if ( summaryCase ) sourcesToSelect.push_back( RifDataSourceForRftPlt( summaryCase, nullptr, nullptr ) );
-        if ( ensemble ) sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
     }
 
     std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
@@ -297,17 +285,17 @@ void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSu
         {
             if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
             {
-                sourcesToSelect.push_back( RifDataSourceForRftPlt( wellLogLasFile ) );
+                dataSources.push_back( RifDataSourceForRftPlt( wellLogLasFile ) );
             }
         }
     }
 
     for ( RimObservedFmuRftData* const observedFmuRftData : RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName ) )
     {
-        sourcesToSelect.push_back( RifDataSourceForRftPlt( observedFmuRftData ) );
+        dataSources.push_back( RifDataSourceForRftPlt( observedFmuRftData ) );
     }
 
-    m_selectedSources = sourcesToSelect;
+    m_selectedSources = dataSources;
 
     {
         std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
@@ -1660,6 +1648,29 @@ void RimWellRftPlot::rebuildCurves()
     createEnsembleCurveSets();
     updateFormationsOnPlot();
     syncCurvesFromUiSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::initializeDataSources( RimWellRftPlot* source )
+{
+    for ( auto curveSet : m_ensembleCurveSets )
+    {
+        // Clear the ensemble statistics before applying initial selections
+        // This is necessary to ensure that the statistics are recalculated based on the initial selections
+        curveSet->clearEnsembleStatistics();
+    }
+
+    if ( source )
+    {
+        setOrInitializeDataSources( source->m_selectedSources );
+    }
+    else
+    {
+        // If no source is provided, initialize with empty sources
+        setOrInitializeDataSources( {} );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

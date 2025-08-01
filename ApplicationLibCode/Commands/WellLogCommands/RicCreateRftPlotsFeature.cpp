@@ -108,7 +108,7 @@ void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, Ri
     rftPlot->setSimWellOrWellPathName( wellName );
     rftPlotColl->addPlot( rftPlot );
     rftPlot->resolveReferencesRecursively();
-    rftPlot->applyInitialSelections( sourcePlot->dataSource() );
+    rftPlot->initializeDataSources( sourcePlot );
 
     const auto    generatedName = rftPlot->simWellOrWellPathName(); // We may have been given a default well name
     const QString plotName      = QString( RimWellRftPlot::plotNameFormatString() ).arg( generatedName );
@@ -142,7 +142,7 @@ void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, Ri
     plotTrack->setDescription( QString( "Track %1" ).arg( rftPlot->plotCount() ) );
 
     rftPlotColl->addPlot( rftPlot );
-    rftPlot->applyInitialSelections( {} );
+    rftPlot->initializeDataSources( nullptr );
 
     const auto    generatedName = rftPlot->simWellOrWellPathName(); // We may have been given a default well name
     const QString plotName      = QString( RimWellRftPlot::plotNameFormatString() ).arg( generatedName );

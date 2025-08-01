@@ -83,7 +83,6 @@ public:
     int branchIndex() const;
 
     std::variant<RimSummaryCase*, RimSummaryEnsemble*> dataSource() const;
-    void applyInitialSelections( std::variant<RimSummaryCase*, RimSummaryEnsemble*> dataSource );
 
     static const char* plotNameFormatString();
 
@@ -95,6 +94,8 @@ public:
     RimWellRftEnsembleCurveSet* findEnsembleCurveSet( RimSummaryEnsemble* ensemble ) const;
 
     void rebuildCurves();
+
+    void initializeDataSources( RimWellRftPlot* source );
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -121,6 +122,8 @@ private:
 
     std::set<RiaRftPltCurveDefinition> selectedCurveDefs() const;
     std::set<RiaRftPltCurveDefinition> curveDefsFromCurves() const;
+
+    void setOrInitializeDataSources( const std::vector<RifDataSourceForRftPlt>& sourcesToSelect );
 
     void updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition>& allCurveDefs,
                              const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
