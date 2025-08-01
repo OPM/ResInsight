@@ -17,9 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcKeyValueStoreService.h"
 
+#include "KeyValueStore.pb.h"
 #include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcCaseService.h"
+#include "RiaGrpcHelper.h"
+#include "RiaKeyValueStoreUtil.h"
 #include "RiaLogging.h"
 
 #include "cafAssert.h"
@@ -82,6 +85,55 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
+    Status init( const KeyValueStoreOutputRequest* request )
+    {
+        std::string name = request->name();
+
+        RiaLogging::debug( QString( "Output stream request. Name='%1'" ).arg( QString::fromStdString( name ) ) );
+
+        auto result = RiaApplication::instance()->keyValueStore()->get( name );
+        if ( result.has_value() )
+        {
+            m_data      = RiaKeyValueStoreUtil::convertToFloatVector( result );
+            m_name      = name;
+            m_cellCount = m_data.size();
+            return grpc::Status::OK;
+        }
+        else
+        {
+            return grpc::Status( grpc::NOT_FOUND, "No matching key found." );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    Status assignStreamReply( KeyValueStoreOutputChunk* reply )
+    {
+        // How many data units will fit into one stream package?
+        const size_t packageSize   = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( float ) );
+        const size_t remainingData = m_cellCount - m_streamedValueCount;
+        const size_t chunkSize     = std::min( packageSize, remainingData );
+
+        if ( chunkSize == 0 )
+        {
+            return grpc::Status( grpc::OUT_OF_RANGE,
+                                 "We've reached the end. This is not an error but means transmission is finished" );
+        }
+
+        reply->mutable_values()->Reserve( static_cast<int>( chunkSize ) );
+        for ( size_t i = 0; i < chunkSize; ++i )
+        {
+            reply->add_values( m_data[m_streamedValueCount + i] );
+        }
+
+        m_streamedValueCount += chunkSize;
+        return grpc::Status::OK;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
     Status receiveStreamRequest( const KeyValueStoreInputChunk* request, ClientToServerStreamReply* reply )
     {
         CAF_ASSERT( request );
@@ -124,26 +176,7 @@ public:
             QString( "Stream finished: name=%1 size=%2" ).arg( QString::fromStdString( m_name ) ).arg( m_data.size() ) );
         if ( !m_name.empty() && !m_data.empty() )
         {
-            auto convertFromFloatVectorToBytes = []( const std::vector<float>& float_vec ) -> std::vector<char>
-            {
-                if ( float_vec.empty() )
-                {
-                    return {};
-                }
-
-                // Calculate the total size needed for the byte array
-                size_t size_in_bytes = float_vec.size() * sizeof( float );
-
-                // Create a vector of bytes with the appropriate size
-                std::vector<char> byte_vec( size_in_bytes );
-
-                // Copy the binary data from the float vector to the byte vector
-                std::memcpy( byte_vec.data(), float_vec.data(), size_in_bytes );
-
-                return byte_vec;
-            };
-
-            RiaApplication::instance()->keyValueStore()->set( m_name, convertFromFloatVectorToBytes( m_data ) );
+            RiaApplication::instance()->keyValueStore()->set( m_name, RiaKeyValueStoreUtil::convertToByteVector( m_data ) );
         }
     }
 
@@ -164,6 +197,15 @@ grpc::Status RiaGrpcKeyValueStoreService::SetValue( grpc::ServerContext*        
 {
     return stateHandler->receiveStreamRequest( request, reply );
 }
+
+grpc::Status RiaGrpcKeyValueStoreService::GetValue( grpc::ServerContext*                    context,
+                                                    const rips::KeyValueStoreOutputRequest* request,
+                                                    rips::KeyValueStoreOutputChunk*         reply,
+                                                    RiaKeyValueStoreStateHandler*           stateHandler )
+{
+    return stateHandler->assignStreamReply( reply );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -180,6 +222,17 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcKeyValueStoreService::createCallba
                                                                                &Self::SetValue,
                                                                                &Self::RequestSetValue,
                                                                                new RiaKeyValueStoreStateHandler( true ) ) };
+    for ( int i = 0; i < NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS; ++i )
+    {
+        callbacks.push_back(
+            new RiaGrpcServerToClientStreamCallback<Self,
+                                                    KeyValueStoreOutputRequest,
+                                                    KeyValueStoreOutputChunk,
+                                                    RiaKeyValueStoreStateHandler>( this,
+                                                                                   &Self::GetValue,
+                                                                                   &Self::RequestGetValue,
+                                                                                   new RiaKeyValueStoreStateHandler ) );
+    }
     return callbacks;
 }
 

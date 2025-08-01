@@ -518,3 +518,40 @@ def __generate_key_value_store_input_chunks(self, array, name):
     # Final empty message to signal completion
     chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
     yield chunk
+
+
+@add_method(Project)
+def key_values_async(
+    self,
+    key,
+):
+    """Get float values for a given key. Async: returns an iterator.
+
+    Arguments:
+        key(str): The key to get.
+
+    Returns:
+        An iterator to a chunk object containing an array of float values
+        Loop through the chunks and then the values within the chunk to get all values.
+    """
+    request = KeyValueStore_pb2.KeyValueStoreOutputRequest(name=key)
+    for chunk in self.__key_value_store_stub.GetValue(request):
+        yield chunk
+
+
+@add_method(Project)
+def key_values(self, key):
+    """Get float values for a given key. Synchronous: returns a list. `
+
+    Arguments:
+        key(str): The key to get.
+
+    Returns:
+        A list of float values
+    """
+    all_values = []
+    generator = self.key_values_async(key)
+    for chunk in generator:
+        for value in chunk.values:
+            all_values.append(value)
+    return all_values

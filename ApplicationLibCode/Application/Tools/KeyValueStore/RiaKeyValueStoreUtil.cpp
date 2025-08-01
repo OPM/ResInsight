@@ -23,3 +23,22 @@ std::vector<float> RiaKeyValueStoreUtil::convertToFloatVector( const std::option
 
     return floatVector;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<char> RiaKeyValueStoreUtil::convertToByteVector( const std::vector<float>& floatVec )
+{
+    if ( floatVec.empty() ) return {};
+
+    // Calculate the total size needed for the byte array
+    size_t sizeInBytes = floatVec.size() * sizeof( float );
+
+    // Create a vector of bytes with the appropriate size
+    std::vector<char> byteVec( sizeInBytes );
+
+    // Copy the binary data from the float vector to the byte vector
+    std::memcpy( byteVec.data(), floatVec.data(), sizeInBytes );
+
+    return byteVec;
+}
