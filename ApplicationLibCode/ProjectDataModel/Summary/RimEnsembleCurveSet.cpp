@@ -2781,8 +2781,6 @@ void RimEnsembleCurveSet::createCurves( const std::vector<RimSummaryCase*>& sumC
             curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
             curve->setSummaryCaseX( sumCase );
             curve->setSummaryAddressX( m_xAddressSelector->summaryAddress() );
-            if ( m_xAddressSelector->plotAxisProperties() )
-                curve->setTopOrBottomAxisX( m_xAddressSelector->plotAxisProperties()->plotAxis() );
         }
 
         curve->setColor( m_colorForRealizations );
@@ -2800,6 +2798,11 @@ void RimEnsembleCurveSet::createCurves( const std::vector<RimSummaryCase*>& sumC
         m_realizationCurves.push_back( curve );
 
         curve->setLeftOrRightAxisY( axisY() );
+
+        if ( isXAxisSummaryVector() && m_xAddressSelector->plotAxisProperties() )
+        {
+            curve->setTopOrBottomAxisX( m_xAddressSelector->plotAxisProperties()->plotAxis() );
+        }
     }
 }
 
