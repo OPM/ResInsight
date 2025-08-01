@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketCommand.h"
+#include "RiaVersionInfo.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -59,12 +60,14 @@ void manageSegFailure( int signalCode )
 
     auto loggers = RiaLogging::loggerInstances();
 
-    QString str = QString( "Segmentation fault. Signal code: %1" ).arg( signalCode );
-
     for ( auto logger : loggers )
     {
         if ( auto fileLogger = dynamic_cast<RiaFileLogger*>( logger ) )
         {
+            auto versionText = QString( STRPRODUCTVER );
+            auto str =
+                QString( "Segmentation fault (signal code: %1) - ResInsight version %2" ).arg( signalCode ).arg( versionText );
+
             fileLogger->error( str.toStdString().data() );
 
             auto        st      = std::stacktrace::current();
