@@ -38,5 +38,10 @@ public:
                            rips::ClientToServerStreamReply*     reply,
                            RiaKeyValueStoreStateHandler*        stateHandler );
 
+    grpc::Status GetValue( grpc::ServerContext*                    context,
+                           const rips::KeyValueStoreOutputRequest* request,
+                           rips::KeyValueStoreOutputChunk*         reply,
+                           RiaKeyValueStoreStateHandler*           stateHandler );
+
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

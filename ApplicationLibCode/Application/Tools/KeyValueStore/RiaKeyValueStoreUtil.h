@@ -28,4 +28,5 @@ class RiaKeyValueStoreUtil
 {
 public:
     static std::vector<float> convertToFloatVector( const std::optional<std::vector<char>>& input );
+    static std::vector<char>  convertToByteVector( const std::vector<float>& floatVec );
 };
