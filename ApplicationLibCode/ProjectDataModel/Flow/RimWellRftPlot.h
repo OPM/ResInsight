@@ -95,7 +95,6 @@ public:
 
     void rebuildCurves();
 
-    void setOrInitializeDataSources( const std::vector<RifDataSourceForRftPlt>& sourcesToSelect );
     void initializeDataSources( RimWellRftPlot* source );
 
 private:
@@ -123,6 +122,8 @@ private:
 
     std::set<RiaRftPltCurveDefinition> selectedCurveDefs() const;
     std::set<RiaRftPltCurveDefinition> curveDefsFromCurves() const;
+
+    void setOrInitializeDataSources( const std::vector<RifDataSourceForRftPlt>& sourcesToSelect );
 
     void updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition>& allCurveDefs,
                              const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,

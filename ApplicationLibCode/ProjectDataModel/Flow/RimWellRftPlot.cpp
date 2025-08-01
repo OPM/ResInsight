@@ -1662,7 +1662,15 @@ void RimWellRftPlot::initializeDataSources( RimWellRftPlot* source )
         curveSet->clearEnsembleStatistics();
     }
 
-    setOrInitializeDataSources( source->m_selectedSources );
+    if ( source )
+    {
+        setOrInitializeDataSources( source->m_selectedSources );
+    }
+    else
+    {
+        // If no source is provided, initialize with empty sources
+        setOrInitializeDataSources( {} );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
