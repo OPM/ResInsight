@@ -20,12 +20,17 @@
 
 #include "cafCmdFeature.h"
 
+class RimWellPath;
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicDuplicateWellPathFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static RimWellPath* duplicateWellPath( RimWellPath* wellPath );
 
 protected:
     bool isCommandEnabled() const override;
