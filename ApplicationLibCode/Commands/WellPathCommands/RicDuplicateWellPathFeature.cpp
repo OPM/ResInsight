@@ -51,13 +51,32 @@ bool RicDuplicateWellPathFeature::isCommandEnabled() const
 void RicDuplicateWellPathFeature::onActionTriggered( bool isChecked )
 {
     auto sourceWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimModeledWellPath>();
-    if ( !sourceWellPath ) return;
+    duplicateWellPath( sourceWellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicDuplicateWellPathFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "Duplicate Well Path" );
+    actionToSetup->setIcon( QIcon( ":/caf/duplicate.svg" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RicDuplicateWellPathFeature::duplicateWellPath( RimWellPath* wellPath )
+{
+    if ( wellPath == nullptr ) return nullptr;
 
     RimProject*            project            = RimProject::current();
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( project && wellPathCollection )
     {
-        auto   newModeledWellPath    = sourceWellPath->copyObject<RimModeledWellPath>();
+        auto newModeledWellPath = wellPath->copyObject<RimModeledWellPath>();
+        if ( newModeledWellPath == nullptr ) return nullptr;
+
         size_t modelledWellpathCount = wellPathCollection->modelledWellPathCount();
         newModeledWellPath->setName( "Well-" + QString::number( modelledWellpathCount + 1 ) );
         newModeledWellPath->setWellPathColor( RiaColorTables::editableWellPathsPaletteColors().cycledColor3f( modelledWellpathCount ) );
@@ -68,14 +87,9 @@ void RicDuplicateWellPathFeature::onActionTriggered( bool isChecked )
         project->scheduleCreateDisplayModelAndRedrawAllViews();
 
         Riu3DMainWindowTools::selectAsCurrentItem( newModeledWellPath->geometryDefinition() );
-    }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicDuplicateWellPathFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setText( "Duplicate Well Path" );
-    actionToSetup->setIcon( QIcon( ":/caf/duplicate.svg" ) );
+        return newModeledWellPath;
+    }
+
+    return nullptr;
 }

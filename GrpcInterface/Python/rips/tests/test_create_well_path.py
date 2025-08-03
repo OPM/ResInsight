@@ -58,3 +58,16 @@ def test_add_well_path_targets(rips_instance, initialize_test):
     assert not target.use_fixed_azimuth
     assert target.azimuth == 0.0
     assert target.inclination == 25.6
+
+
+def test_duplicate_well_path(rips_instance, initialize_test):
+    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+
+    my_well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
+    my_well_path.name = "test"
+    my_well_path.update()
+
+    new_well_path = my_well_path.duplicate()
+    assert new_well_path is not None
+    assert new_well_path.name != my_well_path.name
+
