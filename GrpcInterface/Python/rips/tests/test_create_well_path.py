@@ -70,4 +70,3 @@ def test_duplicate_well_path(rips_instance, initialize_test):
     new_well_path = my_well_path.duplicate()
     assert new_well_path is not None
     assert new_well_path.name != my_well_path.name
-

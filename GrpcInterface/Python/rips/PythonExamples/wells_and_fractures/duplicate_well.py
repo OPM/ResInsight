@@ -1,5 +1,5 @@
 ###################################################################################
-# This example will connect to ResInsight, retrieve a list of wells, print info and  
+# This example will connect to ResInsight, retrieve a list of wells, print info and
 #  make a duplicate of the first well found, if any
 #
 ###################################################################################
@@ -20,4 +20,3 @@ if resinsight is not None:
         # will only work for editable well paths (ModeledWellPath)
         new_well = well.duplicate()
         print("New Well name: " + new_well.name)
-
