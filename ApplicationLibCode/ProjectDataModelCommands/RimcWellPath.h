@@ -121,3 +121,26 @@ private:
     caf::PdmField<std::vector<double>>                             m_subLocations;
     caf::PdmField<caf::AppEnum<RimFishbonesDefines::DrillingType>> m_drillingType;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_extractWellPathPropertiesInternal : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_extractWellPathPropertiesInternal( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<double>  m_resamplingInterval;
+    caf::PdmField<QString> m_coordinateX;
+    caf::PdmField<QString> m_coordinateY;
+    caf::PdmField<QString> m_coordinateZ;
+    caf::PdmField<QString> m_measuredDepth;
+    caf::PdmField<QString> m_inclination;
+    caf::PdmField<QString> m_azimuth;
+    caf::PdmField<QString> m_dogleg;
+};

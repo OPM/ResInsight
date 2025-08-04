@@ -16,6 +16,7 @@ from .contour_map import (
     GeoMechContourMap as GeoMechContourMap,
 )
 from .well_log_plot import WellLogPlot as WellLogPlot
+from .well_path import WellPath as WellPath
 from .simulation_well import SimulationWell as SimulationWell
 from .exception import RipsError as RipsError
 from .surface import RegularSurface as RegularSurface
