@@ -48,12 +48,15 @@ def trajectory_properties(
 
     # Get the results from the key-value store.
     project = self.ancestor(Project)
-    result = {
-        prop: project.key_values(temp_key) for prop, temp_key in temp_keys.items()
-    }
+    if project:
+        result = {
+            prop: project.key_values(temp_key) for prop, temp_key in temp_keys.items()
+        }
 
-    # Delete results form key-value store.
-    for temp_key in temp_keys.values():
-        project.remove_key_values(temp_key)
+        # Delete results form key-value store.
+        for temp_key in temp_keys.values():
+            project.remove_key_values(temp_key)
 
-    return result
+        return result
+    else:
+        return {}
