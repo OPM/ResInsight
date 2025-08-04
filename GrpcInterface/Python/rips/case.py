@@ -36,6 +36,7 @@ result
 """
 
 import grpc
+import uuid
 from typing import List, Tuple
 
 import Case_pb2
@@ -56,6 +57,7 @@ from .resinsight_classes import (
 )
 
 from .grid import Grid as Grid
+from .project import Project as Project
 from .pdmobject import add_method
 from .view import View as View
 from .simulation_well import SimulationWell
@@ -1332,3 +1334,55 @@ def set_nnc_connections_values(
     reply = self.__nnc_properties_stub.SetNNCValues(request_iterator)
     if reply.accepted_value_count < len(values):
         raise IndexError
+
+
+@add_method(EclipseCase)
+def grid_property_for_positions(
+    self,
+    positions: List[List[float]],
+    property_type: str,
+    property_name: str,
+    time_step: int,
+    porosity_model: str = "MATRIX_MODEL",
+) -> List[float]:
+    shared_uuid = uuid.uuid4()
+    coordinate_x = "{}_{}".format(shared_uuid, "coordinate_x")
+    coordinate_y = "{}_{}".format(shared_uuid, "coordinate_y")
+    coordinate_z = "{}_{}".format(shared_uuid, "coordinate_z")
+    result_key = "{}_{}".format(shared_uuid, "result")
+
+    coord_x = []
+    coord_y = []
+    coord_z = []
+    for pos in positions:
+        coord_x.append(pos[0])
+        coord_y.append(pos[1])
+        coord_z.append(pos[2])
+
+        # Get the results from the key-value store.
+    project = self.ancestor(Project)
+    if project:
+        project.set_key_values(coordinate_x, coord_x)
+        project.set_key_values(coordinate_y, coord_y)
+        project.set_key_values(coordinate_z, coord_z)
+
+        self.export_values_internal(
+            coordinate_x=coordinate_x,
+            coordinate_y=coordinate_y,
+            coordinate_z=coordinate_z,
+            result_key=result_key,
+            property_type=property_type,
+            property_name=property_name,
+            time_step=time_step,
+            porosity_model=porosity_model,
+        )
+        result = project.key_values(result_key)
+
+        project.remove_key_values(coordinate_x)
+        project.remove_key_values(coordinate_y)
+        project.remove_key_values(coordinate_z)
+        project.remove_key_values(result_key)
+
+        return result
+    else:
+        return []

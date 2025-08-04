@@ -216,3 +216,133 @@ def test_multiple_load_of_same_case(rips_instance, initialize_test):
     for i in range(case_count):
         c = rips_instance.project.load_case(path_name)
         assert c
+
+
+def test_10k_property_for_positions(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    assert len(case.grids()) == 2
+    time_steps = case.time_steps()
+    assert len(time_steps) == 9
+
+    # Expected values from ResInsight UI (cell ijk=[23, 44, 19])
+    positions = [
+        [3655.67, 5145.34, 4176.63],
+        [3690.07, 5240.69, 4180.02],
+        [3599.87, 5275.16, 4179.32],
+        [3654.78, 5144.79, 4179.23],
+        [3688.99, 5239.88, 4182.7],
+        [3598.62, 5274.48, 4181.96],
+    ]
+
+    property_type = "STATIC_NATIVE"
+    property_name = "DX"
+    porosity_model = "MATRIX_MODEL"
+    time_step = 0
+    result = case.grid_property_for_positions(
+        positions, property_type, property_name, time_step, porosity_model
+    )
+    assert result
+    assert len(result) == 6
+
+    for dx in result:
+        assert dx > 96 and dx < 99
+
+
+def test_10k_property_for_positions_outside_of_model(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    positions = [
+        [3655.67, 5145.34, -4176.63],
+        [3690.07, 52400.69, 4180.02],
+    ]
+
+    property_type = "STATIC_NATIVE"
+    property_name = "DX"
+    porosity_model = "MATRIX_MODEL"
+    time_step = 0
+    result = case.grid_property_for_positions(
+        positions, property_type, property_name, time_step, porosity_model
+    )
+
+    assert result
+    assert len(result) == 2
+    for dx in result:
+        assert math.isinf(dx)
+
+
+def test_10k_property_for_positions_no_positions(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    positions = []
+
+    property_type = "STATIC_NATIVE"
+    property_name = "DX"
+    porosity_model = "MATRIX_MODEL"
+    time_step = 0
+    with pytest.raises(rips.RipsError, match="Invalid positions specified"):
+        case.grid_property_for_positions(
+            positions, property_type, property_name, time_step, porosity_model
+        )
+
+
+def test_10k_property_for_positions_invalid_property_name(
+    rips_instance, initialize_test
+):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    positions = [
+        [3655.67, 5145.34, 4176.63],
+    ]
+
+    property_type = "STATIC_NATIVE"
+    invalid_property_name = "NON_EXISTING_RESULT"
+    porosity_model = "MATRIX_MODEL"
+    time_step = 0
+    with pytest.raises(rips.RipsError, match="Result property not found."):
+        case.grid_property_for_positions(
+            positions, property_type, invalid_property_name, time_step, porosity_model
+        )
+
+
+def test_10k_property_for_positions_invalid_property_type(
+    rips_instance, initialize_test
+):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    positions = [
+        [3655.67, 5145.34, 4176.63],
+    ]
+
+    property_type = "NON_EXISTING_PROPERTY_TYPE"
+    invalid_property_name = "PRESSURE"
+    porosity_model = "MATRIX_MODEL"
+    time_step = 0
+    with pytest.raises(rips.RipsError, match="Invalid property type."):
+        case.grid_property_for_positions(
+            positions, property_type, invalid_property_name, time_step, porosity_model
+        )
+
+
+def test_10k_property_for_positions_invalid_time_step(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    time_steps = case.time_steps()
+    assert len(time_steps) == 9
+
+    positions = [
+        [3655.67, 5145.34, 4176.63],
+    ]
+
+    property_type = "DYNAMIC_NATIVE"
+    property_name = "PRESSURE"
+    porosity_model = "MATRIX_MODEL"
+    invalid_time_step = 99
+    with pytest.raises(rips.RipsError, match="Invalid time step."):
+        case.grid_property_for_positions(
+            positions, property_type, property_name, invalid_time_step, porosity_model
+        )
