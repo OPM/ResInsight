@@ -90,3 +90,29 @@ def test_empty_well_intersection(rips_instance, initialize_test):
 
     with pytest.raises(rips.RipsError):
         well_path_intersection.geometry_result()
+
+
+def test_10k_intersection_trajectory_properties(rips_instance, initialize_test):
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    assert len(case.grids()) == 2
+    well_path_files = [
+        case_root_path + "/wellpath_a.dev",
+    ]
+
+    well_path_names = rips_instance.project.import_well_paths(well_path_files)
+    assert len(well_path_names) == 1
+    wells = rips_instance.project.well_paths()
+    well_path = wells[0]
+
+    result = well_path.trajectory_properties(resampling_interval=10.0)
+    assert result
+
+    assert "coordinate_x" in result
+    assert "coordinate_y" in result
+    assert "coordinate_z" in result
+    assert "measured_depth" in result
+    assert "azimuth" in result
+    assert "inclination" in result
+    assert "dogleg" in result
