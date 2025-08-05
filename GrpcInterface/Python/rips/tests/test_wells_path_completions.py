@@ -191,6 +191,7 @@ def test_fishbone_interface(rips_instance, initialize_test):
     assert fishbones_updated.lateral_tubing_roghness_factor == 0.1
     assert fishbones_updated.subs_orientation_mode == "FIXED"
 
+
 # test perforations and perforations settings
 def test_perforation_settings(rips_instance, initialize_test):
     well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
