@@ -67,6 +67,12 @@ msw_settings.roughness_factor = 1e-05
 msw_settings.user_defined_reference_md = 0
 msw_settings.update()
 
+# Optionally update the Perforation Non-Darcy settings
+non_darcy_parameters = perforation_coll.non_darcy_parameters()
+non_darcy_parameters.non_darcy_flow_type = "UserDefined"
+non_darcy_parameters.user_defined_d_factor = 1.2345
+non_darcy_parameters.update()
+
 # export completions
 cases = resinsight.project.cases()
 
