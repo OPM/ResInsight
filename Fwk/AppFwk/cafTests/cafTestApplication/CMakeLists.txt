@@ -44,6 +44,8 @@ set(PROJECT_FILES
     LineEditAndPushButtons.cpp
     ApplicationEnum.h
     ApplicationEnum.cpp
+    OptionalFields.h
+    OptionalFields.cpp
 )
 
 qt_add_executable(

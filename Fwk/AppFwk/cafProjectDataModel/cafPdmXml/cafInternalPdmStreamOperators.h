@@ -127,3 +127,43 @@ QTextStream& operator>>( QTextStream& str, std::pair<T, QString>& sobj )
 
     return str;
 }
+
+//==================================================================================================
+/// QTextStream Stream operator overloading for std::optional<T>
+//==================================================================================================
+
+template <typename T>
+QTextStream& operator<<( QTextStream& str, const std::optional<T>& sobj )
+{
+    if ( sobj.has_value() )
+    {
+        str << sobj.value();
+    }
+
+    return str;
+}
+
+template <typename T>
+QTextStream& operator>>( QTextStream& str, std::optional<T>& sobj )
+{
+    QString stringValue;
+    str >> stringValue;
+
+    stringValue.remove( '"' );
+
+    if ( !stringValue.isEmpty() )
+    {
+        // Use the QTextStream to parse the string value into the type T
+        QTextStream singleValueStream( &stringValue );
+        T           singleValue;
+        singleValueStream >> singleValue;
+        sobj = singleValue;
+    }
+    else
+    {
+        // An empty string means no value, so reset the optional
+        sobj.reset();
+    }
+
+    return str;
+}

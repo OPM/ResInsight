@@ -130,6 +130,8 @@ InheritedDemoObj::InheritedDemoObj()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_optionalNumber, "OptionalNumber", "Optional Number" );
+
     CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum" );
     CAF_PDM_InitFieldNoDefault( &m_simpleObjectsField,
                                 "SimpleObjects",

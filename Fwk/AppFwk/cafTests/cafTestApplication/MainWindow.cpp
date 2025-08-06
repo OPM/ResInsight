@@ -8,6 +8,7 @@
 #include "LineEditAndPushButtons.h"
 #include "ManyGroups.h"
 #include "MenuItemProducer.h"
+#include "OptionalFields.h"
 #include "TamComboBox.h"
 #include "WidgetLayoutTest.h"
 
@@ -1310,6 +1311,7 @@ void MainWindow::buildTestModel()
     m_testRoot->objects.push_back( singleEditorObj );
 
     m_testRoot->objects.push_back( new LineEditAndPushButtons );
+    m_testRoot->objects.push_back( new OptionalFields );
 
     auto tamComboBox = new TamComboBox;
     m_testRoot->objects.push_back( tamComboBox );

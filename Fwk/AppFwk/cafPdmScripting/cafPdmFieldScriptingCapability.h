@@ -318,6 +318,59 @@ struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
 };
 
 template <typename T>
+struct PdmFieldScriptingCapabilityIOHandler<std::optional<T>>
+{
+    static void writeToField( std::optional<T>&    fieldValue,
+                              QTextStream&         inputStream,
+                              PdmScriptIOMessages* errorMessageContainer,
+                              bool                 stringsAreQuoted = true )
+    {
+        QString textValue;
+
+        PdmFieldScriptingCapabilityIOHandler<QString>::writeToField( textValue,
+                                                                     inputStream,
+                                                                     errorMessageContainer,
+                                                                     stringsAreQuoted );
+        textValue.remove( '"' );
+        if ( !textValue.isEmpty() )
+        {
+            QTextStream singleValueStream( &textValue );
+            T           singleValue;
+            bool        noStringQuotes = false;
+            PdmFieldScriptingCapabilityIOHandler<T>::writeToField( singleValue,
+                                                                   singleValueStream,
+                                                                   errorMessageContainer,
+                                                                   noStringQuotes );
+            fieldValue = singleValue;
+        }
+        else
+        {
+            fieldValue.reset();
+        }
+    }
+
+    static void readFromField( const std::optional<T>& fieldValue,
+                               QTextStream&            outputStream,
+                               bool                    quoteStrings     = true,
+                               bool                    quoteNonBuiltins = false )
+    {
+        QString textValue;
+
+        if ( fieldValue.has_value() )
+        {
+            QTextStream singleValueStream( &textValue );
+            singleValueStream << fieldValue.value();
+        }
+        else
+        {
+            textValue = "";
+        }
+
+        PdmFieldScriptingCapabilityIOHandler<QString>::readFromField( textValue, outputStream, quoteStrings, quoteNonBuiltins );
+    }
+};
+
+template <typename T>
 struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
 {
     static void writeToField( std::vector<T>&      fieldValue,

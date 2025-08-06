@@ -55,12 +55,16 @@ public:
 
         auto strPair = std::make_pair( false, QString( "msj" ) );
         CAF_PDM_InitField( &m_checkableString, "CheckableString", strPair, "label text" );
+
+        CAF_PDM_InitFieldNoDefault( &m_optionalDouble, "OptionalDouble", "Optional Double" );
     }
 
     ~AggregatedTypes() {}
 
     caf::PdmField<std::pair<bool, double>>  m_checkableDouble;
     caf::PdmField<std::pair<bool, QString>> m_checkableString;
+
+    caf::PdmField<std::optional<double>> m_optionalDouble;
 };
 CAF_PDM_SOURCE_INIT( AggregatedTypes, "AggregatedTypes" );
 
@@ -72,6 +76,7 @@ TEST( AggregatedTypes, AggregatedTypes )
     AggregatedTypes obj;
     EXPECT_EQ( obj.m_checkableDouble().first, false );
     EXPECT_EQ( obj.m_checkableDouble().second, 12.0 );
+    EXPECT_EQ( obj.m_optionalDouble(), std::nullopt );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,8 +88,9 @@ TEST( AggregatedTypeTest, MyTest )
     QXmlStreamWriter xmlStream( &xml );
     xmlStream.setAutoFormatting( true );
 
-    const double  testValue  = 0.0012;
-    const QString testString = "string with spaces";
+    const double  testValue         = 0.0012;
+    const QString testString        = "string with spaces";
+    const double  testOptionalValue = 123.0012;
 
     {
         AggregatedTypes myObj;
@@ -94,6 +100,8 @@ TEST( AggregatedTypeTest, MyTest )
 
         auto testStrPair        = std::make_pair( true, testString );
         myObj.m_checkableString = testStrPair;
+
+        myObj.m_optionalDouble = testOptionalValue;
 
         xml = myObj.writeObjectToXmlString();
     }
@@ -109,5 +117,9 @@ TEST( AggregatedTypeTest, MyTest )
 
         auto fieldStrValue = myObj.m_checkableString();
         ASSERT_STREQ( testString.toStdString().data(), fieldStrValue.second.toStdString().data() );
+
+        auto fieldOptionalValue = myObj.m_optionalDouble();
+        ASSERT_TRUE( fieldOptionalValue.has_value() );
+        ASSERT_DOUBLE_EQ( testOptionalValue, fieldOptionalValue.value() );
     }
 }
