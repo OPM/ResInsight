@@ -27,17 +27,11 @@ template <typename T>
 class PdmUiFieldSpecialization
 {
 public:
-    static QVariant convert( const T& value )
-    {
-        /// Convert the field value into a QVariant
-        return QVariant::fromValue( value );
-    }
+    /// Convert the field value into a QVariant
+    static QVariant convert( const T& value ) { return QVariant::fromValue( value ); }
 
-    static void setFromVariant( const QVariant& variantValue, T& value )
-    {
-        /// Set the field value from a QVariant
-        value = variantValue.value<T>();
-    }
+    /// Set the field value from a QVariant
+    static void setFromVariant( const QVariant& variantValue, T& value ) { value = variantValue.value<T>(); }
 
     /// Check equality between QVariants that carries a Field Value.
     /// The == operator will normally work, but does not support custom types in the QVariant
@@ -55,7 +49,7 @@ public:
         }
     }
 
-    /// Methods to get a list of options for a field, specialized for AppEnum
+    /// Methods to get a list of options for a field
     static QList<PdmOptionItemInfo> valueOptions( QString keyword, const T& ) { return QList<PdmOptionItemInfo>(); }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field

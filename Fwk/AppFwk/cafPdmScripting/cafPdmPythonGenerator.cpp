@@ -192,15 +192,14 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                             }
                             else
                             {
-                                QString valueString = getDefaultValue( field );
-
-                                if ( valueString == "None" )
+                                QString defaultValue = getDefaultValue( field );
+                                if ( !dataType.contains( "Optional" ) && defaultValue == "None" )
                                 {
                                     dataType = QString( "Optional[%1]" ).arg( dataType );
                                 }
 
                                 QString fieldCode =
-                                    QString( "        self.%1: %2 = %3\n" ).arg( snake_field_name ).arg( dataType ).arg( valueString );
+                                    QString( "        self.%1: %2 = %3\n" ).arg( snake_field_name ).arg( dataType ).arg( defaultValue );
 
                                 QString fullComment;
                                 {
@@ -312,7 +311,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                     if ( isList ) dataType = QString( "List[%1]" ).arg( dataType );
 
                     QString defaultValue = getDefaultValue( field );
-                    if ( defaultValue == "None" )
+                    if ( !dataType.contains( "Optional" ) && defaultValue == "None" )
                     {
                         dataType = QString( "Optional[%1]" ).arg( dataType );
                     }
@@ -508,7 +507,7 @@ QString PdmPythonGenerator::getDefaultValue( PdmFieldHandle* field )
             scriptability->readFromField( valueStream, true, true );
         }
 
-        if ( valueString.isEmpty() )
+        if ( valueString == "\"\"" || valueString.isEmpty() )
         {
             valueString = defaultValue;
         }
@@ -556,6 +555,11 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
         { QString::fromStdString( typeid( QString ).name() ), "str" },
         { QString::fromStdString( typeid( caf::FilePath ).name() ), "str" },
         { QString::fromStdString( typeid( std::vector<double> ).name() ), "List[float]" },
+        { QString::fromStdString( typeid( std::optional<double> ).name() ), "Optional[double]" },
+        { QString::fromStdString( typeid( std::optional<float> ).name() ), "Optional[float]" },
+        { QString::fromStdString( typeid( std::optional<int> ).name() ), "Optional[int]" },
+        { QString::fromStdString( typeid( std::optional<bool> ).name() ), "Optional[bool]" },
+        { QString::fromStdString( typeid( std::optional<QString> ).name() ), "Optional[str]" },
     };
 
 #ifndef CAF_EXCLUDE_CVF
