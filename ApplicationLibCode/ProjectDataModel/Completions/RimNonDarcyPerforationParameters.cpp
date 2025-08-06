@@ -19,6 +19,8 @@
 
 #include "RimWellPath.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiObjectEditorHandle.h"
 
 #include <limits>
@@ -36,49 +38,50 @@ void caf::AppEnum<RimNonDarcyPerforationParameters::NonDarcyFlowEnum>::setUp()
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimNonDarcyPerforationParameters, "RimNonDarcyPerforationParameters" );
+CAF_PDM_SOURCE_INIT( RimNonDarcyPerforationParameters, "NonDarcyPerforationParameters", "RimNonDarcyPerforationParameters" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
 {
-    CAF_PDM_InitObject( "NonDarcyPerforationParameters", ":/CompletionsSymbol16x16.png" );
+    CAF_PDM_InitScriptableObject( "NonDarcyPerforationParameters", ":/CompletionsSymbol16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow" );
 
-    CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor" );
+    CAF_PDM_InitScriptableField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor" );
 
-    CAF_PDM_InitField( &m_gridPermeabilityScalingFactor,
-                       "GridPermeabilityScalingFactor",
-                       1.0,
-                       "<html>Grid Permeability Scaling Factor (K<sub>r</sub>) [0..1]</html>" );
+    CAF_PDM_InitScriptableField( &m_gridPermeabilityScalingFactor,
+                                 "GridPermeabilityScalingFactor",
+                                 1.0,
+                                 "<html>Grid Permeability Scaling Factor (K<sub>r</sub>) [0..1]</html>" );
 
-    CAF_PDM_InitField( &m_wellRadius, "WellRadius", 0.108, "<html>Well Radius (r<sub>w</sub>)</html> [m]" );
+    CAF_PDM_InitScriptableField( &m_wellRadius, "WellRadius", 0.108, "<html>Well Radius (r<sub>w</sub>)</html> [m]" );
 
-    CAF_PDM_InitField( &m_relativeGasDensity,
-                       "RelativeGasDensity",
-                       0.8,
-                       "<html>Relative Gas Density (&gamma;)</html>",
-                       "",
-                       "Relative density of gas at surface conditions with respect to air at STP",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_relativeGasDensity,
+                                 "RelativeGasDensity",
+                                 0.8,
+                                 "<html>Relative Gas Density (&gamma;)</html>",
+                                 "",
+                                 "Relative density of gas at surface conditions with respect to air at STP",
+                                 "" );
 
-    CAF_PDM_InitField( &m_gasViscosity,
-                       "GasViscosity",
-                       0.02,
-                       "<html>Gas Viscosity (&mu;)</html> [cP]",
-                       "",
-                       "Gas viscosity at bottom hole pressure",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_gasViscosity,
+                                 "GasViscosity",
+                                 0.02,
+                                 "<html>Gas Viscosity (&mu;)</html> [cP]",
+                                 "",
+                                 "Gas viscosity at bottom hole pressure",
+                                 "" );
 
-    CAF_PDM_InitField( &m_inertialCoefficientBeta0,
-                       "InertialCoefficientBeta0",
-                       883.90,
-                       "<html>Inertial Coefficient (&beta;<sub>0</sub>)</html> [Forch. unit]" );
-    CAF_PDM_InitField( &m_permeabilityScalingFactor, "PermeabilityScalingFactor", -1.1045, "Permeability Scaling Factor (B)" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_inertialCoefficientBeta0,
+                                                  "InertialCoefficientBeta0",
+                                                  "InertialCoefficient",
+                                                  883.90,
+                                                  "<html>Inertial Coefficient (&beta;<sub>0</sub>)</html> [Forch. unit]" );
+    CAF_PDM_InitScriptableField( &m_permeabilityScalingFactor, "PermeabilityScalingFactor", -1.1045, "Permeability Scaling Factor (B)" );
 
-    CAF_PDM_InitField( &m_porosityScalingFactor, "PorosityScalingFactor", 0.0, "Porosity Scaling Factor (C)" );
+    CAF_PDM_InitScriptableField( &m_porosityScalingFactor, "PorosityScalingFactor", 0.0, "Porosity Scaling Factor (C)" );
 }
 
 //--------------------------------------------------------------------------------------------------
