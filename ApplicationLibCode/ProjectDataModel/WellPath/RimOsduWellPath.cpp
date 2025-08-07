@@ -23,12 +23,6 @@ RimOsduWellPath::RimOsduWellPath()
 
     CAF_PDM_InitField( &m_datumElevationFromOsdu, "DatumElevationFromOsdu", 0.0, "Datum Elevation From OSDU" );
     m_datumElevationFromOsdu.uiCapability()->setUiReadOnly( true );
-
-    // Required, as these settings are set in RimWellPath()
-    m_name.uiCapability()->setUiReadOnly( false );
-    m_name.uiCapability()->setUiHidden( false );
-    m_name.xmlCapability()->setIOReadable( true );
-    m_name.xmlCapability()->setIOWritable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
