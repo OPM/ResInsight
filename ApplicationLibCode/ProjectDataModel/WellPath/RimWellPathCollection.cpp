@@ -250,24 +250,26 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
     {
         // Check if this file is already open
         bool alreadyOpen = false;
-        for ( const auto& wellPath : m_wellPaths )
-        {
-            auto* fWPath = dynamic_cast<RimFileWellPath*>( wellPath.p() );
-            if ( !fWPath ) continue;
 
-            QFile f1;
-            f1.setFileName( filePath );
-            QString s1 = f1.fileName();
-            QFile   f2;
-            f2.setFileName( fWPath->filePath() );
-            QString s2 = f2.fileName();
-            if ( s1 == s2 )
+        if ( filePath.endsWith( "json", Qt::CaseInsensitive ) )
+        {
+            for ( const auto& wellPath : m_wellPaths )
             {
-                // printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*)
-                // filePath.toLocal8Bit());
-                alreadyOpen = true;
-                errorMessages->push_back( QString( "%1 is already loaded" ).arg( filePath ) );
-                break;
+                auto* fWPath = dynamic_cast<RimFileWellPath*>( wellPath.p() );
+                if ( !fWPath ) continue;
+
+                QFile f1;
+                f1.setFileName( filePath );
+                QString s1 = f1.fileName();
+                QFile   f2;
+                f2.setFileName( fWPath->filePath() );
+                QString s2 = f2.fileName();
+                if ( s1 == s2 )
+                {
+                    alreadyOpen = true;
+                    errorMessages->push_back( QString( "%1 is already loaded" ).arg( filePath ) );
+                    break;
+                }
             }
         }
 
@@ -343,7 +345,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         // NB! Do not use tryFindMatchingWellPath(), as this function will remove the prefix and will return an false
         // match in many cases.
         auto* existingWellPath = dynamic_cast<RimFileWellPath*>( wellPathByName( wellPath->name() ) );
-        if ( existingWellPath )
+        if ( existingWellPath && !existingWellPath->filePath().endsWith( ".dev" ) )
         {
             existingWellPath->setFilepath( wellPath->filePath() );
             existingWellPath->setWellPathIndexInFile( wellPath->wellPathIndexInFile() );

@@ -99,3 +99,17 @@ private:
     caf::PdmField<QString> m_zcornKey;
     caf::PdmField<QString> m_actnumKey;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimProject_wellPathCollection : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_wellPathCollection( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+};

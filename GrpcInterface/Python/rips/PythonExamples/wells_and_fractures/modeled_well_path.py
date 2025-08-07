@@ -7,7 +7,7 @@ resinsight = rips.Instance.find()
 # Create a modeled well path and add well path targets
 # The coordinates are based on the Norne case
 
-well_path_coll = resinsight.project.descendants(rips.WellPathCollection)[0]
+well_path_coll = resinsight.project.well_path_collection()
 well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
 well_path.name = "Test Well-1"
 well_path.update()

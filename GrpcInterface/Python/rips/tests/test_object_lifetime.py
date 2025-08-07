@@ -6,7 +6,7 @@ import rips
 
 
 def test_well_path(rips_instance, initialize_test):
-    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+    well_path_coll = rips_instance.project.well_path_collection()
     assert len(well_path_coll.well_paths()) == 0
 
     well_path = well_path_coll.add_new_object(rips.ModeledWellPath)

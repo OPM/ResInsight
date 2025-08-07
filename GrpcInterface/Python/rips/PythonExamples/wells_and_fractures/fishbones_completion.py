@@ -8,7 +8,7 @@ resinsight = rips.Instance.find()
 # The coordinates are based on the Norne case
 # Add a lateral to the main well path
 
-well_path_coll = resinsight.project.descendants(rips.WellPathCollection)[0]
+well_path_coll = resinsight.project.well_path_collection()
 
 editable_well_paths = well_path_coll.descendants(rips.ModeledWellPath)
 if editable_well_paths:
