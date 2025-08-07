@@ -23,7 +23,7 @@ intersection.points = [
 intersection.update()
 
 # Add a new modeled well path
-well_path_coll = resinsight.project.descendants(rips.WellPathCollection)[0]
+well_path_coll = resinsight.project.well_path_collection()
 well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
 well_path.name = "Test Well-1"
 well_path.update()

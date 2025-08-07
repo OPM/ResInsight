@@ -26,7 +26,7 @@ def test_10k(rips_instance, initialize_test):
 
 
 def test_add_well_path_completions(rips_instance, initialize_test):
-    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+    well_path_coll = rips_instance.project.well_path_collection()
 
     well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
     well_path.name = "test"
@@ -144,7 +144,7 @@ def test_add_well_path_fracture_template(rips_instance, initialize_test):
 
 # test fishbone interface
 def test_fishbone_interface(rips_instance, initialize_test):
-    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+    well_path_coll = rips_instance.project.well_path_collection()
 
     well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
     well_path.name = "fishbone_well"
@@ -194,7 +194,7 @@ def test_fishbone_interface(rips_instance, initialize_test):
 
 # test perforations and perforations settings
 def test_perforation_settings(rips_instance, initialize_test):
-    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+    well_path_coll = rips_instance.project.well_path_collection()
 
     well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
     well_path.name = "perforated_well"
