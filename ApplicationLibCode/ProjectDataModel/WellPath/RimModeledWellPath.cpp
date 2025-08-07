@@ -53,12 +53,6 @@ RimModeledWellPath::RimModeledWellPath()
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_geometryDefinition, "WellPathGeometryDef", "WellPathGeometry", "Trajectory" );
     m_geometryDefinition = new RimWellPathGeometryDef;
     m_geometryDefinition->changed.connect( this, &RimModeledWellPath::onGeometryDefinitionChanged );
-
-    // Required, as these settings are set in RimWellPath()
-    m_name.uiCapability()->setUiReadOnly( false );
-    m_name.uiCapability()->setUiHidden( false );
-    m_name.xmlCapability()->setIOReadable( true );
-    m_name.xmlCapability()->setIOWritable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,16 +175,6 @@ void RimModeledWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 {
     uiTreeOrdering.add( m_geometryDefinition() );
     RimWellPath::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    uiOrdering.add( &m_name );
-
-    RimWellPath::defineUiOrdering( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------

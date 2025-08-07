@@ -6,7 +6,7 @@ import rips
 
 
 def test_add_new_object_for_well_paths(rips_instance, initialize_test):
-    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+    well_path_coll = rips_instance.project.well_path_collection()
 
     my_well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
     my_well_path.name = "test"
@@ -30,7 +30,7 @@ def test_add_new_object_for_well_paths(rips_instance, initialize_test):
 
 
 def test_add_well_path_targets(rips_instance, initialize_test):
-    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+    well_path_coll = rips_instance.project.well_path_collection()
 
     my_well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
     my_well_path.name = "test"
@@ -61,7 +61,7 @@ def test_add_well_path_targets(rips_instance, initialize_test):
 
 
 def test_duplicate_well_path(rips_instance, initialize_test):
-    well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
+    well_path_coll = rips_instance.project.well_path_collection()
 
     my_well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
     my_well_path.name = "test"

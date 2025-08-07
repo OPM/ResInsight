@@ -97,9 +97,6 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     m_name.registerKeywordAlias( "WellPathName" );
-    m_name.uiCapability()->setUiReadOnly( true );
-    m_name.uiCapability()->setUiHidden( true );
-    m_name.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_airGap, "AirGap", "Air Gap" );
     m_airGap.registerGetMethod( this, &RimWellPath::airGap );
@@ -711,6 +708,8 @@ void RimWellPath::setWellPathGeometry( RigWellPath* wellPathModel )
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_name );
+
     if ( m_wellPathTieIn() )
     {
         m_wellPathTieIn->uiOrdering( uiConfigName, uiOrdering );
