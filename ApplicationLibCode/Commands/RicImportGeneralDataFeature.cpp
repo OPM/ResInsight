@@ -23,6 +23,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RicImportSummaryCasesFeature.h"
 
@@ -218,6 +219,7 @@ QString RicImportGeneralDataFeature::getFilePattern( RiaDefines::ImportFileType 
     QString eclipseEGridFilePattern( "*.EGRID" );
     QString eclipseInputFilePattern( "*.GRDECL" );
     QString eclipseSummaryFilePattern( "*.SMSPEC" );
+    QString esmrySummaryFilePattern( "*.ESMRY" );
     QString roffFilePattern( "*.ROFF *.ROFFASC" );
 
     if ( fileType == ImportFileType::ANY_ECLIPSE_FILE )
@@ -246,7 +248,21 @@ QString RicImportGeneralDataFeature::getFilePattern( RiaDefines::ImportFileType 
 
     if ( fileType == ImportFileType::ECLIPSE_SUMMARY_FILE )
     {
-        return QString( "Eclipse Summary File (%1)" ).arg( eclipseSummaryFilePattern );
+        QStringList filterTexts;
+        if ( RiaPreferencesSummary::current()->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
+        {
+            filterTexts += QString( "ESMRY Summary Files (%1)" ).arg( esmrySummaryFilePattern );
+            filterTexts += QString( "Eclipse Summary Files (%1)" ).arg( eclipseSummaryFilePattern );
+        }
+        else
+        {
+            filterTexts += QString( "Eclipse Summary Files (%1)" ).arg( eclipseSummaryFilePattern );
+            filterTexts += QString( "ESMRY Summary Files (%1)" ).arg( esmrySummaryFilePattern );
+        }
+
+        filterTexts += QString( "All Summary Files (%1 %2)" ).arg( eclipseSummaryFilePattern ).arg( esmrySummaryFilePattern );
+
+        return filterTexts.join( ";;" );
     }
 
     if ( fileType == ImportFileType::ROFF_FILE )
