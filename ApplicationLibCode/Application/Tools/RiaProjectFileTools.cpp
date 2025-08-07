@@ -45,6 +45,9 @@ bool isCandidateNewerThanOther( int candidateMajorVersion,
         return ( candidateMajorVersion > otherMajorVersion );
     }
 
+    // Early exit if a minor number is undefined
+    if ( candidateMinorVersion == -1 || otherMinorVersion == -1 ) return false;
+
     if ( candidateMinorVersion != otherMinorVersion )
     {
         return ( candidateMinorVersion > otherMinorVersion );
@@ -102,7 +105,7 @@ QString stringOfDigits( const QString& string )
 bool RiaProjectFileTools::isCandidateVersionNewerThanOther( const QString& candidateProjectFileVersion, const QString& projectFileVersion )
 {
     int candidateMajorVersion  = 0;
-    int candidateMinorVersion  = 0;
+    int candidateMinorVersion  = -1;
     int candidatePatchNumber   = -1;
     int candidateDevelopmentId = -1;
 
@@ -113,7 +116,7 @@ bool RiaProjectFileTools::isCandidateVersionNewerThanOther( const QString& candi
                                               &candidateDevelopmentId );
 
     int majorVersion  = 0;
-    int minorVersion  = 0;
+    int minorVersion  = -1;
     int patchNumber   = -1;
     int developmentId = -1;
 

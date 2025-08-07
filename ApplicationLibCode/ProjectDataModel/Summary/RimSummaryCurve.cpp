@@ -791,7 +791,7 @@ void RimSummaryCurve::initAfterRead()
 {
     RimStackablePlotCurve::initAfterRead();
 
-    if ( m_yPlotAxisProperties.value() == nullptr )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021" ) && m_yPlotAxisProperties.value() == nullptr )
     {
         auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot ) m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
