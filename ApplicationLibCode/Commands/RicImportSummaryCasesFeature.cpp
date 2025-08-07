@@ -77,7 +77,7 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 
     RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
     auto                                 cases = createSummaryCasesFromFiles( fileNames, createConfig );
-    if ( !cases.empty() ) return;
+    if ( cases.empty() ) return;
 
     addSummaryCases( cases );
     if ( !cases.empty() )
