@@ -36,6 +36,8 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSurfaceCollection.h"
+#include "RimTools.h"
+#include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
@@ -283,4 +285,37 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 QString RimProject_createGridFromKeyValues::classKeywordReturnedType() const
 {
     return RimCornerPointCase::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_wellPathCollection, "wellPathCollection" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_wellPathCollection::RimProject_wellPathCollection( caf::PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
+    CAF_PDM_InitObject( "Get Well Path Collection", "", "", "Get Well Path Collection" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_wellPathCollection::execute()
+{
+    auto wellPathCollection = RimTools::wellPathCollection();
+    if ( !wellPathCollection )
+    {
+        return std::unexpected( "No well path collection found." );
+    }
+
+    return wellPathCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_wellPathCollection::classKeywordReturnedType() const
+{
+    return RimWellPathCollection::classKeywordStatic();
 }
