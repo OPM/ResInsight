@@ -77,7 +77,7 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 
     RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
     auto                                 cases = createSummaryCasesFromFiles( fileNames, createConfig );
-    if ( !cases.empty() ) return;
+    if ( cases.empty() ) return;
 
     addSummaryCases( cases );
     if ( !cases.empty() )
@@ -189,7 +189,10 @@ RicRecursiveFileSearchDialogResult
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
+    // Make it possible to select ESMRY in this dialog, but this is a GUI only feature. Always use SMSPEC as the main file type as defined
+    // in RiaDefines::FileType
     auto fileTypes = { RicRecursiveFileSearchDialog::FileType::SMSPEC,
+                       RicRecursiveFileSearchDialog::FileType::ESMRY,
                        RicRecursiveFileSearchDialog::FileType::REVEAL_SUMMARY,
                        RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY };
 

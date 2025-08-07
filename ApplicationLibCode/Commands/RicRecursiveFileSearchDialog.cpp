@@ -1195,6 +1195,8 @@ QString RicRecursiveFileSearchDialog::fileExtensionForType( FileType fileType )
             return "GRID";
         case FileType::SMSPEC:
             return "SMSPEC";
+        case FileType::ESMRY:
+            return "ESMRY";
         case FileType::STIMPLAN_FRACTURE:
             return "XML";
         case FileType::LAS:
@@ -1225,6 +1227,8 @@ QString RicRecursiveFileSearchDialog::fileNameForType( FileType fileType )
             return "Eclipse Grid File";
         case FileType::SMSPEC:
             return "Eclipse Summary File";
+        case FileType::ESMRY:
+            return "ESMRY Summary File";
         case FileType::STIMPLAN_FRACTURE:
             return "StimPlan Fracture";
         case FileType::LAS:
@@ -1248,6 +1252,7 @@ RiaDefines::FileType RicRecursiveFileSearchDialog::mapSummaryFileType( RicRecurs
     switch ( fileType )
     {
         case RicRecursiveFileSearchDialog::FileType::SMSPEC:
+        case RicRecursiveFileSearchDialog::FileType::ESMRY:
             return RiaDefines::FileType::SMSPEC;
         case RicRecursiveFileSearchDialog::FileType::REVEAL_SUMMARY:
             return RiaDefines::FileType::REVEAL_SUMMARY;
