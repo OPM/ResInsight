@@ -177,7 +177,6 @@ void RimModeledWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
     RimWellPath::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
