@@ -18,6 +18,7 @@
 
 #include "RimHistogramMultiPlotCollection.h"
 
+#include "RicHistogramPlotTools.h"
 #include "RimHistogramMultiPlot.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -94,5 +95,12 @@ size_t RimHistogramMultiPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 void RimHistogramMultiPlotCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder.addCmdFeature( "RicNewHistogramMultiPlotFeature", "New Histogram Plot" );
+    menuBuilder.subMenuStart( "New Histogram Plot" );
+
+    for ( RicHistogramPlotTools::DataSourceType dataSourceType : RicHistogramPlotTools::allDataSourceTypes() )
+    {
+        caf::AppEnum<RicHistogramPlotTools::DataSourceType> dstEnum( dataSourceType );
+        menuBuilder.addCmdFeatureWithUserData( "RicNewHistogramMultiPlotFeature", dstEnum.uiText(), QVariant( dstEnum.text() ) );
+    }
+    menuBuilder.subMenuEnd();
 }

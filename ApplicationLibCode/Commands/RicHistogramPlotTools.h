@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <vector>
+
 class RimHistogramDataSource;
 class RimHistogramPlot;
 class RimHistogramMultiPlot;
@@ -29,6 +31,17 @@ class RimHistogramMultiPlotCollection;
 class RicHistogramPlotTools
 {
 public:
+    enum class DataSourceType
+    {
+        ENSEMBLE_PARAMETER,
+        GRID_STATISTICS,
+        SUMMARY_VECTOR,
+        ENSEMBLE_FRACTURE_STATISTICS
+    };
+
+    static std::vector<DataSourceType> allDataSourceTypes();
+
+    static void createDefaultHistogramCurve( RimHistogramPlot* plot, DataSourceType dataSourceType );
     static void createHistogramCurve( RimHistogramPlot* plot, RimHistogramDataSource* dataSource );
 
     static RimHistogramMultiPlot* addNewHistogramMultiplot();
