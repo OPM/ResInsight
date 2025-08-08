@@ -972,7 +972,11 @@ endif()
 
 # Set the install folder to be the bin folder. TODO: Move Python scripts to a
 # separate folder
-set(RESINSIGHT_INSTALL_FOLDER "bin")
+if(APPLE)
+  set(RESINSIGHT_INSTALL_FOLDER ".")
+else()
+  set(RESINSIGHT_INSTALL_FOLDER "bin")
+endif()
 
 # override system install prefix if private installation chosen
 option(RESINSIGHT_PRIVATE_INSTALL
@@ -1007,7 +1011,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     )
     install(
       FILES ${ERT_SHARED_LIB_FILES}
-      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/MacOS
+      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/Frameworks
     )
   endif()
 
