@@ -18,6 +18,10 @@
 
 #include "RicHistogramPlotTools.h"
 
+#include "Histogram/RimEnsembleFractureHistogramDataSource.h"
+#include "Histogram/RimEnsembleParameterHistogramDataSource.h"
+#include "Histogram/RimEnsembleSummaryVectorHistogramDataSource.h"
+#include "Histogram/RimGridStatisticsHistogramDataSource.h"
 #include "Histogram/RimHistogramCurve.h"
 #include "Histogram/RimHistogramDataSource.h"
 #include "Histogram/RimHistogramMultiPlot.h"
@@ -31,6 +35,53 @@
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RicHistogramPlotTools::DataSourceType>::setUp()
+{
+    addItem( RicHistogramPlotTools::DataSourceType::ENSEMBLE_PARAMETER, "ENSEMBLE_PARAMETER", "Ensemble Parameter" );
+    addItem( RicHistogramPlotTools::DataSourceType::GRID_STATISTICS, "GRID_STATISTICS", "Grid Statistics" );
+    addItem( RicHistogramPlotTools::DataSourceType::SUMMARY_VECTOR, "SUMMARY_VECTOR", "Summary Vector" );
+    addItem( RicHistogramPlotTools::DataSourceType::ENSEMBLE_FRACTURE_STATISTICS, "ENSEMBLE_FRACTURE_STATISTICS", "Ensemble Fracture Statistics" );
+    setDefault( RicHistogramPlotTools::DataSourceType::SUMMARY_VECTOR );
+}
+}; // namespace caf
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RicHistogramPlotTools::DataSourceType> RicHistogramPlotTools::allDataSourceTypes()
+{
+    return { RicHistogramPlotTools::DataSourceType::ENSEMBLE_PARAMETER,
+             RicHistogramPlotTools::DataSourceType::GRID_STATISTICS,
+             RicHistogramPlotTools::DataSourceType::SUMMARY_VECTOR,
+             RicHistogramPlotTools::DataSourceType::ENSEMBLE_FRACTURE_STATISTICS };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHistogramPlotTools::createDefaultHistogramCurve( RimHistogramPlot* plot, RicHistogramPlotTools::DataSourceType dataSourceType )
+{
+    auto getDataSourceFromType = []( DataSourceType dataSourceType ) -> RimHistogramDataSource*
+    {
+        if ( dataSourceType == DataSourceType::ENSEMBLE_PARAMETER )
+            return new RimEnsembleParameterHistogramDataSource();
+        else if ( dataSourceType == DataSourceType::GRID_STATISTICS )
+            return new RimGridStatisticsHistogramDataSource();
+        else if ( dataSourceType == DataSourceType::SUMMARY_VECTOR )
+            return new RimEnsembleSummaryVectorHistogramDataSource();
+        else if ( dataSourceType == DataSourceType::ENSEMBLE_FRACTURE_STATISTICS )
+            return new RimEnsembleFractureHistogramDataSource();
+        return nullptr;
+    };
+
+    RimHistogramDataSource* dataSource = getDataSourceFromType( dataSourceType );
+    dataSource->setDefaults();
+    return createHistogramCurve( plot, dataSource );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

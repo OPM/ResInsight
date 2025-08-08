@@ -50,7 +50,10 @@ void RicNewHistogramMultiPlotFeature::onActionTriggered( bool isChecked )
 
     if ( RimHistogramMultiPlotCollection* coll = selectedItems[0] )
     {
-        RicHistogramPlotTools::addNewHistogramMultiplot( coll );
+        auto dataSourceType = caf::AppEnum<RicHistogramPlotTools::DataSourceType>::fromText( userData().toString() );
+        auto multiplot      = RicHistogramPlotTools::addNewHistogramMultiplot( coll );
+        auto plot           = RicHistogramPlotTools::addNewHistogramPlot( multiplot );
+        RicHistogramPlotTools::createDefaultHistogramCurve( plot, dataSourceType );
     }
 }
 

@@ -163,6 +163,7 @@
 #include "RiuMainWindow.h"
 
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
+#include "RicHistogramPlotTools.h"
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
 #include "cafCmdFeature.h"
@@ -979,19 +980,24 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimHistogramMultiPlot*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewDefaultHistogramPlotFeature";
+            menuBuilder.subMenuStart( "New Histogram Plot" );
+
+            for ( RicHistogramPlotTools::DataSourceType dataSourceType : RicHistogramPlotTools::allDataSourceTypes() )
+            {
+                caf::AppEnum<RicHistogramPlotTools::DataSourceType> dstEnum( dataSourceType );
+                menuBuilder.addCmdFeatureWithUserData( "RicNewDefaultHistogramPlotFeature", dstEnum.uiText(), QVariant( dstEnum.text() ) );
+            }
+
+            menuBuilder.subMenuEnd();
         }
         else if ( dynamic_cast<RimHistogramPlot*>( firstUiItem ) )
         {
             menuBuilder.subMenuStart( "New Histogram Curve" );
 
-            // TODO: make an enum of these?
-            std::vector<QString> curveTypes = { "Ensemble Parameter", "Grid Statistics", "Summary Vector", "Ensemble Fracture Statistics" };
-
-            for ( const QString& curveType : curveTypes )
+            for ( RicHistogramPlotTools::DataSourceType dataSourceType : RicHistogramPlotTools::allDataSourceTypes() )
             {
-                QString menuText = curveType;
-                menuBuilder.addCmdFeatureWithUserData( "RicNewHistogramCurveFeature", menuText, QVariant( curveType ) );
+                caf::AppEnum<RicHistogramPlotTools::DataSourceType> dstEnum( dataSourceType );
+                menuBuilder.addCmdFeatureWithUserData( "RicNewHistogramCurveFeature", dstEnum.uiText(), QVariant( dstEnum.text() ) );
             }
 
             menuBuilder.subMenuEnd();
