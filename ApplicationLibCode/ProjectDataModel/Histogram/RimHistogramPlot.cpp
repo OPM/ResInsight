@@ -320,12 +320,12 @@ void RimHistogramPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
 {
     if ( !plotWidget() ) return;
 
-    for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
+    for ( const RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
     {
         RiuPlotAxis riuPlotAxis = axisProperties->plotAxis();
         if ( riuPlotAxis.axis() == plotAxis )
         {
-            auto* axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
+            auto* axisProps = dynamic_cast<const RimPlotAxisProperties*>( axisProperties );
             if ( !axisProps ) continue;
 
             bool hasVisibleCurveForAxis = !visibleHistogramCurvesForAxis( riuPlotAxis ).empty();
@@ -333,6 +333,26 @@ void RimHistogramPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
             plotWidget()->enableAxis( riuPlotAxis, shouldEnable );
 
             plotWidget()->enableAxisNumberLabels( riuPlotAxis, axisProps->showNumbers() );
+
+            RimPlotAxisPropertiesInterface::LegendTickmarkCount tickmarkCountEnum = axisProps->majorTickmarkCount();
+            int maxTickmarkCount = RimPlotAxisPropertiesInterface::tickmarkCountFromEnum( tickmarkCountEnum );
+            plotWidget()->setAutoTickIntervalCounts( riuPlotAxis, maxTickmarkCount, maxTickmarkCount );
+
+            Qt::AlignmentFlag titleAlignment = Qt::AlignCenter;
+            if ( axisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
+            {
+                titleAlignment = Qt::AlignRight;
+            }
+
+            bool titleBold = false;
+            plotWidget()->setAxisFontsAndAlignment( riuPlotAxis,
+                                                    axisProperties->titleFontSize(),
+                                                    axisProperties->valuesFontSize(),
+                                                    titleBold,
+                                                    titleAlignment );
+            plotWidget()->setAxisTitleEnabled( riuPlotAxis, true );
+
+            RimPlotAxisTools::applyAxisScaleDraw( plotWidget(), riuPlotAxis, axisProps );
         }
     }
 }
@@ -826,6 +846,7 @@ RimPlotAxisProperties* RimHistogramPlot::addNewAxisProperties( RiaDefines::PlotA
 RimPlotAxisProperties* RimHistogramPlot::addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name )
 {
     auto* axisProperties = new RimPlotAxisProperties;
+    axisProperties->configureForHistogramUse();
     axisProperties->enableAutoValueForAllFields( true );
     axisProperties->setNameAndAxis( name, name, plotAxis.axis(), plotAxis.index() );
     m_axisPropertiesArray.push_back( axisProperties );

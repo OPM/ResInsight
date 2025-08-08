@@ -64,10 +64,12 @@ public:
     RimPlotAxisProperties();
 
     void configureForBasicUse();
+    void configureForHistogramUse();
 
     void setAlwaysRequired( bool enable );
 
     void setEnableTitleTextSettings( bool enable );
+    void setEnableTitleLayoutSettings( bool enable );
     void enableRangeSettings( bool enable );
     void setNameForUnusedAxis();
     void setNameAndAxis( const QString& objectName, const QString& axistTitle, RiaDefines::PlotAxis axis, int axisIndex = 0 );
@@ -180,6 +182,7 @@ private:
     caf::PdmField<bool> m_isLogarithmicScaleEnabled;
 
     bool m_enableTitleTextSettings;
+    bool m_enableTitleLayoutSettings;
     bool m_isRangeSettingsEnabled;
     bool m_isAlwaysRequired;
 
