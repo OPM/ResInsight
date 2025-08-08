@@ -102,9 +102,6 @@ RimHistogramPlot::RimHistogramPlot()
     auto leftAxis = addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
     leftAxis->setAlwaysRequired( true );
 
-    auto rightAxis = addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
-    rightAxis->setAlwaysRequired( true );
-
     auto bottomAxis = addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
     bottomAxis->setAlwaysRequired( true );
 
