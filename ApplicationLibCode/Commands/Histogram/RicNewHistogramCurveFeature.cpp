@@ -52,25 +52,11 @@ bool RicNewHistogramCurveFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewHistogramCurveFeature::onActionTriggered( bool isChecked )
 {
-    auto getDataSourceFromString = []( const QString& dataSourceType ) -> RimHistogramDataSource*
-    {
-        if ( dataSourceType == "Ensemble Parameter" )
-            return new RimEnsembleParameterHistogramDataSource();
-        else if ( dataSourceType == "Grid Statistics" )
-            return new RimGridStatisticsHistogramDataSource();
-        else if ( dataSourceType == "Summary Vector" )
-            return new RimEnsembleSummaryVectorHistogramDataSource();
-        else if ( dataSourceType == "Ensemble Fracture Statistics" )
-            return new RimEnsembleFractureHistogramDataSource();
-        return nullptr;
-    };
-
     RimHistogramPlot* plot = selectedHistogramPlot();
     if ( plot )
     {
-        RimHistogramDataSource* dataSource = getDataSourceFromString( userData().toString() );
-        dataSource->setDefaults();
-        RicHistogramPlotTools::createHistogramCurve( plot, dataSource );
+        auto dataSourceType = caf::AppEnum<RicHistogramPlotTools::DataSourceType>::fromText( userData().toString() );
+        RicHistogramPlotTools::createDefaultHistogramCurve( plot, dataSourceType );
     }
 }
 

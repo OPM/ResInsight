@@ -45,7 +45,9 @@ void RicNewDefaultHistogramPlotFeature::onActionTriggered( bool isChecked )
     RimHistogramMultiPlot* multiPlot = dynamic_cast<RimHistogramMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
     if ( multiPlot )
     {
-        RicHistogramPlotTools::addNewHistogramPlot( multiPlot );
+        auto dataSourceType = caf::AppEnum<RicHistogramPlotTools::DataSourceType>::fromText( userData().toString() );
+        auto plot           = RicHistogramPlotTools::addNewHistogramPlot( multiPlot );
+        RicHistogramPlotTools::createDefaultHistogramCurve( plot, dataSourceType );
     }
 }
 
