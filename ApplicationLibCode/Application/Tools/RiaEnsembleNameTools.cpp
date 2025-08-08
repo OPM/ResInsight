@@ -122,6 +122,13 @@ std::map<std::pair<std::string, std::string>, std::vector<std::string>>
 
     auto commonFolder = internal::findLastCommonFolder( normalizedPaths );
 
+    if ( RiaStdStringTools::toUpper( commonFolder ).contains( "BATCH" ) )
+    {
+        // If the common folder is "BATCH", we assume all files are in the same ensemble and group them under the common folder name
+        groupedPaths[{ commonFolder, commonFolder }] = filepaths;
+        return groupedPaths;
+    }
+
     for ( const auto& filepath : normalizedPaths )
     {
         auto rest  = filepath.substr( commonPrefix.size() );
