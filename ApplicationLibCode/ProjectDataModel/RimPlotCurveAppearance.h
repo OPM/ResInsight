@@ -97,6 +97,7 @@ public:
     void setInterpolationVisible( bool isVisible );
     void setColorVisible( bool isVisible );
     void setFillOptionsVisible( bool isVisible );
+    void setCurveFittingToleranceVisible( bool isVisible );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -130,4 +131,5 @@ protected:
     bool m_colorVisible;
     bool m_interpolationVisible;
     bool m_fillOptionsVisible;
+    bool m_curveFittingToleranceVisible;
 };
