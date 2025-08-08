@@ -358,11 +358,12 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
-    auto group = uiOrdering.addNewGroup( "Statistics" );
-    group->add( &m_showP90Curve );
-    group->add( &m_showMeanCurve );
-    group->add( &m_showP10Curve );
-    group->add( &m_showValue );
+    auto statisticsGroup = uiOrdering.addNewGroup( "Statistics" );
+    auto curvesGroup     = statisticsGroup->addNewGroup( "Curves" );
+    curvesGroup->add( &m_showP90Curve );
+    curvesGroup->add( &m_showMeanCurve );
+    curvesGroup->add( &m_showP10Curve );
+    statisticsGroup->add( &m_showValue );
 
     uiOrdering.skipRemainingFields();
 }
