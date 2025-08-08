@@ -116,7 +116,11 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathDat
 
     // Open Parquet file reader
     std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
+#if ARROW_VERSION_MAJOR > 19
+    if ( auto openResult = parquet::arrow::OpenFile( input, pool ).Value(&arrow_reader); !openResult.ok() )
+#else
     if ( !parquet::arrow::OpenFile( input, pool, &arrow_reader ).ok() )
+#endif
     {
         return { nullptr, "Unable to read parquet data." };
     }

@@ -161,7 +161,11 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
 
     std::shared_ptr<arrow::Table>               table;
     std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
+#if ARROW_VERSION_MAJOR > 19
+    if ( auto openResult = parquet::arrow::OpenFile( input, pool ).Value(&arrow_reader); openResult.ok() )
+#else
     if ( auto openResult = parquet::arrow::OpenFile( input, pool, &arrow_reader ); openResult.ok() )
+#endif
     {
         if ( auto readResult = arrow_reader->ReadTable( &table ); readResult.ok() )
         {
