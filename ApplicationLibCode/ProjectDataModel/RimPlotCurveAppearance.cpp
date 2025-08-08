@@ -83,6 +83,7 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
     , m_colorVisible( true )
     , m_interpolationVisible( true )
     , m_fillOptionsVisible( true )
+    , m_curveFittingToleranceVisible( true )
 {
     CAF_PDM_InitObject( "Curve Apperance" );
 
@@ -216,8 +217,12 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_lineStyle );
     uiOrdering.add( &m_curveThickness );
 
-    uiOrdering.add( &m_curveFittingTolerance );
-    m_curveFittingTolerance.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+    if ( m_curveFittingToleranceVisible )
+    {
+        uiOrdering.add( &m_curveFittingTolerance );
+        m_curveFittingTolerance.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+    }
+
     uiOrdering.add( &m_fillStyle );
     m_fillStyle.uiCapability()->setUiHidden( !m_fillOptionsVisible );
 
@@ -489,4 +494,12 @@ void RimPlotCurveAppearance::setInterpolationVisible( bool isVisible )
 void RimPlotCurveAppearance::setFillOptionsVisible( bool isVisible )
 {
     m_fillOptionsVisible = isVisible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::setCurveFittingToleranceVisible( bool isVisible )
+{
+    m_curveFittingToleranceVisible = isVisible;
 }

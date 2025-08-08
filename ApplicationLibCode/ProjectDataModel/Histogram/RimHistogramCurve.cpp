@@ -59,6 +59,9 @@ RimHistogramCurve::RimHistogramCurve()
     CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean" );
     CAF_PDM_InitField( &m_showValue, "ShowValue", true, "Show Value" );
 
+    m_curveAppearance->setInterpolationVisible( false );
+    m_curveAppearance->setCurveFittingToleranceVisible( false );
+
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );
 
@@ -346,9 +349,6 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         caf::PdmUiGroup* dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
         m_dataSource->uiOrdering( uiConfigName, *dataSourceGroup );
     }
-
-    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
-    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
