@@ -193,8 +193,22 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                             else
                             {
                                 QString defaultValue = getDefaultValue( field );
-                                if ( !dataType.contains( "Optional" ) && defaultValue == "None" )
+
+                                if ( dataType.toLower().contains( "optional" ) )
                                 {
+                                    auto strippedValue = defaultValue;
+                                    strippedValue.remove( "\"" );
+
+                                    if ( strippedValue.isEmpty() )
+                                    {
+                                        // An empty string as default value for an optional field is set to the None
+                                        defaultValue = "None";
+                                    }
+                                }
+                                else if ( defaultValue == "None" )
+                                {
+                                    // TODO: Consider using PdmField<std::optional<T>> for optional fields instead of
+                                    // using the default value to manipulate the type
                                     dataType = QString( "Optional[%1]" ).arg( dataType );
                                 }
 
@@ -311,8 +325,11 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                     if ( isList ) dataType = QString( "List[%1]" ).arg( dataType );
 
                     QString defaultValue = getDefaultValue( field );
-                    if ( !dataType.contains( "Optional" ) && defaultValue == "None" )
+                    if ( defaultValue == "None" )
                     {
+                        // TODO: Consider using PdmField<std::optional<T>> for optional fields instead of using
+                        // the default value to manipulate the type
+
                         dataType = QString( "Optional[%1]" ).arg( dataType );
                     }
 
@@ -507,7 +524,7 @@ QString PdmPythonGenerator::getDefaultValue( PdmFieldHandle* field )
             scriptability->readFromField( valueStream, true, true );
         }
 
-        if ( valueString == "\"\"" || valueString.isEmpty() )
+        if ( valueString.isEmpty() )
         {
             valueString = defaultValue;
         }
