@@ -221,9 +221,10 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 std::expected<int, QString> RifOpmSummaryTools::extractRealizationNumber( const QString& path )
 {
-    QRegularExpression      pattern( "realization-(\\d+)", QRegularExpression::CaseInsensitiveOption );
-    QRegularExpressionMatch match = pattern.match( path );
+    // Regular expression to match realization number in the format "realization-<number>" or "realization_<number>"
+    QRegularExpression pattern( "realization[-_](\\d+)", QRegularExpression::CaseInsensitiveOption );
 
+    QRegularExpressionMatch match = pattern.match( path );
     if ( match.hasMatch() )
     {
         bool ok;

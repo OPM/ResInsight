@@ -100,10 +100,19 @@ TEST( RifCaseRealizationParametersReaderTest, SuccessfulParsing )
 //--------------------------------------------------------------------------------------------------
 TEST( RifCaseRealizationParametersReaderTest, FindRealizationNumber )
 {
-    QString filePath = "d:/gitroot-ceesol/ResInsight-regression-test/ModelData/ensemble_reek_with_params/realization-"
-                       "7/iter-0/eclipse/model/3_R001_REEK-7.SMSPEC";
+    {
+        QString filePath = "d:/gitroot-ceesol/ResInsight-regression-test/ModelData/ensemble_reek_with_params/realization-"
+                           "7/iter-0/eclipse/model/3_R001_REEK-7.SMSPEC";
 
-    auto realisationNumber = RifOpmSummaryTools::extractRealizationNumber( filePath );
-    EXPECT_TRUE( realisationNumber.has_value() );
-    EXPECT_EQ( 7, realisationNumber.value() );
+        auto realisationNumber = RifOpmSummaryTools::extractRealizationNumber( filePath );
+        EXPECT_TRUE( realisationNumber.has_value() );
+        EXPECT_EQ( 7, realisationNumber.value() );
+    }
+    {
+        QString filePath = "f:/Models/scratch/my_case/batch_1/geo_realization_2/simulation_2/eclipse/model/PROJECT-0.SMSPEC";
+
+        auto realisationNumber = RifOpmSummaryTools::extractRealizationNumber( filePath );
+        EXPECT_TRUE( realisationNumber.has_value() );
+        EXPECT_EQ( 2, realisationNumber.value() );
+    }
 }
