@@ -807,7 +807,7 @@ void RiuViewer::updateLegendLayout()
 
         // Place the rest of the legends in columns that fits within the screen height
 
-        int                                   maxColumnWidht = 0;
+        int                                   maxColumnWidth = 0;
         std::vector<caf::TitledOverlayFrame*> columnLegends;
 
         for ( caf::TitledOverlayFrame* legend : standardHeightLegends )
@@ -817,15 +817,15 @@ void RiuViewer::updateLegendLayout()
             // Check if we need a new column
             if ( ( yPos + (int)prefSize.y() + border ) > viewPortHeight )
             {
-                xPos += border + maxColumnWidht;
+                xPos += border + maxColumnWidth;
                 yPos = border + edgeAxisBorderHeight;
 
                 // Set same width to all legends in the column
                 for ( caf::TitledOverlayFrame* columnLegend : columnLegends )
                 {
-                    columnLegend->setRenderSize( cvf::Vec2ui( maxColumnWidht, columnLegend->renderSize().y() ) );
+                    columnLegend->setRenderSize( cvf::Vec2ui( maxColumnWidth, columnLegend->renderSize().y() ) );
                 }
-                maxColumnWidht = 0;
+                maxColumnWidth = 0;
                 columnLegends.clear();
             }
 
@@ -834,14 +834,14 @@ void RiuViewer::updateLegendLayout()
             columnLegends.push_back( legend );
 
             yPos += legend->renderSize().y() + border;
-            maxColumnWidht = std::max( maxColumnWidht, (int)prefSize.x() );
+            maxColumnWidth = std::max( maxColumnWidth, (int)prefSize.x() );
         }
 
         // Set same width to all legends in the last column
 
         for ( caf::TitledOverlayFrame* legend : columnLegends )
         {
-            legend->setRenderSize( cvf::Vec2ui( maxColumnWidht, legend->renderSize().y() ) );
+            legend->setRenderSize( cvf::Vec2ui( maxColumnWidth, legend->renderSize().y() ) );
         }
     }
 
