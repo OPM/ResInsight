@@ -710,6 +710,7 @@ cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
     }
 
     preferredXSize = std::min( preferredXSize, 400.0f );
+    preferredYSize = std::max( preferredYSize, 400.0f );
 
     return { (unsigned int)( std::ceil( preferredXSize ) ), (unsigned int)( std::ceil( preferredYSize ) ) };
 }
