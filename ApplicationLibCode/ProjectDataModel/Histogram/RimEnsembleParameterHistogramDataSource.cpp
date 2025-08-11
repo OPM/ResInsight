@@ -26,6 +26,8 @@
 
 #include "RigStatisticsMath.h"
 
+#include "cafPdmUiTreeSelectionEditor.h"
+
 CAF_PDM_XML_SOURCE_INIT( RimEnsembleParameterHistogramDataSource, "EnsembleParameterHistogramDataSource" );
 
 //--------------------------------------------------------------------------------------------------
@@ -37,6 +39,8 @@ RimEnsembleParameterHistogramDataSource::RimEnsembleParameterHistogramDataSource
 
     CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
     CAF_PDM_InitFieldNoDefault( &m_parameter, "Parameter", "Parameter" );
+    m_parameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
     CAF_PDM_InitField( &m_numBins, "NumBins", 15, "Number of Bins" );
 }
 
