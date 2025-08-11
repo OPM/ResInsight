@@ -21,22 +21,34 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class RimWelspecsData;
-class RimCompdatData;
+#include <optional>
+
+#include <QString>
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimCompletionData : public caf::PdmObject
+class RimWelspecsData : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCompletionData();
-    ~RimCompletionData() override;
+    RimWelspecsData();
+    ~RimWelspecsData() override;
 
-private:
-    caf::PdmChildArrayField<RimWelspecsData*> m_welspecs;
-    caf::PdmChildArrayField<RimCompdatData*>  m_compdat;
+public:
+    caf::PdmField<QString>                m_wellname;
+    caf::PdmField<QString>                m_groupname;
+    caf::PdmField<int>                    m_I;
+    caf::PdmField<int>                    m_J;
+    caf::PdmField<std::optional<double>>  m_bhpDepth;
+    caf::PdmField<QString>                m_phase;
+    caf::PdmField<std::optional<double>>  m_drainageRadius;
+    caf::PdmField<std::optional<QString>> m_inflowEquation;
+    caf::PdmField<std::optional<QString>> m_autoShutIn;
+    caf::PdmField<std::optional<QString>> m_crossFlow;
+    caf::PdmField<std::optional<int>>     m_pvtTableNum;
+    caf::PdmField<std::optional<QString>> m_hydrostaticDensCalc;
+    caf::PdmField<std::optional<int>>     m_fipRegion;
 };

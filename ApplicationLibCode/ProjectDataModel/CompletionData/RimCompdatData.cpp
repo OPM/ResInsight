@@ -16,30 +16,37 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCompletionData.h"
-
 #include "RimCompdatData.h"
-#include "RimWelspecsData.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
-CAF_PDM_SOURCE_INIT( RimCompletionData, "CompletionData" );
+CAF_PDM_SOURCE_INIT( RimCompdatData, "Compdat" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCompletionData::RimCompletionData()
+RimCompdatData::RimCompdatData()
 {
-    CAF_PDM_InitScriptableObject( "CompletionData", ":/Well.png" );
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_welspecs, "Welspecs", "Welspecs Data" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_compdat, "Compdat", "Compdat Data" );
+    CAF_PDM_InitScriptableObject( "Compdat", ":/Well.png" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellname, "WellName", "Well Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_I, "GridI", "Grid I" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_J, "GridJ", "Grid J" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_upperK, "UpperK", "Upper K" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_lowerK, "LowerK", "Lower K" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_openShutFlag, "OpenShutFlag", "Open/Shut Flag" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_satTableNum, "SatTableNum", "Saturation Table Number" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_transmissibility, "Transmissibility", "Transmissibility" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_diameter, "Diameter", "Diameter" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_kh, "Kh", "Kh Factor" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_skinFactor, "SkinFactor", "Skin Factor" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_dFactor, "DFactor", "D Factor" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_direction, "Direction", "Direction" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCompletionData::~RimCompletionData()
+RimCompdatData::~RimCompdatData()
 {
 }
