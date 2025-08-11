@@ -18,4 +18,4 @@ if resinsight is not None:
         print("Well name: " + well.name)
 
     if len(wells) > 0:
-        comp_data = wells.completion_data(wells[0].name) 
+        comp_data = wells.completion_data(wells[0].name)
