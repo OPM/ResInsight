@@ -1011,7 +1011,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     )
     install(
       FILES ${ERT_SHARED_LIB_FILES}
-      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/Frameworks
+      DESTINATION
+        ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/Frameworks
     )
   endif()
 
