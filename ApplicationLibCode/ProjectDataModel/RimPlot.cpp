@@ -219,7 +219,6 @@ void RimPlot::onViewerDestroyed()
     bool hasVisibleParent  = parent && parent->showWindow();
     if ( isIndependentPlot || hasVisibleParent )
     {
-        m_showWindow = false;
         updateConnectedEditors();
         updateUiIconFromToggleField();
     }
