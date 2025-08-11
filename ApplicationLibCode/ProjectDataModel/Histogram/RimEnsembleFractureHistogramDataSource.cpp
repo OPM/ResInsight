@@ -116,6 +116,8 @@ RimHistogramDataSource::HistogramResult RimEnsembleFractureHistogramDataSource::
 {
     RimHistogramDataSource::HistogramResult result;
 
+    if ( !m_ensembleFractureStatistics() ) return result;
+
     RigHistogramData histogramData =
         RigEnsembleFractureStatisticsCalculator::createStatisticsData( m_ensembleFractureStatistics(), m_property(), m_numBins() );
 
