@@ -247,6 +247,8 @@ size_t RimEnsembleStatisticsCase::keywordCount() const
 {
     if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
     {
+        m_firstSummaryCase->summaryReader()->createAddressesIfRequired();
+
         return m_firstSummaryCase->summaryReader()->keywordCount();
     }
 
