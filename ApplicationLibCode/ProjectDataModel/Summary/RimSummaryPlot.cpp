@@ -1898,17 +1898,12 @@ void RimSummaryPlot::deletePlotCurvesAndPlotWidget()
     if ( isDeletable() )
     {
         detachAllPlotItems();
-
-        if ( plotWidget() )
-        {
-            plotWidget()->setParent( nullptr );
-        }
-
         deleteAllPlotCurves();
 
         if ( m_summaryPlot )
         {
-            m_summaryPlot.reset();
+            // The RiuPlotWidget is owned by Qt, and will be deleted when its parent is destructed.
+            m_summaryPlot.clear();
         }
     }
 }
@@ -2604,9 +2599,10 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
+    CAF_ASSERT( mainWindowParent );
     if ( !plotWidget() )
     {
-        m_summaryPlot = std::make_unique<RiuSummaryQwtPlot>( this, mainWindowParent );
+        m_summaryPlot = new RiuSummaryQwtPlot( this, mainWindowParent );
 
         QObject::connect( plotWidget(), SIGNAL( curveOrderNeedsUpdate() ), this, SLOT( onUpdateCurveOrder() ) );
 
@@ -2639,8 +2635,6 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         updatePlotTitle();
     }
-
-    plotWidget()->setParent( mainWindowParent );
 
     return plotWidget();
 }
