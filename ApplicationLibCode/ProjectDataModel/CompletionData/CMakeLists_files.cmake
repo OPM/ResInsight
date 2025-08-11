@@ -1,13 +1,13 @@
 set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimCompletionData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWelspecsData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimCompdatData.h
+	${CMAKE_CURRENT_LIST_DIR}/RimCompletionData.h
+	${CMAKE_CURRENT_LIST_DIR}/RimWelspecsData.h
+	${CMAKE_CURRENT_LIST_DIR}/RimCompdatData.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimCompletionData.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWelspecsData.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimCompdatData.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RimCompletionData.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RimWelspecsData.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RimCompdatData.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
