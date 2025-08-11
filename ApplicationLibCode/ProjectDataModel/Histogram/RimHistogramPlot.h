@@ -229,7 +229,7 @@ private:
     caf::PdmField<caf::AppEnum<FrequencyType>> m_histogramFrequencyType;
     caf::PdmField<caf::AppEnum<GraphType>>     m_graphType;
 
-    std::unique_ptr<RiuPlotWidget> m_histogramPlot;
+    QPointer<RiuPlotWidget> m_histogramPlot;
 
     bool                  m_isValid;
     RiuPlotWidget::Legend m_legendPosition;
