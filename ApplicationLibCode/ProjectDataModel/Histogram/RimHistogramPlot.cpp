@@ -96,6 +96,7 @@ RimHistogramPlot::RimHistogramPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_histogramCurveCollection, "HistogramCurveCollection", "" );
     m_histogramCurveCollection = new RimHistogramCurveCollection();
+    m_histogramCurveCollection->curvesChanged.connect( this, &RimHistogramPlot::onCurveCollectionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_axisPropertiesArray, "AxisProperties", "Axes", ":/Axes16x16.png" );
     m_axisPropertiesArray.uiCapability()->setUiTreeHidden( false );
