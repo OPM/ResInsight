@@ -73,7 +73,8 @@ bool RifEclEclipseSummary::open( const QString& headerFileName, RiaThreadSafeLog
         m_ecl_SmSpec = ecl_sum_get_smspec( m_ecl_sum );
         m_timeSteps  = RifEclipseSummaryTools::getTimeSteps( m_ecl_sum );
         m_unitSystem = RifEclipseSummaryTools::readUnitSystem( m_ecl_sum );
-    }
+
+    createAndSetAddresses();
 
     return true;
 }
