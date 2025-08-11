@@ -40,3 +40,20 @@ public:
 private:
     caf::PdmField<QString> m_fileName;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPathCollection_wellCompletions : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPathCollection_wellCompletions( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_wellName;
+};

@@ -25,6 +25,7 @@
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathGeometryTools.h"
 
+#include "CompletionData/RimCompletionData.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimProject.h"
@@ -285,4 +286,12 @@ void RimModeledWellPath::updateReferencePoint()
 
     auto refPoint = topLevelModelledWell->geometryDefinition()->anchorPointXyz();
     m_geometryDefinition->setReferencePointXyz( refPoint );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCompletionData* RimModeledWellPath::completionData()
+{
+    return new RimCompletionData();
 }
