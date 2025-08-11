@@ -57,6 +57,7 @@ public:
 protected:
     QString caseName() const override;
     void    createAndSetAddresses() override;
+    size_t  keywordCount() const override;
 
 private:
     caf::PdmPointer<RimSummaryEnsembleSumo>                m_ensemble;

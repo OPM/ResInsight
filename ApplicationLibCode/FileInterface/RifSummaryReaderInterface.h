@@ -60,13 +60,11 @@ public:
     // Returns the number of result addresses. If no addresses are present, keywordCount() is returned.
     size_t dataObjectCount() const;
 
-protected:
-    // The keywordCount is considered a internal method, not to be used by clients. Add a friend class to allow access
-    friend class RifSummaryReaderAggregator;
-    friend class RifMultipleSummaryReaders;
-    friend class RifReaderEclipseSummary;
-    virtual size_t keywordCount() const;
+    // The keywordCount is considered a internal method, not to be used by clients. Having it as a protected method will not work well, as
+    // this class is also used as a contained object in addition to deriving from this interface.
+    virtual size_t keywordCount() const = 0;
 
+protected:
     void increaseSerialNumber();
 
     std::set<RifEclipseSummaryAddress> m_allResultAddresses; // Result and error addresses

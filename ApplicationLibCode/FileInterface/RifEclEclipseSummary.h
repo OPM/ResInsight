@@ -57,8 +57,9 @@ public:
     static std::string normalizeCompletionAddress( const std::string& address );
 
 private:
-    int  indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
-    void createAndSetAddresses() override;
+    int    indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
+    void   createAndSetAddresses() override;
+    size_t keywordCount() const override;
 
 private:
     ecl_sum_type*          m_ecl_sum;

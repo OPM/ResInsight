@@ -62,8 +62,9 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
 private:
-    void createAndSetAddresses() override;
-    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    void   createAndSetAddresses() override;
+    bool   openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    size_t keywordCount() const override;
 
 private:
     std::unique_ptr<Opm::EclIO::ESmry>              m_eSmry;

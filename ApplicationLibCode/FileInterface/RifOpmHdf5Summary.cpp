@@ -194,3 +194,15 @@ bool RifOpmHdf5Summary::openESmryFile( const QString& headerFileName, bool inclu
 
     return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifOpmHdf5Summary::keywordCount() const
+{
+    if ( m_eSmry )
+    {
+        return m_eSmry->keywordList().size();
+    }
+    return 0;
+}

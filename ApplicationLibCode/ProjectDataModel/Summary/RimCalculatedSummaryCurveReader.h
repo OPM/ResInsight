@@ -43,6 +43,7 @@ public:
 
 private:
     RimSummaryCalculation* findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const;
+    size_t                 keywordCount() const override;
 
 private:
     RimSummaryCalculationCollection* m_calculationCollection;

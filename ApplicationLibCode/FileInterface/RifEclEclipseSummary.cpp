@@ -81,7 +81,7 @@ bool RifEclEclipseSummary::open( const QString& headerFileName, RiaThreadSafeLog
     m_timeSteps.clear();
     m_ecl_SmSpec = ecl_sum_get_smspec( m_ecl_sum );
     m_timeSteps  = RifEclipseSummaryTools::getTimeSteps( m_ecl_sum );
-        m_unitSystem = RifEclipseSummaryTools::readUnitSystem( m_ecl_sum );
+    m_unitSystem = RifEclipseSummaryTools::readUnitSystem( m_ecl_sum );
 
     createAndSetAddresses();
 
@@ -371,6 +371,19 @@ void RifEclEclipseSummary::createAndSetAddresses()
             m_resultAddressToErtNodeIdx[addr] = i;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifEclEclipseSummary::keywordCount() const
+{
+    if ( m_ecl_SmSpec )
+    {
+        return static_cast<size_t>( ecl_smspec_num_nodes( m_ecl_SmSpec ) );
+    }
+
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

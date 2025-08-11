@@ -52,6 +52,7 @@ public:
 private:
     void                       buildTimeStepsAndMappings();
     static std::vector<time_t> createTimeSteps( const TableData& table );
+    size_t                     keywordCount() const override;
 
 private:
     std::unique_ptr<RifColumnBasedUserDataParser> m_parser;

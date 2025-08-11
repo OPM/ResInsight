@@ -88,6 +88,7 @@ public:
 
 protected:
     QString caseName() const override;
+    size_t  keywordCount() const override;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

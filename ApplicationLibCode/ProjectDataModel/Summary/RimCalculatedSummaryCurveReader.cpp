@@ -117,6 +117,14 @@ RimSummaryCalculation* RifCalculatedSummaryCurveReader::findCalculationByName( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RifCalculatedSummaryCurveReader::keywordCount() const
+{
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RifCalculatedSummaryCurveReader::unitSystem() const
 {
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;

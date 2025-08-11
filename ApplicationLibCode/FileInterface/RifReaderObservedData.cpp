@@ -187,6 +187,14 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RifReaderObservedData::keywordCount() const
+{
+    return m_allResultAddresses.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RifReaderObservedData::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
     std::string str = "";

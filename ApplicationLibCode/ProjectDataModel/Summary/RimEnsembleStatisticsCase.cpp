@@ -243,6 +243,19 @@ void RimEnsembleStatisticsCase::clearData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RimEnsembleStatisticsCase::keywordCount() const
+{
+    if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
+    {
+        return m_firstSummaryCase->summaryReader()->keywordCount();
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<time_t, time_t> RimEnsembleStatisticsCase::findMinMaxTime( const std::vector<RimSummaryCase*>& sumCases,
                                                                      const RifEclipseSummaryAddress&     inputAddress )
 {
