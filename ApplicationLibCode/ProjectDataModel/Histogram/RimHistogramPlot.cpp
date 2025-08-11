@@ -34,6 +34,7 @@
 #include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "cafAssert.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -716,17 +717,12 @@ void RimHistogramPlot::deletePlotCurvesAndPlotWidget()
     if ( isDeletable() )
     {
         detachAllPlotItems();
-
-        if ( plotWidget() )
-        {
-            plotWidget()->setParent( nullptr );
-        }
-
         deleteAllPlotCurves();
 
         if ( m_histogramPlot )
         {
-            m_histogramPlot.reset();
+            // The RiuPlotWidget is owned by Qt, and will be deleted when its parent is destructed.
+            m_histogramPlot.clear();
         }
     }
 }
@@ -1003,9 +999,10 @@ void RimHistogramPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RimHistogramPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
+    CAF_ASSERT( mainWindowParent );
     if ( !plotWidget() )
     {
-        m_histogramPlot = std::make_unique<RiuQwtPlotWidget>( this, mainWindowParent );
+        m_histogramPlot = new RiuQwtPlotWidget( this, mainWindowParent );
 
         QObject::connect( plotWidget(), SIGNAL( curveOrderNeedsUpdate() ), this, SLOT( onUpdateCurveOrder() ) );
 
