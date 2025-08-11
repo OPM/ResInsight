@@ -21,22 +21,34 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class RimWelspecsData;
-class RimCompdatData;
+#include <optional>
+
+#include <QString>
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimCompletionData : public caf::PdmObject
+class RimCompdatData : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCompletionData();
-    ~RimCompletionData() override;
+    RimCompdatData();
+    ~RimCompdatData() override;
 
-private:
-    caf::PdmChildArrayField<RimWelspecsData*> m_welspecs;
-    caf::PdmChildArrayField<RimCompdatData*>  m_compdat;
+public:
+    caf::PdmField<QString>                m_wellname;
+    caf::PdmField<int>                    m_I;
+    caf::PdmField<int>                    m_J;
+    caf::PdmField<int>                    m_upperK;
+    caf::PdmField<int>                    m_lowerK;
+    caf::PdmField<QString>                m_openShutFlag;
+    caf::PdmField<std::optional<int>>     m_satTableNum;
+    caf::PdmField<std::optional<double>>  m_transmissibility;
+    caf::PdmField<std::optional<double>>  m_diameter;
+    caf::PdmField<std::optional<double>>  m_kh;
+    caf::PdmField<std::optional<double>>  m_skinFactor;
+    caf::PdmField<std::optional<double>>  m_dFactor;
+    caf::PdmField<std::optional<QString>> m_direction;
 };
