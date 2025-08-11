@@ -25,6 +25,7 @@
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathGeometryTools.h"
 
+#include "CompletionData/RimCompletionData.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimProject.h"

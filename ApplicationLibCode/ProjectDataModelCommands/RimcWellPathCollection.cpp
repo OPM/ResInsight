@@ -20,7 +20,10 @@
 
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
-#include "RimPointBasedWellPath.h"
+
+#include "CompletioNData/RimCompletionData.h"
+#include "RimFixedTrajectoryWellPath.h"
+#include "RimModeledWellPath.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -176,4 +179,57 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellP
 QString RimcWellPathCollection_importWellPathFromPointsInternal::classKeywordReturnedType() const
 {
     return RimPointBasedWellPath::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection, RimcWellPathCollection_wellCompletions, "WellCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPathCollection_wellCompletions::RimcWellPathCollection_wellCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Well Completions" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellName, "WellName", "Name of Well" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_wellCompletions::execute()
+{
+    auto wellPathCollection = self<RimWellPathCollection>();
+    if ( !wellPathCollection )
+    {
+        return std::unexpected( QString( "Well path collection is missing. Cannot get completion data." ) );
+    }
+
+    if ( m_wellName().isEmpty() )
+    {
+        return std::unexpected( QString( "Well name is empty. Nothing to do." ) );
+    }
+
+    if ( auto wellPath = wellPathCollection->wellPathByName( m_wellName ) )
+    {
+        if ( auto modWellPath = dynamic_cast<RimModeledWellPath*>( wellPath ) )
+        {
+            if ( auto completionData = modWellPath->completionData() )
+            {
+                return completionData;
+            }
+            else
+            {
+                return std::unexpected( QString( "Well path '%1' does not have any completion data." ).arg( m_wellName ) );
+            }
+        }
+    }
+    return std::unexpected( QString( "Well path with name '%1' does not exist. Cannot get completion data." ).arg( m_wellName ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPathCollection_wellCompletions::classKeywordReturnedType() const
+{
+    return RimCompletionData::classKeywordStatic();
 }
