@@ -338,7 +338,7 @@ private:
 
     caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisPropertiesArray;
 
-    std::unique_ptr<RiuSummaryPlot>   m_summaryPlot;
+    QPointer<RiuSummaryPlot>          m_summaryPlot;
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
 
     std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
