@@ -100,7 +100,7 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RifEnsembleImpo
     //
     // https://github.com/OPM/ResInsight/issues/11342
 
-    m_multiSummaryReader        = std::make_unique<RifMultipleSummaryReaders>();
+    auto multiReader            = std::make_unique<RifMultipleSummaryReaders>();
     m_fileSummaryReaderId       = -1;
     m_additionalSummaryReaderId = -1;
 
@@ -112,6 +112,7 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RifEnsembleImpo
 
     m_fileSummaryReaderId = reader->serialNumber();
 
+    m_multiSummaryReader = std::move( multiReader );
     m_multiSummaryReader->addReader( std::move( reader ) );
 
     openAndAttachAdditionalReader();
