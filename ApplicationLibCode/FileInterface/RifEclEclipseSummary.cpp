@@ -67,11 +67,20 @@ bool RifEclEclipseSummary::open( const QString& headerFileName, RiaThreadSafeLog
     assert( m_ecl_sum == nullptr );
 
     m_ecl_sum = RifEclipseSummaryTools::openEclSum( headerFileName, false );
-    if ( m_ecl_sum )
+
+    if ( !m_ecl_sum )
     {
-        m_timeSteps.clear();
-        m_ecl_SmSpec = ecl_sum_get_smspec( m_ecl_sum );
-        m_timeSteps  = RifEclipseSummaryTools::getTimeSteps( m_ecl_sum );
+        if ( threadSafeLogger )
+        {
+            QString msg = "Not able to create resdata file reader for " + headerFileName;
+            threadSafeLogger->error( msg );
+        }
+        return false;
+    }
+
+    m_timeSteps.clear();
+    m_ecl_SmSpec = ecl_sum_get_smspec( m_ecl_sum );
+    m_timeSteps  = RifEclipseSummaryTools::getTimeSteps( m_ecl_sum );
         m_unitSystem = RifEclipseSummaryTools::readUnitSystem( m_ecl_sum );
 
     createAndSetAddresses();
