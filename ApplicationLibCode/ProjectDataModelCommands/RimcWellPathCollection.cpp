@@ -22,6 +22,7 @@
 #include "RiaKeyValueStoreUtil.h"
 
 #include "CompletioNData/RimCompletionData.h"
+
 #include "RimFixedTrajectoryWellPath.h"
 #include "RimModeledWellPath.h"
 #include "RimWellPath.h"
@@ -223,7 +224,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_wellComplet
             }
         }
     }
-    return std::unexpected( QString( "Well path with name '%1' does not exist. Cannot get completion data." ).arg( m_wellName ) );
+    return std::unexpected( QString( "Modeled Well path with name '%1' does not exist. Cannot get completion data." ).arg( m_wellName ) );
 }
 
 //--------------------------------------------------------------------------------------------------
