@@ -368,6 +368,51 @@ double RigCompletionData::dFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<double> RigCompletionData::startMD() const
+{
+    return m_startMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RigCompletionData::endMD() const
+{
+    return m_endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigCompletionData::directionString() const
+{
+    switch ( m_direction )
+    {
+        case CellDirection::DIR_I:
+            return "I";
+        case CellDirection::DIR_J:
+            return "J";
+        case CellDirection::DIR_K:
+            return "K";
+        case CellDirection::DIR_UNDEF:
+        default:
+            return "Undefined";
+    }
+}
+
+QString RigCompletionData::metaDataString() const
+{
+    QStringList metadataList;
+    for ( const auto& meta : m_metadata )
+    {
+        metadataList.append( meta.name + ": " + meta.comment );
+    }
+    return metadataList.join( "\n" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigCompletionData::CellDirection RigCompletionData::direction() const
 {
     return m_direction;

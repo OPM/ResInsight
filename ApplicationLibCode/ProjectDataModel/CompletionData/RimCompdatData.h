@@ -51,4 +51,7 @@ public:
     caf::PdmField<std::optional<double>>  m_skinFactor;
     caf::PdmField<std::optional<double>>  m_dFactor;
     caf::PdmField<std::optional<QString>> m_direction;
+    caf::PdmField<std::optional<double>>  m_startMD;
+    caf::PdmField<std::optional<double>>  m_endMD;
+    caf::PdmField<QString>                m_comment;
 };

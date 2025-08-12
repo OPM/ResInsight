@@ -139,6 +139,10 @@ public:
     double                                    wpimult() const;
     CompletionType                            completionType() const;
     bool                                      isMainBore() const;
+    std::optional<double>                     startMD() const;
+    std::optional<double>                     endMD() const;
+    QString                                   directionString() const;
+    QString                                   metaDataString() const;
 
     double firstOrderingValue() const;
     double secondOrderingValue() const;
@@ -153,12 +157,12 @@ public:
 private:
     QString                   m_wellName;
     RigCompletionDataGridCell m_cellIndex;
-    double                    m_saturation; 
+    double                    m_saturation;
     double                    m_transmissibility;
     double                    m_diameter;
-    double                    m_kh; 
+    double                    m_kh;
     double                    m_skinFactor;
-    double                    m_dFactor; 
+    double                    m_dFactor;
     CellDirection             m_direction;
 
     std::optional<double> m_startMD; // start MD in completion cell
