@@ -255,11 +255,16 @@ bool RiaPreferencesSystem::useMultiThreadingForSummaryImport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, int> RiaPreferencesSystem::maximumNumberOfThreads() const
+std::optional<int> RiaPreferencesSystem::threadCount() const
 {
     const auto& [enabled, text] = m_maximumNumberOfThreads();
 
-    return { enabled, text.toInt() };
+    if ( !enabled || text.isEmpty() )
+    {
+        return std::nullopt; // No limit set
+    }
+
+    return text.toInt();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -74,6 +74,8 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
     progOpt->registerOption( "server", "[<portnumber>]", "Launch as a GRPC server. Default port is 50051", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "portnumberfile", "[<filename>]", "Write the port number to this file.", cvf::ProgramOptions::SINGLE_VALUE );
 
+    progOpt->registerOption( "threadcount", "<threadcount>", "Set number of threads for parallel processing.\n", cvf::ProgramOptions::SINGLE_VALUE );
+
     progOpt->registerOption( "startdir", "<folder>", "Set startup directory.\n", cvf::ProgramOptions::SINGLE_VALUE );
 
     progOpt->registerOption( "summaryplot",
