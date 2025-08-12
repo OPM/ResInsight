@@ -22,6 +22,8 @@
 #include "RicfCommandObject.h"
 #include "RifTextDataTableFormatter.h"
 
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
+
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathGeometryTools.h"
 

@@ -18,6 +18,8 @@
 
 #include "RimCompletionData.h"
 
+#include "RigCompletionData.h"
+
 #include "RimCompdatData.h"
 #include "RimWelspecsData.h"
 
@@ -42,4 +44,48 @@ RimCompletionData::RimCompletionData()
 //--------------------------------------------------------------------------------------------------
 RimCompletionData::~RimCompletionData()
 {
+}
+
+void RimCompletionData::addCompletionData( RigCompletionData* completionData )
+{
+    if ( !completionData )
+    {
+        return;
+    }
+
+    RimCompdatData* compdatData = new RimCompdatData();
+    compdatData->m_wellname     = completionData->wellName();
+    compdatData->m_I            = (int)completionData->completionDataGridCell().localCellIndexI();
+    compdatData->m_J            = (int)completionData->completionDataGridCell().localCellIndexJ();
+    compdatData->m_upperK       = (int)completionData->completionDataGridCell().localCellIndexK();
+    compdatData->m_lowerK       = (int)completionData->completionDataGridCell().localCellIndexK();
+    compdatData->m_openShutFlag = "OPEN";
+
+    if ( !RigCompletionData::isDefaultValue( completionData->transmissibility() ) )
+    {
+        compdatData->m_transmissibility = completionData->transmissibility();
+    }
+    if ( !RigCompletionData::isDefaultValue( completionData->diameter() ) )
+    {
+        compdatData->m_diameter = completionData->diameter();
+    }
+    if ( !RigCompletionData::isDefaultValue( completionData->kh() ) )
+    {
+        compdatData->m_kh = completionData->kh();
+    }
+    if ( !RigCompletionData::isDefaultValue( completionData->skinFactor() ) )
+    {
+        compdatData->m_skinFactor = completionData->skinFactor();
+    }
+    if ( !RigCompletionData::isDefaultValue( completionData->dFactor() ) )
+    {
+        compdatData->m_dFactor = completionData->dFactor();
+    }
+
+    compdatData->m_direction = completionData->directionString();
+    compdatData->m_startMD   = completionData->startMD();
+    compdatData->m_endMD     = completionData->endMD();
+    compdatData->m_comment   = completionData->metaDataString();
+
+    m_compdat.push_back( compdatData );
 }

@@ -42,6 +42,8 @@ RimCompdatData::RimCompdatData()
     CAF_PDM_InitScriptableFieldNoDefault( &m_skinFactor, "SkinFactor", "Skin Factor" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_dFactor, "DFactor", "D Factor" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_direction, "Direction", "Direction" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_startMD, "StartMd", "Start MD" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_endMD, "EndMd", "End MD" );
 }
 
 //--------------------------------------------------------------------------------------------------
