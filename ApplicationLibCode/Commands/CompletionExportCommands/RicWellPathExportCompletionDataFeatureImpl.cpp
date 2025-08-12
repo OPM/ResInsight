@@ -1678,3 +1678,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCarfinForTemporaryLgrs( c
         RicExportLgrFeature::exportLgrs( folder, lgrInfoForWell.first, lgrInfoForWell.second );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( RimWellPath* wellPath )
+{
+    return {};
+}
