@@ -366,6 +366,37 @@ RimCommandRouter* RiaApplication::commandRouter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::setThreadCount() const
+{
+    std::optional<int> threadCount = std::nullopt;
+    QString            source;
+
+    if ( m_threadCountFromCommandLine.has_value() )
+    {
+        threadCount = m_threadCountFromCommandLine.value();
+        source      = "Command Line";
+    }
+    else
+    {
+        auto threadCountPrefs = RiaPreferencesSystem::current()->threadCount();
+        if ( threadCountPrefs.has_value() )
+        {
+            threadCount = threadCountPrefs.value();
+            source      = "Preferences";
+        }
+    }
+
+    if ( threadCount.has_value() )
+    {
+        RiaLogging::info( QString( "Setting number of threads to %1 from %2" ).arg( threadCount.value() ).arg( source ) );
+
+        RiaOpenMPTools::setMaxThreads( threadCount.value() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaApplication::openFile( const QString& fileName )
 {
     if ( !caf::Utils::fileExists( fileName ) ) return false;
@@ -1597,12 +1628,6 @@ void RiaApplication::initialize()
     caf::SelectionManager::instance()->setPdmRootObject( project() );
 
     initializeDataLoadController();
-
-    const auto& [enabled, maxThreads] = RiaPreferencesSystem::current()->maximumNumberOfThreads();
-    if ( enabled )
-    {
-        RiaOpenMPTools::setMaxThreads( maxThreads );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

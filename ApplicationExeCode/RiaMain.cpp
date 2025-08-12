@@ -191,6 +191,9 @@ int main( int argc, char* argv[] )
                 }
             }
 #endif
+            // Check if max thread count is set either from command line or preferences
+            app->setThreadCount();
+
             exitCode = QCoreApplication::instance()->exec();
         }
         catch ( std::exception& exep )

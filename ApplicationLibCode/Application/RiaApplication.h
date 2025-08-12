@@ -121,6 +121,8 @@ public:
     RimProject*       project();
     RimCommandRouter* commandRouter();
 
+    void setThreadCount() const;
+
     void createMockModel();
     void createResultsMockModel();
     void createLargeResultsMockModel();
@@ -260,6 +262,8 @@ protected:
     QString m_preferencesFileName;
 
     bool m_runningWorkerProcess;
+
+    std::optional<int> m_threadCountFromCommandLine;
 
 private:
     static RiaApplication*     s_riaApplication;

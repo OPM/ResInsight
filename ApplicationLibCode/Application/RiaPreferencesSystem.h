@@ -60,7 +60,7 @@ public:
     bool useImprovedSummaryImport() const;
     bool useMultiThreadingForSummaryImport() const;
 
-    std::pair<bool, int> maximumNumberOfThreads() const;
+    std::optional<int> threadCount() const;
 
     bool logToFile() const;
 

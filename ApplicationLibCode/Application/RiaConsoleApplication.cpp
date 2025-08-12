@@ -142,6 +142,23 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
+    if ( cvf::Option o = progOpt->option( "threadcount" ) )
+    {
+        if ( o.valueCount() == 1 )
+        {
+            auto value = o.value( 0 ).toInt();
+            if ( value > 0 )
+            {
+                m_threadCountFromCommandLine = value;
+            }
+            else
+            {
+                RiaLogging::error( "Error: Invalid value for --threadcount. Must be a positive integer." );
+                return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
+            }
+        }
+    }
+
     // Code generation
     // -----------------
     if ( cvf::Option o = progOpt->option( "generate" ) )
