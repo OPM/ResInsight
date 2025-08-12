@@ -20,4 +20,4 @@ if resinsight is not None:
     if len(wells) > 0:
         well_path_coll = resinsight.project.well_path_collection()
 
-        comp_data = well_path_coll.well_completions(wells[0].name) 
+        comp_data = well_path_coll.well_completions(wells[0].name)
