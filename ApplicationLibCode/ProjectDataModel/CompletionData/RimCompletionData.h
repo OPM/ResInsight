@@ -23,6 +23,7 @@
 
 class RimWelspecsData;
 class RimCompdatData;
+class RigCompletionData;
 
 //==================================================================================================
 ///
@@ -35,6 +36,8 @@ class RimCompletionData : public caf::PdmObject
 public:
     RimCompletionData();
     ~RimCompletionData() override;
+
+    void addCompletionData( RigCompletionData* completionData );
 
 private:
     caf::PdmChildArrayField<RimWelspecsData*> m_welspecs;

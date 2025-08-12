@@ -22,6 +22,8 @@
 #include "RicfCommandObject.h"
 #include "RifTextDataTableFormatter.h"
 
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
+
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathGeometryTools.h"
 
@@ -293,5 +295,14 @@ void RimModeledWellPath::updateReferencePoint()
 //--------------------------------------------------------------------------------------------------
 RimCompletionData* RimModeledWellPath::completionData()
 {
-    return new RimCompletionData();
+    auto retData = new RimCompletionData();
+
+    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( this );
+
+    for ( auto& cd : compdata )
+    {
+        retData->addCompletionData( &cd );
+    }
+
+    return retData;
 }

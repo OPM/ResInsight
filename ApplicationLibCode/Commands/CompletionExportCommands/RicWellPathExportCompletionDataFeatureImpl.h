@@ -123,6 +123,8 @@ public:
     static std::vector<RigCompletionData>
         computeDynamicCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
+    static std::vector<RigCompletionData> completionDataForWellPath( RimWellPath* wellPath );
+
 private:
     static std::vector<RigCompletionData> generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
                                                                              const std::vector<const RimPerforationInterval*>& intervals,
