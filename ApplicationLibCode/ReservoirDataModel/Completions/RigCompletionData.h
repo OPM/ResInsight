@@ -153,12 +153,12 @@ public:
 private:
     QString                   m_wellName;
     RigCompletionDataGridCell m_cellIndex;
-    double                    m_saturation; 
+    double                    m_saturation;
     double                    m_transmissibility;
     double                    m_diameter;
-    double                    m_kh; 
+    double                    m_kh;
     double                    m_skinFactor;
-    double                    m_dFactor; 
+    double                    m_dFactor;
     CellDirection             m_direction;
 
     std::optional<double> m_startMD; // start MD in completion cell
