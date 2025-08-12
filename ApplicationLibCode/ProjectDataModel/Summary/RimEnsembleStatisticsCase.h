@@ -54,7 +54,8 @@ public:
     static RiaDefines::DateTimePeriod findBestResamplingPeriod( time_t minTimeStep, time_t maxTimeStep );
 
 private:
-    void clearData();
+    void   clearData();
+    size_t keywordCount() const override;
 
 private:
     std::vector<time_t> m_timeSteps;

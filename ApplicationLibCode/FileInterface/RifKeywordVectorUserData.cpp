@@ -266,3 +266,11 @@ QString RifKeywordVectorUserData::valueForKey( const std::map<QString, QString>&
 
     return "";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifKeywordVectorUserData::keywordCount() const
+{
+    return m_mapFromAddressToVectorIndex.size();
+}

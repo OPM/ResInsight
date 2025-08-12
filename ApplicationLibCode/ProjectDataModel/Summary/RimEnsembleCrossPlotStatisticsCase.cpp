@@ -318,3 +318,18 @@ void RimEnsembleCrossPlotStatisticsCase::clearData()
     m_meanData.clear();
     m_firstSummaryCase = nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimEnsembleCrossPlotStatisticsCase::keywordCount() const
+{
+    if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
+    {
+        m_firstSummaryCase->summaryReader()->createAddressesIfRequired();
+
+        return m_firstSummaryCase->summaryReader()->keywordCount();
+    }
+
+    return 0;
+}

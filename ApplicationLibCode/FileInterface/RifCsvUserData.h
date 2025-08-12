@@ -52,7 +52,8 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
-    void buildTimeStepsAndMappings();
+    void   buildTimeStepsAndMappings();
+    size_t keywordCount() const override;
 
 private:
     std::unique_ptr<RifCsvUserDataParser> m_parser;

@@ -179,3 +179,11 @@ void RimSummaryCaseSumo::createAndSetAddresses()
         m_allResultAddresses = addresses;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimSummaryCaseSumo::keywordCount() const
+{
+    return m_allResultAddresses.size();
+}

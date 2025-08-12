@@ -54,6 +54,7 @@ public:
 private:
     RifEclipseSummaryAddress
         address( const QString& vectorName, const QString& identifierName, RifEclipseSummaryAddressDefines::SummaryCategory summaryCategory );
+    size_t keywordCount() const override;
 
 private:
     std::unique_ptr<RifCsvUserDataParser> m_asciiParser;

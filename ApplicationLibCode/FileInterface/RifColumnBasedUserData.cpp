@@ -277,3 +277,11 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps( const TableData& ta
 
     return tsVector;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifColumnBasedUserData::keywordCount() const
+{
+    return m_mapFromAddressToResultIndex.size();
+}

@@ -166,3 +166,11 @@ void RifCsvUserData::buildTimeStepsAndMappings()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifCsvUserData::keywordCount() const
+{
+    return m_mapFromAddressToResultIndex.size();
+}

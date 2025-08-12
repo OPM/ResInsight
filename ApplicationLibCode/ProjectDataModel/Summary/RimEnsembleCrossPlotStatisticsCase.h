@@ -55,7 +55,8 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
 
 private:
-    void clearData();
+    void   clearData();
+    size_t keywordCount() const override;
 
 private:
     std::vector<double> m_p10Data;

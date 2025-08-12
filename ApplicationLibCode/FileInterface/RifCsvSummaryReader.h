@@ -48,8 +48,10 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 protected:
-    void buildTimeStepsAndMappings();
+    void   buildTimeStepsAndMappings();
+    size_t keywordCount() const override;
 
+protected:
     std::unique_ptr<RifCsvUserDataParser> m_parser;
 
     std::map<RifEclipseSummaryAddress, size_t> m_mapFromAddressToResultIndex;

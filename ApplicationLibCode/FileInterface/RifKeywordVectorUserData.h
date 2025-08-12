@@ -54,6 +54,7 @@ private:
     static bool    isTimeHeader( const std::map<QString, QString>& header );
     static bool    isVectorHeader( const std::map<QString, QString>& header );
     static QString valueForKey( const std::map<QString, QString>& header, const QString& key );
+    size_t         keywordCount() const override;
 
 private:
     std::unique_ptr<RifKeywordVectorParser> m_parser;

@@ -146,3 +146,11 @@ void RifCsvSummaryReader::buildTimeStepsAndMappings()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifCsvSummaryReader::keywordCount() const
+{
+    return m_mapFromAddressToResultIndex.size();
+}
