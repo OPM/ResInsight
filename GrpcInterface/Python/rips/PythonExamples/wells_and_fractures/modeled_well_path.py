@@ -31,7 +31,20 @@ target = geometry.append_well_target(coord)
 coord = [1054.28, 250, -50]
 target = geometry.append_well_target(coord)
 
-well_path.append_perforation_interval(3300, 3350, 0.2, 0.76)
+perforation = well_path.append_perforation_interval(3300, 3350, 0.2, 0.76)
+
+# Make some changes to the AICD parameters of the valve template
+valve_templates = resinsight.project.valve_templates()
+aicd_template = valve_templates.valve_definitions()[0]
+aicd_parameters = aicd_template.aicd_parameters()
+aicd_parameters.max_flow_rate = "899.43"
+aicd_parameters.density_calibration_fluid = "45.5"
+aicd_parameters.update()
+
+# Add a valve to the perforation interval
+valve = perforation.add_valve(
+    template=aicd_template, start_md=3310, end_md=3340, valve_count=2
+)
 
 
 # Update skin factor of the perforation

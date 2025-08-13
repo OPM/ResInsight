@@ -21,6 +21,8 @@
 #include "RimWellPathAicdParameters.h"
 #include "RimWellPathValve.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
@@ -32,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RimValveTemplate, "ValveTemplate" );
 //--------------------------------------------------------------------------------------------------
 RimValveTemplate::RimValveTemplate()
 {
-    CAF_PDM_InitObject( "Valve Template", ":/ICDValve16x16.png" );
+    CAF_PDM_InitScriptableObject( "Valve Template", ":/ICDValve16x16.png" );
 
     CAF_PDM_InitField( &m_valveTemplateUnit,
                        "UnitSystem",
@@ -46,10 +48,10 @@ RimValveTemplate::RimValveTemplate()
 
     setName( fullLabel() );
 
-    CAF_PDM_InitField( &m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]" );
-    CAF_PDM_InitField( &m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient" );
+    CAF_PDM_InitScriptableField( &m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]" );
+    CAF_PDM_InitScriptableField( &m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient" );
 
-    CAF_PDM_InitFieldNoDefault( &m_aicdParameters, "AICDParameters", "AICD Parameters" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_aicdParameters, "AICDParameters", "AicdParameters", "AICD Parameters" );
     m_aicdParameters = new RimWellPathAicdParameters;
     m_aicdParameters.uiCapability()->setUiTreeChildrenHidden( true );
 }

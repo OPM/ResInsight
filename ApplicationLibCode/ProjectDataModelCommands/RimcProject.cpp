@@ -37,6 +37,7 @@
 #include "RimSummaryCase.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
+#include "RimValveTemplateCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -318,4 +319,37 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_wellPathCollection::exe
 QString RimProject_wellPathCollection::classKeywordReturnedType() const
 {
     return RimWellPathCollection::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_valveTemplates, "valveTemplates" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_valveTemplates::RimProject_valveTemplates( caf::PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
+    CAF_PDM_InitObject( "Get Valve Template Collection", "", "", "Get Valve Template Collection" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_valveTemplates::execute()
+{
+    auto valveTemplateCollection = RimTools::valveTemplateCollection();
+    if ( !valveTemplateCollection )
+    {
+        return std::unexpected( "No valve template collection found." );
+    }
+
+    return valveTemplateCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_valveTemplates::classKeywordReturnedType() const
+{
+    return RimValveTemplateCollection::classKeywordStatic();
 }
