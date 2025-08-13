@@ -165,9 +165,21 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
             const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
             const auto [isOk, values]            = reader->values( inputAddress );
 
-            if ( values.empty() || timeSteps.empty() ) continue;
+            if ( values.empty() || timeSteps.empty() )
+            {
+                sumCase->setUiToolTip( "No data available for realization" );
+                sumCase->setUiReadOnly( true );
 
-            if ( !includeIncompleteCurves && ( timeSteps.back() < timeThreshold ) ) continue;
+                continue;
+            }
+
+            if ( !includeIncompleteCurves && ( timeSteps.back() < timeThreshold ) )
+            {
+                sumCase->setUiToolTip( "Incomplete realization" );
+                continue;
+            }
+            sumCase->setUiToolTip( "" );
+            sumCase->setUiReadOnly( false );
 
             curveMerger.addCurveData( timeSteps, values );
         }

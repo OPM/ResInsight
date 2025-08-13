@@ -30,6 +30,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
@@ -280,6 +281,25 @@ void RimSummaryCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder, b
 caf::PdmFieldHandle* RimSummaryCase::userDescriptionField()
 {
     return &m_displayName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        // The tooltip text is set in RimEnsembleStatisticsCase::calculate for ensemble statistics. Use the presens of tooltip to determine
+        // if the tag should be added.
+        if ( !uiToolTip().isEmpty() )
+        {
+            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+            tag->icon = caf::IconProvider( ":/info.png" );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
