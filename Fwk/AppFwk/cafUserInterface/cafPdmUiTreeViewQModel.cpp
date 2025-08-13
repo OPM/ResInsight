@@ -195,9 +195,14 @@ void PdmUiTreeViewQModel::updateSubTree( PdmUiItem* pdmRoot, bool notifyEditors 
     existingSubTreeRoot->debugDump( 0 );
 #endif
 
-    updateSubTreeRecursive( existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp, notifyEditors );
+    // Usually, the newTreeRootTmp will be a subset of the existingSubTreeRoot. If the parent object is a folder with no
+    // PdmObjectHandle, the newTreeRootTmp will be null. Guard the pointer before use.
+    if ( newTreeRootTmp )
+    {
+        updateSubTreeRecursive( existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp, notifyEditors );
 
-    delete newTreeRootTmp;
+        delete newTreeRootTmp;
+    }
 
     updateEditorsForSubTree( existingSubTreeRoot );
 
