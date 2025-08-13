@@ -34,6 +34,8 @@
 
 #include "CompletionCommands/RicNewValveTemplateFeature.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
@@ -44,10 +46,10 @@ CAF_PDM_SOURCE_INIT( RimWellPathValve, "WellPathValve" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathValve::RimWellPathValve()
 {
-    CAF_PDM_InitObject( "WellPathValve", ":/ICDValve16x16.png" );
+    CAF_PDM_InitScriptableObject( "WellPathValve", ":/ICDValve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_valveTemplate, "ValveTemplate", "Valve Template" );
-    CAF_PDM_InitField( &m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD" );
+    CAF_PDM_InitScriptableField( &m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD" );
     CAF_PDM_InitFieldNoDefault( &m_multipleValveLocations, "ValveLocations", "Valve Locations" );
     CAF_PDM_InitField( &m_editValveTemplate, "EditTemplate", false, "Edit" );
     CAF_PDM_InitField( &m_createValveTemplate, "CreateTemplate", false, "Create" );

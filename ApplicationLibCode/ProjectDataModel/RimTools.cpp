@@ -30,6 +30,7 @@
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
+#include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCase.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
@@ -40,6 +41,7 @@
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicDifferenceData.h"
 #include "RimSurfaceCollection.h"
+#include "RimValveTemplateCollection.h"
 #include "RimViewWindow.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
@@ -573,6 +575,20 @@ RimWellPath* RimTools::firstWellPath()
     if ( !wellpaths.empty() ) return wellpaths[0];
 
     return nullptr;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimValveTemplateCollection* RimTools::valveTemplateCollection()
+{
+    auto proj = RimProject::current();
+    if ( !proj ) return nullptr;
+
+    auto oilField = proj->activeOilField();
+    if ( !oilField ) return nullptr;
+
+    auto compColl = oilField->completionTemplateCollection();
+    return compColl ? compColl->valveTemplateCollection() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

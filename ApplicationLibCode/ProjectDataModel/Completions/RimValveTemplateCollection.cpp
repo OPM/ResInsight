@@ -21,6 +21,9 @@
 #include "RimProject.h"
 #include "RimValveTemplate.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimValveTemplateCollection, "ValveTemplateCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -28,9 +31,9 @@ CAF_PDM_SOURCE_INIT( RimValveTemplateCollection, "ValveTemplateCollection" );
 //--------------------------------------------------------------------------------------------------
 RimValveTemplateCollection::RimValveTemplateCollection()
 {
-    CAF_PDM_InitObject( "Valve Templates", ":/ICDValve16x16.png" );
-    CAF_PDM_InitFieldNoDefault( &m_valveDefinitions, "ValveDefinitions", "" );
-    CAF_PDM_InitFieldNoDefault( &m_defaultUnitsForValveTemplates, "ValveUnits", "Default unit system for valve templates" );
+    CAF_PDM_InitScriptableObject( "Valve Templates", ":/ICDValve16x16.png" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_valveDefinitions, "ValveDefinitions", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_defaultUnitsForValveTemplates, "ValveUnits", "Default unit system for valve templates" );
     m_defaultUnitsForValveTemplates = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     addDefaultValveTemplates();
 }

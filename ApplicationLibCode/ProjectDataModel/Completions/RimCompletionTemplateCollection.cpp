@@ -23,6 +23,8 @@
 #include "RimStimPlanModelTemplateCollection.h"
 #include "RimValveTemplateCollection.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfAssert.h"
@@ -34,7 +36,7 @@ CAF_PDM_SOURCE_INIT( RimCompletionTemplateCollection, "CompletionTemplateCollect
 //--------------------------------------------------------------------------------------------------
 RimCompletionTemplateCollection::RimCompletionTemplateCollection()
 {
-    CAF_PDM_InitObject( "Completion Templates", ":/CompletionsSymbol16x16.png" );
+    CAF_PDM_InitScriptableObject( "Completion Templates", ":/CompletionsSymbol16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureTemplates, "FractureTemplates", "" );
     m_fractureTemplates = new RimFractureTemplateCollection;
@@ -43,7 +45,7 @@ RimCompletionTemplateCollection::RimCompletionTemplateCollection()
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplates, "StimPlanModelTemplates", "" );
     m_stimPlanModelTemplates = new RimStimPlanModelTemplateCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_valveTemplates, "ValveTemplates", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_valveTemplates, "ValveTemplates", "" );
     m_valveTemplates = new RimValveTemplateCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatisticsCollection, "FractureGroupStatisticsCollection", "" );

@@ -38,6 +38,7 @@ class PdmObjectHandle;
 class RimGeoMechCase;
 class RimEclipseCase;
 class RimWellPathCollection;
+class RimValveTemplateCollection;
 class RimCase;
 class RimWellPath;
 class RimSurfaceCollection;
@@ -76,6 +77,8 @@ public:
 
     static RimWellPathCollection* wellPathCollection();
     static RimWellPath*           firstWellPath();
+
+    static RimValveTemplateCollection* valveTemplateCollection();
 
     static RimSurfaceCollection*  surfaceCollection();
     static RimPolygonCollection*  polygonCollection();
