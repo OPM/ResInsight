@@ -296,6 +296,7 @@ void RimModeledWellPath::updateReferencePoint()
 RimCompletionData* RimModeledWellPath::completionData( RimEclipseCase* eCase )
 {
     auto retData = new RimCompletionData();
+    retData->setName( QString( "%1 - %2" ).arg( name(), eCase->caseUserDescription() ) );
 
     auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( this, eCase );
 
