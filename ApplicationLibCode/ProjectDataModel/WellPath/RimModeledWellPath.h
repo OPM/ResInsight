@@ -26,7 +26,7 @@ class RimWellPathTarget;
 class RimWellPath;
 class RimWellPathGeometryDef;
 class RimCompletionData;
-class RimeclipseCase;
+class RimEclipseCase;
 
 class RimModeledWellPath : public RimWellPath
 {
