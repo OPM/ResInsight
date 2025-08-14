@@ -750,6 +750,14 @@ public:
 
     caf::PdmFieldHandle* objectToggleField() override { return &m_toggleField; }
 
+    void migrateFieldContent( QString& fieldContent, caf::PdmFieldHandle* fieldHandle ) override
+    {
+        if ( fieldHandle == &m_textField )
+        {
+            fieldContent = "Migrated Text Field Content";
+        }
+    }
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override
     {
         if ( changedField == &m_toggleField )

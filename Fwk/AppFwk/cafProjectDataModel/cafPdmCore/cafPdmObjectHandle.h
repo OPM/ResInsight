@@ -108,6 +108,8 @@ public:
     virtual void
         handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) {};
 
+    virtual void migrateFieldContent( QString& fieldContent, PdmFieldHandle* fieldHandle ) {};
+
 protected:
     void addField( PdmFieldHandle* field, const QString& keyword );
 

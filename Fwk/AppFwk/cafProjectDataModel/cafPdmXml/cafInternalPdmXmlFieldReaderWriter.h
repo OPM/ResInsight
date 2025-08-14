@@ -7,6 +7,8 @@
 #include "cafInternalPdmFieldIoHelper.h"
 #include "cafInternalPdmFilePathStreamOperators.h"
 #include "cafInternalPdmStreamOperators.h"
+#include "cafPdmFieldHandle.h"
+#include "cafPdmObjectHandle.h"
 
 namespace caf
 {
@@ -40,34 +42,33 @@ struct PdmFieldWriter
 template <typename DataType>
 struct PdmFieldReader
 {
-    static void readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory );
+    static void readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, PdmFieldHandle* fieldHandle )
+    {
+        PdmFieldIOHelper::skipComments( xmlStream );
+        if ( !xmlStream.isCharacters() ) return;
+
+        QString contentString = xmlStream.text().toString();
+        if ( fieldHandle && fieldHandle->ownerObject() )
+        {
+            fieldHandle->ownerObject()->migrateFieldContent( contentString, fieldHandle );
+        }
+
+        if constexpr ( std::is_same_v<DataType, QString> )
+        {
+            // For QString, read full text with spaces. The >> operator only reads word by word
+            fieldValue = contentString;
+        }
+        else
+        {
+            QTextStream data( &contentString, QIODevice::ReadOnly );
+            data >> fieldValue;
+        }
+
+        // Make stream point to end of element
+        QXmlStreamReader::TokenType type = xmlStream.readNext();
+        Q_UNUSED( type );
+        PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
+    }
 };
-
-//--------------------------------------------------------------------------------------------------
-/// Generic read method for fields. Will work as long as DataType supports the stream operator
-/// towards a QTextStream. Some special datatype should not specialize this method unless it is
-/// impossible/awkward to implement the stream operator
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
-{
-    PdmFieldIOHelper::skipComments( xmlStream );
-    if ( !xmlStream.isCharacters() ) return;
-
-    QString     dataString = xmlStream.text().toString();
-    QTextStream data( &dataString, QIODevice::ReadOnly );
-    data >> fieldValue;
-
-    // Make stream point to end of element
-    QXmlStreamReader::TokenType type = xmlStream.readNext();
-    Q_UNUSED( type );
-    PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Specialized read function for QStrings, because the >> operator only can read word by word
-//--------------------------------------------------------------------------------------------------
-template <>
-void PdmFieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory );
 
 } // End of namespace caf
