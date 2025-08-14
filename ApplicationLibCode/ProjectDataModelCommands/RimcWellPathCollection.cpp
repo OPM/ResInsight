@@ -25,6 +25,7 @@
 
 #include "RimFixedTrajectoryWellPath.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -194,7 +195,7 @@ RimcWellPathCollection_wellCompletions::RimcWellPathCollection_wellCompletions( 
 {
     CAF_PDM_InitObject( "Well Completions" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellName, "WellName", "Name of Well" );
-    // CAF_PDM_InitScriptableFieldNoDefault( &m_case, "eclipseCase", "Eclipse Case to extract data from" );
+    // CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "eclipseCase", "Eclipse Case to extract data from" );
     CAF_PDM_InitScriptableField( &m_caseId, "eclipseCaseId", -1, "Eclipse Case to extract data from" );
 }
 
@@ -225,10 +226,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_wellComplet
         return std::unexpected( QString( "Eclipse case is not set. Cannot get completion data." ) );
     }
 
-    // if ( m_case() == nullptr )
+    // RimEclipseCase* eCase = dynamic_cast<RimEclipseCase*>( m_eclipseCase() );
+    // if ( m_eclipseCase() == nullptr )
     //{
-    //     return std::unexpected( QString( "Eclipse case is not set. Cannot get completion data." ) );
-    // }
+    //    return std::unexpected( QString( "Eclipse case is not set. Cannot get completion data." ) );
+    //}
 
     if ( auto wellPath = wellPathCollection->wellPathByName( m_wellName ) )
     {

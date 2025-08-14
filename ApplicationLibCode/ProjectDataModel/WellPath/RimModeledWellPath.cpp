@@ -298,6 +298,7 @@ void RimModeledWellPath::updateReferencePoint()
 void RimModeledWellPath::connectWellPaths( RimWellPath* parentWell, double tieInMeasuredDepth )
 {
     RimWellPath::connectWellPaths( parentWell, tieInMeasuredDepth );
+    retData->setName( QString( "%1 - %2" ).arg( name(), eCase->caseUserDescription() ) );
 
     updateTieInLocationFromParentWell();
 }
