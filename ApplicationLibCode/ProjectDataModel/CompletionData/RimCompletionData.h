@@ -18,8 +18,11 @@
 
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+#include <QString>
 
 class RimWelspecsData;
 class RimCompdatData;
@@ -37,9 +40,12 @@ public:
     RimCompletionData();
     ~RimCompletionData() override;
 
+    void setName( const QString& name ) { m_wellName.setValue( name ); }
+
     void addCompletionData( RigCompletionData* completionData );
 
 private:
+    caf::PdmField<QString>                    m_wellName;
     caf::PdmChildArrayField<RimWelspecsData*> m_welspecs;
     caf::PdmChildArrayField<RimCompdatData*>  m_compdat;
 };

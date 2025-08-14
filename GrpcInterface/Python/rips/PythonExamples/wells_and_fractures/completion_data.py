@@ -21,6 +21,7 @@ if resinsight is not None:
 
     # Use the first one
     the_case = cases[0]
+    print(the_case.id)
     print(the_case)
 
     print("Got " + str(len(wells)) + " wells: ")
@@ -31,6 +32,13 @@ if resinsight is not None:
         well_path_coll = resinsight.project.well_path_collection()
 
         comp_data = well_path_coll.well_completions(wells[0].name, the_case.id)
+        print(comp_data.well_name)
         print(comp_data)
-        dir(rips)
-        dir(rips.CompletionData)
+
+        cdata = comp_data.compdat()
+
+        if len(cdata) == 0:
+            print("No COMPDAT data found for well: " + wells[0].name)
+
+        for line in cdata:
+            print(line)

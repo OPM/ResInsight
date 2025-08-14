@@ -21,10 +21,11 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
 
-class RimEclipseCase;
+class RimEclipseResultCase;
 
 //==================================================================================================
 ///
@@ -58,6 +59,6 @@ public:
 
 private:
     caf::PdmField<QString> m_wellName;
-    //    caf::PdmPtrField<RimEclipseCase*> m_case;
+    // caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
     caf::PdmField<int> m_caseId;
 };
