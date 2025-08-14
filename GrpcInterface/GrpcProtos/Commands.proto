@@ -201,7 +201,7 @@ message CreateMultipleFracRequest {
   int32 maxFracturesPerWell = 5;
   int32 topLayer = 6;
   int32 baseLayer = 7;
-  int32 spacing = 8;
+  double spacing = 8;
   MultipleFracAction action = 9;
 }
 
