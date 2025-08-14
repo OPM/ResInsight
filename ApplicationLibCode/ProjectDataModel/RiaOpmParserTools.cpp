@@ -30,6 +30,7 @@
 #include "opm/input/eclipse/Parser/InputErrorAction.hpp"
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/G.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
@@ -99,18 +100,21 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
 
     try
     {
+        // The parser is not robust when looking for a small number of keywords. Several keywords is added as parsing error occurs.
         Opm::Parser parser( false );
 
         // Required to include the some keywords not related or required for VFP data to avoid paring errors causing data to be skipped.
         // TUNING caused error in a Norne model
         // GRUPTREE, WELSPECS caused error in an unknown models
+        // ECHO caused error in a Verdande model
         std::vector<Opm::ParserKeyword> parserKeywords = { Opm::ParserKeywords::VFPPROD(),
                                                            Opm::ParserKeywords::VFPINJ(),
                                                            Opm::ParserKeywords::INCLUDE(),
                                                            Opm::ParserKeywords::TUNING(),
                                                            Opm::ParserKeywords::GRUPTREE(),
                                                            Opm::ParserKeywords::WELSPECS(),
-                                                           Opm::ParserKeywords::SLAVES() };
+                                                           Opm::ParserKeywords::SLAVES(),
+                                                           Opm::ParserKeywords::ECHO() };
         for ( const auto& kw : parserKeywords )
         {
             parser.addParserKeyword( kw );
