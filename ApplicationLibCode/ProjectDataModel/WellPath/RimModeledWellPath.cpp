@@ -293,11 +293,11 @@ void RimModeledWellPath::updateReferencePoint()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCompletionData* RimModeledWellPath::completionData()
+RimCompletionData* RimModeledWellPath::completionData( RimEclipseCase* eCase )
 {
     auto retData = new RimCompletionData();
 
-    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( this );
+    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( this, eCase );
 
     for ( auto& cd : compdata )
     {
