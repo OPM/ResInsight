@@ -47,7 +47,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellPathCollection_wellCompletions : public caf::PdmObjectCreationMethod
+class RimcWellPathCollection_wellCompletions : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -59,6 +59,5 @@ public:
 
 private:
     caf::PdmField<QString> m_wellName;
-    // caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
-    caf::PdmField<int> m_caseId;
+    caf::PdmField<int>     m_caseId;
 };

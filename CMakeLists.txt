@@ -441,8 +441,7 @@ message(STATUS "Starting download of external library OpenVDS ...")
 if(MSVC)
   FetchContent_Declare(
     openvds
-    URL http://10.10.0.26:8080/job/resinsight-dependencies/ws/openvds+-3.4.6-win.zip
-    #URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-win.zip
+    URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-win.zip
   )
 else()
   FetchContent_Declare(
