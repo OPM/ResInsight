@@ -35,6 +35,7 @@ RimCompletionData::RimCompletionData()
 {
     CAF_PDM_InitScriptableObject( "CompletionData", ":/Well.png" );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellName, "WellName", "Name of well" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_welspecs, "Welspecs", "Welspecs Data" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_compdat, "Compdat", "Compdat Data" );
 }
