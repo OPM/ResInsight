@@ -24,6 +24,8 @@
 
 #include <QString>
 
+class RimEclipseCase;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -56,4 +58,6 @@ public:
 
 private:
     caf::PdmField<QString> m_wellName;
+    //    caf::PdmPtrField<RimEclipseCase*> m_case;
+    caf::PdmField<int> m_caseId;
 };
