@@ -28,6 +28,7 @@ def test_create_lgr_well(rips_instance, initialize_test):
     )
     assert len(case.grids()) == 3
 
+
 def test_create_multiple_fractures(rips_instance, initialize_test):
     case = rips_instance.project.load_case(
         dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
@@ -37,15 +38,12 @@ def test_create_multiple_fractures(rips_instance, initialize_test):
     rips_instance.project.import_well_paths(well_path_files=well_files)
 
     case.create_multiple_fractures(
-    template_id=0,
-    well_path_names="Well Path A",
-    min_dist_from_well_td=100.0,
-    max_fractures_per_well=5,
-    top_layer=1,
-    base_layer=30,
-    spacing=100.0,
-    action="REPLACE_FRACTURES"
-)
-
-
-
+        template_id=0,
+        well_path_names="Well Path A",
+        min_dist_from_well_td=100.0,
+        max_fractures_per_well=5,
+        top_layer=1,
+        base_layer=30,
+        spacing=100.0,
+        action="REPLACE_FRACTURES",
+    )
