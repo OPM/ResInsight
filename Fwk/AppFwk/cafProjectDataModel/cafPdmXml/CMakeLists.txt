@@ -23,7 +23,6 @@ set(PROJECT_FILES
     cafInternalPdmStreamOperators.h
     cafInternalPdmXmlFieldCapability.h
     cafInternalPdmXmlFieldCapability.inl
-    cafInternalPdmXmlFieldReaderWriter.cpp
     cafInternalPdmXmlFieldReaderWriter.h
     cafPdmXmlFieldHandle.cpp
     cafPdmXmlFieldHandle.h

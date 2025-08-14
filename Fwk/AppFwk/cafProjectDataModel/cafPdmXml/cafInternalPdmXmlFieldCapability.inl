@@ -31,12 +31,12 @@ bool caf::PdmFieldXmlCap<FieldType>::isVectorField() const
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
 std::vector<QString> caf::PdmFieldXmlCap<FieldType>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                    PdmObjectFactory* objectFactory,
+                                                                    PdmObjectFactory*,
                                                                     const std::vector<caf::PdmDeprecation>& deprecations )
 {
     this->assertValid();
     typename FieldType::FieldDataType value;
-    PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, xmlStream, objectFactory );
+    PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, xmlStream, m_field );
     m_field->setValue( value );
     return {};
 }
@@ -496,13 +496,13 @@ bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::isVectorField() 
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 std::vector<QString> caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::readFieldData(
-    QXmlStreamReader&                       xmlStream,
-    PdmObjectFactory*                       objectFactory,
+    QXmlStreamReader& xmlStream,
+    PdmObjectFactory*,
     const std::vector<caf::PdmDeprecation>& deprecations )
 {
     this->assertValid();
     typename FieldType::FieldDataType value;
-    PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, xmlStream, objectFactory );
+    PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, xmlStream, m_field );
     m_field->setValue( value );
     return {};
 }
