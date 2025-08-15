@@ -242,3 +242,31 @@ bool RimWellPathAicdParameters::isMetric() const
     }
     return metric;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathAicdParameters::migrateFieldContent( QString& fieldContent, caf::PdmFieldHandle* fieldHandle )
+{
+    // Optional fields changed from QString to std::optional<double> in first release after v2025.04.4.
+    // These fields used to have "1*" as default/empty value, but these are now converted to empty string.
+    // Empty strings becomes an unset std::optional<double> in the xml parsing.
+
+    // Check if the incoming field matches the new type.
+    const caf::PdmField<std::optional<double>>* optionalField = dynamic_cast<const caf::PdmField<std::optional<double>>*>( fieldHandle );
+    if ( !optionalField ) return;
+
+    // Check if fieldContent is "1*" - if not, nothing to do.
+    if ( fieldContent != "1*" ) return;
+
+    // Find matching field in the array
+    for ( const auto& field : m_aicdParameterFields )
+    {
+        if ( &field == optionalField )
+        {
+            // Found the matching field, clear the fieldContent
+            fieldContent = QString();
+            return;
+        }
+    }
+}

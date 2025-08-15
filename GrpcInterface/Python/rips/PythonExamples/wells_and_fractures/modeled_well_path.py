@@ -37,8 +37,8 @@ perforation = well_path.append_perforation_interval(3300, 3350, 0.2, 0.76)
 valve_templates = resinsight.project.valve_templates()
 aicd_template = valve_templates.valve_definitions()[0]
 aicd_parameters = aicd_template.aicd_parameters()
-aicd_parameters.max_flow_rate = "899.43"
-aicd_parameters.density_calibration_fluid = "45.5"
+aicd_parameters.max_flow_rate = 899.43
+aicd_parameters.density_calibration_fluid = 45.5
 aicd_parameters.update()
 
 # Add a valve to the perforation interval
