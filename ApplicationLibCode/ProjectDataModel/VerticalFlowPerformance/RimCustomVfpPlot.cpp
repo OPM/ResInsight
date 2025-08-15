@@ -222,11 +222,32 @@ void RimCustomVfpPlot::initializeSelection()
 
     for ( const auto& [variableType, field] : typeAndField )
     {
-        auto values = availableValues( variableType );
-        if ( m_familyVariable() == variableType )
-            field->v() = values;
-        else if ( !values.empty() )
-            field->v() = { values.front() };
+        const auto availableVals = availableValues( variableType );
+
+        auto selectedValues = field->v();
+
+        if ( m_familyVariable() == variableType && selectedValues.empty() )
+        {
+            // If this is the family variable and no values are selected, set all available values
+            field->v() = availableVals;
+        }
+        else if ( !availableVals.empty() )
+        {
+            // Remove values not available
+            selectedValues.erase( std::remove_if( selectedValues.begin(),
+                                                  selectedValues.end(),
+                                                  [&]( double value )
+                                                  {
+                                                      return std::find( availableVals.begin(), availableVals.end(), value ) ==
+                                                             availableVals.end();
+                                                  } ),
+                                  selectedValues.end() );
+
+            // Add first value from available values if no existing values
+            if ( selectedValues.empty() ) selectedValues.push_back( availableVals.front() );
+
+            field->v() = selectedValues;
+        }
         else
             field->v() = {};
     }
