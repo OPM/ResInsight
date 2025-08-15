@@ -506,7 +506,7 @@ def create_multiple_fractures(
     if isinstance(well_path_names, str):
         well_path_names = [well_path_names]
     return self._execute_command(
-        createMultipleFractures=Cmd.MultipleFracRequest(
+        createMultipleFractures=Cmd.CreateMultipleFracRequest(
             caseId=self.id,
             templateId=template_id,
             wellPathNames=well_path_names,
