@@ -493,7 +493,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
         RimProject*                  proj  = RimProject::current();
         std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
 
-        options = RiaSummaryTools::optionsForSummaryCases( cases );
+        bool includeEnsembleName = false;
+        options                  = RiaSummaryTools::optionsForSummaryCases( cases, includeEnsembleName );
 
         if ( !options.empty() )
         {

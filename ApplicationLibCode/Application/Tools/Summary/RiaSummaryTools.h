@@ -89,7 +89,7 @@ public:
     static RimSummaryEnsemble* ensembleById( int ensembleId );
 
     static QList<caf::PdmOptionItemInfo> optionsForAllSummaryCases();
-    static QList<caf::PdmOptionItemInfo> optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases );
+    static QList<caf::PdmOptionItemInfo> optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases, bool includeEnsembleName );
 
     static void copyCurveDataSources( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
     static void copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );

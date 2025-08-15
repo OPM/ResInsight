@@ -309,19 +309,30 @@ RimSummaryEnsemble* RiaSummaryTools::ensembleById( int ensembleId )
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForAllSummaryCases()
 {
-    return optionsForSummaryCases( RimProject::current()->allSummaryCases() );
+    bool includeEnsembleName = true;
+    return optionsForSummaryCases( RimProject::current()->allSummaryCases(), includeEnsembleName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases )
+QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases, bool includeEnsembleName )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     for ( RimSummaryCase* c : cases )
     {
-        options.push_back( caf::PdmOptionItemInfo( c->displayCaseName(), c, false, c->uiIconProvider() ) );
+        QString displayName = c->displayCaseName();
+        if ( includeEnsembleName && c->ensemble() )
+        {
+            QString ensembleName = c->ensemble()->name();
+            if ( !ensembleName.isEmpty() )
+            {
+                displayName = ensembleName + " : " + displayName;
+            }
+        }
+
+        options.push_back( caf::PdmOptionItemInfo( displayName, c, false, c->uiIconProvider() ) );
     }
 
     return options;

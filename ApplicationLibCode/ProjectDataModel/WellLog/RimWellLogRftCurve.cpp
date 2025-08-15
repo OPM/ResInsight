@@ -882,7 +882,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_summaryCase )
     {
-        options = RiaSummaryTools::optionsForSummaryCases( RimProject::current()->allSummaryCases() );
+        bool includeEnsembleName = false;
+        options                  = RiaSummaryTools::optionsForSummaryCases( RimProject::current()->allSummaryCases(), includeEnsembleName );
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
     else if ( fieldNeedingOptions == &m_wellName )
