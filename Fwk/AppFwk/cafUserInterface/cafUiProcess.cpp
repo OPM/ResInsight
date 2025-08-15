@@ -46,7 +46,7 @@ UiProcess::UiProcess( QObject* parent )
     : QProcess( parent )
 {
     connect( this, SIGNAL( started() ), SLOT( slotProcStarted() ) );
-    connect( this, SIGNAL( error( QProcess::ProcessError ) ), SLOT( slotProcError( QProcess::ProcessError ) ) );
+    connect( this, SIGNAL( errorOccurred( QProcess::ProcessError ) ), SLOT( slotProcError( QProcess::ProcessError ) ) );
     connect( this, SIGNAL( finished( int, QProcess::ExitStatus ) ), SLOT( slotProcFinished( int, QProcess::ExitStatus ) ) );
     connect( this, SIGNAL( stateChanged( QProcess::ProcessState ) ), SLOT( slotProcStateChanged( QProcess::ProcessState ) ) );
     connect( this, SIGNAL( readyReadStandardError() ), SLOT( slotUpdateStatusMessage() ) );
