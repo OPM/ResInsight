@@ -402,11 +402,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_case )
     {
-        std::vector<RimSummaryCase*> summaryCases = getToplevelSummaryCases();
-        for ( auto* summaryCase : summaryCases )
-        {
-            options.push_back( caf::PdmOptionItemInfo( summaryCase->displayCaseName(), summaryCase, false, summaryCase->uiIconProvider() ) );
-        }
+        options = RiaSummaryTools::optionsForAllSummaryCases();
     }
     else if ( fieldNeedingOptions == &m_vector && m_case )
     {

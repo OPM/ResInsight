@@ -254,7 +254,8 @@ QList<caf::PdmOptionItemInfo> RimRftTopologyCurve::calculateValueOptions( const 
 
     if ( fieldNeedingOptions == &m_summaryCase )
     {
-        options = RiaSummaryTools::optionsForSummaryCases( RimProject::current()->allSummaryCases() );
+        bool includeEnsembleName = true;
+        options                  = RiaSummaryTools::optionsForSummaryCases( RimProject::current()->allSummaryCases(), includeEnsembleName );
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
     else if ( fieldNeedingOptions == &m_wellName )

@@ -239,7 +239,8 @@ auto createOptionsForSummaryCase = []() -> QList<caf::PdmOptionItemInfo>
     RimProject*                  proj  = RimProject::current();
     std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
 
-    auto options = RiaSummaryTools::optionsForSummaryCases( cases );
+    bool includeEnsembleName = false;
+    auto options             = RiaSummaryTools::optionsForSummaryCases( cases, includeEnsembleName );
     if ( !options.empty() )
     {
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
