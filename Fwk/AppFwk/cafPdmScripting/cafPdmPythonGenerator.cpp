@@ -572,7 +572,7 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
         { QString::fromStdString( typeid( QString ).name() ), "str" },
         { QString::fromStdString( typeid( caf::FilePath ).name() ), "str" },
         { QString::fromStdString( typeid( std::vector<double> ).name() ), "List[float]" },
-        { QString::fromStdString( typeid( std::optional<double> ).name() ), "Optional[double]" },
+        { QString::fromStdString( typeid( std::optional<double> ).name() ), "Optional[float]" },
         { QString::fromStdString( typeid( std::optional<float> ).name() ), "Optional[float]" },
         { QString::fromStdString( typeid( std::optional<int> ).name() ), "Optional[int]" },
         { QString::fromStdString( typeid( std::optional<bool> ).name() ), "Optional[bool]" },
