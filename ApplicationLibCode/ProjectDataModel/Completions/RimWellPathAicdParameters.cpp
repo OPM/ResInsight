@@ -56,54 +56,42 @@ RimWellPathAicdParameters::RimWellPathAicdParameters()
                                           "ViscosityFunctionExponent",
                                           "Viscosity Function Exponent" );
 
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
-                                 "CriticalWaterLiquidFractionEmul",
-                                 QString( "1*" ),
-                                 "Critical Water in Liquid Fraction for emulsions" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_EMULSION_VISC_TRANS_REGION],
-                                 "ViscosityTransitionRegionEmul",
-                                 QString( "1*" ),
-                                 "Emulsion Viscosity Transition Region" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_MAX_RATIO_EMULSION_VISC],
-                                 "MaxRatioOfEmulsionVisc",
-                                 QString( "1*" ),
-                                 "Max Ratio of Emulsion to Continuous Viscosity" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_MAX_FLOW_RATE],
-                                 "MaxFlowRate",
-                                 QString( "1*" ),
-                                 "Max Flow Rate for AICD Device (m^3 / day)" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_DENSITY],
-                                 "ExponentOilDensity",
-                                 QString( "1*" ),
-                                 "Density Exponent of Oil Fraction" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_EXP_WATER_FRAC_DENSITY],
-                                 "ExponentWaterDensity",
-                                 QString( "1*" ),
-                                 "Density Exponent of Water Fraction" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_EXP_GAS_FRAC_DENSITY],
-                                 "ExponentGasDensity",
-                                 QString( "1*" ),
-                                 "Density Exponent of Gas Fraction" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_VISCOSITY],
-                                 "ExponentOilViscosity",
-                                 QString( "1*" ),
-                                 "Viscosity Exponent of Oil Fraction" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_EXP_WATER_FRAC_VISCOSITY],
-                                 "ExponentWaterViscosity",
-                                 QString( "1*" ),
-                                 "Viscosity Exponent of Water Fraction" );
-    CAF_PDM_InitScriptableField( &m_aicdParameterFields[AICD_EXP_GAS_FRAC_VISCOSITY],
-                                 "ExponentGasViscosity",
-                                 QString( "1*" ),
-                                 "Viscosity Exponent of Gas Fraction" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
+                                          "CriticalWaterLiquidFractionEmul",
+                                          "Critical Water in Liquid Fraction for emulsions" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_EMULSION_VISC_TRANS_REGION],
+                                          "ViscosityTransitionRegionEmul",
+                                          "Emulsion Viscosity Transition Region" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_MAX_RATIO_EMULSION_VISC],
+                                          "MaxRatioOfEmulsionVisc",
+                                          "Max Ratio of Emulsion to Continuous Viscosity" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_MAX_FLOW_RATE], "MaxFlowRate", "Max Flow Rate for AICD Device (m^3 / day)" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_DENSITY],
+                                          "ExponentOilDensity",
+                                          "Density Exponent of Oil Fraction" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_EXP_WATER_FRAC_DENSITY],
+                                          "ExponentWaterDensity",
+                                          "Density Exponent of Water Fraction" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_EXP_GAS_FRAC_DENSITY],
+                                          "ExponentGasDensity",
+                                          "Density Exponent of Gas Fraction" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_VISCOSITY],
+                                          "ExponentOilViscosity",
+                                          "Viscosity Exponent of Oil Fraction" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_EXP_WATER_FRAC_VISCOSITY],
+                                          "ExponentWaterViscosity",
+                                          "Viscosity Exponent of Water Fraction" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aicdParameterFields[AICD_EXP_GAS_FRAC_VISCOSITY],
+                                          "ExponentGasViscosity",
+                                          "Viscosity Exponent of Gas Fraction" );
 
     std::vector<caf::PdmFieldHandle*> allFields = fields();
     for ( caf::PdmFieldHandle* field : allFields )
     {
-        caf::PdmField<QString>* stringField = dynamic_cast<caf::PdmField<QString>*>( field );
-        if ( stringField )
+        caf::PdmField<std::optional<double>>* doubleField = dynamic_cast<caf::PdmField<std::optional<double>>*>( field );
+        if ( doubleField )
         {
-            stringField->uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+            doubleField->uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
         }
     }
 }
@@ -120,12 +108,9 @@ RimWellPathAicdParameters::~RimWellPathAicdParameters()
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathAicdParameters::isValid() const
 {
-    for ( const caf::PdmField<QString>* stringField : stringFieldsWithNoValidDefault() )
+    for ( const caf::PdmField<std::optional<double>>* stringField : optionalFieldsWithNoValidDefault() )
     {
-        if ( stringField->value().isEmpty() ) return false;
-        bool ok = true;
-        stringField->value().toDouble( &ok );
-        if ( !ok ) return false;
+        if ( !stringField->value().has_value() ) return false;
     }
     return true;
 }
@@ -135,7 +120,7 @@ bool RimWellPathAicdParameters::isValid() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAicdParameters::setValue( AICDParameters parameter, double value )
 {
-    m_aicdParameterFields[parameter].setValue( QString::number( value ) );
+    m_aicdParameterFields[parameter].setValue( value );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,13 +139,10 @@ std::array<double, AICD_NUM_PARAMS> RimWellPathAicdParameters::doubleValues() co
     std::array<double, AICD_NUM_PARAMS> doubleValues;
     for ( int i = 0; i < (int)AICD_NUM_PARAMS; ++i )
     {
-        caf::PdmDoubleStringValidator validator( nullptr );
-        QString                       stringValue = m_aicdParameterFields[(AICDParameters)i].value();
-        bool                          ok          = true;
-        double                        doubleValue = stringValue.toDouble( &ok );
-        if ( ok )
+        std::optional<double> stringValue = m_aicdParameterFields[(AICDParameters)i].value();
+        if ( stringValue.has_value() )
         {
-            doubleValues[i] = doubleValue;
+            doubleValues[i] = stringValue.value();
         }
         else
         {
@@ -199,11 +181,11 @@ void RimWellPathAicdParameters::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAicdParameters::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    const caf::PdmField<QString>*  stringField    = dynamic_cast<const caf::PdmField<QString>*>( field );
-    caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-    if ( stringField && lineEditorAttr )
+    const caf::PdmField<std::optional<double>>* optionalField  = dynamic_cast<const caf::PdmField<std::optional<double>>*>( field );
+    caf::PdmUiLineEditorAttribute*              lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+    if ( optionalField && lineEditorAttr )
     {
-        if ( stringFieldsWithNoValidDefault().count( stringField ) )
+        if ( optionalFieldsWithNoValidDefault().count( optionalField ) )
         {
             lineEditorAttr->validator = new caf::PdmDoubleStringValidator( "" );
         }
@@ -217,9 +199,9 @@ void RimWellPathAicdParameters::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<const caf::PdmField<QString>*> RimWellPathAicdParameters::stringFieldsWithNoValidDefault() const
+std::set<const caf::PdmField<std::optional<double>>*> RimWellPathAicdParameters::optionalFieldsWithNoValidDefault() const
 {
-    std::set<const caf::PdmField<QString>*> fields;
+    std::set<const caf::PdmField<std::optional<double>>*> fields;
     for ( int i = 0; i < (int)AICD_NUM_REQ_PARAMS; ++i )
     {
         fields.insert( &m_aicdParameterFields[(AICDParameters)i] );
