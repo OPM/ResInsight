@@ -108,6 +108,8 @@ private:
     std::vector<RimSummaryCase*> getToplevelSummaryCases() const;
     void                         initializeDateRange();
 
+    RifSummaryReaderInterface* summaryReaderWithAddresses();
+
 private:
     // Matrix plot for visualizing table data
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;

@@ -152,7 +152,7 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
 
     m_case = summaryCases.front();
 
-    const auto summaryReader = m_case->summaryReader();
+    const auto summaryReader = summaryReaderWithAddresses();
     if ( !summaryReader ) return;
 
     const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
@@ -215,7 +215,7 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         if ( m_case )
         {
-            auto*      summaryReader   = m_case->summaryReader();
+            const auto summaryReader   = summaryReaderWithAddresses();
             const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
             if ( summaryReader && !categoryVectors.empty() )
             {
@@ -236,7 +236,7 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         if ( m_case )
         {
-            auto*      summaryReader   = m_case->summaryReader();
+            const auto summaryReader   = summaryReaderWithAddresses();
             const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
             if ( summaryReader && !categoryVectors.empty() )
             {
@@ -406,7 +406,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_vector && m_case )
     {
-        auto* summaryReader = m_case->summaryReader();
+        const auto summaryReader = summaryReaderWithAddresses();
         if ( summaryReader )
         {
             const auto categoryVectorsUnion = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
@@ -447,7 +447,7 @@ void RimSummaryTable::onLoadDataAndUpdate()
         return;
     }
 
-    const auto summaryReader = m_case->summaryReader();
+    const auto summaryReader = summaryReaderWithAddresses();
     if ( !summaryReader )
     {
         return;
@@ -709,8 +709,7 @@ std::vector<RimSummaryCase*> RimSummaryTable::getToplevelSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::initializeDateRange()
 {
-    if ( !m_case ) return;
-    const auto summaryReader = m_case->summaryReader();
+    auto summaryReader = summaryReaderWithAddresses();
     if ( !summaryReader ) return;
 
     const std::set<RifEclipseSummaryAddress> allResultAddresses = summaryReader->allResultAddresses();
@@ -726,14 +725,31 @@ void RimSummaryTable::initializeDateRange()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifSummaryReaderInterface* RimSummaryTable::summaryReaderWithAddresses()
+{
+    if ( !m_case ) return nullptr;
+
+    if ( auto summaryReader = m_case->summaryReader() )
+    {
+        // This is required for ensemble cases, addresses are created on demand
+        // Consider moving this to the summary reader interface, and make the call as part of the pure virtual method
+        // virtual RifSummaryReaderInterface* summaryReader() = 0; in RimSummaryCase
+        summaryReader->createAddressesIfRequired();
+        return summaryReader;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryTable::createTableData()
 {
     m_tableData                = TableData();
     m_tableData.thresholdValue = m_thresholdValue();
 
-    if ( !m_case ) return;
-
-    const auto summaryReader = m_case->summaryReader();
+    const auto summaryReader = summaryReaderWithAddresses();
     if ( !summaryReader ) return;
 
     // Create time step value for vectors with no values above threshold
