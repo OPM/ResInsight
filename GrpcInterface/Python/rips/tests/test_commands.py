@@ -37,6 +37,9 @@ def test_create_multiple_fractures(rips_instance, initialize_test):
     well_files = [dataroot.PATH + "/TEST10K_FLT_LGR_NNC/wellpath_a.dev"]
     rips_instance.project.import_well_paths(well_path_files=well_files)
 
+    fracture_instances = rips_instance.project.descendants(rips.WellPathFracture)
+    assert len(fracture_instances) == 0
+
     case.create_multiple_fractures(
         template_id=0,
         well_path_names="Well Path A",
@@ -47,3 +50,6 @@ def test_create_multiple_fractures(rips_instance, initialize_test):
         spacing=100.0,
         action="REPLACE_FRACTURES",
     )
+
+    fracture_instances = rips_instance.project.descendants(rips.WellPathFracture)
+    assert len(fracture_instances) > 0
