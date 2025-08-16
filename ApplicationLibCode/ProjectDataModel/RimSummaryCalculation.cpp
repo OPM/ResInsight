@@ -456,8 +456,11 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
         // provide all available addresses.
         if ( m_distributeToOtherItems )
         {
-            auto allResultAddresses = summaryCase->summaryReader()->allResultAddresses();
-            return allAddressesForCategory( firstVariable.summaryAddress.category(), allResultAddresses );
+            if ( summaryCase && summaryCase->summaryReader() )
+            {
+                auto allResultAddresses = summaryCase->summaryReader()->allResultAddresses();
+                return allAddressesForCategory( firstVariable.summaryAddress.category(), allResultAddresses );
+            }
         }
         else
         {

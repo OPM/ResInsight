@@ -86,7 +86,7 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::createHistoryCurve( const RifEclipse
 {
     RifEclipseSummaryAddress historyAddr = addr;
     historyAddr.setVectorName( historyAddr.vectorName() + "H" );
-    if ( summaryCasesToUse->summaryReader()->allResultAddresses().count( historyAddr ) )
+    if ( summaryCasesToUse->summaryReader() && summaryCasesToUse->summaryReader()->allResultAddresses().count( historyAddr ) )
     {
         return RiaSummaryPlotTools::createCurve( summaryCasesToUse, historyAddr );
     }
@@ -622,6 +622,11 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
         {
             for ( RimSummaryCase* sumCase : summaryCasesToUse )
             {
+                if ( !sumCase || !sumCase->summaryReader() )
+                {
+                    continue;
+                }
+
                 const std::set<RifEclipseSummaryAddress>& allAddrsInCase = sumCase->summaryReader()->allResultAddresses();
                 if ( allAddrsInCase.count( addr ) )
                 {
@@ -669,6 +674,11 @@ std::set<RifEclipseSummaryAddress>
     std::set<RifEclipseSummaryAddress> filteredAdressesFromCases;
     for ( RimSummaryCase* sumCase : summaryCasesToUse )
     {
+        if ( !sumCase || !sumCase->summaryReader() )
+        {
+            continue;
+        }
+
         const std::set<RifEclipseSummaryAddress>& addrs = sumCase->summaryReader()->allResultAddresses();
         std::vector<bool>                         usedFilters;
 

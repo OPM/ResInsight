@@ -244,6 +244,11 @@ std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses() const
 
     for ( RimSummaryCase* sumCase : analyserOfSelectedCurveDefs->m_singleSummaryCases )
     {
+        if ( !sumCase || !sumCase->summaryReader() )
+        {
+            continue;
+        }
+
         const std::set<RifEclipseSummaryAddress>& caseAddrs = sumCase->summaryReader()->allResultAddresses();
         addresses.insert( caseAddrs.begin(), caseAddrs.end() );
     }

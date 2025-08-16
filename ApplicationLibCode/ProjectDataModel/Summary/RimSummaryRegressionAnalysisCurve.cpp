@@ -291,11 +291,14 @@ void RimSummaryRegressionAnalysisCurve::extractSourceCurveData()
             {
                 // Fallback to use time steps from summary case
                 // The time steps are used for reference, not used when computing the regression curve
-                auto summaryCase  = m_ensembleCurveSet->summaryEnsemble()->allSummaryCases().back();
-                auto allTimeSteps = summaryCase->summaryReader()->timeSteps( {} );
-                yTimeSteps        = allTimeSteps;
+                auto summaryCase = m_ensembleCurveSet->summaryEnsemble()->allSummaryCases().back();
+                if ( auto reader = summaryCase->summaryReader() )
+                {
+                    auto allTimeSteps = reader->timeSteps( {} );
+                    yTimeSteps        = allTimeSteps;
 
-                yTimeSteps.resize( yValues.size() );
+                    yTimeSteps.resize( yValues.size() );
+                }
             }
 
             if ( xValues.size() == yValues.size() ) xTimeSteps = yTimeSteps;

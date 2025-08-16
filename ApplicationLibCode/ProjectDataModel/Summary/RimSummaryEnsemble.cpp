@@ -806,15 +806,16 @@ void RimSummaryEnsemble::computeMinMax( const RifEclipseSummaryAddress& address 
 
     for ( const auto& s : m_cases() )
     {
-        if ( !s->summaryReader() ) continue;
+        if ( auto reader = s->summaryReader() )
+        {
+            auto [isOk, values] = reader->values( address );
+            if ( values.empty() ) continue;
 
-        auto [isOk, values] = s->summaryReader()->values( address );
-        if ( values.empty() ) continue;
+            const auto [min, max] = std::minmax_element( values.begin(), values.end() );
 
-        const auto [min, max] = std::minmax_element( values.begin(), values.end() );
-
-        minimumValue = std::min( *min, minimumValue );
-        maximumValue = std::max( *max, maximumValue );
+            minimumValue = std::min( *min, minimumValue );
+            maximumValue = std::max( *max, maximumValue );
+        }
     }
 
     if ( minimumValue != std::numeric_limits<double>::infinity() && maximumValue != -std::numeric_limits<double>::infinity() )

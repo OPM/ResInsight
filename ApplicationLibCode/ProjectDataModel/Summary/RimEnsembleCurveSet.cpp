@@ -1700,12 +1700,12 @@ std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps() const
 
     for ( RimSummaryCase* sumCase : summaryEnsemble()->allSummaryCases() )
     {
-        if ( sumCase->summaryReader() )
+        if ( auto reader = sumCase->summaryReader() )
         {
             std::vector<time_t> timeSteps;
             for ( auto address : m_objectiveValuesSummaryAddresses() )
             {
-                for ( auto timeStep : sumCase->summaryReader()->timeSteps( address->address() ) )
+                for ( auto timeStep : reader->timeSteps( address->address() ) )
                 {
                     timeSteps.push_back( timeStep );
                 }

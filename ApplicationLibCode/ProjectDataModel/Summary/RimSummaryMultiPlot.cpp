@@ -1056,7 +1056,10 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                 }
                 else
                 {
-                    fallbackAnalyzer.appendAddresses( curve->summaryCaseY()->summaryReader()->allResultAddresses() );
+                    if ( auto reader = curve->summaryCaseY()->summaryReader() )
+                    {
+                        fallbackAnalyzer.appendAddresses( reader->allResultAddresses() );
+                    }
                     analyzer = &fallbackAnalyzer;
                 }
             }

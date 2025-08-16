@@ -44,7 +44,7 @@ void RiaSummaryStringTools::splitAddressFiltersInGridAndSummary( RimSummaryCase*
                                                                  QStringList*       summaryAddressFilters,
                                                                  QStringList*       gridResultAddressFilters )
 {
-    if ( summaryCase )
+    if ( summaryCase && summaryCase->summaryReader() )
     {
         const std::set<RifEclipseSummaryAddress>& addrs = summaryCase->summaryReader()->allResultAddresses();
 

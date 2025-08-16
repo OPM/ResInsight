@@ -95,14 +95,17 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
         {
             auto firstCase = sumCases.front();
 
-            analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
+            if ( auto reader = firstCase->summaryReader() )
+            {
+                analyzer.appendAddresses( reader->allResultAddresses() );
+            }
         }
         else if ( !sumEnsembles.empty() )
         {
             auto caseCollection = sumEnsembles.front();
 
             auto firstCase = caseCollection->firstSummaryCase();
-            if ( firstCase != nullptr )
+            if ( firstCase && firstCase->summaryReader() )
             {
                 analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
             }
@@ -181,14 +184,17 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&        
     {
         auto firstCase = sumCases.front();
 
-        analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
+        if ( auto reader = firstCase->summaryReader() )
+        {
+            analyzer.appendAddresses( reader->allResultAddresses() );
+        }
     }
     else if ( !ensembles.empty() )
     {
         auto caseCollection = ensembles.front();
 
         auto firstCase = caseCollection->firstSummaryCase();
-        if ( firstCase != nullptr )
+        if ( firstCase && firstCase->summaryReader() )
         {
             analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
         }
