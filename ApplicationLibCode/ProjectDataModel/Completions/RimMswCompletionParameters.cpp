@@ -19,6 +19,7 @@
 #include "RimMswCompletionParameters.h"
 
 #include "RiaEclipseUnitTools.h"
+#include "RimDiameterRoughnessIntervalCollection.h"
 
 #include "RimWellPath.h"
 
@@ -54,6 +55,14 @@ void RimMswCompletionParameters::LengthAndDepthEnum::setUp()
     addItem( RimMswCompletionParameters::LengthAndDepthType::ABS, "ABS", "Absolute" );
     setDefault( RimMswCompletionParameters::LengthAndDepthType::ABS );
 }
+
+template <>
+void RimMswCompletionParameters::DiameterRoughnessModeEnum::setUp()
+{
+    addItem( RimMswCompletionParameters::DiameterRoughnessMode::SINGLE_VALUES, "SingleValues", "Single Values" );
+    addItem( RimMswCompletionParameters::DiameterRoughnessMode::INTERVAL_SPECIFIC, "IntervalSpecific", "Interval Specific" );
+    setDefault( RimMswCompletionParameters::DiameterRoughnessMode::SINGLE_VALUES );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimMswCompletionParameters, "RimMswCompletionParameters" );
@@ -84,6 +93,11 @@ RimMswCompletionParameters::RimMswCompletionParameters()
                                  "RoughnessFactor",
                                  RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ),
                                  "Roughness Factor" );
+
+    // New interval-based fields
+    CAF_PDM_InitScriptableFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessIntervals, "DiameterRoughnessIntervals", "Diameter Roughness Intervals" );
+    m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
@@ -211,6 +225,66 @@ double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSyste
 double RimMswCompletionParameters::roughnessFactor() const
 {
     return m_roughnessFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMswCompletionParameters::DiameterRoughnessMode RimMswCompletionParameters::diameterRoughnessMode() const
+{
+    return m_diameterRoughnessMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMswCompletionParameters::setDiameterRoughnessMode( DiameterRoughnessMode mode )
+{
+    m_diameterRoughnessMode = mode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMswCompletionParameters::isUsingIntervalSpecificValues() const
+{
+    return m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVAL_SPECIFIC;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const
+{
+    if ( isUsingIntervalSpecificValues() && m_diameterRoughnessIntervals() )
+    {
+        return m_diameterRoughnessIntervals()->getDiameterAtMD( md, unitSystem );
+    }
+    
+    // Fall back to single value
+    return linerDiameter( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const
+{
+    if ( isUsingIntervalSpecificValues() && m_diameterRoughnessIntervals() )
+    {
+        return m_diameterRoughnessIntervals()->getRoughnessAtMD( md, unitSystem );
+    }
+    
+    // Fall back to single value
+    return roughnessFactor( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimDiameterRoughnessIntervalCollection* RimMswCompletionParameters::diameterRoughnessIntervals() const
+{
+    return m_diameterRoughnessIntervals();
 }
 
 //--------------------------------------------------------------------------------------------------
