@@ -54,8 +54,8 @@ public:
 
     void setAicdParameter( AICDParameters parameter, double value );
 
-    static double            defaultOrificeDiameter();
-    static double            defaultFlowCoefficient();
+    static double defaultOrificeDiameter();
+    static double defaultFlowCoefficient();
 
     static RimValveTemplate* createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters, int templateNumber );
 

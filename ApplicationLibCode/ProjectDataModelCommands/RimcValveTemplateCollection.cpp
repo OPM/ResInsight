@@ -24,9 +24,7 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimValveTemplateCollection,
-                                   RimcValveTemplateCollection_add_template,
-                                   "AddTemplate" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimValveTemplateCollection, RimcValveTemplateCollection_add_template, "AddTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -36,7 +34,13 @@ RimcValveTemplateCollection_add_template::RimcValveTemplateCollection_add_templa
 {
     CAF_PDM_InitObject( "Add Valve Template", "", "", "Add a new valve template" );
 
-    CAF_PDM_InitScriptableField( &m_completionType, "CompletionType", caf::AppEnum<RiaDefines::WellPathComponentType>( RiaDefines::WellPathComponentType::ICD ), "", "", "", "Completion type (ICD, ICV, or AICD)" );
+    CAF_PDM_InitScriptableField( &m_completionType,
+                                 "CompletionType",
+                                 caf::AppEnum<RiaDefines::WellPathComponentType>( RiaDefines::WellPathComponentType::ICD ),
+                                 "",
+                                 "",
+                                 "",
+                                 "Completion type (ICD, ICV, or AICD)" );
     CAF_PDM_InitScriptableField( &m_orificeDiameter, "OrificeDiameter", RimValveTemplate::defaultOrificeDiameter(), "", "", "", "Orifice diameter" );
     CAF_PDM_InitScriptableField( &m_flowCoefficient, "FlowCoefficient", RimValveTemplate::defaultFlowCoefficient(), "", "", "", "Flow coefficient" );
     CAF_PDM_InitScriptableField( &m_userLabel, "UserLabel", QString( "" ), "", "", "", "User-defined label for the template" );
@@ -55,8 +59,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcValveTemplateCollection_add_te
 
     // Validate completion type
     RiaDefines::WellPathComponentType completionType = m_completionType();
-    if ( completionType != RiaDefines::WellPathComponentType::ICD && 
-         completionType != RiaDefines::WellPathComponentType::ICV && 
+    if ( completionType != RiaDefines::WellPathComponentType::ICD && completionType != RiaDefines::WellPathComponentType::ICV &&
          completionType != RiaDefines::WellPathComponentType::AICD )
     {
         return std::unexpected( QString( "Invalid completion type. Must be ICD, ICV, or AICD" ) );
@@ -73,11 +76,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimcValveTemplateCollection_add_te
     {
         // Generate default label based on type and count
         auto templates = valveTemplateCollection->valveTemplates();
-        int count = static_cast<int>( templates.size() ) + 1;
-        userLabel = QString( "Template %1" ).arg( count );
+        int  count     = static_cast<int>( templates.size() ) + 1;
+        userLabel      = QString( "Template %1" ).arg( count );
     }
     newTemplate->setUserLabel( userLabel );
-    
+
     // Update the name to reflect the type and user label
     newTemplate->setName( newTemplate->fullLabel() );
 
