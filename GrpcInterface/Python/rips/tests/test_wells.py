@@ -206,7 +206,7 @@ def test_10k_intersection_add_well_perforation_interval_with_invalid_valves(
 
     with pytest.raises(rips.RipsError):
         # end_md < start_md
-        valve = perf_interval.add_valve(
+        perf_interval.add_valve(
             template=valve_templates.valve_definitions()[0],
             start_md=1000,
             end_md=800,
@@ -215,9 +215,80 @@ def test_10k_intersection_add_well_perforation_interval_with_invalid_valves(
 
     with pytest.raises(rips.RipsError):
         # zero valves
-        valve = perf_interval.add_valve(
+        perf_interval.add_valve(
             template=valve_templates.valve_definitions()[0],
             start_md=400,
             end_md=800,
             valve_count=0,
         )
+
+
+def test_valve_template_creation(rips_instance, initialize_test):
+    """Test creating valve templates through Python API"""
+    valve_templates = rips_instance.project.valve_templates()
+
+    # Check initial state - should have 3 default templates
+    initial_count = len(valve_templates.valve_definitions())
+    assert initial_count == 3
+
+    # Test creating ICD template with default values
+    icd_template = valve_templates.add_template(completion_type="ICD")
+    assert icd_template is not None
+    assert icd_template.orifice_diameter == 8.0  # Default value
+    assert icd_template.flow_coefficient == 0.7  # Default value
+    assert len(valve_templates.valve_definitions()) == initial_count + 1
+
+    # Test creating ICV template with custom values
+    icv_template = valve_templates.add_template(
+        completion_type="ICV",
+        orifice_diameter=10.5,
+        flow_coefficient=0.9,
+        user_label="Custom ICV Template",
+    )
+    assert icv_template is not None
+    assert icv_template.orifice_diameter == 10.5
+    assert icv_template.flow_coefficient == 0.9
+    assert "Custom ICV Template" in icv_template.name
+    assert len(valve_templates.valve_definitions()) == initial_count + 2
+
+    # Test creating AICD template
+    aicd_template = valve_templates.add_template(
+        completion_type="AICD",
+        orifice_diameter=7.3,
+        flow_coefficient=0.2,
+        user_label="Test AICD",
+    )
+    assert aicd_template is not None
+    assert aicd_template.orifice_diameter == 7.3
+    assert aicd_template.flow_coefficient == 0.2
+    assert "Test AICD" in aicd_template.name
+    assert len(valve_templates.valve_definitions()) == initial_count + 3
+
+    # Test that the new templates can be used in valves
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
+    rips_instance.project.load_case(path=case_path)
+    well_path_files = [case_root_path + "/wellpath_a.dev"]
+    rips_instance.project.import_well_paths(well_path_files)
+    wells = rips_instance.project.well_paths()
+    well_path = wells[0]
+
+    # Add perforation with our new template
+    perf_interval = well_path.append_perforation_interval(2450, 2460, 0.25, 0.1)
+    valve = perf_interval.add_valve(
+        template=icd_template,
+        start_md=2451,
+        end_md=2459,
+        valve_count=1,
+    )
+    assert valve is not None
+    assert len(perf_interval.valves()) == 1
+
+
+def test_valve_template_invalid_completion_type(rips_instance, initialize_test):
+    """Test error handling for invalid completion types"""
+    valve_templates = rips_instance.project.valve_templates()
+
+    # Test invalid completion type
+    with pytest.raises(rips.RipsError):
+        valve_templates.add_template(completion_type="INVALID_TYPE")

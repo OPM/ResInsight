@@ -49,8 +49,13 @@ public:
     QString                                     typeLabel() const;
     QString                                     fullLabel() const;
     void                                        setUserLabel( const QString& userLabel );
+    void                                        setOrificeDiameter( double diameter );
+    void                                        setFlowCoefficient( double coefficient );
 
     void setAicdParameter( AICDParameters parameter, double value );
+
+    static double defaultOrificeDiameter();
+    static double defaultFlowCoefficient();
 
     static RimValveTemplate* createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters, int templateNumber );
 

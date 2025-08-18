@@ -32,6 +32,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcPolygonCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcRegularSurface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcPerforationInterval.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcValveTemplateCollection.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -68,6 +69,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcPolygonCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcRegularSurface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcPerforationInterval.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcValveTemplateCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
