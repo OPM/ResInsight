@@ -24,6 +24,8 @@
 
 #include "RimVfpTable.h"
 
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+
 #include "cafCmdFeatureMenuBuilder.h"
 
 #include <QFileInfo>
@@ -74,7 +76,11 @@ void RimVfpTableData::ensureDataIsImported()
 
     m_vfpTables = std::make_unique<RigVfpTables>();
 
-    const auto [vfpProdTables, vfpInjTables] = RiaOpmParserTools::extractVfpTablesFromDataFile( m_filePath().path().toStdString() );
+    const auto& [unitSystem, vfpProdTables, vfpInjTables] =
+        RiaOpmParserTools::extractVfpTablesFromDataFile( m_filePath().path().toStdString() );
+
+    m_vfpTables->setUnitSystem( unitSystem );
+
     for ( const auto& prod : vfpProdTables )
     {
         m_vfpTables->addProductionTable( prod );

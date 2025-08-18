@@ -49,7 +49,7 @@ namespace RiaOpmParserTools
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::VFPInjTable createInjectionTable( const Opm::DeckKeyword& keyword )
+std::pair<Opm::UnitSystem, Opm::VFPInjTable> createInjectionTable( const Opm::DeckKeyword& keyword )
 {
     Opm::UnitSystem unitSystem;
     {
@@ -63,13 +63,13 @@ Opm::VFPInjTable createInjectionTable( const Opm::DeckKeyword& keyword )
         }
     }
 
-    return { keyword, unitSystem };
+    return { unitSystem, { keyword, unitSystem } };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::VFPProdTable createProductionTable( const Opm::DeckKeyword& keyword )
+std::pair<Opm::UnitSystem, Opm::VFPProdTable> createProductionTable( const Opm::DeckKeyword& keyword )
 {
     Opm::UnitSystem unitSystem;
     {
@@ -85,18 +85,22 @@ Opm::VFPProdTable createProductionTable( const Opm::DeckKeyword& keyword )
 
     bool gaslift_opt_active = false;
 
-    return { keyword, gaslift_opt_active, unitSystem };
+    return { unitSystem, { keyword, gaslift_opt_active, unitSystem } };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extractVfpTablesFromDataFile( const std::string& dataDeckFilename )
+std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>
+    extractVfpTablesFromDataFile( const std::string& dataDeckFilename )
 {
-    if ( !std::filesystem::exists( dataDeckFilename ) ) return {};
+    if ( !std::filesystem::exists( dataDeckFilename ) )
+        return std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>{};
 
     std::vector<Opm::VFPProdTable> prodTables;
     std::vector<Opm::VFPInjTable>  injTables;
+
+    std::optional<Opm::UnitSystem> unitSystemFromTables;
 
     try
     {
@@ -126,9 +130,15 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
         {
             std::string prodKeyword = "VFPPROD";
             auto        keywordList = deck.getKeywordList( prodKeyword );
+
             for ( auto kw : keywordList )
             {
-                auto table = createProductionTable( *kw );
+                const auto& [tableUnitSystem, table] = createProductionTable( *kw );
+
+                if ( !unitSystemFromTables )
+                {
+                    unitSystemFromTables = tableUnitSystem;
+                }
                 prodTables.push_back( table );
             }
         }
@@ -137,7 +147,12 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
             auto        keywordList = deck.getKeywordList( injKeyword );
             for ( auto kw : keywordList )
             {
-                auto table = createInjectionTable( *kw );
+                const auto& [tableUnitSystem, table] = createInjectionTable( *kw );
+
+                if ( !unitSystemFromTables )
+                {
+                    unitSystemFromTables = tableUnitSystem;
+                }
                 injTables.push_back( table );
             }
         }
@@ -158,7 +173,13 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
         RiaLogging::warning( text );
     }
 
-    return { prodTables, injTables };
+    Opm::UnitSystem unitSystemValue;
+    if ( unitSystemFromTables )
+    {
+        unitSystemValue = *unitSystemFromTables;
+    }
+
+    return std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>{ unitSystemValue, prodTables, injTables };
 }
 
 //--------------------------------------------------------------------------------------------------

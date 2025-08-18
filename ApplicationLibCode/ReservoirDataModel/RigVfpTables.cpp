@@ -81,7 +81,7 @@ VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPProdTable&            
                                             RimVfpDefines::ProductionVariableType   familyVariable,
                                             RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                             RimVfpDefines::FlowingPhaseType         flowingPhase,
-                                            const VfpTableSelection&                tableSelection )
+                                            const VfpTableSelection&                tableSelection ) const
 {
     VfpPlotData plotData;
 
@@ -206,7 +206,7 @@ VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPProdTable&            
                                             RimVfpDefines::ProductionVariableType   familyVariable,
                                             RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                             RimVfpDefines::FlowingPhaseType         flowingPhase,
-                                            const VfpValueSelection&                valueSelection )
+                                            const VfpValueSelection&                valueSelection ) const
 {
     VfpPlotData plotData;
 
@@ -528,7 +528,7 @@ QString RigVfpTables::textForPlotData( const VfpPlotData& plotData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigVfpTables::getProductionTableData( const Opm::VFPProdTable& table, RimVfpDefines::ProductionVariableType variableType )
+std::vector<double> RigVfpTables::getProductionTableData( const Opm::VFPProdTable& table, RimVfpDefines::ProductionVariableType variableType ) const
 {
     std::vector<double> xVals;
     if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT )
@@ -542,13 +542,23 @@ std::vector<double> RigVfpTables::getProductionTableData( const Opm::VFPProdTabl
     else if ( variableType == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
     {
         xVals = table.getALQAxis();
+
+        // Convert ALQ values to raw values. No conversion of this data type is done in convertToDisplayUnit. As convertToDisplayUnit is a
+        // static function, it will require a lot of refactoring to get the unit system information communicated to this function.
+        auto alq_dim = table.ALQDimension( table.getALQType(), m_unitSystem );
+        for ( double& value : xVals )
+        {
+            value = alq_dim.convertSiToRaw( value );
+        }
     }
     else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
     {
+        // Values are converted in convertToDisplayUnit
         xVals = table.getFloAxis();
     }
     else if ( variableType == RimVfpDefines::ProductionVariableType::THP )
     {
+        // Values are converted in convertToDisplayUnit
         xVals = table.getTHPAxis();
     }
 
@@ -578,7 +588,7 @@ size_t RigVfpTables::getVariableIndex( const Opm::VFPProdTable&              tab
                                        size_t                                primaryValue,
                                        RimVfpDefines::ProductionVariableType familyVariable,
                                        size_t                                familyValue,
-                                       const VfpTableSelection&              tableSelection )
+                                       const VfpTableSelection&              tableSelection ) const
 {
     if ( targetVariable == primaryVariable ) return primaryValue;
     if ( targetVariable == familyVariable ) return familyValue;
@@ -601,7 +611,7 @@ size_t RigVfpTables::getVariableIndexForValue( const Opm::VFPProdTable&         
                                                double                                primaryValue,
                                                RimVfpDefines::ProductionVariableType familyVariable,
                                                double                                familyValue,
-                                               const VfpValueSelection&              valueSelection )
+                                               const VfpValueSelection&              valueSelection ) const
 {
     auto findClosestIndex = []( const std::vector<double>& values, const double value )
     {
@@ -778,6 +788,14 @@ RimVfpDefines::FlowingGasFractionType RigVfpTables::getFlowingGasFractionType( c
         default:
             return RimVfpDefines::FlowingGasFractionType::INVALID;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigVfpTables::setUnitSystem( const Opm::UnitSystem& unitSystem )
+{
+    m_unitSystem = unitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------

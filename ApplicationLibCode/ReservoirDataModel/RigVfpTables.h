@@ -20,6 +20,8 @@
 
 #include "VerticalFlowPerformance/RimVfpDefines.h"
 
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+
 #include <QString>
 
 #include <optional>
@@ -100,6 +102,7 @@ struct VfpTableInitialData
 class RigVfpTables
 {
 public:
+    void setUnitSystem( const Opm::UnitSystem& unitSystem );
     void addInjectionTable( const Opm::VFPInjTable& table );
     void addProductionTable( const Opm::VFPProdTable& table );
 
@@ -140,19 +143,19 @@ private:
                                          RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                          RimVfpDefines::FlowingPhaseType         flowingPhase );
 
-    static VfpPlotData populatePlotData( const Opm::VFPProdTable&                table,
-                                         RimVfpDefines::ProductionVariableType   primaryVariable,
-                                         RimVfpDefines::ProductionVariableType   familyVariable,
-                                         RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                                         RimVfpDefines::FlowingPhaseType         flowingPhase,
-                                         const VfpTableSelection&                tableSelection );
+    VfpPlotData populatePlotData( const Opm::VFPProdTable&                table,
+                                  RimVfpDefines::ProductionVariableType   primaryVariable,
+                                  RimVfpDefines::ProductionVariableType   familyVariable,
+                                  RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                  RimVfpDefines::FlowingPhaseType         flowingPhase,
+                                  const VfpTableSelection&                tableSelection ) const;
 
-    static VfpPlotData populatePlotData( const Opm::VFPProdTable&                table,
-                                         RimVfpDefines::ProductionVariableType   primaryVariable,
-                                         RimVfpDefines::ProductionVariableType   familyVariable,
-                                         RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                                         RimVfpDefines::FlowingPhaseType         flowingPhase,
-                                         const VfpValueSelection&                valueSelection );
+    VfpPlotData populatePlotData( const Opm::VFPProdTable&                table,
+                                  RimVfpDefines::ProductionVariableType   primaryVariable,
+                                  RimVfpDefines::ProductionVariableType   familyVariable,
+                                  RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                  RimVfpDefines::FlowingPhaseType         flowingPhase,
+                                  const VfpValueSelection&                valueSelection ) const;
 
     static QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase );
     static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
@@ -163,22 +166,22 @@ private:
 
     static QString textForPlotData( const VfpPlotData& plotData );
 
-    static std::vector<double> getProductionTableData( const Opm::VFPProdTable& table, RimVfpDefines::ProductionVariableType variableType );
-    static size_t              getVariableIndex( const Opm::VFPProdTable&              table,
-                                                 RimVfpDefines::ProductionVariableType targetVariable,
-                                                 RimVfpDefines::ProductionVariableType primaryVariable,
-                                                 size_t                                primaryValue,
-                                                 RimVfpDefines::ProductionVariableType familyVariable,
-                                                 size_t                                familyValue,
-                                                 const VfpTableSelection&              tableSelection );
+    std::vector<double> getProductionTableData( const Opm::VFPProdTable& table, RimVfpDefines::ProductionVariableType variableType ) const;
+    size_t              getVariableIndex( const Opm::VFPProdTable&              table,
+                                          RimVfpDefines::ProductionVariableType targetVariable,
+                                          RimVfpDefines::ProductionVariableType primaryVariable,
+                                          size_t                                primaryValue,
+                                          RimVfpDefines::ProductionVariableType familyVariable,
+                                          size_t                                familyValue,
+                                          const VfpTableSelection&              tableSelection ) const;
 
-    static size_t getVariableIndexForValue( const Opm::VFPProdTable&              table,
-                                            RimVfpDefines::ProductionVariableType targetVariable,
-                                            RimVfpDefines::ProductionVariableType primaryVariable,
-                                            double                                primaryValue,
-                                            RimVfpDefines::ProductionVariableType familyVariable,
-                                            double                                familyValue,
-                                            const VfpValueSelection&              valueSelection );
+    size_t getVariableIndexForValue( const Opm::VFPProdTable&              table,
+                                     RimVfpDefines::ProductionVariableType targetVariable,
+                                     RimVfpDefines::ProductionVariableType primaryVariable,
+                                     double                                primaryValue,
+                                     RimVfpDefines::ProductionVariableType familyVariable,
+                                     double                                familyValue,
+                                     const VfpValueSelection&              valueSelection ) const;
 
     std::optional<Opm::VFPInjTable>  injectionTable( int tableNumber ) const;
     std::optional<Opm::VFPProdTable> productionTable( int tableNumber ) const;
@@ -194,4 +197,5 @@ private:
 private:
     std::vector<Opm::VFPInjTable>  m_injectionTables;
     std::vector<Opm::VFPProdTable> m_productionTables;
+    Opm::UnitSystem                m_unitSystem;
 };
