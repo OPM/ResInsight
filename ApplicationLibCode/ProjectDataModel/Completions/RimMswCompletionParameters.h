@@ -19,9 +19,12 @@
 
 #include "RiaDefines.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiGroup.h"
+
+class RimDiameterRoughnessIntervalCollection;
 
 class RimMswCompletionParameters : public caf::PdmObject
 {
@@ -47,9 +50,16 @@ public:
         INC
     };
 
-    using ReferenceMDEnum    = caf::AppEnum<ReferenceMDType>;
-    using PressureDropEnum   = caf::AppEnum<PressureDropType>;
-    using LengthAndDepthEnum = caf::AppEnum<LengthAndDepthType>;
+    enum class DiameterRoughnessMode
+    {
+        UNIFORM,
+        INTERVALS
+    };
+
+    using ReferenceMDEnum           = caf::AppEnum<ReferenceMDType>;
+    using PressureDropEnum          = caf::AppEnum<PressureDropType>;
+    using LengthAndDepthEnum        = caf::AppEnum<LengthAndDepthType>;
+    using DiameterRoughnessModeEnum = caf::AppEnum<DiameterRoughnessMode>;
 
     RimMswCompletionParameters();
     ~RimMswCompletionParameters() override;
@@ -73,19 +83,30 @@ public:
     void setPressureDrop( PressureDropType pressureDropType );
     void setLengthAndDepth( LengthAndDepthType lengthAndDepthType );
 
+    // New interval-based methods
+    DiameterRoughnessMode diameterRoughnessMode() const;
+    void                  setDiameterRoughnessMode( DiameterRoughnessMode mode );
+    bool                  isUsingIntervalSpecificValues() const;
+
+    double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
+
+    RimDiameterRoughnessIntervalCollection* diameterRoughnessIntervals() const;
+
     void setUnitSystemSpecificDefaults();
 
     void updateFromTopLevelWell( const RimMswCompletionParameters* topLevelWellParameters );
+
+    // Public static methods for default values - used by interval classes
+    static double defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem );
+    static double defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
-
-private:
-    static double defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem );
-    static double defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem );
+    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
 
 private:
     caf::PdmField<ReferenceMDEnum> m_refMDType;
@@ -94,6 +115,10 @@ private:
     caf::PdmField<bool>   m_customValuesForLateral;
     caf::PdmField<double> m_linerDiameter;
     caf::PdmField<double> m_roughnessFactor;
+
+    // New interval-based fields
+    caf::PdmField<DiameterRoughnessModeEnum>                    m_diameterRoughnessMode;
+    caf::PdmChildField<RimDiameterRoughnessIntervalCollection*> m_diameterRoughnessIntervals;
 
     caf::PdmField<PressureDropEnum>   m_pressureDrop;
     caf::PdmField<LengthAndDepthEnum> m_lengthAndDepth;

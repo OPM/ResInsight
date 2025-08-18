@@ -736,9 +736,6 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
         prevOutTVD = previousSegment->outputTVD();
     }
 
-    const auto linerDiameter   = branch->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
-    const auto roughnessFactor = branch->wellPath()->mswCompletionParameters()->roughnessFactor( exportInfo.unitSystem() );
-
     auto outletSegment = previousSegment;
     for ( const auto& [subStartMD, subEndMD] : segments )
     {
@@ -769,6 +766,9 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
         segment->setOutputMD( midPointMD );
         segment->setOutputTVD( midPointTVD );
         segment->setSegmentNumber( *segmentNumber );
+
+        const auto linerDiameter   = branch->wellPath()->mswCompletionParameters()->getDiameterAtMD( midPointMD, exportInfo.unitSystem() );
+        const auto roughnessFactor = branch->wellPath()->mswCompletionParameters()->getRoughnessAtMD( midPointMD, exportInfo.unitSystem() );
 
         formatter.add( *segmentNumber ).add( *segmentNumber );
         formatter.add( branch->branchNumber() );

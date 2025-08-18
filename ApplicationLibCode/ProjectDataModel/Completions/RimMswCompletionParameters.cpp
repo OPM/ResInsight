@@ -19,12 +19,15 @@
 #include "RimMswCompletionParameters.h"
 
 #include "RiaEclipseUnitTools.h"
+#include "RimDiameterRoughnessIntervalCollection.h"
 
 #include "RimWellPath.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiTableViewEditor.h"
 
 #include <limits>
 
@@ -53,6 +56,14 @@ void RimMswCompletionParameters::LengthAndDepthEnum::setUp()
     addItem( RimMswCompletionParameters::LengthAndDepthType::INC, "INC", "Incremental" );
     addItem( RimMswCompletionParameters::LengthAndDepthType::ABS, "ABS", "Absolute" );
     setDefault( RimMswCompletionParameters::LengthAndDepthType::ABS );
+}
+
+template <>
+void RimMswCompletionParameters::DiameterRoughnessModeEnum::setUp()
+{
+    addItem( RimMswCompletionParameters::DiameterRoughnessMode::UNIFORM, "Uniform", "Uniform" );
+    addItem( RimMswCompletionParameters::DiameterRoughnessMode::INTERVALS, "Intervals", "Intervals" );
+    setDefault( RimMswCompletionParameters::DiameterRoughnessMode::UNIFORM );
 }
 } // namespace caf
 
@@ -84,6 +95,17 @@ RimMswCompletionParameters::RimMswCompletionParameters()
                                  "RoughnessFactor",
                                  RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ),
                                  "Roughness Factor" );
+
+    // New interval-based fields
+    CAF_PDM_InitScriptableFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessIntervals, "DiameterRoughnessIntervals", "Diameter Roughness Intervals" );
+    m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
+    m_diameterRoughnessIntervals->intervalsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_diameterRoughnessIntervals->intervalsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_diameterRoughnessIntervals->intervalsField().uiCapability()->setCustomContextMenuEnabled( true );
+
+    // Enable custom context menu on this object as well
+    setCustomContextMenuEnabled( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
@@ -216,6 +238,66 @@ double RimMswCompletionParameters::roughnessFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimMswCompletionParameters::DiameterRoughnessMode RimMswCompletionParameters::diameterRoughnessMode() const
+{
+    return m_diameterRoughnessMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMswCompletionParameters::setDiameterRoughnessMode( DiameterRoughnessMode mode )
+{
+    m_diameterRoughnessMode = mode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMswCompletionParameters::isUsingIntervalSpecificValues() const
+{
+    return m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVALS;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const
+{
+    if ( isUsingIntervalSpecificValues() && m_diameterRoughnessIntervals() )
+    {
+        return m_diameterRoughnessIntervals()->getDiameterAtMD( md, unitSystem );
+    }
+
+    // Fall back to single value
+    return linerDiameter( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const
+{
+    if ( isUsingIntervalSpecificValues() && m_diameterRoughnessIntervals() )
+    {
+        return m_diameterRoughnessIntervals()->getRoughnessAtMD( md, unitSystem );
+    }
+
+    // Fall back to single value
+    return roughnessFactor( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimDiameterRoughnessIntervalCollection* RimMswCompletionParameters::diameterRoughnessIntervals() const
+{
+    return m_diameterRoughnessIntervals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem )
 {
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -314,6 +396,11 @@ void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* ch
         m_maxSegmentLength.uiCapability()->setUiHidden( !m_enforceMaxSegmentLength() );
         caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
     }
+
+    if ( changedField == &m_diameterRoughnessMode )
+    {
+        updateAllRequiredEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,8 +428,26 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
             uiOrdering.add( &m_refMD );
             m_refMD.uiCapability()->setUiHidden( m_refMDType == ReferenceMDType::AUTO_REFERENCE_MD );
 
-            uiOrdering.add( &m_linerDiameter );
-            uiOrdering.add( &m_roughnessFactor );
+            // Diameter and Roughness section
+            auto* diameterRoughnessGroup = uiOrdering.addNewGroup( "Diameter and Roughness" );
+            diameterRoughnessGroup->add( &m_diameterRoughnessMode );
+
+            bool usingIntervals = m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVALS;
+
+            if ( usingIntervals )
+            {
+                diameterRoughnessGroup->add( &m_diameterRoughnessIntervals->intervalsField() );
+                m_linerDiameter.uiCapability()->setUiHidden( true );
+                m_roughnessFactor.uiCapability()->setUiHidden( true );
+            }
+            else
+            {
+                diameterRoughnessGroup->add( &m_linerDiameter );
+                diameterRoughnessGroup->add( &m_roughnessFactor );
+                m_linerDiameter.uiCapability()->setUiHidden( false );
+                m_roughnessFactor.uiCapability()->setUiHidden( false );
+            }
+
             uiOrdering.add( &m_pressureDrop );
             uiOrdering.add( &m_lengthAndDepth );
             uiOrdering.add( &m_enforceMaxSegmentLength );
@@ -352,11 +457,31 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
         {
             uiOrdering.add( &m_customValuesForLateral );
 
-            uiOrdering.add( &m_linerDiameter );
-            uiOrdering.add( &m_roughnessFactor );
+            // Diameter and Roughness section for laterals
+            auto* diameterRoughnessGroup = uiOrdering.addNewGroup( "Diameter and Roughness" );
+            diameterRoughnessGroup->add( &m_diameterRoughnessMode );
 
-            m_linerDiameter.uiCapability()->setUiReadOnly( !m_customValuesForLateral() );
-            m_linerDiameter.uiCapability()->setUiReadOnly( !m_customValuesForLateral() );
+            bool usingIntervals = m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVALS;
+
+            if ( usingIntervals )
+            {
+                diameterRoughnessGroup->add( &m_diameterRoughnessIntervals );
+                m_linerDiameter.uiCapability()->setUiHidden( true );
+                m_roughnessFactor.uiCapability()->setUiHidden( true );
+            }
+            else
+            {
+                diameterRoughnessGroup->add( &m_linerDiameter );
+                diameterRoughnessGroup->add( &m_roughnessFactor );
+                m_linerDiameter.uiCapability()->setUiHidden( false );
+                m_roughnessFactor.uiCapability()->setUiHidden( false );
+            }
+
+            bool isReadOnly = !m_customValuesForLateral();
+            m_linerDiameter.uiCapability()->setUiReadOnly( isReadOnly );
+            m_roughnessFactor.uiCapability()->setUiReadOnly( isReadOnly );
+            m_diameterRoughnessMode.uiCapability()->setUiReadOnly( isReadOnly );
+            m_diameterRoughnessIntervals.uiCapability()->setUiReadOnly( isReadOnly );
         }
     }
 
@@ -403,4 +528,21 @@ void RimMswCompletionParameters::updateFromTopLevelWell( const RimMswCompletionP
         m_linerDiameter           = rhs.m_linerDiameter();
         m_roughnessFactor         = rhs.m_roughnessFactor();
     */
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMswCompletionParameters::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
+{
+    if ( fieldNeedingMenu == &m_diameterRoughnessIntervals )
+    {
+        caf::CmdFeatureMenuBuilder menuBuilder;
+
+        menuBuilder << "RicNewDiameterRoughnessIntervalFeature";
+        menuBuilder << "Separator";
+        menuBuilder << "RicDeleteDiameterRoughnessIntervalFeature";
+
+        menuBuilder.appendToMenu( menu );
+    }
 }

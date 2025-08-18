@@ -68,6 +68,17 @@ completions_settings.group_name_for_export = "msj"
 completions_settings.well_type_for_export = "GAS"
 completions_settings.update()  # Commit updates back to ResInsight
 
+# Add diameter roughness intervals for interval-specific configuration
+interval1 = completions_settings.add_diameter_roughness_interval(
+    start_md=3200, end_md=3300, diameter=0.18, roughness_factor=1.5e-5
+)
+interval2 = completions_settings.add_diameter_roughness_interval(
+    start_md=3300, end_md=3400, diameter=0.16, roughness_factor=2.0e-5
+)
+print(
+    f"Added diameter roughness intervals: {interval1.start_md}-{interval1.end_md}m and {interval2.start_md}-{interval2.end_md}m"
+)
+
 # Optionally update the MSW settings
 msw_settings = well_path.msw_settings()
 msw_settings.custom_values_for_lateral = False
