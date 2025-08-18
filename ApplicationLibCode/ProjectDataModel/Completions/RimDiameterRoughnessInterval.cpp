@@ -22,6 +22,8 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 
@@ -34,18 +36,18 @@ CAF_PDM_SOURCE_INIT(RimDiameterRoughnessInterval, "DiameterRoughnessInterval");
 //--------------------------------------------------------------------------------------------------
 RimDiameterRoughnessInterval::RimDiameterRoughnessInterval()
 {
-    CAF_PDM_InitObject("Diameter Roughness Interval", ":/WellPathComponent16x16.png");
+    CAF_PDM_InitScriptableObject("Diameter Roughness Interval", ":/WellPathComponent16x16.png", "", "DiameterRoughnessInterval");
 
-    CAF_PDM_InitField(&m_startMD, "StartMD", 0.0, "Start MD");
+    CAF_PDM_InitScriptableField(&m_startMD, "StartMd", 0.0, "Start MD");
     m_startMD.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_endMD, "EndMD", 0.0, "End MD");
+    CAF_PDM_InitScriptableField(&m_endMD, "EndMd", 0.0, "End MD");
     m_endMD.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_diameter, "Diameter", defaultDiameter(RiaDefines::EclipseUnitSystem::UNITS_METRIC), "Diameter");
+    CAF_PDM_InitScriptableField(&m_diameter, "Diameter", defaultDiameter(RiaDefines::EclipseUnitSystem::UNITS_METRIC), "Diameter");
     m_diameter.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_roughnessFactor, "RoughnessFactor", defaultRoughness(RiaDefines::EclipseUnitSystem::UNITS_METRIC), "Roughness Factor");
+    CAF_PDM_InitScriptableField(&m_roughnessFactor, "RoughnessFactor", defaultRoughness(RiaDefines::EclipseUnitSystem::UNITS_METRIC), "Roughness Factor");
     m_roughnessFactor.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
 
     setUiName("Diameter Roughness Interval");
