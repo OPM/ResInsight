@@ -13,6 +13,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportValveTemplatesFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewDiameterRoughnessIntervalFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteDiameterRoughnessIntervalFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -30,6 +32,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportValveTemplatesFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewDiameterRoughnessIntervalFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteDiameterRoughnessIntervalFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

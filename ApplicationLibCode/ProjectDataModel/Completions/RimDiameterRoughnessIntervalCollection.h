@@ -42,6 +42,7 @@ public:
     // Collection management
     std::vector<RimDiameterRoughnessInterval*> intervals() const;
     void addInterval(RimDiameterRoughnessInterval* interval);
+    void insertInterval(RimDiameterRoughnessInterval* insertBefore, RimDiameterRoughnessInterval* interval);
     void removeInterval(RimDiameterRoughnessInterval* interval);
     void removeAllIntervals();
     
@@ -72,6 +73,7 @@ public:
 protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void appendMenuItems(caf::CmdFeatureMenuBuilder& menuBuilder) const override;
 
 private:
     void onChildDeleted(caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects) override;

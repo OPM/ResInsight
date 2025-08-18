@@ -21,6 +21,7 @@
 #include "RimDiameterRoughnessInterval.h"
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "cafCmdFeatureMenuBuilder.h"
 
 #include <algorithm>
 #include <cmath>
@@ -386,4 +387,30 @@ void RimDiameterRoughnessIntervalCollection::defineUiOrdering(QString uiConfigNa
 void RimDiameterRoughnessIntervalCollection::onChildDeleted(caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects)
 {
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDiameterRoughnessIntervalCollection::insertInterval(RimDiameterRoughnessInterval* insertBefore, RimDiameterRoughnessInterval* interval)
+{
+    if (!interval) return;
+    
+    size_t index = m_intervals.indexOf(insertBefore);
+    if (index < m_intervals.size())
+        m_intervals.insert(index, interval);
+    else
+        m_intervals.push_back(interval);
+    
+    sortIntervalsByMD();
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDiameterRoughnessIntervalCollection::appendMenuItems(caf::CmdFeatureMenuBuilder& menuBuilder) const
+{
+    menuBuilder.addCmdFeature("RicNewDiameterRoughnessIntervalFeature", "New Interval");
+    menuBuilder.addCmdFeature("RicDeleteDiameterRoughnessIntervalFeature", "Delete Intervals");
 }
