@@ -75,7 +75,9 @@ interval1 = completions_settings.add_diameter_roughness_interval(
 interval2 = completions_settings.add_diameter_roughness_interval(
     start_md=3300, end_md=3400, diameter=0.16, roughness_factor=2.0e-5
 )
-print(f"Added diameter roughness intervals: {interval1.start_md}-{interval1.end_md}m and {interval2.start_md}-{interval2.end_md}m")
+print(
+    f"Added diameter roughness intervals: {interval1.start_md}-{interval1.end_md}m and {interval2.start_md}-{interval2.end_md}m"
+)
 
 # Optionally update the MSW settings
 msw_settings = well_path.msw_settings()
