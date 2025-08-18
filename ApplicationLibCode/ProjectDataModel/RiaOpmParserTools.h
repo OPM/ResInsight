@@ -31,7 +31,8 @@
 namespace RiaOpmParserTools
 {
 
-std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extractVfpTablesFromDataFile( const std::string& dataDeckFilename );
+std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>
+    extractVfpTablesFromDataFile( const std::string& dataDeckFilename );
 
 std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
 

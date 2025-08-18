@@ -20,6 +20,8 @@
 
 #include "VerticalFlowPerformance/RimVfpDefines.h"
 
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+
 #include <QString>
 
 #include <optional>
@@ -100,6 +102,7 @@ struct VfpTableInitialData
 class RigVfpTables
 {
 public:
+    void setUnitSystem( const Opm::UnitSystem& unitSystem );
     void addInjectionTable( const Opm::VFPInjTable& table );
     void addProductionTable( const Opm::VFPProdTable& table );
 
@@ -194,4 +197,5 @@ private:
 private:
     std::vector<Opm::VFPInjTable>  m_injectionTables;
     std::vector<Opm::VFPProdTable> m_productionTables;
+    Opm::UnitSystem                m_unitSystem;
 };

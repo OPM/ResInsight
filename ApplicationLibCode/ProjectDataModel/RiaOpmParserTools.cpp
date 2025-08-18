@@ -91,12 +91,15 @@ Opm::VFPProdTable createProductionTable( const Opm::DeckKeyword& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extractVfpTablesFromDataFile( const std::string& dataDeckFilename )
+std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>
+    extractVfpTablesFromDataFile( const std::string& dataDeckFilename )
 {
-    if ( !std::filesystem::exists( dataDeckFilename ) ) return {};
+    if ( !std::filesystem::exists( dataDeckFilename ) )
+        return std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>{};
 
     std::vector<Opm::VFPProdTable> prodTables;
     std::vector<Opm::VFPInjTable>  injTables;
+    Opm::UnitSystem                unitSystem;
 
     try
     {
@@ -122,10 +125,12 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
 
         Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
         auto              deck = parser.parseFile( dataDeckFilename, parseContext );
+        unitSystem             = deck.getActiveUnitSystem();
 
         {
             std::string prodKeyword = "VFPPROD";
             auto        keywordList = deck.getKeywordList( prodKeyword );
+
             for ( auto kw : keywordList )
             {
                 auto table = createProductionTable( *kw );
@@ -158,7 +163,7 @@ std::pair<std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>> extract
         RiaLogging::warning( text );
     }
 
-    return { prodTables, injTables };
+    return std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>{ unitSystem, prodTables, injTables };
 }
 
 //--------------------------------------------------------------------------------------------------

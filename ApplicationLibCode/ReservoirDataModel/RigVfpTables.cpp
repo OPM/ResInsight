@@ -542,6 +542,14 @@ std::vector<double> RigVfpTables::getProductionTableData( const Opm::VFPProdTabl
     else if ( variableType == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
     {
         xVals = table.getALQAxis();
+
+        /*
+        Opm::Dimension alq_dim = table.ALQDimension( table.getALQType(), m_unitSystem );
+                Opm::Dimension alq_dim = table.ALQDimension( VFPProdTable::ALQDimension( *alq_type, unit_system_arg ) :
+           Dimension( 1.0 );
+
+                table.ALQDimension();
+        */
     }
     else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
     {
@@ -778,6 +786,14 @@ RimVfpDefines::FlowingGasFractionType RigVfpTables::getFlowingGasFractionType( c
         default:
             return RimVfpDefines::FlowingGasFractionType::INVALID;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigVfpTables::setUnitSystem( const Opm::UnitSystem& unitSystem )
+{
+    m_unitSystem = unitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------
