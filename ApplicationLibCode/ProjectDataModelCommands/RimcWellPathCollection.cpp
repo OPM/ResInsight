@@ -25,6 +25,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "Tools/RimTemporaryObjectCollection.h"
 
 #include "WellPathCommands/RicImportWellPaths.h"
 
@@ -89,7 +90,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection, RimcWellPathCollection
 ///
 //--------------------------------------------------------------------------------------------------
 RimcWellPathCollection_wellCompletions::RimcWellPathCollection_wellCompletions( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Well Completions" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellName, "WellName", "Name of Well" );
@@ -129,6 +130,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_wellComplet
         {
             if ( auto completionData = modWellPath->completionData( eCase ) )
             {
+                RimTemporaryObjectCollection::instance()->addTemporaryObject( completionData );
+
                 return completionData;
             }
             else

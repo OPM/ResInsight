@@ -106,6 +106,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
+#include "Tools/RimTemporaryObjectCollection.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
@@ -1001,6 +1002,8 @@ void RiaApplication::closeProject()
     m_project->close();
 
     RiaWellNameComparer::clearCache();
+
+    RimTemporaryObjectCollection::instance()->clearTemporaryObjects();
 
     onProjectClosed();
 

@@ -22,6 +22,7 @@
 #include "RimCase.h"
 #include "RimCommandRouter.h"
 #include "RimProject.h"
+#include "Tools/RimTemporaryObjectCollection.h"
 
 #include "PdmObject.pb.h"
 
@@ -65,20 +66,36 @@ caf::PdmObject* RiaGrpcHelper::findCafObjectFromScriptNameAndAddress( const QStr
 
     if ( classKeyword == RimCommandRouter::classKeywordStatic() ) return RiaApplication::instance()->commandRouter();
 
-    RimProject*                  project = RimProject::current();
-    std::vector<caf::PdmObject*> objectsOfCurrentClass;
-
-    project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
-
-    caf::PdmObject* matchingObject = nullptr;
-    for ( caf::PdmObject* testObject : objectsOfCurrentClass )
     {
-        if ( reinterpret_cast<uint64_t>( testObject ) == address )
+        RimProject*                  project = RimProject::current();
+        std::vector<caf::PdmObject*> objectsOfCurrentClass;
+
+        project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
+        for ( caf::PdmObject* testObject : objectsOfCurrentClass )
         {
-            matchingObject = testObject;
+            if ( reinterpret_cast<uint64_t>( testObject ) == address )
+            {
+                return testObject;
+            }
         }
     }
-    return matchingObject;
+
+    {
+        std::vector<caf::PdmObject*> objectsOfCurrentClass;
+
+        RimTemporaryObjectCollection::instance()->descendantsIncludingThisFromClassKeyword( classKeyword,
+                                                                                            objectsOfCurrentClass );
+
+        for ( caf::PdmObject* testObject : objectsOfCurrentClass )
+        {
+            if ( reinterpret_cast<uint64_t>( testObject ) == address )
+            {
+                return testObject;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
