@@ -53,6 +53,10 @@ public:
                                          const rips::SimulationWellRequest* request,
                                          rips::SimulationWellCellInfoArray* reply ) override;
 
+    grpc::Status GetPerfLength( grpc::ServerContext*               context,
+                                const rips::SimulationWellRequest* request,
+                                rips::SimulationWellPerfLength*    reply ) override;
+
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
 private:

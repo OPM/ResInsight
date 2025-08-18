@@ -78,6 +78,22 @@ def cells(
 
 
 @add_method(SimulationWell)
+def accumulated_perforation_length(
+    self: SimulationWell, timestep: int
+) -> float:
+    """Get accumulated perforation lenght for the given timestep 
+
+    Arguments:
+        timestep(int): Time step index
+
+    """
+    sim_well_request = SimulationWell_pb2.SimulationWellRequest(
+        case_id=self.case().id, well_name=self.name, timestep=timestep
+    )
+    return self.__simulation_well_stub.GetPerfLength(sim_well_request)
+
+
+@add_method(SimulationWell)
 def case(self: SimulationWell) -> Optional[Case]:
     view = self.ancestor(View)
     if view:

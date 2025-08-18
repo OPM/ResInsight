@@ -150,6 +150,36 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcSimulationWellService::GetPerfLength( grpc::ServerContext*               context,
+                                                          const rips::SimulationWellRequest* request,
+                                                          rips::SimulationWellPerfLength*    reply )
+{
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( request->case_id() ) );
+    if ( !eclipseCase )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Case not found" );
+    }
+    // First find the well result for the correct well
+    cvf::ref<RigSimWellData> currentWellResult = findWellResult( eclipseCase, request->well_name() );
+    if ( currentWellResult.isNull() )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Well not found" );
+    }
+    size_t tsIdx = static_cast<size_t>( request->timestep() );
+    if ( currentWellResult->hasWellResult( tsIdx ) )
+    {
+        reply->set_accumulated_length( 23.0 ); // Placeholder value, replace with actual logic to compute perf length
+    }
+    else
+    {
+        reply->set_accumulated_length( 0.0 );
+    }
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<RigSimWellData> RiaGrpcSimulationWellService::findWellResult( const RimEclipseCase* eclipseCase,
                                                                        const std::string&    wellName )
 {
@@ -172,14 +202,15 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcSimulationWellService::createCallb
 {
     using Self = RiaGrpcSimulationWellService;
 
-    return {
-        new RiaGrpcUnaryCallback<Self, SimulationWellRequest, SimulationWellStatus>( this,
-                                                                                     &Self::GetSimulationWellStatus,
-                                                                                     &Self::RequestGetSimulationWellStatus ),
-        new RiaGrpcUnaryCallback<Self, SimulationWellRequest, SimulationWellCellInfoArray>( this,
-                                                                                            &Self::GetSimulationWellCells,
-                                                                                            &Self::RequestGetSimulationWellCells ),
-    };
+    return { new RiaGrpcUnaryCallback<Self, SimulationWellRequest, SimulationWellStatus>( this,
+                                                                                          &Self::GetSimulationWellStatus,
+                                                                                          &Self::RequestGetSimulationWellStatus ),
+             new RiaGrpcUnaryCallback<Self, SimulationWellRequest, SimulationWellCellInfoArray>( this,
+                                                                                                 &Self::GetSimulationWellCells,
+                                                                                                 &Self::RequestGetSimulationWellCells ),
+             new RiaGrpcUnaryCallback<Self, SimulationWellRequest, SimulationWellPerfLength>( this,
+                                                                                              &Self::GetPerfLength,
+                                                                                              &Self::RequestGetPerfLength ) };
 }
 
 static bool RiaGrpcSimulationWellService_init =
