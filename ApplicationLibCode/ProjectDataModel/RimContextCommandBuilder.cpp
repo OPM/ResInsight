@@ -99,6 +99,8 @@
 #include "RimParameterResultCrossPlot.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimDiameterRoughnessInterval.h"
+#include "RimDiameterRoughnessIntervalCollection.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotDataFilterCollection.h"
@@ -868,6 +870,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimValveTemplate*>( firstUiItem ) )
         {
             menuBuilder << "RicDeleteValveTemplateFeature";
+        }
+        else if ( dynamic_cast<RimDiameterRoughnessIntervalCollection*>( firstUiItem ) || dynamic_cast<RimDiameterRoughnessInterval*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewDiameterRoughnessIntervalFeature";
+            menuBuilder << "RicDeleteDiameterRoughnessIntervalFeature";
         }
         else if ( dynamic_cast<RimEnsembleFractureStatisticsCollection*>( firstUiItem ) )
         {

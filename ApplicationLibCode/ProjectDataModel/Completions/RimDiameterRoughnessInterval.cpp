@@ -21,7 +21,6 @@
 #include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
-#include "cafCmdFeatureMenuBuilder.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
@@ -316,11 +315,3 @@ double RimDiameterRoughnessInterval::defaultRoughness(RiaDefines::EclipseUnitSys
     return 1e-4; // Common roughness value for steel pipe
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessInterval::appendMenuItems(caf::CmdFeatureMenuBuilder& menuBuilder) const
-{
-    menuBuilder.addCmdFeature("RicNewDiameterRoughnessIntervalFeature", "Insert New Interval");
-    menuBuilder.addCmdFeature("RicDeleteDiameterRoughnessIntervalFeature", "Delete Interval");
-}

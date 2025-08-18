@@ -101,6 +101,7 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
     m_diameterRoughnessIntervals.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_diameterRoughnessIntervals.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_diameterRoughnessIntervals.uiCapability()->setCustomContextMenuEnabled( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );

@@ -21,7 +21,6 @@
 #include "RimDiameterRoughnessInterval.h"
 #include "RiaApplication.h"
 #include "RiaLogging.h"
-#include "cafCmdFeatureMenuBuilder.h"
 
 #include <algorithm>
 #include <cmath>
@@ -406,11 +405,3 @@ void RimDiameterRoughnessIntervalCollection::insertInterval(RimDiameterRoughness
     updateConnectedEditors();
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessIntervalCollection::appendMenuItems(caf::CmdFeatureMenuBuilder& menuBuilder) const
-{
-    menuBuilder.addCmdFeature("RicNewDiameterRoughnessIntervalFeature", "New Interval");
-    menuBuilder.addCmdFeature("RicDeleteDiameterRoughnessIntervalFeature", "Delete Intervals");
-}
