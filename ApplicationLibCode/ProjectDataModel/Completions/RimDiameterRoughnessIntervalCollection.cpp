@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+
 #include <algorithm>
 #include <cmath>
 
@@ -387,6 +388,7 @@ void RimDiameterRoughnessIntervalCollection::onChildDeleted(caf::PdmChildArrayFi
 {
     updateConnectedEditors();
 }
+
 
 //--------------------------------------------------------------------------------------------------
 ///

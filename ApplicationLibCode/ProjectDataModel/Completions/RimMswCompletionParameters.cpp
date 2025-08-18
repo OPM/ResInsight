@@ -27,6 +27,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafCmdFeatureMenuBuilder.h"
 
 #include <limits>
 
@@ -524,4 +525,21 @@ void RimMswCompletionParameters::updateFromTopLevelWell( const RimMswCompletionP
         m_linerDiameter           = rhs.m_linerDiameter();
         m_roughnessFactor         = rhs.m_roughnessFactor();
     */
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMswCompletionParameters::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
+{
+    if ( fieldNeedingMenu == &m_diameterRoughnessIntervals )
+    {
+        caf::CmdFeatureMenuBuilder menuBuilder;
+
+        menuBuilder << "RicNewDiameterRoughnessIntervalFeature";
+        menuBuilder << "Separator";
+        menuBuilder << "RicDeleteDiameterRoughnessIntervalFeature";
+
+        menuBuilder.appendToMenu( menu );
+    }
 }
