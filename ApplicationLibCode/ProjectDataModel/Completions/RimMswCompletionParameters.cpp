@@ -26,6 +26,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiTableViewEditor.h"
 
 #include <limits>
 
@@ -98,6 +99,8 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitScriptableFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
     CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessIntervals, "DiameterRoughnessIntervals", "Diameter Roughness Intervals" );
     m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
+    m_diameterRoughnessIntervals.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_diameterRoughnessIntervals.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
@@ -388,6 +391,11 @@ void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* ch
         m_maxSegmentLength.uiCapability()->setUiHidden( !m_enforceMaxSegmentLength() );
         caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
     }
+
+    if ( changedField == &m_diameterRoughnessMode )
+    {
+        updateAllRequiredEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -415,8 +423,26 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
             uiOrdering.add( &m_refMD );
             m_refMD.uiCapability()->setUiHidden( m_refMDType == ReferenceMDType::AUTO_REFERENCE_MD );
 
-            uiOrdering.add( &m_linerDiameter );
-            uiOrdering.add( &m_roughnessFactor );
+            // Diameter and Roughness section
+            auto* diameterRoughnessGroup = uiOrdering.addNewGroup( "Diameter and Roughness" );
+            diameterRoughnessGroup->add( &m_diameterRoughnessMode );
+            
+            bool usingIntervals = m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVAL_SPECIFIC;
+            
+            if ( usingIntervals )
+            {
+                diameterRoughnessGroup->add( &m_diameterRoughnessIntervals );
+                m_linerDiameter.uiCapability()->setUiHidden( true );
+                m_roughnessFactor.uiCapability()->setUiHidden( true );
+            }
+            else
+            {
+                diameterRoughnessGroup->add( &m_linerDiameter );
+                diameterRoughnessGroup->add( &m_roughnessFactor );
+                m_linerDiameter.uiCapability()->setUiHidden( false );
+                m_roughnessFactor.uiCapability()->setUiHidden( false );
+            }
+            
             uiOrdering.add( &m_pressureDrop );
             uiOrdering.add( &m_lengthAndDepth );
             uiOrdering.add( &m_enforceMaxSegmentLength );
@@ -426,11 +452,31 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
         {
             uiOrdering.add( &m_customValuesForLateral );
 
-            uiOrdering.add( &m_linerDiameter );
-            uiOrdering.add( &m_roughnessFactor );
+            // Diameter and Roughness section for laterals
+            auto* diameterRoughnessGroup = uiOrdering.addNewGroup( "Diameter and Roughness" );
+            diameterRoughnessGroup->add( &m_diameterRoughnessMode );
+            
+            bool usingIntervals = m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVAL_SPECIFIC;
+            
+            if ( usingIntervals )
+            {
+                diameterRoughnessGroup->add( &m_diameterRoughnessIntervals );
+                m_linerDiameter.uiCapability()->setUiHidden( true );
+                m_roughnessFactor.uiCapability()->setUiHidden( true );
+            }
+            else
+            {
+                diameterRoughnessGroup->add( &m_linerDiameter );
+                diameterRoughnessGroup->add( &m_roughnessFactor );
+                m_linerDiameter.uiCapability()->setUiHidden( false );
+                m_roughnessFactor.uiCapability()->setUiHidden( false );
+            }
 
-            m_linerDiameter.uiCapability()->setUiReadOnly( !m_customValuesForLateral() );
-            m_linerDiameter.uiCapability()->setUiReadOnly( !m_customValuesForLateral() );
+            bool isReadOnly = !m_customValuesForLateral();
+            m_linerDiameter.uiCapability()->setUiReadOnly( isReadOnly );
+            m_roughnessFactor.uiCapability()->setUiReadOnly( isReadOnly );
+            m_diameterRoughnessMode.uiCapability()->setUiReadOnly( isReadOnly );
+            m_diameterRoughnessIntervals.uiCapability()->setUiReadOnly( isReadOnly );
         }
     }
 
