@@ -25,7 +25,9 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCompletionSettings, RimcWellPathCompletionSettings_addDiameterRoughnessInterval, "AddDiameterRoughnessInterval" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCompletionSettings,
+                                   RimcWellPathCompletionSettings_addDiameterRoughnessInterval,
+                                   "AddDiameterRoughnessInterval" );
 
 //--------------------------------------------------------------------------------------------------
 ///

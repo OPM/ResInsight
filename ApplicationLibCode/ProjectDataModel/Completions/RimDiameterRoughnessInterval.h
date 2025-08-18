@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimWellPathComponentInterface.h"
 #include "RiaDefines.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -44,27 +44,27 @@ public:
     double startMD() const override;
     double endMD() const override;
     double diameter() const;
-    double diameter(RiaDefines::EclipseUnitSystem unitSystem) const;
+    double diameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double roughnessFactor() const;
-    double roughnessFactor(RiaDefines::EclipseUnitSystem unitSystem) const;
+    double roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
 
     // Setters
-    void setStartMD(double startMD);
-    void setEndMD(double endMD);
-    void setDiameter(double diameter);
-    void setRoughnessFactor(double roughness);
+    void setStartMD( double startMD );
+    void setEndMD( double endMD );
+    void setDiameter( double diameter );
+    void setRoughnessFactor( double roughness );
 
     // Validation
     bool isValidInterval() const;
-    bool overlaps(const RimDiameterRoughnessInterval* other) const;
-    bool containsMD(double md) const;
+    bool overlaps( const RimDiameterRoughnessInterval* other ) const;
+    bool containsMD( double md ) const;
 
     // Display
     QString diameterLabel() const;
     QString roughnessLabel() const;
 
     // Comparison for sorting
-    bool operator<(const RimDiameterRoughnessInterval& rhs) const;
+    bool operator<( const RimDiameterRoughnessInterval& rhs ) const;
 
     // Overrides from RimWellPathComponentInterface
     bool                              isEnabled() const override;
@@ -72,18 +72,18 @@ public:
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;
     cvf::Color3f                      defaultComponentColor() const override;
-    void                              applyOffset(double offsetMD) override;
+    void                              applyOffset( double offsetMD ) override;
 
 protected:
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    void updateConnectedEditors();
+    void    updateConnectedEditors();
     QString generateDisplayLabel() const;
 
-    static double defaultDiameter(RiaDefines::EclipseUnitSystem unitSystem);
-    static double defaultRoughness(RiaDefines::EclipseUnitSystem unitSystem);
+    static double defaultDiameter( RiaDefines::EclipseUnitSystem unitSystem );
+    static double defaultRoughness( RiaDefines::EclipseUnitSystem unitSystem );
 
 private:
     caf::PdmField<double> m_startMD;

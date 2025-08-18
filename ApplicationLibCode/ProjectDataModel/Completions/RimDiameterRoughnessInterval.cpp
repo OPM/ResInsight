@@ -29,28 +29,31 @@
 
 #include <cmath>
 
-CAF_PDM_SOURCE_INIT(RimDiameterRoughnessInterval, "DiameterRoughnessInterval");
+CAF_PDM_SOURCE_INIT( RimDiameterRoughnessInterval, "DiameterRoughnessInterval" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimDiameterRoughnessInterval::RimDiameterRoughnessInterval()
 {
-    CAF_PDM_InitScriptableObject("Diameter Roughness Interval", ":/WellPathComponent16x16.png", "", "DiameterRoughnessInterval");
+    CAF_PDM_InitScriptableObject( "Diameter Roughness Interval", ":/WellPathComponent16x16.png", "", "DiameterRoughnessInterval" );
 
-    CAF_PDM_InitScriptableField(&m_startMD, "StartMd", 0.0, "Start MD");
-    m_startMD.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
+    CAF_PDM_InitScriptableField( &m_startMD, "StartMd", 0.0, "Start MD" );
+    m_startMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField(&m_endMD, "EndMd", 0.0, "End MD");
-    m_endMD.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
+    CAF_PDM_InitScriptableField( &m_endMD, "EndMd", 0.0, "End MD" );
+    m_endMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField(&m_diameter, "Diameter", defaultDiameter(RiaDefines::EclipseUnitSystem::UNITS_METRIC), "Diameter");
-    m_diameter.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
+    CAF_PDM_InitScriptableField( &m_diameter, "Diameter", defaultDiameter( RiaDefines::EclipseUnitSystem::UNITS_METRIC ), "Diameter" );
+    m_diameter.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField(&m_roughnessFactor, "RoughnessFactor", defaultRoughness(RiaDefines::EclipseUnitSystem::UNITS_METRIC), "Roughness Factor");
-    m_roughnessFactor.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
+    CAF_PDM_InitScriptableField( &m_roughnessFactor,
+                                 "RoughnessFactor",
+                                 defaultRoughness( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
+                                 "Roughness Factor" );
+    m_roughnessFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    setUiName("Diameter Roughness Interval");
+    setUiName( "Diameter Roughness Interval" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,11 +90,11 @@ double RimDiameterRoughnessInterval::diameter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimDiameterRoughnessInterval::diameter(RiaDefines::EclipseUnitSystem unitSystem) const
+double RimDiameterRoughnessInterval::diameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    if (unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC)
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
-        return RiaEclipseUnitTools::inchToMeter(m_diameter);
+        return RiaEclipseUnitTools::inchToMeter( m_diameter );
     }
     return m_diameter; // FIELD units - already in inches
 }
@@ -107,11 +110,11 @@ double RimDiameterRoughnessInterval::roughnessFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimDiameterRoughnessInterval::roughnessFactor(RiaDefines::EclipseUnitSystem unitSystem) const
+double RimDiameterRoughnessInterval::roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    if (unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC)
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
-        return RiaEclipseUnitTools::feetToMeter(m_roughnessFactor);
+        return RiaEclipseUnitTools::feetToMeter( m_roughnessFactor );
     }
     return m_roughnessFactor; // FIELD units - already in feet
 }
@@ -119,7 +122,7 @@ double RimDiameterRoughnessInterval::roughnessFactor(RiaDefines::EclipseUnitSyst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessInterval::setStartMD(double startMD)
+void RimDiameterRoughnessInterval::setStartMD( double startMD )
 {
     m_startMD = startMD;
 }
@@ -127,7 +130,7 @@ void RimDiameterRoughnessInterval::setStartMD(double startMD)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessInterval::setEndMD(double endMD)
+void RimDiameterRoughnessInterval::setEndMD( double endMD )
 {
     m_endMD = endMD;
 }
@@ -135,7 +138,7 @@ void RimDiameterRoughnessInterval::setEndMD(double endMD)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessInterval::setDiameter(double diameter)
+void RimDiameterRoughnessInterval::setDiameter( double diameter )
 {
     m_diameter = diameter;
 }
@@ -143,7 +146,7 @@ void RimDiameterRoughnessInterval::setDiameter(double diameter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessInterval::setRoughnessFactor(double roughness)
+void RimDiameterRoughnessInterval::setRoughnessFactor( double roughness )
 {
     m_roughnessFactor = roughness;
 }
@@ -159,17 +162,17 @@ bool RimDiameterRoughnessInterval::isValidInterval() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDiameterRoughnessInterval::overlaps(const RimDiameterRoughnessInterval* other) const
+bool RimDiameterRoughnessInterval::overlaps( const RimDiameterRoughnessInterval* other ) const
 {
-    if (!other) return false;
-    
-    return !(m_endMD <= other->startMD() || m_startMD >= other->endMD());
+    if ( !other ) return false;
+
+    return !( m_endMD <= other->startMD() || m_startMD >= other->endMD() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDiameterRoughnessInterval::containsMD(double md) const
+bool RimDiameterRoughnessInterval::containsMD( double md ) const
 {
     return md >= m_startMD && md <= m_endMD;
 }
@@ -179,7 +182,7 @@ bool RimDiameterRoughnessInterval::containsMD(double md) const
 //--------------------------------------------------------------------------------------------------
 QString RimDiameterRoughnessInterval::diameterLabel() const
 {
-    return QString("%1 in").arg(m_diameter, 0, 'f', 3);
+    return QString( "%1 in" ).arg( m_diameter, 0, 'f', 3 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,13 +190,13 @@ QString RimDiameterRoughnessInterval::diameterLabel() const
 //--------------------------------------------------------------------------------------------------
 QString RimDiameterRoughnessInterval::roughnessLabel() const
 {
-    return QString("%1 ft").arg(m_roughnessFactor, 0, 'e', 2);
+    return QString( "%1 ft" ).arg( m_roughnessFactor, 0, 'e', 2 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDiameterRoughnessInterval::operator<(const RimDiameterRoughnessInterval& rhs) const
+bool RimDiameterRoughnessInterval::operator<( const RimDiameterRoughnessInterval& rhs ) const
 {
     return m_startMD < rhs.m_startMD;
 }
@@ -235,44 +238,44 @@ QString RimDiameterRoughnessInterval::componentTypeLabel() const
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimDiameterRoughnessInterval::defaultComponentColor() const
 {
-    return cvf::Color3f(0.6f, 0.4f, 0.2f); // Brown color for diameter/roughness intervals
+    return cvf::Color3f( 0.6f, 0.4f, 0.2f ); // Brown color for diameter/roughness intervals
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessInterval::applyOffset(double offsetMD)
+void RimDiameterRoughnessInterval::applyOffset( double offsetMD )
 {
     m_startMD = m_startMD + offsetMD;
-    m_endMD = m_endMD + offsetMD;
+    m_endMD   = m_endMD + offsetMD;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessInterval::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimDiameterRoughnessInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if (changedField == &m_startMD || changedField == &m_endMD)
+    if ( changedField == &m_startMD || changedField == &m_endMD )
     {
         // Validate interval
-        if (m_startMD >= m_endMD)
+        if ( m_startMD >= m_endMD )
         {
-            RiaLogging::warning("Invalid interval: Start MD must be less than End MD");
+            RiaLogging::warning( "Invalid interval: Start MD must be less than End MD" );
         }
     }
-    
+
     updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDiameterRoughnessInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimDiameterRoughnessInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add(&m_startMD);
-    uiOrdering.add(&m_endMD);
-    uiOrdering.add(&m_diameter);
-    uiOrdering.add(&m_roughnessFactor);
+    uiOrdering.add( &m_startMD );
+    uiOrdering.add( &m_endMD );
+    uiOrdering.add( &m_diameter );
+    uiOrdering.add( &m_roughnessFactor );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -292,17 +295,13 @@ void RimDiameterRoughnessInterval::updateConnectedEditors()
 //--------------------------------------------------------------------------------------------------
 QString RimDiameterRoughnessInterval::generateDisplayLabel() const
 {
-    return QString("MD %.1f-%.1f: D=%.3f\", R=%1e")
-        .arg(m_startMD)
-        .arg(m_endMD)
-        .arg(m_diameter)
-        .arg(m_roughnessFactor);
+    return QString( "MD %.1f-%.1f: D=%.3f\", R=%1e" ).arg( m_startMD ).arg( m_endMD ).arg( m_diameter ).arg( m_roughnessFactor );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimDiameterRoughnessInterval::defaultDiameter(RiaDefines::EclipseUnitSystem unitSystem)
+double RimDiameterRoughnessInterval::defaultDiameter( RiaDefines::EclipseUnitSystem unitSystem )
 {
     // Default diameter in inches (standard for completion design)
     return 7.0; // 7 inch liner diameter as common default
@@ -311,9 +310,8 @@ double RimDiameterRoughnessInterval::defaultDiameter(RiaDefines::EclipseUnitSyst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimDiameterRoughnessInterval::defaultRoughness(RiaDefines::EclipseUnitSystem unitSystem)
+double RimDiameterRoughnessInterval::defaultRoughness( RiaDefines::EclipseUnitSystem unitSystem )
 {
-    // Default roughness factor in feet 
+    // Default roughness factor in feet
     return 1e-4; // Common roughness value for steel pipe
 }
-
