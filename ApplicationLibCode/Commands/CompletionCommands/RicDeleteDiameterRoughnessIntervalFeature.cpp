@@ -79,7 +79,7 @@ void RicDeleteDiameterRoughnessIntervalFeature::onActionTriggered( bool isChecke
 {
     const auto intervals = caf::SelectionManager::instance()->objectsByType<RimDiameterRoughnessInterval>( caf::SelectionManager::FIRST_LEVEL );
     RimDiameterRoughnessIntervalCollection* intervalCollection = nullptr;
-    
+
     if ( !intervals.empty() )
     {
         // Delete selected intervals
