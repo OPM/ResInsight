@@ -22,6 +22,7 @@
 #include "RimMswCompletionParameters.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathCompletionSettings.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
@@ -35,22 +36,14 @@ CAF_CMD_SOURCE_INIT( RicNewDiameterRoughnessIntervalFeature, "RicNewDiameterRoug
 //--------------------------------------------------------------------------------------------------
 bool RicNewDiameterRoughnessIntervalFeature::isCommandEnabled() const
 {
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimDiameterRoughnessIntervalCollection>() ||
+         caf::SelectionManager::instance()->selectedItemOfType<RimMswCompletionParameters>() ||
+         caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletionSettings>() )
     {
-        const auto intervals = caf::SelectionManager::instance()->objectsByType<RimDiameterRoughnessInterval>( caf::SelectionManager::FIRST_LEVEL );
-        if ( !intervals.empty() )
-        {
-            return true;
-        }
+        return true;
     }
 
-    {
-        if ( caf::SelectionManager::instance()->selectedItemOfType<RimDiameterRoughnessIntervalCollection>() )
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,60 +51,63 @@ bool RicNewDiameterRoughnessIntervalFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewDiameterRoughnessIntervalFeature::onActionTriggered( bool isChecked )
 {
-    const auto intervals = caf::SelectionManager::instance()->objectsByType<RimDiameterRoughnessInterval>( caf::SelectionManager::FIRST_LEVEL );
-    RimDiameterRoughnessInterval* newInterval = nullptr;
-    
-    if ( intervals.size() == 1u )
-    {
-        // Insert before selected interval
-        auto intervalCollection = intervals[0]->firstAncestorOrThisOfTypeAsserted<RimDiameterRoughnessIntervalCollection>();
+    // Try to get collection directly
+    RimDiameterRoughnessIntervalCollection* intervalCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimDiameterRoughnessIntervalCollection>();
 
-        newInterval = new RimDiameterRoughnessInterval;
-        
-        // Set some default values
+    // If not found, try to get it from MSW completion parameters
+    if ( !intervalCollection )
+    {
+        auto mswParams = caf::SelectionManager::instance()->selectedItemOfType<RimMswCompletionParameters>();
+        if ( mswParams )
+        {
+            intervalCollection = mswParams->diameterRoughnessIntervals();
+        }
+    }
+
+    // If still not found, try to get it from well path completion settings
+    if ( !intervalCollection )
+    {
+        auto completionSettings = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletionSettings>();
+        if ( completionSettings )
+        {
+            auto wellPath = completionSettings->firstAncestorOrThisOfType<RimWellPath>();
+            if ( wellPath )
+            {
+                auto mswParams = wellPath->mswCompletionParameters();
+                if ( mswParams )
+                {
+                    intervalCollection = mswParams->diameterRoughnessIntervals();
+                }
+            }
+        }
+    }
+
+    if ( intervalCollection )
+    {
+        RimDiameterRoughnessInterval* newInterval = new RimDiameterRoughnessInterval;
+
+        // Set default values
         auto wellPath = intervalCollection->firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             auto mswParams = wellPath->mswCompletionParameters();
             if ( mswParams )
             {
+                newInterval->setStartMD( 199 );
+                newInterval->setEndMD( 399 );
                 newInterval->setDiameter( mswParams->linerDiameter() );
                 newInterval->setRoughnessFactor( mswParams->roughnessFactor() );
             }
         }
-        
-        intervalCollection->insertInterval( intervals[0], newInterval );
-        intervalCollection->updateConnectedEditors();
-    }
-    else
-    {
-        // Append to collection
-        auto intervalCollection = caf::SelectionManager::instance()->selectedItemOfType<RimDiameterRoughnessIntervalCollection>();
-        if ( intervalCollection )
-        {
-            newInterval = new RimDiameterRoughnessInterval;
-            
-            // Set some default values
-            auto wellPath = intervalCollection->firstAncestorOrThisOfType<RimWellPath>();
-            if ( wellPath )
-            {
-                auto mswParams = wellPath->mswCompletionParameters();
-                if ( mswParams )
-                {
-                    newInterval->setDiameter( mswParams->linerDiameter() );
-                    newInterval->setRoughnessFactor( mswParams->roughnessFactor() );
-                }
-            }
-            
-            intervalCollection->insertInterval( nullptr, newInterval );
-            intervalCollection->updateConnectedEditors();
-        }
-    }
 
-    if ( newInterval )
-    {
+        intervalCollection->addInterval( newInterval );
+        intervalCollection->updateConnectedEditors();
+
+        printf( "Created new interval: new size: %d\n", (int)intervalCollection->intervals().size() );
+
         Riu3DMainWindowTools::selectAsCurrentItem( newInterval );
-        
+
         RimProject* project = RimProject::current();
         if ( project )
         {
@@ -125,15 +121,6 @@ void RicNewDiameterRoughnessIntervalFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewDiameterRoughnessIntervalFeature::setupActionLook( QAction* actionToSetup )
 {
-    const auto intervals = caf::SelectionManager::instance()->objectsByType<RimDiameterRoughnessInterval>( caf::SelectionManager::FIRST_LEVEL );
-    if ( intervals.size() == 1u )
-    {
-        actionToSetup->setText( "Insert New Interval" );
-        actionToSetup->setIcon( QIcon( ":/Plus.svg" ) );
-    }
-    else if ( caf::SelectionManager::instance()->selectedItemOfType<RimDiameterRoughnessIntervalCollection>() )
-    {
-        actionToSetup->setText( "New Interval" );
-        actionToSetup->setIcon( QIcon( ":/Plus.svg" ) );
-    }
+    actionToSetup->setText( "New Interval" );
+    actionToSetup->setIcon( QIcon( ":/Plus.svg" ) );
 }

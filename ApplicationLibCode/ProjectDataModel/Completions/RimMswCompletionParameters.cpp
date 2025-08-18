@@ -23,11 +23,11 @@
 
 #include "RimWellPath.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafPdmUiTableViewEditor.h"
-#include "cafCmdFeatureMenuBuilder.h"
 
 #include <limits>
 
@@ -100,9 +100,12 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitScriptableFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
     CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessIntervals, "DiameterRoughnessIntervals", "Diameter Roughness Intervals" );
     m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
-    m_diameterRoughnessIntervals.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_diameterRoughnessIntervals.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_diameterRoughnessIntervals.uiCapability()->setCustomContextMenuEnabled( true );
+    m_diameterRoughnessIntervals->m_intervals.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_diameterRoughnessIntervals->m_intervals.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_diameterRoughnessIntervals->m_intervals.uiCapability()->setCustomContextMenuEnabled( true );
+
+    // Enable custom context menu on this object as well
+    setCustomContextMenuEnabled( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
@@ -265,7 +268,7 @@ double RimMswCompletionParameters::getDiameterAtMD( double md, RiaDefines::Eclip
     {
         return m_diameterRoughnessIntervals()->getDiameterAtMD( md, unitSystem );
     }
-    
+
     // Fall back to single value
     return linerDiameter( unitSystem );
 }
@@ -279,7 +282,7 @@ double RimMswCompletionParameters::getRoughnessAtMD( double md, RiaDefines::Ecli
     {
         return m_diameterRoughnessIntervals()->getRoughnessAtMD( md, unitSystem );
     }
-    
+
     // Fall back to single value
     return roughnessFactor( unitSystem );
 }
@@ -428,12 +431,12 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
             // Diameter and Roughness section
             auto* diameterRoughnessGroup = uiOrdering.addNewGroup( "Diameter and Roughness" );
             diameterRoughnessGroup->add( &m_diameterRoughnessMode );
-            
+
             bool usingIntervals = m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVAL_SPECIFIC;
-            
+
             if ( usingIntervals )
             {
-                diameterRoughnessGroup->add( &m_diameterRoughnessIntervals );
+                diameterRoughnessGroup->add( &m_diameterRoughnessIntervals->m_intervals );
                 m_linerDiameter.uiCapability()->setUiHidden( true );
                 m_roughnessFactor.uiCapability()->setUiHidden( true );
             }
@@ -444,7 +447,7 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
                 m_linerDiameter.uiCapability()->setUiHidden( false );
                 m_roughnessFactor.uiCapability()->setUiHidden( false );
             }
-            
+
             uiOrdering.add( &m_pressureDrop );
             uiOrdering.add( &m_lengthAndDepth );
             uiOrdering.add( &m_enforceMaxSegmentLength );
@@ -457,9 +460,9 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
             // Diameter and Roughness section for laterals
             auto* diameterRoughnessGroup = uiOrdering.addNewGroup( "Diameter and Roughness" );
             diameterRoughnessGroup->add( &m_diameterRoughnessMode );
-            
+
             bool usingIntervals = m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVAL_SPECIFIC;
-            
+
             if ( usingIntervals )
             {
                 diameterRoughnessGroup->add( &m_diameterRoughnessIntervals );

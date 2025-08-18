@@ -85,12 +85,12 @@ public:
 
     // New interval-based methods
     DiameterRoughnessMode diameterRoughnessMode() const;
-    void setDiameterRoughnessMode( DiameterRoughnessMode mode );
-    bool isUsingIntervalSpecificValues() const;
-    
+    void                  setDiameterRoughnessMode( DiameterRoughnessMode mode );
+    bool                  isUsingIntervalSpecificValues() const;
+
     double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
     double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
-    
+
     RimDiameterRoughnessIntervalCollection* diameterRoughnessIntervals() const;
 
     void setUnitSystemSpecificDefaults();

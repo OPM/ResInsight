@@ -19,7 +19,10 @@
 
 #include "RimDiameterRoughnessInterval.h"
 #include "RimDiameterRoughnessIntervalCollection.h"
+#include "RimMswCompletionParameters.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
+#include "RimWellPathCompletionSettings.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
@@ -40,6 +43,30 @@ bool RicDeleteDiameterRoughnessIntervalFeature::isCommandEnabled() const
     {
         auto collection = caf::SelectionManager::instance()->selectedItemOfType<RimDiameterRoughnessIntervalCollection>();
         return collection && !collection->intervals().empty();
+    }
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimMswCompletionParameters>() )
+    {
+        auto mswParams = caf::SelectionManager::instance()->selectedItemOfType<RimMswCompletionParameters>();
+        if ( mswParams && mswParams->diameterRoughnessIntervals() )
+        {
+            return !mswParams->diameterRoughnessIntervals()->intervals().empty();
+        }
+    }
+    if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletionSettings>() )
+    {
+        auto completionSettings = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletionSettings>();
+        if ( completionSettings )
+        {
+            auto wellPath = completionSettings->firstAncestorOrThisOfType<RimWellPath>();
+            if ( wellPath )
+            {
+                auto mswParams = wellPath->mswCompletionParameters();
+                if ( mswParams && mswParams->diameterRoughnessIntervals() )
+                {
+                    return !mswParams->diameterRoughnessIntervals()->intervals().empty();
+                }
+            }
+        }
     }
 
     return false;
@@ -71,6 +98,36 @@ void RicDeleteDiameterRoughnessIntervalFeature::onActionTriggered( bool isChecke
         {
             intervalCollection->removeAllIntervals();
             intervalCollection->updateConnectedEditors();
+        }
+        else
+        {
+            // Handle selection of MSW completion parameters
+            auto mswParams = caf::SelectionManager::instance()->selectedItemOfType<RimMswCompletionParameters>();
+            if ( mswParams && mswParams->diameterRoughnessIntervals() )
+            {
+                intervalCollection = mswParams->diameterRoughnessIntervals();
+                intervalCollection->removeAllIntervals();
+                intervalCollection->updateConnectedEditors();
+            }
+            else
+            {
+                // Handle selection of well path completion settings
+                auto completionSettings = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletionSettings>();
+                if ( completionSettings )
+                {
+                    auto wellPath = completionSettings->firstAncestorOrThisOfType<RimWellPath>();
+                    if ( wellPath )
+                    {
+                        auto mswParams = wellPath->mswCompletionParameters();
+                        if ( mswParams && mswParams->diameterRoughnessIntervals() )
+                        {
+                            intervalCollection = mswParams->diameterRoughnessIntervals();
+                            intervalCollection->removeAllIntervals();
+                            intervalCollection->updateConnectedEditors();
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -108,7 +165,9 @@ void RicDeleteDiameterRoughnessIntervalFeature::setupActionLook( QAction* action
         actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
         applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
     }
-    else if ( caf::SelectionManager::instance()->selectedItemOfType<RimDiameterRoughnessIntervalCollection>() )
+    else if ( caf::SelectionManager::instance()->selectedItemOfType<RimDiameterRoughnessIntervalCollection>() ||
+              caf::SelectionManager::instance()->selectedItemOfType<RimMswCompletionParameters>() ||
+              caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletionSettings>() )
     {
         actionToSetup->setText( "Delete All Intervals" );
         actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );

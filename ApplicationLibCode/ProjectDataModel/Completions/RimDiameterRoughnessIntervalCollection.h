@@ -41,24 +41,24 @@ public:
 
     // Collection management
     std::vector<RimDiameterRoughnessInterval*> intervals() const;
-    void addInterval(RimDiameterRoughnessInterval* interval);
-    void insertInterval(RimDiameterRoughnessInterval* insertBefore, RimDiameterRoughnessInterval* interval);
-    void removeInterval(RimDiameterRoughnessInterval* interval);
+    void                                       addInterval( RimDiameterRoughnessInterval* interval );
+    void insertInterval( RimDiameterRoughnessInterval* insertBefore, RimDiameterRoughnessInterval* interval );
+    void removeInterval( RimDiameterRoughnessInterval* interval );
     void removeAllIntervals();
-    
+
     // Interval creation
-    RimDiameterRoughnessInterval* createInterval(double startMD, double endMD, double diameter, double roughness);
+    RimDiameterRoughnessInterval* createInterval( double startMD, double endMD, double diameter, double roughness );
     RimDiameterRoughnessInterval* createDefaultInterval();
 
     // Lookup methods
-    double getDiameterAtMD(double md, RiaDefines::EclipseUnitSystem unitSystem) const;
-    double getRoughnessAtMD(double md, RiaDefines::EclipseUnitSystem unitSystem) const;
-    RimDiameterRoughnessInterval* findIntervalAtMD(double md) const;
+    double                        getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double                        getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
+    RimDiameterRoughnessInterval* findIntervalAtMD( double md ) const;
 
     // Validation
-    bool hasValidIntervals() const;
-    bool hasOverlappingIntervals() const;
-    bool coversFullRange(double startMD, double endMD) const;
+    bool                 hasValidIntervals() const;
+    bool                 hasOverlappingIntervals() const;
+    bool                 coversFullRange( double startMD, double endMD ) const;
     std::vector<QString> validateIntervals() const;
 
     // Sorting and organization
@@ -66,17 +66,18 @@ public:
     void mergeAdjacentIntervals();
 
     // Utility
-    bool isEmpty() const;
+    bool   isEmpty() const;
     size_t count() const;
-    void updateConnectedEditors();
+    void   updateConnectedEditors();
 
 protected:
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
 
 private:
-    void onChildDeleted(caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
-private:
+public:
     caf::PdmChildArrayField<RimDiameterRoughnessInterval*> m_intervals;
 };
