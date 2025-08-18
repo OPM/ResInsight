@@ -78,10 +78,8 @@ def cells(
 
 
 @add_method(SimulationWell)
-def accumulated_perforation_length(
-    self: SimulationWell, timestep: int
-) -> float:
-    """Get accumulated perforation lenght for the given timestep 
+def accumulated_perforation_length(self: SimulationWell, timestep: int) -> float:
+    """Get accumulated perforation lenght for the given timestep
 
     Arguments:
         timestep(int): Time step index

@@ -1,6 +1,6 @@
 ###################################################################################
 # This example will connect to ResInsight, retrieve a list of
-# simulation wells for a caseand get the accumulated perforated length for all 
+# simulation wells for a caseand get the accumulated perforated length for all
 # simulation wells per timestep
 ###################################################################################
 
@@ -25,4 +25,6 @@ if resinsight is not None:
             for tidx, timestep in enumerate(timesteps):
                 print("  Timestep: " + str(timestep))
                 acc_perforated_length = sim_well.accumulated_perforation_length(tidx)
-                print("  Accumulated perforation length : " + str(acc_perforated_length))
+                print(
+                    "  Accumulated perforation length : " + str(acc_perforated_length)
+                )
