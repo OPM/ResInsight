@@ -20,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --option="APT::Acquire::Retries=3" clang-format-19
           clang-format-19 --version
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Check format - ApplicationLibCode
         run: |
           cd ApplicationLibCode
