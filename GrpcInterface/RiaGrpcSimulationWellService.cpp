@@ -22,7 +22,10 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
+#include "RigMainGrid.h"
+#include "Well/RigEclipseWellLogExtractor.h"
 #include "Well/RigSimWellData.h"
+#include "Well/RigWellPath.h"
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
@@ -155,9 +158,9 @@ grpc::Status RiaGrpcSimulationWellService::GetPerfLength( grpc::ServerContext*  
                                                           rips::SimulationWellPerfLength*    reply )
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( request->case_id() ) );
-    if ( !eclipseCase )
+    if ( !eclipseCase || !eclipseCase->eclipseCaseData() )
     {
-        return grpc::Status( grpc::NOT_FOUND, "Case not found" );
+        return grpc::Status( grpc::NOT_FOUND, "Case not found or invalid." );
     }
     // First find the well result for the correct well
     cvf::ref<RigSimWellData> currentWellResult = findWellResult( eclipseCase, request->well_name() );
@@ -166,14 +169,46 @@ grpc::Status RiaGrpcSimulationWellService::GetPerfLength( grpc::ServerContext*  
         return grpc::Status( grpc::NOT_FOUND, "Well not found" );
     }
     size_t tsIdx = static_cast<size_t>( request->timestep() );
-    if ( currentWellResult->hasWellResult( tsIdx ) )
-    {
-        reply->set_accumulated_length( 23.0 ); // Placeholder value, replace with actual logic to compute perf length
-    }
-    else
+    if ( !currentWellResult->hasWellResult( tsIdx ) || !currentWellResult->isOpen( tsIdx ) ||
+         !currentWellResult->hasAnyValidCells( tsIdx ) )
     {
         reply->set_accumulated_length( 0.0 );
+        return grpc::Status::OK;
     }
+
+    QString wellName   = QString::fromStdString( request->well_name() );
+    double  perfLength = 0.0;
+
+    auto wellPaths = eclipseCase->eclipseCaseData()->simulationWellBranches( wellName, true, true );
+    auto mainGrid  = eclipseCase->mainGrid();
+
+    for ( auto wellPath : wellPaths )
+    {
+        std::unique_ptr<RigWellLogExtractor> extractor =
+            std::make_unique<RigEclipseWellLogExtractor>( eclipseCase->eclipseCaseData(), wellPath, wellName.toStdString() );
+
+        std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections =
+            extractor->cellIntersectionInfosAlongWellPath();
+
+        for ( const auto& info : wellPathCellIntersections )
+        {
+            size_t localCellIndex = 0;
+
+            auto   localGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( info.globCellIndex, &localCellIndex );
+            size_t gridIndex = localGrid->gridId();
+
+            auto wResCell =
+                currentWellResult->wellResultFrame( tsIdx )->findResultCellWellHeadExcluded( gridIndex, localCellIndex );
+
+            if ( wResCell.isValid() && wResCell.isOpen() )
+            {
+                double length = info.endMD - info.startMD;
+                perfLength += length;
+            }
+        }
+    }
+
+    reply->set_accumulated_length( perfLength );
     return grpc::Status::OK;
 }
 

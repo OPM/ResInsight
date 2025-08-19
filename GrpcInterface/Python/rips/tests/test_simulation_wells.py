@@ -57,3 +57,15 @@ def test_10k(rips_instance, initialize_test):
                     + str(len(cells))
                 )
                 assert len(cells) == expected_cell_count[sim_well.name]
+
+
+def test_10k_acclength(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    case.create_view()
+    sim_wells = case.simulation_wells()
+
+    lenght0 = sim_wells[0].accumulated_perforation_length(0)
+    length2 = sim_wells[1].accumulated_perforation_length(2)
+
+    timesteps = case.time_steps()

@@ -90,7 +90,7 @@ def accumulated_perforation_length(
     sim_well_request = SimulationWell_pb2.SimulationWellRequest(
         case_id=self.case().id, well_name=self.name, timestep=timestep
     )
-    return self.__simulation_well_stub.GetPerfLength(sim_well_request)
+    return self.__simulation_well_stub.GetPerfLength(sim_well_request).accumulated_length
 
 
 @add_method(SimulationWell)

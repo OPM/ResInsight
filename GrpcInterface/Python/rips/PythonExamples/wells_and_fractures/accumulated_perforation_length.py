@@ -6,23 +6,46 @@
 
 # Import the ResInsight Processing Server Module
 import rips
+import sys
 
 # Connect to ResInsight
 resinsight = rips.Instance.find()
-if resinsight is not None:
-    # Get a list of all wells
-    cases = resinsight.project.cases()
+if resinsight is None:
+    sys.exit("ResInsight is not running. Please start ResInsight and try again.")
+    
+# Get a list of all wells
+cases = resinsight.project.cases()
+if len(cases) == 0:
+    sys.exit("No cases found in the project. Please open a case and try again.")
 
-    for case in cases:
-        print("Case id: " + str(case.id))
-        print("Case name: " + case.name)
+case = cases[0]
+print("Using Case: " + case.name)
 
-        timesteps = case.time_steps()
-        sim_wells = case.simulation_wells()
-        for sim_well in sim_wells:
-            print("Simulation well: " + sim_well.name)
+timesteps = case.time_steps()
 
-            for tidx, timestep in enumerate(timesteps):
-                print("  Timestep: " + str(timestep))
-                acc_perforated_length = sim_well.accumulated_perforation_length(tidx)
-                print("  Accumulated perforation length : " + str(acc_perforated_length))
+# store results in a dictionary, 
+# use well name as the key and a list of the wells accumulated perforation 
+# lengths for each timestep as the value
+results = {}
+
+# loop over all available simulation wells
+sim_wells = case.simulation_wells()
+for sim_well in sim_wells:
+    acclengths = []
+    for tidx, timestep in enumerate(timesteps):
+        acclengths.append(sim_well.accumulated_perforation_length(tidx))
+    results[sim_well.name] = acclengths
+
+# Print header
+header = ["Timestep"]
+for tidx, ts in enumerate(timesteps):
+    header.append( "%d/%d/%d" % (ts.day, ts.month, ts.year))
+print(";".join(header))
+
+# Print the results
+for well_name, lengths in results.items():
+    line = [well_name]
+    for idx, length in enumerate(lengths):
+        line.append(str(length))
+    print(";".join(line))
+
