@@ -49,7 +49,7 @@ namespace RiaOpmParserTools
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::VFPInjTable createInjectionTable( const Opm::DeckKeyword& keyword )
+std::pair<Opm::UnitSystem, Opm::VFPInjTable> createInjectionTable( const Opm::DeckKeyword& keyword )
 {
     Opm::UnitSystem unitSystem;
     {
@@ -63,13 +63,13 @@ Opm::VFPInjTable createInjectionTable( const Opm::DeckKeyword& keyword )
         }
     }
 
-    return { keyword, unitSystem };
+    return { unitSystem, { keyword, unitSystem } };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::VFPProdTable createProductionTable( const Opm::DeckKeyword& keyword )
+std::pair<Opm::UnitSystem, Opm::VFPProdTable> createProductionTable( const Opm::DeckKeyword& keyword )
 {
     Opm::UnitSystem unitSystem;
     {
@@ -85,7 +85,7 @@ Opm::VFPProdTable createProductionTable( const Opm::DeckKeyword& keyword )
 
     bool gaslift_opt_active = false;
 
-    return { keyword, gaslift_opt_active, unitSystem };
+    return { unitSystem, { keyword, gaslift_opt_active, unitSystem } };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +99,8 @@ std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFP
 
     std::vector<Opm::VFPProdTable> prodTables;
     std::vector<Opm::VFPInjTable>  injTables;
-    Opm::UnitSystem                unitSystem;
+
+    std::optional<Opm::UnitSystem> unitSystemFromTables;
 
     try
     {
@@ -125,7 +126,6 @@ std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFP
 
         Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
         auto              deck = parser.parseFile( dataDeckFilename, parseContext );
-        unitSystem             = deck.getActiveUnitSystem();
 
         {
             std::string prodKeyword = "VFPPROD";
@@ -133,7 +133,12 @@ std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFP
 
             for ( auto kw : keywordList )
             {
-                auto table = createProductionTable( *kw );
+                const auto& [tableUnitSystem, table] = createProductionTable( *kw );
+
+                if ( !unitSystemFromTables )
+                {
+                    unitSystemFromTables = tableUnitSystem;
+                }
                 prodTables.push_back( table );
             }
         }
@@ -142,7 +147,12 @@ std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFP
             auto        keywordList = deck.getKeywordList( injKeyword );
             for ( auto kw : keywordList )
             {
-                auto table = createInjectionTable( *kw );
+                const auto& [tableUnitSystem, table] = createInjectionTable( *kw );
+
+                if ( !unitSystemFromTables )
+                {
+                    unitSystemFromTables = tableUnitSystem;
+                }
                 injTables.push_back( table );
             }
         }
@@ -163,7 +173,13 @@ std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFP
         RiaLogging::warning( text );
     }
 
-    return std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>{ unitSystem, prodTables, injTables };
+    Opm::UnitSystem unitSystemValue;
+    if ( unitSystemFromTables )
+    {
+        unitSystemValue = *unitSystemFromTables;
+    }
+
+    return std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>{ unitSystemValue, prodTables, injTables };
 }
 
 //--------------------------------------------------------------------------------------------------
