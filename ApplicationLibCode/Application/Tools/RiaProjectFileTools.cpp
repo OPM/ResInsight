@@ -158,15 +158,18 @@ QString RiaProjectFileTools::transferPathsToGlobalPathList( RimProject* project 
             // summary variables.
 
             QString variableName = summaryCase->summaryHeaderFilename();
-            variableName         = variableName.remove( RiaVariableMapper::variableToken() );
+            if ( !variableName.isEmpty() )
+            {
+                variableName = variableName.remove( RiaVariableMapper::variableToken() );
 
-            variableName = RiaVariableMapper::variableToken() + variableName + RiaVariableMapper::postfixName() +
-                           RiaVariableMapper::variableToken();
+                variableName = RiaVariableMapper::variableToken() + variableName + RiaVariableMapper::postfixName() +
+                               RiaVariableMapper::variableToken();
 
-            QString variableValue = summaryCase->displayCaseName();
-            variableMapper.addVariable( variableName, variableValue );
+                QString variableValue = summaryCase->displayCaseName();
+                variableMapper.addVariable( variableName, variableValue );
 
-            summaryCase->setCustomCaseName( variableName );
+                summaryCase->setCustomCaseName( variableName );
+            }
         }
     }
 
