@@ -9,8 +9,7 @@ service SimulationWell {
       returns (SimulationWellStatus) {}
   rpc GetSimulationWellCells(SimulationWellRequest)
       returns (SimulationWellCellInfoArray) {}
-  rpc GetPerfLength(SimulationWellRequest)
-      returns (SimulationWellPerfLength) {}
+  rpc GetPerfLength(SimulationWellRequest) returns (SimulationWellPerfLength) {}
 }
 
 message SimulationWellRequest {
@@ -36,6 +35,4 @@ message SimulationWellCellInfoArray {
   repeated SimulationWellCellInfo data = 1;
 }
 
-message SimulationWellPerfLength {
-  double accumulated_length = 1;
-}
+message SimulationWellPerfLength { double accumulated_length = 1; }
