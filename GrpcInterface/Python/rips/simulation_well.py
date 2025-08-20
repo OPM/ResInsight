@@ -78,10 +78,8 @@ def cells(
 
 
 @add_method(SimulationWell)
-def accumulated_perforation_length(
-    self: SimulationWell, timestep: int
-) -> float:
-    """Get accumulated perforation lenght for the given timestep. 
+def accumulated_perforation_length(self: SimulationWell, timestep: int) -> float:
+    """Get accumulated perforation lenght for the given timestep.
        If a well is closed the length will be 0.
 
     Arguments:
@@ -91,7 +89,9 @@ def accumulated_perforation_length(
     sim_well_request = SimulationWell_pb2.SimulationWellRequest(
         case_id=self.case().id, well_name=self.name, timestep=timestep
     )
-    return self.__simulation_well_stub.GetPerfLength(sim_well_request).accumulated_length
+    return self.__simulation_well_stub.GetPerfLength(
+        sim_well_request
+    ).accumulated_length
 
 
 @add_method(SimulationWell)
