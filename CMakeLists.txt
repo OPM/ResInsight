@@ -438,7 +438,7 @@ endif()
 
 option(RESINSIGHT_ENABLE_OPENVDS "Add support for OpenVDS seismic files" ON)
 
-if (RESINSIGHT_ENABLE_OPENVDS)
+if(RESINSIGHT_ENABLE_OPENVDS)
   message(STATUS "Starting download of external library OpenVDS ...")
 
   if(MSVC)
@@ -767,7 +767,7 @@ if(MSVC)
   endif()
 
   # OpenVDS Dlls
-  if (RESINSIGHT_ENABLE_OPENVDS)
+  if(RESINSIGHT_ENABLE_OPENVDS)
     set(OPENVDS_DLL_NAMES openvds segyutils)
     foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
       list(APPEND RI_FILENAMES
@@ -789,7 +789,7 @@ if(MSVC)
 
 else()
   # Linux
-  if (RESINSIGHT_ENABLE_OPENVDS)
+  if(RESINSIGHT_ENABLE_OPENVDS)
     # OpenVDS lib files
     list(APPEND RI_FILENAMES ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport)
 
@@ -1047,7 +1047,7 @@ if(RESINSIGHT_BUNDLE_TESTMODELS)
   )
 endif()
 
-if (RESINSIGHT_ENABLE_OPENVDS)
+if(RESINSIGHT_ENABLE_OPENVDS)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(OPENVDS_SHARED_LIB_FILES
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
