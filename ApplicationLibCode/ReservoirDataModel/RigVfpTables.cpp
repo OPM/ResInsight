@@ -545,7 +545,7 @@ std::vector<double> RigVfpTables::getProductionTableData( const Opm::VFPProdTabl
 
         // Convert ALQ values to raw values. No conversion of this data type is done in convertToDisplayUnit. As convertToDisplayUnit is a
         // static function, it will require a lot of refactoring to get the unit system information communicated to this function.
-        auto alq_dim = table.ALQDimension( table.getALQType(), m_unitSystem );
+        auto alq_dim = Opm::VFPProdTable::ALQDimension( table.getALQType(), m_unitSystem );
         for ( double& value : xVals )
         {
             value = alq_dim.convertSiToRaw( value );
