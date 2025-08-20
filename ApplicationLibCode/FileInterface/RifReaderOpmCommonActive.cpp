@@ -362,4 +362,17 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             cell.setInvalid( cell.isLongPyramidCell() );
         }
     }
+
+    // subgrid pointers
+    RigLocalGrid* realLocalGrid = dynamic_cast<RigLocalGrid*>( localGrid );
+    RigGridBase*  parentGrid    = realLocalGrid != nullptr ? realLocalGrid->parentGrid() : nullptr;
+
+    if ( parentGrid != nullptr )
+    {
+        for ( auto localCellInGlobalIdx : hostCellGlobalIndices )
+        {
+            auto& cell = parentGrid->cell( localCellInGlobalIdx );
+            if ( !cell.isInvalid() ) cell.setSubGrid( realLocalGrid );
+        }
+    }
 }

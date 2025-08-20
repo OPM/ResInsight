@@ -1,7 +1,8 @@
 ###################################################################################
 # This example will connect to ResInsight, retrieve a list of
-# simulation wells for a caseand get the accumulated perforated length for all 
-# simulation wells per timestep
+# simulation wells for a case and get the accumulated perforated length for all 
+# simulation wells per timestep. If a well is closed at a given timestep, the
+# accumulated perforated length will be zero.
 ###################################################################################
 
 # Import the ResInsight Processing Server Module

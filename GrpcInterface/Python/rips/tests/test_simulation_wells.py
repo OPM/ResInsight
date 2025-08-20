@@ -1,5 +1,6 @@
 import sys
 import os
+import math
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
@@ -65,7 +66,11 @@ def test_10k_acclength(rips_instance, initialize_test):
     case.create_view()
     sim_wells = case.simulation_wells()
 
-    lenght0 = sim_wells[0].accumulated_perforation_length(0)
-    length2 = sim_wells[1].accumulated_perforation_length(2)
+    expected_length = {}
+    expected_length["GP1"] = 4796.4
+    expected_length["GI1"] = 2116.8
+    expected_length["GP2"] = 47.5
 
-    timesteps = case.time_steps()
+    for sim_well in sim_wells:
+        lenght = sim_well.accumulated_perforation_length(1)
+        assert math.fabs(length - expected_length[sim_well.name]) < 0.1
