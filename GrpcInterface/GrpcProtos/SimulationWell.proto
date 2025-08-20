@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+// clang-format off
+
 import "Definitions.proto";
 
 package rips;

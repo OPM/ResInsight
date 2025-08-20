@@ -77,5 +77,6 @@ Standard:        Cpp11
 TabWidth:        4
 UseTab:          Never
 ---
-Language:        Proto
+Language: Proto
+ColumnLimit: 80
 ...
