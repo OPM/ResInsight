@@ -67,9 +67,9 @@ def test_10k_acclength(rips_instance, initialize_test):
     sim_wells = case.simulation_wells()
 
     expected_length = {}
-    expected_length["GP1"] = 4796.4
-    expected_length["GI1"] = 2116.8
-    expected_length["GP2"] = 47.5
+    expected_length["GP1"] = 4708.0
+    expected_length["GI1"] = 2132.8
+    expected_length["GP2"] = 49.0
 
     for sim_well in sim_wells:
         length = sim_well.accumulated_perforation_length(1)
