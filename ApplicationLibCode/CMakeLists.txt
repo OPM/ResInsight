@@ -171,7 +171,16 @@ endif()
 #
 # OpenVDS
 #
-list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
+if (RESINSIGHT_ENABLE_OPENVDS)
+  add_definitions(-DUSE_OPENVDS)
+  list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
+
+  list(APPEND CPP_SOURCES
+       FileInterface/RifOpenVDSReader.cpp 
+       FileInterface/RifOpenVDSReader.h
+  )
+
+endif()
 
 #
 # HDF5

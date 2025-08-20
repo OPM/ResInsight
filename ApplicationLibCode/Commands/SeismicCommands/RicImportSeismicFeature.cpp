@@ -47,17 +47,24 @@ CAF_CMD_SOURCE_INIT( RicImportSeismicFeature, "RicImportSeismicFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicImportSeismicFeature::onActionTriggered( bool isChecked )
 {
-    QString         filter     = "Seismic volumes (*.zgy *.vds);;SEG-Y files (*.sgy *.segy);;All Files (*.*)";
+#ifdef USE_OPENVDS
+    QString filter = "Seismic volumes (*.zgy *.vds);;SEG-Y files (*.sgy *.segy);;All Files (*.*)";
+#else
+    QString filter = "Seismic volumes (*.zgy);;All Files (*.*)";
+#endif
+
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "SEISMIC_GRID" );
     QString fileName = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(), "Import Seismic", defaultDir, filter );
 
+#ifdef USE_OPENVDS
     QFileInfo fi( fileName );
     QString   ext = fi.suffix().toLower();
     if ( ( ext == "segy" ) || ( ext == "sgy" ) )
     {
         fileName = convertSEGYtoVDS( fileName );
     }
+#endif
 
     if ( fileName.isEmpty() ) return;
 

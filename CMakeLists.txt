@@ -436,34 +436,38 @@ endif()
 # OpenVDS seismic file access
 # ##############################################################################
 
-message(STATUS "Starting download of external library OpenVDS ...")
+option(RESINSIGHT_ENABLE_OPENVDS "Add support for OpenVDS seismic files" ON)
 
-if(MSVC)
-  FetchContent_Declare(
-    openvds
-    URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-win.zip
-  )
-else()
-  FetchContent_Declare(
-    openvds
-    URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-manylinux_2014.tar.gz
-  )
-endif()
+if (RESINSIGHT_ENABLE_OPENVDS)
+  message(STATUS "Starting download of external library OpenVDS ...")
 
-FetchContent_MakeAvailable(openvds)
-message(STATUS "... completed download of external library OpenVDS")
+  if(MSVC)
+    FetchContent_Declare(
+      openvds
+      URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-win.zip
+    )
+  else()
+    FetchContent_Declare(
+      openvds
+      URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-manylinux_2014.tar.gz
+    )
+  endif()
 
-set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
-message(STATUS "Using OpenVDS api from : ${RESINSIGHT_OPENVDS_API_DIR}")
+  FetchContent_MakeAvailable(openvds)
+  message(STATUS "... completed download of external library OpenVDS")
 
-if(MSVC)
-  list(APPEND EXTERNAL_LINK_LIBRARIES
-       ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/openvds.lib
-  )
-else()
-  list(APPEND EXTERNAL_LINK_LIBRARIES
-       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
-  )
+  set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
+  message(STATUS "Using OpenVDS API from : ${RESINSIGHT_OPENVDS_API_DIR}")
+
+  if(MSVC)
+    list(APPEND EXTERNAL_LINK_LIBRARIES
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/openvds.lib
+    )
+  else()
+    list(APPEND EXTERNAL_LINK_LIBRARIES
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
+    )
+  endif()
 endif()
 
 # ##############################################################################
@@ -763,15 +767,17 @@ if(MSVC)
   endif()
 
   # OpenVDS Dlls
-  set(OPENVDS_DLL_NAMES openvds segyutils)
-  foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
+  if (RESINSIGHT_ENABLE_OPENVDS)
+    set(OPENVDS_DLL_NAMES openvds segyutils)
+    foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
+      list(APPEND RI_FILENAMES
+           ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
+      )
+    endforeach(OPENVDS_DLL_NAME)
     list(APPEND RI_FILENAMES
-         ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
+         ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
     )
-  endforeach(OPENVDS_DLL_NAME)
-  list(APPEND RI_FILENAMES
-       ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
-  )
+  endif()
 
   # HDF5 Dlls
   if(RESINSIGHT_FOUND_HDF5)
@@ -783,24 +789,25 @@ if(MSVC)
 
 else()
   # Linux
+  if (RESINSIGHT_ENABLE_OPENVDS)
+    # OpenVDS lib files
+    list(APPEND RI_FILENAMES ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport)
 
-  # OpenVDS lib files
-  list(APPEND RI_FILENAMES ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport)
-
-  set(OPENVDS_LIB_NAMES
-      libopenvds.so
-      libopenvds.so.3
-      libopenvds.so.3.4.6
-      libopenvds-e6a44892.so.3.4.6
-      libsegyutils.so
-      libsegyutils.so.3
-      libsegyutils.so.3.4.6
-  )
-  foreach(OPENVDS_LIB_NAME ${OPENVDS_LIB_NAMES})
-    list(APPEND RI_FILENAMES
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/${OPENVDS_LIB_NAME}
+    set(OPENVDS_LIB_NAMES
+        libopenvds.so
+        libopenvds.so.3
+        libopenvds.so.3.4.6
+        libopenvds-e6a44892.so.3.4.6
+        libsegyutils.so
+        libsegyutils.so.3
+        libsegyutils.so.3.4.6
     )
-  endforeach(OPENVDS_LIB_NAME)
+    foreach(OPENVDS_LIB_NAME ${OPENVDS_LIB_NAMES})
+      list(APPEND RI_FILENAMES
+           ${RESINSIGHT_OPENVDS_API_DIR}/lib64/${OPENVDS_LIB_NAME}
+      )
+    endforeach(OPENVDS_LIB_NAME)
+  endif()
 endif(MSVC)
 
 # ##############################################################################
@@ -1040,23 +1047,25 @@ if(RESINSIGHT_BUNDLE_TESTMODELS)
   )
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(OPENVDS_SHARED_LIB_FILES
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.4.6
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-e6a44892.so.3.4.6
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.4.6
-  )
-  install(FILES ${OPENVDS_SHARED_LIB_FILES}
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-  )
+if (RESINSIGHT_ENABLE_OPENVDS)
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(OPENVDS_SHARED_LIB_FILES
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.4.6
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-e6a44892.so.3.4.6
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.4.6
+    )
+    install(FILES ${OPENVDS_SHARED_LIB_FILES}
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
 
-  install(PROGRAMS ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-  )
+    install(PROGRAMS ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
+  endif()
 endif()
 
 # ##############################################################################

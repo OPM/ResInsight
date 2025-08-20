@@ -20,7 +20,10 @@
 
 #include "RiaLogging.h"
 
+#ifdef USE_OPENVDS
 #include "RifOpenVDSReader.h"
+#endif
+
 #include "RifSeismicZGYReader.h"
 
 #include "RimRegularLegendConfig.h"
@@ -101,10 +104,12 @@ bool RimSeismicData::openFileIfNotOpen()
         {
             m_filereader = std::make_shared<RifSeismicZGYReader>();
         }
+#ifdef USE_OPENVDS
         else if ( fi.suffix().toLower() == "vds" )
         {
             m_filereader = std::make_shared<RifOpenVDSReader>();
         }
+#endif
         else
         {
             m_filereader.reset();
