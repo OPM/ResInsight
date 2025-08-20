@@ -72,5 +72,5 @@ def test_10k_acclength(rips_instance, initialize_test):
     expected_length["GP2"] = 47.5
 
     for sim_well in sim_wells:
-        lenght = sim_well.accumulated_perforation_length(1)
+        length = sim_well.accumulated_perforation_length(1)
         assert math.fabs(length - expected_length[sim_well.name]) < 0.1
