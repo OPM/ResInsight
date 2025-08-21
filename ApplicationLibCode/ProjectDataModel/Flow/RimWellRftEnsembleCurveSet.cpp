@@ -141,7 +141,7 @@ void RimWellRftEnsembleCurveSet::clearEnsembleStatistics()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftEnsembleCurveSet::initAfterRead()
 {
-    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2025.04" ) )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2025.04.3" ) )
     {
         m_appearance->setColorMode( m_ensembleColorMode_OBSOLETE() );
         m_appearance->setEnsembleParameter( m_ensembleParameter_OBSOLETE() );
