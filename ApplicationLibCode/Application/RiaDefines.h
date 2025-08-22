@@ -235,6 +235,11 @@ enum class MultiPlotPageUpdateType : uint32_t
     ALL    = 0b00000111
 };
 
+bool isFullUpdate( MultiPlotPageUpdateType updateType );
+bool isLegendUpdate( MultiPlotPageUpdateType updateType );
+bool isTitleUpdate( MultiPlotPageUpdateType updateType );
+bool isPlotUpdate( MultiPlotPageUpdateType updateType );
+
 std::vector<double> viewScaleOptions();
 
 enum class View3dContent

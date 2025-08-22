@@ -395,6 +395,38 @@ QString RiaDefines::stringListSeparator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaDefines::isFullUpdate( MultiPlotPageUpdateType updateType )
+{
+    return updateType == MultiPlotPageUpdateType::ALL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDefines::isLegendUpdate( MultiPlotPageUpdateType updateType )
+{
+    return BitmaskEnum<MultiPlotPageUpdateType>( updateType ).AnyOf( MultiPlotPageUpdateType::LEGEND );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDefines::isTitleUpdate( MultiPlotPageUpdateType updateType )
+{
+    return BitmaskEnum<MultiPlotPageUpdateType>( updateType ).AnyOf( MultiPlotPageUpdateType::TITLE );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDefines::isPlotUpdate( MultiPlotPageUpdateType updateType )
+{
+    return BitmaskEnum<MultiPlotPageUpdateType>( updateType ).AnyOf( MultiPlotPageUpdateType::PLOT );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RiaDefines::viewScaleOptions()
 {
     return { 0.005, 0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 15.0, 20.0, 50.0 };

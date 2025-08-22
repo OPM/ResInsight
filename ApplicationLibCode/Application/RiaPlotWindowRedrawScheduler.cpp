@@ -101,7 +101,7 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdates()
     {
         if ( plotBook.isNull() ) continue;
 
-        if ( ( updateType & RiaDefines::MultiPlotPageUpdateType::PLOT ) == RiaDefines::MultiPlotPageUpdateType::PLOT )
+        if ( RiaDefines::isPlotUpdate( updateType ) )
         {
             for ( RiuMultiPlotPage* page : plotBook->pages() )
             {

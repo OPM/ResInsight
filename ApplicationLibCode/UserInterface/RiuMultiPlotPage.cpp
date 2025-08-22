@@ -562,7 +562,7 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
     auto multiPlot = dynamic_cast<RimMultiPlot*>( m_plotDefinition.p() );
     if ( multiPlot && !multiPlot->isValid() ) return;
 
-    if ( whatToUpdate == RiaDefines::MultiPlotPageUpdateType::ALL )
+    if ( RiaDefines::isFullUpdate( whatToUpdate ) )
     {
         applyLook();
         updateTitleFont();
@@ -575,14 +575,14 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
         return;
     }
 
-    if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::LEGEND ) == RiaDefines::MultiPlotPageUpdateType::LEGEND )
+    if ( RiaDefines::isLegendUpdate( whatToUpdate ) )
     {
         refreshLegends();
         alignCanvasTops();
         if ( m_autoAlignAxes ) alignAxes();
     }
 
-    if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::TITLE ) == RiaDefines::MultiPlotPageUpdateType::TITLE )
+    if ( RiaDefines::isTitleUpdate( whatToUpdate ) )
     {
         updateTitleFont();
         updateSubTitles();

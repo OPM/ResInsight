@@ -493,12 +493,12 @@ void RiuMultiPlotBook::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
     if ( !m_plotDefinition || !m_plotDefinition->isValid() || !m_plotDefinition->showWindow() ) return;
 
     applyLook();
-    if ( ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::PLOT ) == RiaDefines::MultiPlotPageUpdateType::PLOT ) || m_pages.empty() )
+    if ( RiaDefines::isPlotUpdate( whatToUpdate ) || m_pages.empty() )
     {
         deleteAllPages();
         createPages();
     }
-    else if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::TITLE ) == RiaDefines::MultiPlotPageUpdateType::TITLE )
+    else if ( RiaDefines::isTitleUpdate( whatToUpdate ) )
     {
         updatePageTitles();
     }
