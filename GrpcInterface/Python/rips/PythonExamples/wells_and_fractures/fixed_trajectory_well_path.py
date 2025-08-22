@@ -33,6 +33,7 @@ def create_norne_well():
 
     return coordinates
 
+
 resinsight = rips.Instance.find()
 
 # Get the well path collection
