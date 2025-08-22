@@ -87,6 +87,8 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
     settings.setName( templateCandidateName );
 
     caf::PdmUiPropertyViewDialog propertyDialog( RiuPlotMainWindow::instance(), &settings, "Export Plot Template", "" );
+    propertyDialog.resize( QSize( 600, 400 ) );
+
     if ( propertyDialog.exec() != QDialog::Accepted ) return;
 
     auto plot = selectedSummaryPlot();
