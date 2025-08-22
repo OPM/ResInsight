@@ -2,6 +2,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGroup.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFixedTrajectoryWellPath.h
     ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDefTools.h
@@ -23,6 +24,7 @@ set(SOURCE_GROUP_HEADER_FILES
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFixedTrajectoryWellPath.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.cpp
