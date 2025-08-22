@@ -427,6 +427,9 @@ set(UNITY_EXCLUDE_FILES
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp
     FileInterface/RifArrowTools.cpp
     FileInterface/RifReaderOpmRft.cpp
+    # Exclude RimFixedTrajectoryWellPath due to cvf::Vec3d template
+    # instantiation conflicts
+    ProjectDataModel/WellPath/RimFixedTrajectoryWellPath.cpp
 )
 
 message("Files excluded from UNITY_BUILD : ${UNITY_EXCLUDE_FILES}")
