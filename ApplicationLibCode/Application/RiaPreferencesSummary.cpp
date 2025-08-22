@@ -159,6 +159,15 @@ RiaPreferencesSummary::RiaPreferencesSummary()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType_v01", "File Format" );
 
+    CAF_PDM_InitField( &m_useImprovedSummaryImport,
+                       "useImprovedSummaryImport",
+                       true,
+                       "Use Improved Summary Import",
+                       "",
+                       "For ensemble import, skip metadata import for individual realizations. This reduces file operations and can "
+                       "significantly speed up the import process." );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useImprovedSummaryImport );
+
     CAF_PDM_InitField( &m_showSummaryTimeAsLongString,
                        "showSummaryTimeAsLongString",
                        false,
@@ -334,6 +343,14 @@ bool RiaPreferencesSummary::summaryRestartFilesShowImportDialog() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSummary::useImprovedSummaryImport() const
+{
+    return m_useImprovedSummaryImport;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::summaryImportMode() const
 {
     return m_summaryImportMode();
@@ -403,6 +420,7 @@ RiaPreferencesSummary::SummaryHistoryCurveStyleMode RiaPreferencesSummary::defau
 void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryCases );
+    uiOrdering.add( &m_useImprovedSummaryImport );
     uiOrdering.add( &m_summaryReader );
 
     if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )

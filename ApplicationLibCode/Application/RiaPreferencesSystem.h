@@ -57,9 +57,6 @@ public:
     bool    showPdfExportDialog() const;
     double  exportPdfScalingFactor() const;
 
-    bool useImprovedSummaryImport() const;
-    bool useMultiThreadingForSummaryImport() const;
-
     std::optional<int> threadCount() const;
 
     bool logToFile() const;
@@ -89,9 +86,6 @@ private:
 
     caf::PdmField<bool>   m_showPdfExportDialog;
     caf::PdmField<double> m_exportScalingFactor;
-
-    caf::PdmField<bool> m_useImprovedSummaryImport;
-    caf::PdmField<bool> m_useMultiThreadingForSummary_TEMPORARY;
 
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;

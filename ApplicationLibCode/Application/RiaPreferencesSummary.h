@@ -99,6 +99,7 @@ public:
     bool showSummaryTimeAsLongString() const;
     bool useMultipleThreadsWhenLoadingSummaryData() const;
     bool summaryRestartFilesShowImportDialog() const;
+    bool useImprovedSummaryImport() const;
 
     SummaryRestartFilesImportMode summaryImportMode() const;
     SummaryRestartFilesImportMode gridImportMode() const;
@@ -149,6 +150,7 @@ private:
     caf::PdmField<int>  m_createH5SummaryFileThreadCount;
 
     caf::PdmField<SummaryReaderModeType> m_summaryReader;
+    caf::PdmField<bool>                  m_useImprovedSummaryImport;
 
     caf::PdmField<ColumnCountEnum> m_defaultColumnCount;
     caf::PdmField<RowCountEnum>    m_defaultRowsPerPage;

@@ -520,7 +520,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
 #endif
 
     RifEnsembleImportConfig importState;
-    if ( extractStateFromFirstCase && !RiaPreferencesSystem::current()->useImprovedSummaryImport() )
+    if ( !RiaPreferencesSummary::current()->useImprovedSummaryImport() )
     {
         extractStateFromFirstCase = false;
     }
@@ -557,8 +557,6 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
         // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader.
         [[maybe_unused]] bool canUseMultipleThreads =
             ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
-
-        canUseMultipleThreads = canUseMultipleThreads && RiaPreferencesSystem::current()->useMultiThreadingForSummaryImport();
 
 #pragma omp parallel for schedule( dynamic ) if ( canUseMultipleThreads )
         for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
