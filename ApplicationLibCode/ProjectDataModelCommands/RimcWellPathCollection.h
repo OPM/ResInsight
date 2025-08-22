@@ -40,3 +40,23 @@ public:
 private:
     caf::PdmField<QString> m_fileName;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPathCollection_importFixedTrajectoryWellPathInternal : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPathCollection_importFixedTrajectoryWellPathInternal( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_name;
+    caf::PdmField<QString> m_coordinateXKey;
+    caf::PdmField<QString> m_coordinateYKey;
+    caf::PdmField<QString> m_coordinateZKey;
+};
