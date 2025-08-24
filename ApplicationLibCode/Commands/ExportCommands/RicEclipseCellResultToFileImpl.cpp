@@ -132,7 +132,8 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      
         resultData.push_back( resultValue );
     }
 
-    writeDataToTextFile( &file, writeEchoKeywords, eclipseKeyword, resultData );
+    int valuesPerRow = 5;
+    writeDataToTextFile( &file, writeEchoKeywords, eclipseKeyword, resultData, valuesPerRow );
 
     return true;
 }
@@ -143,7 +144,8 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      
 void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                     file,
                                                           bool                       writeEchoKeywords,
                                                           const QString&             eclipseKeyword,
-                                                          const std::vector<double>& resultData )
+                                                          const std::vector<double>& resultData,
+                                                          int                        valuesPerRow )
 {
     QTextStream textstream( file );
     textstream << "\n";
@@ -155,17 +157,41 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     }
 
     textstream << eclipseKeyword << "\n";
+
+    // Special formatting for MAPAXES to match Eclipse format exactly
+    if ( eclipseKeyword == "MAPAXES" )
+    {
+        textstream.setFieldWidth( 0 );
+        textstream.setRealNumberPrecision( 3 );
+        textstream.setRealNumberNotation( QTextStream::FixedNotation );
+
+        // Write MAPAXES in proper Eclipse format: 2 values per line, 3 lines total
+        for ( size_t i = 0; i < resultData.size(); i += 2 )
+        {
+            textstream << resultData[i] << " " << resultData[i + 1] << "\n";
+        }
+        textstream << "/\n";
+        return; // Skip the normal loop for MAPAXES
+    }
+
     textstream.setFieldWidth( 16 );
     textstream.setFieldAlignment( QTextStream::AlignRight );
 
+    // Set higher precision for coordinate data
+    if ( eclipseKeyword == "COORD" || eclipseKeyword == "ZCORN" )
+    {
+        textstream.setRealNumberPrecision( 3 );
+        textstream.setRealNumberNotation( QTextStream::FixedNotation );
+    }
+
     caf::ProgressInfo pi( resultData.size(), QString( "Writing data to file %1" ).arg( file->fileName() ) );
-    size_t            progressSteps = resultData.size() / 20;
+    size_t            progressSteps = std::max( static_cast<size_t>( 1 ), resultData.size() / 20 );
 
     for ( size_t i = 0; i < resultData.size(); i++ )
     {
         textstream << resultData[i];
 
-        if ( ( i + 1 ) % 5 == 0 )
+        if ( ( i + 1 ) % valuesPerRow == 0 )
         {
             textstream << "\n";
         }

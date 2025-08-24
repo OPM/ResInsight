@@ -29,9 +29,11 @@
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 
 #include "RifEclipseInputPropertyLoader.h"
+
 #include "RifEclipseKeywordContent.h"
 #include "RifEclipseTextFileReader.h"
 #include "RifReaderEclipseOutput.h"
+#include "RigResdataGridConverter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -55,6 +57,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+#include "RigCellGeometryTools.h"
 #include "ert/ecl/ecl_box.hpp"
 #include "ert/ecl/ecl_grid.hpp"
 #include "ert/ecl/ecl_kw.h"
@@ -227,155 +230,8 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
                                            const cvf::Vec3st&     maxIn,
                                            const cvf::Vec3st&     refinement )
 {
-    if ( !eclipseCase )
-    {
-        return false;
-    }
-
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-    CVF_ASSERT( activeCellInfo );
-
-    const RigMainGrid* mainGrid = eclipseCase->mainGrid();
-
-    cvf::Vec3st max = maxIn;
-    if ( max == cvf::Vec3st::UNDEFINED )
-    {
-        max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
-    }
-
-    int ecl_nx = static_cast<int>( ( max.x() - min.x() + 1 ) * refinement.x() );
-    int ecl_ny = static_cast<int>( ( max.y() - min.y() + 1 ) * refinement.y() );
-    int ecl_nz = static_cast<int>( ( max.z() - min.z() + 1 ) * refinement.z() );
-
-    CVF_ASSERT( ecl_nx > 0 && ecl_ny > 0 && ecl_nz > 0 );
-
-    size_t cellsPerOriginal = refinement.x() * refinement.y() * refinement.z();
-
-    caf::ProgressInfo progress( mainGrid->cellCount() * 2, "Save Eclipse Grid" );
-    int               cellProgressInterval = 1000;
-
-    std::vector<float*> ecl_corners;
-    ecl_corners.reserve( mainGrid->cellCount() * cellsPerOriginal );
-    std::vector<int*> ecl_coords;
-    ecl_coords.reserve( mainGrid->cellCount() * cellsPerOriginal );
-
-    std::array<float, 6> mapAxes      = mainGrid->mapAxesF();
-    cvf::Mat4d           mapAxisTrans = mainGrid->mapAxisTransform();
-    if ( exportInLocalCoordinates )
-    {
-        cvf::Vec3d minPoint3d( mainGrid->boundingBox().min() );
-        cvf::Vec2f minPoint2f( minPoint3d.x(), minPoint3d.y() );
-        cvf::Vec2f origin( mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y() );
-        cvf::Vec2f xPoint = cvf::Vec2f( mapAxes[4], mapAxes[5] ) - minPoint2f;
-        cvf::Vec2f yPoint = cvf::Vec2f( mapAxes[0], mapAxes[1] ) - minPoint2f;
-        mapAxes           = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
-
-        mapAxisTrans.setTranslation( mapAxisTrans.translation() - minPoint3d );
-    }
-
-    const size_t* cellMappingECLRi = RifReaderEclipseOutput::eclipseCellIndexMapping();
-
-    int outputCellIndex = 0;
-
-    for ( size_t k = 0; k <= max.z() - min.z(); ++k )
-    {
-        for ( size_t j = 0; j <= max.y() - min.y(); ++j )
-        {
-            for ( size_t i = 0; i <= max.x() - min.x(); ++i )
-            {
-                size_t mainIndex = mainGrid->cellIndexFromIJK( min.x() + i, min.y() + j, min.z() + k );
-
-                int active = activeCellInfo->isActive( mainIndex ) ? 1 : 0;
-                if ( active && cellVisibilityOverrideForActnum )
-                {
-                    active = ( *cellVisibilityOverrideForActnum )[mainIndex];
-                }
-                std::array<cvf::Vec3d, 8> cellCorners = mainGrid->cellCornerVertices( mainIndex );
-
-                if ( mainGrid->useMapAxes() )
-                {
-                    for ( cvf::Vec3d& corner : cellCorners )
-                    {
-                        corner.transformPoint( mapAxisTrans );
-                    }
-                }
-
-                auto refinedCoords = RiaCellDividingTools::createHexCornerCoords( cellCorners, refinement.x(), refinement.y(), refinement.z() );
-
-                for ( size_t subK = 0; subK < refinement.z(); ++subK )
-                {
-                    for ( size_t subJ = 0; subJ < refinement.y(); ++subJ )
-                    {
-                        for ( size_t subI = 0; subI < refinement.x(); ++subI )
-                        {
-                            int* ecl_cell_coords = new int[5];
-                            ecl_cell_coords[0]   = static_cast<int>( i * refinement.x() + subI + 1 );
-                            ecl_cell_coords[1]   = static_cast<int>( j * refinement.y() + subJ + 1 );
-                            ecl_cell_coords[2]   = static_cast<int>( k * refinement.z() + subK + 1 );
-                            ecl_cell_coords[3]   = outputCellIndex++;
-                            ecl_cell_coords[4]   = active;
-                            ecl_coords.push_back( ecl_cell_coords );
-
-                            size_t subIndex = subI + subJ * refinement.x() + subK * refinement.x() * refinement.y();
-
-                            float* ecl_cell_corners = new float[24];
-                            for ( size_t cIdx = 0; cIdx < 8; ++cIdx )
-                            {
-                                const auto cellCorner                            = refinedCoords[subIndex * 8 + cIdx];
-                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3]     = cellCorner[0];
-                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 1] = cellCorner[1];
-                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 2] = -cellCorner[2];
-                            }
-                            ecl_corners.push_back( ecl_cell_corners );
-                        }
-                    }
-                }
-            }
-        }
-
-        if ( outputCellIndex % cellProgressInterval == 0 )
-        {
-            progress.setProgress( outputCellIndex / cellsPerOriginal );
-        }
-    }
-
-    // Do not perform the transformation (applyMapaxes == false):
-    // The coordinates have been transformed to the map axes coordinate system already.
-    // However, send the map axes data in to resdata so that the coordinate system description is saved.
-    bool           applyMapaxes = false;
-    ecl_grid_type* mainEclGrid =
-        ecl_grid_alloc_GRID_data( (int)ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], applyMapaxes, mapAxes.data() );
-    progress.setProgress( mainGrid->cellCount() );
-
-    for ( float* floatArray : ecl_corners )
-    {
-        delete floatArray;
-    }
-
-    for ( int* intArray : ecl_coords )
-    {
-        delete intArray;
-    }
-
-    FILE* filePtr = util_fopen( RiaStringEncodingTools::toNativeEncoded( fileName ).data(), "w" );
-
-    if ( !filePtr )
-    {
-        return false;
-    }
-
-    ert_ecl_unit_enum ecl_units = ECL_METRIC_UNITS;
-    if ( eclipseCase->unitsType() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-        ecl_units = ECL_FIELD_UNITS;
-    else if ( eclipseCase->unitsType() == RiaDefines::EclipseUnitSystem::UNITS_LAB )
-        ecl_units = ECL_LAB_UNITS;
-
-    ecl_grid_fprintf_grdecl2( mainEclGrid, filePtr, ecl_units );
-    ecl_grid_free( mainEclGrid );
-    fclose( filePtr );
-
-    return true;
+    // Use the new native implementation instead of resdata
+    return RigResdataGridConverter::exportGrid( fileName, eclipseCase, exportInLocalCoordinates, cellVisibilityOverrideForActnum, min, maxIn, refinement );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -484,7 +340,8 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
 
         // Multiple keywords can be exported to same file, so write ECHO keywords outside the loop
         bool writeEchoKeywordsInExporterObject = false;
-        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, filteredResults );
+        int  valuePerRow                       = 5;
+        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, filteredResults, valuePerRow );
 
         progress.incrementProgress();
     }
