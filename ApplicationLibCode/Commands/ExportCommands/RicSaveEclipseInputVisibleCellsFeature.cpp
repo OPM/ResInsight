@@ -100,10 +100,12 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
         return;
     }
 
+    int valuesPerRow = 5;
     RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile,
                                                          exportSettings.writeEchoInGrdeclFiles,
                                                          exportSettings.exportKeyword().text(),
-                                                         values );
+                                                         values,
+                                                         valuesPerRow );
 }
 
 //--------------------------------------------------------------------------------------------------

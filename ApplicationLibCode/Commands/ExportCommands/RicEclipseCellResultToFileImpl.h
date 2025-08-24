@@ -62,5 +62,9 @@ public:
                                        bool                writeEchoKeywords,
                                        QString*            errorMsg );
 
-    static void writeDataToTextFile( QFile* file, bool writeEchoKeywords, const QString& eclipseKeyword, const std::vector<double>& resultData );
+    static void writeDataToTextFile( QFile*                     file,
+                                     bool                       writeEchoKeywords,
+                                     const QString&             eclipseKeyword,
+                                     const std::vector<double>& resultData,
+                                     int                        valuesPerRow );
 };
