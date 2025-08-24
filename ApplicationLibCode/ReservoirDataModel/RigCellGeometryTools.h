@@ -27,6 +27,8 @@
 #include <list>
 #include <vector>
 
+class RigCell;
+
 class RigCellGeometryTools
 {
 public:

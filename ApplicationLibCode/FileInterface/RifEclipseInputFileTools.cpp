@@ -29,9 +29,11 @@
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 
 #include "RifEclipseInputPropertyLoader.h"
+
 #include "RifEclipseKeywordContent.h"
 #include "RifEclipseTextFileReader.h"
 #include "RifReaderEclipseOutput.h"
+#include "RigResdataGridConverter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -54,6 +56,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+#include "RigCellGeometryTools.h"
 #include "ert/ecl/ecl_box.hpp"
 #include "ert/ecl/ecl_grid.hpp"
 #include "ert/ecl/ecl_kw.h"
@@ -226,6 +229,8 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
                                            const cvf::Vec3st&     maxIn,
                                            const cvf::Vec3st&     refinement )
 {
+    return RigResdataGridConverter::exportGrid( fileName, eclipseCase, exportInLocalCoordinates, cellVisibilityOverrideForActnum, min, maxIn, refinement );
+
     if ( !eclipseCase )
     {
         return false;
@@ -381,6 +386,10 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::exportKeywords( const QString&              resultFileName,
                                                RigEclipseCaseData*         eclipseCase,
                                                const std::vector<QString>& keywords,
@@ -481,7 +490,8 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
 
         // Multiple keywords can be exported to same file, so write ECHO keywords outside the loop
         bool writeEchoKeywordsInExporterObject = false;
-        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, filteredResults );
+        int  valuePerRow                       = 5;
+        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, filteredResults, valuePerRow );
 
         progress.incrementProgress();
     }

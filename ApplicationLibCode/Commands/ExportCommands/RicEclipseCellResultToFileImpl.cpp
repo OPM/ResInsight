@@ -132,7 +132,8 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      
         resultData.push_back( resultValue );
     }
 
-    writeDataToTextFile( &file, writeEchoKeywords, eclipseKeyword, resultData );
+    int valuesPerRow = 5;
+    writeDataToTextFile( &file, writeEchoKeywords, eclipseKeyword, resultData, valuesPerRow );
 
     return true;
 }
@@ -143,7 +144,8 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      
 void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                     file,
                                                           bool                       writeEchoKeywords,
                                                           const QString&             eclipseKeyword,
-                                                          const std::vector<double>& resultData )
+                                                          const std::vector<double>& resultData,
+                                                          int                        valuesPerRow )
 {
     QTextStream textstream( file );
     textstream << "\n";
@@ -165,7 +167,7 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     {
         textstream << resultData[i];
 
-        if ( ( i + 1 ) % 5 == 0 )
+        if ( ( i + 1 ) % valuesPerRow == 0 )
         {
             textstream << "\n";
         }

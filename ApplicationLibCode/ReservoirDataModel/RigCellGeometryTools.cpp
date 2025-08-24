@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigCellGeometryTools.h"
+#include "RigCell.h"
 #include "cvfGeometryTools.h"
 #include "cvfStructGrid.h"
 

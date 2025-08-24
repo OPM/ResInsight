@@ -80,6 +80,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFloodingSettings.h
     ${CMAKE_CURRENT_LIST_DIR}/RigHydrocarbonFlowTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RigDoglegTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -161,6 +162,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFloodingSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigHydrocarbonFlowTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigDoglegTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
