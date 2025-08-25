@@ -23,9 +23,9 @@
 
 #include "CompletioNData/RimCompletionData.h"
 
-#include "RimFixedTrajectoryWellPath.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimFixedTrajectoryWellPath.h"
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
