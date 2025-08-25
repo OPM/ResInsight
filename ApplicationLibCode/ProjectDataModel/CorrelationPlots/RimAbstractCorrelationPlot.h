@@ -148,9 +148,9 @@ protected:
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_labelFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
+    RimFontSizeField m_labelFontSize;
+    RimFontSizeField m_axisTitleFontSize;
+    RimFontSizeField m_axisValueFontSize;
 
 private:
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_dataSources;

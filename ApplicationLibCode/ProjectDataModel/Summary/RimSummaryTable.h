@@ -127,11 +127,11 @@ private:
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisLabelFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valueLabelFontSize;
-    caf::PdmField<bool>                             m_showValueLabels;
-    caf::PdmField<int>                              m_maxTimeLabelCount;
+    RimFontSizeField    m_axisTitleFontSize;
+    RimFontSizeField    m_axisLabelFontSize;
+    RimFontSizeField    m_valueLabelFontSize;
+    caf::PdmField<bool> m_showValueLabels;
+    caf::PdmField<int>  m_maxTimeLabelCount;
 
     caf::PdmField<RimRegularLegendConfig::MappingEnum> m_mappingType;
     caf::PdmField<caf::AppEnum<RangeType>>             m_rangeType;

@@ -424,11 +424,6 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
             options.push_back( caf::PdmOptionItemInfo( vectorName, vectorName ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisLabelFontSize ||
-              fieldNeedingOptions == &m_valueLabelFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
 
     return options;
 }

@@ -686,10 +686,6 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
             options.push_back( { displayName, sumCase } );
         }
     }
-    else if ( fieldNeedingOptions == &m_barTextFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
 
     return options;
 }

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Appearance/RimFontSizeField.h"
 #include "RimPlotAxisPropertiesInterface.h"
 
 #include "RiuPlotAxis.h"
@@ -186,8 +187,8 @@ private:
     bool m_isRangeSettingsEnabled;
     bool m_isAlwaysRequired;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_titleFontSize;
+    RimFontSizeField                                   m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_valuesFontSize;
+    RimFontSizeField                                   m_valuesFontSize;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
 };

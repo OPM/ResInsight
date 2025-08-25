@@ -1,11 +1,13 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCurveSetAppearance.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCurveAppearanceDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFontSizeField.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCurveSetAppearance.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCurveAppearanceDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFontSizeField.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

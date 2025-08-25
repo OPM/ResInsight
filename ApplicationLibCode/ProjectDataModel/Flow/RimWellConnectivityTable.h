@@ -197,10 +197,10 @@ private:
     caf::PdmField<RimRegularLegendConfig::MappingEnum> m_mappingType;
     caf::PdmField<caf::AppEnum<RangeType>>             m_rangeType;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisLabelFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valueLabelFontSize;
-    caf::PdmField<bool>                             m_showValueLabels;
+    RimFontSizeField    m_axisTitleFontSize;
+    RimFontSizeField    m_axisLabelFontSize;
+    RimFontSizeField    m_valueLabelFontSize;
+    caf::PdmField<bool> m_showValueLabels;
 
     const int m_initialNumberOfTimeSteps = 10;
 };

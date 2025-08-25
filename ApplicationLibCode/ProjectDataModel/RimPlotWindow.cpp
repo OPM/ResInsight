@@ -335,10 +335,6 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
         options.push_back( caf::PdmOptionItemInfo( "Vertical", QVariant::fromValue( false ) ) );
         options.push_back( caf::PdmOptionItemInfo( "Horizontal", QVariant::fromValue( true ) ) );
     }
-    else if ( fieldNeedingOptions == &m_titleFontSize || fieldNeedingOptions == &m_legendFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
 
     return options;
 }

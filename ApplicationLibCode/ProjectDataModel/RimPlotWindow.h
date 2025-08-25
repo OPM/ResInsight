@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "Appearance/RimFontSizeField.h"
 #include "RimNameConfig.h"
 #include "RimViewWindow.h"
 
@@ -122,8 +123,8 @@ protected:
     caf::PdmField<bool>                         m_legendItemsClickable;
     caf::PdmField<caf::AppEnum<LegendPosition>> m_legendPosition;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_legendFontSize;
+    RimFontSizeField m_titleFontSize;
+    RimFontSizeField m_legendFontSize;
 
 private:
     int m_bottomMargin;

@@ -206,13 +206,13 @@ private:
 
     caf::PdmField<SortGroupAppEnum> m_sortGroupForColors;
 
-    caf::PdmField<bool>                             m_useBarText;
-    caf::PdmField<bool>                             m_useCaseInBarText;
-    caf::PdmField<bool>                             m_useEnsembleInBarText;
-    caf::PdmField<bool>                             m_useSummaryItemInBarText;
-    caf::PdmField<bool>                             m_useTimeStepInBarText;
-    caf::PdmField<bool>                             m_useVectorNameInBarText;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_barTextFontSize;
+    caf::PdmField<bool> m_useBarText;
+    caf::PdmField<bool> m_useCaseInBarText;
+    caf::PdmField<bool> m_useEnsembleInBarText;
+    caf::PdmField<bool> m_useSummaryItemInBarText;
+    caf::PdmField<bool> m_useTimeStepInBarText;
+    caf::PdmField<bool> m_useVectorNameInBarText;
+    RimFontSizeField    m_barTextFontSize;
 
     caf::PdmChildField<RimPlotAxisProperties*>       m_valueAxisProperties;
     caf::PdmChildField<RimPlotDataFilterCollection*> m_plotDataFilterCollection;

@@ -236,9 +236,9 @@ private:
     caf::PdmField<double>                                            m_autoZoomMaxDepthFactor;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>                  m_depthAnnotations;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
+    RimFontSizeField m_subTitleFontSize;
+    RimFontSizeField m_axisTitleFontSize;
+    RimFontSizeField m_axisValueFontSize;
 
     caf::PdmChildArrayField<RimWellLogTrack*> m_plots;
 

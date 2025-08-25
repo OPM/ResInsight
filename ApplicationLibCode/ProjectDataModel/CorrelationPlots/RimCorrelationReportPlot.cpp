@@ -413,21 +413,6 @@ void RimCorrelationReportPlot::doUpdateLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCorrelationReportPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions );
-
-    if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_labelFontSize ||
-         fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisValueFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*                     emitter,
                                                 std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef )
 {

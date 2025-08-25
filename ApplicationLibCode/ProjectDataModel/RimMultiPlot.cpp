@@ -777,11 +777,6 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
                 caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ), enumVal, false, caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
-              fieldNeedingOptions == &m_axisValueFontSize )
-    {
-        return caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
     return options;
 }
 

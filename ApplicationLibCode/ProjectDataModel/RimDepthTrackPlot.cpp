@@ -1169,11 +1169,6 @@ QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const ca
             options.push_back( caf::PdmOptionItemInfo( UnitAppEnum::uiText( depthUnit ), depthUnit ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
-              fieldNeedingOptions == &m_axisValueFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
     else if ( fieldNeedingOptions == &m_ensembleCurveSet )
     {
         RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( &options );

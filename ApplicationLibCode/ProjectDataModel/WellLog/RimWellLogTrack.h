@@ -332,14 +332,14 @@ private:
     caf::PdmField<double> m_visibleDepthRangeMin;
     caf::PdmField<double> m_visibleDepthRangeMax;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisFontSize;
+    RimFontSizeField m_axisFontSize;
 
     caf::PdmField<RegionAnnotationTypeEnum>                            m_regionAnnotationType;
     caf::PdmField<RegionAnnotationDisplayEnum>                         m_regionAnnotationDisplay;
     caf::PdmPtrField<RimColorLegend*>                                  m_colorShadingLegend;
     caf::PdmField<int>                                                 m_colorShadingTransparency;
     caf::PdmField<bool>                                                m_showRegionLabels;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>                    m_regionLabelFontSize;
+    RimFontSizeField                                                   m_regionLabelFontSize;
     caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
     caf::PdmPtrField<RimCase*>                                         m_formationCase;
     caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;

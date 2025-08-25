@@ -739,10 +739,6 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationOverTimePlot::calculateValueOptio
             options.push_back( caf::PdmOptionItemInfo( timeStep.toString( dateFormatStr ), timeStep ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisValueFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
     return options;
 }
 

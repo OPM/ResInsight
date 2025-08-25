@@ -754,11 +754,7 @@ QList<caf::PdmOptionItemInfo> RimWellConnectivityTable::calculateValueOptions( c
         const bool isInjector = false;
         options               = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowDiagSolution(), isInjector );
     }
-    else if ( fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisLabelFontSize ||
-              fieldNeedingOptions == &m_valueLabelFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
+
     return options;
 }
 

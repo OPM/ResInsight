@@ -1517,6 +1517,7 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
     }
     else if ( fieldNeedingOptions == &m_fontSize )
     {
+        // Not possible to use RimFontSizeField, as the values are computed based on defaultSceneFontSize()
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultSceneFontSize() );
     }
     else if ( fieldNeedingOptions == &m_scaleZ )

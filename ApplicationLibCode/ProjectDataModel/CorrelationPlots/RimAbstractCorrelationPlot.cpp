@@ -297,11 +297,6 @@ QList<caf::PdmOptionItemInfo> RimAbstractCorrelationPlot::calculateValueOptions(
             }
         }
     }
-    else if ( fieldNeedingOptions == &m_labelFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
-              fieldNeedingOptions == &m_axisValueFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
     else if ( fieldNeedingOptions == &m_curveSetForFiltering )
     {
         RimSummaryEnsemble* ensemble = nullptr;

@@ -20,6 +20,7 @@
 
 #include "RiaDateTimeDefines.h"
 
+#include "Appearance/RimFontSizeField.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimTimeAxisAnnotation.h"
 
@@ -176,8 +177,8 @@ private:
     caf::PdmField<double> m_visibleTimeSinceStartRangeMax;
     caf::PdmField<bool>   m_isAutoZoom;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valuesFontSize;
+    RimFontSizeField m_titleFontSize;
+    RimFontSizeField m_valuesFontSize;
 
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
     caf::PdmField<bool>                                m_automaticDateComponents;

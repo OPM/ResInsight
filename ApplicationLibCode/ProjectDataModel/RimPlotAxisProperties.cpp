@@ -211,10 +211,6 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions( cons
             options.push_back( caf::PdmOptionItemInfo( uiText, value ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_titleFontSize || fieldNeedingOptions == &m_valuesFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
 
     return options;
 }

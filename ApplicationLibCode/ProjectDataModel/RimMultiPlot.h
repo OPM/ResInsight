@@ -153,16 +153,16 @@ private:
     static void setTickmarkCount( RimPlot* plot, RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
 
 protected:
-    caf::PdmField<QString>                          m_projectFileVersionString;
-    caf::PdmField<bool>                             m_showPlotWindowTitle;
-    caf::PdmField<QString>                          m_plotWindowTitle;
-    caf::PdmField<ColumnCountEnum>                  m_columnCount;
-    caf::PdmField<RowCountEnum>                     m_rowsPerPage;
-    caf::PdmField<bool>                             m_showIndividualPlotTitles;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
-    caf::PdmField<bool>                             m_pagePreviewMode;
+    caf::PdmField<QString>         m_projectFileVersionString;
+    caf::PdmField<bool>            m_showPlotWindowTitle;
+    caf::PdmField<QString>         m_plotWindowTitle;
+    caf::PdmField<ColumnCountEnum> m_columnCount;
+    caf::PdmField<RowCountEnum>    m_rowsPerPage;
+    caf::PdmField<bool>            m_showIndividualPlotTitles;
+    RimFontSizeField               m_subTitleFontSize;
+    RimFontSizeField               m_axisTitleFontSize;
+    RimFontSizeField               m_axisValueFontSize;
+    caf::PdmField<bool>            m_pagePreviewMode;
 
     caf::PdmField<RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum> m_majorTickmarkCount;
 

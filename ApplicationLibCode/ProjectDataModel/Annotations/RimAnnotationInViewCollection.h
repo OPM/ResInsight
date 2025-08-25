@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "Appearance/RimFontSizeField.h"
 #include "RiaFontCache.h"
 #include "RimAnnotationCollectionBase.h"
 
@@ -72,7 +73,7 @@ private:
     caf::PdmField<double> m_annotationPlaneDepth;
     caf::PdmField<bool>   m_snapAnnotations;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>   m_annotationFontSize;
+    RimFontSizeField                                  m_annotationFontSize;
     caf::PdmChildField<RimAnnotationGroupCollection*> m_globalTextAnnotations;
     caf::PdmChildField<RimAnnotationGroupCollection*> m_globalReachCircleAnnotations;
 };
