@@ -33,6 +33,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCalculatedCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileDataLoader.h
     ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimImportedWellLog.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -72,6 +73,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCalculatedCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileDataLoader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimImportedWellLog.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

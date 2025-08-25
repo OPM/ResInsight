@@ -25,6 +25,9 @@
 #include "RiaKeyValueStoreUtil.h"
 #include "RiaLogging.h"
 
+#include "RimImportedWellLog.h"
+#include "Well/RigImportedWellLogData.h"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
 #include "RimFishbones.h"
@@ -390,4 +393,88 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_extractWellPathProper
     RiaApplication::instance()->keyValueStore()->set( m_dogleg().toStdString(), convertToCharViaFloat( doglegs ) );
 
     return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_addWellLogInternal, "AddWellLogInternal" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_addWellLogInternal::RimcWellPath_addWellLogInternal( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Add Well Log", "", "", "Add Well Log" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_valuesKey, "ValuesKey", "Values Key" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::execute()
+{
+    auto wellPath = self<RimWellPath>();
+
+    if ( m_name().isEmpty() )
+    {
+        return std::unexpected( "Well log name cannot be empty" );
+    }
+
+    if ( m_valuesKey().isEmpty() )
+    {
+        return std::unexpected( "Values key cannot be empty" );
+    }
+
+    // Retrieve values from key-value store
+    auto keyValueStore = RiaApplication::instance()->keyValueStore();
+    auto valuesData    = keyValueStore->get( m_valuesKey().toStdString() );
+
+    if ( !valuesData.has_value() )
+    {
+        return std::unexpected( "Failed to retrieve values from key-value store" );
+    }
+
+    // Convert from char vector to double vector
+    std::vector<float> values = RiaKeyValueStoreUtil::convertToFloatVector( valuesData );
+    if ( values.empty() )
+    {
+        return std::unexpected( "Values array cannot be empty" );
+    }
+
+    // Create well log data
+    auto wellLogData = new RigImportedWellLogData();
+
+    // Generate measured depth values from 0 to size-1 (assuming unit spacing)
+    std::vector<double> depthValues;
+    std::vector<double> doubleValues;
+    for ( size_t i = 0; i < values.size(); ++i )
+    {
+        depthValues.push_back( static_cast<double>( i ) );
+        doubleValues.push_back( values[i] );
+    }
+
+    wellLogData->setDepthValues( depthValues );
+    wellLogData->setChannelData( m_name(), doubleValues );
+
+    // Create well log object
+    auto importedWellLog = new RimImportedWellLog();
+    importedWellLog->setName( m_name() );
+    importedWellLog->setWellLogData( wellLogData );
+
+    // Add to well path
+    wellPath->addWellLog( importedWellLog );
+
+    // Clean up key-value store
+    keyValueStore->remove( m_valuesKey().toStdString() );
+
+    return importedWellLog;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_addWellLogInternal::classKeywordReturnedType() const
+{
+    return RimImportedWellLog::classKeywordStatic();
 }
