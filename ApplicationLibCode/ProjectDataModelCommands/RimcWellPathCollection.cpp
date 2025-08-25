@@ -21,17 +21,16 @@
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
-#include "CompletioNData/RimCompletionData.h"
+#include "WellPathCommands/RicImportWellPaths.h"
 
-#include "RimFixedTrajectoryWellPath.h"
+#include "CompletionData/RimCompletionData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimFixedTrajectoryWellPath.h"
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-
-#include "WellPathCommands/RicImportWellPaths.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 

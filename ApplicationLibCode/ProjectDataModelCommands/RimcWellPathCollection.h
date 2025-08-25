@@ -67,7 +67,6 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellPathCollection_wellCompletions : public caf::PdmObjectCreationMethod
 class RimcWellPathCollection_wellCompletions : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
