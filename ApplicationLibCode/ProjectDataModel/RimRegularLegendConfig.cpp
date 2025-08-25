@@ -1221,6 +1221,13 @@ void RimRegularLegendConfig::setDefaultConfigForResultName( int caseId, const QS
         colorRangeType = RimRegularLegendConfig::ColorRangesType::NORMAL;
     }
 
+    if ( resultName.startsWith( "CNV_" ) )
+    {
+        mappingType  = MappingType::LINEAR_DISCRETE;
+        rangeType    = RimLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS;
+        numberFormat = RiaNumberFormat::NumberFormatType::FIXED;
+    }
+
     resetUserDefinedValues();
     setRangeMode( rangeType );
     setMappingMode( mappingType );
