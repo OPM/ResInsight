@@ -56,7 +56,9 @@ def main():
     )
 
     print(f"Added well log: {well_log.name}")
-    print(f"  - Measured depth range: {min(measured_depth):.1f} - {max(measured_depth):.1f} m")
+    print(
+        f"  - Measured depth range: {min(measured_depth):.1f} - {max(measured_depth):.1f} m"
+    )
     print(f"  - Number of data points: {len(measured_depth)}")
     print(f"  - Channels imported: {', '.join(channel_data.keys())}")
 
@@ -75,7 +77,9 @@ def main():
     )
 
     print(f"Added additional well log: {additional_well_log.name}")
-    print(f"  - MD range: {min(additional_measured_depth):.1f} - {max(additional_measured_depth):.1f} m")
+    print(
+        f"  - MD range: {min(additional_measured_depth):.1f} - {max(additional_measured_depth):.1f} m"
+    )
     print(f"  - Channels imported: {', '.join(additional_channel_data.keys())}")
 
 
