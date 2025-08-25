@@ -16,149 +16,166 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigImportedWellLogData.h"
+#include "RimImportedWellLogData.h"
 
-#include <QStringList>
+#include "RimWellLogChannelData.h"
 
-#include <cmath>
+#include "Well/RigImportedWellLogData.h"
 
-const double RigImportedWellLogData::MISSING_VALUE = -9999.0;
+CAF_PDM_SOURCE_INIT( RimImportedWellLogData, "ImportedWellLogData" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigImportedWellLogData::RigImportedWellLogData()
-    : RigWellLogData()
+RimImportedWellLogData::RimImportedWellLogData()
 {
+    CAF_PDM_InitObject( "Imported Well Log Data", "", "", "Imported Well Log Data" );
+
+    CAF_PDM_InitField( &m_depthValues, "DepthValues", {}, "Depth Values" );
+    CAF_PDM_InitField( &m_tvdMslValues, "TvdMslValues", {}, "TVD MSL Values" );
+    CAF_PDM_InitField( &m_tvdRkbValues, "TvdRkbValues", {}, "TVD RKB Values" );
+    CAF_PDM_InitFieldNoDefault( &m_channelDataObjects, "ChannelDataObjects", "Channel Data Objects" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigImportedWellLogData::~RigImportedWellLogData()
+void RimImportedWellLogData::setDepthValues( const std::vector<double>& depths )
 {
+    m_depthValues = depths;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RigImportedWellLogData::wellLogChannelNames() const
+void RimImportedWellLogData::setTvdMslValues( const std::vector<double>& tvdMsl )
 {
-    QStringList channelNames;
-    for ( const auto& channelPair : m_channelData )
+    m_tvdMslValues = tvdMsl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimImportedWellLogData::setTvdRkbValues( const std::vector<double>& tvdRkb )
+{
+    m_tvdRkbValues = tvdRkb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimImportedWellLogData::setChannelData( const QString& name, const std::vector<double>& values )
+{
+    // Check if channel already exists
+    for ( RimWellLogChannelData* channelData : m_channelDataObjects )
     {
-        channelNames << channelPair.first;
+        if ( channelData->name() == name )
+        {
+            channelData->setValues( values );
+            return;
+        }
     }
-    return channelNames;
+
+    // Create new channel data object
+    RimWellLogChannelData* channelData = new RimWellLogChannelData();
+    channelData->setName( name );
+    channelData->setValues( values );
+    m_channelDataObjects.push_back( channelData );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigImportedWellLogData::depthValues() const
+std::vector<double> RimImportedWellLogData::depthValues() const
 {
-    return m_depthValues;
+    return m_depthValues();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigImportedWellLogData::tvdMslValues() const
+std::vector<double> RimImportedWellLogData::tvdMslValues() const
 {
-    return m_tvdMslValues;
+    return m_tvdMslValues();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigImportedWellLogData::tvdRkbValues() const
+std::vector<double> RimImportedWellLogData::tvdRkbValues() const
 {
-    return m_tvdRkbValues;
+    return m_tvdRkbValues();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigImportedWellLogData::values( const QString& name ) const
+std::vector<QString> RimImportedWellLogData::channelNames() const
 {
-    auto it = m_channelData.find( name );
-    if ( it != m_channelData.end() )
+    std::vector<QString> names;
+    for ( const RimWellLogChannelData* channelData : m_channelDataObjects )
     {
-        return it->second;
+        names.push_back( channelData->name() );
     }
-    return std::vector<double>();
+    return names;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigImportedWellLogData::wellLogChannelUnitString( const QString& wellLogChannelName ) const
+std::vector<double> RimImportedWellLogData::channelValues( const QString& name ) const
 {
-    // For imported data, assume dimensionless units
-    Q_UNUSED( wellLogChannelName )
-    return QString();
+    for ( const RimWellLogChannelData* channelData : m_channelDataObjects )
+    {
+        if ( channelData->name() == name )
+        {
+            return channelData->values();
+        }
+    }
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigImportedWellLogData::depthUnitString() const
+bool RimImportedWellLogData::hasTvdMslValues() const
 {
-    return "M";
+    return !m_tvdMslValues().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigImportedWellLogData::hasTvdMslChannel() const
+bool RimImportedWellLogData::hasTvdRkbValues() const
 {
-    return !m_tvdMslValues.empty();
+    return !m_tvdRkbValues().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigImportedWellLogData::hasTvdRkbChannel() const
+cvf::ref<RigImportedWellLogData> RimImportedWellLogData::createRigData() const
 {
-    return !m_tvdRkbValues.empty();
-}
+    cvf::ref<RigImportedWellLogData> rigData = new RigImportedWellLogData();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RigImportedWellLogData::getMissingValue() const
-{
-    return MISSING_VALUE;
-}
+    // Set depth values
+    rigData->setDepthValues( m_depthValues() );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigImportedWellLogData::setChannelData( const QString& channelName, const std::vector<double>& values )
-{
-    m_channelData[channelName] = values;
-}
+    // Set TVD values if present
+    if ( hasTvdMslValues() )
+    {
+        rigData->setTvdMslValues( m_tvdMslValues() );
+    }
+    if ( hasTvdRkbValues() )
+    {
+        rigData->setTvdRkbValues( m_tvdRkbValues() );
+    }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigImportedWellLogData::setDepthValues( const std::vector<double>& depthValues )
-{
-    m_depthValues = depthValues;
-}
+    // Set channel data
+    for ( const RimWellLogChannelData* channelData : m_channelDataObjects )
+    {
+        rigData->setChannelData( channelData->name(), channelData->values() );
+    }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigImportedWellLogData::setTvdMslValues( const std::vector<double>& tvdMslValues )
-{
-    m_tvdMslValues = tvdMslValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigImportedWellLogData::setTvdRkbValues( const std::vector<double>& tvdRkbValues )
-{
-    m_tvdRkbValues = tvdRkbValues;
+    return rigData;
 }

@@ -37,6 +37,7 @@
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
+#include "RimImportedWellLog.h"
 #include "RimMainPlotCollection.h"
 #include "RimMswCompletionParameters.h"
 #include "RimOsduWellLog.h"
@@ -932,6 +933,10 @@ void RimWellPath::addWellLog( RimWellLog* wellLog )
                 setName( m_wellLogs[0]->wellName() );
             }
         }
+    }
+    else if ( RimImportedWellLog* importedWellLog = dynamic_cast<RimImportedWellLog*>( wellLog ) )
+    {
+        m_wellLogs.push_back( importedWellLog );
     }
     else if ( RimOsduWellLog* osduWellLog = dynamic_cast<RimOsduWellLog*>( wellLog ) )
     {

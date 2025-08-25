@@ -26,6 +26,7 @@
 #include "RiaLogging.h"
 
 #include "RimImportedWellLog.h"
+#include "RimImportedWellLogData.h"
 #include "Well/RigImportedWellLogData.h"
 
 #include "RimEclipseCase.h"
@@ -406,7 +407,10 @@ RimcWellPath_addWellLogInternal::RimcWellPath_addWellLogInternal( caf::PdmObject
     CAF_PDM_InitObject( "Add Well Log", "", "", "Add Well Log" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_valuesKey, "ValuesKey", "Values Key" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_measuredDepthKey, "MeasuredDepthKey", "Measured Depth Key" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_channelKeysCsv, "ChannelKeysCsv", "Channel Keys CSV" );
+    CAF_PDM_InitScriptableField( &m_tvdMslKey, "TvdMslKey", QString(), "TVD MSL Key" );
+    CAF_PDM_InitScriptableField( &m_tvdRkbKey, "TvdRkbKey", QString(), "TVD RKB Key" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -421,52 +425,184 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::e
         return std::unexpected( "Well log name cannot be empty" );
     }
 
-    if ( m_valuesKey().isEmpty() )
+    if ( m_measuredDepthKey().isEmpty() )
     {
-        return std::unexpected( "Values key cannot be empty" );
+        return std::unexpected( "Measured depth key cannot be empty" );
     }
 
-    // Retrieve values from key-value store
+    if ( m_channelKeysCsv().isEmpty() )
+    {
+        return std::unexpected( "Channel keys CSV cannot be empty" );
+    }
+
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
-    auto valuesData    = keyValueStore->get( m_valuesKey().toStdString() );
 
-    if ( !valuesData.has_value() )
+    // Retrieve measured depth values from key-value store
+    auto measuredDepthData = keyValueStore->get( m_measuredDepthKey().toStdString() );
+    if ( !measuredDepthData.has_value() )
     {
-        return std::unexpected( "Failed to retrieve values from key-value store" );
+        return std::unexpected( "Failed to retrieve measured depth from key-value store" );
     }
 
-    // Convert from char vector to double vector
-    std::vector<float> values = RiaKeyValueStoreUtil::convertToFloatVector( valuesData );
-    if ( values.empty() )
+    std::vector<float> measuredDepthFloat = RiaKeyValueStoreUtil::convertToFloatVector( measuredDepthData );
+    if ( measuredDepthFloat.empty() )
     {
-        return std::unexpected( "Values array cannot be empty" );
+        return std::unexpected( "Measured depth array cannot be empty" );
     }
 
-    // Create well log data
-    auto wellLogData = new RigImportedWellLogData();
-
-    // Generate measured depth values from 0 to size-1 (assuming unit spacing)
-    std::vector<double> depthValues;
-    std::vector<double> doubleValues;
-    for ( size_t i = 0; i < values.size(); ++i )
+    // Convert to double
+    std::vector<double> measuredDepth;
+    for ( float value : measuredDepthFloat )
     {
-        depthValues.push_back( static_cast<double>( i ) );
-        doubleValues.push_back( values[i] );
+        measuredDepth.push_back( static_cast<double>( value ) );
     }
 
-    wellLogData->setDepthValues( depthValues );
-    wellLogData->setChannelData( m_name(), doubleValues );
+    // Handle optional TVD MSL
+    std::vector<double> tvdMslValues;
+    if ( !m_tvdMslKey().isEmpty() )
+    {
+        auto tvdMslData = keyValueStore->get( m_tvdMslKey().toStdString() );
+        if ( !tvdMslData.has_value() )
+        {
+            return std::unexpected( "Failed to retrieve TVD MSL from key-value store" );
+        }
+
+        std::vector<float> tvdMslFloat = RiaKeyValueStoreUtil::convertToFloatVector( tvdMslData );
+        if ( tvdMslFloat.size() != measuredDepth.size() )
+        {
+            return std::unexpected(
+                QString( "TVD MSL has %1 values but measured depth has %2 values" ).arg( tvdMslFloat.size() ).arg( measuredDepth.size() ) );
+        }
+
+        for ( float value : tvdMslFloat )
+        {
+            tvdMslValues.push_back( static_cast<double>( value ) );
+        }
+    }
+
+    // Handle optional TVD RKB
+    std::vector<double> tvdRkbValues;
+    if ( !m_tvdRkbKey().isEmpty() )
+    {
+        auto tvdRkbData = keyValueStore->get( m_tvdRkbKey().toStdString() );
+        if ( !tvdRkbData.has_value() )
+        {
+            return std::unexpected( "Failed to retrieve TVD RKB from key-value store" );
+        }
+
+        std::vector<float> tvdRkbFloat = RiaKeyValueStoreUtil::convertToFloatVector( tvdRkbData );
+        if ( tvdRkbFloat.size() != measuredDepth.size() )
+        {
+            return std::unexpected(
+                QString( "TVD RKB has %1 values but measured depth has %2 values" ).arg( tvdRkbFloat.size() ).arg( measuredDepth.size() ) );
+        }
+
+        for ( float value : tvdRkbFloat )
+        {
+            tvdRkbValues.push_back( static_cast<double>( value ) );
+        }
+    }
+
+    // Parse channel keys CSV (format: "channel1:key1,channel2:key2,...")
+    QString channelKeysStr = m_channelKeysCsv();
+    if ( channelKeysStr.isEmpty() )
+    {
+        return std::unexpected( "Channel keys cannot be empty" );
+    }
+
+    QStringList channelMappings = channelKeysStr.split( ",", Qt::SkipEmptyParts );
+    if ( channelMappings.isEmpty() )
+    {
+        return std::unexpected( "Channel data cannot be empty" );
+    }
+
+    QMap<QString, QString> channelKeysMap;
+    for ( const QString& mapping : channelMappings )
+    {
+        QStringList parts = mapping.split( ":", Qt::SkipEmptyParts );
+        if ( parts.size() != 2 )
+        {
+            return std::unexpected( QString( "Invalid channel mapping format: %1" ).arg( mapping ) );
+        }
+        QString channelName = parts[0];
+        QString channelKey  = parts[1];
+
+        if ( channelName.isEmpty() || channelKey.isEmpty() )
+        {
+            return std::unexpected( QString( "Empty channel name or key in mapping: %1" ).arg( mapping ) );
+        }
+
+        channelKeysMap[channelName] = channelKey;
+    }
+
+    // Create PDM well log data for project file persistence
+    auto pdmWellLogData = new RimImportedWellLogData();
+    pdmWellLogData->setDepthValues( measuredDepth );
+
+    // Set optional TVD data
+    if ( !tvdMslValues.empty() )
+    {
+        pdmWellLogData->setTvdMslValues( tvdMslValues );
+    }
+    if ( !tvdRkbValues.empty() )
+    {
+        pdmWellLogData->setTvdRkbValues( tvdRkbValues );
+    }
+
+    // Retrieve and set channel data
+    QStringList keysToCleanup;
+    keysToCleanup.append( m_measuredDepthKey() );
+    if ( !m_tvdMslKey().isEmpty() ) keysToCleanup.append( m_tvdMslKey() );
+    if ( !m_tvdRkbKey().isEmpty() ) keysToCleanup.append( m_tvdRkbKey() );
+
+    for ( auto it = channelKeysMap.begin(); it != channelKeysMap.end(); ++it )
+    {
+        QString channelName = it.key();
+        QString channelKey  = it.value();
+
+        keysToCleanup.append( channelKey );
+
+        // Retrieve channel values from key-value store
+        auto channelData = keyValueStore->get( channelKey.toStdString() );
+        if ( !channelData.has_value() )
+        {
+            return std::unexpected( QString( "Failed to retrieve channel '%1' from key-value store" ).arg( channelName ) );
+        }
+
+        std::vector<float> channelValuesFloat = RiaKeyValueStoreUtil::convertToFloatVector( channelData );
+        if ( channelValuesFloat.size() != measuredDepth.size() )
+        {
+            return std::unexpected( QString( "Channel '%1' has %2 values but measured depth has %3 values" )
+                                        .arg( channelName )
+                                        .arg( channelValuesFloat.size() )
+                                        .arg( measuredDepth.size() ) );
+        }
+
+        // Convert to double
+        std::vector<double> channelValues;
+        for ( float value : channelValuesFloat )
+        {
+            channelValues.push_back( static_cast<double>( value ) );
+        }
+
+        pdmWellLogData->setChannelData( channelName, channelValues );
+    }
 
     // Create well log object
     auto importedWellLog = new RimImportedWellLog();
     importedWellLog->setName( m_name() );
-    importedWellLog->setWellLogData( wellLogData );
+    importedWellLog->setWellLogData( pdmWellLogData );
 
     // Add to well path
     wellPath->addWellLog( importedWellLog );
 
     // Clean up key-value store
-    keyValueStore->remove( m_valuesKey().toStdString() );
+    for ( const QString& keyToCleanup : keysToCleanup )
+    {
+        keyValueStore->remove( keyToCleanup.toStdString() );
+    }
+
+    wellPath->updateConnectedEditors();
 
     return importedWellLog;
 }

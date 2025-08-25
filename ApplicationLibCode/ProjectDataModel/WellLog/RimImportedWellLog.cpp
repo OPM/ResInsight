@@ -18,9 +18,11 @@
 
 #include "RimImportedWellLog.h"
 
-#include "Well/RigImportedWellLogData.h"
-
+#include "RimImportedWellLogData.h"
+#include "RimWellLogChannel.h"
 #include "RimWellPath.h"
+
+#include "Well/RigImportedWellLogData.h"
 
 #include "RiaFieldHandleTools.h"
 
@@ -40,6 +42,9 @@ RimImportedWellLog::RimImportedWellLog()
 
     CAF_PDM_InitScriptableField( &m_name, "Name", QString(), "Name" );
     m_name.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellLogData, "WellLogData", "Well Log Data" );
+    m_wellLogData.uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );
 }
@@ -65,8 +70,8 @@ QString RimImportedWellLog::name() const
 //--------------------------------------------------------------------------------------------------
 QString RimImportedWellLog::wellName() const
 {
-    RimWellPath* wellPath = firstAncestorOrThisOfType<RimWellPath>();
-    if ( wellPath )
+    if ( RimWellPath* wellPath = firstAncestorOrThisOfType<RimWellPath>() )
+
     {
         return wellPath->name();
     }
@@ -78,15 +83,46 @@ QString RimImportedWellLog::wellName() const
 //--------------------------------------------------------------------------------------------------
 RigWellLogData* RimImportedWellLog::wellLogData()
 {
-    return m_wellLogData.p();
+    return m_cachedRigData.p();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimImportedWellLog::setWellLogData( RigImportedWellLogData* wellLogData )
+void RimImportedWellLog::setWellLogData( RimImportedWellLogData* wellLogData )
 {
     m_wellLogData = wellLogData;
+    // Clear cached Rig data when setting new PDM data
+    m_cachedRigData = nullptr;
+
+    if ( wellLogData )
+    {
+        // Create temporary Rig data to update channels
+        m_cachedRigData = wellLogData->createRigData();
+        updateChannelsFromWellLogData( m_cachedRigData.p() );
+    }
+    else
+    {
+        m_wellLogChannels.deleteChildren();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimImportedWellLog::updateChannelsFromWellLogData( RigImportedWellLogData* wellLogData )
+{
+    m_wellLogChannels.deleteChildren();
+
+    if ( !wellLogData ) return;
+
+    QStringList wellLogNames = wellLogData->wellLogChannelNames();
+    for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
+    {
+        RimWellLogChannel* wellLog = new RimWellLogChannel();
+        wellLog->setName( wellLogNames[logIdx] );
+        m_wellLogChannels.push_back( wellLog );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,10 +133,11 @@ std::vector<std::pair<double, double>>
 {
     if ( unitString ) *unitString = QString();
 
-    if ( !m_wellLogData.notNull() ) return {};
+    RigWellLogData* wld = wellLogData();
+    if ( !wld ) return {};
 
-    std::vector<double> depths = m_wellLogData->depthValues();
-    std::vector<double> values = m_wellLogData->values( channelName );
+    std::vector<double> depths = wld->depthValues();
+    std::vector<double> values = wld->values( channelName );
 
     std::vector<std::pair<double, double>> depthValuePairs;
     if ( depths.size() == values.size() )
@@ -112,6 +149,19 @@ std::vector<std::pair<double, double>>
     }
 
     return depthValuePairs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimImportedWellLog::initAfterRead()
+{
+    // Create cached Rig data from PDM data when loading from project file
+    if ( m_wellLogData() && !m_cachedRigData.notNull() )
+    {
+        m_cachedRigData = m_wellLogData()->createRigData();
+        updateChannelsFromWellLogData( m_cachedRigData.p() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

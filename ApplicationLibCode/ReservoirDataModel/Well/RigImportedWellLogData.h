@@ -53,9 +53,13 @@ public:
 
     void setChannelData( const QString& channelName, const std::vector<double>& values );
     void setDepthValues( const std::vector<double>& depthValues );
+    void setTvdMslValues( const std::vector<double>& tvdMslValues );
+    void setTvdRkbValues( const std::vector<double>& tvdRkbValues );
 
 private:
     std::vector<double>                    m_depthValues;
+    std::vector<double>                    m_tvdMslValues;
+    std::vector<double>                    m_tvdRkbValues;
     std::map<QString, std::vector<double>> m_channelData;
 
     static const double MISSING_VALUE;

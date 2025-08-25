@@ -18,48 +18,29 @@
 
 #pragma once
 
-#include "RimWellLog.h"
-
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
-#include "cvfObject.h"
+#include "cafPdmObject.h"
 
 #include <QString>
-
-class RigImportedWellLogData;
-class RimImportedWellLogData;
-class RimWellPath;
+#include <vector>
 
 //==================================================================================================
-///
+/// PDM class for storing individual channel data (name and values) for well logs
 //==================================================================================================
-class RimImportedWellLog : public RimWellLog
+class RimWellLogChannelData : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimImportedWellLog();
+    RimWellLogChannelData();
 
     void    setName( const QString& name );
-    QString name() const override;
+    QString name() const;
 
-    QString wellName() const override;
-
-    RigWellLogData* wellLogData() override;
-    void            setWellLogData( RimImportedWellLogData* wellLogData );
-
-    std::vector<std::pair<double, double>>
-        findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) override;
+    void                setValues( const std::vector<double>& values );
+    std::vector<double> values() const;
 
 private:
-    void                 initAfterRead() override;
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 updateChannelsFromWellLogData( RigImportedWellLogData* wellLogData );
-
-private:
-    // PDM-based data storage for project file persistence
-    caf::PdmChildField<RimImportedWellLogData*> m_wellLogData;
-    caf::PdmField<QString>                      m_name;
-
-    cvf::ref<RigImportedWellLogData> m_cachedRigData;
+    caf::PdmField<QString>             m_name;
+    caf::PdmField<std::vector<double>> m_values;
 };
