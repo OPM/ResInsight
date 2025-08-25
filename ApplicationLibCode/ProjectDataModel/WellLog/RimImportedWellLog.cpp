@@ -18,9 +18,10 @@
 
 #include "RimImportedWellLog.h"
 
-#include "Well/RigImportedWellLogData.h"
-
+#include "RimWellLogChannel.h"
 #include "RimWellPath.h"
+
+#include "Well/RigImportedWellLogData.h"
 
 #include "RiaFieldHandleTools.h"
 
@@ -87,6 +88,16 @@ RigWellLogData* RimImportedWellLog::wellLogData()
 void RimImportedWellLog::setWellLogData( RigImportedWellLogData* wellLogData )
 {
     m_wellLogData = wellLogData;
+
+    m_wellLogChannels.deleteChildren();
+
+    QStringList wellLogNames = wellLogData->wellLogChannelNames();
+    for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
+    {
+        RimWellLogChannel* wellLog = new RimWellLogChannel();
+        wellLog->setName( wellLogNames[logIdx] );
+        m_wellLogChannels.push_back( wellLog );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
