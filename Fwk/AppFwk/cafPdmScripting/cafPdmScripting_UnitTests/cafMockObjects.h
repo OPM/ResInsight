@@ -23,6 +23,43 @@
 #include <memory>
 
 /// Demo objects to show the usage of the Pdm system
+enum class MyEnum
+{
+    T1,
+    T2,
+    T3,
+    T4,
+    T5,
+    T6
+};
+
+// This is a specialized class that can be used to implement custom behavior in configureCapabilities
+// It is required to have a specialization of PdmFieldScriptingCapability for this class, as the new class
+// MyAppEnumField is not known to the template
+class MyAppEnumField : public caf::PdmField<caf::AppEnum<MyEnum>>
+{
+public:
+    MyAppEnumField() {
+
+    };
+
+    void configureCapabilities() override {};
+};
+
+namespace caf
+{
+template <>
+class PdmFieldScriptingCapability<MyAppEnumField> : public PdmFieldScriptingCapability<caf::PdmField<caf::AppEnum<MyEnum>>>
+{
+public:
+    PdmFieldScriptingCapability( MyAppEnumField* field, const QString& fieldName, bool giveOwnership )
+        : PdmFieldScriptingCapability<caf::PdmField<caf::AppEnum<MyEnum>>>( field, fieldName, giveOwnership )
+    {
+    }
+
+    QString dataType() const override { return "str"; }
+};
+}; // namespace caf
 
 class SimpleObj : public caf::PdmObject
 {
@@ -62,6 +99,7 @@ public:
     caf::PdmField<double>  m_doubleField;
     caf::PdmField<int>     m_intField;
     caf::PdmField<QString> m_textField;
+    MyAppEnumField         m_myAppEnum;
 
     caf::PdmChildField<SimpleObj*> m_simpleObjPtrField;
     caf::PdmChildField<SimpleObj*> m_simpleObjPtrField2;

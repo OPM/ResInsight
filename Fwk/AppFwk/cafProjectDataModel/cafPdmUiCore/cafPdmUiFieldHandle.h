@@ -38,6 +38,11 @@ public:
     std::vector<std::pair<QString, QString>> attributes() const override;
     void setAttributes( const std::vector<std::pair<QString, QString>>& attributes ) override;
 
+    void setValueOptionsGenerator( const std::function<QList<PdmOptionItemInfo>()>& valueOptionsGenerator );
+
+protected:
+    std::function<QList<PdmOptionItemInfo>()> m_valueOptionsGenerator;
+
 private:
     friend class PdmUiCommandSystemProxy;
     friend class CmdFieldChangeExec;

@@ -238,6 +238,14 @@ void PdmUiFieldHandle::setAttributes( const std::vector<std::pair<QString, QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::setValueOptionsGenerator( const std::function<QList<PdmOptionItemInfo>()>& valueOptionsGenerator )
+{
+    m_valueOptionsGenerator = valueOptionsGenerator;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiFieldHandle::setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged )
 {
 }

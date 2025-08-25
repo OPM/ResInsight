@@ -188,6 +188,12 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
         m_optionEntryCache = uiObj( m_field->ownerObject() )->calculateValueOptions( this->m_field );
     }
 
+    // Check if the field can provide value option
+    if ( m_optionEntryCache.empty() && m_valueOptionsGenerator )
+    {
+        m_optionEntryCache = m_valueOptionsGenerator();
+    }
+
     // If we got no options, use the options defined by the type. Normally only caf::AppEnum type
 
     if ( m_optionEntryCache.empty() )

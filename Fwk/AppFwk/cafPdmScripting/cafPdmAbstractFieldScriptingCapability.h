@@ -69,6 +69,7 @@ public:
     static QString helpString( const QString& existingTooltip, const QString& keyword );
 
     virtual QStringList enumScriptTexts() const;
+    virtual QString     dataType() const;
 
 protected:
     PdmFieldHandle* m_owner;

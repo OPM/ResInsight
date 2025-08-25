@@ -106,3 +106,11 @@ QStringList PdmAbstractFieldScriptingCapability::enumScriptTexts() const
 {
     return QStringList();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmAbstractFieldScriptingCapability::dataType() const
+{
+    return {};
+}

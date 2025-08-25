@@ -11,9 +11,25 @@ void AppEnum<InheritedDemoObj::TestEnumType>::setUp()
     addItem( InheritedDemoObj::T3, "T3", "A B letter" );
     setDefault( InheritedDemoObj::T1 );
 }
+
+template <>
+void AppEnum<MyEnum>::setUp()
+{
+    addItem( MyEnum::T1, "T1", "T1" );
+    addItem( MyEnum::T2, "T2", "T2" );
+    addItem( MyEnum::T3, "T3", "T3" );
+    addItem( MyEnum::T4, "T4", "T4" );
+    addItem( MyEnum::T5, "T5", "T5" );
+    addItem( MyEnum::T6, "T6", "T6" );
+    setDefault( MyEnum::T1 );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( SimpleObj, "SimpleObj" );
+
+namespace caf
+{
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -28,13 +44,11 @@ SimpleObj::SimpleObj()
     CAF_PDM_InitField( &m_dir, "Dir", 123.56, "Direction", "", "Tooltip", "WhatsThis" );
     CAF_PDM_InitField( &m_up, "Up", 0.0, "Up value", "", "Tooltip", "WhatsThis" );
     CAF_PDM_InitFieldNoDefault( &m_numbers, "Numbers", "Important Numbers", "", "Tooltip", "WhatsThis" );
-#if 1
     m_proxyDouble.registerSetMethod( this, &SimpleObj::setDoubleMember );
     m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
     addUiCapabilityToField( &m_proxyDouble );
     addXmlCapabilityToField( &m_proxyDouble );
     CAF_PDM_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble" );
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,8 +145,9 @@ InheritedDemoObj::InheritedDemoObj()
     CAF_PDM_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_optionalNumber, "OptionalNumber", "Optional Number" );
-
     CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_myAppEnum, "MyAppEnumValue", "My App Enum" );
+
     CAF_PDM_InitFieldNoDefault( &m_simpleObjectsField,
                                 "SimpleObjects",
                                 "SimpleObjectsField",

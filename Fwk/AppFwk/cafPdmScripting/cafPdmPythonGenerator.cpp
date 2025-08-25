@@ -140,7 +140,12 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                         auto pdmChildArrayField = dynamic_cast<const PdmChildArrayFieldHandle*>( field );
                         if ( pdmValueField )
                         {
-                            QString dataType = PdmPythonGenerator::dataTypeString( field, false );
+                            QString dataType = scriptability->dataType();
+                            if ( dataType.isEmpty() )
+                            {
+                                dataType = PdmPythonGenerator::dataTypeString( field, false );
+                            }
+
                             if ( field->xmlCapability()->isVectorField() )
                             {
                                 dataType = QString( "List[%1]" ).arg( dataType );

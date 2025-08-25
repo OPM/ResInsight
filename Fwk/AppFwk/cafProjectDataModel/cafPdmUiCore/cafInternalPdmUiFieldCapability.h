@@ -97,6 +97,12 @@ void addUiCapabilityToField( FieldType* field )
     }
 }
 
+template <typename FieldType>
+void configureCapabilities( FieldType* field )
+{
+    field->configureCapabilities();
+}
+
 } // End of namespace caf
 
 #include "cafInternalPdmUiFieldCapability.inl"

@@ -21,6 +21,8 @@ public:
     PdmFieldHandle() { m_ownerObject = nullptr; }
     virtual ~PdmFieldHandle();
 
+    virtual void configureCapabilities();
+
     QString          keyword() const { return m_keyword; }
     bool             matchesKeyword( const QString& keyword ) const;
     PdmObjectHandle* ownerObject();

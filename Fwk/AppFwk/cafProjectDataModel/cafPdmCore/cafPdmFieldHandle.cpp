@@ -33,6 +33,14 @@ PdmFieldHandle::~PdmFieldHandle()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// This function is called to configure capabilities for the field handle. This can be used to avoid duplicated code
+/// when setting options for *.uiCapability() and *.xmlCapability().
+//--------------------------------------------------------------------------------------------------
+void PdmFieldHandle::configureCapabilities()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool PdmFieldHandle::matchesKeyword( const QString& keyword ) const

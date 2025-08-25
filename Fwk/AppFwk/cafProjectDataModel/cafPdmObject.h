@@ -110,6 +110,7 @@ class PdmObjectCapability;
                                                                                                                                         \
         addXmlCapabilityToField( field );                                                                                               \
         addUiCapabilityToField( field );                                                                                                \
+        configureCapabilities( field );                                                                                                 \
         registerClassWithField( classKeyword(), field );                                                                                \
                                                                                                                                         \
         static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                         \
@@ -139,6 +140,7 @@ class PdmObjectCapability;
                                                                                                                                         \
         addXmlCapabilityToField( field );                                                                                               \
         addUiCapabilityToField( field );                                                                                                \
+        configureCapabilities( field );                                                                                                 \
         registerClassWithField( classKeyword(), field );                                                                                \
                                                                                                                                         \
         static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                         \
