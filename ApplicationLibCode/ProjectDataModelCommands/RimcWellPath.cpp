@@ -428,8 +428,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::e
 
     // Retrieve values from key-value store
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
-    auto valuesData = keyValueStore->get( m_valuesKey().toStdString() );
-    
+    auto valuesData    = keyValueStore->get( m_valuesKey().toStdString() );
+
     if ( !valuesData.has_value() )
     {
         return std::unexpected( "Failed to retrieve values from key-value store" );
@@ -437,13 +437,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::e
 
     // Convert from char vector to double vector
     const std::vector<char>& charValues = valuesData.value();
-    if ( charValues.size() % sizeof(float) != 0 )
+    if ( charValues.size() % sizeof( float ) != 0 )
     {
         return std::unexpected( "Invalid data size in key-value store" );
     }
 
-    size_t numValues = charValues.size() / sizeof(float);
-    const float* floatPtr = reinterpret_cast<const float*>( charValues.data() );
+    size_t              numValues = charValues.size() / sizeof( float );
+    const float*        floatPtr  = reinterpret_cast<const float*>( charValues.data() );
     std::vector<double> values( floatPtr, floatPtr + numValues );
 
     if ( values.empty() )
@@ -453,14 +453,14 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::e
 
     // Create well log data
     auto wellLogData = new RigImportedWellLogData();
-    
+
     // Generate measured depth values from 0 to size-1 (assuming unit spacing)
     std::vector<double> depthValues;
     for ( size_t i = 0; i < values.size(); ++i )
     {
-        depthValues.push_back( static_cast<double>(i) );
+        depthValues.push_back( static_cast<double>( i ) );
     }
-    
+
     wellLogData->setDepthValues( depthValues );
     wellLogData->setChannelData( m_name(), values );
 
