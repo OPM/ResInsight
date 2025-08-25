@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+// clang-format off
+
+package rips;
+
+service WellPath {
+  rpc GetCompletionData(SimulatorTableRequest)
+      returns (SimulatorTableData) {}
+}
+
+message SimulatorTableRequest {
+  int32 case_id = 1;
+}
+
+message SimulatorCompdatEntry {
+  string well_name = 1;
+  int32 grid_i = 2;
+  int32 grid_j = 3;
+  int32 upper_k = 4;
+  int32 lower_k = 5;
+  string open_shut_flag = 6;
+  optional int32 sat_num = 7;
+  optional double transmissibility = 8;
+  optional double diameter = 9;
+  optional double kh = 10;
+  optional double skin_factor = 11;
+  optional double d_factor = 12;
+  optional string direction = 13;
+  optional double start_md = 14;
+  optional double end_md = 15;
+  optional string comment = 16;
+}
+
+message SimulatorWelspecsEntry {
+  string well_name = 1;
+  string group_name = 2;
+  int32 grid_i = 3;
+  int32 grid_j = 4;
+  optional double bhp_depth = 5;
+  string phase = 6;
+  optional double drainage_radius = 7;
+  optional string inflow_equation = 8;
+  optional string auto_shut_in = 9;
+  optional string cross_flow = 10;
+  optional int32 pvt_num = 11;
+  optional string hydrostatic_density_calc = 12;
+  optional int32 fip_region = 13;
+}
+
+message SimulatorTableData {
+  repeated SimulatorCompdatEntry compdat = 1;
+  repeated SimulatorWelspecsEntry welspecs = 2;
+}
+
