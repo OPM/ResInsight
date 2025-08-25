@@ -155,7 +155,7 @@ private:
         std::vector<T*> typedAncestorsVec;
         for ( size_t i = 0; i < m_objects.size(); i++ )
         {
-            auto typedAncestor = m_objects[i]->firstAncestorOfType<T>();
+            auto typedAncestor = m_objects[i]->template firstAncestorOfType<T>();
             if ( typedAncestor )
             {
                 typedAncestorsVec.push_back( typedAncestor );
