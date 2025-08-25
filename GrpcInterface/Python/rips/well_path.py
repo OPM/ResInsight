@@ -60,3 +60,50 @@ def trajectory_properties(
         return result
     else:
         return {}
+
+
+@add_method(WellPath)
+def add_well_log(self: WellPath, name: str, values: List[float]) -> object:
+    """Add imported well log data to well path.
+
+    Arguments:
+        name (str): Name of the well log channel.
+        values (List[float]): Array of well log values.
+
+    Returns:
+        The created well log object.
+    """
+
+    if not name:
+        raise ValueError("Name cannot be empty")
+
+    if not values:
+        raise ValueError("Values list cannot be empty")
+
+    if not isinstance(values, list):
+        raise TypeError("Values must be a list")
+
+    # Validate that all values are numeric
+    try:
+        float_values = [float(v) for v in values]
+    except (ValueError, TypeError) as e:
+        raise TypeError("All values must be numeric") from e
+
+    # Generate temporary key for values
+    temp_key = f"{uuid.uuid4()}_welllog_values"
+
+    # Store values in key-value store
+    project = self.ancestor(Project)
+    if not project:
+        raise RuntimeError("Could not find project")
+
+    project.set_key_values(temp_key, float_values)
+
+    try:
+        # Call the internal GRPC method
+        well_log = self.add_well_log_internal(name=name, values_key=temp_key)
+        return well_log
+    except Exception as e:
+        # Clean up key-value store on failure
+        project.remove_key_values(temp_key)
+        raise RuntimeError(f"Failed to create well log: {str(e)}") from e

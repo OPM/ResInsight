@@ -144,3 +144,21 @@ private:
     caf::PdmField<QString> m_azimuth;
     caf::PdmField<QString> m_dogleg;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_addWellLogInternal : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_addWellLogInternal( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_name;
+    caf::PdmField<QString> m_valuesKey;
+};
