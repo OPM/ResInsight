@@ -4,14 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build System
 
-ResInsight uses CMake with Ninja as the build generator. The project requires:
+ResInsight uses CMake with multiple build generators supported. The project requires:
 - CMake 3.26+ (boost dependency requirement)
 - C++23 standard
-- GCC 13+ or Clang 19+
+- GCC 13+ or Clang 19+ (Linux) / MSVC 2022 17.8+ (Windows)
 - Python 3.8+
 - Qt 6.4+
 
 ### Prerequisites and Dependencies
+
+#### Linux (Ubuntu/Debian)
 
 ```bash
 # Update system and install build tools
@@ -30,7 +32,27 @@ git submodule update --init
 ThirdParty/vcpkg/bootstrap-vcpkg.sh
 ```
 
+#### Windows (Visual Studio 2022)
+
+```powershell
+# Install prerequisites:
+# - Visual Studio 2022 (17.8+) with C++ workload and CMake tools
+# - Qt 6.4+ (via Qt Online Installer or vcpkg)
+# - Git for Windows
+# - Python 3.8+
+
+# Clone repository and initialize submodules
+git clone https://github.com/OPM/ResInsight
+cd ResInsight
+git submodule update --init
+
+# Bootstrap vcpkg for dependency management
+ThirdParty\vcpkg\bootstrap-vcpkg.bat
+```
+
 ### Build Commands
+
+#### Linux
 
 ```bash
 # Configure with CMake preset (recommended)
@@ -51,14 +73,40 @@ ninja -C build ResInsight
 ninja -C build extract-projectfile-versions
 ```
 
+#### Windows (Visual Studio 2022)
+
+```powershell
+# Configure with CMake preset (recommended)
+cmake . --preset=x64-relwithdebinfo
+# Note: Copy CMakeUserPresets-example-windows.json to CMakeUserPresets.json and update Qt paths
+
+# OR using Visual Studio 2022 CMake integration:
+# 1. Open Visual Studio 2022
+# 2. File -> Open -> Folder -> Select ResInsight root directory
+# 3. VS will automatically detect CMakeLists.txt and configure the project
+# 4. Select x64-relwithdebinfo configuration from the dropdown
+# 5. Build -> Build All
+
+# Build the project from command line
+cmake --build --preset x64-relwithdebinfo
+
+# Build specific targets
+cmake --build --preset x64-relwithdebinfo --target ResInsight
+cmake --build --preset x64-relwithdebinfo --target extract-projectfile-versions
+```
+
 ### Build Presets
 
 Available CMake presets in `CMakePresets.json`:
 - `ninja`: Base configuration with vcpkg toolchain, unit tests enabled, warnings as errors
-- `linux-base`: Inherits from ninja, includes Qt path configuration
+- `linux-base`: Inherits from ninja, includes Qt path configuration (Linux)
 - `x64-release`: Release build configuration
+- `x64-relwithdebinfo`: Release with debug info configuration (Windows)
+- `x64-debug`: Debug build configuration (Windows)
 
-Create `CMakeUserPresets.json` from example file and update `CMAKE_PREFIX_PATH` for Qt installation.
+Create `CMakeUserPresets.json` from appropriate example file:
+- Linux: Copy `CMakeUserPresets-example-linux.json` and update `CMAKE_PREFIX_PATH` for Qt installation
+- Windows: Copy `CMakeUserPresets-example-windows.json` and update Qt paths, Python executable, and ODB API paths
 
 ### Code Style and Formatting
 
@@ -69,6 +117,8 @@ Use clang-format-19 to enforce style.
 ### Test Commands
 
 The project uses CTest for testing:
+
+#### Linux
 
 ```bash
 # From build directory
@@ -81,6 +131,21 @@ ctest -R "UnitTests"
 ctest -R "opm-parser-tests"
 ctest -R "roffcpp-tests"
 ctest -R "regression-analysis-tests"
+```
+
+#### Windows
+
+```powershell
+# From build directory
+ctest -C RelWithDebInfo
+# OR using CMake preset
+cmake --build --preset x64-relwithdebinfo --target test
+
+# Run specific test suites
+ctest -R "UnitTests" -C RelWithDebInfo
+ctest -R "opm-parser-tests" -C RelWithDebInfo
+ctest -R "roffcpp-tests" -C RelWithDebInfo
+ctest -R "regression-analysis-tests" -C RelWithDebInfo
 ```
 
 ## Architecture Overview
@@ -131,6 +196,8 @@ ResInsight includes Python integration via gRPC when `RESINSIGHT_ENABLE_GRPC=ON`
 
 ### Python tests
 
+#### Linux
+
 ```bash
 # Make a virtual environment: 
 python3 -m venv venv-claude
@@ -143,7 +210,24 @@ pip install pytest
 
 # Run the tests (e.g all tests in tests_polygons.py):
 cd GrpcInterface/Python/rips && source /workspace/venv-claude/bin/activate && RESINSIGHT_EXECUTABLE=build-claude/ResInsight python -m pytest tests/test_polygons.py --console
+```
 
+#### Windows
+
+```powershell
+# Make a virtual environment: 
+python -m venv venv-claude
+
+# Start the virtual env:
+venv-claude\Scripts\Activate.ps1
+
+# Install pytest
+pip install pytest
+
+# Run the tests (e.g all tests in tests_polygons.py):
+cd GrpcInterface\Python\rips
+$env:RESINSIGHT_EXECUTABLE="..\..\..\..\build\RelWithDebInfo\ResInsight.exe"
+python -m pytest tests/test_polygons.py --console
 ```
 
 ### Python formatting and code style checks using ruff
