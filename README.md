@@ -47,8 +47,7 @@ ResInsight is cross-platform with automated testing on:
 git clone git://github.com/OPM/ResInsight.git
 ```
 ### Minimum Requirements
-- gcc 13
-- clang 19
+- gcc 13 or clang 16 with libstdc++ 13
 - CMake 3.15
 - MSVC 2022 17.4
 

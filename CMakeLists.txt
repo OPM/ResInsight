@@ -33,10 +33,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16.0)
     message(
       FATAL_ERROR
-        "Minimum supported version is Clang 19, detected version: ${CMAKE_CXX_COMPILER_VERSION}"
+        "Minimum supported version is Clang 16, detected version: ${CMAKE_CXX_COMPILER_VERSION}"
     )
   endif()
 endif()

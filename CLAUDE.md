@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ResInsight uses CMake with multiple build generators supported. The project requires:
 - CMake 3.26+ (boost dependency requirement)
 - C++23 standard
-- GCC 13+ or Clang 19+ (Linux) / MSVC 2022 17.8+ (Windows)
+- GCC 13+ or Clang 16+ with libstdc++ 13+ (Linux) / MSVC 2022 17.8+ (Windows)
 - Python 3.8+
 - Qt 6.4+
 
@@ -156,7 +156,7 @@ ResInsight is a 3D visualization and post-processing tool for reservoir simulati
 
 - **Visualization Framework (Fwk/VizFwk/)**: Core 3D rendering using Qt/OpenGL
   - LibCore, LibGeometry, LibRender, LibViewing, LibGuiQt
-  
+
 - **Application Framework (Fwk/AppFwk/)**: UI and data management framework
   - Project Data Model (PDM) system for serialization and UI generation
   - Command framework for undo/redo operations
@@ -199,7 +199,7 @@ ResInsight includes Python integration via gRPC when `RESINSIGHT_ENABLE_GRPC=ON`
 #### Linux
 
 ```bash
-# Make a virtual environment: 
+# Make a virtual environment:
 python3 -m venv venv-claude
 
 # Start the virtual env:
@@ -215,7 +215,7 @@ cd GrpcInterface/Python/rips && source /workspace/venv-claude/bin/activate && RE
 #### Windows
 
 ```powershell
-# Make a virtual environment: 
+# Make a virtual environment:
 python -m venv venv-claude
 
 # Start the virtual env:
@@ -234,7 +234,7 @@ python -m pytest tests/test_polygons.py --console
 
 ```bash
 # Format source code
-python -m ruff format test_polygons.py 
+python -m ruff format test_polygons.py
 # Check code style
 python -m ruff check --fix test_polygons.py
 ```
