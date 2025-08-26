@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "WellPath.grpc.pb.h"
+#include "SimulatorTables.grpc.pb.h"
 
 #include "RiaGrpcServiceInterface.h"
 
@@ -35,30 +35,22 @@ class SimulationWellStatus;
 class RiaGrpcCallbackInterface;
 
 class RimEclipseCase;
-class RigSimWellData;
+class RigCompletionData;
 
 //==================================================================================================
 //
 // gRPC-service answering requests about grid information for a simulation wells
 //
 //==================================================================================================
-class RiaGrpcSimulationWellService final : public rips::SimulationWell::AsyncService, public RiaGrpcServiceInterface
+class RiaGrpcWellPathService final : public rips::WellPath::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status GetSimulationWellStatus( grpc::ServerContext*               context,
-                                          const rips::SimulationWellRequest* request,
-                                          rips::SimulationWellStatus*        reply ) override;
-
-    grpc::Status GetSimulationWellCells( grpc::ServerContext*               context,
-                                         const rips::SimulationWellRequest* request,
-                                         rips::SimulationWellCellInfoArray* reply ) override;
-
-    grpc::Status GetPerfLength( grpc::ServerContext*               context,
-                                const rips::SimulationWellRequest* request,
-                                rips::SimulationWellPerfLength*    reply ) override;
+    grpc::Status GetCompletionData( ::grpc::ServerContext*               context,
+                                    const ::rips::SimulatorTableRequest* request,
+                                    ::rips::SimulatorTableData*          response ) override;
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
 private:
-    static cvf::ref<RigSimWellData> findWellResult( const RimEclipseCase* eclipseCase, const std::string& wellName );
+    static void copyCompDatToGrpc( const RigCompletionData& inputData, rips::SimulatorCompdatEntry* compDat );
 };

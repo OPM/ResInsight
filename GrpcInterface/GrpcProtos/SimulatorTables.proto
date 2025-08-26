@@ -10,7 +10,8 @@ service WellPath {
 }
 
 message SimulatorTableRequest {
-  int32 case_id = 1;
+  string wellpath_name = 1;
+  int32 case_id = 2;
 }
 
 message SimulatorCompdatEntry {
