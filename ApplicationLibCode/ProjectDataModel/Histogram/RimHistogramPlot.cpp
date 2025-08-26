@@ -25,6 +25,7 @@
 #include "RimHistogramCurveCollection.h"
 #include "RimMultiPlot.h"
 #include "RimPlotAxisLogRangeCalculator.h"
+#include "Summary/Ensemble/RimSummaryFileSetEnsemble.h"
 #include "Tools/RimPlotAxisTools.h"
 
 #include "RiuPlotAxis.h"
@@ -1276,4 +1277,17 @@ RimHistogramPlot::FrequencyType RimHistogramPlot::frequencyType() const
 RimHistogramPlot::GraphType RimHistogramPlot::graphType() const
 {
     return m_graphType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
+{
+    for ( auto obj : objects )
+    {
+        if ( auto fileSet = dynamic_cast<RimSummaryFileSetEnsemble*>( obj ) )
+        {
+        }
+    }
 }

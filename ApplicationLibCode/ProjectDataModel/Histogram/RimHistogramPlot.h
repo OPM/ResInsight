@@ -177,6 +177,8 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
 
+    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
+
     QImage snapshotWindowContent() override;
 
 private slots:
