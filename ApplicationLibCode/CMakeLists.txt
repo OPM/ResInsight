@@ -172,6 +172,7 @@ endif()
 # OpenVDS
 #
 if(RESINSIGHT_ENABLE_OPENVDS)
+  message(STATUS "OpenVDS support enabled")
   add_definitions(-DUSE_OPENVDS)
   list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
 

@@ -226,6 +226,10 @@ if(RESINSIGHT_USE_ODB_API)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 
+if(RESINSIGHT_ENABLE_OPENVDS)
+  add_definitions(-DUSE_OPENVDS)
+endif()
+
 target_link_libraries(ResInsight PRIVATE ${LINK_LIBRARIES})
 
 if(UNIX AND NOT APPLE)

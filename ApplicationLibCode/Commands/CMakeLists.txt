@@ -79,6 +79,10 @@ add_library(
   ${COMMAND_MOC_SOURCE_FILES}
 )
 
+if(RESINSIGHT_ENABLE_OPENVDS)
+  add_definitions(-DUSE_OPENVDS)
+endif()
+
 if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
   message("Precompiled Headers is enabled on : ${PROJECT_NAME}")
   target_precompile_headers(Commands PRIVATE pch.h)
