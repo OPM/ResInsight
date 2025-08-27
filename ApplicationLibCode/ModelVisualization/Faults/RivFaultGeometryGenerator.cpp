@@ -178,8 +178,7 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
     {
         int myThread = RiaOpenMPTools::currentThreadIndex();
 
-        std::array<cvf::Vec3d, 8> cornerVerts;
-        cvf::ubyte                faceConn[4];
+        cvf::ubyte faceConn[4];
 
         // NB! We are inside a parallel section, do not use "parallel for" here
 #pragma omp for
@@ -200,7 +199,7 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
 
             if ( onlyShowFacesWithDefinedNeighbors && !hasConnection( cellIndex, face, connections, connIndices ) ) continue;
 
-            m_grid->cellCornerVertices( cellIndex, cornerVerts );
+            std::array<cvf::Vec3d, 8> cornerVerts = m_grid->cellCornerVertices( cellIndex );
             cvf::StructGridInterface::cellFaceVertexIndices( face, faceConn );
 
             for ( int n = 0; n < 4; n++ )

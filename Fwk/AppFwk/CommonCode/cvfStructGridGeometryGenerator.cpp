@@ -276,8 +276,7 @@ ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawableFromSingleCell( 
                                                                                 size_t                     cellIndex,
                                                                                 const cvf::Vec3d& displayModelOffset )
 {
-    std::array<cvf::Vec3d, 8> cornerVerts;
-    grid->cellCornerVertices( cellIndex, cornerVerts );
+    std::array<cvf::Vec3d, 8> cornerVerts = grid->cellCornerVertices( cellIndex );
 
     std::vector<Vec3f> vertices;
 
@@ -415,8 +414,7 @@ void StructGridGeometryGenerator::computeArrays()
 
                 if ( !visibleFaces.empty() )
                 {
-                    std::array<cvf::Vec3d, 8> cornerVerts;
-                    m_grid->cellCornerVertices( cellIndex, cornerVerts );
+                    std::array<cvf::Vec3d, 8> cornerVerts = m_grid->cellCornerVertices( cellIndex );
 
                     size_t idx;
                     for ( idx = 0; idx < visibleFaces.size(); idx++ )

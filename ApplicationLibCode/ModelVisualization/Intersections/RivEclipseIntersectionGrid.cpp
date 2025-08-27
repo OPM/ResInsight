@@ -78,19 +78,17 @@ bool RivEclipseIntersectionGrid::useCell( size_t cellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivEclipseIntersectionGrid::cellCornerVertices( size_t cellIndex, std::array<cvf::Vec3d, 8>& cellCorners ) const
+std::array<cvf::Vec3d, 8> RivEclipseIntersectionGrid::cellCornerVertices( size_t cellIndex ) const
 {
-    m_mainGrid->cellCornerVertices( cellIndex, cellCorners );
+    return m_mainGrid->cellCornerVertices( cellIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivEclipseIntersectionGrid::cellCornerIndices( size_t cellIndex, std::array<size_t, 8>& cornerIndices ) const
+std::array<size_t, 8> RivEclipseIntersectionGrid::cellCornerIndices( size_t cellIndex ) const
 {
-    const std::array<size_t, 8>& cornerIndicesSource = m_mainGrid->cell( cellIndex ).cornerIndices();
-
-    cornerIndices = cornerIndicesSource;
+    return m_mainGrid->cell( cellIndex ).cornerIndices();
 }
 
 //--------------------------------------------------------------------------------------------------

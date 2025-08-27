@@ -223,7 +223,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
             if ( eclipseView && eclipseView->mainGrid() )
             {
                 RigGridBase* hitGrid = eclipseView->mainGrid()->gridByIndex( gridIndex );
-                hitGrid->cellCornerVertices( cellIndex, cornerVertices );
+                cornerVertices       = hitGrid->cellCornerVertices( cellIndex );
             }
         }
     }
@@ -244,7 +244,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
                 {
                     cellIndex                     = elementIndex;
                     const RigFemPartGrid* femGrid = femPart->getOrCreateStructGrid();
-                    femGrid->cellCornerVertices( cellIndex, cornerVertices );
+                    cornerVertices                = femGrid->cellCornerVertices( cellIndex );
                 }
             }
         }
@@ -253,7 +253,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
     if ( cellIndex )
     {
         std::vector<HexIntersectionInfo> intersectionInfo;
-        RigHexIntersectionTools::lineHexCellIntersection( domainRayOrigin, domainRayEnd, cornerVertices.data(), cellIndex, &intersectionInfo );
+        RigHexIntersectionTools::lineHexCellIntersection( domainRayOrigin, domainRayEnd, cornerVertices, cellIndex, &intersectionInfo );
 
         if ( intersectionInfo.empty() ) return cvf::Vec3d::UNDEFINED;
 

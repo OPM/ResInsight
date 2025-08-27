@@ -377,8 +377,6 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteA
             hexPlaneCutTriangleVxes.reserve( 5 * 3 );
             std::vector<int> cellFaceForEachTriangleEdge;
             cellFaceForEachTriangleEdge.reserve( 5 * 3 );
-            std::array<cvf::Vec3d, 8> cellCorners;
-            std::array<size_t, 8>     cornerIndices;
 
             cvf::Mat4d invSectionCS = m_lineSegmentTransforms[pLineIdx][lIdx];
 
@@ -388,8 +386,8 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteA
                 if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
                 hexPlaneCutTriangleVxes.clear();
-                m_hexGrid->cellCornerVertices( globalCellIdx, cellCorners );
-                m_hexGrid->cellCornerIndices( globalCellIdx, cornerIndices );
+                std::array<cvf::Vec3d, 8> cellCorners   = m_hexGrid->cellCornerVertices( globalCellIdx );
+                std::array<size_t, 8>     cornerIndices = m_hexGrid->cellCornerIndices( globalCellIdx );
 
                 caf::HexGridIntersectionTools::planeHexIntersectionMC( plane,
                                                                        cellCorners,

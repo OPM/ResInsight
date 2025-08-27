@@ -167,8 +167,9 @@ void RigGridBase::initSubCellsMainGridCellIndex()
 /// the cell() call retreives correct cell, because main grid has offset of 0, and we access the global
 /// cell array in main grid.
 //--------------------------------------------------------------------------------------------------
-void RigGridBase::cellCornerVertices( size_t cellIndex, std::array<cvf::Vec3d, 8>& vertices ) const
+std::array<cvf::Vec3d, 8> RigGridBase::cellCornerVertices( size_t cellIndex ) const
 {
+    std::array<cvf::Vec3d, 8>    vertices;
     const std::array<size_t, 8>& indices = cell( cellIndex ).cornerIndices();
 
     vertices[0].set( m_mainGrid->nodes()[indices[0]] );
@@ -179,6 +180,8 @@ void RigGridBase::cellCornerVertices( size_t cellIndex, std::array<cvf::Vec3d, 8
     vertices[5].set( m_mainGrid->nodes()[indices[5]] );
     vertices[6].set( m_mainGrid->nodes()[indices[6]] );
     vertices[7].set( m_mainGrid->nodes()[indices[7]] );
+
+    return vertices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -493,12 +496,9 @@ cvf::BoundingBox RigGridBase::boundingBox()
 {
     if ( !m_boundingBox.isValid() )
     {
-        std::array<cvf::Vec3d, 8> cornerVerts;
-
         for ( size_t i = 0; i < cellCount(); i++ )
         {
-            cellCornerVertices( i, cornerVerts );
-
+            std::array<cvf::Vec3d, 8> cornerVerts = cellCornerVertices( i );
             for ( size_t j = 0; j < 8; j++ )
             {
                 m_boundingBox.add( cornerVerts[j] );

@@ -257,14 +257,12 @@ size_t RigEclipseContourMapProjection::kLayers() const
 //--------------------------------------------------------------------------------------------------
 double RigEclipseContourMapProjection::calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const
 {
-    std::array<cvf::Vec3d, 8> hexCorners;
-
     const RigCell& cell = m_mainGrid->cell( globalCellIdx );
 
     size_t       localCellIdx = cell.gridLocalCellIndex();
     RigGridBase* localGrid    = cell.hostGrid();
 
-    localGrid->cellCornerVertices( localCellIdx, hexCorners );
+    std::array<cvf::Vec3d, 8> hexCorners = localGrid->cellCornerVertices( localCellIdx );
 
     cvf::BoundingBox          overlapBBox;
     std::array<cvf::Vec3d, 8> overlapCorners;
@@ -283,17 +281,15 @@ double RigEclipseContourMapProjection::calculateRayLengthInCell( size_t         
                                                                  const cvf::Vec3d& highestPoint,
                                                                  const cvf::Vec3d& lowestPoint ) const
 {
-    std::array<cvf::Vec3d, 8> hexCorners;
-
     const RigCell& cell = m_mainGrid->cell( globalCellIdx );
 
     size_t       localCellIdx = cell.gridLocalCellIndex();
     RigGridBase* localGrid    = cell.hostGrid();
 
-    localGrid->cellCornerVertices( localCellIdx, hexCorners );
+    std::array<cvf::Vec3d, 8>        hexCorners = localGrid->cellCornerVertices( localCellIdx );
     std::vector<HexIntersectionInfo> intersections;
 
-    if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )
+    if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners, 0, &intersections ) )
     {
         double lengthInCell = ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
         return lengthInCell;

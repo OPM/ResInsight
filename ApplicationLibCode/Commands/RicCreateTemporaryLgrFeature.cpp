@@ -242,8 +242,7 @@ void RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, RigMainGri
                 // Corner coordinates
                 {
                     size_t                    cIdx;
-                    std::array<cvf::Vec3d, 8> vertices;
-                    mainGrid->cellCornerVertices( mainCellIndex, vertices );
+                    std::array<cvf::Vec3d, 8> vertices = mainGrid->cellCornerVertices( mainCellIndex );
 
                     auto cellCounts = lgrInfo.sizesPerMainGridCell();
                     auto lgrCoords = RiaCellDividingTools::createHexCornerCoords( vertices, cellCounts.i(), cellCounts.j(), cellCounts.k() );

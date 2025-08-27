@@ -75,16 +75,14 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
         std::vector<size_t> closeCellIndices = findCloseCellIndices( bb );
 
-        std::array<cvf::Vec3d, 8> hexCorners;
         for ( const auto& globalCellIndex : closeCellIndices )
         {
             const RigCell& cell = m_caseData->mainGrid()->cell( globalCellIndex );
 
             if ( cell.isInvalid() || cell.subGrid() != nullptr ) continue;
 
-            m_caseData->mainGrid()->cellCornerVertices( globalCellIndex, hexCorners );
-
-            RigHexIntersectionTools::lineHexCellIntersection( p1, p2, hexCorners.data(), globalCellIndex, &intersections );
+            std::array<cvf::Vec3d, 8> hexCorners = m_caseData->mainGrid()->cellCornerVertices( globalCellIndex );
+            RigHexIntersectionTools::lineHexCellIntersection( p1, p2, hexCorners, globalCellIndex, &intersections );
         }
 
         if ( !isCellFaceNormalsOut )
@@ -121,15 +119,13 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
             std::vector<size_t> closeCellIndices = findCloseCellIndices( bb );
 
-            std::array<cvf::Vec3d, 8> hexCorners;
             for ( const auto& globalCellIndex : closeCellIndices )
             {
                 const RigCell& cell = m_caseData->mainGrid()->cell( globalCellIndex );
 
                 if ( cell.isInvalid() ) continue;
 
-                m_caseData->mainGrid()->cellCornerVertices( globalCellIndex, hexCorners );
-
+                std::array<cvf::Vec3d, 8> hexCorners = m_caseData->mainGrid()->cellCornerVertices( globalCellIndex );
                 if ( RigHexIntersectionTools::isPointInCell( firstPoint, hexCorners ) )
                 {
                     if ( RigHexIntersectionTools::isPointInCell( lastPoint, hexCorners ) )
@@ -202,8 +198,7 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCellIndices( const cvf:
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const
 {
-    std::array<cvf::Vec3d, 8> hexCorners;
-    m_caseData->mainGrid()->cellCornerVertices( cellIndex, hexCorners );
+    std::array<cvf::Vec3d, 8> hexCorners = m_caseData->mainGrid()->cellCornerVertices( cellIndex );
 
     return RigWellPathIntersectionTools::calculateLengthInCell( hexCorners, startPoint, endPoint );
 }

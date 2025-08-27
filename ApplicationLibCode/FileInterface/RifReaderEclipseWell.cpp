@@ -652,11 +652,10 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
                                 well_conn_type*    ert_connection = well_conn_collection_iget( connections, 0 );
                                 RigWellResultPoint point =
                                     RifReaderEclipseWell::createWellResultPoint( eclipseCaseData, grids[gridNr], ert_connection, segment, wellName );
-                                lastConnectionPos = grids[gridNr]->cell( point.cellIndex() ).center();
-                                std::array<cvf::Vec3d, 8> cellVxes;
-                                grids[gridNr]->cellCornerVertices( point.cellIndex(), cellVxes );
-                                lastConnectionCellCorner = cellVxes[0];
-                                lastConnectionCellSize   = ( lastConnectionPos - cellVxes[0] ).length();
+                                lastConnectionPos                  = grids[gridNr]->cell( point.cellIndex() ).center();
+                                std::array<cvf::Vec3d, 8> cellVxes = grids[gridNr]->cellCornerVertices( point.cellIndex() );
+                                lastConnectionCellCorner           = cellVxes[0];
+                                lastConnectionCellSize             = ( lastConnectionPos - cellVxes[0] ).length();
 
                                 lastConnectionSegmentId     = well_segment_get_id( segment );
                                 accLengthFromLastConnection = well_segment_get_length( segment ) / ( connectionCount + 1 );

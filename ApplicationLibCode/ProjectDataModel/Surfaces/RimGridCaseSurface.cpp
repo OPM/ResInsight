@@ -240,8 +240,7 @@ void RimGridCaseSurface::extractStructuredSurfaceFromGridData()
                         size_t cellFaceIndex = 0;
                         if ( !findValidCellIndex( grid, faceType, cellIndex, row, column, zeroBasedLayerIndex, cellFaceIndex ) ) return;
 
-                        std::array<cvf::Vec3d, 8> cornerVerts;
-                        grid->cellCornerVertices( cellIndex, cornerVerts );
+                        std::array<cvf::Vec3d, 8> cornerVerts = grid->cellCornerVertices( cellIndex );
 
                         cvf::ubyte faceConn[4];
                         RigMainGrid::cellFaceVertexIndices( faceType, faceConn );
@@ -317,11 +316,10 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                 if ( m_watertight ) skipInactiveCells = false;
                 if ( skipInactiveCells && activeCells && !activeCells->isActive( currentCellIndex ) ) continue;
 
-                std::array<cvf::Vec3d, 8> currentCornerVerts;
+                std::array<cvf::Vec3d, 8> currentCornerVerts = grid->cellCornerVertices( currentCellIndex );
 
                 {
                     cvf::ubyte currentFaceConn[4];
-                    grid->cellCornerVertices( currentCellIndex, currentCornerVerts );
                     RigMainGrid::cellFaceVertexIndices( extractionFace, currentFaceConn );
 
                     auto currentCellStartIndex = static_cast<unsigned>( vertices.size() );
@@ -382,9 +380,8 @@ void RimGridCaseSurface::addGeometryForFaultFaces( const RigMainGrid*           
         auto nextCell = grid->cell( currentCellIndex ).neighborCell( faultFace );
         if ( !nextCell.isInvalid() )
         {
-            size_t     nextCellIndex = nextCell.mainGridCellIndex();
-            std::array<cvf::Vec3d, 8> nextCellCornerVerts;
-            grid->cellCornerVertices( nextCellIndex, nextCellCornerVerts );
+            size_t                    nextCellIndex       = nextCell.mainGridCellIndex();
+            std::array<cvf::Vec3d, 8> nextCellCornerVerts = grid->cellCornerVertices( nextCellIndex );
 
             auto startIndex = static_cast<unsigned>( vertices.size() );
             {

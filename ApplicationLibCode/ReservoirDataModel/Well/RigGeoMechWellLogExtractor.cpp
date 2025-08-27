@@ -1139,13 +1139,14 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
 
         std::vector<size_t> closeCells = findCloseCells( bb );
 
-        cvf::Vec3d hexCorners[8];
         for ( size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx )
         {
             RigElementType elmType = femPart->elementType( closeCells[ccIdx] );
             if ( elmType != RigElementType::HEX8 && elmType != RigElementType::HEX8P ) continue;
 
             const int* cornerIndices = femPart->connectivities( closeCells[ccIdx] );
+
+            std::array<cvf::Vec3d, 8> hexCorners;
 
             hexCorners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
             hexCorners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );

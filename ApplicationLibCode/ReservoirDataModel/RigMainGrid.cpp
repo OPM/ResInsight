@@ -156,26 +156,21 @@ size_t RigMainGrid::reservoirCellIndexByGridAndGridLocalCellIndex( size_t gridId
 //--------------------------------------------------------------------------------------------------
 size_t RigMainGrid::findReservoirCellIndexFromPoint( const cvf::Vec3d& point ) const
 {
-    size_t cellContainingPoint = cvf::UNDEFINED_SIZE_T;
-
     cvf::BoundingBox pointBBox;
     pointBBox.add( point );
 
     std::vector<size_t> cellIndices = m_mainGrid->findIntersectingCells( pointBBox );
 
-    std::array<cvf::Vec3d, 8> hexCorners;
     for ( size_t cellIndex : cellIndices )
     {
-        m_mainGrid->cellCornerVertices( cellIndex, hexCorners );
-
+        std::array<cvf::Vec3d, 8> hexCorners = m_mainGrid->cellCornerVertices( cellIndex );
         if ( RigHexIntersectionTools::isPointInCell( point, hexCorners ) )
         {
-            cellContainingPoint = cellIndex;
-            break;
+            return cellIndex;
         }
     }
 
-    return cellContainingPoint;
+    return cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------

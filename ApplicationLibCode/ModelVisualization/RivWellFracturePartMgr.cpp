@@ -669,8 +669,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart( const Rim
         {
             // Calculate Eclipse cell intersection with fracture plane
 
-            std::array<cvf::Vec3d, 8> corners;
-            activeView.mainGrid()->cellCornerVertices( resCellIdx, corners );
+            std::array<cvf::Vec3d, 8> corners = activeView.mainGrid()->cellCornerVertices( resCellIdx );
 
             std::vector<std::vector<cvf::Vec3d>> eclCellPolygons;
             bool hasIntersection = RigHexIntersectionTools::planeHexIntersectionPolygons( corners, frMx, eclCellPolygons );
@@ -796,11 +795,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid( con
                 bool         pointInsideGrid     = false;
                 RigMainGrid* mainGrid            = activeView.mainGrid();
 
-                std::array<cvf::Vec3d, 8> corners;
                 for ( size_t cellIndex : cellCandidates )
                 {
-                    mainGrid->cellCornerVertices( cellIndex, corners );
-
+                    std::array<cvf::Vec3d, 8> corners = mainGrid->cellCornerVertices( cellIndex );
                     if ( RigHexIntersectionTools::isPointInCell( pointInDomainCoords, corners ) )
                     {
                         pointInsideGrid = true;
@@ -822,8 +819,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid( con
                 {
                     // Calculate Eclipse cell intersection with fracture plane
 
-                    std::array<cvf::Vec3d, 8> corners;
-                    activeView.mainGrid()->cellCornerVertices( resCellIdx, corners );
+                    std::array<cvf::Vec3d, 8> corners = activeView.mainGrid()->cellCornerVertices( resCellIdx );
 
                     std::vector<std::vector<cvf::Vec3d>> eclCellPolygons;
                     bool hasIntersection = RigHexIntersectionTools::planeHexIntersectionPolygons( corners, frMx, eclCellPolygons );

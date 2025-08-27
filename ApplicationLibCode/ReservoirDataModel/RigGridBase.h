@@ -104,8 +104,8 @@ public:
     bool cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override; // unused
     void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const override; // unused
 
-    void       cellCornerVertices( size_t cellIndex, std::array<cvf::Vec3d, 8>& vertices ) const override;
-    cvf::Vec3d cellCentroid( size_t cellIndex ) const override;
+    std::array<cvf::Vec3d, 8> cellCornerVertices( size_t cellIndex ) const override;
+    cvf::Vec3d                cellCentroid( size_t cellIndex ) const override;
 
     size_t     gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const override;
     cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const override;

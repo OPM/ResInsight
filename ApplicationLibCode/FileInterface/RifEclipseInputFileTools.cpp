@@ -291,8 +291,7 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
                 {
                     active = ( *cellVisibilityOverrideForActnum )[mainIndex];
                 }
-                std::array<cvf::Vec3d, 8> cellCorners;
-                mainGrid->cellCornerVertices( mainIndex, cellCorners );
+                std::array<cvf::Vec3d, 8> cellCorners = mainGrid->cellCornerVertices( mainIndex );
 
                 if ( mainGrid->useMapAxes() )
                 {

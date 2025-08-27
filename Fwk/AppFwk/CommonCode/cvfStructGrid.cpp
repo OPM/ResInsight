@@ -373,8 +373,7 @@ void StructGridInterface::computeCharacteristicCellSize( const std::vector<size_
         double jLengthAccumulated = 0.0;
         double kLengthAccumulated = 0.0;
 
-        std::array<cvf::Vec3d, 8> cornerVerts;
-        size_t                    evaluatedCellCount = 0;
+        size_t evaluatedCellCount = 0;
 
         // Evaluate N-th cells, compute the stride between each index
         size_t stride = std::max( size_t( 1 ), globalCellIndices.size() / 100 );
@@ -387,7 +386,7 @@ void StructGridInterface::computeCharacteristicCellSize( const std::vector<size_
             ijkFromCellIndex( cellIndex, &i, &j, &k );
             if ( isCellValid( i, j, k ) )
             {
-                cellCornerVertices( cellIndex, cornerVerts );
+                std::array<cvf::Vec3d, 8> cornerVerts = cellCornerVertices( cellIndex );
 
                 cvf::BoundingBox bb;
                 for ( const auto& v : cornerVerts )

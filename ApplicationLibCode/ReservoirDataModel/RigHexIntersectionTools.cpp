@@ -28,9 +28,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d                  p1,
-                                                      const cvf::Vec3d                  p2,
-                                                      const cvf::Vec3d                  hexCorners[8],
+int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d&                 p1,
+                                                      const cvf::Vec3d&                 p2,
+                                                      const std::array<cvf::Vec3d, 8>&  hexCorners,
                                                       const size_t                      hexIndex,
                                                       std::vector<HexIntersectionInfo>* intersections )
 {
@@ -82,7 +82,7 @@ int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigHexIntersectionTools::lineIntersectsHexCell( const cvf::Vec3d p1, const cvf::Vec3d p2, const cvf::Vec3d hexCorners[8] )
+bool RigHexIntersectionTools::lineIntersectsHexCell( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const std::array<cvf::Vec3d, 8>& hexCorners )
 {
     for ( int face = 0; face < 6; ++face )
     {
@@ -119,7 +119,7 @@ bool RigHexIntersectionTools::lineIntersectsHexCell( const cvf::Vec3d p1, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigHexIntersectionTools::isPointInCell( const cvf::Vec3d point, const std::array<cvf::Vec3d, 8>& hexCorners )
+bool RigHexIntersectionTools::isPointInCell( const cvf::Vec3d& point, const std::array<cvf::Vec3d, 8>& hexCorners )
 {
     cvf::Ray ray;
     ray.setOrigin( point );
@@ -149,7 +149,7 @@ bool RigHexIntersectionTools::isPointInCell( const cvf::Vec3d point, const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigHexIntersectionTools::planeHexCellIntersection( cvf::Vec3d*                                   hexCorners,
+bool RigHexIntersectionTools::planeHexCellIntersection( const std::array<cvf::Vec3d, 8>&              hexCorners,
                                                         const cvf::Plane&                             fracturePlane,
                                                         std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments )
 {
@@ -196,7 +196,7 @@ bool RigHexIntersectionTools::planeHexCellIntersection( cvf::Vec3d*             
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigHexIntersectionTools::planeHexIntersectionPolygons( std::array<cvf::Vec3d, 8>             hexCorners,
+bool RigHexIntersectionTools::planeHexIntersectionPolygons( const std::array<cvf::Vec3d, 8>&      hexCorners,
                                                             cvf::Mat4d                            transformMatrixForPlane,
                                                             std::vector<std::vector<cvf::Vec3d>>& polygons )
 {
@@ -208,7 +208,7 @@ bool RigHexIntersectionTools::planeHexIntersectionPolygons( std::array<cvf::Vec3
     // Find line-segments where cell and fracture plane intersects
     std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> intersectionLineSegments;
 
-    isCellIntersected = planeHexCellIntersection( hexCorners.data(), fracturePlane, intersectionLineSegments );
+    isCellIntersected = planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
 
     RigCellGeometryTools::createPolygonFromLineSegments( intersectionLineSegments, polygons );
 

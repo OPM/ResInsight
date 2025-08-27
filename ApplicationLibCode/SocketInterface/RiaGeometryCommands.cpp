@@ -279,9 +279,8 @@ public:
         //  dv(3) = 8;
         //  dv(4) = 3;
 
-        std::array<cvf::Vec3d, 8> cornerVerts;
-        size_t                    blockByteCount = cellCount * sizeof( double );
-        std::vector<double>       doubleValues( blockByteCount );
+        size_t              blockByteCount = cellCount * sizeof( double );
+        std::vector<double> doubleValues( blockByteCount );
 
         for ( int coordIdx = 0; coordIdx < 3; coordIdx++ )
         {
@@ -298,8 +297,8 @@ public:
                         for ( size_t i = 0; i < cellCountI; i++ )
                         {
                             size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK( i, j, k );
-                            rigGrid->cellCornerVertices( gridLocalCellIndex, cornerVerts );
 
+                            std::array<cvf::Vec3d, 8> cornerVerts = rigGrid->cellCornerVertices( gridLocalCellIndex );
                             doubleValues[valueIndex++] = getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
                         }
                     }
@@ -367,9 +366,8 @@ public:
         //  dv(1) = 8;
         //  dv(2) = 3;
 
-        std::array<cvf::Vec3d, 8> cornerVerts;
-        size_t                    blockByteCount = activeCellCount * sizeof( double );
-        std::vector<double>       doubleValues( blockByteCount );
+        size_t              blockByteCount = activeCellCount * sizeof( double );
+        std::vector<double> doubleValues( blockByteCount );
 
         for ( int coordIdx = 0; coordIdx < 3; coordIdx++ )
         {
@@ -383,9 +381,8 @@ public:
                 {
                     if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
 
-                    mainGrid->cellCornerVertices( reservoirCellIndex, cornerVerts );
-
-                    doubleValues[valueIndex++] = getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
+                    std::array<cvf::Vec3d, 8> cornerVerts = mainGrid->cellCornerVertices( reservoirCellIndex );
+                    doubleValues[valueIndex++]            = getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
                 }
 
                 CVF_ASSERT( valueIndex == activeCellCount );

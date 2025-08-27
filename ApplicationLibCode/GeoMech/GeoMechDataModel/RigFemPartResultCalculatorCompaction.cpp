@@ -44,9 +44,9 @@ public:
     std::vector<size_t> elementFaceNodeIdxs;
 };
 
-static std::vector<cvf::Vec3d> coordsFromNodeIndices( const RigFemPart& part, const std::vector<size_t>& nodeIdxs );
-static std::vector<size_t>     nodesForElement( const RigFemPart& part, size_t elementIdx );
-static float                   horizontalDistance( const cvf::Vec3f& p1, const cvf::Vec3f& p2 );
+static std::array<cvf::Vec3d, 8> coordsFromNodeIndices( const RigFemPart& part, const std::array<size_t, 8>& nodeIdxs );
+static std::array<size_t, 8>     nodesForElement( const RigFemPart& part, size_t elementIdx );
+static float                     horizontalDistance( const cvf::Vec3f& p1, const cvf::Vec3f& p2 );
 static void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t kRefLayer, RefElement* refElement );
 
 //--------------------------------------------------------------------------------------------------
@@ -175,13 +175,13 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
         bool validIndex = grid->ijkFromCellIndex( elemIdx, &i, &j, &k );
         if ( validIndex && k == kRefLayer )
         {
-            const std::vector<size_t> nodeIndices = nodesForElement( part, elemIdx );
+            const std::array<size_t, 8> nodeIndices = nodesForElement( part, elemIdx );
             CVF_ASSERT( nodeIndices.size() == 8 );
 
             std::vector<HexIntersectionInfo> intersections;
             RigHexIntersectionTools::lineHexCellIntersection( cvf::Vec3d( p1 ),
                                                               cvf::Vec3d( p2 ),
-                                                              coordsFromNodeIndices( part, nodeIndices ).data(),
+                                                              coordsFromNodeIndices( part, nodeIndices ),
                                                               elemIdx,
                                                               &intersections );
 
@@ -210,23 +210,23 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> coordsFromNodeIndices( const RigFemPart& part, const std::vector<size_t>& nodeIdxs )
+std::array<cvf::Vec3d, 8> coordsFromNodeIndices( const RigFemPart& part, const std::array<size_t, 8>& nodeIdxs )
 {
-    std::vector<cvf::Vec3d> out;
-    for ( const auto& nodeIdx : nodeIdxs )
-        out.push_back( cvf::Vec3d( part.nodes().coordinates[nodeIdx] ) );
+    std::array<cvf::Vec3d, 8> out;
+    for ( size_t i = 0; i < nodeIdxs.size(); i++ )
+        out[i] = cvf::Vec3d( part.nodes().coordinates[nodeIdxs[i]] );
     return out;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> nodesForElement( const RigFemPart& part, size_t elementIdx )
+std::array<size_t, 8> nodesForElement( const RigFemPart& part, size_t elementIdx )
 {
-    std::vector<size_t> nodeIdxs;
-    const int*          nodeConn = part.connectivities( elementIdx );
+    std::array<size_t, 8> nodeIdxs;
+    const int*            nodeConn = part.connectivities( elementIdx );
     for ( int n = 0; n < 8; n++ )
-        nodeIdxs.push_back( nodeConn[n] );
+        nodeIdxs[n] = nodeConn[n];
     return nodeIdxs;
 }
 

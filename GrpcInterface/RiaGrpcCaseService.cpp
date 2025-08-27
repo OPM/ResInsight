@@ -311,9 +311,8 @@ void RiaActiveCellInfoStateHandler::assignCellCorners( rips::CellCorners*       
                                                        const std::vector<RigCell>& reservoirCells,
                                                        size_t                      cellIdx )
 {
-    std::array<cvf::Vec3d, 8> cornerVerts;
-    RigGridBase*              grid = m_eclipseCase->eclipseCaseData()->mainGrid();
-    grid->cellCornerVertices( cellIdx, cornerVerts );
+    RigGridBase*              grid        = m_eclipseCase->eclipseCaseData()->mainGrid();
+    std::array<cvf::Vec3d, 8> cornerVerts = grid->cellCornerVertices( cellIdx );
     for ( cvf::Vec3d& corner : cornerVerts )
     {
         RiaGrpcHelper::convertVec3dToPositiveDepth( &corner );

@@ -417,17 +417,17 @@ void RigCell::faceIndices( cvf::StructGridInterface::FaceType face, std::array<s
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RigCell::boundingBox() const
 {
-    cvf::BoundingBox          bb;
-    std::array<cvf::Vec3d, 8> hexCorners;
+    cvf::BoundingBox bb;
 
     if ( m_hostGrid )
     {
-        m_hostGrid->cellCornerVertices( m_gridLocalCellIndex, hexCorners );
+        std::array<cvf::Vec3d, 8> hexCorners = m_hostGrid->cellCornerVertices( m_gridLocalCellIndex );
         for ( const auto& corner : hexCorners )
         {
             bb.add( corner );
         }
     }
+
     return bb;
 }
 

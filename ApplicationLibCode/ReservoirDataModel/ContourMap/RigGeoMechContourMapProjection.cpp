@@ -89,8 +89,7 @@ cvf::BoundingBox RigGeoMechContourMapProjection::calculateExpandedPorBarBBox( Ri
 
         if ( validPorValue )
         {
-            std::array<cvf::Vec3d, 8> hexCorners;
-            femPartGrid->cellCornerVertices( i, hexCorners );
+            std::array<cvf::Vec3d, 8> hexCorners = femPartGrid->cellCornerVertices( i );
             for ( size_t c = 0; c < 8; ++c )
             {
                 boundingBox.add( hexCorners[c] );
@@ -287,8 +286,7 @@ size_t RigGeoMechContourMapProjection::kLayers() const
 //--------------------------------------------------------------------------------------------------
 double RigGeoMechContourMapProjection::calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const
 {
-    std::array<cvf::Vec3d, 8> hexCorners;
-    m_femPartGrid->cellCornerVertices( globalCellIdx, hexCorners );
+    std::array<cvf::Vec3d, 8> hexCorners = m_femPartGrid->cellCornerVertices( globalCellIdx );
 
     cvf::BoundingBox          overlapBBox;
     std::array<cvf::Vec3d, 8> overlapCorners;
@@ -307,23 +305,11 @@ double RigGeoMechContourMapProjection::calculateRayLengthInCell( size_t         
                                                                  const cvf::Vec3d& highestPoint,
                                                                  const cvf::Vec3d& lowestPoint ) const
 {
-    std::array<cvf::Vec3d, 8> hexCorners;
-
-    const std::vector<cvf::Vec3f>& nodeCoords    = m_femPart->nodes().coordinates;
-    const int*                     cornerIndices = m_femPart->connectivities( globalCellIdx );
-
-    hexCorners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
-    hexCorners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );
-    hexCorners[2] = cvf::Vec3d( nodeCoords[cornerIndices[2]] );
-    hexCorners[3] = cvf::Vec3d( nodeCoords[cornerIndices[3]] );
-    hexCorners[4] = cvf::Vec3d( nodeCoords[cornerIndices[4]] );
-    hexCorners[5] = cvf::Vec3d( nodeCoords[cornerIndices[5]] );
-    hexCorners[6] = cvf::Vec3d( nodeCoords[cornerIndices[6]] );
-    hexCorners[7] = cvf::Vec3d( nodeCoords[cornerIndices[7]] );
+    std::array<cvf::Vec3d, 8> hexCorners = m_femPartGrid->cellCornerVertices( globalCellIdx );
 
     std::vector<HexIntersectionInfo> intersections;
 
-    if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )
+    if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners, 0, &intersections ) )
     {
         double lengthInCell = ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
         return lengthInCell;

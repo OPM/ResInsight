@@ -295,8 +295,6 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
         hexPlaneCutTriangleVxes.reserve( 5 * 3 );
         std::vector<int> cellFaceForEachTriangleEdge;
         cellFaceForEachTriangleEdge.reserve( 5 * 3 );
-        std::array<cvf::Vec3d, 8> cellCorners;
-        std::array<size_t, 8>     cornerIndices;
 
         for ( size_t cccIdx = 0; cccIdx < columnCellCandidates.size(); ++cccIdx )
         {
@@ -306,8 +304,8 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
             if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
             hexPlaneCutTriangleVxes.clear();
-            m_hexGrid->cellCornerVertices( globalCellIdx, cellCorners );
-            m_hexGrid->cellCornerIndices( globalCellIdx, cornerIndices );
+            const std::array<cvf::Vec3d, 8> cellCorners   = m_hexGrid->cellCornerVertices( globalCellIdx );
+            const std::array<size_t, 8>     cornerIndices = m_hexGrid->cellCornerIndices( globalCellIdx );
 
             caf::HexGridIntersectionTools::planeHexIntersectionMC( plane,
                                                                    cellCorners,

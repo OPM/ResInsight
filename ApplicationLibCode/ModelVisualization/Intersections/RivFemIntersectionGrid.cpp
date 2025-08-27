@@ -71,7 +71,7 @@ bool RivFemIntersectionGrid::useCell( size_t globalCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, std::array<cvf::Vec3d, 8>& cellCorners ) const
+std::array<cvf::Vec3d, 8> RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex ) const
 {
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 
@@ -80,6 +80,7 @@ void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, std::ar
     const std::vector<cvf::Vec3f>& nodeCoords    = part->nodes().coordinates;
     const int*                     cornerIndices = part->connectivities( elementIdx );
 
+    std::array<cvf::Vec3d, 8> cellCorners;
     if ( useDisplacements )
     {
         const double                   scaleFactor   = m_parts->currentDisplacementScaleFactor();
@@ -97,25 +98,29 @@ void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, std::ar
             cellCorners[i] = cvf::Vec3d( nodeCoords[cornerIndices[i]] );
         }
     }
+
+    return cellCorners;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, std::array<size_t, 8>& cornerIndices ) const
+std::array<size_t, 8> RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex ) const
 {
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 
     RigElementType elmType = part->elementType( elementIdx );
-    if ( !RigFemTypes::is8NodeElement( elmType ) ) return;
+    if ( !RigFemTypes::is8NodeElement( elmType ) ) return {};
 
     int       elmIdx = static_cast<int>( elementIdx );
     const int partId = part->elementPartId();
 
+    std::array<size_t, 8> cornerIndices;
     for ( int i = 0; i < 8; i++ )
     {
         cornerIndices[i] = m_femParts->globalElementNodeResultIdx( partId, elmIdx, i );
     }
+    return cornerIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
