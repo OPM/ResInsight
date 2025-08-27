@@ -68,6 +68,7 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void updateRealizationColor();
     void updateEnsembleParameterLegend( RimRegularLegendConfig* legendConfig ) const;
@@ -76,7 +77,7 @@ private:
     caf::PdmField<ColorModeEnum>                                             m_colorMode;
     caf::PdmField<cvf::Color3f>                                              m_mainEnsembleColor;
     caf::PdmField<cvf::Color3f>                                              m_colorForRealizations;
-    caf::PdmField<double>                                                    m_colorTransparency;
+    caf::PdmField<double>                                                    m_colorOpacity;
     caf::PdmField<QString>                                                   m_ensembleParameter;
     caf::PdmField<caf::AppEnum<RimCurveAppearanceDefines::ParameterSorting>> m_ensembleParameterSorting;
 

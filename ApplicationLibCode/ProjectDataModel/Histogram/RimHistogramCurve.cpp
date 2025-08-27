@@ -477,6 +477,6 @@ void RimHistogramCurve::setAppearanceFromGraphType( RimHistogramPlot::GraphType 
 {
     auto fillType = graphType == RimHistogramPlot::GraphType::BAR_GRAPH ? Qt::SolidPattern : Qt::NoBrush;
     setFillStyle( fillType );
-    float transparency = graphType == RimHistogramPlot::GraphType::BAR_GRAPH ? 0.2 : 1.0;
-    setFillColorTransparency( transparency );
+    float opacity = graphType == RimHistogramPlot::GraphType::BAR_GRAPH ? 0.2 : 1.0;
+    setFillColorOpacity( opacity );
 }

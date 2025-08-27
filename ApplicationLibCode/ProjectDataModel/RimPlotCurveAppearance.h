@@ -86,8 +86,11 @@ public:
     void         setFillColor( const cvf::Color3f& fillColor );
     cvf::Color3f fillColor() const;
 
-    void  setFillColorTransparency( float fillColorTransparency );
-    float fillColorTransparency() const;
+    void  setCurveColorOpacity( float opacity );
+    float curveColorOpacity() const;
+
+    void  setFillColorOpacity( float opacity );
+    float fillColorOpacity() const;
 
     float curveFittingTolerance() const;
 
@@ -114,6 +117,7 @@ protected:
     caf::PdmField<int>     m_symbolSize;
 
     caf::PdmField<cvf::Color3f> m_curveColor;
+    caf::PdmField<float>        m_curveColorOpacity;
     caf::PdmField<int>          m_curveThickness;
     caf::PdmField<float>        m_symbolSkipPixelDistance;
 
@@ -123,7 +127,7 @@ protected:
     caf::PdmField<LineStyle>          m_lineStyle;
     caf::PdmField<FillStyle>          m_fillStyle;
     caf::PdmField<cvf::Color3f>       m_fillColor;
-    caf::PdmField<float>              m_fillColorTransparency;
+    caf::PdmField<float>              m_fillColorOpacity;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
     caf::PdmField<LabelPosition>      m_symbolLabelPosition;
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;

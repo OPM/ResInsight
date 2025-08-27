@@ -727,9 +727,17 @@ void RimPlotCurve::setFillColor( const cvf::Color3f& fillColor )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setFillColorTransparency( float fillColorTransparency )
+void RimPlotCurve::setFillColorOpacity( float opacity )
 {
-    m_curveAppearance->setFillColorTransparency( fillColorTransparency );
+    m_curveAppearance->setFillColorOpacity( opacity );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setCurveColorOpacity( float opacity )
+{
+    m_curveAppearance->setCurveColorOpacity( opacity );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -969,7 +977,7 @@ void RimPlotCurve::setZOrder( double z )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveAppearance()
 {
-    QColor curveColor = RiaColorTools::toQColor( m_curveAppearance->color() );
+    QColor curveColor = RiaColorTools::toQColor( m_curveAppearance->color(), m_curveAppearance->curveColorOpacity() );
 
     if ( !m_plotCurve ) return;
 
@@ -1015,7 +1023,7 @@ void RimPlotCurve::updateCurveAppearance()
     QColor fillColor = RiaColorTools::toQColor( m_curveAppearance->fillColor() );
 
     fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
-    fillColor.setAlphaF( m_curveAppearance->fillColorTransparency() );
+    fillColor.setAlphaF( m_curveAppearance->fillColorOpacity() );
 
     QBrush fillBrush( fillColor, fillStyle() );
     m_plotCurve->setAppearance( m_curveAppearance->lineStyle(),
