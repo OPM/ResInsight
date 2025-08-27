@@ -177,7 +177,7 @@ bool RimDiameterRoughnessInterval::containsMD( double md ) const
 //--------------------------------------------------------------------------------------------------
 QString RimDiameterRoughnessInterval::diameterLabel() const
 {
-    return QString( "%1 m" ).arg( m_diameter, 0, 'f', 3 );
+    return QString( "%1 m" ).arg( m_diameter(), 0, 'f', 3 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,7 +185,7 @@ QString RimDiameterRoughnessInterval::diameterLabel() const
 //--------------------------------------------------------------------------------------------------
 QString RimDiameterRoughnessInterval::roughnessLabel() const
 {
-    return QString( "%1 m" ).arg( m_roughnessFactor, 0, 'e', 2 );
+    return QString( "%1 m" ).arg( m_roughnessFactor(), 0, 'e', 2 );
 }
 
 //--------------------------------------------------------------------------------------------------
