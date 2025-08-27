@@ -63,6 +63,7 @@
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfTransform.h"
 
+#include <array>
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -669,7 +670,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart( const Rim
             // Calculate Eclipse cell intersection with fracture plane
 
             std::array<cvf::Vec3d, 8> corners;
-            activeView.mainGrid()->cellCornerVertices( resCellIdx, corners.data() );
+            activeView.mainGrid()->cellCornerVertices( resCellIdx, corners );
 
             std::vector<std::vector<cvf::Vec3d>> eclCellPolygons;
             bool hasIntersection = RigHexIntersectionTools::planeHexIntersectionPolygons( corners, frMx, eclCellPolygons );
@@ -798,9 +799,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid( con
                 std::array<cvf::Vec3d, 8> corners;
                 for ( size_t cellIndex : cellCandidates )
                 {
-                    mainGrid->cellCornerVertices( cellIndex, corners.data() );
+                    mainGrid->cellCornerVertices( cellIndex, corners );
 
-                    if ( RigHexIntersectionTools::isPointInCell( pointInDomainCoords, corners.data() ) )
+                    if ( RigHexIntersectionTools::isPointInCell( pointInDomainCoords, corners ) )
                     {
                         pointInsideGrid = true;
                         break;
@@ -822,7 +823,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid( con
                     // Calculate Eclipse cell intersection with fracture plane
 
                     std::array<cvf::Vec3d, 8> corners;
-                    activeView.mainGrid()->cellCornerVertices( resCellIdx, corners.data() );
+                    activeView.mainGrid()->cellCornerVertices( resCellIdx, corners );
 
                     std::vector<std::vector<cvf::Vec3d>> eclCellPolygons;
                     bool hasIntersection = RigHexIntersectionTools::planeHexIntersectionPolygons( corners, frMx, eclCellPolygons );

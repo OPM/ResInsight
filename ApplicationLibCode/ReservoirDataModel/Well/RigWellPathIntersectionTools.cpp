@@ -143,7 +143,7 @@ cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell( const RigMainGri
                                                                 const cvf::Vec3d&  endPoint )
 {
     std::array<cvf::Vec3d, 8> hexCorners;
-    grid->cellCornerVertices( cellIndex, hexCorners.data() );
+    grid->cellCornerVertices( cellIndex, hexCorners );
 
     return calculateLengthInCell( hexCorners, startPoint, endPoint );
 }

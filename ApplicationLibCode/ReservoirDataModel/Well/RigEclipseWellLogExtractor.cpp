@@ -33,6 +33,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 
+#include <array>
 #include <map>
 
 //==================================================================================================
@@ -74,7 +75,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
         std::vector<size_t> closeCellIndices = findCloseCellIndices( bb );
 
-        cvf::Vec3d hexCorners[8];
+        std::array<cvf::Vec3d, 8> hexCorners;
         for ( const auto& globalCellIndex : closeCellIndices )
         {
             const RigCell& cell = m_caseData->mainGrid()->cell( globalCellIndex );
@@ -83,7 +84,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
             m_caseData->mainGrid()->cellCornerVertices( globalCellIndex, hexCorners );
 
-            RigHexIntersectionTools::lineHexCellIntersection( p1, p2, hexCorners, globalCellIndex, &intersections );
+            RigHexIntersectionTools::lineHexCellIntersection( p1, p2, hexCorners.data(), globalCellIndex, &intersections );
         }
 
         if ( !isCellFaceNormalsOut )
@@ -120,7 +121,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
             std::vector<size_t> closeCellIndices = findCloseCellIndices( bb );
 
-            cvf::Vec3d hexCorners[8];
+            std::array<cvf::Vec3d, 8> hexCorners;
             for ( const auto& globalCellIndex : closeCellIndices )
             {
                 const RigCell& cell = m_caseData->mainGrid()->cell( globalCellIndex );
@@ -202,7 +203,7 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCellIndices( const cvf:
 cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const
 {
     std::array<cvf::Vec3d, 8> hexCorners;
-    m_caseData->mainGrid()->cellCornerVertices( cellIndex, hexCorners.data() );
+    m_caseData->mainGrid()->cellCornerVertices( cellIndex, hexCorners );
 
     return RigWellPathIntersectionTools::calculateLengthInCell( hexCorners, startPoint, endPoint );
 }

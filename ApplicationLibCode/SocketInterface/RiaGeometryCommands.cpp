@@ -40,6 +40,8 @@
 
 #include <QTcpSocket>
 
+#include <array>
+
 //--------------------------------------------------------------------------------------------------
 /// Convert internal ResInsight representation of cells with negative depth to positive depth.
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +54,7 @@ static inline void convertVec3dToPositiveDepth( cvf::Vec3d* vec )
 //--------------------------------------------------------------------------------------------------
 /// Retrieve a cell corner where the depth is represented as negative converted to positive depth.
 //--------------------------------------------------------------------------------------------------
-static inline double getCellCornerWithPositiveDepth( const cvf::Vec3d* cornerVerts, size_t cornerIndexMapping, int coordIdx )
+static inline double getCellCornerWithPositiveDepth( const std::array<cvf::Vec3d, 8>& cornerVerts, size_t cornerIndexMapping, int coordIdx )
 {
     if ( coordIdx == 2 )
     {
@@ -277,9 +279,9 @@ public:
         //  dv(3) = 8;
         //  dv(4) = 3;
 
-        cvf::Vec3d          cornerVerts[8];
-        size_t              blockByteCount = cellCount * sizeof( double );
-        std::vector<double> doubleValues( blockByteCount );
+        std::array<cvf::Vec3d, 8> cornerVerts;
+        size_t                    blockByteCount = cellCount * sizeof( double );
+        std::vector<double>       doubleValues( blockByteCount );
 
         for ( int coordIdx = 0; coordIdx < 3; coordIdx++ )
         {
@@ -365,9 +367,9 @@ public:
         //  dv(1) = 8;
         //  dv(2) = 3;
 
-        cvf::Vec3d          cornerVerts[8];
-        size_t              blockByteCount = activeCellCount * sizeof( double );
-        std::vector<double> doubleValues( blockByteCount );
+        std::array<cvf::Vec3d, 8> cornerVerts;
+        size_t                    blockByteCount = activeCellCount * sizeof( double );
+        std::vector<double>       doubleValues( blockByteCount );
 
         for ( int coordIdx = 0; coordIdx < 3; coordIdx++ )
         {

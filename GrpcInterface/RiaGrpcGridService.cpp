@@ -26,6 +26,8 @@
 
 #include "RimEclipseCase.h"
 
+#include <array>
+
 using namespace rips;
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +104,7 @@ grpc::Status RiaCellCenterStateHandler::assignCornersReply( rips::CellCornersArr
     size_t       indexInPackage = 0u;
     reply->mutable_cells()->Reserve( (int)packageSize );
 
-    cvf::Vec3d cornerVerts[8];
+    std::array<cvf::Vec3d, 8> cornerVerts;
     for ( ; indexInPackage < packageSize && m_currentCellIdx < m_grid->cellCount(); ++indexInPackage )
     {
         m_grid->cellCornerVertices( m_currentCellIdx, cornerVerts );

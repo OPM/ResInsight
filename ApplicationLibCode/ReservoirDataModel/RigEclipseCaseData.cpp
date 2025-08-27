@@ -39,6 +39,8 @@
 
 #include <QDebug>
 
+#include <array>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -666,7 +668,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
             {
                 if ( activeInfos[acIdx]->isActive( i ) )
                 {
-                    m_mainGrid->cellCornerVertices( i, hexCorners.data() );
+                    m_mainGrid->cellCornerVertices( i, hexCorners );
                     for ( const auto& corner : hexCorners )
                     {
                         bb.add( corner );
@@ -730,7 +732,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
                             size_t cellIndex = m_mainGrid->cellIndexFromIJK( i, j, k );
 
                             std::array<cvf::Vec3d, 8> hexCorners;
-                            m_mainGrid->cellCornerVertices( cellIndex, hexCorners.data() );
+                            m_mainGrid->cellCornerVertices( cellIndex, hexCorners );
                             for ( const auto& corner : hexCorners )
                             {
                                 bb.add( corner );

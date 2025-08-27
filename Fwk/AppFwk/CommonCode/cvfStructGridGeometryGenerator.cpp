@@ -47,6 +47,8 @@
 
 #include "cvfArray.h"
 #include "cvfOutlineEdgeExtractor.h"
+
+#include <array>
 #include <cmath>
 
 namespace cvf
@@ -274,7 +276,7 @@ ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawableFromSingleCell( 
                                                                                 size_t                     cellIndex,
                                                                                 const cvf::Vec3d& displayModelOffset )
 {
-    cvf::Vec3d cornerVerts[8];
+    std::array<cvf::Vec3d, 8> cornerVerts;
     grid->cellCornerVertices( cellIndex, cornerVerts );
 
     std::vector<Vec3f> vertices;
@@ -413,7 +415,7 @@ void StructGridGeometryGenerator::computeArrays()
 
                 if ( !visibleFaces.empty() )
                 {
-                    cvf::Vec3d cornerVerts[8];
+                    std::array<cvf::Vec3d, 8> cornerVerts;
                     m_grid->cellCornerVertices( cellIndex, cornerVerts );
 
                     size_t idx;

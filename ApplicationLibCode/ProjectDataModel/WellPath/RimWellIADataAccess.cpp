@@ -79,7 +79,7 @@ int RimWellIADataAccess::elementIndex( cvf::Vec3d position )
         std::array<cvf::Vec3d, 8> coordinates;
         if ( !part->fillElementCoordinates( elmIdx, coordinates ) ) continue;
 
-        if ( RigHexIntersectionTools::isPointInCell( position, coordinates.data() ) ) return (int)elmIdx;
+        if ( RigHexIntersectionTools::isPointInCell( position, coordinates ) ) return (int)elmIdx;
     }
 
     return -1;

@@ -377,8 +377,8 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteA
             hexPlaneCutTriangleVxes.reserve( 5 * 3 );
             std::vector<int> cellFaceForEachTriangleEdge;
             cellFaceForEachTriangleEdge.reserve( 5 * 3 );
-            cvf::Vec3d cellCorners[8];
-            size_t     cornerIndices[8];
+            std::array<cvf::Vec3d, 8> cellCorners;
+            std::array<size_t, 8>     cornerIndices;
 
             cvf::Mat4d invSectionCS = m_lineSegmentTransforms[pLineIdx][lIdx];
 

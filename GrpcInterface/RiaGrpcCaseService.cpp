@@ -32,6 +32,8 @@
 
 #include "Riu3dSelectionManager.h"
 
+#include <array>
+
 using namespace rips;
 
 //--------------------------------------------------------------------------------------------------
@@ -309,8 +311,8 @@ void RiaActiveCellInfoStateHandler::assignCellCorners( rips::CellCorners*       
                                                        const std::vector<RigCell>& reservoirCells,
                                                        size_t                      cellIdx )
 {
-    cvf::Vec3d   cornerVerts[8];
-    RigGridBase* grid = m_eclipseCase->eclipseCaseData()->mainGrid();
+    std::array<cvf::Vec3d, 8> cornerVerts;
+    RigGridBase*              grid = m_eclipseCase->eclipseCaseData()->mainGrid();
     grid->cellCornerVertices( cellIdx, cornerVerts );
     for ( cvf::Vec3d& corner : cornerVerts )
     {

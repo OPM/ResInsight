@@ -295,8 +295,8 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
         hexPlaneCutTriangleVxes.reserve( 5 * 3 );
         std::vector<int> cellFaceForEachTriangleEdge;
         cellFaceForEachTriangleEdge.reserve( 5 * 3 );
-        cvf::Vec3d cellCorners[8];
-        size_t     cornerIndices[8];
+        std::array<cvf::Vec3d, 8> cellCorners;
+        std::array<size_t, 8>     cornerIndices;
 
         for ( size_t cccIdx = 0; cccIdx < columnCellCandidates.size(); ++cccIdx )
         {

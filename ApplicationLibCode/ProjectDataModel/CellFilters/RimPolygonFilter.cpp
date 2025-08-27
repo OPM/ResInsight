@@ -479,7 +479,7 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
 
         // get corner coordinates
         std::array<cvf::Vec3d, 8> hexCorners;
-        grid->cellCornerVertices( n, hexCorners.data() );
+        grid->cellCornerVertices( n, hexCorners );
 
         // get cell ijk for k filter
         size_t i, j, k;
@@ -522,7 +522,7 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
 
             // get corner coordinates
             std::array<cvf::Vec3d, 8> hexCorners;
-            grid->cellCornerVertices( cellIdx, hexCorners.data() );
+            grid->cellCornerVertices( cellIdx, hexCorners );
 
             if ( closedPolygon )
             {
@@ -624,7 +624,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
                 size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
                 if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
-                cvf::Vec3d vertices[8];
+                std::array<cvf::Vec3d, 8> vertices;
                 grid->cellCornerVertices( cellIdx, vertices );
                 cvf::Vec3d center = grid->cellCentroid( cellIdx );
 
@@ -674,7 +674,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
                 if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
                 cvf::BoundingBox bb;
-                cvf::Vec3d       vertices[8];
+                std::array<cvf::Vec3d, 8> vertices;
                 grid->cellCornerVertices( cellIdx, vertices );
                 for ( const auto& point : vertices )
                     bb.add( point );
@@ -715,7 +715,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
 
             // get corner coordinates
             std::array<cvf::Vec3d, 8> hexCorners;
-            grid->cellCornerVertices( cellIdx, hexCorners.data() );
+            grid->cellCornerVertices( cellIdx, hexCorners );
             cvf::Vec3d center = grid->cellCentroid( cellIdx );
 
             if ( closedPolygon )
@@ -1113,7 +1113,7 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
             // is the point inside cell bb?
             cvf::BoundingBox          bb;
             std::array<cvf::Vec3d, 8> hexCorners;
-            grid->cellCornerVertices( i, hexCorners.data() );
+            grid->cellCornerVertices( i, hexCorners );
             for ( const auto& corner : hexCorners )
             {
                 bb.add( corner );

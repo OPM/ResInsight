@@ -755,8 +755,8 @@ cvf::Vec3d HexGridIntersectionTools::planeLineIntersectionForMC( const cvf::Plan
 // The cellFaceForEachTriangleEdge refer to the edge after the corresponding triangle vertex.
 //--------------------------------------------------------------------------------------------------
 int HexGridIntersectionTools::planeHexIntersectionMC( const cvf::Plane&    plane,
-                                                      const cvf::Vec3d     cell[8],
-                                                      const size_t         hexCornersIds[8],
+                                                      const std::array<cvf::Vec3d, 8>& cell,
+                                                      const std::array<size_t , 8>& hexCornersIds,
                                                       std::vector<ClipVx>* triangleVxes,
                                                       std::vector<int>*    cellFaceForEachTriangleEdge )
 {
@@ -1304,11 +1304,11 @@ are stacked together to a chain, the mesh of each cube must be rotated by an ang
 
 */
 //--------------------------------------------------------------------------------------------------
-int HexGridIntersectionTools::planeHexIntersectionMCTet( const cvf::Plane&    plane,
-                                                         const cvf::Vec3d     cell[8],
-                                                         const size_t         hexCornersIds[8],
-                                                         std::vector<ClipVx>* triangleVxes,
-                                                         std::vector<int>*    cellFaceForEachTriangleEdge )
+int HexGridIntersectionTools::planeHexIntersectionMCTet( const cvf::Plane&                plane,
+                                                         const std::array<cvf::Vec3d, 8>& cell,
+                                                         const std::array<size_t, 8>&     hexCornersIds,
+                                                         std::vector<ClipVx>*             triangleVxes,
+                                                         std::vector<int>*                cellFaceForEachTriangleEdge )
 {
     std::array<double, 8> cellCornerSqDistToPlane = {
         plane.distanceSquared( cell[0] ),
@@ -1383,13 +1383,13 @@ int HexGridIntersectionTools::planeHexIntersectionMCTet( const cvf::Plane&    pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::uint HexGridIntersectionTools::planeMcTetIntersection( const cvf::Plane&         plane,
-                                                            const cvf::Vec3d          hexCell[8],
-                                                            const size_t              hexCornersIds[8],
-                                                            const double              cornerDistToPlane[8],
-                                                            const std::array<int, 4>& tetCell,
-                                                            std::vector<ClipVx>*      triangleVxes,
-                                                            std::vector<int>*         cellFaceForEachTriangleEdge )
+cvf::uint HexGridIntersectionTools::planeMcTetIntersection( const cvf::Plane&                plane,
+                                                            const std::array<cvf::Vec3d, 8>& hexCell,
+                                                            const std::array<size_t, 8>&     hexCornersIds,
+                                                            const double                     cornerDistToPlane[8],
+                                                            const std::array<int, 4>&        tetCell,
+                                                            std::vector<ClipVx>*             triangleVxes,
+                                                            std::vector<int>* cellFaceForEachTriangleEdge )
 {
     // clang-format off
 

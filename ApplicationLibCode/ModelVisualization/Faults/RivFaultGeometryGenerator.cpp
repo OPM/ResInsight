@@ -178,8 +178,8 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
     {
         int myThread = RiaOpenMPTools::currentThreadIndex();
 
-        cvf::Vec3d cornerVerts[8];
-        cvf::ubyte faceConn[4];
+        std::array<cvf::Vec3d, 8> cornerVerts;
+        cvf::ubyte                faceConn[4];
 
         // NB! We are inside a parallel section, do not use "parallel for" here
 #pragma omp for

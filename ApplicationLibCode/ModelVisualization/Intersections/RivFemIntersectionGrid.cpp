@@ -71,7 +71,7 @@ bool RivFemIntersectionGrid::useCell( size_t globalCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, cvf::Vec3d cellCorners[8] ) const
+void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, std::array<cvf::Vec3d, 8>& cellCorners ) const
 {
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 
@@ -102,7 +102,7 @@ void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, cvf::Ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, size_t cornerIndices[8] ) const
+void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, std::array<size_t, 8>& cornerIndices ) const
 {
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 

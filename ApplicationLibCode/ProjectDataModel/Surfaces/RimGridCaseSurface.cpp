@@ -240,7 +240,7 @@ void RimGridCaseSurface::extractStructuredSurfaceFromGridData()
                         size_t cellFaceIndex = 0;
                         if ( !findValidCellIndex( grid, faceType, cellIndex, row, column, zeroBasedLayerIndex, cellFaceIndex ) ) return;
 
-                        cvf::Vec3d cornerVerts[8];
+                        std::array<cvf::Vec3d, 8> cornerVerts;
                         grid->cellCornerVertices( cellIndex, cornerVerts );
 
                         cvf::ubyte faceConn[4];
@@ -317,7 +317,7 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                 if ( m_watertight ) skipInactiveCells = false;
                 if ( skipInactiveCells && activeCells && !activeCells->isActive( currentCellIndex ) ) continue;
 
-                cvf::Vec3d currentCornerVerts[8];
+                std::array<cvf::Vec3d, 8> currentCornerVerts;
 
                 {
                     cvf::ubyte currentFaceConn[4];
@@ -346,7 +346,7 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                                               currentCellIndex,
                                               extractionFace,
                                               cvf::StructGridInterface::POS_I,
-                                              currentCornerVerts,
+                                              currentCornerVerts.data(),
                                               vertices,
                                               triangleIndices );
 
@@ -354,7 +354,7 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                                               currentCellIndex,
                                               extractionFace,
                                               cvf::StructGridInterface::POS_J,
-                                              currentCornerVerts,
+                                              currentCornerVerts.data(),
                                               vertices,
                                               triangleIndices );
                 }
@@ -383,7 +383,7 @@ void RimGridCaseSurface::addGeometryForFaultFaces( const RigMainGrid*           
         if ( !nextCell.isInvalid() )
         {
             size_t     nextCellIndex = nextCell.mainGridCellIndex();
-            cvf::Vec3d nextCellCornerVerts[8];
+            std::array<cvf::Vec3d, 8> nextCellCornerVerts;
             grid->cellCornerVertices( nextCellIndex, nextCellCornerVerts );
 
             auto startIndex = static_cast<unsigned>( vertices.size() );

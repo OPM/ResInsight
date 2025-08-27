@@ -43,6 +43,7 @@
 
 #include "cafProgressInfo.h"
 
+#include <array>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -291,7 +292,7 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
                     active = ( *cellVisibilityOverrideForActnum )[mainIndex];
                 }
                 std::array<cvf::Vec3d, 8> cellCorners;
-                mainGrid->cellCornerVertices( mainIndex, cellCorners.data() );
+                mainGrid->cellCornerVertices( mainIndex, cellCorners );
 
                 if ( mainGrid->useMapAxes() )
                 {

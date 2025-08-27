@@ -207,7 +207,7 @@ int RigFemPartCollection::getPartIndexFromPoint( const cvf::Vec3d& point ) const
         std::array<cvf::Vec3d, 8> coordinates;
         if ( part->fillElementCoordinates( elementIndex, coordinates ) )
         {
-            if ( RigHexIntersectionTools::isPointInCell( point, coordinates.data() ) )
+            if ( RigHexIntersectionTools::isPointInCell( point, coordinates ) )
             {
                 return part->elementPartId();
             }

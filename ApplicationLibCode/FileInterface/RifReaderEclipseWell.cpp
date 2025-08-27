@@ -40,6 +40,7 @@
 #include "ert/ecl_well/well_segment_collection.h"
 #include "ert/ecl_well/well_state.h"
 
+#include <array>
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -652,7 +653,7 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
                                 RigWellResultPoint point =
                                     RifReaderEclipseWell::createWellResultPoint( eclipseCaseData, grids[gridNr], ert_connection, segment, wellName );
                                 lastConnectionPos = grids[gridNr]->cell( point.cellIndex() ).center();
-                                cvf::Vec3d cellVxes[8];
+                                std::array<cvf::Vec3d, 8> cellVxes;
                                 grids[gridNr]->cellCornerVertices( point.cellIndex(), cellVxes );
                                 lastConnectionCellCorner = cellVxes[0];
                                 lastConnectionCellSize   = ( lastConnectionPos - cellVxes[0] ).length();

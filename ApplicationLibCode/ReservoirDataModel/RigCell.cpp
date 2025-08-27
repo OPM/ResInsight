@@ -24,6 +24,7 @@
 #include "cvfPlane.h"
 #include "cvfRay.h"
 
+#include <array>
 #include <cmath>
 
 static size_t undefinedCornersArray[8] = { cvf::UNDEFINED_SIZE_T,
@@ -421,7 +422,7 @@ cvf::BoundingBox RigCell::boundingBox() const
 
     if ( m_hostGrid )
     {
-        m_hostGrid->cellCornerVertices( m_gridLocalCellIndex, hexCorners.data() );
+        m_hostGrid->cellCornerVertices( m_gridLocalCellIndex, hexCorners );
         for ( const auto& corner : hexCorners )
         {
             bb.add( corner );

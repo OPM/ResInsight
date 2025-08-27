@@ -90,7 +90,7 @@ cvf::BoundingBox RigGeoMechContourMapProjection::calculateExpandedPorBarBBox( Ri
         if ( validPorValue )
         {
             std::array<cvf::Vec3d, 8> hexCorners;
-            femPartGrid->cellCornerVertices( i, hexCorners.data() );
+            femPartGrid->cellCornerVertices( i, hexCorners );
             for ( size_t c = 0; c < 8; ++c )
             {
                 boundingBox.add( hexCorners[c] );
@@ -288,7 +288,7 @@ size_t RigGeoMechContourMapProjection::kLayers() const
 double RigGeoMechContourMapProjection::calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const
 {
     std::array<cvf::Vec3d, 8> hexCorners;
-    m_femPartGrid->cellCornerVertices( globalCellIdx, hexCorners.data() );
+    m_femPartGrid->cellCornerVertices( globalCellIdx, hexCorners );
 
     cvf::BoundingBox          overlapBBox;
     std::array<cvf::Vec3d, 8> overlapCorners;

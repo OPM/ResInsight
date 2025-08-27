@@ -515,7 +515,7 @@ cvf::BoundingBox RimGeoMechCase::reservoirBoundingBox()
                 if ( validPorValue )
                 {
                     std::array<cvf::Vec3d, 8> hexCorners;
-                    femPartGrid->cellCornerVertices( i, hexCorners.data() );
+                    femPartGrid->cellCornerVertices( i, hexCorners );
                     for ( size_t c = 0; c < 8; ++c )
                     {
                         boundingBox.add( hexCorners[c] );

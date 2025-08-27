@@ -455,7 +455,7 @@ std::pair<bool, RimFaultReactivation::ElementSets> RimFaultReactivationDataAcces
                 coordinates[i] = positions[i];
             }
 
-            if ( RigHexIntersectionTools::isPointInCell( point, coordinates.data() ) )
+            if ( RigHexIntersectionTools::isPointInCell( point, coordinates ) )
             {
                 return { true, elementSet };
             }

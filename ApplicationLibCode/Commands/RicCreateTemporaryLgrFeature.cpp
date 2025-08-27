@@ -47,6 +47,7 @@
 #include <cafUtils.h>
 #include <cafVecIjk.h>
 
+#include <array>
 #include <set>
 
 CAF_CMD_SOURCE_INIT( RicCreateTemporaryLgrFeature, "RicCreateTemporaryLgrFeature" );
@@ -242,7 +243,7 @@ void RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, RigMainGri
                 {
                     size_t                    cIdx;
                     std::array<cvf::Vec3d, 8> vertices;
-                    mainGrid->cellCornerVertices( mainCellIndex, vertices.data() );
+                    mainGrid->cellCornerVertices( mainCellIndex, vertices );
 
                     auto cellCounts = lgrInfo.sizesPerMainGridCell();
                     auto lgrCoords = RiaCellDividingTools::createHexCornerCoords( vertices, cellCounts.i(), cellCounts.j(), cellCounts.k() );

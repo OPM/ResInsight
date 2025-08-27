@@ -31,6 +31,8 @@
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"
 
+#include <array>
+
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
 {
@@ -161,7 +163,7 @@ size_t RigMainGrid::findReservoirCellIndexFromPoint( const cvf::Vec3d& point ) c
 
     std::vector<size_t> cellIndices = m_mainGrid->findIntersectingCells( pointBBox );
 
-    cvf::Vec3d hexCorners[8];
+    std::array<cvf::Vec3d, 8> hexCorners;
     for ( size_t cellIndex : cellIndices )
     {
         m_mainGrid->cellCornerVertices( cellIndex, hexCorners );

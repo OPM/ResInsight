@@ -33,6 +33,7 @@
 #include "RigMainGrid.h"
 
 #include <algorithm>
+#include <array>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -263,7 +264,7 @@ double RigEclipseContourMapProjection::calculateOverlapVolume( size_t globalCell
     size_t       localCellIdx = cell.gridLocalCellIndex();
     RigGridBase* localGrid    = cell.hostGrid();
 
-    localGrid->cellCornerVertices( localCellIdx, hexCorners.data() );
+    localGrid->cellCornerVertices( localCellIdx, hexCorners );
 
     cvf::BoundingBox          overlapBBox;
     std::array<cvf::Vec3d, 8> overlapCorners;
@@ -289,7 +290,7 @@ double RigEclipseContourMapProjection::calculateRayLengthInCell( size_t         
     size_t       localCellIdx = cell.gridLocalCellIndex();
     RigGridBase* localGrid    = cell.hostGrid();
 
-    localGrid->cellCornerVertices( localCellIdx, hexCorners.data() );
+    localGrid->cellCornerVertices( localCellIdx, hexCorners );
     std::vector<HexIntersectionInfo> intersections;
 
     if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )

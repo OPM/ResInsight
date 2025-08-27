@@ -60,7 +60,7 @@ struct RigHexIntersectionTools
 
     static bool lineIntersectsHexCell( const cvf::Vec3d p1, const cvf::Vec3d p2, const cvf::Vec3d hexCorners[8] );
 
-    static bool isPointInCell( const cvf::Vec3d point, const cvf::Vec3d hexCorners[8] );
+    static bool isPointInCell( const cvf::Vec3d point, const std::array<cvf::Vec3d, 8>& hexCorners );
 
     static bool planeHexCellIntersection( cvf::Vec3d*                                   hexCorners,
                                           const cvf::Plane&                             fracturePlane,

@@ -28,6 +28,7 @@
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfVector3.h"
+#include <array>
 
 #include <optional>
 #include <string>
@@ -103,7 +104,7 @@ public:
     bool cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override; // unused
     void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const override; // unused
 
-    void       cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8] ) const override;
+    void       cellCornerVertices( size_t cellIndex, std::array<cvf::Vec3d, 8>& vertices ) const override;
     cvf::Vec3d cellCentroid( size_t cellIndex ) const override;
 
     size_t     gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const override;

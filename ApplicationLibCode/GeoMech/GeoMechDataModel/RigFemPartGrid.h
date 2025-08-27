@@ -21,6 +21,8 @@
 
 #include "cvfStructGrid.h"
 
+#include <array>
+
 class RigFemPart;
 
 class RigFemPartGrid : public cvf::StructGridInterface
@@ -41,7 +43,7 @@ public:
     cvf::Vec3i findMainIJKFaces( int elementIndex ) const;
 
     std::pair<cvf::Vec3st, cvf::Vec3st> reservoirIJKBoundingBox() const;
-    void                                cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8] ) const override;
+    void                                cellCornerVertices( size_t cellIndex, std::array<cvf::Vec3d, 8>& vertices ) const override;
     cvf::Vec3d                          cellCentroid( size_t cellIndex ) const override;
 
 private:
