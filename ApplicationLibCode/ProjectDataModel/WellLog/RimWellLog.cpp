@@ -22,6 +22,8 @@
 #include "RimTools.h"
 #include "RimWellLogChannel.h"
 
+#include "Well/RigWellLogData.h"
+
 #include "RiaFieldHandleTools.h"
 #include "RiaQDateTimeTools.h"
 
@@ -78,6 +80,24 @@ void RimWellLog::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
         m_date = RiaQDateTimeTools::createUtcDateTime( m_date().date(), m_date().time() );
     }
 }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLog::updateChannelsFromWellLogData( RigWellLogData* wellLogData )
+{
+    m_wellLogChannels.deleteChildren();
+
+    if ( !wellLogData ) return;
+
+    QStringList wellLogNames = wellLogData->wellLogChannelNames();
+    for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
+    {
+        RimWellLogChannel* wellLog = new RimWellLogChannel();
+        wellLog->setName( wellLogNames[logIdx] );
+        m_wellLogChannels.push_back( wellLog );
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

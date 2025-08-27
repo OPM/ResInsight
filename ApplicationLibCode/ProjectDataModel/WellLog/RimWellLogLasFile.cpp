@@ -142,15 +142,7 @@ bool RimWellLogLasFile::readFile( QString* errorMessage )
         m_date = DEFAULT_DATE_TIME;
     }
 
-    m_wellLogChannels.deleteChildren();
-
-    QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
-    for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
-    {
-        RimWellLogChannel* wellLog = new RimWellLogChannel();
-        wellLog->setName( wellLogNames[logIdx] );
-        m_wellLogChannels.push_back( wellLog );
-    }
+    updateChannelsFromWellLogData( m_wellLogDataFile.p() );
 
     auto fileWellPath = firstAncestorOrThisOfType<RimFileWellPath>();
     if ( fileWellPath )

@@ -110,24 +110,6 @@ void RimImportedWellLog::setWellLogData( RimImportedWellLogData* wellLogData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimImportedWellLog::updateChannelsFromWellLogData( RigImportedWellLogData* wellLogData )
-{
-    m_wellLogChannels.deleteChildren();
-
-    if ( !wellLogData ) return;
-
-    QStringList wellLogNames = wellLogData->wellLogChannelNames();
-    for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
-    {
-        RimWellLogChannel* wellLog = new RimWellLogChannel();
-        wellLog->setName( wellLogNames[logIdx] );
-        m_wellLogChannels.push_back( wellLog );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<std::pair<double, double>>
     RimImportedWellLog::findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString )
 {

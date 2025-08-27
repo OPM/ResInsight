@@ -54,7 +54,6 @@ public:
 private:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
-    void                 updateChannelsFromWellLogData( RigImportedWellLogData* wellLogData );
 
 private:
     // PDM-based data storage for project file persistence
