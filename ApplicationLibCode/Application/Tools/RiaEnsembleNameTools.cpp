@@ -655,6 +655,7 @@ QString RiaEnsembleNameTools::uniqueShortNameFromComponents( const QString&     
             keyComponent = keyComponent.replace( numberGroup, "" );
             QString stem = keyComponent.left( RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
             stem         = stem.remove( "-" );
+            stem         = stem.remove( "_" );
             if ( !stem.isEmpty() ) subComponents.push_back( stem );
             subComponents.push_back( numberGroup );
         }
