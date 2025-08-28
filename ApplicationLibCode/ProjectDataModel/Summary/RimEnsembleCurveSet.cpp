@@ -1206,6 +1206,8 @@ void RimEnsembleCurveSet::childFieldChangedByUi( const caf::PdmFieldHandle* chan
     }
     if ( changedChildField == &m_statistics )
     {
+        computeRealizationColor();
+
         if ( auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>() )
         {
             summaryPlot->loadDataAndUpdate();
@@ -1264,10 +1266,6 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     }
 
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup( "Statistics" );
-
-    bool showStatisticsColor = m_statisticsUseCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::CUSTOM;
-    m_statistics->showColorField( showStatisticsColor );
-
     m_statistics->defaultUiOrdering( isXAxisSummaryVector(), *statGroup );
 
     bool enableIncomplete = true;
@@ -1364,7 +1362,7 @@ void RimEnsembleCurveSet::computeRealizationColor()
 
         m_colorForRealizations = RiaColorTools::fromQColorTo3f( blendedColor );
 
-        if ( m_statisticsUseCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::DEFAULT )
+        if ( !m_statistics->customColor() )
         {
             setStatisticsColor( m_mainEnsembleColor );
         }

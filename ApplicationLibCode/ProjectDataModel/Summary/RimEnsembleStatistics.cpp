@@ -62,6 +62,7 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "" );
 
     CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
+    CAF_PDM_InitField( &m_customColor, "CustomColorColor", false, "Custom Color" );
 
     m_warningLabel.xmlCapability()->disableIO();
     m_warningLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -72,8 +73,6 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
         // Set to always show curves before the version this feature was introduced in
         m_showStatisticsCurveLegends = true;
     }
-
-    m_showColorField = true;
 
     setNotifyAllFieldsInMultiFieldChangedEvents( true );
 }
@@ -185,6 +184,14 @@ void RimEnsembleStatistics::setColor( const cvf::Color3f& color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::customColor() const
+{
+    return m_customColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatistics::includeIncompleteCurves() const
 {
     return m_includeIncompleteCurves;
@@ -241,14 +248,6 @@ void RimEnsembleStatistics::disableMeanCurve( bool disable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatistics::showColorField( bool show )
-{
-    m_showColorField = show;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::defaultUiOrdering( bool showCrossPlotGroup, caf::PdmUiOrdering& uiOrdering )
 {
     auto curveSet = m_parentCurveSet;
@@ -268,7 +267,8 @@ void RimEnsembleStatistics::defaultUiOrdering( bool showCrossPlotGroup, caf::Pdm
         crossPlotGroup->add( &m_crossPlotCurvesStatisticsRealizationCountThresholdPerBin );
     }
 
-    if ( m_showColorField ) uiOrdering.add( &m_color );
+    uiOrdering.add( &m_customColor );
+    if ( m_customColor() ) uiOrdering.add( &m_color );
 
     auto group = uiOrdering.addNewGroup( "Curves" );
     if ( !curveSet->hasMeanData() ) group->add( &m_warningLabel );
