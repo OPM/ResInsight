@@ -437,7 +437,6 @@ void RiaGuiApplication::initialize()
         RiaLogging::appendLoggerInstance( std::move( logger ) );
     }
 
-    if ( RiaPreferencesSystem::current()->logToFile() )
     {
         auto logFolder  = QDir::homePath() + "/.resinsight/logs";
         auto fileLogger = std::make_unique<RiaFileLogger>( logFolder.toStdString() );

@@ -71,9 +71,6 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProjectChangedDialog );
 
-    CAF_PDM_InitField( &m_logToFile, "logToFile", true, "Write Log Files in Home Folder" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_logToFile );
-
     CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProgressBar );
 
@@ -245,14 +242,6 @@ std::optional<int> RiaPreferencesSystem::threadCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferencesSystem::logToFile() const
-{
-    return m_logToFile();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTextFileReaderMode() const
 {
     return m_eclipseReaderMode();
@@ -290,7 +279,6 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         group->add( &m_showHud );
     }
 
-    uiOrdering.add( &m_logToFile );
     uiOrdering.add( &m_showProjectChangedDialog );
     uiOrdering.add( &m_showTestToolbar );
     uiOrdering.add( &m_includeFractureDebugInfoFile );
