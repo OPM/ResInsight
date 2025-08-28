@@ -500,6 +500,11 @@ void RimEnsembleCurveFilter::initAfterRead()
     {
         m_valueRange = std::pair<double, double>( m_minValue_OBSOLETE, m_maxValue_OBSOLETE );
     };
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.04.0" ) )
+    {
+        m_filterMode = FilterMode::ENSEMBLE_PARAMETER;
+    };
 }
 
 //--------------------------------------------------------------------------------------------------
