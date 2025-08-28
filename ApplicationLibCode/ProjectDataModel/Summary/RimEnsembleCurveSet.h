@@ -320,4 +320,6 @@ private:
     QList<caf::PdmOptionItemInfo> m_cachedAddressOptions;
     size_t                        m_hash;
     size_t                        m_realizationHash;
+
+    caf::PdmField<cvf::Color3f> m_colorForRealizations_OBSOLETE;
 };

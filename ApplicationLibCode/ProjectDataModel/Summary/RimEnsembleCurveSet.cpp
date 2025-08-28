@@ -154,6 +154,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode" );
 
+    CAF_PDM_InitFieldNoDefault( &m_colorForRealizations_OBSOLETE, "Color", "Color" );
+    m_colorForRealizations_OBSOLETE.xmlCapability()->setIOWritable( false );
+
     CAF_PDM_InitField( &m_mainEnsembleColor, "MainEnsembleColor", RiaColorTools::textColor3f(), "Color" );
     CAF_PDM_InitField( &m_colorOpacity, "ColorTransparency", 0.8, "Opacity [0..1]" );
     m_colorOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -2710,6 +2713,14 @@ void RimEnsembleCurveSet::setBottomOrTopAxisX( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::initAfterRead()
 {
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.09" ) )
+    {
+        if ( m_colorMode == ColorMode::SINGLE_COLOR )
+        {
+            m_mainEnsembleColor = m_colorForRealizations_OBSOLETE;
+        }
+    }
+
     if ( m_yPlotAxisProperties.value() == nullptr )
     {
         auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
