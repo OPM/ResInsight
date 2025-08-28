@@ -76,7 +76,7 @@ std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySo
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* createCurveSet( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& addr )
 {
-    auto curveSet = new RimEnsembleCurveSet();
+    auto curveSet = RimEnsembleCurveSet::createObject();
 
     curveSet->setSummaryEnsemble( ensemble );
     curveSet->setSummaryAddressYAndStatisticsFlag( addr );
@@ -518,7 +518,7 @@ void appendCurvesToPlot( RimSummaryPlot*                           summaryPlot,
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* addNewEnsembleCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryEnsemble* ensemble )
 {
-    auto* curveSet = new RimEnsembleCurveSet();
+    auto* curveSet = RimEnsembleCurveSet::createObject();
 
     curveSet->setSummaryEnsemble( ensemble );
     curveSet->setCurveAddress( curveAddress );

@@ -422,7 +422,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
             }
             if ( !curveSet )
             {
-                curveSet = new RimEnsembleCurveSet();
+                curveSet = RimEnsembleCurveSet::createObject();
                 curveSet->disableStatisticCurves();
                 curveSet->setSummaryEnsemble( curveDef.ensemble() );
 

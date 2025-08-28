@@ -21,12 +21,14 @@
 #include "RiaFileSearchTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RifSummaryCaseRestartSelector.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 
@@ -261,6 +263,50 @@ QStringList getMatchingFiles( const QString& basePath, const QString& regexPatte
 
     return filePaths;
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* createEnsembleCurveSet( const QString& templateFilePath )
+{
+    QFile importFile( templateFilePath );
+    if ( !importFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
+        RiaLogging::error( QString( "Create Plot from Template : Could not open the file: %1" ).arg( templateFilePath ) );
+        return nullptr;
+    }
+
+    QTextStream stream( &importFile );
+    QString     objectAsText = stream.readAll();
+
+    if ( auto obj = caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance(), true ) )
+    {
+        // Create a unique pointer to ensure proper deletion of obj in case of early return
+        auto uniquePtr = std::unique_ptr<caf::PdmObjectHandle>( obj );
+
+        auto ensembleCurveSets = obj->descendantsOfType<RimEnsembleCurveSet>();
+        if ( !ensembleCurveSets.empty() )
+        {
+            auto sourceCurveSet = ensembleCurveSets.front();
+            if ( sourceCurveSet->xmlCapability() )
+            {
+                auto copy = sourceCurveSet->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() );
+                if ( auto curveSetCopy = dynamic_cast<RimEnsembleCurveSet*>( copy ) )
+                {
+                    // Do not delete the copied object, this will be the returned object
+                    return curveSetCopy;
+                }
+                else
+                {
+                    // We did not get a copy as expected, make sure to delete the original object to avoid memory leak
+                    delete copy;
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Find all files matching the path pattern in the file system

@@ -23,6 +23,7 @@
 #include <QStringList>
 
 class RimSummaryCase;
+class RimEnsembleCurveSet;
 
 namespace RiaEnsembleImportTools
 {
@@ -43,5 +44,7 @@ QStringList createPathsBySearchingFileSystem_obsolete( const QString& pathPatter
                                                        const QString& enumerationString );
 QStringList createPathsBySearchingFileSystem( const QString& pathPattern, const QString& extension, const QString& placeholderString );
 QStringList getMatchingFiles( const QString& basePath, const QString& regexPattern );
+
+RimEnsembleCurveSet* createEnsembleCurveSet( const QString& templateFilePath );
 
 } // namespace RiaEnsembleImportTools

@@ -88,11 +88,13 @@ public:
     using LineStyle          = caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>;
     using PointSymbol        = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>;
 
+    caf::Signal<> filterChanged;
+
 public:
     RimEnsembleCurveSet();
     ~RimEnsembleCurveSet() override;
 
-    caf::Signal<> filterChanged;
+    static RimEnsembleCurveSet* createObject();
 
     QString name() const;
 

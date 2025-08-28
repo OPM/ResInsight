@@ -554,7 +554,7 @@ RimEnsembleCurveSet* RicSummaryPlotFeatureImpl::createCurveSet( RimSummaryEnsemb
                                                                 EnsembleColoringType            ensembleColoringStyle,
                                                                 QString                         ensembleColoringParameter )
 {
-    auto curveSet = new RimEnsembleCurveSet();
+    auto curveSet = RimEnsembleCurveSet::createObject();
 
     curveSet->setSummaryEnsemble( ensemble );
     curveSet->setSummaryAddressYAndStatisticsFlag( addr );

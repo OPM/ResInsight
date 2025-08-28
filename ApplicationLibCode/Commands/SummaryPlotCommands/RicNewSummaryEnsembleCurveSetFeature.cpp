@@ -94,7 +94,7 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addCurveSet( RimSumma
 {
     if ( !plot || !ensemble ) return nullptr;
 
-    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+    RimEnsembleCurveSet* curveSet = RimEnsembleCurveSet::createObject();
 
     // Use same counting as RicNewSummaryCurveFeature::onActionTriggered
     auto colorIndex = plot->singleColorCurveCount();

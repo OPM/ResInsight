@@ -18,10 +18,12 @@
 
 #include "RimEnsembleCurveSet.h"
 
+#include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaHashTools.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaTimeTTools.h"
@@ -292,6 +294,23 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
         m_objectiveFunctionOverlayFrame->setParent( nullptr );
         delete m_objectiveFunctionOverlayFrame;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* RimEnsembleCurveSet::createObject()
+{
+    auto filePath = RiaPreferencesSummary::current()->ensembleCurveSetTemplateFilePath();
+    if ( !filePath.isEmpty() )
+    {
+        if ( auto obj = RiaEnsembleImportTools::createEnsembleCurveSet( filePath ) )
+        {
+            return obj;
+        }
+    }
+
+    return new RimEnsembleCurveSet;
 }
 
 //--------------------------------------------------------------------------------------------------

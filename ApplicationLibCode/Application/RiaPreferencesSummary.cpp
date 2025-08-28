@@ -201,6 +201,8 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "historyCurveContrastColor",
                        RiaColorTables::historyCurveContrastColor(),
                        "History Curve Color" );
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetTemplateFilePath, "ensembleCurveSetTemplateFilePath", "Curve Set Template" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,6 +302,7 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
     }
 
     uiOrdering.add( &m_crossPlotAddressCombinations );
+    uiOrdering.add( &m_ensembleCurveSetTemplateFilePath );
 
     auto historyCurveGroup = uiOrdering.addNewGroup( "History Vectors" );
 
@@ -563,6 +566,14 @@ RiaDefines::RowCount RiaPreferencesSummary::defaultMultiPlotRowCount() const
 cvf::Color3f RiaPreferencesSummary::historyCurveContrastColor() const
 {
     return m_historyCurveContrastColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesSummary::ensembleCurveSetTemplateFilePath() const
+{
+    return m_ensembleCurveSetTemplateFilePath().path().trimmed();
 }
 
 //--------------------------------------------------------------------------------------------------
