@@ -52,6 +52,7 @@ public:
 
     cvf::Color3f color() const { return m_color; }
     void         setColor( const cvf::Color3f& color );
+    bool         customColor() const;
 
     bool includeIncompleteCurves() const;
 
@@ -62,8 +63,6 @@ public:
     void disableP50Curve( bool disable );
     void disableP90Curve( bool disable );
     void disableMeanCurve( bool disable );
-
-    void showColorField( bool show );
 
     void defaultUiOrdering( bool showCrossPlotGroup, caf::PdmUiOrdering& uiOrdering );
 
@@ -87,6 +86,7 @@ private:
     caf::PdmField<bool>           m_showMeanCurve;
     caf::PdmField<bool>           m_showCurveLabels;
     caf::PdmField<bool>           m_includeIncompleteCurves;
+    caf::PdmField<bool>           m_customColor;
 
     // Ensemble cross plot settings
     caf::PdmField<int> m_crossPlotCurvesBinCount;
@@ -94,6 +94,5 @@ private:
 
     caf::PdmField<QString> m_warningLabel;
 
-    bool                        m_showColorField;
     caf::PdmField<cvf::Color3f> m_color;
 };
