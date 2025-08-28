@@ -24,6 +24,7 @@ class RimHistogramDataSource;
 class RimHistogramPlot;
 class RimHistogramMultiPlot;
 class RimHistogramMultiPlotCollection;
+class RimEnsembleParameterHistogramDataSource;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,8 +44,12 @@ public:
 
     static void createDefaultHistogramCurve( RimHistogramPlot* plot, DataSourceType dataSourceType );
     static void createHistogramCurve( RimHistogramPlot* plot, RimHistogramDataSource* dataSource );
+    static void appendEnsembleParameterHistogramCurve( RimHistogramPlot* plot, RimEnsembleParameterHistogramDataSource* dataSource );
 
     static RimHistogramMultiPlot* addNewHistogramMultiplot();
     static RimHistogramMultiPlot* addNewHistogramMultiplot( RimHistogramMultiPlotCollection* collection );
     static RimHistogramPlot*      addNewHistogramPlot( RimHistogramMultiPlot* histogramMultiPlot );
+
+private:
+    static std::vector<RimHistogramDataSource*> existingDataSources( RimHistogramPlot* plot );
 };

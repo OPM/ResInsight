@@ -154,3 +154,42 @@ RimHistogramPlot* RicHistogramPlotTools::addNewHistogramPlot( RimHistogramMultiP
 
     return plot;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimHistogramDataSource*> RicHistogramPlotTools::existingDataSources( RimHistogramPlot* plot )
+{
+    std::vector<RimHistogramDataSource*> sources;
+
+    for ( auto curve : plot->histogramCurves() )
+    {
+        sources.push_back( curve->dataSource() );
+    }
+
+    return sources;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramPlot* plot, RimEnsembleParameterHistogramDataSource* dataSource )
+{
+    RimEnsembleParameterHistogramDataSource* copyFromSource = nullptr;
+    for ( auto source : existingDataSources( plot ) )
+    {
+        if ( auto histSource = dynamic_cast<RimEnsembleParameterHistogramDataSource*>( source ) )
+        {
+            // check for duplicate
+            if ( histSource->ensemble() == dataSource->ensemble() ) return;
+            copyFromSource = histSource;
+        }
+    }
+
+    if ( copyFromSource != nullptr )
+    {
+        dataSource->setEnsembleParameter( copyFromSource->ensembleParameter() );
+    }
+
+    createHistogramCurve( plot, dataSource );
+}

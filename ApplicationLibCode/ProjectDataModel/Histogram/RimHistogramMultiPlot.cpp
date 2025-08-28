@@ -341,6 +341,8 @@ void RimHistogramMultiPlot::initAfterRead()
         plot->titleChanged.connect( this, &RimHistogramMultiPlot::onSubPlotChanged );
         plot->autoTitleChanged.connect( this, &RimHistogramMultiPlot::onSubPlotAutoTitleChanged );
     }
+
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

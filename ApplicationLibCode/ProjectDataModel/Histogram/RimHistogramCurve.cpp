@@ -80,6 +80,14 @@ RimHistogramCurve::~RimHistogramCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::initAfterRead()
+{
+    setDataSource( m_dataSource );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimHistogramCurve::setTopOrBottomAxisX( RiuPlotAxis plotAxis )
 {
     CAF_ASSERT( plotAxis.isHorizontal() );
@@ -100,6 +108,14 @@ void RimHistogramCurve::setDataSource( RimHistogramDataSource* dataSource )
         m_dataSource->uiCapability()->setUiTreeHidden( true );
         m_dataSource->dataSourceChanged.connect( this, &RimHistogramCurve::onDataSourceChanged );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimHistogramDataSource* RimHistogramCurve::dataSource() const
+{
+    return m_dataSource;
 }
 
 //--------------------------------------------------------------------------------------------------

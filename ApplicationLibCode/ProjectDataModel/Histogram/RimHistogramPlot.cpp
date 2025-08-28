@@ -20,12 +20,18 @@
 
 #include "RiaLogging.h"
 #include "RiaPlotDefines.h"
+#include "Summary/RiaSummaryTools.h"
 
+#include "RicHistogramPlotTools.h"
+
+#include "Histogram/RimEnsembleParameterHistogramDataSource.h"
+#include "Histogram/RimEnsembleSummaryVectorHistogramDataSource.h"
 #include "RimHistogramCurve.h"
 #include "RimHistogramCurveCollection.h"
 #include "RimMultiPlot.h"
 #include "RimPlotAxisLogRangeCalculator.h"
 #include "Summary/Ensemble/RimSummaryFileSetEnsemble.h"
+#include "Summary/RimSummaryAddress.h"
 #include "Tools/RimPlotAxisTools.h"
 
 #include "RiuPlotAxis.h"
@@ -127,6 +133,26 @@ RimHistogramPlot::~RimHistogramPlot()
     removeMdiWindowFromMdiArea();
 
     deletePlotCurvesAndPlotWidget();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramPlot::initAfterRead()
+{
+    for ( auto curve : histogramCurves() )
+    {
+        connectCurveSignals( curve );
+    }
+
+    for ( const auto& axisProperties : m_axisPropertiesArray )
+    {
+        auto plotAxisProperties = dynamic_cast<RimPlotAxisProperties*>( axisProperties.p() );
+        if ( plotAxisProperties )
+        {
+            connectAxisSignals( plotAxisProperties );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1288,6 +1314,29 @@ void RimHistogramPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHan
     {
         if ( auto fileSet = dynamic_cast<RimSummaryFileSetEnsemble*>( obj ) )
         {
+            auto newDataSource = new RimEnsembleParameterHistogramDataSource();
+            newDataSource->setDefaults();
+            newDataSource->setEnsemble( fileSet );
+
+            RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( this, newDataSource );
+        }
+        else if ( auto address = dynamic_cast<RimSummaryAddress*>( obj ) )
+        {
+            if ( !address->isEnsemble() ) continue;
+
+            auto newDataSource = new RimEnsembleSummaryVectorHistogramDataSource();
+            newDataSource->setDefaults();
+            auto fileAddress = address->address();
+            newDataSource->setSummaryAddress( fileAddress );
+
+            {
+                auto ensemble = RiaSummaryTools::ensembleById( address->ensembleId() );
+                newDataSource->setEnsemble( ensemble );
+            }
+
+            RicHistogramPlotTools::createHistogramCurve( this, newDataSource );
         }
     }
+
+    scheduleReplotIfVisible();
 }

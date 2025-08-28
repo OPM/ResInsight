@@ -60,6 +60,8 @@ public:
     void setDataSource( RimHistogramDataSource* dataSource );
     void setAppearanceFromGraphType( RimHistogramPlot::GraphType graphType );
 
+    RimHistogramDataSource* dataSource() const;
+
 protected:
     // RimPlotCurve overrides
     QString createCurveAutoName() override;
@@ -81,6 +83,8 @@ protected:
     void hideXAxisGroup();
 
     void onDataSourceChanged( const caf::SignalEmitter* emitter );
+
+    void initAfterRead() override;
 
 private:
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;

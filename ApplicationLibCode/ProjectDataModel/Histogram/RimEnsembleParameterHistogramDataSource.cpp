@@ -203,9 +203,25 @@ void RimEnsembleParameterHistogramDataSource::setEnsembleParameter( const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimEnsembleParameterHistogramDataSource::ensembleParameter() const
+{
+    return m_parameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleParameterHistogramDataSource::setEnsemble( RimSummaryEnsemble* ensemble )
 {
     m_ensemble = ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryEnsemble* RimEnsembleParameterHistogramDataSource::ensemble() const
+{
+    return m_ensemble;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -37,8 +37,11 @@ public:
     RimEnsembleParameterHistogramDataSource();
     ~RimEnsembleParameterHistogramDataSource() override;
 
-    void setEnsembleParameter( const QString& ensembleParameter );
-    void setEnsemble( RimSummaryEnsemble* ensemble );
+    void    setEnsembleParameter( const QString& ensembleParameter );
+    QString ensembleParameter() const;
+
+    void                setEnsemble( RimSummaryEnsemble* ensemble );
+    RimSummaryEnsemble* ensemble() const;
 
     std::string unitNameX() const override;
     std::string unitNameY() const override;
