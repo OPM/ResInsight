@@ -360,7 +360,12 @@ void RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum theme )
         widget->style()->polish( widget );
         if ( caf::PdmUiTreeViewWidget* treeViewWidget = dynamic_cast<caf::PdmUiTreeViewWidget*>( widget ) )
         {
-            treeViewWidget->setStyle( new caf::PdmUiTreeViewStyle );
+            // Only set a new style if the widget doesn't already have a PdmUiTreeViewStyle
+            // to prevent memory leaks from repeatedly creating new styles
+            if ( !dynamic_cast<caf::PdmUiTreeViewStyle*>( treeViewWidget->style() ) )
+            {
+                treeViewWidget->setStyle( new caf::PdmUiTreeViewStyle );
+            }
         }
     }
 }
