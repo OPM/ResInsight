@@ -49,9 +49,6 @@ public:
 
     static void createDefaultHistogramCurve( RimHistogramPlot* plot, DataSourceType dataSourceType );
     static void createHistogramCurve( RimHistogramPlot* plot, RimHistogramDataSource* dataSource );
-    // static void appendEnsembleParameterHistogramCurve( RimHistogramPlot*                        plot,
-    //                                                    RimEnsembleParameterHistogramDataSource* dataSource,
-    //                                                    QString                                  parameter );
     static void appendEnsembleParameterHistogramCurve( RimHistogramPlot* plot, RimEnsembleParameterHistogramDataSource* dataSource );
     static void addHistogramCurveToPlot( RimHistogramPlot* plot, RimHistogramCurve* curve, bool resolveRefs = false );
 
