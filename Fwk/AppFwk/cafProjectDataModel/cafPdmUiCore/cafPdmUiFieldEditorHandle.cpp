@@ -63,13 +63,13 @@ PdmUiFieldEditorHandle::PdmUiFieldEditorHandle()
 //--------------------------------------------------------------------------------------------------
 PdmUiFieldEditorHandle::~PdmUiFieldEditorHandle()
 {
-    // Note : deleteLater will not work unless you are actually inside an event loop.
-    // See https://doc.qt.io/qt-5/qobject.html#deleteLater
-    // Although it states that they will be deleted at startup of the event loop, it seems as that is not happening.
+    // Use immediate deletion instead of deleteLater() to prevent memory leaks.
+    // deleteLater() doesn't work properly during application shutdown when the
+    // event loop may not process the delayed deletions, causing QWidgetItem leaks.
 
-    if ( !m_combinedWidget.isNull() ) m_combinedWidget->deleteLater();
-    if ( !m_editorWidget.isNull() ) m_editorWidget->deleteLater();
-    if ( !m_labelWidget.isNull() ) m_labelWidget->deleteLater();
+    if ( !m_combinedWidget.isNull() ) delete m_combinedWidget;
+    if ( !m_editorWidget.isNull() ) delete m_editorWidget;
+    if ( !m_labelWidget.isNull() ) delete m_labelWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
