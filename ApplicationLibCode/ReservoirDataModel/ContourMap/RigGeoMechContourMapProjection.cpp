@@ -381,3 +381,12 @@ std::vector<double> RigGeoMechContourMapProjection::gridCellValues( RigFemResult
     }
     return gridCellValues;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGeoMechContourMapProjection::isCellActive( size_t globalCellIdx ) const
+{
+    // For GeoMech grids, all cells are considered active
+    return true;
+}

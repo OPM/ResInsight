@@ -65,6 +65,7 @@ public:
                                                                  RigFloodingSettings&                           floodingSettings );
 
     std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) override;
+    bool              isCellActive( size_t globalCellIdx ) const override;
 
 protected:
     using CellIndexAndResult = RigContourMapProjection::CellIndexAndResult;

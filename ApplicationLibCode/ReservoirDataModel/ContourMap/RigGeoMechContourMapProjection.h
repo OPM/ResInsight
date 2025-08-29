@@ -59,6 +59,8 @@ public:
     std::vector<bool> getMapCellVisibility( RigFemResultAddress                            resAddr,
                                             int                                            viewStepIndex,
                                             RigContourMapCalculator::ResultAggregationType resultAggregation );
+    
+    bool isCellActive( size_t globalCellIdx ) const override;
 
 protected:
     // GeoMech implementation specific data generation methods
