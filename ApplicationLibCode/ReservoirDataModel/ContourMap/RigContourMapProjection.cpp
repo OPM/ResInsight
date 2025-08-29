@@ -420,6 +420,29 @@ double RigContourMapProjection::calculateValueAtVertex( unsigned int vi, unsigne
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigContourMapProjection::contourMapCellContainsOnlyInactiveCells( unsigned int i, unsigned int j ) const
+{
+    const std::vector<CellIndexAndResult>& matchingCells = cellsAtIJ( i, j );
+
+    if ( matchingCells.empty() )
+    {
+        return true;
+    }
+
+    for ( const auto& cellResult : matchingCells )
+    {
+        if ( isCellActive( cellResult.first ) )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, double>> RigContourMapProjection::cellsAtIJ( unsigned int i, unsigned int j ) const
 {
     size_t cellIndex = m_contourMapGrid.cellIndexFromIJ( i, j );

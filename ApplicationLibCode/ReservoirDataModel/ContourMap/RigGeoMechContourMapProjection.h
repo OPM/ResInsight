@@ -60,6 +60,8 @@ public:
                                             int                                            viewStepIndex,
                                             RigContourMapCalculator::ResultAggregationType resultAggregation );
 
+    bool isCellActive( size_t globalCellIdx ) const override;
+
 protected:
     // GeoMech implementation specific data generation methods
     std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const override;

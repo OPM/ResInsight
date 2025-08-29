@@ -139,3 +139,12 @@ std::vector<std::pair<size_t, double>> RigStatisticsContourMapProjection::cellsA
 
     return std::vector<std::pair<size_t, double>>();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigStatisticsContourMapProjection::isCellActive( size_t globalCellIdx ) const
+{
+    // For statistics projections, all cells are considered active
+    return true;
+}

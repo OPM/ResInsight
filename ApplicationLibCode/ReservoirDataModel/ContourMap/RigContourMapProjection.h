@@ -84,6 +84,7 @@ public:
     virtual double calculateRayLengthInCell( size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint ) const = 0;
     virtual double getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const = 0;
     virtual std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) = 0;
+    virtual bool isCellActive( size_t globalCellIdx ) const = 0;
 
     void                      setCellVisibility( cvf::ref<cvf::UByteArray> cellVisibility );
     cvf::ref<cvf::UByteArray> getCellVisibility() const;
@@ -116,6 +117,7 @@ protected:
     double valueInCell( unsigned int i, unsigned int j ) const;
     bool   hasResultInCell( unsigned int i, unsigned int j ) const;
     double calculateValueAtVertex( unsigned int i, unsigned int j ) const;
+    bool   contourMapCellContainsOnlyInactiveCells( unsigned int i, unsigned int j ) const;
 
 protected:
     cvf::ref<cvf::UByteArray>                           m_cellGridIdxVisibility;

@@ -328,6 +328,19 @@ size_t RigEclipseContourMapProjection::gridResultIndex( size_t globalCellIdx ) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigEclipseContourMapProjection::isCellActive( size_t globalCellIdx ) const
+{
+    if ( m_useActiveCellInfo && m_activeCellInfo.notNull() )
+    {
+        return m_activeCellInfo->isActive( globalCellIdx );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<bool> RigEclipseContourMapProjection::getMapCellVisibility( int                                            viewStepIndex,
                                                                         RigContourMapCalculator::ResultAggregationType resultAggregation )
 
