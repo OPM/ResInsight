@@ -45,6 +45,7 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "Summary/Ensemble/RimSummaryEnsembleParameter.h"
 
 #include "RiuMainWindow.h"
 
@@ -246,9 +247,9 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
             if ( wellAllocationPlot ) return itemflags;
         }
 
-        if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
-             dynamic_cast<RimWellLogChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) || dynamic_cast<RimSummaryCase*>( uiItem ) ||
-             dynamic_cast<RimSummaryEnsemble*>( uiItem ) || dynamic_cast<RimSurface*>( uiItem ) )
+        if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) || dynamic_cast<RimWellLogChannel*>( uiItem ) ||
+             dynamic_cast<RimPlot*>( uiItem ) || dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryEnsemble*>( uiItem ) ||
+             dynamic_cast<RimSurface*>( uiItem ) || dynamic_cast<RimSummaryEnsembleParameter*>( uiItem ) )
         {
             itemflags |= Qt::ItemIsDragEnabled;
         }

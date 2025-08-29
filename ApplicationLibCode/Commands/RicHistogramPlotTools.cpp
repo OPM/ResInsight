@@ -181,7 +181,10 @@ void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramP
         if ( auto histSource = dynamic_cast<RimEnsembleParameterHistogramDataSource*>( source ) )
         {
             // check for duplicate
-            if ( histSource->ensemble() == dataSource->ensemble() ) return;
+            if ( ( histSource->ensemble() == dataSource->ensemble() ) )
+            {
+                return;
+            }
             copyFromSource = histSource;
         }
     }
@@ -190,6 +193,30 @@ void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramP
     {
         dataSource->setEnsembleParameter( copyFromSource->ensembleParameter() );
     }
+
+    createHistogramCurve( plot, dataSource );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramPlot*                        plot,
+                                                                   RimEnsembleParameterHistogramDataSource* dataSource,
+                                                                   QString                                  parameter )
+{
+    for ( auto source : existingDataSources( plot ) )
+    {
+        if ( auto histSource = dynamic_cast<RimEnsembleParameterHistogramDataSource*>( source ) )
+        {
+            // check for duplicate
+            if ( ( histSource->ensemble() == dataSource->ensemble() ) && ( histSource->ensembleParameter() == parameter ) )
+            {
+                return;
+            }
+        }
+    }
+
+    dataSource->setEnsembleParameter( parameter );
 
     createHistogramCurve( plot, dataSource );
 }

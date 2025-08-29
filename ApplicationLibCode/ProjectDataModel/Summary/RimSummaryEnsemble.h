@@ -40,6 +40,7 @@
 class RimSummaryCase;
 class RimSummaryAddressCollection;
 class RiaSummaryAddressAnalyzer;
+class RimSummaryEnsembleParameterCollection;
 
 //==================================================================================================
 ///
@@ -166,6 +167,8 @@ private:
     caf::PdmProxyValueField<QString>                 m_nameAndItemCount;
     caf::PdmField<bool>                              m_isEnsemble;
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
+
+    caf::PdmChildField<RimSummaryEnsembleParameterCollection*> m_ensembleParameters;
 
     caf::PdmField<int> m_ensembleId;
 

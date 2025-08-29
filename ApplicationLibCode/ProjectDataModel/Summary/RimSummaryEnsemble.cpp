@@ -25,6 +25,7 @@
 #include "RiaStatisticsTools.h"
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
+#include "Summary/Ensemble/RimSummaryEnsembleParameterCollection.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -90,6 +91,12 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     m_dataVectorFolders.uiCapability()->setUiHidden( true );
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleParameters, "EnsembleParameters", "Ensemble Parameters" );
+    m_ensembleParameters = new RimSummaryEnsembleParameterCollection();
+    m_ensembleParameters.uiCapability()->setUiHidden( true );
+    m_ensembleParameters->uiCapability()->setUiTreeHidden( true );
+    m_ensembleParameters.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleDescription, "Description", "Description" );
     m_ensembleDescription.registerGetMethod( this, &RimSummaryEnsemble::ensembleDescription );
@@ -1000,6 +1007,8 @@ void RimSummaryEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
             }
         }
 
+        m_ensembleParameters->updateUiTreeOrdering( uiTreeOrdering );
+
         uiTreeOrdering.skipRemainingChildren( true );
     }
 }
@@ -1182,6 +1191,14 @@ void RimSummaryEnsemble::buildChildNodes()
     if ( m_dataVectorFolders->isEmpty() )
     {
         m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
+    }
+    if ( m_ensembleParameters->isEmpty() )
+    {
+        m_ensembleParameters->setEnsembleId( ensembleId() );
+        for ( auto& ensPar : variationSortedEnsembleParameters() )
+        {
+            m_ensembleParameters->addParameter( ensPar.name, false /*check duplicate*/ );
+        }
     }
 }
 

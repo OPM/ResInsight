@@ -1,0 +1,13 @@
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+  <!-- First slider line -->
+  <rect x="8" y="20" width="48" height="5" fill="black" />
+  <!-- First slider knob -->
+  <circle cx="36" cy="22" r="8" fill="black" />
+  <circle cx="36" cy="22" r="4" fill="lightgray" />
+
+  <!-- Second slider line -->
+  <rect x="8" y="40" width="48" height="5" fill="black" />
+  <!-- Second slider knob -->
+  <circle cx="26" cy="42" r="8" fill="black" />
+  <circle cx="26" cy="42" r="4" fill="lightgray" />
+</svg>

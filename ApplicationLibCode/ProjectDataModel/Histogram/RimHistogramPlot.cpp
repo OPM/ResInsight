@@ -30,6 +30,7 @@
 #include "RimHistogramCurveCollection.h"
 #include "RimMultiPlot.h"
 #include "RimPlotAxisLogRangeCalculator.h"
+#include "Summary/Ensemble/RimSummaryEnsembleParameter.h"
 #include "Summary/Ensemble/RimSummaryFileSetEnsemble.h"
 #include "Summary/RimSummaryAddress.h"
 #include "Tools/RimPlotAxisTools.h"
@@ -1320,19 +1321,29 @@ void RimHistogramPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHan
 
             RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( this, newDataSource );
         }
+        else if ( auto parameter = dynamic_cast<RimSummaryEnsembleParameter*>( obj ) )
+        {
+            auto ensemble = RiaSummaryTools::ensembleById( parameter->ensembleId() );
+            if ( ensemble == nullptr ) continue;
+
+            auto newDataSource = new RimEnsembleParameterHistogramDataSource();
+            newDataSource->setDefaults();
+            newDataSource->setEnsemble( ensemble );
+
+            RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( this, newDataSource, parameter->name() );
+        }
         else if ( auto address = dynamic_cast<RimSummaryAddress*>( obj ) )
         {
             if ( !address->isEnsemble() ) continue;
+
+            auto ensemble = RiaSummaryTools::ensembleById( address->ensembleId() );
+            if ( ensemble == nullptr ) continue;
 
             auto newDataSource = new RimEnsembleSummaryVectorHistogramDataSource();
             newDataSource->setDefaults();
             auto fileAddress = address->address();
             newDataSource->setSummaryAddress( fileAddress );
-
-            {
-                auto ensemble = RiaSummaryTools::ensembleById( address->ensembleId() );
-                newDataSource->setEnsemble( ensemble );
-            }
+            newDataSource->setEnsemble( ensemble );
 
             RicHistogramPlotTools::createHistogramCurve( this, newDataSource );
         }
