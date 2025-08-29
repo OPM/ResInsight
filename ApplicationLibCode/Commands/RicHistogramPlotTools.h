@@ -27,6 +27,7 @@ class RimHistogramPlot;
 class RimHistogramMultiPlot;
 class RimHistogramMultiPlotCollection;
 class RimEnsembleParameterHistogramDataSource;
+class RimHistogramCurve;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,6 +51,7 @@ public:
                                                        RimEnsembleParameterHistogramDataSource* dataSource,
                                                        QString                                  parameter );
     static void appendEnsembleParameterHistogramCurve( RimHistogramPlot* plot, RimEnsembleParameterHistogramDataSource* dataSource );
+    static void addHistogramCurveToPlot( RimHistogramPlot* plot, RimHistogramCurve* curve, bool resolveRefs = false );
 
     static RimHistogramMultiPlot* addNewHistogramMultiplot();
     static RimHistogramMultiPlot* addNewHistogramMultiplot( RimHistogramMultiPlotCollection* collection );

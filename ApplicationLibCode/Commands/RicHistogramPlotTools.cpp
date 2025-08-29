@@ -101,15 +101,7 @@ void RicHistogramPlotTools::createHistogramCurve( RimHistogramPlot* plot, RimHis
     newCurve->setColor( curveColor );
     newCurve->setFillColor( curveColor );
 
-    plot->addCurveNoUpdate( newCurve );
-
-    plot->loadDataAndUpdate();
-    plot->updateConnectedEditors();
-
-    RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
-    mainPlotWindow->updateMultiPlotToolBar();
-
-    RiuPlotMainWindowTools::onObjectAppended( newCurve, plot );
+    RicHistogramPlotTools::addHistogramCurveToPlot( plot, newCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,4 +211,26 @@ void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramP
     dataSource->setEnsembleParameter( parameter );
 
     createHistogramCurve( plot, dataSource );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHistogramPlotTools::addHistogramCurveToPlot( RimHistogramPlot* plot, RimHistogramCurve* curve, bool resolveRefs )
+{
+    RiaGuiApplication* app     = RiaGuiApplication::instance();
+    RimProject*        project = app->project();
+    if ( project == nullptr ) return;
+
+    plot->addCurveNoUpdate( curve );
+
+    if ( resolveRefs ) curve->resolveReferencesRecursively();
+
+    plot->loadDataAndUpdate();
+    plot->updateConnectedEditors();
+
+    RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
+    mainPlotWindow->updateMultiPlotToolBar();
+
+    RiuPlotMainWindowTools::onObjectAppended( curve, plot );
 }

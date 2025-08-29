@@ -25,6 +25,7 @@
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Histogram/RimHistogramCurve.h"
 #include "Histogram/RimHistogramMultiPlot.h"
 #include "Histogram/RimHistogramPlot.h"
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
@@ -992,6 +993,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimHistogramPlot*>( firstUiItem ) )
         {
+            menuBuilder << "RicPasteHistogramCurveFeature";
             menuBuilder.subMenuStart( "New Histogram Curve" );
 
             for ( RicHistogramPlotTools::DataSourceType dataSourceType : RicHistogramPlotTools::allDataSourceTypes() )
@@ -1001,6 +1003,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             }
 
             menuBuilder.subMenuEnd();
+        }
+        else if ( dynamic_cast<RimHistogramCurve*>( firstUiItem ) )
+        {
+            menuBuilder << "RicPasteHistogramCurveFeature";
         }
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {
