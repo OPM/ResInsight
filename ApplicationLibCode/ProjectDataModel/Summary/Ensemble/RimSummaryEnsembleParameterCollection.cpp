@@ -98,7 +98,7 @@ void RimSummaryEnsembleParameterCollection::updateUiTreeOrdering( caf::PdmUiTree
 {
     if ( isEmpty() ) return;
 
-    auto subnode = uiTreeOrdering.add( "Ensemble Parameters", ":/Parameter.svg" );
+    auto subnode = uiTreeOrdering.add( "Parameters", ":/Parameter.svg" );
 
     for ( auto& p : m_parameters() )
     {
