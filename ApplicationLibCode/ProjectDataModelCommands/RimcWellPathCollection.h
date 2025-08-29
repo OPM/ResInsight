@@ -44,12 +44,12 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellPathCollection_importFixedTrajectoryWellPathInternal : public caf::PdmObjectCreationMethod
+class RimcWellPathCollection_importWellPathFromPointsInternal : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcWellPathCollection_importFixedTrajectoryWellPathInternal( caf::PdmObjectHandle* self );
+    RimcWellPathCollection_importWellPathFromPointsInternal( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;

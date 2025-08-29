@@ -1,10 +1,8 @@
 """
 Example demonstrating how to create well paths from XYZ coordinates
-using the import_fixed_trajectory_well_path API.
+using the import_well_path_from_points API.
 """
 
-import sys
-import os
 import rips
 
 
@@ -57,7 +55,7 @@ for name, coordinates in well_paths_data:
     )
 
     # Create the well path using the new API
-    well_path = well_path_coll.import_fixed_trajectory_well_path(
+    well_path = well_path_coll.import_well_path_from_points(
         name=name, coordinates=coordinates
     )
 

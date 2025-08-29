@@ -7,7 +7,7 @@ from .project import Project
 
 
 @add_method(WellPathCollection)
-def import_fixed_trajectory_well_path(
+def import_well_path_from_points(
     self: WellPathCollection, name: str, coordinates: List[List[float]]
 ) -> object:
     """Create a well path from a list of XYZ coordinates.
@@ -68,7 +68,7 @@ def import_fixed_trajectory_well_path(
 
     try:
         # Call internal method to create the well path
-        well_path = self.import_fixed_trajectory_well_path_internal(
+        well_path = self.import_well_path_from_points_internal(
             name=name,
             coordinate_x_key=x_key,
             coordinate_y_key=y_key,

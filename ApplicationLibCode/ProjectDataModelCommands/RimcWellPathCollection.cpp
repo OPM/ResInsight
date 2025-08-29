@@ -84,16 +84,16 @@ QString RimcWellPathCollection_importWellPath::classKeywordReturnedType() const
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection,
-                                   RimcWellPathCollection_importFixedTrajectoryWellPathInternal,
-                                   "ImportFixedTrajectoryWellPathInternal" );
+                                   RimcWellPathCollection_importWellPathFromPointsInternal,
+                                   "ImportWellPathFromPointsInternal" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcWellPathCollection_importFixedTrajectoryWellPathInternal::RimcWellPathCollection_importFixedTrajectoryWellPathInternal( caf::PdmObjectHandle* self )
+RimcWellPathCollection_importWellPathFromPointsInternal::RimcWellPathCollection_importWellPathFromPointsInternal( caf::PdmObjectHandle* self )
     : caf::PdmObjectCreationMethod( self )
 {
-    CAF_PDM_InitObject( "Import Fixed Trajectory Well Path Internal" );
+    CAF_PDM_InitObject( "Import Well Path From Points Internal" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinateXKey, "CoordinateXKey", "Coordinate X Key" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinateYKey, "CoordinateYKey", "Coordinate Y Key" );
@@ -103,7 +103,7 @@ RimcWellPathCollection_importFixedTrajectoryWellPathInternal::RimcWellPathCollec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importFixedTrajectoryWellPathInternal::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellPathFromPointsInternal::execute()
 {
     auto wellPathCollection = self<RimWellPathCollection>();
     if ( !wellPathCollection )
@@ -173,7 +173,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importFixed
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimcWellPathCollection_importFixedTrajectoryWellPathInternal::classKeywordReturnedType() const
+QString RimcWellPathCollection_importWellPathFromPointsInternal::classKeywordReturnedType() const
 {
     return RimFixedTrajectoryWellPath::classKeywordStatic();
 }
