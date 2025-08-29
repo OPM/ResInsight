@@ -117,7 +117,7 @@ public:
 
     cvf::Color3f historyCurveContrastColor() const;
 
-    QString ensembleCurveSetTemplateFilePath() const;
+    QString ensembleCurveTemplateFilePath() const;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -142,7 +142,7 @@ private:
     caf::PdmField<bool>                             m_curveColorByPhase;
     caf::PdmField<bool>                             m_appendHistoryVectors;
 
-    caf::PdmField<caf::FilePath> m_ensembleCurveSetTemplateFilePath;
+    caf::PdmField<caf::FilePath> m_ensembleCurveTemplateFilePath;
 
     caf::PdmField<bool> m_showSummaryTimeAsLongString;
     caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryCases;

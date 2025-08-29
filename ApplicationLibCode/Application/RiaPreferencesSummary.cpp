@@ -28,6 +28,7 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
@@ -202,7 +203,11 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        RiaColorTables::historyCurveContrastColor(),
                        "History Curve Color" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetTemplateFilePath, "ensembleCurveSetTemplateFilePath", "Curve Set Template" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveTemplateFilePath,
+                                "ensembleCurveTemplateFilePath",
+                                "Ensemble Curve Template",
+                                "",
+                                "Select a template for ensemble curve properties." );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,7 +307,7 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
     }
 
     uiOrdering.add( &m_crossPlotAddressCombinations );
-    uiOrdering.add( &m_ensembleCurveSetTemplateFilePath );
+    uiOrdering.add( &m_ensembleCurveTemplateFilePath );
 
     auto historyCurveGroup = uiOrdering.addNewGroup( "History Vectors" );
 
@@ -476,6 +481,13 @@ void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* fi
             attrib->heightHint = 30;
         }
     }
+    else if ( field == &m_ensembleCurveTemplateFilePath )
+    {
+        if ( auto myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_fileSelectionFilter = "Templates (*.erpt);;All files (*.*)";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,9 +583,9 @@ cvf::Color3f RiaPreferencesSummary::historyCurveContrastColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferencesSummary::ensembleCurveSetTemplateFilePath() const
+QString RiaPreferencesSummary::ensembleCurveTemplateFilePath() const
 {
-    return m_ensembleCurveSetTemplateFilePath().path().trimmed();
+    return m_ensembleCurveTemplateFilePath().path().trimmed();
 }
 
 //--------------------------------------------------------------------------------------------------

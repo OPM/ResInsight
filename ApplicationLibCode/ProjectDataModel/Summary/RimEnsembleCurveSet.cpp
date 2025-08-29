@@ -22,6 +22,7 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaHashTools.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaQDateTimeTools.h"
@@ -301,12 +302,17 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleCurveSet::createObject()
 {
-    auto filePath = RiaPreferencesSummary::current()->ensembleCurveSetTemplateFilePath();
+    auto filePath = RiaPreferencesSummary::current()->ensembleCurveTemplateFilePath();
     if ( !filePath.isEmpty() )
     {
         if ( auto obj = RiaEnsembleImportTools::createEnsembleCurveSet( filePath ) )
         {
-            return obj;
+            return obj.value();
+        }
+        else
+        {
+            auto txt = obj.error() + " Default ensemble curve properties are used";
+            RiaLogging::warning( txt );
         }
     }
 

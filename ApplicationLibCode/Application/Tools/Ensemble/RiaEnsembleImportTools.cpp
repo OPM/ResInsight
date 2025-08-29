@@ -267,13 +267,12 @@ QStringList getMatchingFiles( const QString& basePath, const QString& regexPatte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* createEnsembleCurveSet( const QString& templateFilePath )
+std::expected<RimEnsembleCurveSet*, QString> createEnsembleCurveSet( const QString& templateFilePath )
 {
     QFile importFile( templateFilePath );
     if ( !importFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
-        RiaLogging::error( QString( "Create Plot from Template : Could not open the file: %1" ).arg( templateFilePath ) );
-        return nullptr;
+        return std::unexpected( QString( "Create Plot from Template : Could not open the file: %1" ).arg( templateFilePath ) );
     }
 
     QTextStream stream( &importFile );
@@ -305,7 +304,7 @@ RimEnsembleCurveSet* createEnsembleCurveSet( const QString& templateFilePath )
         }
     }
 
-    return nullptr;
+    return std::unexpected( QString( "Create Plot from Template : No ensemble curve sets found in : %1" ).arg( templateFilePath ) );
 }
 
 //--------------------------------------------------------------------------------------------------
