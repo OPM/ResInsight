@@ -41,6 +41,7 @@ RiuContextMenuLauncher::RiuContextMenuLauncher( QWidget* widget, const caf::CmdF
 ///
 //--------------------------------------------------------------------------------------------------
 RiuContextMenuLauncher::RiuContextMenuLauncher( QWidget* widget, const QStringList& commandIds )
+    : QObject( widget )
 {
     // Build menu directly into m_menuBuilder to avoid unnecessary copy
     for ( const auto& cmd : commandIds )
