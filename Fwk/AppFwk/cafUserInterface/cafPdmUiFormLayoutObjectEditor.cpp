@@ -454,6 +454,7 @@ void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWid
         QLayoutItem* item;
         while ( ( item = layout->takeAt( 0 ) ) != 0 )
         {
+            delete item;
         }
         QWidget().setLayout( layout );
     }
