@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
-#include "RimFixedTrajectoryWellPath.h"
+#include "RimPointBasedWellPath.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -157,7 +157,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellP
     }
 
     // Create the fixed trajectory well path
-    auto fixedTrajectoryWellPath = std::make_unique<RimFixedTrajectoryWellPath>();
+    auto fixedTrajectoryWellPath = std::make_unique<RimPointBasedWellPath>();
     fixedTrajectoryWellPath->setName( m_name() );
     fixedTrajectoryWellPath->setTrajectoryPoints( trajectoryPoints );
 
@@ -175,5 +175,5 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellP
 //--------------------------------------------------------------------------------------------------
 QString RimcWellPathCollection_importWellPathFromPointsInternal::classKeywordReturnedType() const
 {
-    return RimFixedTrajectoryWellPath::classKeywordStatic();
+    return RimPointBasedWellPath::classKeywordStatic();
 }

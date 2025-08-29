@@ -30,13 +30,13 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFixedTrajectoryWellPath : public RimWellPath
+class RimPointBasedWellPath : public RimWellPath
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFixedTrajectoryWellPath();
-    ~RimFixedTrajectoryWellPath() override;
+    RimPointBasedWellPath();
+    ~RimPointBasedWellPath() override;
 
     void                    setTrajectoryPoints( const std::vector<cvf::Vec3d>& wellTargets );
     std::vector<cvf::Vec3d> trajectoryPoints() const;

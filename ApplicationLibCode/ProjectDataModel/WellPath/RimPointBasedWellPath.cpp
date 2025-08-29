@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFixedTrajectoryWellPath.h"
+#include "RimPointBasedWellPath.h"
 
 #include "Well/RigWellPath.h"
 
@@ -25,14 +25,14 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiOrdering.h"
 
-CAF_PDM_SOURCE_INIT( RimFixedTrajectoryWellPath, "FixedTrajectoryWellPath" );
+CAF_PDM_SOURCE_INIT( RimPointBasedWellPath, "PointBasedWellPath" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFixedTrajectoryWellPath::RimFixedTrajectoryWellPath()
+RimPointBasedWellPath::RimPointBasedWellPath()
 {
-    CAF_PDM_InitScriptableObject( "Fixed Trajectory Well Path", ":/Well.svg", "", "FixedTrajectoryWellPath" );
+    CAF_PDM_InitScriptableObject( "Point-Based Well Path", ":/Well.svg", "", "PointBasedWellPath" );
 
     CAF_PDM_InitScriptableField( &m_trajectoryPoints, "TrajectoryPoints", std::vector<cvf::Vec3d>(), "Trajectory Points" );
     m_trajectoryPoints.uiCapability()->setUiHidden( true );
@@ -41,14 +41,14 @@ RimFixedTrajectoryWellPath::RimFixedTrajectoryWellPath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFixedTrajectoryWellPath::~RimFixedTrajectoryWellPath()
+RimPointBasedWellPath::~RimPointBasedWellPath()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFixedTrajectoryWellPath::setTrajectoryPoints( const std::vector<cvf::Vec3d>& wellTargets )
+void RimPointBasedWellPath::setTrajectoryPoints( const std::vector<cvf::Vec3d>& wellTargets )
 {
     m_trajectoryPoints = wellTargets;
     createWellPathGeometry();
@@ -57,7 +57,7 @@ void RimFixedTrajectoryWellPath::setTrajectoryPoints( const std::vector<cvf::Vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimFixedTrajectoryWellPath::trajectoryPoints() const
+std::vector<cvf::Vec3d> RimPointBasedWellPath::trajectoryPoints() const
 {
     return m_trajectoryPoints();
 }
@@ -65,7 +65,7 @@ std::vector<cvf::Vec3d> RimFixedTrajectoryWellPath::trajectoryPoints() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFixedTrajectoryWellPath::createWellPathGeometry()
+void RimPointBasedWellPath::createWellPathGeometry()
 {
     if ( m_trajectoryPoints().empty() )
     {
@@ -96,7 +96,7 @@ void RimFixedTrajectoryWellPath::createWellPathGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFixedTrajectoryWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimPointBasedWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimWellPath::defineUiOrdering( uiConfigName, uiOrdering );
 
@@ -107,7 +107,7 @@ void RimFixedTrajectoryWellPath::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFixedTrajectoryWellPath::initAfterRead()
+void RimPointBasedWellPath::initAfterRead()
 {
     createWellPathGeometry();
 }

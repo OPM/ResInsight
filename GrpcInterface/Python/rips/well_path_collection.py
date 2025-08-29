@@ -17,7 +17,7 @@ def import_well_path_from_points(
         coordinates (List[List[float]]): List of [x, y, z] coordinate triplets
 
     Returns:
-        RimFixedTrajectoryWellPath: The created well path object
+        RimPointBasedWellPath: The created well path object
 
     Raises:
         ValueError: If coordinates are invalid or have wrong dimensions
