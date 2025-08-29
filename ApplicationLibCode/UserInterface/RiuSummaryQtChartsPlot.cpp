@@ -31,7 +31,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* parent )
-    : RiuSummaryPlot( plot )
+    : RiuSummaryPlot( plot, parent )
 {
     m_plotWidget = new RiuQtChartsPlotWidget( plot, parent, new RimEnsembleCurveInfoTextProvider );
     m_plotWidget->setContextMenuPolicy( Qt::CustomContextMenu );

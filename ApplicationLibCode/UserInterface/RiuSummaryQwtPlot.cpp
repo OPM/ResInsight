@@ -116,7 +116,7 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= nullptr*/ )
-    : RiuSummaryPlot( plot )
+    : RiuSummaryPlot( plot, parent )
 {
     m_plotWidget = new RiuQwtPlotWidget( plot, parent );
     m_plotWidget->setContextMenuPolicy( Qt::CustomContextMenu );
