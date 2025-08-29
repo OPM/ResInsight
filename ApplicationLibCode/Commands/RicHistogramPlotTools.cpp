@@ -29,6 +29,7 @@
 #include "Histogram/RimHistogramPlot.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
@@ -165,50 +166,47 @@ std::vector<RimHistogramDataSource*> RicHistogramPlotTools::existingDataSources(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramPlot* plot, RimEnsembleParameterHistogramDataSource* dataSource )
-{
-    RimEnsembleParameterHistogramDataSource* copyFromSource = nullptr;
-    for ( auto source : existingDataSources( plot ) )
-    {
-        if ( auto histSource = dynamic_cast<RimEnsembleParameterHistogramDataSource*>( source ) )
-        {
-            // check for duplicate
-            if ( ( histSource->ensemble() == dataSource->ensemble() ) )
-            {
-                return;
-            }
-            copyFromSource = histSource;
-        }
-    }
-
-    if ( copyFromSource != nullptr )
-    {
-        dataSource->setEnsembleParameter( copyFromSource->ensembleParameter() );
-    }
-
-    createHistogramCurve( plot, dataSource );
-}
+// void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramPlot* plot, RimEnsembleParameterHistogramDataSource*
+// dataSource )
+//{
+//    RimEnsembleParameterHistogramDataSource* copyFromSource = nullptr;
+//    for ( auto source : existingDataSources( plot ) )
+//    {
+//        if ( auto histSource = dynamic_cast<RimEnsembleParameterHistogramDataSource*>( source ) )
+//        {
+//            // check for duplicate
+//            if ( ( histSource->ensemble() == dataSource->ensemble() ) )
+//            {
+//                return;
+//            }
+//            copyFromSource = histSource;
+//        }
+//    }
+//
+//    if ( copyFromSource != nullptr )
+//    {
+//        dataSource->setEnsembleParameter( copyFromSource->ensembleParameter() );
+//    }
+//
+//    createHistogramCurve( plot, dataSource );
+//}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramPlot*                        plot,
-                                                                   RimEnsembleParameterHistogramDataSource* dataSource,
-                                                                   QString                                  parameter )
+void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramPlot* plot, RimEnsembleParameterHistogramDataSource* dataSource )
 {
     for ( auto source : existingDataSources( plot ) )
     {
         if ( auto histSource = dynamic_cast<RimEnsembleParameterHistogramDataSource*>( source ) )
         {
             // check for duplicate
-            if ( ( histSource->ensemble() == dataSource->ensemble() ) && ( histSource->ensembleParameter() == parameter ) )
+            if ( ( histSource->ensemble() == dataSource->ensemble() ) && ( histSource->ensembleParameter() == dataSource->ensembleParameter() ) )
             {
                 return;
             }
         }
     }
-
-    dataSource->setEnsembleParameter( parameter );
 
     createHistogramCurve( plot, dataSource );
 }
@@ -233,4 +231,47 @@ void RicHistogramPlotTools::addHistogramCurveToPlot( RimHistogramPlot* plot, Rim
     mainPlotWindow->updateMultiPlotToolBar();
 
     RiuPlotMainWindowTools::onObjectAppended( curve, plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RicHistogramPlotTools::existingEnsembleParameters( RimHistogramPlot* plot )
+{
+    std::set<QString> foundParameters;
+
+    for ( auto source : existingDataSources( plot ) )
+    {
+        if ( auto histSource = dynamic_cast<RimEnsembleParameterHistogramDataSource*>( source ) )
+        {
+            foundParameters.insert( histSource->ensembleParameter() );
+        }
+    }
+
+    return foundParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHistogramPlotTools::appendEnsembleToHistogram( RimHistogramPlot* plot, RimSummaryEnsemble* ensemble )
+{
+    auto currentParameters = existingEnsembleParameters( plot );
+
+    if ( currentParameters.empty() )
+    {
+        auto newDataSource = new RimEnsembleParameterHistogramDataSource();
+        newDataSource->setDefaults();
+        newDataSource->setEnsemble( ensemble );
+        appendEnsembleParameterHistogramCurve( plot, newDataSource );
+        return;
+    }
+
+    for ( auto& parameter : currentParameters )
+    {
+        auto newDataSource = new RimEnsembleParameterHistogramDataSource();
+        newDataSource->setEnsemble( ensemble );
+        newDataSource->setEnsembleParameter( parameter );
+        appendEnsembleParameterHistogramCurve( plot, newDataSource );
+    }
 }

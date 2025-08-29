@@ -1315,11 +1315,7 @@ void RimHistogramPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHan
     {
         if ( auto fileSet = dynamic_cast<RimSummaryFileSetEnsemble*>( obj ) )
         {
-            auto newDataSource = new RimEnsembleParameterHistogramDataSource();
-            newDataSource->setDefaults();
-            newDataSource->setEnsemble( fileSet );
-
-            RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( this, newDataSource );
+            RicHistogramPlotTools::appendEnsembleToHistogram( this, fileSet );
         }
         else if ( auto parameter = dynamic_cast<RimSummaryEnsembleParameter*>( obj ) )
         {
@@ -1327,10 +1323,10 @@ void RimHistogramPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHan
             if ( ensemble == nullptr ) continue;
 
             auto newDataSource = new RimEnsembleParameterHistogramDataSource();
-            newDataSource->setDefaults();
             newDataSource->setEnsemble( ensemble );
+            newDataSource->setEnsembleParameter( parameter->name() );
 
-            RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( this, newDataSource, parameter->name() );
+            RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( this, newDataSource );
         }
         else if ( auto address = dynamic_cast<RimSummaryAddress*>( obj ) )
         {
@@ -1340,7 +1336,7 @@ void RimHistogramPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHan
             if ( ensemble == nullptr ) continue;
 
             auto newDataSource = new RimEnsembleSummaryVectorHistogramDataSource();
-            newDataSource->setDefaults();
+            newDataSource->setDefaults(); // get default timestep
             auto fileAddress = address->address();
             newDataSource->setSummaryAddress( fileAddress );
             newDataSource->setEnsemble( ensemble );
