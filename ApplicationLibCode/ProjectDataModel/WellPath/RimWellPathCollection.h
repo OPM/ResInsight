@@ -150,8 +150,8 @@ private:
 
     caf::PdmFieldHandle* objectToggleField() override;
 
-    void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
-    void sortWellsByName();
+    std::vector<RimWellPath*> readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
+    void                      sortWellsByName();
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
 

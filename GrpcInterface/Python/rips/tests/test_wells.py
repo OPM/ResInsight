@@ -26,6 +26,32 @@ def test_10k(rips_instance, initialize_test):
     assert wells[1].name == "Well Path B"
 
 
+def test_10k_import_well(rips_instance, initialize_test):
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    assert len(case.grids()) == 2
+    well_path_files = [
+        case_root_path + "/wellpath_a.dev",
+        case_root_path + "/wellpath_b.dev",
+    ]
+
+    well_a = rips_instance.project.well_path_collection().import_well_path(
+        well_path_files[0]
+    )
+    assert well_a.name == "Well Path A"
+
+    well_b = rips_instance.project.well_path_collection().import_well_path(
+        well_path_files[1]
+    )
+    assert well_b.name == "Well Path B"
+
+    wells = rips_instance.project.well_paths()
+    assert len(wells) == 2
+    assert wells[0].name == "Well Path A"
+    assert wells[1].name == "Well Path B"
+
+
 def test_10k_intersection(rips_instance, initialize_test):
     case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
     case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"

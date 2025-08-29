@@ -298,13 +298,13 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
         }
     }
 
-    readAndAddWellPaths( wellPathArray );
+    std::vector<RimWellPath*> addedWellPaths = readAndAddWellPaths( wellPathArray );
     CAF_ASSERT( wellPathArray.empty() );
 
     scheduleRedrawAffectedViews();
     updateAllRequiredEditors();
 
-    return allWellPaths();
+    return addedWellPaths;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -330,10 +330,12 @@ std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray )
+std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray )
 {
     caf::ProgressInfo progress( wellPathArray.size(), "Reading well paths from file" );
 
+    // Keep track of the well paths that were actually added.
+    std::vector<RimWellPath*> addedWellPaths;
     for ( RimFileWellPath* wellPath : wellPathArray )
     {
         wellPath->readWellPathFile( nullptr, m_wellPathImporter.get(), true );
@@ -362,6 +364,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
             wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
             wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
             addWellPath( wellPath );
+            addedWellPaths.push_back( wellPath );
         }
 
         progress.incrementProgress();
@@ -371,6 +374,8 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
     groupWellPaths( allWellPaths() );
     sortWellsByName();
     rebuildWellPathNodes();
+
+    return addedWellPaths;
 }
 
 //--------------------------------------------------------------------------------------------------
