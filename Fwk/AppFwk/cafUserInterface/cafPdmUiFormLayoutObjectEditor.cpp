@@ -215,8 +215,6 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                                 labelAndFieldVerticalLayout->addWidget( fieldLabelWidget, 0, Qt::AlignTop );
                                 labelAndFieldVerticalLayout->addWidget( fieldEditorWidget, 1, Qt::AlignTop );
 
-                                m_layouts.push_back( labelAndFieldVerticalLayout );
-
                                 // Apply margins determined by the editor type
                                 // fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
                                 currentColumn += itemColumnSpan;
@@ -528,26 +526,8 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
 
     m_groupBoxes.clear();
 
-    // https://github.com/OPM/ResInsight/issues/9939
-    //
-    // The following lines causes crash. m_layouts contains pointers to layouts that are invalid at this point. The
-    // m_layouts are created for widgets where the labels are located on top of the widget, and this option is
-    // rarely used. The crash happens on exit every time when a layout has been created.
-    //
-    // A crash has also happened during runtime, but is hard to reproduce.
-    //
-    // NB! There will be memory leak at this point, but the workaround allowing memory leak is considered OK on
-    // short term. Investigate and find a correct solution
-    //
-    /*
-        for ( auto l : m_layouts )
-        {
-            delete l;
-            l = nullptr;
-        }
-    */
-
-    m_layouts.clear();
+    // Note: Layouts are now managed by Qt's parent-child ownership system.
+    // When added to parent layouts via addLayout(), Qt automatically handles cleanup.
 }
 
 //--------------------------------------------------------------------------------------------------

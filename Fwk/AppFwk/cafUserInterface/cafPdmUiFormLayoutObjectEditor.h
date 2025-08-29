@@ -110,7 +110,6 @@ private:
     std::map<QString, QPointer<QMinimizePanel>> m_newGroupBoxes; ///< used temporarily to store the new(complete) set of
                                                                  ///< group boxes
     std::map<QString, std::map<QString, bool>> m_objectKeywordGroupUiNameExpandedState;
-    std::vector<QPointer<QVBoxLayout>>         m_layouts;
 };
 
 } // end namespace caf
