@@ -226,6 +226,7 @@ CmdFieldChangeExec::CmdFieldChangeExec( NotificationCenter* notificationCenter )
 //--------------------------------------------------------------------------------------------------
 CmdFieldChangeExec::~CmdFieldChangeExec()
 {
+    delete m_commandData;
 }
 
 //--------------------------------------------------------------------------------------------------
