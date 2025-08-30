@@ -33,7 +33,7 @@ class RimSummaryEnsembleParameter : public caf::PdmObject
 
 public:
     RimSummaryEnsembleParameter();
-    ~RimSummaryEnsembleParameter();
+    ~RimSummaryEnsembleParameter() override;
 
     QString name() const;
     void    setName( const QString& name );
