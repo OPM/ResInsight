@@ -77,13 +77,13 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
     std::vector<int>   actnumArray;
 
     // Get coordinate transformation if needed
-    cvf::Mat4d mapAxisTrans;
+    cvf::Mat4d           mapAxisTrans;
     std::array<float, 6> mapAxes = mainGrid->mapAxesF();
-    
+
     if ( mainGrid->useMapAxes() )
     {
         mapAxisTrans = mainGrid->mapAxisTransform();
-        
+
         if ( exportInLocalCoordinates )
         {
             cvf::Vec3d minPoint3d( mainGrid->boundingBox().min() );
@@ -91,8 +91,8 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
             cvf::Vec2f origin( mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y() );
             cvf::Vec2f xPoint = cvf::Vec2f( mapAxes[4], mapAxes[5] ) - minPoint2f;
             cvf::Vec2f yPoint = cvf::Vec2f( mapAxes[0], mapAxes[1] ) - minPoint2f;
-            mapAxes = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
-            
+            mapAxes           = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
+
             mapAxisTrans.setTranslation( mapAxisTrans.translation() - minPoint3d );
         }
     }
@@ -100,10 +100,21 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
     // Build refined cell and node data
     std::vector<RigCell>    refinedCells;
     std::vector<cvf::Vec3d> refinedNodes;
-    
-    convertGridToCornerPointArrays( eclipseCase, activeCellInfo, cellVisibilityOverrideForActnum, 
-                                   min, maxActual, refinement, mapAxisTrans, mainGrid->useMapAxes(),
-                                   ni, nj, nk, coordArray, zcornArray, actnumArray );
+
+    convertGridToCornerPointArrays( eclipseCase,
+                                    activeCellInfo,
+                                    cellVisibilityOverrideForActnum,
+                                    min,
+                                    maxActual,
+                                    refinement,
+                                    mapAxisTrans,
+                                    mainGrid->useMapAxes(),
+                                    ni,
+                                    nj,
+                                    nk,
+                                    coordArray,
+                                    zcornArray,
+                                    actnumArray );
 
     // Write to file
     QFile exportFile( resultFileName );
@@ -194,20 +205,20 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
 /// See Eclipse_Grid_Format.md for details
 ///
 //--------------------------------------------------------------------------------------------------
-void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData*            eclipseCase,
-                                                              const RigActiveCellInfo*      activeCellInfo,
-                                                              const cvf::UByteArray*        cellVisibilityOverrideForActnum,
-                                                              const cvf::Vec3st&             min,
-                                                              const cvf::Vec3st&             max,
-                                                              const cvf::Vec3st&             refinement,
-                                                              const cvf::Mat4d&              mapAxisTransform,
-                                                              bool                           useMapAxes,
-                                                              size_t                         nx,
-                                                              size_t                         ny,
-                                                              size_t                         nz,
-                                                              std::vector<float>&            coordArray,
-                                                              std::vector<float>&            zcornArray,
-                                                              std::vector<int>&              actnumArray )
+void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData*      eclipseCase,
+                                                              const RigActiveCellInfo* activeCellInfo,
+                                                              const cvf::UByteArray*   cellVisibilityOverrideForActnum,
+                                                              const cvf::Vec3st&       min,
+                                                              const cvf::Vec3st&       max,
+                                                              const cvf::Vec3st&       refinement,
+                                                              const cvf::Mat4d&        mapAxisTransform,
+                                                              bool                     useMapAxes,
+                                                              size_t                   nx,
+                                                              size_t                   ny,
+                                                              size_t                   nz,
+                                                              std::vector<float>&      coordArray,
+                                                              std::vector<float>&      zcornArray,
+                                                              std::vector<int>&        actnumArray )
 {
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
@@ -223,7 +234,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
     // Build refined cell data with coordinate transformations
     std::vector<std::vector<cvf::Vec3d>> refinedCellCorners;
     std::vector<int>                     refinedCellActivity;
-    
+
     for ( size_t k = 0; k <= max.z() - min.z(); ++k )
     {
         for ( size_t j = 0; j <= max.y() - min.y(); ++j )
@@ -302,13 +313,13 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                             if ( di == 0 && dj == 0 )
                                 cornerIdx = 0; // cell's SW corner
                             else if ( di == -1 && dj == 0 )
-                                cornerIdx = 1; // cell's SE corner  
+                                cornerIdx = 1; // cell's SE corner
                             else if ( di == 0 && dj == -1 )
                                 cornerIdx = 3; // cell's NW corner
                             else if ( di == -1 && dj == -1 )
                                 cornerIdx = 2; // cell's NE corner
 
-                            topCoord = corners[cornerIdx];
+                            topCoord    = corners[cornerIdx];
                             bottomCoord = corners[cornerIdx + 4]; // bottom corner
                             foundCoords = true;
                         }
@@ -340,7 +351,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 size_t cellIndex = k * nx * ny + j * nx + i;
                 if ( cellIndex < refinedCellCorners.size() )
                 {
-                    const auto& corners = refinedCellCorners[cellIndex];
+                    const auto& corners    = refinedCellCorners[cellIndex];
                     zcornArray[zcornIdx++] = static_cast<float>( -corners[0].z() ); // SW top
                     zcornArray[zcornIdx++] = static_cast<float>( -corners[3].z() ); // NW top
                 }
@@ -356,7 +367,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 size_t cellIndex = k * nx * ny + j * nx + i;
                 if ( cellIndex < refinedCellCorners.size() )
                 {
-                    const auto& corners = refinedCellCorners[cellIndex];
+                    const auto& corners    = refinedCellCorners[cellIndex];
                     zcornArray[zcornIdx++] = static_cast<float>( -corners[1].z() ); // SE top
                     zcornArray[zcornIdx++] = static_cast<float>( -corners[2].z() ); // NE top
                 }
@@ -376,7 +387,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 size_t cellIndex = k * nx * ny + j * nx + i;
                 if ( cellIndex < refinedCellCorners.size() )
                 {
-                    const auto& corners = refinedCellCorners[cellIndex];
+                    const auto& corners    = refinedCellCorners[cellIndex];
                     zcornArray[zcornIdx++] = static_cast<float>( -corners[4].z() ); // SW bottom
                     zcornArray[zcornIdx++] = static_cast<float>( -corners[7].z() ); // NW bottom
                 }
@@ -392,7 +403,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 size_t cellIndex = k * nx * ny + j * nx + i;
                 if ( cellIndex < refinedCellCorners.size() )
                 {
-                    const auto& corners = refinedCellCorners[cellIndex];
+                    const auto& corners    = refinedCellCorners[cellIndex];
                     zcornArray[zcornIdx++] = static_cast<float>( -corners[5].z() ); // SE bottom
                     zcornArray[zcornIdx++] = static_cast<float>( -corners[6].z() ); // NE bottom
                 }
@@ -404,7 +415,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
         }
     }
 
-    // Generate ACTNUM array 
+    // Generate ACTNUM array
     for ( size_t cellIdx = 0; cellIdx < actnumSize; ++cellIdx )
     {
         if ( cellIdx < refinedCellActivity.size() )
