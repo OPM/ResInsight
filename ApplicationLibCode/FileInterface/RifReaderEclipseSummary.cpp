@@ -114,17 +114,20 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
                 QString txt = QString( "Created %1 " ).arg( h5FileName );
                 if ( threadSafeLogger ) threadSafeLogger->info( txt );
             }
-            h5FileFound = QFile::exists( h5FileName );
+#endif
+        }
 
-            if ( h5FileFound )
+        h5FileFound = QFile::exists( h5FileName );
+
+        if ( h5FileFound && ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ) )
+        {
+#ifdef USE_HDF5
+            auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
+
+            isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
+            if ( isValid )
             {
-                auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
-
-                isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
-                if ( isValid )
-                {
-                    m_summaryReader = std::move( hdfReader );
-                }
+                m_summaryReader = std::move( hdfReader );
             }
 #endif
         }

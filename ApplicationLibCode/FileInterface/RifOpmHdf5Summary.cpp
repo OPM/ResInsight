@@ -96,6 +96,8 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
         }
     }
 
+    createAndSetAddresses();
+
     return true;
 }
 
