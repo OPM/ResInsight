@@ -507,4 +507,11 @@ inline void Vector4<S>::set(S x, S y, S z, S w)
     m_v[3] = w;
 }
 
+template<> inline const Vector4<double> Vector4<double>::UNDEFINED(UNDEFINED_DOUBLE, UNDEFINED_DOUBLE, UNDEFINED_DOUBLE, UNDEFINED_DOUBLE);
+template<> inline const Vector4<float>  Vector4<float>::UNDEFINED(UNDEFINED_FLOAT, UNDEFINED_FLOAT, UNDEFINED_FLOAT, UNDEFINED_FLOAT);
+template<> inline const Vector4<int>    Vector4<int>::UNDEFINED(UNDEFINED_INT, UNDEFINED_INT, UNDEFINED_INT, UNDEFINED_INT);
+template<> inline const Vector4<uint>   Vector4<uint>::UNDEFINED(UNDEFINED_UINT, UNDEFINED_UINT, UNDEFINED_UINT, UNDEFINED_UINT);
+template<> inline const Vector4<size_t> Vector4<size_t>::UNDEFINED(UNDEFINED_SIZE_T, UNDEFINED_SIZE_T, UNDEFINED_SIZE_T, UNDEFINED_SIZE_T);
+
+
 }  // namespace cvf

@@ -82,6 +82,9 @@ public:
 
     static bool             isUndefined(double val);
     static bool             isUndefined(float val);
+    static bool             isUndefined(int val);
+    static bool             isUndefined(unsigned int val);
+    static bool             isUndefined(size_t val);
 
     template<typename T> static bool     valueInRange(T val, T min, T max);
     template<typename T> static T        clamp(T val, T minVal, T maxVal);

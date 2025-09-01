@@ -795,5 +795,11 @@ const Vector3<S> Vector3<S>::perpendicularVector(bool* perpendicularOK) const
     return perpendic;
 }
 
+template<> inline const Vector3<double> Vector3<double>::UNDEFINED(UNDEFINED_DOUBLE, UNDEFINED_DOUBLE, UNDEFINED_DOUBLE);
+template<> inline const Vector3<float>  Vector3<float>::UNDEFINED(UNDEFINED_FLOAT, UNDEFINED_FLOAT, UNDEFINED_FLOAT);
+template<> inline const Vector3<int>    Vector3<int>::UNDEFINED(UNDEFINED_INT, UNDEFINED_INT, UNDEFINED_INT);
+template<> inline const Vector3<uint>   Vector3<uint>::UNDEFINED(UNDEFINED_UINT, UNDEFINED_UINT, UNDEFINED_UINT);
+template<> inline const Vector3<size_t> Vector3<size_t>::UNDEFINED(UNDEFINED_SIZE_T, UNDEFINED_SIZE_T, UNDEFINED_SIZE_T);
+
 
 }  // namespace cvf

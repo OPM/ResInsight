@@ -348,5 +348,21 @@ bool Math::isUndefined(float val)
     }
 }
 
+bool Math::isUndefined(int val)
+{
+    return val == UNDEFINED_INT;
+}
+
+bool Math::isUndefined(unsigned int val)
+{
+    return val == UNDEFINED_UINT;
+}
+
+bool Math::isUndefined(size_t val)
+{
+    return val == UNDEFINED_SIZE_T;
+}
+
+
 } // namespace cvf
 

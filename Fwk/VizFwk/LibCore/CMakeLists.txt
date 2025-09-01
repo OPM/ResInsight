@@ -98,9 +98,6 @@ cvfTimer.cpp
 cvfTBBControl.cpp
 cvfTrace.cpp
 cvfVariant.cpp
-cvfVector2.cpp
-cvfVector3.cpp
-cvfVector4.cpp
 )
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})

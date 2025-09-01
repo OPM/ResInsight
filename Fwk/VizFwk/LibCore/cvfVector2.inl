@@ -528,5 +528,11 @@ inline void Vector2<S>::set(S x, S y)
     m_v[1] = y;
 }
 
+template<> inline const Vector2<double> Vector2<double>::UNDEFINED(UNDEFINED_DOUBLE, UNDEFINED_DOUBLE);
+template<> inline const Vector2<float>  Vector2<float>::UNDEFINED(UNDEFINED_FLOAT, UNDEFINED_FLOAT);
+template<> inline const Vector2<int>    Vector2<int>::UNDEFINED(UNDEFINED_INT, UNDEFINED_INT);
+template<> inline const Vector2<uint>   Vector2<uint>::UNDEFINED(UNDEFINED_UINT, UNDEFINED_UINT);
+template<> inline const Vector2<size_t>   Vector2<size_t>::UNDEFINED(UNDEFINED_SIZE_T, UNDEFINED_SIZE_T);
+
 
 }  // namespace cvf
