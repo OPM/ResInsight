@@ -180,8 +180,8 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     // Set higher precision for coordinate data
     if ( eclipseKeyword == "COORD" || eclipseKeyword == "ZCORN" )
     {
-        // textstream.setRealNumberPrecision( 12 );
-        // textstream.setRealNumberNotation( QTextStream::ScientificNotation );
+        textstream.setRealNumberPrecision( 3 );
+        textstream.setRealNumberNotation( QTextStream::FixedNotation );
     }
 
     caf::ProgressInfo pi( resultData.size(), QString( "Writing data to file %1" ).arg( file->fileName() ) );

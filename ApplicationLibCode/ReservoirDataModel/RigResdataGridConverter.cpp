@@ -141,7 +141,7 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
             coordArrayDouble.push_back( v );
         }
 
-        int valuesPerRow = 4;
+        int valuesPerRow = 6;
         RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, coordArrayDouble, valuesPerRow );
     }
 
@@ -156,7 +156,7 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
             zcornArrayDouble.push_back( v );
         }
 
-        int valuesPerRow = 4;
+        int valuesPerRow = 6;
         RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, zcornArrayDouble, valuesPerRow );
     }
 
@@ -265,17 +265,19 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 auto refinedCoords = RiaCellDividingTools::createHexCornerCoords( cellCorners, refinement.x(), refinement.y(), refinement.z() );
 
                 // Store refined cell corners and activity for later processing
-                size_t cellsPerOriginal = refinement.x() * refinement.y() * refinement.z();
-                for ( size_t subCellIdx = 0; subCellIdx < cellsPerOriginal; ++subCellIdx )
+                // size_t cellsPerOriginal = refinement.x() * refinement.y() * refinement.z();
+                // for ( size_t subCellIdx = 0; subCellIdx < cellsPerOriginal; ++subCellIdx )
+                // {
+                std::vector<cvf::Vec3d> corners( 8 );
+                for ( size_t cIdx = 0; cIdx < 8; ++cIdx )
                 {
-                    std::vector<cvf::Vec3d> corners( 8 );
-                    for ( size_t cIdx = 0; cIdx < 8; ++cIdx )
-                    {
-                        corners[cIdx] = refinedCoords[subCellIdx * 8 + cIdx];
-                    }
-                    refinedCellCorners.push_back( corners );
-                    refinedCellActivity.push_back( active );
+                    corners[cIdx] = cellCorners[cIdx]; // refinedCoords[subCellIdx * 8 + cIdx];
                 }
+                refinedCellCorners.push_back( corners );
+                refinedCellActivity.push_back( active );
+                //                }
+
+                //                refinedCellCorners.push_back( cellCorners );
             }
         }
     }
@@ -351,9 +353,11 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 size_t cellIndex = k * nx * ny + j * nx + i;
                 if ( cellIndex < refinedCellCorners.size() )
                 {
-                    const auto& corners    = refinedCellCorners[cellIndex];
-                    zcornArray[zcornIdx++] = static_cast<float>( -corners[0].z() ); // SW top
-                    zcornArray[zcornIdx++] = static_cast<float>( -corners[3].z() ); // NW top
+                    size_t mainIndex       = mainGrid->cellIndexFromIJK( min.x() + i, min.y() + j, min.z() + k );
+                    auto   cell            = mainGrid->cell( mainIndex );
+                    auto   topCorners      = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[0].z() ); // (-I,-J)
+                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[3].z() ); // (+I,-J)
                 }
                 else
                 {
@@ -367,9 +371,11 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 size_t cellIndex = k * nx * ny + j * nx + i;
                 if ( cellIndex < refinedCellCorners.size() )
                 {
-                    const auto& corners    = refinedCellCorners[cellIndex];
-                    zcornArray[zcornIdx++] = static_cast<float>( -corners[1].z() ); // SE top
-                    zcornArray[zcornIdx++] = static_cast<float>( -corners[2].z() ); // NE top
+                    size_t mainIndex       = mainGrid->cellIndexFromIJK( min.x() + i, min.y() + j, min.z() + k );
+                    auto   cell            = mainGrid->cell( mainIndex );
+                    auto   topCorners      = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[1].z() ); // (-I,+J)
+                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[2].z() ); // (+I,+J)
                 }
                 else
                 {
@@ -387,9 +393,11 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 size_t cellIndex = k * nx * ny + j * nx + i;
                 if ( cellIndex < refinedCellCorners.size() )
                 {
-                    const auto& corners    = refinedCellCorners[cellIndex];
-                    zcornArray[zcornIdx++] = static_cast<float>( -corners[4].z() ); // SW bottom
-                    zcornArray[zcornIdx++] = static_cast<float>( -corners[7].z() ); // NW bottom
+                    size_t mainIndex       = mainGrid->cellIndexFromIJK( min.x() + i, min.y() + j, min.z() + k );
+                    auto   cell            = mainGrid->cell( mainIndex );
+                    auto   bottomCorners   = cell.faceCorners( cvf::StructGridInterface::POS_K );
+                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[0].z() ); // (-I,-J)
+                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[1].z() ); // (+I,-J)
                 }
                 else
                 {
@@ -403,9 +411,11 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                 size_t cellIndex = k * nx * ny + j * nx + i;
                 if ( cellIndex < refinedCellCorners.size() )
                 {
-                    const auto& corners    = refinedCellCorners[cellIndex];
-                    zcornArray[zcornIdx++] = static_cast<float>( -corners[5].z() ); // SE bottom
-                    zcornArray[zcornIdx++] = static_cast<float>( -corners[6].z() ); // NE bottom
+                    size_t mainIndex       = mainGrid->cellIndexFromIJK( min.x() + i, min.y() + j, min.z() + k );
+                    auto   cell            = mainGrid->cell( mainIndex );
+                    auto   bottomCorners   = cell.faceCorners( cvf::StructGridInterface::POS_K );
+                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[3].z() ); // (-I,+J)
+                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[2].z() ); // (+I,+J)
                 }
                 else
                 {

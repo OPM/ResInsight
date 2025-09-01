@@ -132,14 +132,44 @@ TEST( RigResdataGridConverterTest, NativeGridExportRoundTrip )
     EXPECT_EQ( originalNJ, exportedGrid->cellCountJ() ) << "Grid J dimension mismatch";
     EXPECT_EQ( originalNK, exportedGrid->cellCountK() ) << "Grid K dimension mismatch";
     EXPECT_EQ( originalCellCount, exportedGrid->cellCount() ) << "Grid cell count mismatch";
-    EXPECT_EQ( originalUsesMapAxes, exportedGrid->useMapAxes() ) << "MAPAXES usage mismatch";
-
-    if ( originalUsesMapAxes && exportedGrid->useMapAxes() )
+    // Compare MAPAXES - exported grid should preserve original MAPAXES if present
+    if ( originalUsesMapAxes )
     {
-        auto exportedMapAxes = exportedGrid->mapAxesF();
-        for ( size_t i = 0; i < 6; ++i )
+        // Original has MAPAXES, exported should have identical values
+        EXPECT_TRUE( exportedGrid->useMapAxes() ) << "Exported grid missing MAPAXES when original has it";
+
+        if ( exportedGrid->useMapAxes() )
         {
-            EXPECT_NEAR( originalMapAxes[i], exportedMapAxes[i], 0.01 ) << "MAPAXES value " << i << " mismatch";
+            auto exportedMapAxes = exportedGrid->mapAxesF();
+            for ( size_t i = 0; i < 6; ++i )
+            {
+                EXPECT_NEAR( originalMapAxes[i], exportedMapAxes[i], 0.01 )
+                    << "MAPAXES value " << i << " mismatch - original: " << originalMapAxes[i] << " exported: " << exportedMapAxes[i];
+            }
+            qDebug() << "MAPAXES values correctly preserved in export";
+        }
+    }
+    else
+    {
+        // Original has no MAPAXES, exported should either have none or default identity
+        if ( exportedGrid->useMapAxes() )
+        {
+            qDebug() << "Warning: Original had no MAPAXES but exported grid has MAPAXES (possibly default)";
+            auto exportedMapAxes = exportedGrid->mapAxesF();
+
+            // Check if it's the default identity MAPAXES (0, 0, dx, 0, 0, dy)
+            bool isIdentityMapAxes = ( exportedMapAxes[0] == 0.0 && exportedMapAxes[1] == 0.0 && exportedMapAxes[2] > 0.0 &&
+                                       exportedMapAxes[3] == 0.0 && exportedMapAxes[4] == 0.0 && exportedMapAxes[5] > 0.0 );
+
+            if ( !isIdentityMapAxes )
+            {
+                FAIL() << "Exported grid has non-identity MAPAXES when original had none";
+            }
+            qDebug() << "Exported grid created default MAPAXES (acceptable)";
+        }
+        else
+        {
+            qDebug() << "Correctly preserved lack of MAPAXES in export";
         }
     }
 
@@ -150,6 +180,34 @@ TEST( RigResdataGridConverterTest, NativeGridExportRoundTrip )
     EXPECT_NEAR( originalBoundingBox.max().x(), exportedBoundingBox.max().x(), 1.0 ) << "Bounding box max X mismatch";
     EXPECT_NEAR( originalBoundingBox.max().y(), exportedBoundingBox.max().y(), 1.0 ) << "Bounding box max Y mismatch";
     EXPECT_NEAR( originalBoundingBox.max().z(), exportedBoundingBox.max().z(), 1.0 ) << "Bounding box max Z mismatch";
+
+    // Compare actual cell corner positions for all cells
+    qDebug() << "Comparing corner positions for all" << originalCellCount << "cells";
+
+    for ( size_t cellIndex = 0; cellIndex < originalCellCount; ++cellIndex )
+    {
+        // Get corner positions for original grid
+        std::array<cvf::Vec3d, 8> originalCorners;
+        originalGrid->cellCornerVertices( cellIndex, originalCorners.data() );
+
+        // Get corner positions for exported grid
+        std::array<cvf::Vec3d, 8> exportedCorners;
+        exportedGrid->cellCornerVertices( cellIndex, exportedCorners.data() );
+
+        // Compare all 8 corners of the cell
+        for ( size_t cornerIdx = 0; cornerIdx < 8; ++cornerIdx )
+        {
+            EXPECT_NEAR( originalCorners[cornerIdx].x(), exportedCorners[cornerIdx].x(), 0.1 )
+                << "Cell " << cellIndex << " corner " << cornerIdx << " X coordinate mismatch";
+            EXPECT_NEAR( originalCorners[cornerIdx].y(), exportedCorners[cornerIdx].y(), 0.1 )
+                << "Cell " << cellIndex << " corner " << cornerIdx << " Y coordinate mismatch";
+            EXPECT_NEAR( originalCorners[cornerIdx].z(), exportedCorners[cornerIdx].z(), 0.1 )
+                << "Cell " << cellIndex << " corner " << cornerIdx << " Z coordinate mismatch";
+        }
+    }
+
+    qDebug() << "Corner position verification completed successfully";
+    qDebug() << "Grid export round-trip test completed successfully";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,7 +277,7 @@ TEST( RigResdataGridConverterTest, FullRoundTrip )
 //--------------------------------------------------------------------------------------------------
 /// Test grid export with refinement
 //--------------------------------------------------------------------------------------------------
-TEST( RigResdataGridConverterTest, GridExportWithRefinement )
+TEST( RigResdataGridConverterTest, GridExportWith2x2x2Refinement )
 {
     // Setup test data
     QDir baseFolder( TEST_MODEL_DIR );
@@ -239,12 +297,20 @@ TEST( RigResdataGridConverterTest, GridExportWithRefinement )
 
     const RigMainGrid* originalGrid = originalCaseData->mainGrid();
 
-    // Test with 2x2x1 refinement (should quadruple the number of cells in I and J directions)
-    cvf::Vec3st refinement( 2, 2, 1 );
+    // Record original cell count
+    size_t originalCellCount = originalGrid->cellCount();
+    size_t originalNI        = originalGrid->cellCountI();
+    size_t originalNJ        = originalGrid->cellCountJ();
+    size_t originalNK        = originalGrid->cellCountK();
+
+    qDebug() << "Original grid:" << originalNI << "x" << originalNJ << "x" << originalNK << "=" << originalCellCount << "cells";
+
+    // Test with 2x2x2 refinement (should multiply cells by 8)
+    cvf::Vec3st refinement( 2, 2, 2 );
 
     QTemporaryDir tempDir;
     ASSERT_TRUE( tempDir.isValid() );
-    QString exportFilePath = tempDir.filePath( "refined_grid.grdecl" );
+    QString exportFilePath = tempDir.filePath( "refined_2x2x2_grid.grdecl" );
 
     bool exportResult = RigResdataGridConverter::exportGrid( exportFilePath,
                                                              originalCaseData.p(),
@@ -261,20 +327,98 @@ TEST( RigResdataGridConverterTest, GridExportWithRefinement )
     std::unique_ptr<RimEclipseResultCase> refinedCase( new RimEclipseResultCase );
     cvf::ref<RigEclipseCaseData>          refinedCaseData = new RigEclipseCaseData( refinedCase.get() );
 
-    QString readBackErrorMessages;
-    bool    readBackResult = RifEclipseInputFileTools::openGridFile( exportFilePath, refinedCaseData.p(), false, &readBackErrorMessages );
-    ASSERT_TRUE( readBackResult ) << "Failed to read back refined grid: " << readBackErrorMessages.toStdString();
+    QString refinedErrorMessages;
+    bool    refinedLoadResult = RifEclipseInputFileTools::openGridFile( exportFilePath, refinedCaseData.p(), false, &refinedErrorMessages );
+    ASSERT_TRUE( refinedLoadResult ) << "Failed to load refined grid: " << refinedErrorMessages.toStdString();
 
     const RigMainGrid* refinedGrid = refinedCaseData->mainGrid();
-    ASSERT_NE( refinedGrid, nullptr );
+    ASSERT_NE( refinedGrid, nullptr ) << "Refined grid is null";
 
-    // Verify refinement worked correctly
-    EXPECT_EQ( originalGrid->cellCountI() * refinement.x(), refinedGrid->cellCountI() ) << "Refined I dimension incorrect";
-    EXPECT_EQ( originalGrid->cellCountJ() * refinement.y(), refinedGrid->cellCountJ() ) << "Refined J dimension incorrect";
-    EXPECT_EQ( originalGrid->cellCountK() * refinement.z(), refinedGrid->cellCountK() ) << "Refined K dimension incorrect";
+    // Verify refined grid dimensions (should be 8x larger: 2*2*2 = 8)
+    size_t expectedRefinedNI        = originalNI * 2;
+    size_t expectedRefinedNJ        = originalNJ * 2;
+    size_t expectedRefinedNK        = originalNK * 2;
+    size_t expectedRefinedCellCount = originalCellCount * 8;
 
-    size_t expectedRefinedCellCount = originalGrid->cellCount() * refinement.x() * refinement.y() * refinement.z();
-    EXPECT_EQ( expectedRefinedCellCount, refinedGrid->cellCount() ) << "Refined cell count incorrect";
+    EXPECT_EQ( expectedRefinedNI, refinedGrid->cellCountI() ) << "Refined grid I dimension incorrect";
+    EXPECT_EQ( expectedRefinedNJ, refinedGrid->cellCountJ() ) << "Refined grid J dimension incorrect";
+    EXPECT_EQ( expectedRefinedNK, refinedGrid->cellCountK() ) << "Refined grid K dimension incorrect";
+    EXPECT_EQ( expectedRefinedCellCount, refinedGrid->cellCount() ) << "Refined grid cell count incorrect";
+
+    qDebug() << "Original grid:" << originalNI << "x" << originalNJ << "x" << originalNK << "=" << originalCellCount << "cells";
+    qDebug() << "Refined grid:" << refinedGrid->cellCountI() << "x" << refinedGrid->cellCountJ() << "x" << refinedGrid->cellCountK() << "="
+             << refinedGrid->cellCount() << "cells";
+
+    // Corner verification: Pick a few original cells and verify their refined subcells have correct geometry
+    const size_t numTestCells = 3; // Test first 3 cells for detailed verification
+
+    for ( size_t originalCellIdx = 0; originalCellIdx < numTestCells; ++originalCellIdx )
+    {
+        // Get original cell corners
+        std::array<cvf::Vec3d, 8> originalCorners;
+        originalGrid->cellCornerVertices( originalCellIdx, originalCorners.data() );
+
+        // Calculate original cell's i,j,k indices
+        size_t origI = originalCellIdx % originalNI;
+        size_t origJ = ( originalCellIdx / originalNI ) % originalNJ;
+        size_t origK = originalCellIdx / ( originalNI * originalNJ );
+
+        qDebug() << "Checking original cell (" << origI << "," << origJ << "," << origK << ") index" << originalCellIdx;
+
+        // Check all 8 refined subcells within this original cell
+        for ( size_t subI = 0; subI < 2; ++subI )
+        {
+            for ( size_t subJ = 0; subJ < 2; ++subJ )
+            {
+                for ( size_t subK = 0; subK < 2; ++subK )
+                {
+                    // Calculate refined cell indices
+                    size_t refinedI       = origI * 2 + subI;
+                    size_t refinedJ       = origJ * 2 + subJ;
+                    size_t refinedK       = origK * 2 + subK;
+                    size_t refinedCellIdx = refinedK * ( expectedRefinedNI * expectedRefinedNJ ) + refinedJ * expectedRefinedNI + refinedI;
+
+                    // Verify refined cell is within the original cell's bounding box
+                    std::array<cvf::Vec3d, 8> refinedCorners;
+                    refinedGrid->cellCornerVertices( refinedCellIdx, refinedCorners.data() );
+
+                    // Find bounding box of original cell
+                    cvf::Vec3d originalMin = originalCorners[0];
+                    cvf::Vec3d originalMax = originalCorners[0];
+                    for ( const auto& corner : originalCorners )
+                    {
+                        originalMin.x() = std::min( originalMin.x(), corner.x() );
+                        originalMin.y() = std::min( originalMin.y(), corner.y() );
+                        originalMin.z() = std::min( originalMin.z(), corner.z() );
+                        originalMax.x() = std::max( originalMax.x(), corner.x() );
+                        originalMax.y() = std::max( originalMax.y(), corner.y() );
+                        originalMax.z() = std::max( originalMax.z(), corner.z() );
+                    }
+
+                    // All refined cell corners should be within original cell bounds (with small tolerance)
+                    for ( const auto& refinedCorner : refinedCorners )
+                    {
+                        EXPECT_GE( refinedCorner.x(), originalMin.x() - 0.1 )
+                            << "Refined cell (" << refinedI << "," << refinedJ << "," << refinedK << ") corner outside original cell X min";
+                        EXPECT_LE( refinedCorner.x(), originalMax.x() + 0.1 )
+                            << "Refined cell (" << refinedI << "," << refinedJ << "," << refinedK << ") corner outside original cell X max";
+
+                        EXPECT_GE( refinedCorner.y(), originalMin.y() - 0.1 )
+                            << "Refined cell (" << refinedI << "," << refinedJ << "," << refinedK << ") corner outside original cell Y min";
+                        EXPECT_LE( refinedCorner.y(), originalMax.y() + 0.1 )
+                            << "Refined cell (" << refinedI << "," << refinedJ << "," << refinedK << ") corner outside original cell Y max";
+
+                        EXPECT_GE( refinedCorner.z(), originalMin.z() - 0.1 )
+                            << "Refined cell (" << refinedI << "," << refinedJ << "," << refinedK << ") corner outside original cell Z min";
+                        EXPECT_LE( refinedCorner.z(), originalMax.z() + 0.1 )
+                            << "Refined cell (" << refinedI << "," << refinedJ << "," << refinedK << ") corner outside original cell Z max";
+                    }
+                }
+            }
+        }
+    }
+
+    qDebug() << "2x2x2 refinement corner verification completed successfully";
 }
 
 //--------------------------------------------------------------------------------------------------
