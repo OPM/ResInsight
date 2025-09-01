@@ -164,18 +164,18 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
     {
         Rim3dOverlayInfoConfig* overlayInfo = view->overlayInfoConfig();
 
-        auto hist = new QwtPlotHistogram( "Histogram" );
-        auto aggr = new QwtPlotCurve( "Aggregated" );
-
-        hist->setBrush( QBrush( QColor( Qt::darkCyan ) ) );
-        hist->setZ( -1 );
-        aggr->setStyle( QwtPlotCurve::Steps );
-        aggr->setCurveAttribute( QwtPlotCurve::Inverted );
-
         RigHistogramData histogramData = overlayInfo->histogramData();
 
         if ( histogramData.isHistogramVectorValid() )
         {
+            auto hist = new QwtPlotHistogram( "Histogram" );
+            auto aggr = new QwtPlotCurve( "Aggregated" );
+
+            hist->setBrush( QBrush( QColor( Qt::darkCyan ) ) );
+            hist->setZ( -1 );
+            aggr->setStyle( QwtPlotCurve::Steps );
+            aggr->setCurveAttribute( QwtPlotCurve::Inverted );
+
             QVector<QwtIntervalSample> histSamples;
             QVector<QPointF>           aggrSamples;
             double                     xStep     = ( histogramData.max - histogramData.min ) / histogramData.histogram.size();
