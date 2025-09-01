@@ -2,37 +2,37 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Getting Started :: ResInsight</title>
-    <link>http://localhost:1313/getting-started/index.html</link>
+    <link>https://resinsight.org/getting-started/index.html</link>
     <description>ResInsight is a powerful open source, cross-platform 3D visualization, curve plotting, and post processing tool for reservoir models and simulations. This chapter provides an overview of its functionality and installation.&#xA;ResInsight Documentation Overview resinsight.org - Documentation for latest stable release api.resinsight.org - Documentation of Python API beta.resinsight.org - Latest documentation (not yet released) https://github.com/CeetronSolutions/resinsight-tutorials - Tutorials and Examples</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <atom:link href="http://localhost:1313/getting-started/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://resinsight.org/getting-started/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Overview</title>
-      <link>http://localhost:1313/getting-started/overview/index.html</link>
+      <link>https://resinsight.org/getting-started/overview/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/getting-started/overview/index.html</guid>
+      <guid>https://resinsight.org/getting-started/overview/index.html</guid>
       <description>User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.&#xA;3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window.</description>
     </item>
     <item>
       <title>Project Tree</title>
-      <link>http://localhost:1313/getting-started/projecttree/index.html</link>
+      <link>https://resinsight.org/getting-started/projecttree/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/getting-started/projecttree/index.html</guid>
+      <guid>https://resinsight.org/getting-started/projecttree/index.html</guid>
       <description>As described in Overview, ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots. The content and appearance of displayed information is managed and controlled by the Project Tree and the Plots windows. Some of their general functionality is described and exemplified below.&#xA;Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions. To exemplify, consider the plot of Bottom Hole Pressure for a number of wells atop this page. By multi-selection in Plots, you may for instance change the color of multiple curves as shown below.</description>
     </item>
     <item>
       <title>Help Menu and Documentation</title>
-      <link>http://localhost:1313/getting-started/helpmenuanddocumentation/index.html</link>
+      <link>https://resinsight.org/getting-started/helpmenuanddocumentation/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/getting-started/helpmenuanddocumentation/index.html</guid>
+      <guid>https://resinsight.org/getting-started/helpmenuanddocumentation/index.html</guid>
       <description>Integrated ResInsight Help If you need the user manual for an object, you can use the right-click menu of the object and select Search Help for:. This will open up the user manual for the selected object from resinsight.org.&#xA;ResInsight Online Tutorials ResInsight Tutorial Videos (YouTube) ResInsight Tutorials ResInsight Help Menu</description>
     </item>
     <item>
       <title>Model Navigation</title>
-      <link>http://localhost:1313/getting-started/modelnavigation/index.html</link>
+      <link>https://resinsight.org/getting-started/modelnavigation/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/getting-started/modelnavigation/index.html</guid>
+      <guid>https://resinsight.org/getting-started/modelnavigation/index.html</guid>
       <description>ResInsight comes with four navigation modes. The active mode can be selected in the Preferences dialog.&#xA;Note that changing the navigation mode applies to the currently active view only, and views created after the change.&#xA;These abbreviations are used in the tables below:&#xA;Abbreviation Meaning LMB Press the left mouse button MMB Press the middle mouse button or scroll wheel button RMB Press the right mouse button The following applies to all navigation modes:</description>
     </item>
   </channel>

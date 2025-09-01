@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
@@ -12,7 +12,7 @@ If you have, and would like to a use these features, please see Build Instructio
     <meta name="twitter:title" content="Geomechanical Data :: ResInsight">
     <meta name="twitter:description" content="ResInsight can be built with support for reading and displaying geomechanical analysis models produced by ABAQUS in the *.odb format. This is only possible if you or your organization has a copy of the ODB-Api from Simulia, and a valid license to use it.
 If you have, and would like to a use these features, please see Build Instructions for a description on how to build ResInsight and how to include the support for odb-files.">
-    <meta property="og:url" content="http://localhost:1313/import/geomechanicaldata/index.html">
+    <meta property="og:url" content="https://resinsight.org/import/geomechanicaldata/index.html">
     <meta property="og:site_name" content="ResInsight">
     <meta property="og:title" content="Geomechanical Data :: ResInsight">
     <meta property="og:description" content="ResInsight can be built with support for reading and displaying geomechanical analysis models produced by ABAQUS in the *.odb format. This is only possible if you or your organization has a copy of the ODB-Api from Simulia, and a valid license to use it.
@@ -25,17 +25,17 @@ If you have, and would like to a use these features, please see Build Instructio
 If you have, and would like to a use these features, please see Build Instructions for a description on how to build ResInsight and how to include the support for odb-files.">
     <meta itemprop="wordCount" content="446">
     <title>Geomechanical Data :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1756723773" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1756723773" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1756723773" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1756723773" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1756723773" rel="stylesheet">
-    <link href="/css/theme.css?1756723773" rel="stylesheet">
-    <link href="/css/format-html.css?1756723773" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1756724853" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1756724853" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1756724853" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1756724853" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1756724853" rel="stylesheet">
+    <link href="/css/theme.min.css?1756724853" rel="stylesheet">
+    <link href="/css/format-html.min.css?1756724853" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
-      window.relearn.absBaseUri='http:\/\/localhost:1313';
-      window.relearn.min = ``;
+      window.relearn.absBaseUri='https:\/\/resinsight.org';
+      window.relearn.min = `.min`;
       window.relearn.disableAnchorCopy=false;
       window.relearn.disableAnchorScrolling=false;
       // variant stuff
@@ -175,8 +175,8 @@ If you have, and would like to a use these features, please see Build Instructio
 <h3 id="geo-mechanical-data-support">Geo Mechanical Data Support</h3>
 <p>Geo-mechanical data can be imported using the <strong>Import -&gt; Geo Mechanical Cases menu</strong>. Here three options are present: <strong>Import Geo Mechanical Model</strong>, <strong>Import Geo Mechanical Model (Time Step Filtered)</strong>  (both for odb files) and <strong>Import Element Property Table</strong>.</p>
 <p>A geomechanical model can also be imported from a VTK file.</p>
-<p><a href="#R-image-eafcf42d3ed37dbe2b3bc0c156ae03ff" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/GeoMechImport.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-eafcf42d3ed37dbe2b3bc0c156ae03ff"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/GeoMechImport.png"></a></p>
+<p><a href="#R-image-6b7aa76f50d7f03f414e8ce7bf08404e" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/GeoMechImport.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-6b7aa76f50d7f03f414e8ce7bf08404e"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/GeoMechImport.png"></a></p>
 <p>ResInsight supports the elements C3D8R, C3D8 and C3D8P which are all HEX8 cells. It is also assumed that there are <em>no other element topologies</em> present in the odb file, and that there are only one part. For IJK-based range filters to work, it is also assumed that the elements in the part is topologically arranged as a complete box.</p>
 <p>ResInsight loads the second frame within each odb-step, and present those as the time series for each result.</p>
 <p>All the result fields in the odb-file is then available for post processing in ResInsight, but stresses and strains are converted to pressure-positive tensors as normally used in geomechanics, instead of the normal tension-positive tensors that ABAQUS stores.</p>
@@ -187,8 +187,8 @@ If you have, and would like to a use these features, please see Build Instructio
 <p>The Octave interface, however, does not support the odb-data yet.</p>
 <h3 id="time-step-filtered-import">Time Step Filtered Import</h3>
 <p>By choosing the <strong>Import Geo Mechanical Model (Time Step Filtered)</strong> option, it is possible to limit the amount of time steps that are imported to improve the speed and reduce the memory use. If this option is chosen a tile step filter dialog is shown after selecting the file to import.</p>
-<p><a href="#R-image-72538782b50bf9bedc70f33fd1f925a2" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/GeoMechFilter.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-72538782b50bf9bedc70f33fd1f925a2"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/GeoMechFilter.png"></a></p>
+<p><a href="#R-image-6eab779853990dccf17e4c671060d68f" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/GeoMechFilter.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-6eab779853990dccf17e4c671060d68f"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/GeoMechFilter.png"></a></p>
 <p>The data can be filtered by skipping Days, Weeks, Months or Years in the top <strong>Filter Type</strong> drop down list and the range of time steps can be picked in the <strong>First Time Step</strong> and <strong>Last Time Steps</strong> lists. Furthermore, the final selection can be fine tuned by selecting or deselecting individual time steps in the <strong>Select From N Time Steps</strong> list. ResInsight will ignore any data that doesn&rsquo;t match these time steps and will thus reduce the amount of data imported.</p>
 
   <footer class="footline">
@@ -201,13 +201,13 @@ If you have, and would like to a use these features, please see Build Instructio
       <div id="R-header-topbar" class="default-animation"></div>
       <div id="R-header-wrapper" class="default-animation">
         <div id="R-header" class="default-animation">
-<a id="logo" href="http://localhost:1313/">
-  <img src="http://localhost:1313//images/ResInsightCroppedIconPicture.png">
+<a id="logo" href="https://resinsight.org/">
+  <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
 </a>
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1756723773";
+          window.index_js_url="/searchindex.en.js?1756724853";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -220,12 +220,12 @@ If you have, and would like to a use these features, please see Build Instructio
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1756723773" defer></script>
-        <script src="/js/lunr/lunr.min.js?1756723773" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1756723773" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1756723773" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1756723773" defer></script>
-        <script src="/js/search.js?1756723773" defer></script>
+        <script src="/js/auto-complete.js?1756724853" defer></script>
+        <script src="/js/lunr/lunr.min.js?1756724853" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1756724853" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1756724853" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1756724853" defer></script>
+        <script src="/js/search.js?1756724853" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -456,7 +456,7 @@ If you have, and would like to a use these features, please see Build Instructio
               </li>
             </ul>
           </div>
-          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='http://localhost:1313//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
+          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
 
 ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetron Solutions</a>
 <p>in collaboration with</p>
@@ -466,8 +466,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1756723773" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1756723773" defer></script>
-    <script src="/js/theme.js?1756723773" defer></script>
+    <script src="/js/clipboard.min.js?1756724853" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1756724853" defer></script>
+    <script src="/js/theme.js?1756724853" defer></script>
   </body>
 </html>

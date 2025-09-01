@@ -2,44 +2,44 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Surfaces :: ResInsight</title>
-    <link>http://localhost:1313/reference-manual/surfaces/index.html</link>
+    <link>https://resinsight.org/reference-manual/surfaces/index.html</link>
     <description>Detailed description of surface file formats.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <atom:link href="http://localhost:1313/reference-manual/surfaces/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://resinsight.org/reference-manual/surfaces/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>GOCAD Surface</title>
-      <link>http://localhost:1313/reference-manual/surfaces/gocadsurface/index.html</link>
+      <link>https://resinsight.org/reference-manual/surfaces/gocadsurface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/reference-manual/surfaces/gocadsurface/index.html</guid>
+      <guid>https://resinsight.org/reference-manual/surfaces/gocadsurface/index.html</guid>
       <description>GOCAD Surface format GOCAD is a computer application that allows you to import, create, modify, integrate, view, and export geological objects in 3D. The GOCAD export file format supported by ResInsight is TSURF (*.ts). A TSURF data file is a triangle based surface format containing vertex coordinates and triangle to vertex connectivities as exemplified below. ResInsight import vertex and triangle identifiers from the first TFACE section in such a file.</description>
     </item>
     <item>
       <title>OpenWorks Surface</title>
-      <link>http://localhost:1313/reference-manual/surfaces/openworkssurface/index.html</link>
+      <link>https://resinsight.org/reference-manual/surfaces/openworkssurface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/reference-manual/surfaces/openworkssurface/index.html</guid>
+      <guid>https://resinsight.org/reference-manual/surfaces/openworkssurface/index.html</guid>
       <description>OpenWorks XYZ Surface files ResInsight is capable of importing a surface defined by a XYZ (*.dat) file from OpenWorks. A XYZ data file specifies the quads of a surface by x, y, z nodal coordinates organized in a regular grid. As seen, # and @ denotes comment lines.&#xA;@File_Version: 4 @Coordinate_Type_is: 1 @Export_Type_is: 1 @Number_of_Projects 1 @Project_Type_Name: , 3,xxx, @Project_Unit_is: meters , xxx #File_Version____________-&gt; 4 #Project_Name____________-&gt; xxx #Project_Type____________-&gt; 3 #Export_XY_Unit__________-&gt; meters #OpenWorks_Project_______-&gt; &#39;xxx&#39; #Master_Project_______-&gt; #Coordinate_type_________-&gt; 1 #Number_of_points_in_hzd_-&gt; 1 #Horizon_internal_id_____-&gt; xxx #Horizon_extremes_are____-&gt; xxx,xxx #Horizon_onset_is_Minimum_____-&gt; 1 #Horizon_type_is_DEPTH_STRUCTURE______-&gt; 2 #Horizon_color_is________-&gt; 255 0 0 #Horizon_name____________-&gt; xxx #Horizon_attribute_______-&gt; DEPTH_STRUCTURE #Horizon_version_________-&gt; UNKNOWN #Horizon_interp_status___-&gt; defaultStat #Horizon_class___________-&gt; defaultClass #Export_Z_Unit___________-&gt; meters #Horizon_onset_type______-&gt; Minimum #Horizon_data_domain_____-&gt; DEPTH #Horizon_remark_size_____-&gt; 50 Horizon from Grid on Fri Aug 14 13:42:10 CEST 2020 #End_of_Horizon_ASCII_Header_ 4.5423435e+05 7.3239079e+06 1.5970070e+03 4.5424414e+05 7.3239157e+06 1.5970485e+03 4.5425392e+05 7.3239234e+06 1.5970899e+03 4.5426371e+05 7.3239312e+06 1.5971314e+03</description>
     </item>
     <item>
       <title>PTL Surface</title>
-      <link>http://localhost:1313/reference-manual/surfaces/ptlsurface/index.html</link>
+      <link>https://resinsight.org/reference-manual/surfaces/ptlsurface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/reference-manual/surfaces/ptlsurface/index.html</guid>
+      <guid>https://resinsight.org/reference-manual/surfaces/ptlsurface/index.html</guid>
       <description>Petrel Surface PTL files ResInsight is capable of importing a surface defined by a PTL (*.ptl) file format. A PTL data file specifies the quads of a surface by x, y, z nodal coordinates and the i and j indices as exemplified below. As seen, # denotes comment lines.&#xA;#Type: scattered data #Version: 6 #Description: No description #Format: free #Field: 1 x #Field: 2 y #Field: 3 z meters #Field: 4 column #Field: 5 row #Projection: Local Rectangular #Units: meters #End: #Information from grid #Grid_size: Not_avaiable #Grid_space: Not_available #Z_field: z #Vertical_faults: Not_available #History: No history #Z_units: meters 443479.500000 7305390.500000 -1000.000000 1 1 443479.500000 7305488.500000 -1000.000000 1 2 443479.500000 7305586.500000 -1000.000000 1 3 443479.500000 7305684.500000 -1000.000000 1 4 443479.500000 7305782.500000 -1000.000000 1 5 443479.500000 7305880.500000 -1000.000000 1 6 ...</description>
     </item>
     <item>
       <title>RMS Surface</title>
-      <link>http://localhost:1313/reference-manual/surfaces/rmssurface/index.html</link>
+      <link>https://resinsight.org/reference-manual/surfaces/rmssurface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/reference-manual/surfaces/rmssurface/index.html</guid>
+      <guid>https://resinsight.org/reference-manual/surfaces/rmssurface/index.html</guid>
       <description>RMS Regular Surface A regular surface is defined in the XTGeo project https://xtgeo.readthedocs.io/en/latest/datamodels.html#description&#xA;These files are either in text format *.IRAP or binary format *.GRI.&#xA;Example IRAP text file -996 440 25.000000 25.000000&#xD;461500.000000 468475.000000 5926500.000000 5937475.000000&#xD;280 30.000000 461500.000000 5926500.000000&#xD;0 0 0 0 0 0 0&#xD;1707.3628 1707.3628 1707.3628 1707.3628 1707.6440 1707.6440&#xD;1707.6440 1709.3605 1709.3605 1709.3605 1709.3605 1710.8440&#xD;1710.8440 1710.8440 1711.9529 1711.9529 1713.3983 1714.1257&#xD;1714.1257 1716.3483 1716.3483 1716.3483 1718.0007 1718.0007&#xD;1720.4965 1720.4965 1720.4965 1722.1692 1722.9777 1722.9777&#xD;1722.9777 1726.9590 1726.9590 1726.9590 1726.9590 1729.3735&#xD;1729.3735 1729.3735 1730.9493 1730.9493 1732.3593 1733.0602&#xD;1733.0602 1735.1357 1735.1357 1735.1357 1735.1357 1738.3810&#xD;1738.3810 1738.3810 1738.3810 1739.8019 1740.5305 1740.5305&#xD;1740.5305 1744.0310 1744.0310 1744.0310 1744.0310 1745.9899&#xD;1745.9899 1745.9899 1747.1111 1747.1111 1747.6205 1747.8715&#xD;1747.8715 1748.4703 1748.4703 1748.4703 1748.4703 1748.1962&#xD;1748.1962 1748.1962 1748.1962 1747.6161 1747.2528 1747.2528&#xD;1747.2528 1745.1470 1745.1470 1745.1470 1745.1470 1743.4398&#xD;1743.4398 1743.4398 1742.3307 1742.3307 1741.4071 1740.9467&#xD;1740.9467 1739.6583 1739.6583 1739.6583 1739.6583 1738.2701</description>
     </item>
     <item>
       <title>VTK Surface</title>
-      <link>http://localhost:1313/reference-manual/surfaces/vtksurface/index.html</link>
+      <link>https://resinsight.org/reference-manual/surfaces/vtksurface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/reference-manual/surfaces/vtksurface/index.html</guid>
+      <guid>https://resinsight.org/reference-manual/surfaces/vtksurface/index.html</guid>
       <description>VTK Unstructured Grid Individual surfaces can be imported from the VTK file format with the extension VTU. If the data in a surface is changing between time steps, a dictionary PVD file can be used. The PVD file contains time stamps and references to VTU files.&#xA;A VTK UnstructuredGrid file stores 3D mesh data with properties attached to cells or points. It’s an XML file that describes the shape of your mesh and the data values on it.</description>
     </item>
   </channel>
