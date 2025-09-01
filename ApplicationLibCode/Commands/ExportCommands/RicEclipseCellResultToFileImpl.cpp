@@ -157,11 +157,35 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     }
 
     textstream << eclipseKeyword << "\n";
+
+    // Special formatting for MAPAXES to match Eclipse format exactly
+    if ( eclipseKeyword == "MAPAXES" )
+    {
+        textstream.setFieldWidth( 0 );
+        textstream.setRealNumberPrecision( 3 );
+        textstream.setRealNumberNotation( QTextStream::FixedNotation );
+
+        // Write MAPAXES in proper Eclipse format: 2 values per line, 3 lines total
+        for ( size_t i = 0; i < resultData.size(); i += 2 )
+        {
+            textstream << resultData[i] << " " << resultData[i + 1] << "\n";
+        }
+        textstream << "/\n";
+        return; // Skip the normal loop for MAPAXES
+    }
+
     textstream.setFieldWidth( 16 );
     textstream.setFieldAlignment( QTextStream::AlignRight );
 
+    // Set higher precision for coordinate data
+    if ( eclipseKeyword == "COORD" || eclipseKeyword == "ZCORN" )
+    {
+        // textstream.setRealNumberPrecision( 12 );
+        // textstream.setRealNumberNotation( QTextStream::ScientificNotation );
+    }
+
     caf::ProgressInfo pi( resultData.size(), QString( "Writing data to file %1" ).arg( file->fileName() ) );
-    size_t            progressSteps = resultData.size() / 20;
+    size_t            progressSteps = std::max( static_cast<size_t>( 1 ), resultData.size() / 20 );
 
     for ( size_t i = 0; i < resultData.size(); i++ )
     {
