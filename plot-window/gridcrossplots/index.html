@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
-  <head>
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
@@ -10,7 +10,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Grid Cross Plots :: ResInsight">
     <meta name="twitter:description" content="ResInsight supports the creation of scatter / cross plots of two Eclipse results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations. giving a separate color and label for each group. The above example shows a classic Porosity vs Permeability plot, grouped by formations, showing different trends for each formation.">
-    <meta property="og:url" content="https://resinsight.org/plot-window/gridcrossplots/index.html">
+    <meta property="og:url" content="http://localhost:1313/plot-window/gridcrossplots/index.html">
     <meta property="og:site_name" content="ResInsight">
     <meta property="og:title" content="Grid Cross Plots :: ResInsight">
     <meta property="og:description" content="ResInsight supports the creation of scatter / cross plots of two Eclipse results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations. giving a separate color and label for each group. The above example shows a classic Porosity vs Permeability plot, grouped by formations, showing different trends for each formation.">
@@ -21,17 +21,17 @@
     <meta itemprop="description" content="ResInsight supports the creation of scatter / cross plots of two Eclipse results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations. giving a separate color and label for each group. The above example shows a classic Porosity vs Permeability plot, grouped by formations, showing different trends for each formation.">
     <meta itemprop="wordCount" content="806">
     <title>Grid Cross Plots :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1744032782" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1744032782" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1744032782" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1744032782" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1744032782" rel="stylesheet">
-    <link href="/css/theme.min.css?1744032782" rel="stylesheet">
-    <link href="/css/format-html.min.css?1744032782" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1756723773" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1756723773" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1756723773" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1756723773" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1756723773" rel="stylesheet">
+    <link href="/css/theme.css?1756723773" rel="stylesheet">
+    <link href="/css/format-html.css?1756723773" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
-      window.relearn.absBaseUri='https:\/\/resinsight.org';
-      window.relearn.min = `.min`;
+      window.relearn.absBaseUri='http:\/\/localhost:1313';
+      window.relearn.min = ``;
       window.relearn.disableAnchorCopy=false;
       window.relearn.disableAnchorScrolling=false;
       // variant stuff
@@ -164,8 +164,8 @@
 
 <h1 id="grid-cross-plots">Grid Cross Plots</h1>
 
-<p><a href="#R-image-ff41596d75c83a43a1aaceba068b9e03" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-ff41596d75c83a43a1aaceba068b9e03"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot.png"></a></p>
+<p><a href="#R-image-00c1501f33c5d304e8fd40f6fa40ff8d" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-00c1501f33c5d304e8fd40f6fa40ff8d"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot.png"></a></p>
 <p>ResInsight supports the creation of scatter / cross plots of two Eclipse results against each  other, with each cell in the grid
 representing one data point in the plot. The data points can be grouped by a third result, by time step or by <strong>Formations</strong>.
 giving a separate color and label for each group. The above example shows a classic Porosity vs Permeability plot, grouped by
@@ -174,32 +174,32 @@ formations, showing different trends for each formation.</p>
 <p>Each cross plot can contain any number of <strong>Data Sets</strong>, representing a collection of cross plot points, where the <strong>Data Set</strong> can have a case source, time step and cell filter associated with it. This way, dynamic parameters for different time steps can be compared, or results from different case realizations.</p>
 <p>The Grid Cross plots may have a Symbol Legend below the plot, separating the Data Sets, and a Color Legend within the plot separating between the different Grouping categories or intervals. In addition, an Info Box will be added to the upper right corner of the plot, showing the different data sets in the plot and the parameters used. The Color Legends and Info Box can be moved to other parts of the plot and will snap to edges and corners when moved close to them.</p>
 <h2 id="creating-grid-cross-plots">Creating Grid Cross Plots</h2>
-<p><a href="#R-image-08654305a88789c7f23a51bc85b8c6e0" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_CreateFromView.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-08654305a88789c7f23a51bc85b8c6e0"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_CreateFromView.png"></a>
-<a href="#R-image-9c473162adbb576a6043f8cefd1149ff" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_Create.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-9c473162adbb576a6043f8cefd1149ff"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_Create.png"></a></p>
+<p><a href="#R-image-aab569e96df4a0d38070b65716501b90" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_CreateFromView.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-aab569e96df4a0d38070b65716501b90"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_CreateFromView.png"></a>
+<a href="#R-image-91337ca54735d56ad418c457fbf321bc" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_Create.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-91337ca54735d56ad418c457fbf321bc"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_Create.png"></a></p>
 <p>Grid Cross Plots can be created in a couple of ways:</p>
 <ol>
 <li>Select a 3D view or Cell Result in the main ResInsight window, right-click and select <strong>Create Grid Cross Plot from 3d View</strong>. The resulting cross plot will display the current 3d Result x DEPTH and only contain data points for the visible cells.</li>
 <li>Right-click on the <strong>Grid Cross Plots</strong> entry under <strong>Plots</strong> in the <strong>Plot Window</strong>. By default the plot will contain the result values PORO x PERMX and will be grouped by formations (if any are loaded in the project). Data for all active cells will be displayed.</li>
 </ol>
 <p>Having created a Grid Cross Plot, the appearance of the Legends, the Info box and the Plot Title can be set in the Property Editor of the Grid Cross Plot.</p>
-<p><a href="#R-image-5ab136dc204aa6eb720a776357f5b639" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_PropertyEditor.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-5ab136dc204aa6eb720a776357f5b639"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_PropertyEditor.png"></a>
-<a href="#R-image-3a18f0c535e8dc4e33166052615854cd" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlotAxis_PropertyEditor.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-3a18f0c535e8dc4e33166052615854cd"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlotAxis_PropertyEditor.png"></a></p>
+<p><a href="#R-image-814d008db597ed2d3e9ec30a9eb6c070" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_PropertyEditor.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-814d008db597ed2d3e9ec30a9eb6c070"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_PropertyEditor.png"></a>
+<a href="#R-image-278b06758c3f196c81199d198f41cafc" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlotAxis_PropertyEditor.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-278b06758c3f196c81199d198f41cafc"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlotAxis_PropertyEditor.png"></a></p>
 <p>The plot also have some available settings for the two plot axes (X and Y), where the title position and font size can be altered plus the axis range may be controlled and the axis may be set as logarithmic and inverted so the smallest value is first (default for DEPTH on the Y-axis).</p>
 <h2 id="regression-curves">Regression Curves</h2>
-<p><a href="#R-image-cc933e5af360e5f0fab81dccc07ab29a" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_RegressionCurve.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-cc933e5af360e5f0fab81dccc07ab29a"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_RegressionCurve.png"></a>
+<p><a href="#R-image-756995effdec98f92727cdb7589523df" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_RegressionCurve.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-756995effdec98f92727cdb7589523df"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_RegressionCurve.png"></a>
 A regression curve can be displayed for each data group. The display of regression curves is controlled from the <strong>Regression Curves</strong> folder.</p>
 <h2 id="grid-cross-plot-data-sets">Grid Cross Plot Data Sets</h2>
 <p>Further Grid Cross Plot data sets can be added to a Plot by right clicking on the plot in the Project Tree and selecting <strong>New Data Set</strong>.</p>
-<p><a href="#R-image-e79bd5917225aea40dcd29fb9e94f620" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlotDataSet_Create.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-e79bd5917225aea40dcd29fb9e94f620"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlotDataSet_Create.png"></a></p>
+<p><a href="#R-image-3cb42cf86f12cc8020648725c70be0bf" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlotDataSet_Create.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3cb42cf86f12cc8020648725c70be0bf"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlotDataSet_Create.png"></a></p>
 <p>The Data Sets contain all the parameters controlling the data source and types of data being plotted.</p>
-<p><a href="#R-image-6e7b3a7ddf04e3bb1378c21525850956" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlotDataSet_PropertyEditor.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-6e7b3a7ddf04e3bb1378c21525850956"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlotDataSet_PropertyEditor.png"></a></p>
+<p><a href="#R-image-b30da503a1e25364a8b137be2a32eebf" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlotDataSet_PropertyEditor.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-b30da503a1e25364a8b137be2a32eebf"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlotDataSet_PropertyEditor.png"></a></p>
 <p>The available parameters are:</p>
 <table>
   <thead>
@@ -245,17 +245,17 @@ A regression curve can be displayed for each data group. The display of regressi
 </table>
 <h2 id="show-plot-data">Show Plot Data</h2>
 <p>The data used to create the Cross Plot can be exported by either right-clicking on the Cross Plot in the project tree or right clicking on the plot itself and selecting <strong>Show Plot Data</strong>.</p>
-<p><a href="#R-image-eb26324217573005cfca8277f092267f" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData_ProjectTree.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-eb26324217573005cfca8277f092267f"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData_ProjectTree.png"></a>
-<a href="#R-image-945c2590b200da4476f5f4758493d94d" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData_PlotContext.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-945c2590b200da4476f5f4758493d94d"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData_PlotContext.png"></a></p>
+<p><a href="#R-image-f58906404e73300a85b4e52eef451980" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData_ProjectTree.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-f58906404e73300a85b4e52eef451980"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData_ProjectTree.png"></a>
+<a href="#R-image-0e885754d3f3e611217bee912719a3d5" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData_PlotContext.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-0e885754d3f3e611217bee912719a3d5"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData_PlotContext.png"></a></p>
 <p>Either method will bring up a dialog containing column-based text showing the X and Y result values, the Group index and Group Description (the latter two if Grouping is enabled). One tab in the dialog will be added for each Data Set. The data can be copied to the clipboard or exported to file by right-clicking on the text area.</p>
-<p><a href="#R-image-29b7007a496496c40426de4541f52bc5" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-29b7007a496496c40426de4541f52bc5"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData.png"></a></p>
+<p><a href="#R-image-0944c4ee9ec774096ac4ed794119ba71" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-0944c4ee9ec774096ac4ed794119ba71"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_ShowData.png"></a></p>
 <h2 id="swap-axes">Swap Axes</h2>
 <p>The X- and Y-axes can be swapped, both for invididual data sets, by choosing <strong>Swap Axis Properties</strong> from the right-click menu of the Grid Cross Plot <strong>Data Set</strong>, or for all data sets by right clicking on either the Cross Plot in the Project Tree or on the plot itself and selecting <strong>Swap Axis Properties for all Data Sets in Plot</strong>. The X- and Y-axis will swap place retaining the properties, such as Logarithmic or inverted axes.</p>
-<p><a href="#R-image-70cc9e1e501d0ce88fa1ea4b1de6a02f" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_SwapAxes.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-70cc9e1e501d0ce88fa1ea4b1de6a02f"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_SwapAxes.png"></a></p>
+<p><a href="#R-image-819899943f9331823b838cb909c5506a" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/GridCrossPlot_SwapAxes.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-819899943f9331823b838cb909c5506a"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/GridCrossPlot_SwapAxes.png"></a></p>
 
   <footer class="footline">
   </footer>
@@ -267,13 +267,13 @@ A regression curve can be displayed for each data group. The display of regressi
       <div id="R-header-topbar" class="default-animation"></div>
       <div id="R-header-wrapper" class="default-animation">
         <div id="R-header" class="default-animation">
-<a id="logo" href="https://resinsight.org/">
-  <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
+<a id="logo" href="http://localhost:1313/">
+  <img src="http://localhost:1313//images/ResInsightCroppedIconPicture.png">
 </a>
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1744032782";
+          window.index_js_url="/searchindex.en.js?1756723773";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -286,12 +286,12 @@ A regression curve can be displayed for each data group. The display of regressi
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1744032782" defer></script>
-        <script src="/js/lunr/lunr.min.js?1744032782" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1744032782" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1744032782" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1744032782" defer></script>
-        <script src="/js/search.js?1744032782" defer></script>
+        <script src="/js/auto-complete.js?1756723773" defer></script>
+        <script src="/js/lunr/lunr.min.js?1756723773" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1756723773" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1756723773" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1756723773" defer></script>
+        <script src="/js/search.js?1756723773" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -313,6 +313,7 @@ A regression curve can be displayed for each data group. The display of regressi
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2024_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2024_12/index.html">What&#39;s New in 2024.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2024_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2024_09/index.html">What&#39;s New in 2024.09</a></li>
@@ -375,7 +376,7 @@ A regression curve can be displayed for each data group. The display of regressi
             <li class="" data-nav-id="/plot-window/ensembleplotting/index.html"><a class="padding" href="/plot-window/ensembleplotting/index.html">Ensemble Plotting</a></li>
             <li class="" data-nav-id="/plot-window/objectivefunctions/index.html"><a class="padding" href="/plot-window/objectivefunctions/index.html">Objective Functions</a></li>
             <li class="" data-nav-id="/plot-window/analysisplots/index.html"><a class="padding" href="/plot-window/analysisplots/index.html">Analysis Plots</a></li>
-            <li class="" data-nav-id="/plot-window/gridstatisticsplots/index.html"><a class="padding" href="/plot-window/gridstatisticsplots/index.html">Grid Statistics Plots</a></li>
+            <li class="" data-nav-id="/plot-window/histogram/index.html"><a class="padding" href="/plot-window/histogram/index.html">Histogram Plots</a></li>
             <li class="" data-nav-id="/plot-window/correlationplots/index.html"><a class="padding" href="/plot-window/correlationplots/index.html">Correlation Plots</a></li>
             <li class="" data-nav-id="/plot-window/welllogsandplots/index.html"><a class="padding" href="/plot-window/welllogsandplots/index.html">Well Log Plots</a></li>
             <li class="" data-nav-id="/plot-window/declinecurveanalysis/index.html"><a class="padding" href="/plot-window/declinecurveanalysis/index.html">Decline Curve Analysis</a></li>
@@ -391,6 +392,13 @@ A regression curve can be displayed for each data group. The display of regressi
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html">Well Allocation Over Time Plot</a></li></ul></li>
             <li class="active " data-nav-id="/plot-window/gridcrossplots/index.html"><a class="padding" href="/plot-window/gridcrossplots/index.html">Grid Cross Plots</a></li>
             <li class="" data-nav-id="/plot-window/saturationpressureplots/index.html"><a class="padding" href="/plot-window/saturationpressureplots/index.html">Saturation Pressure Plots</a></li></ul></li>
+            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/surfaces/gocadsurface/index.html"><a class="padding" href="/reference-manual/surfaces/gocadsurface/index.html">GOCAD Surface</a></li>
+            <li class="" data-nav-id="/reference-manual/surfaces/openworkssurface/index.html"><a class="padding" href="/reference-manual/surfaces/openworkssurface/index.html">OpenWorks Surface</a></li>
+            <li class="" data-nav-id="/reference-manual/surfaces/ptlsurface/index.html"><a class="padding" href="/reference-manual/surfaces/ptlsurface/index.html">PTL Surface</a></li>
+            <li class="" data-nav-id="/reference-manual/surfaces/rmssurface/index.html"><a class="padding" href="/reference-manual/surfaces/rmssurface/index.html">RMS Surface</a></li>
+            <li class="" data-nav-id="/reference-manual/surfaces/vtksurface/index.html"><a class="padding" href="/reference-manual/surfaces/vtksurface/index.html">VTK Surface</a></li></ul></li></ul></li>
             <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/calculatorexpressions/index.html"><a class="padding" href="/calculated-data/calculatorexpressions/index.html">Calculator Expressions</a></li>
             <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
@@ -443,6 +451,7 @@ A regression curve can be displayed for each data group. The display of regressi
             <li class="" data-nav-id="/scripting/octaveinterfacereference/index.html"><a class="padding" href="/scripting/octaveinterfacereference/index.html">Octave Interface Reference</a></li></ul></li>
             <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
             <li class="" data-nav-id="/misc/preferences/index.html"><a class="padding" href="/misc/preferences/index.html">Preferences</a></li>
+            <li class="" data-nav-id="/misc/applicationlogging/index.html"><a class="padding" href="/misc/applicationlogging/index.html">Application Logging</a></li>
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
             <li class="" data-nav-id="/misc/projectfilerevisions/index.html"><a class="padding" href="/misc/projectfilerevisions/index.html">Project File Revisions</a></li>
             <li class="" data-nav-id="/misc/windowmanagement/index.html"><a class="padding" href="/misc/windowmanagement/index.html">Window Management</a></li>
@@ -457,6 +466,7 @@ A regression curve can be displayed for each data group. The display of regressi
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
+            <li class="" data-nav-id="/workflows/opmflowjob/index.html"><a class="padding" href="/workflows/opmflowjob/index.html">Management of Simulation Runs</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
@@ -512,7 +522,7 @@ A regression curve can be displayed for each data group. The display of regressi
               </li>
             </ul>
           </div>
-          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
+          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='http://localhost:1313//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
 
 ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetron Solutions</a>
 <p>in collaboration with</p>
@@ -522,8 +532,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1744032782" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1744032782" defer></script>
-    <script src="/js/theme.js?1744032782" defer></script>
+    <script src="/js/clipboard.min.js?1756723773" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1756723773" defer></script>
+    <script src="/js/theme.js?1756723773" defer></script>
   </body>
 </html>

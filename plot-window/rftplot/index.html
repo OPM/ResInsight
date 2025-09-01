@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
-  <head>
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
@@ -10,7 +10,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="RFT Plot :: ResInsight">
     <meta name="twitter:description" content="An RFT (Repeated Formation Tester) plot is a special well plot for comparing observed formation pressure and simulated formation pressure. The curves are plotted as pressure against true vertical depth (TVD) or measured depth (MD). Simulated pressure data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed pressure data are loaded from well log files (*.las).">
-    <meta property="og:url" content="https://resinsight.org/plot-window/rftplot/index.html">
+    <meta property="og:url" content="http://localhost:1313/plot-window/rftplot/index.html">
     <meta property="og:site_name" content="ResInsight">
     <meta property="og:title" content="RFT Plot :: ResInsight">
     <meta property="og:description" content="An RFT (Repeated Formation Tester) plot is a special well plot for comparing observed formation pressure and simulated formation pressure. The curves are plotted as pressure against true vertical depth (TVD) or measured depth (MD). Simulated pressure data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed pressure data are loaded from well log files (*.las).">
@@ -21,17 +21,17 @@
     <meta itemprop="description" content="An RFT (Repeated Formation Tester) plot is a special well plot for comparing observed formation pressure and simulated formation pressure. The curves are plotted as pressure against true vertical depth (TVD) or measured depth (MD). Simulated pressure data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed pressure data are loaded from well log files (*.las).">
     <meta itemprop="wordCount" content="854">
     <title>RFT Plot :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1744032782" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1744032782" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1744032782" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1744032782" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1744032782" rel="stylesheet">
-    <link href="/css/theme.min.css?1744032782" rel="stylesheet">
-    <link href="/css/format-html.min.css?1744032782" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1756723773" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1756723773" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1756723773" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1756723773" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1756723773" rel="stylesheet">
+    <link href="/css/theme.css?1756723773" rel="stylesheet">
+    <link href="/css/format-html.css?1756723773" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
-      window.relearn.absBaseUri='https:\/\/resinsight.org';
-      window.relearn.min = `.min`;
+      window.relearn.absBaseUri='http:\/\/localhost:1313';
+      window.relearn.min = ``;
       window.relearn.disableAnchorCopy=false;
       window.relearn.disableAnchorScrolling=false;
       // variant stuff
@@ -171,8 +171,8 @@
 
 <h1 id="rft-plot">RFT Plot</h1>
 
-<p><a href="#R-image-8cf80a1e7a574883b7b1eae788b57068" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/RftPlot.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-8cf80a1e7a574883b7b1eae788b57068"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/RftPlot.png"></a></p>
+<p><a href="#R-image-909c8ef3ce96f91e7204917df2f65b71" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/RftPlot.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-909c8ef3ce96f91e7204917df2f65b71"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/RftPlot.png"></a></p>
 <p>An RFT (<em>Repeated Formation Tester</em>) plot is a special well plot for comparing observed formation pressure and simulated formation pressure. The curves are plotted as pressure against true vertical depth (TVD) or measured depth (MD). Simulated pressure data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed pressure data are loaded from well log files (*.las).</p>
 <h2 id="create-new-rft-plot">Create New RFT Plot</h2>
 <p>There are several ways to create new RFT Plots.</p>
@@ -208,12 +208,12 @@
 <p><strong>LAS Pressure Data</strong></p>
 <p>To be able to plot observed pressure data for a well in an RFT plot, at least one well log file from that well (e.g. *.las) has to be imported to ResInsight. This file must contain a pressure column, which must have the name <em>PRESSURE</em> or <em>PRES_FORM</em>. If the well log file itself does not contain a TVD column (named <em>TVDMSL</em>), a well path file (See <a href="/wells-and-completions/wellpaths/index.html">Well Trajectories</a>) for the same well must also be imported to ResInsight.</p>
 <p>If no TVD data for a well is found when the user tries to plot a curve, ResInsight will present a warning dialog to the user.</p>
-<p><a href="#R-image-955fffee29554cc41da355519e435eed" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/NoTvdWarningDialog.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-955fffee29554cc41da355519e435eed"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/NoTvdWarningDialog.png"></a></p>
+<p><a href="#R-image-31d6fff0df1bec2362e9303393178ca7" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/NoTvdWarningDialog.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-31d6fff0df1bec2362e9303393178ca7"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/NoTvdWarningDialog.png"></a></p>
 <h2 id="property-editor">Property Editor</h2>
 <p>The property editor lets the user select which curves to display in the RFT plot.</p>
-<p><a href="#R-image-7f9e096114b61d62af348936833fd7e0" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/RftPlotPropertyEditor.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-7f9e096114b61d62af348936833fd7e0"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/RftPlotPropertyEditor.png"></a></p>
+<p><a href="#R-image-b36177212f42e19ac97826d8307c74e3" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/RftPlotPropertyEditor.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-b36177212f42e19ac97826d8307c74e3"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/RftPlotPropertyEditor.png"></a></p>
 <h3 id="well-name">Well Name</h3>
 <p>Select the well to display in the plot. Wells postfixed by <em>&rsquo;(Well Path)&rsquo;</em> have an associated well trajectory loaded.</p>
 <h3 id="sources">Sources</h3>
@@ -245,8 +245,8 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
 <p>More than one letter for one single time step, means that the time steps comes from multiple case types.</p>
 <h3 id="zonationformation-names">Zonation/Formation Names</h3>
 <p>This property editor lets the user control the visibility of formations lines. This is what it looks like in the RFT plot context.</p>
-<p><a href="#R-image-d091b93c2521ccad673d15842cd9560a" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/RftPltFormationNames.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-d091b93c2521ccad673d15842cd9560a"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/RftPltFormationNames.png"></a></p>
+<p><a href="#R-image-3dcca6dcd455d689c521c9b896a2a412" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/RftPltFormationNames.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3dcca6dcd455d689c521c9b896a2a412"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/RftPltFormationNames.png"></a></p>
 <p>Please see the <a href="/3d-main-window/formations/index.html">full documentation</a> on the formations property editor for details about formations.</p>
 
 <details open class=" box cstyle notices note">
@@ -259,8 +259,8 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
   </div>
 </details>
 <h3 id="legend-and-axis">Legend and Axis</h3>
-<p><a href="#R-image-8191f26d18d0cdd62e1621cd437c72a6" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/RftLegendAndAxis.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-8191f26d18d0cdd62e1621cd437c72a6"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/RftLegendAndAxis.png"></a></p>
+<p><a href="#R-image-1cd13f496593e3382e2791e84b8011c0" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/RftLegendAndAxis.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-1cd13f496593e3382e2791e84b8011c0"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/RftLegendAndAxis.png"></a></p>
 <p>This property editor lets the user control visual properties for the legend and axis.</p>
 <ul>
 <li>Title and Legends
@@ -299,13 +299,13 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
       <div id="R-header-topbar" class="default-animation"></div>
       <div id="R-header-wrapper" class="default-animation">
         <div id="R-header" class="default-animation">
-<a id="logo" href="https://resinsight.org/">
-  <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
+<a id="logo" href="http://localhost:1313/">
+  <img src="http://localhost:1313//images/ResInsightCroppedIconPicture.png">
 </a>
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1744032782";
+          window.index_js_url="/searchindex.en.js?1756723773";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -318,12 +318,12 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1744032782" defer></script>
-        <script src="/js/lunr/lunr.min.js?1744032782" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1744032782" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1744032782" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1744032782" defer></script>
-        <script src="/js/search.js?1744032782" defer></script>
+        <script src="/js/auto-complete.js?1756723773" defer></script>
+        <script src="/js/lunr/lunr.min.js?1756723773" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1756723773" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1756723773" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1756723773" defer></script>
+        <script src="/js/search.js?1756723773" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -345,6 +345,7 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2024_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2024_12/index.html">What&#39;s New in 2024.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2024_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2024_09/index.html">What&#39;s New in 2024.09</a></li>
@@ -407,7 +408,7 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
             <li class="" data-nav-id="/plot-window/ensembleplotting/index.html"><a class="padding" href="/plot-window/ensembleplotting/index.html">Ensemble Plotting</a></li>
             <li class="" data-nav-id="/plot-window/objectivefunctions/index.html"><a class="padding" href="/plot-window/objectivefunctions/index.html">Objective Functions</a></li>
             <li class="" data-nav-id="/plot-window/analysisplots/index.html"><a class="padding" href="/plot-window/analysisplots/index.html">Analysis Plots</a></li>
-            <li class="" data-nav-id="/plot-window/gridstatisticsplots/index.html"><a class="padding" href="/plot-window/gridstatisticsplots/index.html">Grid Statistics Plots</a></li>
+            <li class="" data-nav-id="/plot-window/histogram/index.html"><a class="padding" href="/plot-window/histogram/index.html">Histogram Plots</a></li>
             <li class="" data-nav-id="/plot-window/correlationplots/index.html"><a class="padding" href="/plot-window/correlationplots/index.html">Correlation Plots</a></li>
             <li class="" data-nav-id="/plot-window/welllogsandplots/index.html"><a class="padding" href="/plot-window/welllogsandplots/index.html">Well Log Plots</a></li>
             <li class="" data-nav-id="/plot-window/declinecurveanalysis/index.html"><a class="padding" href="/plot-window/declinecurveanalysis/index.html">Decline Curve Analysis</a></li>
@@ -423,6 +424,13 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html">Well Allocation Over Time Plot</a></li></ul></li>
             <li class="" data-nav-id="/plot-window/gridcrossplots/index.html"><a class="padding" href="/plot-window/gridcrossplots/index.html">Grid Cross Plots</a></li>
             <li class="" data-nav-id="/plot-window/saturationpressureplots/index.html"><a class="padding" href="/plot-window/saturationpressureplots/index.html">Saturation Pressure Plots</a></li></ul></li>
+            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/surfaces/gocadsurface/index.html"><a class="padding" href="/reference-manual/surfaces/gocadsurface/index.html">GOCAD Surface</a></li>
+            <li class="" data-nav-id="/reference-manual/surfaces/openworkssurface/index.html"><a class="padding" href="/reference-manual/surfaces/openworkssurface/index.html">OpenWorks Surface</a></li>
+            <li class="" data-nav-id="/reference-manual/surfaces/ptlsurface/index.html"><a class="padding" href="/reference-manual/surfaces/ptlsurface/index.html">PTL Surface</a></li>
+            <li class="" data-nav-id="/reference-manual/surfaces/rmssurface/index.html"><a class="padding" href="/reference-manual/surfaces/rmssurface/index.html">RMS Surface</a></li>
+            <li class="" data-nav-id="/reference-manual/surfaces/vtksurface/index.html"><a class="padding" href="/reference-manual/surfaces/vtksurface/index.html">VTK Surface</a></li></ul></li></ul></li>
             <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/calculatorexpressions/index.html"><a class="padding" href="/calculated-data/calculatorexpressions/index.html">Calculator Expressions</a></li>
             <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
@@ -475,6 +483,7 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
             <li class="" data-nav-id="/scripting/octaveinterfacereference/index.html"><a class="padding" href="/scripting/octaveinterfacereference/index.html">Octave Interface Reference</a></li></ul></li>
             <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
             <li class="" data-nav-id="/misc/preferences/index.html"><a class="padding" href="/misc/preferences/index.html">Preferences</a></li>
+            <li class="" data-nav-id="/misc/applicationlogging/index.html"><a class="padding" href="/misc/applicationlogging/index.html">Application Logging</a></li>
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
             <li class="" data-nav-id="/misc/projectfilerevisions/index.html"><a class="padding" href="/misc/projectfilerevisions/index.html">Project File Revisions</a></li>
             <li class="" data-nav-id="/misc/windowmanagement/index.html"><a class="padding" href="/misc/windowmanagement/index.html">Window Management</a></li>
@@ -489,6 +498,7 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
+            <li class="" data-nav-id="/workflows/opmflowjob/index.html"><a class="padding" href="/workflows/opmflowjob/index.html">Management of Simulation Runs</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
@@ -544,7 +554,7 @@ If the Observed data isn&rsquo;t selected, the RFT data serves as filter referen
               </li>
             </ul>
           </div>
-          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
+          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='http://localhost:1313//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
 
 ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetron Solutions</a>
 <p>in collaboration with</p>
@@ -554,8 +564,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1744032782" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1744032782" defer></script>
-    <script src="/js/theme.js?1744032782" defer></script>
+    <script src="/js/clipboard.min.js?1756723773" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1756723773" defer></script>
+    <script src="/js/theme.js?1756723773" defer></script>
   </body>
 </html>

@@ -1,468 +1,498 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://resinsight.org/getting-started/overview/index.html</loc>
+    <loc>http://localhost:1313/getting-started/overview/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/getting-started/projecttree/index.html</loc>
+    <loc>http://localhost:1313/getting-started/projecttree/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/index.html</loc>
+    <loc>http://localhost:1313/releases/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/3dviews/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/3dviews/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/calculatorexpressions/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/calculatorexpressions/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/cloudservices/index.html</loc>
+    <loc>http://localhost:1313/import/cloudservices/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/cloudservicesauthorization/index.html</loc>
+    <loc>http://localhost:1313/import/cloudservicesauthorization/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/eclipsecases/index.html</loc>
+    <loc>http://localhost:1313/import/eclipsecases/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/eclipsesummarydata/index.html</loc>
+    <loc>http://localhost:1313/import/eclipsesummarydata/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/ensemblefiledialog/index.html</loc>
+    <loc>http://localhost:1313/import/ensemblefiledialog/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/getting-started/index.html</loc>
+    <loc>http://localhost:1313/getting-started/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/grid-property-calculations/index.html</loc>
+    <loc>http://localhost:1313/reference-manual/surfaces/gocadsurface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/linux-installation/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/grid-property-calculations/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/preferences/index.html</loc>
+    <loc>http://localhost:1313/releases/linux-installation/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/roffgridmodels/index.html</loc>
+    <loc>http://localhost:1313/reference-manual/surfaces/openworkssurface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/simulationwells/index.html</loc>
+    <loc>http://localhost:1313/misc/preferences/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/snapshots/index.html</loc>
+    <loc>http://localhost:1313/reference-manual/surfaces/ptlsurface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/summaryplots/index.html</loc>
+    <loc>http://localhost:1313/reference-manual/surfaces/rmssurface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/summaryplotdatasources/index.html</loc>
+    <loc>http://localhost:1313/import/roffgridmodels/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/seismicdata/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/simulationwells/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/lasfile/index.html</loc>
+    <loc>http://localhost:1313/export/snapshots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/best-practices/performancehints/index.html</loc>
+    <loc>http://localhost:1313/plot-window/summaryplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/projectfile/index.html</loc>
+    <loc>http://localhost:1313/reference-manual/surfaces/vtksurface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/projectfilerevisions/index.html</loc>
+    <loc>http://localhost:1313/plot-window/summaryplotdatasources/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/scripting/pythoninterface/index.html</loc>
+    <loc>http://localhost:1313/import/seismicdata/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/summaryplotmanager/index.html</loc>
+    <loc>http://localhost:1313/misc/applicationlogging/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/windowmanagement/index.html</loc>
+    <loc>http://localhost:1313/import/lasfile/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/index.html</loc>
+    <loc>http://localhost:1313/best-practices/performancehints/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/cellresults/index.html</loc>
+    <loc>http://localhost:1313/misc/projectfile/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/scripting/commandlineinterface/index.html</loc>
+    <loc>http://localhost:1313/misc/projectfilerevisions/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/curvecalculator/index.html</loc>
+    <loc>http://localhost:1313/scripting/pythoninterface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/eclipseproperties/index.html</loc>
+    <loc>http://localhost:1313/plot-window/summaryplotmanager/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/geomechanicaldata/index.html</loc>
+    <loc>http://localhost:1313/misc/windowmanagement/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/grid-property-calculations/gridpropertycalculator/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/memorymanagement/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/cellresults/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/best-practices/summarydata/index.html</loc>
+    <loc>http://localhost:1313/scripting/commandlineinterface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/summarysourcestepping/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/curvecalculator/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/wellpaths/index.html</loc>
+    <loc>http://localhost:1313/export/eclipseproperties/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/windows-installation/index.html</loc>
+    <loc>http://localhost:1313/import/geomechanicaldata/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/getting-started/helpmenuanddocumentation/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/grid-property-calculations/gridpropertycalculator/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/soursimrlresults/index.html</loc>
+    <loc>http://localhost:1313/misc/memorymanagement/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/advancedtextinput/index.html</loc>
+    <loc>http://localhost:1313/best-practices/summarydata/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html</loc>
+    <loc>http://localhost:1313/plot-window/summarysourcestepping/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/build-from-source/build-instructions-ubuntu/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/wellpaths/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/scripting/commandfile/index.html</loc>
+    <loc>http://localhost:1313/releases/windows-installation/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/createnewwellpaths/index.html</loc>
+    <loc>http://localhost:1313/getting-started/helpmenuanddocumentation/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/elementpropertytable/index.html</loc>
+    <loc>http://localhost:1313/import/soursimrlresults/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/fluxnummultnum/index.html</loc>
+    <loc>http://localhost:1313/misc/advancedtextinput/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/keyboardshortcuts/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/getting-started/modelnavigation/index.html</loc>
+    <loc>http://localhost:1313/releases/build-from-source/build-instructions-ubuntu/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/observeddata/index.html</loc>
+    <loc>http://localhost:1313/scripting/commandfile/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/createnewwellpaths/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/pressuredata/index.html</loc>
+    <loc>http://localhost:1313/import/elementpropertytable/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/index.html</loc>
+    <loc>http://localhost:1313/export/fluxnummultnum/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/resultcolorlegend/index.html</loc>
+    <loc>http://localhost:1313/misc/keyboardshortcuts/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/resultinfo/index.html</loc>
+    <loc>http://localhost:1313/getting-started/modelnavigation/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/summaryploteditor/index.html</loc>
+    <loc>http://localhost:1313/import/observeddata/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/build-from-source/build-instructions-windows/index.html</loc>
+    <loc>http://localhost:1313/plot-window/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/colorlegends/index.html</loc>
+    <loc>http://localhost:1313/import/pressuredata/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/index.html</loc>
+    <loc>http://localhost:1313/reference-manual/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/build-from-source/cmake-configuration/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/3dwelllogcurves/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/resultcolorlegend/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/appendingadditionalproperties/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/resultinfo/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/index.html</loc>
+    <loc>http://localhost:1313/plot-window/summaryploteditor/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/completionexport/index.html</loc>
+    <loc>http://localhost:1313/reference-manual/surfaces/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/contourmaps/index.html</loc>
+    <loc>http://localhost:1313/releases/build-from-source/build-instructions-windows/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/ensemblecontourmap/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/colorlegends/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/pasteexceltimedata/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/createmultilateralwellpaths/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/regressiontestsystem/index.html</loc>
+    <loc>http://localhost:1313/releases/build-from-source/cmake-configuration/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/releasenotification/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/3dwelllogcurves/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/summarycrossplots/index.html</loc>
+    <loc>http://localhost:1313/import/appendingadditionalproperties/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/summaryplottemplate/index.html</loc>
+    <loc>http://localhost:1313/export/completionexport/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/summarytables/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/contourmaps/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/multiplots/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/ensemblecontourmap/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/completions/index.html</loc>
+    <loc>http://localhost:1313/import/pasteexceltimedata/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/index.html</loc>
+    <loc>http://localhost:1313/misc/regressiontestsystem/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/ensembleplotting/index.html</loc>
+    <loc>http://localhost:1313/releases/releasenotification/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/import/index.html</loc>
+    <loc>http://localhost:1313/plot-window/summarycrossplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/scripting/octaveinterface/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/exportwellpaths/index.html</loc>
+    <loc>http://localhost:1313/plot-window/summaryplottemplate/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/windows-subsystem-for-linux/index.html</loc>
+    <loc>http://localhost:1313/plot-window/summarytables/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/objectivefunctions/index.html</loc>
+    <loc>http://localhost:1313/plot-window/multiplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/analysisplots/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/completions/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/gridstatisticsplots/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/ensemblefracturestatistics/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/correlationplots/index.html</loc>
+    <loc>http://localhost:1313/plot-window/ensembleplotting/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/completionslgr/index.html</loc>
+    <loc>http://localhost:1313/import/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/index.html</loc>
+    <loc>http://localhost:1313/scripting/octaveinterface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/scripting/octaveinterfacereference/index.html</loc>
+    <loc>http://localhost:1313/export/exportwellpaths/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/resultinspection/index.html</loc>
+    <loc>http://localhost:1313/releases/windows-subsystem-for-linux/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/sectormodel/index.html</loc>
+    <loc>http://localhost:1313/plot-window/objectivefunctions/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/filters/index.html</loc>
+    <loc>http://localhost:1313/plot-window/analysisplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/scripting/index.html</loc>
+    <loc>http://localhost:1313/plot-window/histogram/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/welllogsandplots/index.html</loc>
+    <loc>http://localhost:1313/plot-window/correlationplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/wells-and-completions/wellmeasurements/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/completionslgr/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/quickaccess/index.html</loc>
+    <loc>http://localhost:1313/export/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/build-from-source/index.html</loc>
+    <loc>http://localhost:1313/scripting/octaveinterfacereference/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/declinecurveanalysis/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/resultinspection/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/intersections/index.html</loc>
+    <loc>http://localhost:1313/export/sectormodel/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/misc/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/filters/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/regressionanalysis/index.html</loc>
+    <loc>http://localhost:1313/scripting/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/wellborestabilityplots/index.html</loc>
+    <loc>http://localhost:1313/plot-window/welllogsandplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/polygons/index.html</loc>
+    <loc>http://localhost:1313/wells-and-completions/wellmeasurements/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/surfaces/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/quickaccess/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/best-practices/index.html</loc>
+    <loc>http://localhost:1313/releases/build-from-source/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/workflows/biotcoefficient/index.html</loc>
+    <loc>http://localhost:1313/plot-window/declinecurveanalysis/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/workflows/ensemblesurface/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/intersections/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/workflows/ensemblewelllog/index.html</loc>
+    <loc>http://localhost:1313/misc/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/faults/index.html</loc>
+    <loc>http://localhost:1313/plot-window/regressionanalysis/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/rftplot/index.html</loc>
+    <loc>http://localhost:1313/plot-window/wellborestabilityplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/rftsegmentplot/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/polygons/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/workflows/welltargetmapping/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/surfaces/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/allandiagrams/index.html</loc>
+    <loc>http://localhost:1313/best-practices/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/formations/index.html</loc>
+    <loc>http://localhost:1313/workflows/biotcoefficient/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/contourmapexport/index.html</loc>
+    <loc>http://localhost:1313/workflows/ensemblesurface/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/ensemblerftplot/index.html</loc>
+    <loc>http://localhost:1313/workflows/ensemblewelllog/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/workflows/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/faults/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2025_04/index.html</loc>
+    <loc>http://localhost:1313/workflows/opmflowjob/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/derivedresults/index.html</loc>
+    <loc>http://localhost:1313/plot-window/rftplot/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/faultdistance/index.html</loc>
+    <loc>http://localhost:1313/plot-window/rftsegmentplot/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/pltplot/index.html</loc>
+    <loc>http://localhost:1313/workflows/welltargetmapping/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2024_12/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/allandiagrams/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2024_09/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/formations/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2024_03/index.html</loc>
+    <loc>http://localhost:1313/export/contourmapexport/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2024_03_1/index.html</loc>
+    <loc>http://localhost:1313/plot-window/ensemblerftplot/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2023_12/index.html</loc>
+    <loc>http://localhost:1313/workflows/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/vfpplot/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2025_09/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2023_10/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2025_04/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2023_06/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/derivedresults/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2023_03/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/faultdistance/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/releases/release-notes/releasenotes_2023_01/index.html</loc>
+    <loc>http://localhost:1313/plot-window/pltplot/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/depthplot/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2024_12/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/derivedresultsgeomech/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2024_09/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2024_03/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2024_03_1/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/seismicview/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2023_12/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html</loc>
+    <loc>http://localhost:1313/plot-window/vfpplot/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/seismicsections/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2023_10/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/calculated-data/casegroupsandstatistics/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2023_06/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/gridcrossplots/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2023_03/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/linkedviews/index.html</loc>
+    <loc>http://localhost:1313/releases/release-notes/releasenotes_2023_01/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/plot-window/saturationpressureplots/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/depthplot/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/comparisonview/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/derivedresultsgeomech/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/flowvectorresult/index.html</loc>
+    <loc>http://localhost:1313/plot-window/flow-diagnostics-plots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/streamlines/index.html</loc>
+    <loc>http://localhost:1313/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/measurement/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/seismicview/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/annotations/index.html</loc>
+    <loc>http://localhost:1313/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/tensors/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/seismicsections/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/3d-main-window/gridstatisticsdialog/index.html</loc>
+    <loc>http://localhost:1313/calculated-data/casegroupsandstatistics/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/about/index.html</loc>
+    <loc>http://localhost:1313/plot-window/gridcrossplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/categories/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/linkedviews/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/index.html</loc>
+    <loc>http://localhost:1313/plot-window/saturationpressureplots/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/support/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/comparisonview/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/tags/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/flowvectorresult/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/training/index.html</loc>
+    <loc>http://localhost:1313/3d-main-window/streamlines/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/3d-main-window/measurement/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/3d-main-window/annotations/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/3d-main-window/tensors/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/3d-main-window/gridstatisticsdialog/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/about/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/categories/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/support/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/tags/index.html</loc>
+  </url>
+  <url>
+    <loc>http://localhost:1313/training/index.html</loc>
   </url>
 </urlset>
