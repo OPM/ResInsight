@@ -22,6 +22,7 @@
 #include "RiaStringEncodingTools.h"
 
 #include "RifWellPathImporter.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "well.hpp"
 
@@ -55,6 +56,17 @@ RifWellPathImporter::WellData RifRmsWellPathReader::readWellData( const QString&
                     z = values;
                 else if ( logName == "MDEPTH" )
                     md = values;
+            }
+
+            if ( !x.empty() && x.size() == y.size() && x.size() == z.size() && md.empty() )
+            {
+                std::vector<cvf::Vec3d> points;
+                points.resize( x.size() );
+                for ( size_t i = 0; i < x.size(); i++ )
+                {
+                    points[i] = cvf::Vec3d( x[i], y[i], z[i] );
+                }
+                md = RigWellPathGeometryTools::calculateMeasuredDepth( points );
             }
 
             if ( !x.empty() && x.size() == y.size() && x.size() == z.size() && x.size() == md.size() )
