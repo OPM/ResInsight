@@ -354,30 +354,10 @@ std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vecto
 
         progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
 
-        // If a well path with this name exists already, make it read the well path file. This is useful if a well log
-        // file has been imported before a well path file containing the full geometry for the well path.
-        // NB! Do not use tryFindMatchingWellPath(), as this function will remove the prefix and will return an false
-        // match in many cases.
-        auto* existingWellPath = dynamic_cast<RimFileWellPath*>( wellPathByName( wellPath->name() ) );
-        if ( existingWellPath && !existingWellPath->filePath().endsWith( ".dev" ) )
-        {
-            existingWellPath->setFilepath( wellPath->filePath() );
-            existingWellPath->setWellPathIndexInFile( wellPath->wellPathIndexInFile() );
-            existingWellPath->readWellPathFile( nullptr, m_wellPathImporter.get(), true );
-
-            // Let name from well path file override name from well log file
-            existingWellPath->setName( wellPath->name() );
-
-            m_mostRecentlyUpdatedWellPath = existingWellPath;
-            delete wellPath;
-        }
-        else
-        {
-            wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
-            wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
-            addWellPath( wellPath );
-            addedWellPaths.push_back( wellPath );
-        }
+        wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
+        wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
+        addWellPath( wellPath );
+        addedWellPaths.push_back( wellPath );
 
         progress.incrementProgress();
     }
