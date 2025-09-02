@@ -19,6 +19,7 @@
 #include "RimPointBasedWellPath.h"
 
 #include "Well/RigWellPath.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 // Make sure to include cafPdmFieldScriptingCapabilityCvfVec3d. Include of general cafPdmFieldScriptingCapability causes unity build issues.
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
@@ -73,22 +74,9 @@ void RimPointBasedWellPath::createWellPathGeometry()
     }
 
     // Create well path geometry from the target points
-    std::vector<cvf::Vec3d> wellPathPoints = m_trajectoryPoints();
-    std::vector<double>     measuredDepths;
+    auto measuredDepths = RigWellPathGeometryTools::calculateMeasuredDepth( m_trajectoryPoints );
 
-    // Calculate measured depths along the path
-    double totalMD = 0.0;
-    measuredDepths.push_back( totalMD );
-
-    for ( size_t i = 1; i < wellPathPoints.size(); ++i )
-    {
-        cvf::Vec3d segmentVector = wellPathPoints[i] - wellPathPoints[i - 1];
-        double     segmentLength = segmentVector.length();
-        totalMD += segmentLength;
-        measuredDepths.push_back( totalMD );
-    }
-
-    auto wellPathGeometry = new RigWellPath( wellPathPoints, measuredDepths );
+    auto wellPathGeometry = new RigWellPath( m_trajectoryPoints, measuredDepths );
 
     setWellPathGeometry( wellPathGeometry );
 }

@@ -32,17 +32,18 @@ class RigWellPath;
 //==================================================================================================
 namespace RigWellPathGeometryTools
 {
-    enum VertexOrganization
-    {
-        LINE_SEGMENTS,
-        POLYLINE
-    };
+enum VertexOrganization
+{
+    LINE_SEGMENTS,
+    POLYLINE
+};
 
-    std::vector<cvf::Vec3d> calculateLineSegmentNormals( const std::vector<cvf::Vec3d>& vertices, double angle );
-    std::vector<double>     interpolateMdFromTvd( const std::vector<double>& originalMdValues,
-                                                  const std::vector<double>& originalTvdValues,
-                                                  const std::vector<double>& tvdValuesToInterpolateFrom );
+std::vector<cvf::Vec3d> calculateLineSegmentNormals( const std::vector<cvf::Vec3d>& vertices, double angle );
+std::vector<double>     interpolateMdFromTvd( const std::vector<double>& originalMdValues,
+                                              const std::vector<double>& originalTvdValues,
+                                              const std::vector<double>& tvdValuesToInterpolateFrom );
 
-    std::pair<double, double> calculateAzimuthAndInclinationAtMd( double                            measuredDepth,
-                                                                  gsl::not_null<const RigWellPath*> wellPathGeometry );
-}
+std::pair<double, double> calculateAzimuthAndInclinationAtMd( double measuredDepth, gsl::not_null<const RigWellPath*> wellPathGeometry );
+
+std::vector<double> calculateMeasuredDepth( const std::vector<cvf::Vec3d>& wellPathPoints, double startMd = 0.0 );
+} // namespace RigWellPathGeometryTools
