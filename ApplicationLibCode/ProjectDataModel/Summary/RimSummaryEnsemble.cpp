@@ -231,7 +231,8 @@ void RimSummaryEnsemble::reloadCases()
 {
     for ( auto summaryCase : allSummaryCases() )
     {
-        RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
+        bool buildAddressObjects = false;
+        RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase, buildAddressObjects );
 
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }

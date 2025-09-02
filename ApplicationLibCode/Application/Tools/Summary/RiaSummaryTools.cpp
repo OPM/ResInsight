@@ -22,6 +22,7 @@
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RimDepthTrackPlot.h"
 #include "RimMainPlotCollection.h"
@@ -400,12 +401,22 @@ bool RiaSummaryTools::isCalculationRequired( const RimUserDefinedCalculation* su
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( RimSummaryCase* summaryCase )
+void RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( RimSummaryCase* summaryCase, bool createAddressObjects )
 {
     if ( !summaryCase ) return;
 
     summaryCase->updateAutoShortName();
+
+    // Recreate the reader interface, but do not create address objects yet. For ensembles, we do not want to create addresses for all cases
     summaryCase->createSummaryReaderInterface();
+
+    if ( createAddressObjects )
+    {
+        if ( auto reader = summaryCase->summaryReader() )
+        {
+            reader->createAddressesIfRequired();
+        }
+    }
     summaryCase->createRftReaderInterface();
     summaryCase->refreshMetaData();
 
