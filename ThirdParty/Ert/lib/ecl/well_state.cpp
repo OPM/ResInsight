@@ -552,6 +552,7 @@ bool well_state_add_MSW2(well_state_type* well_state,
 
             return true;
         }
+        ecl_rsthead_free(rst_head);
     }
     return false;
 }
