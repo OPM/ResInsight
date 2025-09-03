@@ -109,7 +109,8 @@ jobs:
             set(buildcache_suffix "linux-amd64.tar.gz")
           endif()
 
-          set(buildcache_url "https://gitlab.com/bits-n-bites/buildcache/-/releases/permalink/latest/downloads/buildcache-${buildcache_suffix}")
+          set(buildcache_url "https://gitlab.com/bits-n-bites/buildcache/-/releases/v0.31.4/downloads/buildcache-${buildcache_suffix}")
+
           file(DOWNLOAD "${buildcache_url}" ./buildcache.zip)
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./buildcache.zip)
 
