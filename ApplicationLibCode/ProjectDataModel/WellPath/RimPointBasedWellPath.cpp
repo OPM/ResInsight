@@ -21,8 +21,6 @@
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathGeometryTools.h"
 
-// Make sure to include cafPdmFieldScriptingCapabilityCvfVec3d. Include of general cafPdmFieldScriptingCapability causes unity build issues.
-#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiOrdering.h"
 
@@ -35,7 +33,7 @@ RimPointBasedWellPath::RimPointBasedWellPath()
 {
     CAF_PDM_InitScriptableObject( "Point-Based Well Path", ":/Well.svg", "", "PointBasedWellPath" );
 
-    CAF_PDM_InitScriptableField( &m_trajectoryPoints, "TrajectoryPoints", std::vector<cvf::Vec3d>(), "Trajectory Points" );
+    CAF_PDM_InitField( &m_trajectoryPoints, "TrajectoryPoints", std::vector<cvf::Vec3d>(), "Trajectory Points" );
     m_trajectoryPoints.uiCapability()->setUiHidden( true );
 }
 
