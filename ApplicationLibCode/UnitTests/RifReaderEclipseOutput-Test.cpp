@@ -160,6 +160,7 @@ TEST( RigReservoirTest, BasicTest10k_NativeECL )
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif
+    ecl_grid_free( grid );
 }
 
 TEST( RigReservoirTest, Test10k_ReadThenWriteToECL )
