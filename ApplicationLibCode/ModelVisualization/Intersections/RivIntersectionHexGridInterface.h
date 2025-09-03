@@ -35,12 +35,12 @@ class RigFault;
 class RivIntersectionHexGridInterface : public cvf::Object
 {
 public:
-    virtual cvf::Vec3d                displayOffset() const                                                 = 0;
-    virtual cvf::BoundingBox          boundingBox() const                                                   = 0;
-    virtual std::vector<size_t>       findIntersectingCells( const cvf::BoundingBox& intersectingBB ) const = 0;
-    virtual bool                      useCell( size_t cellIndex ) const                                     = 0;
-    virtual std::array<cvf::Vec3d, 8> cellCornerVertices( size_t cellIndex ) const                          = 0;
-    virtual std::array<size_t, 8>     cellCornerIndices( size_t cellIndex ) const                           = 0;
+    virtual cvf::Vec3d                              displayOffset() const                                                 = 0;
+    virtual cvf::BoundingBox                        boundingBox() const                                                   = 0;
+    virtual std::vector<size_t>                     findIntersectingCells( const cvf::BoundingBox& intersectingBB ) const = 0;
+    virtual bool                                    useCell( size_t cellIndex ) const                                     = 0;
+    [[nodiscard]] virtual std::array<cvf::Vec3d, 8> cellCornerVertices( size_t cellIndex ) const                          = 0;
+    [[nodiscard]] virtual std::array<size_t, 8>     cellCornerIndices( size_t cellIndex ) const                           = 0;
     virtual const RigFault* findFaultFromCellIndexAndCellFace( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face ) const = 0;
     virtual void setKIntervalFilter( bool enabled, std::string kIntervalStr ) = 0;
 };

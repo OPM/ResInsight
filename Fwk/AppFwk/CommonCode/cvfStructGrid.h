@@ -101,8 +101,8 @@ public:
 
     virtual bool cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const = 0;
 
-    virtual std::array<cvf::Vec3d, 8> cellCornerVertices( size_t cellIndex ) const = 0;
-    virtual cvf::Vec3d                cellCentroid( size_t cellIndex ) const       = 0;
+    [[nodiscard]] virtual std::array<cvf::Vec3d, 8> cellCornerVertices( size_t cellIndex ) const = 0;
+    [[nodiscard]] virtual cvf::Vec3d                cellCentroid( size_t cellIndex ) const       = 0;
     virtual void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const = 0;
 
     virtual size_t     gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const = 0;

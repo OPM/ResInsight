@@ -40,12 +40,12 @@ class RivEclipseIntersectionGrid : public RivIntersectionHexGridInterface
 public:
     RivEclipseIntersectionGrid( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool showInactiveCells );
 
-    cvf::Vec3d                displayOffset() const override;
-    cvf::BoundingBox          boundingBox() const override;
-    std::vector<size_t>       findIntersectingCells( const cvf::BoundingBox& intersectingBB ) const override;
-    bool                      useCell( size_t cellIndex ) const override;
-    std::array<cvf::Vec3d, 8> cellCornerVertices( size_t cellIndex ) const override;
-    std::array<size_t, 8>     cellCornerIndices( size_t cellIndex ) const override;
+    cvf::Vec3d                              displayOffset() const override;
+    cvf::BoundingBox                        boundingBox() const override;
+    std::vector<size_t>                     findIntersectingCells( const cvf::BoundingBox& intersectingBB ) const override;
+    bool                                    useCell( size_t cellIndex ) const override;
+    [[nodiscard]] std::array<cvf::Vec3d, 8> cellCornerVertices( size_t cellIndex ) const override;
+    [[nodiscard]] std::array<size_t, 8>     cellCornerIndices( size_t cellIndex ) const override;
     const RigFault* findFaultFromCellIndexAndCellFace( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face ) const override;
     void            setKIntervalFilter( bool enabled, std::string kIntervalStr ) override;
 
