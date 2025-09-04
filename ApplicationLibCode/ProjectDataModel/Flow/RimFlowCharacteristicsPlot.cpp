@@ -297,7 +297,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
     }
     else if ( fieldNeedingOptions == &m_selectedTimeStepsUi )
     {
-        if ( m_flowDiagSolution && m_case )
+        if ( m_flowDiagSolution && m_flowDiagSolution->flowDiagResults() && m_case )
         {
             QStringList      timeStepDates = m_case->timeStepStrings();
             std::vector<int> calculatedTimeSteps =
