@@ -187,12 +187,10 @@ TEST( RigResdataGridConverterTest, NativeGridExportRoundTrip )
     for ( size_t cellIndex = 0; cellIndex < originalCellCount; ++cellIndex )
     {
         // Get corner positions for original grid
-        std::array<cvf::Vec3d, 8> originalCorners;
-        originalGrid->cellCornerVertices( cellIndex, originalCorners.data() );
+        std::array<cvf::Vec3d, 8> originalCorners = originalGrid->cellCornerVertices( cellIndex );
 
         // Get corner positions for exported grid
-        std::array<cvf::Vec3d, 8> exportedCorners;
-        exportedGrid->cellCornerVertices( cellIndex, exportedCorners.data() );
+        std::array<cvf::Vec3d, 8> exportedCorners = exportedGrid->cellCornerVertices( cellIndex );
 
         // Compare all 8 corners of the cell
         for ( size_t cornerIdx = 0; cornerIdx < 8; ++cornerIdx )
@@ -355,8 +353,7 @@ TEST( RigResdataGridConverterTest, GridExportWith2x2x2Refinement )
     for ( size_t originalCellIdx = 0; originalCellIdx < numTestCells; ++originalCellIdx )
     {
         // Get original cell corners
-        std::array<cvf::Vec3d, 8> originalCorners;
-        originalGrid->cellCornerVertices( originalCellIdx, originalCorners.data() );
+        std::array<cvf::Vec3d, 8> originalCorners = originalGrid->cellCornerVertices( originalCellIdx );
 
         // Calculate original cell's i,j,k indices
         size_t origI = originalCellIdx % originalNI;
@@ -379,8 +376,7 @@ TEST( RigResdataGridConverterTest, GridExportWith2x2x2Refinement )
                     size_t refinedCellIdx = refinedK * ( expectedRefinedNI * expectedRefinedNJ ) + refinedJ * expectedRefinedNI + refinedI;
 
                     // Verify refined cell is within the original cell's bounding box
-                    std::array<cvf::Vec3d, 8> refinedCorners;
-                    refinedGrid->cellCornerVertices( refinedCellIdx, refinedCorners.data() );
+                    std::array<cvf::Vec3d, 8> refinedCorners = refinedGrid->cellCornerVertices( refinedCellIdx );
 
                     // Find bounding box of original cell
                     cvf::Vec3d originalMin = originalCorners[0];
