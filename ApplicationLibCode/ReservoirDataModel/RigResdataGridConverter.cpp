@@ -62,11 +62,8 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
 
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
-    cvf::Vec3st maxActual = max;
-    if ( maxActual == cvf::Vec3st::UNDEFINED )
-    {
-        maxActual = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
-    }
+    cvf::Vec3st maxActual =
+        max.isUndefined() ? cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 ) : max;
 
     size_t ni = ( maxActual.x() - min.x() + 1 ) * refinement.x();
     size_t nj = ( maxActual.y() - min.y() + 1 ) * refinement.y();
