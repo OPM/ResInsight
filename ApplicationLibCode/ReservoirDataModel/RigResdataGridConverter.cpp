@@ -401,7 +401,8 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
     }
 
     // Generate ZCORN array following Eclipse specification
-    size_t zcornIdx = 0;
+    size_t zcornIdx      = 0;
+    bool   hasRefinement = ( refinement.x() > 1 || refinement.y() > 1 || refinement.z() > 1 );
 
     for ( size_t k = 0; k < nz; ++k )
     {
@@ -411,17 +412,143 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
             // Face 1: corners (0,3) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto corners           = getRefinedCellCornersOnDemand( i, j, k );
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[0].z() ); // (-I,-J,top)
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[3].z() ); // (-I,+J,top)
+                if ( hasRefinement )
+                {
+                    // Calculate which original cell this refined cell belongs to
+                    size_t origI = min.x() + i / refinement.x();
+                    size_t origJ = min.y() + j / refinement.y();
+                    size_t origK = min.z() + k / refinement.z();
+
+                    // Calculate subcell indices within the original cell
+                    size_t subI = i % refinement.x();
+                    size_t subJ = j % refinement.y();
+                    size_t subK = k % refinement.z();
+
+                    // Get original cell and extract corners using face-based method
+                    size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                    auto   cell          = mainGrid->cell( mainIndex );
+                    auto   topCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+                    auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
+
+                    std::array<cvf::Vec3d, 8> cellCorners;
+                    cellCorners[0] = topCorners[0]; // (-I,-J,top)
+                    cellCorners[1] = topCorners[1]; // (+I,-J,top)
+                    cellCorners[2] = topCorners[2]; // (+I,+J,top)
+                    cellCorners[3] = topCorners[3]; // (-I,+J,top)
+                    cellCorners[4] = bottomCorners[0]; // (-I,-J,bottom)
+                    cellCorners[5] = bottomCorners[1]; // (+I,-J,bottom)
+                    cellCorners[6] = bottomCorners[2]; // (+I,+J,bottom)
+                    cellCorners[7] = bottomCorners[3]; // (-I,+J,bottom)
+
+                    // Apply coordinate transformations if needed
+                    if ( useMapAxes )
+                    {
+                        for ( cvf::Vec3d& corner : cellCorners )
+                        {
+                            corner.transformPoint( mapAxisTransform );
+                        }
+                    }
+
+                    // Generate refined cell corners using trilinear interpolation
+                    auto refinedCorners =
+                        getRefinedCellCorners( cellCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
+
+                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[0].z() ); // (-I,-J,top)
+                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[3].z() ); // (-I,+J,top)
+                }
+                else
+                {
+                    // Use original cell face extraction for non-refinement case
+                    size_t origI      = min.x() + i;
+                    size_t origJ      = min.y() + j;
+                    size_t origK      = min.z() + k;
+                    size_t mainIndex  = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                    auto   cell       = mainGrid->cell( mainIndex );
+                    auto   topCorners = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+
+                    // Apply coordinate transformations if needed
+                    if ( useMapAxes )
+                    {
+                        for ( cvf::Vec3d& corner : topCorners )
+                        {
+                            corner.transformPoint( mapAxisTransform );
+                        }
+                    }
+
+                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[0].z() ); // (-I,-J)
+                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[3].z() ); // (+I,-J)
+                }
             }
 
             // Face 2: corners (1,2) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto corners           = getRefinedCellCornersOnDemand( i, j, k );
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[1].z() ); // (+I,-J,top)
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[2].z() ); // (+I,+J,top)
+                if ( hasRefinement )
+                {
+                    // Calculate which original cell this refined cell belongs to
+                    size_t origI = min.x() + i / refinement.x();
+                    size_t origJ = min.y() + j / refinement.y();
+                    size_t origK = min.z() + k / refinement.z();
+
+                    // Calculate subcell indices within the original cell
+                    size_t subI = i % refinement.x();
+                    size_t subJ = j % refinement.y();
+                    size_t subK = k % refinement.z();
+
+                    // Get original cell and extract corners using face-based method
+                    size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                    auto   cell          = mainGrid->cell( mainIndex );
+                    auto   topCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+                    auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
+
+                    std::array<cvf::Vec3d, 8> cellCorners;
+                    cellCorners[0] = topCorners[0]; // (-I,-J,top)
+                    cellCorners[1] = topCorners[1]; // (+I,-J,top)
+                    cellCorners[2] = topCorners[2]; // (+I,+J,top)
+                    cellCorners[3] = topCorners[3]; // (-I,+J,top)
+                    cellCorners[4] = bottomCorners[0]; // (-I,-J,bottom)
+                    cellCorners[5] = bottomCorners[1]; // (+I,-J,bottom)
+                    cellCorners[6] = bottomCorners[2]; // (+I,+J,bottom)
+                    cellCorners[7] = bottomCorners[3]; // (-I,+J,bottom)
+
+                    // Apply coordinate transformations if needed
+                    if ( useMapAxes )
+                    {
+                        for ( cvf::Vec3d& corner : cellCorners )
+                        {
+                            corner.transformPoint( mapAxisTransform );
+                        }
+                    }
+
+                    // Generate refined cell corners using trilinear interpolation
+                    auto refinedCorners =
+                        getRefinedCellCorners( cellCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
+
+                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[1].z() ); // (+I,-J,top)
+                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[2].z() ); // (+I,+J,top)
+                }
+                else
+                {
+                    // Use original cell face extraction for non-refinement case
+                    size_t origI      = min.x() + i;
+                    size_t origJ      = min.y() + j;
+                    size_t origK      = min.z() + k;
+                    size_t mainIndex  = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                    auto   cell       = mainGrid->cell( mainIndex );
+                    auto   topCorners = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+
+                    // Apply coordinate transformations if needed
+                    if ( useMapAxes )
+                    {
+                        for ( cvf::Vec3d& corner : topCorners )
+                        {
+                            corner.transformPoint( mapAxisTransform );
+                        }
+                    }
+
+                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[1].z() ); // (-I,+J)
+                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[2].z() ); // (+I,+J)
+                }
             }
         }
 
@@ -431,17 +558,143 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
             // Face 1: corners (4,5) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto corners           = getRefinedCellCornersOnDemand( i, j, k );
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[4].z() ); // (-I,-J,bottom)
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[5].z() ); // (+I,-J,bottom)
+                if ( hasRefinement )
+                {
+                    // Calculate which original cell this refined cell belongs to
+                    size_t origI = min.x() + i / refinement.x();
+                    size_t origJ = min.y() + j / refinement.y();
+                    size_t origK = min.z() + k / refinement.z();
+
+                    // Calculate subcell indices within the original cell
+                    size_t subI = i % refinement.x();
+                    size_t subJ = j % refinement.y();
+                    size_t subK = k % refinement.z();
+
+                    // Get original cell and extract corners using face-based method
+                    size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                    auto   cell          = mainGrid->cell( mainIndex );
+                    auto   topCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+                    auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
+
+                    std::array<cvf::Vec3d, 8> cellCorners;
+                    cellCorners[0] = topCorners[0]; // (-I,-J,top)
+                    cellCorners[1] = topCorners[1]; // (+I,-J,top)
+                    cellCorners[2] = topCorners[2]; // (+I,+J,top)
+                    cellCorners[3] = topCorners[3]; // (-I,+J,top)
+                    cellCorners[4] = bottomCorners[0]; // (-I,-J,bottom)
+                    cellCorners[5] = bottomCorners[1]; // (+I,-J,bottom)
+                    cellCorners[6] = bottomCorners[2]; // (+I,+J,bottom)
+                    cellCorners[7] = bottomCorners[3]; // (-I,+J,bottom)
+
+                    // Apply coordinate transformations if needed
+                    if ( useMapAxes )
+                    {
+                        for ( cvf::Vec3d& corner : cellCorners )
+                        {
+                            corner.transformPoint( mapAxisTransform );
+                        }
+                    }
+
+                    // Generate refined cell corners using trilinear interpolation
+                    auto refinedCorners =
+                        getRefinedCellCorners( cellCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
+
+                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[4].z() ); // (-I,-J,bottom)
+                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[5].z() ); // (+I,-J,bottom)
+                }
+                else
+                {
+                    // Use original cell face extraction for non-refinement case
+                    size_t origI         = min.x() + i;
+                    size_t origJ         = min.y() + j;
+                    size_t origK         = min.z() + k;
+                    size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                    auto   cell          = mainGrid->cell( mainIndex );
+                    auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
+
+                    // Apply coordinate transformations if needed
+                    if ( useMapAxes )
+                    {
+                        for ( cvf::Vec3d& corner : bottomCorners )
+                        {
+                            corner.transformPoint( mapAxisTransform );
+                        }
+                    }
+
+                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[0].z() ); // (-I,-J)
+                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[1].z() ); // (+I,-J)
+                }
             }
 
             // Face 2: corners (6,7) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto corners           = getRefinedCellCornersOnDemand( i, j, k );
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[7].z() ); // (-I,+J,bottom)
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[6].z() ); // (+I,+J,bottom)
+                if ( hasRefinement )
+                {
+                    // Calculate which original cell this refined cell belongs to
+                    size_t origI = min.x() + i / refinement.x();
+                    size_t origJ = min.y() + j / refinement.y();
+                    size_t origK = min.z() + k / refinement.z();
+
+                    // Calculate subcell indices within the original cell
+                    size_t subI = i % refinement.x();
+                    size_t subJ = j % refinement.y();
+                    size_t subK = k % refinement.z();
+
+                    // Get original cell and extract corners using face-based method
+                    size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                    auto   cell          = mainGrid->cell( mainIndex );
+                    auto   topCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+                    auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
+
+                    std::array<cvf::Vec3d, 8> cellCorners;
+                    cellCorners[0] = topCorners[0]; // (-I,-J,top)
+                    cellCorners[1] = topCorners[1]; // (+I,-J,top)
+                    cellCorners[2] = topCorners[2]; // (+I,+J,top)
+                    cellCorners[3] = topCorners[3]; // (-I,+J,top)
+                    cellCorners[4] = bottomCorners[0]; // (-I,-J,bottom)
+                    cellCorners[5] = bottomCorners[1]; // (+I,-J,bottom)
+                    cellCorners[6] = bottomCorners[2]; // (+I,+J,bottom)
+                    cellCorners[7] = bottomCorners[3]; // (-I,+J,bottom)
+
+                    // Apply coordinate transformations if needed
+                    if ( useMapAxes )
+                    {
+                        for ( cvf::Vec3d& corner : cellCorners )
+                        {
+                            corner.transformPoint( mapAxisTransform );
+                        }
+                    }
+
+                    // Generate refined cell corners using trilinear interpolation
+                    auto refinedCorners =
+                        getRefinedCellCorners( cellCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
+
+                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[7].z() ); // (-I,+J,bottom)
+                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[6].z() ); // (+I,+J,bottom)
+                }
+                else
+                {
+                    // Use original cell face extraction for non-refinement case
+                    size_t origI         = min.x() + i;
+                    size_t origJ         = min.y() + j;
+                    size_t origK         = min.z() + k;
+                    size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                    auto   cell          = mainGrid->cell( mainIndex );
+                    auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
+
+                    // Apply coordinate transformations if needed
+                    if ( useMapAxes )
+                    {
+                        for ( cvf::Vec3d& corner : bottomCorners )
+                        {
+                            corner.transformPoint( mapAxisTransform );
+                        }
+                    }
+
+                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[3].z() ); // (-I,+J)
+                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[2].z() ); // (+I,+J)
+                }
             }
         }
     }
