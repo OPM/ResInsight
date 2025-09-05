@@ -560,6 +560,42 @@ TEST( RigResdataGridConverterTest, GridExportSectorSelection )
 
     size_t expectedSectorCellCount = expectedNI * expectedNJ * expectedNK;
     EXPECT_EQ( expectedSectorCellCount, sectorGrid->cellCount() ) << "Sector cell count incorrect";
+
+    // Compare actual cell corner positions for sector cells
+    qDebug() << "Comparing corner positions for" << expectedSectorCellCount << "sector cells";
+
+    for ( size_t sectorCellIndex = 0; sectorCellIndex < expectedSectorCellCount; ++sectorCellIndex )
+    {
+        // Calculate the corresponding original grid cell index
+        size_t sectorI = sectorCellIndex % expectedNI;
+        size_t sectorJ = ( sectorCellIndex / expectedNI ) % expectedNJ;
+        size_t sectorK = sectorCellIndex / ( expectedNI * expectedNJ );
+
+        size_t originalI = min.x() + sectorI;
+        size_t originalJ = min.y() + sectorJ;
+        size_t originalK = min.z() + sectorK;
+        size_t originalCellIndex = originalK * ( originalGrid->cellCountI() * originalGrid->cellCountJ() ) +
+                                   originalJ * originalGrid->cellCountI() + originalI;
+
+        // Get corner positions for original grid cell
+        std::array<cvf::Vec3d, 8> originalCorners = originalGrid->cellCornerVertices( originalCellIndex );
+
+        // Get corner positions for sector grid cell
+        std::array<cvf::Vec3d, 8> sectorCorners = sectorGrid->cellCornerVertices( sectorCellIndex );
+
+        // Compare all 8 corners of the cell
+        for ( size_t cornerIdx = 0; cornerIdx < 8; ++cornerIdx )
+        {
+            EXPECT_NEAR( originalCorners[cornerIdx].x(), sectorCorners[cornerIdx].x(), 0.1 )
+                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx << " X coordinate mismatch";
+            EXPECT_NEAR( originalCorners[cornerIdx].y(), sectorCorners[cornerIdx].y(), 0.1 )
+                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx << " Y coordinate mismatch";
+            EXPECT_NEAR( originalCorners[cornerIdx].z(), sectorCorners[cornerIdx].z(), 0.1 )
+                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx << " Z coordinate mismatch";
+        }
+    }
+
+    qDebug() << "Sector corner position verification completed successfully";
 }
 
 //--------------------------------------------------------------------------------------------------
