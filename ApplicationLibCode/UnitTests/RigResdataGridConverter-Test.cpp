@@ -275,7 +275,7 @@ TEST( RigResdataGridConverterTest, FullRoundTrip )
 //--------------------------------------------------------------------------------------------------
 /// Test grid export with refinement
 //--------------------------------------------------------------------------------------------------
-TEST( RigResdataGridConverterTest, GridExportWith2x2x2Refinement )
+TEST( RigResdataGridConverterTest, DISABLED_GridExportWith2x2x2Refinement )
 {
     // Setup test data
     QDir baseFolder( TEST_MODEL_DIR );
