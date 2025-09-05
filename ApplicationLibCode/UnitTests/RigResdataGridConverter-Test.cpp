@@ -275,7 +275,7 @@ TEST( RigResdataGridConverterTest, FullRoundTrip )
 //--------------------------------------------------------------------------------------------------
 /// Test grid export with refinement
 //--------------------------------------------------------------------------------------------------
-TEST( RigResdataGridConverterTest, DISABLED_GridExportWith2x2x2Refinement )
+TEST( RigResdataGridConverterTest, GridExportWith2x2x2Refinement )
 {
     // Setup test data
     QDir baseFolder( TEST_MODEL_DIR );
@@ -571,9 +571,9 @@ TEST( RigResdataGridConverterTest, GridExportSectorSelection )
         size_t sectorJ = ( sectorCellIndex / expectedNI ) % expectedNJ;
         size_t sectorK = sectorCellIndex / ( expectedNI * expectedNJ );
 
-        size_t originalI = min.x() + sectorI;
-        size_t originalJ = min.y() + sectorJ;
-        size_t originalK = min.z() + sectorK;
+        size_t originalI         = min.x() + sectorI;
+        size_t originalJ         = min.y() + sectorJ;
+        size_t originalK         = min.z() + sectorK;
         size_t originalCellIndex = originalK * ( originalGrid->cellCountI() * originalGrid->cellCountJ() ) +
                                    originalJ * originalGrid->cellCountI() + originalI;
 
@@ -587,11 +587,14 @@ TEST( RigResdataGridConverterTest, GridExportSectorSelection )
         for ( size_t cornerIdx = 0; cornerIdx < 8; ++cornerIdx )
         {
             EXPECT_NEAR( originalCorners[cornerIdx].x(), sectorCorners[cornerIdx].x(), 0.1 )
-                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx << " X coordinate mismatch";
+                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx
+                << " X coordinate mismatch";
             EXPECT_NEAR( originalCorners[cornerIdx].y(), sectorCorners[cornerIdx].y(), 0.1 )
-                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx << " Y coordinate mismatch";
+                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx
+                << " Y coordinate mismatch";
             EXPECT_NEAR( originalCorners[cornerIdx].z(), sectorCorners[cornerIdx].z(), 0.1 )
-                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx << " Z coordinate mismatch";
+                << "Sector cell " << sectorCellIndex << " (original " << originalCellIndex << ") corner " << cornerIdx
+                << " Z coordinate mismatch";
         }
     }
 
