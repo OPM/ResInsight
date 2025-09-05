@@ -249,8 +249,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                     active = ( *cellVisibilityOverrideForActnum )[mainIndex];
                 }
 
-                std::array<cvf::Vec3d, 8> cellCorners;
-                mainGrid->cellCornerVertices( mainIndex, cellCorners.data() );
+                std::array<cvf::Vec3d, 8> cellCorners = mainGrid->cellCornerVertices( mainIndex );
 
                 // Apply coordinate transformations
                 if ( useMapAxes )
