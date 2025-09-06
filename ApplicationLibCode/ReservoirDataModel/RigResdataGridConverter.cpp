@@ -53,38 +53,19 @@ static std::array<cvf::Vec3d, 8> getRefinedCellCorners( const std::array<cvf::Ve
                                                         size_t                           subJ,
                                                         size_t                           subK )
 {
-    // Calculate normalized coordinates for this refined subcell [0,1]
-    double uMin = static_cast<double>( subI ) / static_cast<double>( refinementI );
-    double uMax = static_cast<double>( subI + 1 ) / static_cast<double>( refinementI );
-    double vMin = static_cast<double>( subJ ) / static_cast<double>( refinementJ );
-    double vMax = static_cast<double>( subJ + 1 ) / static_cast<double>( refinementJ );
-    double wMin = static_cast<double>( subK ) / static_cast<double>( refinementK );
-    double wMax = static_cast<double>( subK + 1 ) / static_cast<double>( refinementK );
+    // Use ResInsight's proven face-based refinement approach
+    auto allRefinedCorners = RiaCellDividingTools::createHexCornerCoords( originalCorners, refinementI, refinementJ, refinementK );
 
+    // Calculate the linear index of the specific subcell we want
+    size_t subcellIndex     = subK * refinementI * refinementJ + subJ * refinementI + subI;
+    size_t cornerStartIndex = subcellIndex * 8;
+
+    // Extract the 8 corners for this specific subcell
     std::array<cvf::Vec3d, 8> refinedCorners;
-
-    // Use trilinear interpolation to compute refined cell corners
-    // Corner ordering: [0-3] = top face (-w), [4-7] = bottom face (+w)
-    auto interpolate = [&]( double u, double v, double w ) -> cvf::Vec3d
+    for ( size_t i = 0; i < 8; ++i )
     {
-        return originalCorners[0] * ( 1 - u ) * ( 1 - v ) * ( 1 - w ) + // 000
-               originalCorners[1] * u * ( 1 - v ) * ( 1 - w ) + // 100
-               originalCorners[2] * u * v * ( 1 - w ) + // 110
-               originalCorners[3] * ( 1 - u ) * v * ( 1 - w ) + // 010
-               originalCorners[4] * ( 1 - u ) * ( 1 - v ) * w + // 001
-               originalCorners[5] * u * ( 1 - v ) * w + // 101
-               originalCorners[6] * u * v * w + // 111
-               originalCorners[7] * ( 1 - u ) * v * w; // 011
-    };
-
-    refinedCorners[0] = interpolate( uMin, vMin, wMin ); // (-I,-J,-K)
-    refinedCorners[1] = interpolate( uMax, vMin, wMin ); // (+I,-J,-K)
-    refinedCorners[2] = interpolate( uMax, vMax, wMin ); // (+I,+J,-K)
-    refinedCorners[3] = interpolate( uMin, vMax, wMin ); // (-I,+J,-K)
-    refinedCorners[4] = interpolate( uMin, vMin, wMax ); // (-I,-J,+K)
-    refinedCorners[5] = interpolate( uMax, vMin, wMax ); // (+I,-J,+K)
-    refinedCorners[6] = interpolate( uMax, vMax, wMax ); // (+I,+J,+K)
-    refinedCorners[7] = interpolate( uMin, vMax, wMax ); // (-I,+J,+K)
+        refinedCorners[i] = allRefinedCorners[cornerStartIndex + i];
+    }
 
     return refinedCorners;
 }
@@ -404,6 +385,8 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
     size_t zcornIdx      = 0;
     bool   hasRefinement = ( refinement.x() > 1 || refinement.y() > 1 || refinement.z() > 1 );
 
+    // No mapping needed - trilinear interpolation now matches face corner convention
+
     for ( size_t k = 0; k < nz; ++k )
     {
         // Top layer interface
@@ -424,21 +407,23 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                     size_t subJ = j % refinement.y();
                     size_t subK = k % refinement.z();
 
-                    // Get original cell and extract corners using face-based method
+                    // Get original cell and extract face corners
                     size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
                     auto   cell          = mainGrid->cell( mainIndex );
                     auto   topCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
                     auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
 
-                    std::array<cvf::Vec3d, 8> cellCorners;
-                    cellCorners[0] = topCorners[0]; // (-I,-J,top)
-                    cellCorners[1] = topCorners[1]; // (+I,-J,top)
-                    cellCorners[2] = topCorners[2]; // (+I,+J,top)
-                    cellCorners[3] = topCorners[3]; // (-I,+J,top)
-                    cellCorners[4] = bottomCorners[0]; // (-I,-J,bottom)
-                    cellCorners[5] = bottomCorners[1]; // (+I,-J,bottom)
-                    cellCorners[6] = bottomCorners[2]; // (+I,+J,bottom)
-                    cellCorners[7] = bottomCorners[3]; // (-I,+J,bottom)
+                    // Build 8-corner array directly from face corners
+                    std::array<cvf::Vec3d, 8> cellCorners = {
+                        topCorners[0], // (-I,-J,top)
+                        topCorners[1], // (+I,-J,top)
+                        topCorners[2], // (+I,+J,top)
+                        topCorners[3], // (-I,+J,top)
+                        bottomCorners[0], // (-I,-J,bottom)
+                        bottomCorners[1], // (+I,-J,bottom)
+                        bottomCorners[2], // (+I,+J,bottom)
+                        bottomCorners[3] // (-I,+J,bottom)
+                    };
 
                     // Apply coordinate transformations if needed
                     if ( useMapAxes )
@@ -495,21 +480,23 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                     size_t subJ = j % refinement.y();
                     size_t subK = k % refinement.z();
 
-                    // Get original cell and extract corners using face-based method
+                    // Get original cell and extract face corners
                     size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
                     auto   cell          = mainGrid->cell( mainIndex );
                     auto   topCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
                     auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
 
-                    std::array<cvf::Vec3d, 8> cellCorners;
-                    cellCorners[0] = topCorners[0]; // (-I,-J,top)
-                    cellCorners[1] = topCorners[1]; // (+I,-J,top)
-                    cellCorners[2] = topCorners[2]; // (+I,+J,top)
-                    cellCorners[3] = topCorners[3]; // (-I,+J,top)
-                    cellCorners[4] = bottomCorners[0]; // (-I,-J,bottom)
-                    cellCorners[5] = bottomCorners[1]; // (+I,-J,bottom)
-                    cellCorners[6] = bottomCorners[2]; // (+I,+J,bottom)
-                    cellCorners[7] = bottomCorners[3]; // (-I,+J,bottom)
+                    // Build 8-corner array directly from face corners
+                    std::array<cvf::Vec3d, 8> cellCorners = {
+                        topCorners[0], // (-I,-J,top)
+                        topCorners[1], // (+I,-J,top)
+                        topCorners[2], // (+I,+J,top)
+                        topCorners[3], // (-I,+J,top)
+                        bottomCorners[0], // (-I,-J,bottom)
+                        bottomCorners[1], // (+I,-J,bottom)
+                        bottomCorners[2], // (+I,+J,bottom)
+                        bottomCorners[3] // (-I,+J,bottom)
+                    };
 
                     // Apply coordinate transformations if needed
                     if ( useMapAxes )
@@ -570,21 +557,23 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                     size_t subJ = j % refinement.y();
                     size_t subK = k % refinement.z();
 
-                    // Get original cell and extract corners using face-based method
+                    // Get original cell and extract face corners
                     size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
                     auto   cell          = mainGrid->cell( mainIndex );
                     auto   topCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
                     auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
 
-                    std::array<cvf::Vec3d, 8> cellCorners;
-                    cellCorners[0] = topCorners[0]; // (-I,-J,top)
-                    cellCorners[1] = topCorners[1]; // (+I,-J,top)
-                    cellCorners[2] = topCorners[2]; // (+I,+J,top)
-                    cellCorners[3] = topCorners[3]; // (-I,+J,top)
-                    cellCorners[4] = bottomCorners[0]; // (-I,-J,bottom)
-                    cellCorners[5] = bottomCorners[1]; // (+I,-J,bottom)
-                    cellCorners[6] = bottomCorners[2]; // (+I,+J,bottom)
-                    cellCorners[7] = bottomCorners[3]; // (-I,+J,bottom)
+                    // Build 8-corner array directly from face corners
+                    std::array<cvf::Vec3d, 8> cellCorners = {
+                        topCorners[0], // (-I,-J,top)
+                        topCorners[1], // (+I,-J,top)
+                        topCorners[2], // (+I,+J,top)
+                        topCorners[3], // (-I,+J,top)
+                        bottomCorners[0], // (-I,-J,bottom)
+                        bottomCorners[1], // (+I,-J,bottom)
+                        bottomCorners[2], // (+I,+J,bottom)
+                        bottomCorners[3] // (-I,+J,bottom)
+                    };
 
                     // Apply coordinate transformations if needed
                     if ( useMapAxes )
@@ -641,21 +630,23 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                     size_t subJ = j % refinement.y();
                     size_t subK = k % refinement.z();
 
-                    // Get original cell and extract corners using face-based method
+                    // Get original cell and extract face corners
                     size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
                     auto   cell          = mainGrid->cell( mainIndex );
                     auto   topCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
                     auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
 
-                    std::array<cvf::Vec3d, 8> cellCorners;
-                    cellCorners[0] = topCorners[0]; // (-I,-J,top)
-                    cellCorners[1] = topCorners[1]; // (+I,-J,top)
-                    cellCorners[2] = topCorners[2]; // (+I,+J,top)
-                    cellCorners[3] = topCorners[3]; // (-I,+J,top)
-                    cellCorners[4] = bottomCorners[0]; // (-I,-J,bottom)
-                    cellCorners[5] = bottomCorners[1]; // (+I,-J,bottom)
-                    cellCorners[6] = bottomCorners[2]; // (+I,+J,bottom)
-                    cellCorners[7] = bottomCorners[3]; // (-I,+J,bottom)
+                    // Build 8-corner array directly from face corners
+                    std::array<cvf::Vec3d, 8> cellCorners = {
+                        topCorners[0], // (-I,-J,top)
+                        topCorners[1], // (+I,-J,top)
+                        topCorners[2], // (+I,+J,top)
+                        topCorners[3], // (-I,+J,top)
+                        bottomCorners[0], // (-I,-J,bottom)
+                        bottomCorners[1], // (+I,-J,bottom)
+                        bottomCorners[2], // (+I,+J,bottom)
+                        bottomCorners[3] // (-I,+J,bottom)
+                    };
 
                     // Apply coordinate transformations if needed
                     if ( useMapAxes )
