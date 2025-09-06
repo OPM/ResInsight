@@ -414,6 +414,178 @@ TEST( RigResdataGridConverterTest, GridExportWith2x2x2Refinement )
         }
     }
 
+    // Detailed corner comparison for zero cell (0,0,0)
+    qDebug() << "\n=== DETAILED CORNER COMPARISON FOR ZERO CELL (0,0,0) ===";
+
+    if ( originalCellCount > 0 )
+    {
+        // Get original cell (0,0,0) corners
+        std::array<cvf::Vec3d, 8> origCorners = originalGrid->cellCornerVertices( 0 );
+
+        qDebug() << "Original cell (0,0,0) corners:";
+        for ( size_t i = 0; i < 8; ++i )
+        {
+            qDebug() << QString( "  Corner[%1]: [%2, %3, %4]" )
+                            .arg( i )
+                            .arg( origCorners[i].x(), 0, 'f', 6 )
+                            .arg( origCorners[i].y(), 0, 'f', 6 )
+                            .arg( origCorners[i].z(), 0, 'f', 6 );
+        }
+
+        qDebug() << "\nRefined subcells (0-1,0-1,0-1) corners:";
+
+        // Compare with all 8 refined subcells
+        for ( size_t subI = 0; subI < 2; ++subI )
+        {
+            for ( size_t subJ = 0; subJ < 2; ++subJ )
+            {
+                for ( size_t subK = 0; subK < 2; ++subK )
+                {
+                    // Calculate refined cell index
+                    size_t refinedI       = subI;
+                    size_t refinedJ       = subJ;
+                    size_t refinedK       = subK;
+                    size_t refinedCellIdx = refinedK * ( expectedRefinedNI * expectedRefinedNJ ) + refinedJ * expectedRefinedNI + refinedI;
+
+                    std::array<cvf::Vec3d, 8> refCorners = refinedGrid->cellCornerVertices( refinedCellIdx );
+
+                    qDebug() << QString( "\nSubcell [%1,%2,%3] (refined cell %4):" ).arg( subI ).arg( subJ ).arg( subK ).arg( refinedCellIdx );
+                    for ( size_t i = 0; i < 8; ++i )
+                    {
+                        qDebug() << QString( "  Corner[%1]: [%2, %3, %4]" )
+                                        .arg( i )
+                                        .arg( refCorners[i].x(), 0, 'f', 6 )
+                                        .arg( refCorners[i].y(), 0, 'f', 6 )
+                                        .arg( refCorners[i].z(), 0, 'f', 6 );
+                    }
+
+                    // Check corner matches with original cell
+                    qDebug() << "  Corner matches with original cell corners:";
+                    for ( size_t refIdx = 0; refIdx < 8; ++refIdx )
+                    {
+                        for ( size_t origIdx = 0; origIdx < 8; ++origIdx )
+                        {
+                            cvf::Vec3d diff     = refCorners[refIdx] - origCorners[origIdx];
+                            double     distance = diff.length();
+                            if ( distance < 0.01 )
+                            { // Very close match
+                                qDebug()
+                                    << QString( "    Refined[%1] ≈ Original[%2] (dist: %3)" ).arg( refIdx ).arg( origIdx ).arg( distance, 0, 'f', 6 );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        qDebug() << "\n=== SYSTEMATIC CORNER MATCH VERIFICATION ===";
+        qDebug() << "In a proper 2x2x2 refinement, each original corner should match exactly one subcell corner:";
+
+        // Define expected corner matches: [subI, subJ, subK, refinedCornerIdx, originalCornerIdx]
+        struct ExpectedMatch
+        {
+            size_t  subI, subJ, subK;
+            size_t  refinedCornerIdx;
+            size_t  originalCornerIdx;
+            QString description;
+        };
+
+        std::vector<ExpectedMatch> expectedMatches = { { 0, 0, 0, 0, 0, "Subcell[0,0,0] corner[0] should match Original[0] (-I,-J,-K)" },
+                                                       { 1, 0, 0, 1, 1, "Subcell[1,0,0] corner[1] should match Original[1] (+I,-J,-K)" },
+                                                       { 1, 1, 0, 2, 2, "Subcell[1,1,0] corner[2] should match Original[2] (+I,+J,-K)" },
+                                                       { 0, 1, 0, 3, 3, "Subcell[0,1,0] corner[3] should match Original[3] (-I,+J,-K)" },
+                                                       { 0, 0, 1, 4, 4, "Subcell[0,0,1] corner[4] should match Original[4] (-I,-J,+K)" },
+                                                       { 1, 0, 1, 5, 5, "Subcell[1,0,1] corner[5] should match Original[5] (+I,-J,+K)" },
+                                                       { 1, 1, 1, 6, 6, "Subcell[1,1,1] corner[6] should match Original[6] (+I,+J,+K)" },
+                                                       { 0, 1, 1, 7, 7, "Subcell[0,1,1] corner[7] should match Original[7] (-I,+J,+K)" } };
+
+        qDebug() << "\nChecking systematic corner matches:";
+        bool allMatchesCorrect = true;
+
+        for ( const auto& match : expectedMatches )
+        {
+            // Calculate refined cell index for this subcell
+            size_t refinedI       = match.subI;
+            size_t refinedJ       = match.subJ;
+            size_t refinedK       = match.subK;
+            size_t refinedCellIdx = refinedK * ( expectedRefinedNI * expectedRefinedNJ ) + refinedJ * expectedRefinedNI + refinedI;
+
+            std::array<cvf::Vec3d, 8> refCorners = refinedGrid->cellCornerVertices( refinedCellIdx );
+
+            cvf::Vec3d refinedCorner  = refCorners[match.refinedCornerIdx];
+            cvf::Vec3d originalCorner = origCorners[match.originalCornerIdx];
+            cvf::Vec3d diff           = refinedCorner - originalCorner;
+            double     distance       = diff.length();
+
+            qDebug() << match.description;
+            qDebug() << QString( "  Refined[%1,%2,%3] corner[%4]: [%5, %6, %7]" )
+                            .arg( match.subI )
+                            .arg( match.subJ )
+                            .arg( match.subK )
+                            .arg( match.refinedCornerIdx )
+                            .arg( refinedCorner.x(), 0, 'f', 6 )
+                            .arg( refinedCorner.y(), 0, 'f', 6 )
+                            .arg( refinedCorner.z(), 0, 'f', 6 );
+            qDebug() << QString( "  Original corner[%1]: [%2, %3, %4]" )
+                            .arg( match.originalCornerIdx )
+                            .arg( originalCorner.x(), 0, 'f', 6 )
+                            .arg( originalCorner.y(), 0, 'f', 6 )
+                            .arg( originalCorner.z(), 0, 'f', 6 );
+            qDebug() << QString( "  Distance: %1 (should be ~0.000000)" ).arg( distance, 0, 'f', 6 );
+
+            if ( distance > 0.001 )
+            {
+                qDebug() << QString( "  ❌ MISMATCH: Expected exact match but got distance %1" ).arg( distance );
+                allMatchesCorrect = false;
+            }
+            else
+            {
+                qDebug() << "  ✅ MATCH: Corner positions match within tolerance";
+            }
+            qDebug() << "";
+        }
+
+        if ( allMatchesCorrect )
+        {
+            qDebug() << "🎉 ALL 8 CORNER MATCHES ARE CORRECT! Refinement is working perfectly.";
+        }
+        else
+        {
+            qDebug() << "❌ Some corner matches are incorrect. The refinement algorithm needs improvement.";
+        }
+
+        // Additional test: Verify that all 8 original corners are accounted for
+        qDebug() << "\n=== VERIFYING ALL ORIGINAL CORNERS ARE PRESERVED ===";
+        std::vector<bool> originalCornersFound( 8, false );
+
+        for ( const auto& match : expectedMatches )
+        {
+            size_t refinedCellIdx = match.subK * ( expectedRefinedNI * expectedRefinedNJ ) + match.subJ * expectedRefinedNI + match.subI;
+            std::array<cvf::Vec3d, 8> refCorners = refinedGrid->cellCornerVertices( refinedCellIdx );
+
+            cvf::Vec3d diff = refCorners[match.refinedCornerIdx] - origCorners[match.originalCornerIdx];
+            if ( diff.length() < 0.001 )
+            {
+                originalCornersFound[match.originalCornerIdx] = true;
+            }
+        }
+
+        bool allOriginalCornersPreserved = true;
+        for ( size_t i = 0; i < 8; ++i )
+        {
+            if ( !originalCornersFound[i] )
+            {
+                qDebug() << QString( "❌ Original corner[%1] was not preserved in any subcell!" ).arg( i );
+                allOriginalCornersPreserved = false;
+            }
+        }
+
+        if ( allOriginalCornersPreserved )
+        {
+            qDebug() << "✅ All 8 original corners are properly preserved in the refined subcells.";
+        }
+    }
+
     qDebug() << "2x2x2 refinement corner verification completed successfully";
 }
 
