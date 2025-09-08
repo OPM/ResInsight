@@ -82,7 +82,6 @@ public:
 
     cvf::ref<cvf::DrawableGeo> generateSurface( const std::vector<cvf::Vec3f>& nodeCoordinates );
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
-    cvf::ref<cvf::DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
 
     const std::vector<size_t>& quadVerticesToNodeIdxMapping() const { return m_quadVerticesToNodeIdx; }
     const std::vector<size_t>& quadVerticesToGlobalElmNodeIdx() const { return m_quadVerticesToGlobalElmNodeIdx; }

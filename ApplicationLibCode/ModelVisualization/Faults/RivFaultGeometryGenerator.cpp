@@ -94,33 +94,6 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
     return geo;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable( double creaseAngle )
-{
-    if ( !m_vertices.notNull() || m_vertices->size() == 0 ) return nullptr;
-
-    cvf::OutlineEdgeExtractor ee( creaseAngle, *m_vertices );
-
-    cvf::ref<cvf::UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_vertices.p() );
-    ee.addPrimitives( 4, *indices );
-
-    cvf::ref<cvf::UIntArray> lineIndices = ee.lineIndices();
-    if ( lineIndices->size() == 0 )
-    {
-        return nullptr;
-    }
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
-    prim->setIndices( lineIndices.p() );
-
-    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-    geo->setVertexArray( m_vertices.p() );
-    geo->addPrimitiveSet( prim.p() );
-
-    return geo;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

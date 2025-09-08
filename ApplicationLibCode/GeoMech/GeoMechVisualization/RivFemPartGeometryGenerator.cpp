@@ -98,34 +98,6 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double creaseAngle )
-{
-    if ( !m_quadVertices.notNull() || m_quadVertices->size() == 0 ) return nullptr;
-
-    cvf::OutlineEdgeExtractor ee( creaseAngle, *m_quadVertices );
-
-    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_quadVertices.p() );
-    ee.addPrimitives( 4, *indices );
-
-    ref<cvf::UIntArray> lineIndices = ee.lineIndices();
-    if ( lineIndices->size() == 0 )
-    {
-        return nullptr;
-    }
-
-    ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt( PT_LINES );
-    prim->setIndices( lineIndices.p() );
-
-    ref<DrawableGeo> geo = new DrawableGeo;
-    geo->setVertexArray( m_quadVertices.p() );
-    geo->addPrimitiveSet( prim.p() );
-
-    return geo;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates )
 {
     std::vector<Vec3f> vertices;

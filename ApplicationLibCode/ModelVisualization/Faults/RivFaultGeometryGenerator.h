@@ -57,7 +57,6 @@ public:
     // Generated geometry
     cvf::ref<cvf::DrawableGeo> generateSurface( bool onlyShowFacesWithDefinedNeighbors );
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
-    cvf::ref<cvf::DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
 
 private:
     void computeArrays( bool onlyShowFacesWithDefinedNeighbors );
