@@ -99,7 +99,7 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
             auto legendFrame = legendFrames[visibleIndex];
             auto subTitle    = subTitles[visibleIndex];
 
-            int expectedColSpan = plotWidget->colSpan();
+            int expectedColSpan = std::max( 1, plotWidget->colSpan() );
             int colSpan         = std::min( expectedColSpan, cols - column );
             int rowSpan         = 1;
 
