@@ -89,6 +89,7 @@ private:
     std::array<cvf::Vec3d, 8> getOriginalCellCorners( size_t origI, size_t origJ, size_t origK ) const;
     std::array<cvf::Vec3d, 8> getRefinedCellCorners( size_t origI, size_t origJ, size_t origK, size_t subI, size_t subJ, size_t subK ) const;
     void applyCoordinateTransformation( std::array<cvf::Vec3d, 8>& corners ) const;
+    void applyCoordinateTransformation( std::array<cvf::Vec3d, 4>& corners ) const;
 
     // Helper to calculate original cell indices and subcell indices from refined indices
     struct CellMapping

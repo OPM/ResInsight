@@ -190,7 +190,7 @@ std::array<cvf::Vec3d, 4> RigGridExportAdapter::getFaceCorners( size_t i, size_t
     }
     else
     {
-        // For non-refined grids, use the original cell face extraction
+        // For non-refined grids, go directly to RigCell::faceCorners method
         CellMapping mapping = mapRefinedToOriginal( i, j, k );
         
         size_t originalCellIndex = m_mainGrid->cellIndexFromIJK( mapping.originalI, mapping.originalJ, mapping.originalK );
@@ -198,14 +198,7 @@ std::array<cvf::Vec3d, 4> RigGridExportAdapter::getFaceCorners( size_t i, size_t
         auto   faceCorners       = cell.faceCorners( face );
         
         // Apply coordinate transformations if needed
-        if ( useMapAxes() )
-        {
-            cvf::Mat4d transform = mapAxisTransform();
-            for ( cvf::Vec3d& corner : faceCorners )
-            {
-                corner.transformPoint( transform );
-            }
-        }
+        applyCoordinateTransformation( faceCorners );
         
         return faceCorners;
     }
@@ -283,6 +276,21 @@ std::array<cvf::Vec3d, 8> RigGridExportAdapter::getRefinedCellCorners( size_t or
 ///
 //--------------------------------------------------------------------------------------------------
 void RigGridExportAdapter::applyCoordinateTransformation( std::array<cvf::Vec3d, 8>& corners ) const
+{
+    if ( useMapAxes() )
+    {
+        cvf::Mat4d transform = mapAxisTransform();
+        for ( cvf::Vec3d& corner : corners )
+        {
+            corner.transformPoint( transform );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGridExportAdapter::applyCoordinateTransformation( std::array<cvf::Vec3d, 4>& corners ) const
 {
     if ( useMapAxes() )
     {
