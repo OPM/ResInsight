@@ -83,6 +83,19 @@ grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*    
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcWellPathService::copyCompDatToGrpc( const RigCompletionData& inputData, rips::SimulatorCompdatEntry* compDat )
 {
+    compDat->set_comment( inputData.metaDataString().toStdString() );
+    compDat->set_well_name( inputData.wellName().toStdString() );
+    compDat->set_grid_i( inputData.completionDataGridCell().localCellIndexI() );
+    compDat->set_grid_j( inputData.completionDataGridCell().localCellIndexJ() );
+    compDat->set_saturation( inputData.saturation() );
+    compDat->set_transmissibility( inputData.transmissibility() );
+    compDat->set_diameter( inputData.diameter() );
+    compDat->set_kh( inputData.kh() );
+    compDat->set_skin_factor( inputData.skinFactor() );
+    compDat->set_d_factor( inputData.dFactor() );
+    compDat->set_direction( inputData.directionString().toStdString() );
+    compDat->set_start_md( inputData.startMD() );
+    compDat->set_end_md( inputData.endMD() );
 }
 
 //--------------------------------------------------------------------------------------------------

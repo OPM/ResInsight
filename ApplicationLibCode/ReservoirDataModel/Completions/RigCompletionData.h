@@ -26,7 +26,6 @@
 #include <cafPdmPointer.h>
 
 #include <map>
-#include <optional>
 #include <vector>
 
 //==================================================================================================
@@ -139,8 +138,8 @@ public:
     double                                    wpimult() const;
     CompletionType                            completionType() const;
     bool                                      isMainBore() const;
-    std::optional<double>                     startMD() const;
-    std::optional<double>                     endMD() const;
+    double                                    startMD() const;
+    double                                    endMD() const;
     QString                                   directionString() const;
     QString                                   metaDataString() const;
 
@@ -150,7 +149,7 @@ public:
     void                  setSourcePdmObject( const caf::PdmObject* object );
     const caf::PdmObject* sourcePdmObject() const;
 
-    std::map<QString, QString> parameterMap();
+    // std::map<QString, QString> parameterMap();
 
     std::vector<RigCompletionMetaData> m_metadata;
 
@@ -165,8 +164,8 @@ private:
     double                    m_dFactor;
     CellDirection             m_direction;
 
-    std::optional<double> m_startMD; // start MD in completion cell
-    std::optional<double> m_endMD; // end MD in completion cell
+    double m_startMD; // start MD in completion cell
+    double m_endMD; // end MD in completion cell
 
     bool m_isMainBore; // to use mainbore for Eclipse calculation
 

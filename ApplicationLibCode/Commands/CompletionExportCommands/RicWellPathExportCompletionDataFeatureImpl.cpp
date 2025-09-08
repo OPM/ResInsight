@@ -494,8 +494,16 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     auto isValidTransmissibility = []( double transmissibility )
     { return RiaStatisticsTools::isValidNumber<double>( transmissibility ) && transmissibility >= 0.0; };
 
+    double startMD = completions[0].startMD();
+    double endMD   = completions[0].endMD();
+
     for ( const RigCompletionData& completion : completions )
     {
+        if ( completion.startMD() != completion.defaultValue() )
+        {
+            // TODO - calculate max/min range of any valid MD values here
+        }
+
         double transmissibility = completion.transmissibility();
 
         if ( !isValidTransmissibility( transmissibility ) )
@@ -517,6 +525,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             cellDirection                = completion.direction();
         }
     }
+
+    resultCompletion.setDepthRange( startMD, endMD );
 
     double combinedDiameter   = diameterCalculator.weightedMean();
     double combinedSkinFactor = skinFactorCalculator.weightedMean();
