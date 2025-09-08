@@ -42,6 +42,8 @@ public:
     void                    updateTieInLocationFromParentWell();
     void                    updateReferencePoint();
 
+    virtual void connectWellPaths( RimWellPath* parentWell, double tieInMeasuredDepth ) override;
+
 private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     void onGeometryDefinitionChanged( const caf::SignalEmitter* emitter, bool fullUpdate );

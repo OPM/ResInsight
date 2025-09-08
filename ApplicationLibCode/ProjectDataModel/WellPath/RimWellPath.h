@@ -172,7 +172,7 @@ public:
     std::vector<RimWellPath*> wellPathLaterals() const;
 
     RimWellPathTieIn* wellPathTieIn() const;
-    void              connectWellPaths( RimWellPath* parentWell, double tieInMeasuredDepth );
+    virtual void      connectWellPaths( RimWellPath* parentWell, double tieInMeasuredDepth );
 
 protected:
     // Override PdmObject

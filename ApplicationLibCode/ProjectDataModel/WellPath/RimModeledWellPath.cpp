@@ -267,6 +267,8 @@ void RimModeledWellPath::updateTieInLocationFromParentWell()
         m_geometryDefinition->setIsAttachedToParentWell( false );
         m_geometryDefinition->setFixedWellPathPoints( {} );
         m_geometryDefinition->setFixedMeasuredDepths( {} );
+
+        updateWellPathVisualization();
     }
 }
 
@@ -285,4 +287,14 @@ void RimModeledWellPath::updateReferencePoint()
 
     auto refPoint = topLevelModelledWell->geometryDefinition()->anchorPointXyz();
     m_geometryDefinition->setReferencePointXyz( refPoint );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimModeledWellPath::connectWellPaths( RimWellPath* parentWell, double tieInMeasuredDepth )
+{
+    RimWellPath::connectWellPaths( parentWell, tieInMeasuredDepth );
+
+    updateTieInLocationFromParentWell();
 }
