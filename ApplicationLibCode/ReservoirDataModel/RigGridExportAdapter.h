@@ -21,6 +21,7 @@
 #include "cvfArray.h"
 #include "cvfMatrix4.h"
 #include "cvfVector3.h"
+#include "cvfStructGrid.h"
 
 #include <array>
 
@@ -69,6 +70,7 @@ public:
 
     // Unified cell access interface - works for both refined and non-refined grids
     std::array<cvf::Vec3d, 8> getCellCorners( size_t i, size_t j, size_t k ) const;
+    std::array<cvf::Vec3d, 4> getFaceCorners( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face ) const;
     bool                      isCellActive( size_t i, size_t j, size_t k ) const;
 
     // Coordinate transformation info

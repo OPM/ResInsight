@@ -409,3 +409,144 @@ TEST( RigGridExportAdapterTest, MapAxes )
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Test face corners access without refinement
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapterTest, FaceCornersNoRefinement )
+{
+    auto caseData = loadTestGrid();
+    ASSERT_TRUE( caseData.notNull() );
+
+    const RigMainGrid* mainGrid = caseData->mainGrid();
+
+    cvf::Vec3st min( 0, 0, 0 );
+    cvf::Vec3st max( 0, 0, 0 ); // Just first cell
+    cvf::Vec3st refinement( 1, 1, 1 );
+
+    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+
+    // Get face corners from adapter
+    auto adapterTopFace = adapter.getFaceCorners( 0, 0, 0, cvf::StructGridInterface::NEG_K );
+    auto adapterBottomFace = adapter.getFaceCorners( 0, 0, 0, cvf::StructGridInterface::POS_K );
+
+    // Get face corners directly from main grid for comparison
+    size_t mainGridCellIndex = mainGrid->cellIndexFromIJK( 0, 0, 0 );
+    auto   cell              = mainGrid->cell( mainGridCellIndex );
+    auto   mainGridTopFace   = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+    auto   mainGridBottomFace = cell.faceCorners( cvf::StructGridInterface::POS_K );
+
+    // Apply same coordinate transformation if needed
+    if ( adapter.useMapAxes() )
+    {
+        cvf::Mat4d transform = adapter.mapAxisTransform();
+        for ( cvf::Vec3d& corner : mainGridTopFace )
+        {
+            corner.transformPoint( transform );
+        }
+        for ( cvf::Vec3d& corner : mainGridBottomFace )
+        {
+            corner.transformPoint( transform );
+        }
+    }
+
+    // Compare top face corners
+    for ( size_t i = 0; i < 4; ++i )
+    {
+        EXPECT_NEAR( mainGridTopFace[i].x(), adapterTopFace[i].x(), 0.001 ) << "Top face corner " << i << " X mismatch";
+        EXPECT_NEAR( mainGridTopFace[i].y(), adapterTopFace[i].y(), 0.001 ) << "Top face corner " << i << " Y mismatch";
+        EXPECT_NEAR( mainGridTopFace[i].z(), adapterTopFace[i].z(), 0.001 ) << "Top face corner " << i << " Z mismatch";
+    }
+
+    // Compare bottom face corners
+    for ( size_t i = 0; i < 4; ++i )
+    {
+        EXPECT_NEAR( mainGridBottomFace[i].x(), adapterBottomFace[i].x(), 0.001 ) << "Bottom face corner " << i << " X mismatch";
+        EXPECT_NEAR( mainGridBottomFace[i].y(), adapterBottomFace[i].y(), 0.001 ) << "Bottom face corner " << i << " Y mismatch";
+        EXPECT_NEAR( mainGridBottomFace[i].z(), adapterBottomFace[i].z(), 0.001 ) << "Bottom face corner " << i << " Z mismatch";
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test that face corners are consistent with cell corners for refined grids
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapterTest, FaceCornersRefinedConsistency )
+{
+    auto caseData = loadTestGrid();
+    ASSERT_TRUE( caseData.notNull() );
+
+    cvf::Vec3st min( 0, 0, 0 );
+    cvf::Vec3st max( 0, 0, 0 ); // Just first cell
+    cvf::Vec3st refinement( 2, 2, 2 );
+
+    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+
+    // Test a few refined subcells
+    for ( size_t k = 0; k < 2; ++k )
+    {
+        for ( size_t j = 0; j < 2; ++j )
+        {
+            for ( size_t i = 0; i < 2; ++i )
+            {
+                // Get both cell corners and face corners
+                auto cellCorners = adapter.getCellCorners( i, j, k );
+                auto topFace     = adapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
+                auto bottomFace  = adapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
+
+                // Verify that face corners match corresponding cell corners
+                EXPECT_NEAR( cellCorners[0].x(), topFace[0].x(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") top face corner 0 X";
+                EXPECT_NEAR( cellCorners[0].y(), topFace[0].y(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") top face corner 0 Y";
+                EXPECT_NEAR( cellCorners[0].z(), topFace[0].z(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") top face corner 0 Z";
+
+                EXPECT_NEAR( cellCorners[1].x(), topFace[1].x(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") top face corner 1 X";
+                EXPECT_NEAR( cellCorners[1].y(), topFace[1].y(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") top face corner 1 Y";
+                EXPECT_NEAR( cellCorners[1].z(), topFace[1].z(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") top face corner 1 Z";
+
+                EXPECT_NEAR( cellCorners[4].x(), bottomFace[0].x(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 X";
+                EXPECT_NEAR( cellCorners[4].y(), bottomFace[0].y(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 Y";
+                EXPECT_NEAR( cellCorners[4].z(), bottomFace[0].z(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 Z";
+
+                EXPECT_NEAR( cellCorners[5].x(), bottomFace[1].x(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 X";
+                EXPECT_NEAR( cellCorners[5].y(), bottomFace[1].y(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 Y";
+                EXPECT_NEAR( cellCorners[5].z(), bottomFace[1].z(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 Z";
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test all face types for consistency
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapterTest, AllFaceTypes )
+{
+    auto caseData = loadTestGrid();
+    ASSERT_TRUE( caseData.notNull() );
+
+    cvf::Vec3st min( 0, 0, 0 );
+    cvf::Vec3st max( 0, 0, 0 ); // Just first cell
+    cvf::Vec3st refinement( 1, 1, 1 );
+
+    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+
+    // Test all face types
+    std::vector<cvf::StructGridInterface::FaceType> faceTypes = {
+        cvf::StructGridInterface::NEG_K, cvf::StructGridInterface::POS_K,
+        cvf::StructGridInterface::NEG_I, cvf::StructGridInterface::POS_I,
+        cvf::StructGridInterface::NEG_J, cvf::StructGridInterface::POS_J
+    };
+
+    for ( auto faceType : faceTypes )
+    {
+        auto faceCorners = adapter.getFaceCorners( 0, 0, 0, faceType );
+
+        // Verify that we get exactly 4 corners and they are reasonable values
+        EXPECT_EQ( 4, faceCorners.size() ) << "Face type " << static_cast<int>( faceType ) << " should have 4 corners";
+
+        for ( size_t i = 0; i < 4; ++i )
+        {
+            EXPECT_FALSE( std::isnan( faceCorners[i].x() ) ) << "Face " << static_cast<int>( faceType ) << " corner " << i << " X is NaN";
+            EXPECT_FALSE( std::isnan( faceCorners[i].y() ) ) << "Face " << static_cast<int>( faceType ) << " corner " << i << " Y is NaN";
+            EXPECT_FALSE( std::isnan( faceCorners[i].z() ) ) << "Face " << static_cast<int>( faceType ) << " corner " << i << " Z is NaN";
+        }
+    }
+}

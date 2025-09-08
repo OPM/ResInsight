@@ -291,37 +291,37 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
             // Face 1: corners (0,3) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto corners = gridAdapter.getCellCorners( i, j, k );
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[0].z() ); // (-I,-J,top)
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[3].z() ); // (-I,+J,top)
+                auto topCorners = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
+                zcornArray[zcornIdx++] = static_cast<float>( -topCorners[0].z() ); // (-I,-J,top)
+                zcornArray[zcornIdx++] = static_cast<float>( -topCorners[3].z() ); // (-I,+J,top)
             }
 
             // Face 2: corners (1,2) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto corners = gridAdapter.getCellCorners( i, j, k );
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[1].z() ); // (+I,-J,top)
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[2].z() ); // (+I,+J,top)
+                auto topCorners = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
+                zcornArray[zcornIdx++] = static_cast<float>( -topCorners[1].z() ); // (+I,-J,top)
+                zcornArray[zcornIdx++] = static_cast<float>( -topCorners[2].z() ); // (+I,+J,top)
             }
         }
 
         // Bottom layer interface
         for ( size_t j = 0; j < ny; ++j )
         {
-            // Face 1: corners (4,5) for all cells in row j
+            // Face 1: corners (0,1) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto corners = gridAdapter.getCellCorners( i, j, k );
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[4].z() ); // (-I,-J,bottom)
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[5].z() ); // (+I,-J,bottom)
+                auto bottomCorners = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
+                zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[0].z() ); // (-I,-J,bottom)
+                zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[1].z() ); // (+I,-J,bottom)
             }
 
-            // Face 2: corners (6,7) for all cells in row j
+            // Face 2: corners (3,2) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto corners = gridAdapter.getCellCorners( i, j, k );
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[7].z() ); // (-I,+J,bottom)
-                zcornArray[zcornIdx++] = static_cast<float>( -corners[6].z() ); // (+I,+J,bottom)
+                auto bottomCorners = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
+                zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[3].z() ); // (-I,+J,bottom)
+                zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[2].z() ); // (+I,+J,bottom)
             }
         }
     }

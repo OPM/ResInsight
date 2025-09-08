@@ -22,10 +22,12 @@
 #include "RiaDefines.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 #include "cvfAssert.h"
+#include "cvfStructGrid.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Generate refined cell corners using trilinear interpolation within the original cell
@@ -118,6 +120,95 @@ std::array<cvf::Vec3d, 8> RigGridExportAdapter::getCellCorners( size_t i, size_t
     applyCoordinateTransformation( corners );
 
     return corners;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 4> RigGridExportAdapter::getFaceCorners( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face ) const
+{
+    if ( hasRefinement() )
+    {
+        // For refined grids, get all 8 cell corners first, then extract face corners
+        auto cellCorners = getCellCorners( i, j, k );
+        
+        // Extract the 4 corners for the requested face
+        // This follows the same convention as cvf::StructGridInterface::FaceType
+        std::array<cvf::Vec3d, 4> faceCorners;
+        
+        switch ( face )
+        {
+            case cvf::StructGridInterface::NEG_K: // Top face (k-)
+                faceCorners[0] = cellCorners[0]; // (-I,-J,top)
+                faceCorners[1] = cellCorners[1]; // (+I,-J,top)
+                faceCorners[2] = cellCorners[2]; // (+I,+J,top)
+                faceCorners[3] = cellCorners[3]; // (-I,+J,top)
+                break;
+                
+            case cvf::StructGridInterface::POS_K: // Bottom face (k+)
+                faceCorners[0] = cellCorners[4]; // (-I,-J,bottom)
+                faceCorners[1] = cellCorners[5]; // (+I,-J,bottom)
+                faceCorners[2] = cellCorners[6]; // (+I,+J,bottom)
+                faceCorners[3] = cellCorners[7]; // (-I,+J,bottom)
+                break;
+                
+            case cvf::StructGridInterface::NEG_I: // Left face (i-)
+                faceCorners[0] = cellCorners[0]; // (-I,-J,top)
+                faceCorners[1] = cellCorners[3]; // (-I,+J,top)
+                faceCorners[2] = cellCorners[7]; // (-I,+J,bottom)
+                faceCorners[3] = cellCorners[4]; // (-I,-J,bottom)
+                break;
+                
+            case cvf::StructGridInterface::POS_I: // Right face (i+)
+                faceCorners[0] = cellCorners[1]; // (+I,-J,top)
+                faceCorners[1] = cellCorners[2]; // (+I,+J,top)
+                faceCorners[2] = cellCorners[6]; // (+I,+J,bottom)
+                faceCorners[3] = cellCorners[5]; // (+I,-J,bottom)
+                break;
+                
+            case cvf::StructGridInterface::NEG_J: // Front face (j-)
+                faceCorners[0] = cellCorners[0]; // (-I,-J,top)
+                faceCorners[1] = cellCorners[1]; // (+I,-J,top)
+                faceCorners[2] = cellCorners[5]; // (+I,-J,bottom)
+                faceCorners[3] = cellCorners[4]; // (-I,-J,bottom)
+                break;
+                
+            case cvf::StructGridInterface::POS_J: // Back face (j+)
+                faceCorners[0] = cellCorners[3]; // (-I,+J,top)
+                faceCorners[1] = cellCorners[2]; // (+I,+J,top)
+                faceCorners[2] = cellCorners[6]; // (+I,+J,bottom)
+                faceCorners[3] = cellCorners[7]; // (-I,+J,bottom)
+                break;
+                
+            default:
+                // Unsupported face type - return zeros
+                faceCorners.fill( cvf::Vec3d::ZERO );
+                break;
+        }
+        
+        return faceCorners;
+    }
+    else
+    {
+        // For non-refined grids, use the original cell face extraction
+        CellMapping mapping = mapRefinedToOriginal( i, j, k );
+        
+        size_t originalCellIndex = m_mainGrid->cellIndexFromIJK( mapping.originalI, mapping.originalJ, mapping.originalK );
+        auto   cell              = m_mainGrid->cell( originalCellIndex );
+        auto   faceCorners       = cell.faceCorners( face );
+        
+        // Apply coordinate transformations if needed
+        if ( useMapAxes() )
+        {
+            cvf::Mat4d transform = mapAxisTransform();
+            for ( cvf::Vec3d& corner : faceCorners )
+            {
+                corner.transformPoint( transform );
+            }
+        }
+        
+        return faceCorners;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
