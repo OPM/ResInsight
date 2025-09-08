@@ -21,7 +21,7 @@ message SimulatorCompdatEntry {
   int32 upper_k = 4;
   int32 lower_k = 5;
   string open_shut_flag = 6;
-  optional int32 sat_num = 7;
+  optional double saturation = 7;
   optional double transmissibility = 8;
   optional double diameter = 9;
   optional double kh = 10;
