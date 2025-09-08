@@ -234,6 +234,7 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
         relativePositionXYD.z()        = -relativePositionXYD.z();
 
         manipulatedTarget->updateFrom3DManipulator( relativePositionXYD );
+        manipulatedTarget->updateConnectedEditors();
 
         return;
     }
