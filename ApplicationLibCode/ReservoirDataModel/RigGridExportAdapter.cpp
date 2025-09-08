@@ -129,55 +129,78 @@ std::array<cvf::Vec3d, 4> RigGridExportAdapter::getFaceCorners( size_t i, size_t
 {
     if ( hasRefinement() )
     {
-        // For refined grids, get all 8 cell corners first, then extract face corners
-        auto cellCorners = getCellCorners( i, j, k );
+        // For refined grids, create 8 cell corners from two face corner calls
+        CellMapping mapping = mapRefinedToOriginal( i, j, k );
         
-        // Extract the 4 corners for the requested face
-        // This follows the same convention as cvf::StructGridInterface::FaceType
+        size_t originalCellIndex = m_mainGrid->cellIndexFromIJK( mapping.originalI, mapping.originalJ, mapping.originalK );
+        auto   cell              = m_mainGrid->cell( originalCellIndex );
+        
+        // Get top and bottom face corners to construct the full 8-corner cell
+        auto topFaceCorners    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+        auto bottomFaceCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
+        
+        // Construct the 8-corner array in the correct order
+        std::array<cvf::Vec3d, 8> originalCorners;
+        originalCorners[0] = topFaceCorners[0];    // (-I,-J,top)
+        originalCorners[1] = topFaceCorners[1];    // (+I,-J,top)
+        originalCorners[2] = topFaceCorners[2];    // (+I,+J,top)
+        originalCorners[3] = topFaceCorners[3];    // (-I,+J,top)
+        originalCorners[4] = bottomFaceCorners[0]; // (-I,-J,bottom)
+        originalCorners[5] = bottomFaceCorners[1]; // (+I,-J,bottom)
+        originalCorners[6] = bottomFaceCorners[2]; // (+I,+J,bottom)
+        originalCorners[7] = bottomFaceCorners[3]; // (-I,+J,bottom)
+        
+        // Apply coordinate transformations if needed
+        applyCoordinateTransformation( originalCorners );
+        
+        // Generate refined cell corners using ResInsight's refinement algorithm
+        auto refinedCorners = generateRefinedCellCorners( originalCorners, m_refinement.x(), m_refinement.y(), m_refinement.z(), mapping.subI, mapping.subJ, mapping.subK );
+        
+        // Extract the 4 corners for the requested face from the refined corners
         std::array<cvf::Vec3d, 4> faceCorners;
         
         switch ( face )
         {
             case cvf::StructGridInterface::NEG_K: // Top face (k-)
-                faceCorners[0] = cellCorners[0]; // (-I,-J,top)
-                faceCorners[1] = cellCorners[1]; // (+I,-J,top)
-                faceCorners[2] = cellCorners[2]; // (+I,+J,top)
-                faceCorners[3] = cellCorners[3]; // (-I,+J,top)
+                faceCorners[0] = refinedCorners[0]; // (-I,-J,top)
+                faceCorners[1] = refinedCorners[1]; // (+I,-J,top)
+                faceCorners[2] = refinedCorners[2]; // (+I,+J,top)
+                faceCorners[3] = refinedCorners[3]; // (-I,+J,top)
                 break;
                 
             case cvf::StructGridInterface::POS_K: // Bottom face (k+)
-                faceCorners[0] = cellCorners[4]; // (-I,-J,bottom)
-                faceCorners[1] = cellCorners[5]; // (+I,-J,bottom)
-                faceCorners[2] = cellCorners[6]; // (+I,+J,bottom)
-                faceCorners[3] = cellCorners[7]; // (-I,+J,bottom)
+                faceCorners[0] = refinedCorners[4]; // (-I,-J,bottom)
+                faceCorners[1] = refinedCorners[5]; // (+I,-J,bottom)
+                faceCorners[2] = refinedCorners[6]; // (+I,+J,bottom)
+                faceCorners[3] = refinedCorners[7]; // (-I,+J,bottom)
                 break;
                 
             case cvf::StructGridInterface::NEG_I: // Left face (i-)
-                faceCorners[0] = cellCorners[0]; // (-I,-J,top)
-                faceCorners[1] = cellCorners[3]; // (-I,+J,top)
-                faceCorners[2] = cellCorners[7]; // (-I,+J,bottom)
-                faceCorners[3] = cellCorners[4]; // (-I,-J,bottom)
+                faceCorners[0] = refinedCorners[0]; // (-I,-J,top)
+                faceCorners[1] = refinedCorners[3]; // (-I,+J,top)
+                faceCorners[2] = refinedCorners[7]; // (-I,+J,bottom)
+                faceCorners[3] = refinedCorners[4]; // (-I,-J,bottom)
                 break;
                 
             case cvf::StructGridInterface::POS_I: // Right face (i+)
-                faceCorners[0] = cellCorners[1]; // (+I,-J,top)
-                faceCorners[1] = cellCorners[2]; // (+I,+J,top)
-                faceCorners[2] = cellCorners[6]; // (+I,+J,bottom)
-                faceCorners[3] = cellCorners[5]; // (+I,-J,bottom)
+                faceCorners[0] = refinedCorners[1]; // (+I,-J,top)
+                faceCorners[1] = refinedCorners[2]; // (+I,+J,top)
+                faceCorners[2] = refinedCorners[6]; // (+I,+J,bottom)
+                faceCorners[3] = refinedCorners[5]; // (+I,-J,bottom)
                 break;
                 
             case cvf::StructGridInterface::NEG_J: // Front face (j-)
-                faceCorners[0] = cellCorners[0]; // (-I,-J,top)
-                faceCorners[1] = cellCorners[1]; // (+I,-J,top)
-                faceCorners[2] = cellCorners[5]; // (+I,-J,bottom)
-                faceCorners[3] = cellCorners[4]; // (-I,-J,bottom)
+                faceCorners[0] = refinedCorners[0]; // (-I,-J,top)
+                faceCorners[1] = refinedCorners[1]; // (+I,-J,top)
+                faceCorners[2] = refinedCorners[5]; // (+I,-J,bottom)
+                faceCorners[3] = refinedCorners[4]; // (-I,-J,bottom)
                 break;
                 
             case cvf::StructGridInterface::POS_J: // Back face (j+)
-                faceCorners[0] = cellCorners[3]; // (-I,+J,top)
-                faceCorners[1] = cellCorners[2]; // (+I,+J,top)
-                faceCorners[2] = cellCorners[6]; // (+I,+J,bottom)
-                faceCorners[3] = cellCorners[7]; // (-I,+J,bottom)
+                faceCorners[0] = refinedCorners[3]; // (-I,+J,top)
+                faceCorners[1] = refinedCorners[2]; // (+I,+J,top)
+                faceCorners[2] = refinedCorners[6]; // (+I,+J,bottom)
+                faceCorners[3] = refinedCorners[7]; // (-I,+J,bottom)
                 break;
                 
             default:
