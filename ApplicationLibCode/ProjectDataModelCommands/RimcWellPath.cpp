@@ -48,6 +48,7 @@
 
 #include "RigDoglegTools.h"
 #include "RigStimPlanModelTools.h"
+#include "Well/RigWellPath.h"
 #include "Well/RigWellPathGeometryExporter.h"
 #include "Well/RigWellPathGeometryTools.h"
 
@@ -613,4 +614,71 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::e
 QString RimcWellPath_addWellLogInternal::classKeywordReturnedType() const
 {
     return RimImportedWellLog::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_appendLateral, "AppendLateral" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_appendLateral::RimcWellPath_appendLateral( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Append Well Path Lateral" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_lateral, "WellPathLateral", "", "", "", "Well Path Lateral" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendLateral::execute()
+{
+    auto wellPath = self<RimWellPath>();
+
+    const auto mainWellPathGeometry = wellPath->wellPathGeometry();
+    if ( !mainWellPathGeometry )
+    {
+        QString txt = "No geometry available for main well path. Cannot append lateral to main well path.";
+        return std::unexpected( txt );
+    }
+
+    if ( !m_lateral )
+    {
+        QString txt = "No lateral specified. Cannot append lateral to well path.";
+        return std::unexpected( txt );
+    }
+
+    auto lateralGeometry = m_lateral->wellPathGeometry();
+    if ( !lateralGeometry )
+    {
+        QString txt = "No geometry available for lateral. Cannot append lateral to main well path.";
+        return std::unexpected( txt );
+    }
+
+    const double sharedWellPathLength = lateralGeometry->identicalTubeLength( *mainWellPathGeometry );
+    const double epsilon              = 1.0e-8;
+    if ( sharedWellPathLength > epsilon )
+    {
+        m_lateral->connectWellPaths( wellPath, sharedWellPathLength );
+        return nullptr;
+    }
+
+    if ( lateralGeometry->wellPathPoints().empty() )
+    {
+        QString txt = "No points available for lateral. Cannot append lateral to main well path.";
+        return std::unexpected( txt );
+    }
+
+    auto lateralStartPoint   = lateralGeometry->wellPathPoints().front();
+    auto closestMdOnMainWell = mainWellPathGeometry->closestMeasuredDepth( lateralStartPoint );
+    if ( closestMdOnMainWell < 0.0 )
+    {
+        QString txt = "Failed to find closest point on main well path. Cannot append lateral to main well path.";
+        return std::unexpected( txt );
+    }
+
+    m_lateral->connectWellPaths( wellPath, closestMdOnMainWell );
+
+    return nullptr;
 }
