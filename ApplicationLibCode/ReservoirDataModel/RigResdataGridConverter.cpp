@@ -27,6 +27,7 @@
 #include "RigCell.h"
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
+#include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
 
 #include "RifReaderEclipseOutput.h"
@@ -41,36 +42,6 @@
 #include <array>
 #include <vector>
 
-//--------------------------------------------------------------------------------------------------
-/// Generate refined cell corners using trilinear interpolation within the original cell
-/// This ensures refined cells are strictly contained within the original cell bounds
-//--------------------------------------------------------------------------------------------------
-static std::array<cvf::Vec3d, 8> getRefinedCellCorners( const std::array<cvf::Vec3d, 8>& originalCorners,
-                                                        size_t                           refinementI,
-                                                        size_t                           refinementJ,
-                                                        size_t                           refinementK,
-                                                        size_t                           subI,
-                                                        size_t                           subJ,
-                                                        size_t                           subK )
-{
-    // Use ResInsight's proven face-based refinement approach
-    auto allRefinedCorners = RiaCellDividingTools::createHexCornerCoords( originalCorners, refinementI, refinementJ, refinementK );
-
-    // Calculate the linear index of the specific subcell we want
-    // createHexCornerCoords uses for(z) for(y) for(x) loops, so X is fastest changing (X-major)
-    // Linear index = z * (nx * ny) + y * nx + x
-    size_t subcellIndex     = subK * ( refinementI * refinementJ ) + subJ * refinementI + subI;
-    size_t cornerStartIndex = subcellIndex * 8;
-
-    // Extract the 8 corners for this specific subcell
-    std::array<cvf::Vec3d, 8> refinedCorners;
-    for ( size_t i = 0; i < 8; ++i )
-    {
-        refinedCorners[i] = allRefinedCorners[cornerStartIndex + i];
-    }
-
-    return refinedCorners;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -88,61 +59,33 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
         return false;
     }
 
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    CVF_ASSERT( activeCellInfo );
+    // Create grid export adapter that handles all the complexity
+    RigGridExportAdapter gridAdapter( eclipseCase, min, max, refinement, cellVisibilityOverrideForActnum );
 
-    const RigMainGrid* mainGrid = eclipseCase->mainGrid();
-
-    cvf::Vec3st maxActual =
-        max.isUndefined() ? cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 ) : max;
-
-    size_t ni = ( maxActual.x() - min.x() + 1 ) * refinement.x();
-    size_t nj = ( maxActual.y() - min.y() + 1 ) * refinement.y();
-    size_t nk = ( maxActual.z() - min.z() + 1 ) * refinement.z();
+    size_t ni = gridAdapter.cellCountI();
+    size_t nj = gridAdapter.cellCountJ();
+    size_t nk = gridAdapter.cellCountK();
 
     std::vector<float> coordArray;
     std::vector<float> zcornArray;
     std::vector<int>   actnumArray;
 
-    // Get coordinate transformation if needed
-    cvf::Mat4d           mapAxisTrans;
-    std::array<float, 6> mapAxes = mainGrid->mapAxesF();
-
-    if ( mainGrid->useMapAxes() )
+    // Get coordinate transformation if needed for local coordinates export
+    std::array<float, 6> mapAxes = gridAdapter.mapAxes();
+    
+    if ( gridAdapter.useMapAxes() && exportInLocalCoordinates )
     {
-        mapAxisTrans = mainGrid->mapAxisTransform();
-
-        if ( exportInLocalCoordinates )
-        {
-            cvf::Vec3d minPoint3d( mainGrid->boundingBox().min() );
-            cvf::Vec2f minPoint2f( minPoint3d.x(), minPoint3d.y() );
-            cvf::Vec2f origin( mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y() );
-            cvf::Vec2f xPoint = cvf::Vec2f( mapAxes[4], mapAxes[5] ) - minPoint2f;
-            cvf::Vec2f yPoint = cvf::Vec2f( mapAxes[0], mapAxes[1] ) - minPoint2f;
-            mapAxes           = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
-
-            mapAxisTrans.setTranslation( mapAxisTrans.translation() - minPoint3d );
-        }
+        const RigMainGrid* mainGrid = eclipseCase->mainGrid();
+        cvf::Vec3d minPoint3d( mainGrid->boundingBox().min() );
+        cvf::Vec2f minPoint2f( minPoint3d.x(), minPoint3d.y() );
+        cvf::Vec2f origin( mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y() );
+        cvf::Vec2f xPoint = cvf::Vec2f( mapAxes[4], mapAxes[5] ) - minPoint2f;
+        cvf::Vec2f yPoint = cvf::Vec2f( mapAxes[0], mapAxes[1] ) - minPoint2f;
+        mapAxes           = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
     }
 
-    // Build refined cell and node data
-    std::vector<RigCell>    refinedCells;
-    std::vector<cvf::Vec3d> refinedNodes;
-
-    convertGridToCornerPointArrays( eclipseCase,
-                                    activeCellInfo,
-                                    cellVisibilityOverrideForActnum,
-                                    min,
-                                    maxActual,
-                                    refinement,
-                                    mapAxisTrans,
-                                    mainGrid->useMapAxes(),
-                                    ni,
-                                    nj,
-                                    nk,
-                                    coordArray,
-                                    zcornArray,
-                                    actnumArray );
+    // Use the new simplified interface
+    convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
 
     // Write to file
     QFile exportFile( resultFileName );
@@ -204,7 +147,7 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
     }
 
     // Write MAPAXES if needed
-    if ( mainGrid->useMapAxes() )
+    if ( gridAdapter.useMapAxes() )
     {
         bool                writeEchoKeywordsInExporterObject = true;
         QString             keyword                           = "MAPAXES";
@@ -229,26 +172,18 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
 /// - ZCORN array contains Z values for cell corners (8 Z values per cell)
 /// - ACTNUM array contains activity flags (1 for active, 0 for inactive)
 ///
-/// Supports refinement and coordinate transformations including MAPAXIS.
+/// Uses RigGridExportAdapter to handle refinement and coordinate transformations uniformly.
 /// See Eclipse_Grid_Format.md for details
 ///
 //--------------------------------------------------------------------------------------------------
-void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData*      eclipseCase,
-                                                              const RigActiveCellInfo* activeCellInfo,
-                                                              const cvf::UByteArray*   cellVisibilityOverrideForActnum,
-                                                              const cvf::Vec3st&       min,
-                                                              const cvf::Vec3st&       max,
-                                                              const cvf::Vec3st&       refinement,
-                                                              const cvf::Mat4d&        mapAxisTransform,
-                                                              bool                     useMapAxes,
-                                                              size_t                   nx,
-                                                              size_t                   ny,
-                                                              size_t                   nz,
-                                                              std::vector<float>&      coordArray,
-                                                              std::vector<float>&      zcornArray,
-                                                              std::vector<int>&        actnumArray )
+void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExportAdapter& gridAdapter,
+                                                              std::vector<float>&         coordArray,
+                                                              std::vector<float>&         zcornArray,
+                                                              std::vector<int>&           actnumArray )
 {
-    const RigMainGrid* mainGrid = eclipseCase->mainGrid();
+    size_t nx = gridAdapter.cellCountI();
+    size_t ny = gridAdapter.cellCountJ();
+    size_t nz = gridAdapter.cellCountK();
 
     // Resize arrays to correct size
     size_t coordSize  = ( nx + 1 ) * ( ny + 1 ) * 6;
@@ -258,43 +193,6 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
     coordArray.resize( coordSize, 0.0f );
     zcornArray.resize( zcornSize, 0.0f );
     actnumArray.resize( actnumSize, 0 );
-
-    // Helper lambda to get refined cell corners on demand
-    auto getRefinedCellCornersOnDemand = [&]( size_t refinedI, size_t refinedJ, size_t refinedK ) -> std::array<cvf::Vec3d, 8>
-    {
-        // Calculate which original cell this refined cell belongs to
-        size_t origI = min.x() + refinedI / refinement.x();
-        size_t origJ = min.y() + refinedJ / refinement.y();
-        size_t origK = min.z() + refinedK / refinement.z();
-
-        // Calculate subcell indices within the original cell
-        size_t subI = refinedI % refinement.x();
-        size_t subJ = refinedJ % refinement.y();
-        size_t subK = refinedK % refinement.z();
-
-        // Get original cell corners
-        size_t                    mainIndex       = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-        std::array<cvf::Vec3d, 8> originalCorners = mainGrid->cellCornerVertices( mainIndex );
-
-        // Apply coordinate transformations
-        if ( useMapAxes )
-        {
-            for ( cvf::Vec3d& corner : originalCorners )
-            {
-                corner.transformPoint( mapAxisTransform );
-            }
-        }
-
-        // Generate refined cell corners
-        if ( refinement.x() > 1 || refinement.y() > 1 || refinement.z() > 1 )
-        {
-            return getRefinedCellCorners( originalCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
-        }
-        else
-        {
-            return originalCorners; // No refinement
-        }
-    };
 
     // Generate COORD array - pillars for the refined grid
     for ( size_t j = 0; j <= ny; ++j )
@@ -308,18 +206,18 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
             cvf::Vec3d bottomCoord( 0.0, 0.0, 0.0 );
             bool       foundCoords = false;
 
-            // Find pillar coordinates from adjacent refined cells
+            // Find pillar coordinates from adjacent cells using the adapter
             for ( int di = -1; di <= 0 && !foundCoords; ++di )
             {
                 for ( int dj = -1; dj <= 0 && !foundCoords; ++dj )
                 {
-                    int refinedI = static_cast<int>( i ) + di;
-                    int refinedJ = static_cast<int>( j ) + dj;
+                    int cellI = static_cast<int>( i ) + di;
+                    int cellJ = static_cast<int>( j ) + dj;
 
-                    if ( refinedI >= 0 && refinedI < static_cast<int>( nx ) && refinedJ >= 0 && refinedJ < static_cast<int>( ny ) )
+                    if ( cellI >= 0 && cellI < static_cast<int>( nx ) && cellJ >= 0 && cellJ < static_cast<int>( ny ) )
                     {
-                        // Get corners for this refined cell (from top layer k=0)
-                        auto corners = getRefinedCellCornersOnDemand( refinedI, refinedJ, 0 );
+                        // Get corners for this cell (from top layer k=0)
+                        auto corners = gridAdapter.getCellCorners( cellI, cellJ, 0 );
 
                         // Determine which corner corresponds to this pillar
                         size_t cornerIdx = 0;
@@ -333,27 +231,26 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
                             cornerIdx = 2; // cell's NE corner
 
                         topCoord    = corners[cornerIdx];
-                        bottomCoord = corners[cornerIdx + 4]; // bottom corner (from top layer - will be corrected below)
+                        bottomCoord = corners[cornerIdx + 4]; // bottom corner
                         foundCoords = true;
                     }
                 }
             }
 
-            // For pillars, we need to find the true top and bottom coordinates across all layers
+            // For pillars, find the true bottom coordinates from the bottom layer
             if ( foundCoords && nz > 1 )
             {
-                // Get bottom coordinate from the bottom layer
                 for ( int di = -1; di <= 0; ++di )
                 {
                     for ( int dj = -1; dj <= 0; ++dj )
                     {
-                        int refinedI = static_cast<int>( i ) + di;
-                        int refinedJ = static_cast<int>( j ) + dj;
+                        int cellI = static_cast<int>( i ) + di;
+                        int cellJ = static_cast<int>( j ) + dj;
 
-                        if ( refinedI >= 0 && refinedI < static_cast<int>( nx ) && refinedJ >= 0 && refinedJ < static_cast<int>( ny ) )
+                        if ( cellI >= 0 && cellI < static_cast<int>( nx ) && cellJ >= 0 && cellJ < static_cast<int>( ny ) )
                         {
-                            // Get corners for this refined cell from bottom layer
-                            auto bottomCorners = getRefinedCellCornersOnDemand( refinedI, refinedJ, nz - 1 );
+                            // Get corners for this cell from bottom layer
+                            auto bottomCorners = gridAdapter.getCellCorners( cellI, cellJ, nz - 1 );
 
                             size_t cornerIdx = 0;
                             if ( di == 0 && dj == 0 )
@@ -384,10 +281,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
     }
 
     // Generate ZCORN array following Eclipse specification
-    size_t zcornIdx      = 0;
-    bool   hasRefinement = ( refinement.x() > 1 || refinement.y() > 1 || refinement.z() > 1 );
-
-    // No mapping needed - trilinear interpolation now matches face corner convention
+    size_t zcornIdx = 0;
 
     for ( size_t k = 0; k < nz; ++k )
     {
@@ -397,121 +291,17 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
             // Face 1: corners (0,3) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                if ( hasRefinement )
-                {
-                    // Calculate which original cell this refined cell belongs to
-                    size_t origI = min.x() + i / refinement.x();
-                    size_t origJ = min.y() + j / refinement.y();
-                    size_t origK = min.z() + k / refinement.z();
-
-                    // Calculate subcell indices within the original cell
-                    size_t subI = i % refinement.x();
-                    size_t subJ = j % refinement.y();
-                    size_t subK = k % refinement.z();
-
-                    // Get original cell corners using cellCornerVertices (matches createHexCornerCoords expected order)
-                    size_t                    mainIndex   = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                    std::array<cvf::Vec3d, 8> cellCorners = mainGrid->cellCornerVertices( mainIndex );
-
-                    // Apply coordinate transformations if needed
-                    if ( useMapAxes )
-                    {
-                        for ( cvf::Vec3d& corner : cellCorners )
-                        {
-                            corner.transformPoint( mapAxisTransform );
-                        }
-                    }
-
-                    // Generate refined cell corners using ResInsight's refinement algorithm
-                    auto refinedCorners =
-                        getRefinedCellCorners( cellCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
-
-                    // Eclipse Face 1: corners (0,3) which should be (-I,-J,top) and (-I,+J,top)
-                    // For refined subcells: corner 0 is always (-I,-J) and corner 3 is always (-I,+J) of that subcell
-                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[0].z() ); // (-I,-J,top)
-                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[3].z() ); // (-I,+J,top)
-                }
-                else
-                {
-                    // Use original cell face extraction for non-refinement case
-                    size_t origI      = min.x() + i;
-                    size_t origJ      = min.y() + j;
-                    size_t origK      = min.z() + k;
-                    size_t mainIndex  = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                    auto   cell       = mainGrid->cell( mainIndex );
-                    auto   topCorners = cell.faceCorners( cvf::StructGridInterface::NEG_K );
-
-                    // Apply coordinate transformations if needed
-                    if ( useMapAxes )
-                    {
-                        for ( cvf::Vec3d& corner : topCorners )
-                        {
-                            corner.transformPoint( mapAxisTransform );
-                        }
-                    }
-
-                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[0].z() ); // (-I,-J)
-                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[3].z() ); // (+I,-J)
-                }
+                auto corners = gridAdapter.getCellCorners( i, j, k );
+                zcornArray[zcornIdx++] = static_cast<float>( -corners[0].z() ); // (-I,-J,top)
+                zcornArray[zcornIdx++] = static_cast<float>( -corners[3].z() ); // (-I,+J,top)
             }
 
             // Face 2: corners (1,2) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                if ( hasRefinement )
-                {
-                    // Calculate which original cell this refined cell belongs to
-                    size_t origI = min.x() + i / refinement.x();
-                    size_t origJ = min.y() + j / refinement.y();
-                    size_t origK = min.z() + k / refinement.z();
-
-                    // Calculate subcell indices within the original cell
-                    size_t subI = i % refinement.x();
-                    size_t subJ = j % refinement.y();
-                    size_t subK = k % refinement.z();
-
-                    // Get original cell corners using cellCornerVertices (matches createHexCornerCoords expected order)
-                    size_t                    mainIndex   = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                    std::array<cvf::Vec3d, 8> cellCorners = mainGrid->cellCornerVertices( mainIndex );
-
-                    // Apply coordinate transformations if needed
-                    if ( useMapAxes )
-                    {
-                        for ( cvf::Vec3d& corner : cellCorners )
-                        {
-                            corner.transformPoint( mapAxisTransform );
-                        }
-                    }
-
-                    // Generate refined cell corners using ResInsight's refinement algorithm
-                    auto refinedCorners =
-                        getRefinedCellCorners( cellCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
-
-                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[1].z() ); // (+I,-J,top)
-                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[2].z() ); // (+I,+J,top)
-                }
-                else
-                {
-                    // Use original cell face extraction for non-refinement case
-                    size_t origI      = min.x() + i;
-                    size_t origJ      = min.y() + j;
-                    size_t origK      = min.z() + k;
-                    size_t mainIndex  = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                    auto   cell       = mainGrid->cell( mainIndex );
-                    auto   topCorners = cell.faceCorners( cvf::StructGridInterface::NEG_K );
-
-                    // Apply coordinate transformations if needed
-                    if ( useMapAxes )
-                    {
-                        for ( cvf::Vec3d& corner : topCorners )
-                        {
-                            corner.transformPoint( mapAxisTransform );
-                        }
-                    }
-
-                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[1].z() ); // (-I,+J)
-                    zcornArray[zcornIdx++] = static_cast<float>( -topCorners[2].z() ); // (+I,+J)
-                }
+                auto corners = gridAdapter.getCellCorners( i, j, k );
+                zcornArray[zcornIdx++] = static_cast<float>( -corners[1].z() ); // (+I,-J,top)
+                zcornArray[zcornIdx++] = static_cast<float>( -corners[2].z() ); // (+I,+J,top)
             }
         }
 
@@ -521,124 +311,22 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
             // Face 1: corners (4,5) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                if ( hasRefinement )
-                {
-                    // Calculate which original cell this refined cell belongs to
-                    size_t origI = min.x() + i / refinement.x();
-                    size_t origJ = min.y() + j / refinement.y();
-                    size_t origK = min.z() + k / refinement.z();
-
-                    // Calculate subcell indices within the original cell
-                    size_t subI = i % refinement.x();
-                    size_t subJ = j % refinement.y();
-                    size_t subK = k % refinement.z();
-
-                    // Get original cell corners using cellCornerVertices (matches createHexCornerCoords expected order)
-                    size_t                    mainIndex   = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                    std::array<cvf::Vec3d, 8> cellCorners = mainGrid->cellCornerVertices( mainIndex );
-
-                    // Apply coordinate transformations if needed
-                    if ( useMapAxes )
-                    {
-                        for ( cvf::Vec3d& corner : cellCorners )
-                        {
-                            corner.transformPoint( mapAxisTransform );
-                        }
-                    }
-
-                    // Generate refined cell corners using ResInsight's refinement algorithm
-                    auto refinedCorners =
-                        getRefinedCellCorners( cellCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
-
-                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[4].z() ); // (-I,-J,bottom)
-                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[5].z() ); // (+I,-J,bottom)
-                }
-                else
-                {
-                    // Use original cell face extraction for non-refinement case
-                    size_t origI         = min.x() + i;
-                    size_t origJ         = min.y() + j;
-                    size_t origK         = min.z() + k;
-                    size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                    auto   cell          = mainGrid->cell( mainIndex );
-                    auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
-
-                    // Apply coordinate transformations if needed
-                    if ( useMapAxes )
-                    {
-                        for ( cvf::Vec3d& corner : bottomCorners )
-                        {
-                            corner.transformPoint( mapAxisTransform );
-                        }
-                    }
-
-                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[0].z() ); // (-I,-J)
-                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[1].z() ); // (+I,-J)
-                }
+                auto corners = gridAdapter.getCellCorners( i, j, k );
+                zcornArray[zcornIdx++] = static_cast<float>( -corners[4].z() ); // (-I,-J,bottom)
+                zcornArray[zcornIdx++] = static_cast<float>( -corners[5].z() ); // (+I,-J,bottom)
             }
 
             // Face 2: corners (6,7) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                if ( hasRefinement )
-                {
-                    // Calculate which original cell this refined cell belongs to
-                    size_t origI = min.x() + i / refinement.x();
-                    size_t origJ = min.y() + j / refinement.y();
-                    size_t origK = min.z() + k / refinement.z();
-
-                    // Calculate subcell indices within the original cell
-                    size_t subI = i % refinement.x();
-                    size_t subJ = j % refinement.y();
-                    size_t subK = k % refinement.z();
-
-                    // Get original cell corners using cellCornerVertices (matches createHexCornerCoords expected order)
-                    size_t                    mainIndex   = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                    std::array<cvf::Vec3d, 8> cellCorners = mainGrid->cellCornerVertices( mainIndex );
-
-                    // Apply coordinate transformations if needed
-                    if ( useMapAxes )
-                    {
-                        for ( cvf::Vec3d& corner : cellCorners )
-                        {
-                            corner.transformPoint( mapAxisTransform );
-                        }
-                    }
-
-                    // Generate refined cell corners using ResInsight's refinement algorithm
-                    auto refinedCorners =
-                        getRefinedCellCorners( cellCorners, refinement.x(), refinement.y(), refinement.z(), subI, subJ, subK );
-
-                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[7].z() ); // (-I,+J,bottom)
-                    zcornArray[zcornIdx++] = static_cast<float>( -refinedCorners[6].z() ); // (+I,+J,bottom)
-                }
-                else
-                {
-                    // Use original cell face extraction for non-refinement case
-                    size_t origI         = min.x() + i;
-                    size_t origJ         = min.y() + j;
-                    size_t origK         = min.z() + k;
-                    size_t mainIndex     = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                    auto   cell          = mainGrid->cell( mainIndex );
-                    auto   bottomCorners = cell.faceCorners( cvf::StructGridInterface::POS_K );
-
-                    // Apply coordinate transformations if needed
-                    if ( useMapAxes )
-                    {
-                        for ( cvf::Vec3d& corner : bottomCorners )
-                        {
-                            corner.transformPoint( mapAxisTransform );
-                        }
-                    }
-
-                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[3].z() ); // (-I,+J)
-                    zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[2].z() ); // (+I,+J)
-                }
+                auto corners = gridAdapter.getCellCorners( i, j, k );
+                zcornArray[zcornIdx++] = static_cast<float>( -corners[7].z() ); // (-I,+J,bottom)
+                zcornArray[zcornIdx++] = static_cast<float>( -corners[6].z() ); // (+I,+J,bottom)
             }
         }
     }
 
-    // Generate ACTNUM array
+    // Generate ACTNUM array using the adapter
     for ( size_t k = 0; k < nz; ++k )
     {
         for ( size_t j = 0; j < ny; ++j )
@@ -646,21 +334,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( RigEclipseCaseData
             for ( size_t i = 0; i < nx; ++i )
             {
                 size_t cellIdx = k * nx * ny + j * nx + i;
-
-                // Calculate which original cell this refined cell belongs to
-                size_t origI = min.x() + i / refinement.x();
-                size_t origJ = min.y() + j / refinement.y();
-                size_t origK = min.z() + k / refinement.z();
-
-                size_t mainIndex = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                int    active    = activeCellInfo->isActive( mainIndex ) ? 1 : 0;
-
-                if ( active && cellVisibilityOverrideForActnum )
-                {
-                    active = ( *cellVisibilityOverrideForActnum )[mainIndex];
-                }
-
-                actnumArray[cellIdx] = active;
+                actnumArray[cellIdx] = gridAdapter.isCellActive( i, j, k ) ? 1 : 0;
             }
         }
     }

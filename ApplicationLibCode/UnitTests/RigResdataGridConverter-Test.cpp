@@ -21,6 +21,7 @@
 #include "RiaTestDataDirectory.h"
 #include "RifEclipseInputFileTools.h"
 #include "RigResdataGridConverter.h"
+#include "RigGridExportAdapter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -811,17 +812,10 @@ TEST( RigResdataGridConverterTest, CornerPointArrayConversion )
 
     cvf::Mat4d mapAxisTransform = grid->mapAxisTransform();
 
-    RigResdataGridConverter::convertGridToCornerPointArrays( testCaseData.p(),
-                                                             activeCellInfo,
-                                                             nullptr, // cellVisibilityOverrideForActnum
-                                                             min,
-                                                             max,
-                                                             refinement,
-                                                             mapAxisTransform,
-                                                             grid->useMapAxes(),
-                                                             ni,
-                                                             nj,
-                                                             nk,
+    // Create grid adapter with the test parameters
+    RigGridExportAdapter gridAdapter( testCaseData.p(), min, max, refinement, nullptr );
+    
+    RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter,
                                                              coordArray,
                                                              zcornArray,
                                                              actnumArray );

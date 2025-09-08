@@ -28,6 +28,7 @@
 class RigEclipseCaseData;
 class RigCell;
 class RigActiveCellInfo;
+class RigGridExportAdapter;
 
 //==================================================================================================
 //
@@ -45,20 +46,10 @@ public:
                             const cvf::Vec3st&     max                             = cvf::Vec3st::UNDEFINED,
                             const cvf::Vec3st&     refinement                      = cvf::Vec3st( 1, 1, 1 ) );
 
-    static void convertGridToCornerPointArrays( RigEclipseCaseData*      eclipseCase,
-                                                const RigActiveCellInfo* activeCellInfo,
-                                                const cvf::UByteArray*   cellVisibilityOverrideForActnum,
-                                                const cvf::Vec3st&       min,
-                                                const cvf::Vec3st&       max,
-                                                const cvf::Vec3st&       refinement,
-                                                const cvf::Mat4d&        mapAxisTransform,
-                                                bool                     useMapAxes,
-                                                size_t                   nx,
-                                                size_t                   ny,
-                                                size_t                   nz,
-                                                std::vector<float>&      coordArray,
-                                                std::vector<float>&      zcornArray,
-                                                std::vector<int>&        actnumArray );
+    static void convertGridToCornerPointArrays( const RigGridExportAdapter& gridAdapter,
+                                                std::vector<float>&         coordArray,
+                                                std::vector<float>&         zcornArray,
+                                                std::vector<int>&           actnumArray );
 
 private:
     RigResdataGridConverter() = delete;
