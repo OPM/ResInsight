@@ -143,9 +143,9 @@ std::array<cvf::Vec3d, 4> RigGridExportAdapter::getFaceCorners( size_t i, size_t
         // Construct the 8-corner array in the correct order
         std::array<cvf::Vec3d, 8> originalCorners;
         originalCorners[0] = topFaceCorners[0]; // (-I,-J,top)
-        originalCorners[1] = topFaceCorners[1]; // (+I,-J,top)
+        originalCorners[1] = topFaceCorners[3]; // (+I,-J,top)
         originalCorners[2] = topFaceCorners[2]; // (+I,+J,top)
-        originalCorners[3] = topFaceCorners[3]; // (-I,+J,top)
+        originalCorners[3] = topFaceCorners[1]; // (-I,+J,top)
         originalCorners[4] = bottomFaceCorners[0]; // (-I,-J,bottom)
         originalCorners[5] = bottomFaceCorners[1]; // (+I,-J,bottom)
         originalCorners[6] = bottomFaceCorners[2]; // (+I,+J,bottom)
@@ -170,9 +170,9 @@ std::array<cvf::Vec3d, 4> RigGridExportAdapter::getFaceCorners( size_t i, size_t
         {
             case cvf::StructGridInterface::NEG_K: // Top face (k-)
                 faceCorners[0] = refinedCorners[0]; // (-I,-J,top)
-                faceCorners[1] = refinedCorners[1]; // (+I,-J,top)
+                faceCorners[1] = refinedCorners[3]; // (+I,-J,top)
                 faceCorners[2] = refinedCorners[2]; // (+I,+J,top)
-                faceCorners[3] = refinedCorners[3]; // (-I,+J,top)
+                faceCorners[3] = refinedCorners[1]; // (-I,+J,top)
                 break;
 
             case cvf::StructGridInterface::POS_K: // Bottom face (k+)
