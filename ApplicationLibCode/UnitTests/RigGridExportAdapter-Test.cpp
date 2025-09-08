@@ -149,8 +149,8 @@ TEST( RigGridExportAdapterTest, CellCornersNoRefinement )
     auto adapterCorners = adapter.getCellCorners( 0, 0, 0 );
 
     // Get corners directly from main grid for comparison
-    size_t mainGridCellIndex   = mainGrid->cellIndexFromIJK( 0, 0, 0 );
-    auto   mainGridCorners     = mainGrid->cellCornerVertices( mainGridCellIndex );
+    size_t mainGridCellIndex = mainGrid->cellIndexFromIJK( 0, 0, 0 );
+    auto   mainGridCorners   = mainGrid->cellCornerVertices( mainGridCellIndex );
 
     // Apply same coordinate transformation if needed
     if ( adapter.useMapAxes() )
@@ -198,10 +198,10 @@ TEST( RigGridExportAdapterTest, CellActivity )
                 bool adapterActive = adapter.isCellActive( i, j, k );
 
                 // Get corresponding activity from main grid
-                size_t origI        = min.x() + i;
-                size_t origJ        = min.y() + j;
-                size_t origK        = min.z() + k;
-                size_t mainIndex    = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                size_t origI          = min.x() + i;
+                size_t origJ          = min.y() + j;
+                size_t origK          = min.z() + k;
+                size_t mainIndex      = mainGrid->cellIndexFromIJK( origI, origJ, origK );
                 bool   expectedActive = activeCellInfo->isActive( mainIndex );
 
                 EXPECT_EQ( expectedActive, adapterActive ) << "Activity mismatch at (" << i << "," << j << "," << k << ")";
@@ -238,7 +238,8 @@ TEST( RigGridExportAdapterTest, CellActivityWithOverride )
         {
             for ( size_t i = 0; i < adapter.cellCountI(); ++i )
             {
-                EXPECT_FALSE( adapter.isCellActive( i, j, k ) ) << "Cell (" << i << "," << j << "," << k << ") should be inactive due to override";
+                EXPECT_FALSE( adapter.isCellActive( i, j, k ) )
+                    << "Cell (" << i << "," << j << "," << k << ") should be inactive due to override";
             }
         }
     }
@@ -387,7 +388,7 @@ TEST( RigGridExportAdapterTest, MapAxes )
 
     if ( adapter.useMapAxes() )
     {
-        auto adapterMapAxes = adapter.mapAxes();
+        auto adapterMapAxes  = adapter.mapAxes();
         auto mainGridMapAxes = mainGrid->mapAxesF();
 
         for ( size_t i = 0; i < 6; ++i )
@@ -396,14 +397,14 @@ TEST( RigGridExportAdapterTest, MapAxes )
         }
 
         // Transform matrices should also match
-        auto adapterTransform = adapter.mapAxisTransform();
+        auto adapterTransform  = adapter.mapAxisTransform();
         auto mainGridTransform = mainGrid->mapAxisTransform();
 
         for ( int i = 0; i < 4; ++i )
         {
             for ( int j = 0; j < 4; ++j )
             {
-                EXPECT_NEAR( mainGridTransform.rowCol(i, j), adapterTransform.rowCol(i, j), 0.001 )
+                EXPECT_NEAR( mainGridTransform.rowCol( i, j ), adapterTransform.rowCol( i, j ), 0.001 )
                     << "Transform matrix[" << i << "][" << j << "] mismatch";
             }
         }
@@ -427,13 +428,13 @@ TEST( RigGridExportAdapterTest, FaceCornersNoRefinement )
     RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
 
     // Get face corners from adapter
-    auto adapterTopFace = adapter.getFaceCorners( 0, 0, 0, cvf::StructGridInterface::NEG_K );
+    auto adapterTopFace    = adapter.getFaceCorners( 0, 0, 0, cvf::StructGridInterface::NEG_K );
     auto adapterBottomFace = adapter.getFaceCorners( 0, 0, 0, cvf::StructGridInterface::POS_K );
 
     // Get face corners directly from main grid for comparison
-    size_t mainGridCellIndex = mainGrid->cellIndexFromIJK( 0, 0, 0 );
-    auto   cell              = mainGrid->cell( mainGridCellIndex );
-    auto   mainGridTopFace   = cell.faceCorners( cvf::StructGridInterface::NEG_K );
+    size_t mainGridCellIndex  = mainGrid->cellIndexFromIJK( 0, 0, 0 );
+    auto   cell               = mainGrid->cell( mainGridCellIndex );
+    auto   mainGridTopFace    = cell.faceCorners( cvf::StructGridInterface::NEG_K );
     auto   mainGridBottomFace = cell.faceCorners( cvf::StructGridInterface::POS_K );
 
     // Apply same coordinate transformation if needed
@@ -502,13 +503,19 @@ TEST( RigGridExportAdapterTest, FaceCornersRefinedConsistency )
                 EXPECT_NEAR( cellCorners[1].y(), topFace[1].y(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") top face corner 1 Y";
                 EXPECT_NEAR( cellCorners[1].z(), topFace[1].z(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") top face corner 1 Z";
 
-                EXPECT_NEAR( cellCorners[4].x(), bottomFace[0].x(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 X";
-                EXPECT_NEAR( cellCorners[4].y(), bottomFace[0].y(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 Y";
-                EXPECT_NEAR( cellCorners[4].z(), bottomFace[0].z(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 Z";
+                EXPECT_NEAR( cellCorners[4].x(), bottomFace[0].x(), 0.001 )
+                    << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 X";
+                EXPECT_NEAR( cellCorners[4].y(), bottomFace[0].y(), 0.001 )
+                    << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 Y";
+                EXPECT_NEAR( cellCorners[4].z(), bottomFace[0].z(), 0.001 )
+                    << "Cell(" << i << "," << j << "," << k << ") bottom face corner 0 Z";
 
-                EXPECT_NEAR( cellCorners[5].x(), bottomFace[1].x(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 X";
-                EXPECT_NEAR( cellCorners[5].y(), bottomFace[1].y(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 Y";
-                EXPECT_NEAR( cellCorners[5].z(), bottomFace[1].z(), 0.001 ) << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 Z";
+                EXPECT_NEAR( cellCorners[5].x(), bottomFace[1].x(), 0.001 )
+                    << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 X";
+                EXPECT_NEAR( cellCorners[5].y(), bottomFace[1].y(), 0.001 )
+                    << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 Y";
+                EXPECT_NEAR( cellCorners[5].z(), bottomFace[1].z(), 0.001 )
+                    << "Cell(" << i << "," << j << "," << k << ") bottom face corner 1 Z";
             }
         }
     }
@@ -529,11 +536,12 @@ TEST( RigGridExportAdapterTest, AllFaceTypes )
     RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
 
     // Test all face types
-    std::vector<cvf::StructGridInterface::FaceType> faceTypes = {
-        cvf::StructGridInterface::NEG_K, cvf::StructGridInterface::POS_K,
-        cvf::StructGridInterface::NEG_I, cvf::StructGridInterface::POS_I,
-        cvf::StructGridInterface::NEG_J, cvf::StructGridInterface::POS_J
-    };
+    std::vector<cvf::StructGridInterface::FaceType> faceTypes = { cvf::StructGridInterface::NEG_K,
+                                                                  cvf::StructGridInterface::POS_K,
+                                                                  cvf::StructGridInterface::NEG_I,
+                                                                  cvf::StructGridInterface::POS_I,
+                                                                  cvf::StructGridInterface::NEG_J,
+                                                                  cvf::StructGridInterface::POS_J };
 
     for ( auto faceType : faceTypes )
     {
@@ -548,5 +556,90 @@ TEST( RigGridExportAdapterTest, AllFaceTypes )
             EXPECT_FALSE( std::isnan( faceCorners[i].y() ) ) << "Face " << static_cast<int>( faceType ) << " corner " << i << " Y is NaN";
             EXPECT_FALSE( std::isnan( faceCorners[i].z() ) ) << "Face " << static_cast<int>( faceType ) << " corner " << i << " Z is NaN";
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test that getFaceCorners with 2x2x2 refinement preserves original cell corners
+/// Each of the 8 original cell corners should appear in exactly one of the 8 refined subcells
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapterTest, RefinedCellsContainOriginalCorners )
+{
+    auto caseData = loadTestGrid();
+    ASSERT_TRUE( caseData.notNull() );
+
+    // Test cell (1,0,0) with 2x2x2 refinement
+    cvf::Vec3st min( 1, 0, 0 );
+    cvf::Vec3st max = cvf::Vec3st::UNDEFINED; //( 1, 0, 0 );
+    cvf::Vec3st refinement( 2, 2, 2 );
+
+    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+
+    // Get the original cell corners
+    const RigMainGrid* mainGrid          = caseData->mainGrid();
+    size_t             originalCellIndex = mainGrid->cellIndexFromIJK( 1, 0, 0 );
+    auto               originalCorners   = mainGrid->cellCornerVertices( originalCellIndex );
+
+    // Apply same coordinate transformation as the adapter
+    if ( adapter.useMapAxes() )
+    {
+        cvf::Mat4d transform = adapter.mapAxisTransform();
+        for ( cvf::Vec3d& corner : originalCorners )
+        {
+            corner.transformPoint( transform );
+        }
+    }
+
+    // Track which original corners we've found in refined cells
+    std::vector<bool> cornerFound( 8, false );
+    const double      tolerance = 0.001;
+
+    // Check all 8 refined cells (2x2x2)
+    for ( size_t k = 0; k < 2; ++k )
+    {
+        for ( size_t j = 0; j < 2; ++j )
+        {
+            for ( size_t i = 0; i < 2; ++i )
+            {
+                // Get all 8 corners of this refined cell
+                auto refinedCellCorners = adapter.getCellCorners( i, j, k );
+
+                // Check if any refined corner matches any original corner
+                for ( size_t refinedIdx = 0; refinedIdx < 8; ++refinedIdx )
+                {
+                    const auto& refinedCorner = refinedCellCorners[refinedIdx];
+
+                    for ( size_t originalIdx = 0; originalIdx < 8; ++originalIdx )
+                    {
+                        const auto& originalCorner = originalCorners[originalIdx];
+
+                        double distance = refinedCorner.pointDistance( originalCorner );
+                        if ( distance < tolerance )
+                        {
+                            // Verify this original corner wasn't already found
+                            EXPECT_FALSE( cornerFound[originalIdx] ) << "Original corner " << originalIdx << " found in multiple refined cells";
+
+                            cornerFound[originalIdx] = true;
+
+                            EXPECT_NEAR( refinedCorner.x(), originalCorner.x(), tolerance )
+                                << "Refined cell (" << i << "," << j << "," << k << ") corner " << refinedIdx
+                                << " should match original corner " << originalIdx << " X coordinate";
+                            EXPECT_NEAR( refinedCorner.y(), originalCorner.y(), tolerance )
+                                << "Refined cell (" << i << "," << j << "," << k << ") corner " << refinedIdx
+                                << " should match original corner " << originalIdx << " Y coordinate";
+                            EXPECT_NEAR( refinedCorner.z(), originalCorner.z(), tolerance )
+                                << "Refined cell (" << i << "," << j << "," << k << ") corner " << refinedIdx
+                                << " should match original corner " << originalIdx << " Z coordinate";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Verify all 8 original corners were found exactly once in the refined cells
+    for ( size_t i = 0; i < 8; ++i )
+    {
+        EXPECT_TRUE( cornerFound[i] ) << "Original corner " << i << " was not found in any refined cell";
     }
 }
