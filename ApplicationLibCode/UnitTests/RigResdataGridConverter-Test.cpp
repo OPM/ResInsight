@@ -20,8 +20,8 @@
 
 #include "RiaTestDataDirectory.h"
 #include "RifEclipseInputFileTools.h"
-#include "RigResdataGridConverter.h"
 #include "RigGridExportAdapter.h"
+#include "RigResdataGridConverter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -814,11 +814,8 @@ TEST( RigResdataGridConverterTest, CornerPointArrayConversion )
 
     // Create grid adapter with the test parameters
     RigGridExportAdapter gridAdapter( testCaseData.p(), min, max, refinement, nullptr );
-    
-    RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter,
-                                                             coordArray,
-                                                             zcornArray,
-                                                             actnumArray );
+
+    RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
 
     // Verify array sizes
     size_t expectedCoordSize  = ( ni + 1 ) * ( nj + 1 ) * 6; // (3*3*6 = 54)

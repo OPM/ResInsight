@@ -20,8 +20,8 @@
 
 #include "cvfArray.h"
 #include "cvfMatrix4.h"
-#include "cvfVector3.h"
 #include "cvfStructGrid.h"
+#include "cvfVector3.h"
 
 #include <array>
 

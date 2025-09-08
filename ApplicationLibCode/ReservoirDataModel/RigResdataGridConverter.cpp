@@ -42,7 +42,6 @@
 #include <array>
 #include <vector>
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -72,16 +71,16 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
 
     // Get coordinate transformation if needed for local coordinates export
     std::array<float, 6> mapAxes = gridAdapter.mapAxes();
-    
+
     if ( gridAdapter.useMapAxes() && exportInLocalCoordinates )
     {
         const RigMainGrid* mainGrid = eclipseCase->mainGrid();
-        cvf::Vec3d minPoint3d( mainGrid->boundingBox().min() );
-        cvf::Vec2f minPoint2f( minPoint3d.x(), minPoint3d.y() );
-        cvf::Vec2f origin( mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y() );
-        cvf::Vec2f xPoint = cvf::Vec2f( mapAxes[4], mapAxes[5] ) - minPoint2f;
-        cvf::Vec2f yPoint = cvf::Vec2f( mapAxes[0], mapAxes[1] ) - minPoint2f;
-        mapAxes           = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
+        cvf::Vec3d         minPoint3d( mainGrid->boundingBox().min() );
+        cvf::Vec2f         minPoint2f( minPoint3d.x(), minPoint3d.y() );
+        cvf::Vec2f         origin( mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y() );
+        cvf::Vec2f         xPoint = cvf::Vec2f( mapAxes[4], mapAxes[5] ) - minPoint2f;
+        cvf::Vec2f         yPoint = cvf::Vec2f( mapAxes[0], mapAxes[1] ) - minPoint2f;
+        mapAxes                   = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
     }
 
     // Use the new simplified interface
@@ -291,7 +290,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
             // Face 1: corners (0,3) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto topCorners = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
+                auto topCorners        = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
                 zcornArray[zcornIdx++] = static_cast<float>( -topCorners[0].z() ); // (-I,-J,top)
                 zcornArray[zcornIdx++] = static_cast<float>( -topCorners[3].z() ); // (-I,+J,top)
             }
@@ -299,7 +298,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
             // Face 2: corners (1,2) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto topCorners = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
+                auto topCorners        = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
                 zcornArray[zcornIdx++] = static_cast<float>( -topCorners[1].z() ); // (+I,-J,top)
                 zcornArray[zcornIdx++] = static_cast<float>( -topCorners[2].z() ); // (+I,+J,top)
             }
@@ -311,7 +310,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
             // Face 1: corners (0,1) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto bottomCorners = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
+                auto bottomCorners     = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
                 zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[0].z() ); // (-I,-J,bottom)
                 zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[1].z() ); // (+I,-J,bottom)
             }
@@ -319,7 +318,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
             // Face 2: corners (3,2) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
-                auto bottomCorners = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
+                auto bottomCorners     = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
                 zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[3].z() ); // (-I,+J,bottom)
                 zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[2].z() ); // (+I,+J,bottom)
             }
@@ -333,7 +332,7 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
         {
             for ( size_t i = 0; i < nx; ++i )
             {
-                size_t cellIdx = k * nx * ny + j * nx + i;
+                size_t cellIdx       = k * nx * ny + j * nx + i;
                 actnumArray[cellIdx] = gridAdapter.isCellActive( i, j, k ) ? 1 : 0;
             }
         }
