@@ -1,4 +1,3 @@
-
 import uuid
 import grpc
 
@@ -12,6 +11,7 @@ from .project import Project
 from .resinsight_classes import WellPath
 
 from typing import Dict, List, Optional
+
 
 @add_method(WellPath)
 def __custom_init__(
@@ -236,21 +236,19 @@ def add_well_log(
 
 @add_method(WellPath)
 def completion_data(
-    self : WellPath, 
-    case_id : int
+    self: WellPath, case_id: int
 ) -> SimulatorTables_pb2.SimulatorTableData:
     """Get well completion data
 
-     **SimulatorTableRequest description**::
+    **SimulatorTableRequest description**::
 
-        Parameter   | Description                                                   | Type
-        ----------- | ------------------------------------------------------------- | -----
-        well_name   | Well name as string                                           | string
-        case_id     | ID of the case to use when extracting completion data         | int
+       Parameter   | Description                                                   | Type
+       ----------- | ------------------------------------------------------------- | -----
+       well_name   | Well name as string                                           | string
+       case_id     | ID of the case to use when extracting completion data         | int
 
     """
     sim_tab_req = SimulatorTables_pb2.SimulatorTableRequest(
         wellpath_name=self.name, case_id=case_id
     )
     return self.__well_path_stub.GetCompletionData(sim_tab_req)
-
