@@ -28,7 +28,7 @@ for well in wells:
     compdat = well.completion_data(the_case.id).compdat
 
     print("COMPDAT")
-    
+
     for line in compdat:
         txt = "   "
         txt += line.well_name + "  "
@@ -48,5 +48,3 @@ for well in wells:
         print(txt)
 
     print("/")
-
-
