@@ -1699,9 +1699,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
     if ( eCase == nullptr ) return {};
 
     // Ensure that the case is open. This will enable export without any open views.
-    // https://github.com/OPM/ResInsight/issues/11134
     eCase->ensureReservoirCaseIsOpen();
-
     if ( eCase->eclipseCaseData() == nullptr )
     {
         RiaLogging::error( "Export Completions Data: No data available for Eclipse Case" );
@@ -1709,7 +1707,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
     }
 
     RicExportCompletionDataSettingsUi exportSettings;
-
     exportSettings.caseToApply = eCase;
     exportSettings.includeMsw  = false;
     exportSettings.setExportDataSourceAsComment( true );
