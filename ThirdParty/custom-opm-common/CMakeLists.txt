@@ -39,6 +39,8 @@ set(OPM_ENABLE_DUNE false)
 set(BUILD_EXAMPLES false)
 
 if(CREATE_OPM_COMMON_KEYWORDS)
+  # See update-procedure.md for details about how to update the opm-common
+  #
   # In ResInsight, we need a subset of the files in opm-common. We also need to
   # generate the keywords. The flag CREATE_OPM_COMMON_KEYWORDS is set in the
   # main CMakeLists.txt file. When this flag is set, the opm-common is added to
