@@ -87,6 +87,9 @@ void RiaGrpcWellPathService::copyCompDatToGrpc( const RigCompletionData& inputDa
     compDat->set_well_name( inputData.wellName().toStdString() );
     compDat->set_grid_i( inputData.completionDataGridCell().localCellIndexI() );
     compDat->set_grid_j( inputData.completionDataGridCell().localCellIndexJ() );
+    compDat->set_upper_k( inputData.completionDataGridCell().localCellIndexK() );
+    compDat->set_lower_k( inputData.completionDataGridCell().localCellIndexK() );
+    compDat->set_open_shut_flag( "OPEN" );
     compDat->set_saturation( inputData.saturation() );
     compDat->set_transmissibility( inputData.transmissibility() );
     compDat->set_diameter( inputData.diameter() );
