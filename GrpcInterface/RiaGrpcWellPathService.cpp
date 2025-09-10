@@ -31,6 +31,7 @@
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathCompletionSettings.h"
 
 using namespace rips;
 
@@ -66,8 +67,32 @@ grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*    
 
         for ( const auto& cd : compdata )
         {
-            SimulatorCompdatEntry* compDatData = reply->add_compdat();
-            RiaGrpcWellPathService::copyCompDatToGrpc( cd, compDatData );
+            SimulatorCompdatEntry* grpcData = reply->add_compdat();
+            RiaGrpcWellPathService::copyCompDatToGrpc( cd, grpcData );
+        }
+
+        {
+            SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
+
+            auto ijPos =
+                RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath );
+            auto compSettings = wellPath->completionSettings();
+
+            grpcData->set_well_name( compSettings->wellNameForExport().toStdString() );
+            grpcData->set_group_name( compSettings->groupNameForExport().toStdString() );
+            grpcData->set_grid_i( ijPos.second.x() );
+            grpcData->set_grid_j( ijPos.second.y() );
+            // bhp depth
+            //.add( completionSettings->referenceDepthForExport() )
+            grpcData->set_phase( compSettings->wellTypeNameForExport().toStdString() );
+            // drainage radius
+            //.add( completionSettings->drainageRadiusForExport() )
+            grpcData->set_inflow_equation( compSettings->gasInflowEquationForExport().toStdString() );
+            grpcData->set_auto_shut_in( compSettings->automaticWellShutInForExport().toStdString() );
+            grpcData->set_cross_flow( compSettings->allowWellCrossFlowForExport().toStdString() );
+            grpcData->set_pvt_num( compSettings->wellBoreFluidPVT() );
+            grpcData->set_hydrostatic_density_calc( compSettings->hydrostaticDensityForExport().toStdString() );
+            grpcData->set_fip_region( compSettings->fluidInPlaceRegion() );
         }
     }
     else
@@ -90,15 +115,36 @@ void RiaGrpcWellPathService::copyCompDatToGrpc( const RigCompletionData& inputDa
     compDat->set_upper_k( inputData.completionDataGridCell().localCellIndexK() );
     compDat->set_lower_k( inputData.completionDataGridCell().localCellIndexK() );
     compDat->set_open_shut_flag( "OPEN" );
-    compDat->set_saturation( inputData.saturation() );
-    compDat->set_transmissibility( inputData.transmissibility() );
-    compDat->set_diameter( inputData.diameter() );
-    compDat->set_kh( inputData.kh() );
-    compDat->set_skin_factor( inputData.skinFactor() );
-    compDat->set_d_factor( inputData.dFactor() );
-    compDat->set_direction( inputData.directionString().toStdString() );
-    compDat->set_start_md( inputData.startMD() );
-    compDat->set_end_md( inputData.endMD() );
+    if ( inputData.saturation() != inputData.defaultValue() )
+    {
+        compDat->set_saturation( inputData.saturation() );
+    }
+    if ( inputData.transmissibility() != inputData.defaultValue() )
+    {
+        compDat->set_transmissibility( inputData.transmissibility() );
+    }
+    if ( inputData.diameter() != inputData.defaultValue() )
+    {
+        compDat->set_diameter( inputData.diameter() );
+    }
+    if ( inputData.kh() != inputData.defaultValue() )
+    {
+        compDat->set_kh( inputData.kh() );
+    }
+    if ( inputData.skinFactor() != inputData.defaultValue() )
+    {
+        compDat->set_skin_factor( inputData.skinFactor() );
+    }
+    if ( inputData.dFactor() != inputData.defaultValue() )
+    {
+        compDat->set_d_factor( inputData.dFactor() );
+    }
+    compDat->set_direction( inputData.directionStringXYZ().toStdString() );
+    if ( inputData.startMD().has_value() )
+    {
+        compDat->set_start_md( inputData.startMD().value() );
+        compDat->set_end_md( inputData.endMD().value() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -83,7 +83,7 @@ void RimCompletionData::addCompletionData( RigCompletionData* completionData )
         compdatData->m_dFactor = completionData->dFactor();
     }
 
-    compdatData->m_direction = completionData->directionString();
+    compdatData->m_direction = completionData->directionStringXYZ();
     compdatData->m_startMD   = completionData->startMD();
     compdatData->m_endMD     = completionData->endMD();
     compdatData->m_comment   = completionData->metaDataString();

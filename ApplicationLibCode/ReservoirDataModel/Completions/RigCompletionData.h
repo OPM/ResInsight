@@ -26,6 +26,7 @@
 #include <cafPdmPointer.h>
 
 #include <map>
+#include <optional>
 #include <vector>
 
 //==================================================================================================
@@ -138,9 +139,10 @@ public:
     double                                    wpimult() const;
     CompletionType                            completionType() const;
     bool                                      isMainBore() const;
-    double                                    startMD() const;
-    double                                    endMD() const;
-    QString                                   directionString() const;
+    std::optional<double>                     startMD() const;
+    std::optional<double>                     endMD() const;
+    QString                                   directionStringIJK() const;
+    QString                                   directionStringXYZ() const;
     QString                                   metaDataString() const;
 
     double firstOrderingValue() const;
@@ -164,8 +166,8 @@ private:
     double                    m_dFactor;
     CellDirection             m_direction;
 
-    double m_startMD; // start MD in completion cell
-    double m_endMD; // end MD in completion cell
+    std::optional<double> m_startMD; // start MD in completion cell
+    std::optional<double> m_endMD; // end MD in completion cell
 
     bool m_isMainBore; // to use mainbore for Eclipse calculation
 

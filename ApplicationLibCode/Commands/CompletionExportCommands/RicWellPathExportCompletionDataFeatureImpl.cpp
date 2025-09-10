@@ -84,6 +84,7 @@
 #include <QDir>
 
 #include <map>
+#include <optional>
 #include <set>
 
 //--------------------------------------------------------------------------------------------------
@@ -494,14 +495,33 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     auto isValidTransmissibility = []( double transmissibility )
     { return RiaStatisticsTools::isValidNumber<double>( transmissibility ) && transmissibility >= 0.0; };
 
-    double startMD = completions[0].startMD();
-    double endMD   = completions[0].endMD();
+    auto startMD = completions[0].startMD();
+    auto endMD   = completions[0].endMD();
 
     for ( const RigCompletionData& completion : completions )
     {
-        if ( completion.startMD() != completion.defaultValue() )
+        if ( !startMD.has_value() )
         {
-            // TODO - calculate max/min range of any valid MD values here
+            startMD = completion.startMD();
+        }
+        else
+        {
+            if ( completion.startMD().has_value() && ( completion.startMD().value() < startMD.value() ) )
+            {
+                startMD = completion.startMD();
+            }
+        }
+
+        if ( !endMD.has_value() )
+        {
+            endMD = completion.endMD();
+        }
+        else
+        {
+            if ( completion.endMD().has_value() && ( completion.endMD().value() > endMD.value() ) )
+            {
+                endMD = completion.endMD();
+            }
         }
 
         double transmissibility = completion.transmissibility();
@@ -526,7 +546,10 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         }
     }
 
-    resultCompletion.setDepthRange( startMD, endMD );
+    if ( startMD.has_value() && endMD.has_value() )
+    {
+        resultCompletion.setDepthRange( startMD.value(), endMD.value() );
+    }
 
     double combinedDiameter   = diameterCalculator.weightedMean();
     double combinedSkinFactor = skinFactorCalculator.weightedMean();
@@ -1711,8 +1734,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
     exportSettings.includeMsw  = false;
     exportSettings.setExportDataSourceAsComment( true );
     exportSettings.includePerforations = true;
-    exportSettings.includeFishbones    = false;
-    exportSettings.includeFractures    = false;
+    exportSettings.includeFishbones    = true;
+    exportSettings.includeFractures    = true;
 
     std::vector<RigCompletionData> completions;
 
