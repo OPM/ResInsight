@@ -3,6 +3,7 @@
 #include "RiaTestDataDirectory.h"
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseInputPropertyLoader.h"
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -664,14 +665,14 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
     RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( nullptr, cellResultsData );
 
-    // Look specifically for PORO property
+    // Look specifically for PORO property in the results system
     std::vector<QString> keywordsToExport;
     auto                 allResults = cellResultsData->existingResults();
     bool                 foundPoro  = false;
 
     for ( const auto& result : allResults )
     {
-        if ( result.resultName() == "PORO" )
+        if ( result.resultName() == "PORO" && result.resultCatType() == RiaDefines::ResultCatType::INPUT_PROPERTY )
         {
             keywordsToExport.push_back( result.resultName() );
             foundPoro = true;
@@ -679,7 +680,7 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
         }
     }
 
-    ASSERT_TRUE( foundPoro ) << "PORO property not found in test data file";
+    ASSERT_TRUE( foundPoro ) << "PORO property not found as INPUT_PROPERTY in result system";
 
     QTemporaryDir tempDir;
     ASSERT_TRUE( tempDir.isValid() );
@@ -728,16 +729,102 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
     EXPECT_EQ( originalGrid->cellCountJ() * refinement.y(), refinedGrid->cellCountJ() ) << "Refined J dimension incorrect";
     EXPECT_EQ( originalGrid->cellCountK() * refinement.z(), refinedGrid->cellCountK() ) << "Refined K dimension incorrect";
 
-    // Try to import the exported keywords back into the refined grid case
-    // This test is expected to FAIL due to a bug in the export function:
-    // The export outputs values for active cells only, but the refined grid has more total cells
+    // Import the exported keywords back into the refined grid case
     auto propertyMap = RifEclipseInputPropertyLoader::readProperties( exportFileName, refinedEclipseCase.get() );
 
-    // This test documents the bug: the export should create the same number of values as refined cells
-    // Currently it exports 25830 values but refined grid has 27048 cells
-    EXPECT_FALSE( propertyMap.empty() ) << "BUG: Should have imported properties but export doesn't match refined grid cell count";
-    EXPECT_TRUE( propertyMap.find( "PORO" ) != propertyMap.end() )
-        << "BUG: Should have imported PORO property but cell count mismatch prevents import";
+    // Verify the import was successful
+    EXPECT_FALSE( propertyMap.empty() ) << "Should have imported properties successfully";
+    EXPECT_TRUE( propertyMap.find( "PORO" ) != propertyMap.end() ) << "Should have imported PORO property";
+
+    // Get the imported PORO data from both original and refined cases
+    RigCaseCellResultsData* originalResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* refinedResultsData  = refinedEclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    RigEclipseResultAddress poroAddress( RiaDefines::ResultCatType::INPUT_PROPERTY, "PORO" );
+
+    // Ensure both datasets are loaded
+    bool originalLoaded = originalResultsData->ensureKnownResultLoaded( poroAddress );
+    bool refinedLoaded  = refinedResultsData->ensureKnownResultLoaded( poroAddress );
+
+    ASSERT_TRUE( originalLoaded ) << "Original PORO data should be available after loading properties";
+    ASSERT_TRUE( refinedLoaded ) << "Refined PORO data should be loaded after import";
+
+    auto originalPoroValues = originalResultsData->cellScalarResults( poroAddress );
+    auto refinedPoroValues  = refinedResultsData->cellScalarResults( poroAddress );
+
+    ASSERT_FALSE( originalPoroValues.empty() ) << "Original PORO values should not be empty";
+    ASSERT_FALSE( refinedPoroValues.empty() ) << "Refined PORO values should not be empty";
+    ASSERT_FALSE( originalPoroValues[0].empty() ) << "Original PORO values first time step should not be empty";
+    ASSERT_FALSE( refinedPoroValues[0].empty() ) << "Refined PORO values first time step should not be empty";
+
+    const auto& originalData = originalPoroValues[0];
+    const auto& refinedData  = refinedPoroValues[0];
+
+    // Verify refined data has the expected size
+    EXPECT_EQ( refinedGrid->cellCount(), refinedData.size() ) << "Refined PORO data size should match refined cell count";
+
+    // Find an active cell to test the refinement mapping principle
+    auto findActiveCell = []( RigMainGrid* originalGrid, RigCaseCellResultsData* originalResultsData, const std::vector<double>& originalData )
+    {
+        // Search for an active cell to test with
+        for ( size_t k = 0; k < originalGrid->cellCountK(); ++k )
+        {
+            for ( size_t j = 0; j < originalGrid->cellCountJ(); ++j )
+            {
+                for ( size_t i = 0; i < originalGrid->cellCountI(); ++i )
+                {
+                    size_t originalCellIndex   = originalGrid->cellIndexFromIJK( i, j, k );
+                    size_t originalResultIndex = originalResultsData->activeCellInfo()->cellResultIndex( originalCellIndex );
+
+                    if ( originalResultIndex != cvf::UNDEFINED_SIZE_T && originalResultIndex < originalData.size() )
+                    {
+                        return cvf::Vec3st( i, j, k );
+                    }
+                }
+            }
+        }
+
+        return cvf::Vec3st::UNDEFINED;
+    };
+
+    cvf::Vec3st testCell = findActiveCell( originalGrid, originalResultsData, originalData );
+    ASSERT_FALSE( testCell.isUndefined() ) << "Should find at least one active cell with PORO data to test refinement mapping";
+
+    size_t originalCellIndex   = originalGrid->cellIndexFromIJK( testCell.x(), testCell.y(), testCell.z() );
+    size_t originalResultIndex = originalResultsData->activeCellInfo()->cellResultIndex( originalCellIndex );
+    double originalPoroValue   = originalData[originalResultIndex];
+
+    // Check all 4 refined cells (2x2x1) that correspond to this original cell
+    int matchingCells = 0;
+    for ( size_t refK = 0; refK < refinement.z(); ++refK )
+    {
+        for ( size_t refJ = 0; refJ < refinement.y(); ++refJ )
+        {
+            for ( size_t refI = 0; refI < refinement.x(); ++refI )
+            {
+                size_t refinedI = testCell.x() * refinement.x() + refI;
+                size_t refinedJ = testCell.y() * refinement.y() + refJ;
+                size_t refinedK = testCell.z() * refinement.z() + refK;
+
+                size_t refinedCellIndex = refinedGrid->cellIndexFromIJK( refinedI, refinedJ, refinedK );
+                if ( refinedCellIndex < refinedData.size() )
+                {
+                    double refinedPoroValue = refinedData[refinedCellIndex];
+
+                    EXPECT_NEAR( originalPoroValue, refinedPoroValue, 1e-6 )
+                        << "Refined cell (" << refinedI << "," << refinedJ << "," << refinedK << ") should match original cell ("
+                        << testCell.x() << "," << testCell.y() << "," << testCell.z() << ") PORO value";
+
+                    if ( std::abs( originalPoroValue - refinedPoroValue ) < 1e-6 )
+                    {
+                        matchingCells++;
+                    }
+                }
+            }
+        }
+    }
+
+    EXPECT_EQ( 4, matchingCells ) << "All 4 refined cells should match the original cell value for cell";
 }
 
 //--------------------------------------------------------------------------------------------------

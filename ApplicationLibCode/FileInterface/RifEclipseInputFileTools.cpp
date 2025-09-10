@@ -406,7 +406,7 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
     RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
 
     cvf::Vec3st max = maxIn;
-    if ( max == cvf::Vec3st::UNDEFINED )
+    if ( max.isUndefined() )
     {
         max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
     }
@@ -453,13 +453,16 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         std::vector<double> filteredResults;
         filteredResults.reserve( resultValues.size() );
 
-        for ( size_t k = min.z() * refinement.z(); k <= max.z() * refinement.z(); ++k )
+        cvf::Vec3st refinedMin( min.x() * refinement.x(), min.y() * refinement.y(), min.z() * refinement.z() );
+        cvf::Vec3st refinedMax( ( max.x() + 1 ) * refinement.x(), ( max.y() + 1 ) * refinement.y(), ( max.z() + 1 ) * refinement.z() );
+
+        for ( size_t k = refinedMin.z(); k < refinedMax.z(); ++k )
         {
             size_t mainK = k / refinement.z();
-            for ( size_t j = min.y() * refinement.y(); j <= max.y() * refinement.y(); ++j )
+            for ( size_t j = refinedMin.y(); j < refinedMax.y(); ++j )
             {
                 size_t mainJ = j / refinement.y();
-                for ( size_t i = min.x() * refinement.x(); i <= max.x() * refinement.x(); ++i )
+                for ( size_t i = refinedMin.x(); i < refinedMax.x(); ++i )
                 {
                     size_t mainI = i / refinement.x();
 
