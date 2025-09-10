@@ -90,7 +90,9 @@ for well in wells:
         txt = ""
 
         if line.HasField("start_md"):
-            txt += "-- MD In " + str(line.start_md) + "  MD Out " + str(line.end_md) + "\n"
+            txt += (
+                "-- MD In " + str(line.start_md) + "  MD Out " + str(line.end_md) + "\n"
+            )
         txt += "   "
         txt += line.well_name + "  "
         txt += str(line.grid_i) + "  "
@@ -113,7 +115,7 @@ for well in wells:
         if line.HasField("d_factor"):
             txt += str(line.d_factor) + "  "
         else:
-            txt += "1*  "   
+            txt += "1*  "
         txt += "'%s'" % line.direction
 
         print(txt)
