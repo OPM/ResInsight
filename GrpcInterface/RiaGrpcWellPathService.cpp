@@ -71,29 +71,11 @@ grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*    
             RiaGrpcWellPathService::copyCompDatToGrpc( cd, grpcData );
         }
 
-        {
-            SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
+        auto ijPos = RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath );
+        auto compSettings = wellPath->completionSettings();
 
-            auto ijPos =
-                RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath );
-            auto compSettings = wellPath->completionSettings();
-
-            grpcData->set_well_name( compSettings->wellNameForExport().toStdString() );
-            grpcData->set_group_name( compSettings->groupNameForExport().toStdString() );
-            grpcData->set_grid_i( ijPos.second.x() );
-            grpcData->set_grid_j( ijPos.second.y() );
-            // bhp depth
-            //.add( completionSettings->referenceDepthForExport() )
-            grpcData->set_phase( compSettings->wellTypeNameForExport().toStdString() );
-            // drainage radius
-            //.add( completionSettings->drainageRadiusForExport() )
-            grpcData->set_inflow_equation( compSettings->gasInflowEquationForExport().toStdString() );
-            grpcData->set_auto_shut_in( compSettings->automaticWellShutInForExport().toStdString() );
-            grpcData->set_cross_flow( compSettings->allowWellCrossFlowForExport().toStdString() );
-            grpcData->set_pvt_num( compSettings->wellBoreFluidPVT() );
-            grpcData->set_hydrostatic_density_calc( compSettings->hydrostaticDensityForExport().toStdString() );
-            grpcData->set_fip_region( compSettings->fluidInPlaceRegion() );
-        }
+        SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
+        RiaGrpcWellPathService::copyWelspecsToGrpc( compSettings, grpcData, eclipseCase, ijPos.second.x(), ijPos.second.y() );
     }
     else
     {
@@ -101,6 +83,32 @@ grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*    
     }
 
     return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcWellPathService::copyWelspecsToGrpc( const RimWellPathCompletionSettings* compSettings,
+                                                 rips::SimulatorWelspecsEntry*        grpcData,
+                                                 RimEclipseCase*                      eclipseCase,
+                                                 int                                  gridI,
+                                                 int                                  gridJ )
+{
+    grpcData->set_well_name( compSettings->wellNameForExport().toStdString() );
+    grpcData->set_group_name( compSettings->groupNameForExport().toStdString() );
+    grpcData->set_grid_i( gridI );
+    grpcData->set_grid_j( gridJ );
+    // bhp depth
+    //.add( completionSettings->referenceDepthForExport() )
+    grpcData->set_phase( compSettings->wellTypeNameForExport().toStdString() );
+    // drainage radius
+    //.add( completionSettings->drainageRadiusForExport() )
+    grpcData->set_inflow_equation( compSettings->gasInflowEquationForExport().toStdString() );
+    grpcData->set_auto_shut_in( compSettings->automaticWellShutInForExport().toStdString() );
+    grpcData->set_cross_flow( compSettings->allowWellCrossFlowForExport().toStdString() );
+    grpcData->set_pvt_num( compSettings->wellBoreFluidPVT() );
+    grpcData->set_hydrostatic_density_calc( compSettings->hydrostaticDensityForExport().toStdString() );
+    grpcData->set_fip_region( compSettings->fluidInPlaceRegion() );
 }
 
 //--------------------------------------------------------------------------------------------------
