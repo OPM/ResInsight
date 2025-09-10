@@ -273,6 +273,14 @@ QString RimWellPathCompletionSettings::wellBoreFluidPVTForExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimWellPathCompletionSettings::wellBoreFluidPVT() const
+{
+    return m_wellBoreFluidPVTTable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletionSettings::hydrostaticDensityForExport() const
 {
     return m_hydrostaticDensity().text();
@@ -284,6 +292,14 @@ QString RimWellPathCompletionSettings::hydrostaticDensityForExport() const
 QString RimWellPathCompletionSettings::fluidInPlaceRegionForExport() const
 {
     return QString( "%1" ).arg( m_fluidInPlaceRegion() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellPathCompletionSettings::fluidInPlaceRegion() const
+{
+    return m_fluidInPlaceRegion();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -44,8 +44,8 @@ RigCompletionData::RigCompletionData( const QString& wellName, const RigCompleti
     , m_completionType( CompletionType::CT_UNDEFINED )
     , m_firstOrderingValue( orderingValue )
     , m_secondOrderingValue( std::numeric_limits<double>::infinity() )
-    , m_startMD( std::numeric_limits<double>::infinity() )
-    , m_endMD( std::numeric_limits<double>::infinity() )
+    , m_startMD( std::nullopt )
+    , m_endMD( std::nullopt )
 {
 }
 
@@ -368,7 +368,7 @@ double RigCompletionData::dFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCompletionData::startMD() const
+std::optional<double> RigCompletionData::startMD() const
 {
     return m_startMD;
 }
@@ -376,7 +376,7 @@ double RigCompletionData::startMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCompletionData::endMD() const
+std::optional<double> RigCompletionData::endMD() const
 {
     return m_endMD;
 }
@@ -384,7 +384,7 @@ double RigCompletionData::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigCompletionData::directionString() const
+QString RigCompletionData::directionStringIJK() const
 {
     switch ( m_direction )
     {
@@ -400,6 +400,26 @@ QString RigCompletionData::directionString() const
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigCompletionData::directionStringXYZ() const
+{
+    switch ( m_direction )
+    {
+        case CellDirection::DIR_I:
+            return "X";
+        case CellDirection::DIR_J:
+            return "Y";
+        case CellDirection::DIR_K:
+        default:
+            return "Z";
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RigCompletionData::metaDataString() const
 {
     QStringList metadataList;
