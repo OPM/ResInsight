@@ -763,7 +763,6 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
     // Verify refined data has the expected size
     EXPECT_EQ( refinedGrid->cellCount(), refinedData.size() ) << "Refined PORO data size should match refined cell count";
 
-
     // Find an active cell to test the refinement mapping principle
     auto findActiveCell = []( RigMainGrid* originalGrid, RigCaseCellResultsData* originalResultsData, const std::vector<double>& originalData )
     {
