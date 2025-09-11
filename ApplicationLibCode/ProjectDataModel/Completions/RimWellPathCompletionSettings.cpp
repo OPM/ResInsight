@@ -136,7 +136,7 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings( const RimWellPathC
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletionSettings::initAfterRead()
 {
-    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2025.10" ) )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2025.09" ) )
     {
         double      tmpValue = 0.0;
         std::string refDepth = m_referenceDepth_OBSOLETE.v().toStdString();
@@ -213,6 +213,22 @@ QString RimWellPathCompletionSettings::wellNameForExport() const
 QString RimWellPathCompletionSettings::groupNameForExport() const
 {
     return formatStringForExport( m_groupName, "1*" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimWellPathCompletionSettings::referenceDepth() const
+{
+    return m_referenceDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimWellPathCompletionSettings::drainageRadius() const
+{
+    return m_drainageRadius;
 }
 
 //--------------------------------------------------------------------------------------------------

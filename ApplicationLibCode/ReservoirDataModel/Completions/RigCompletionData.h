@@ -25,7 +25,6 @@
 #include <cafPdmObject.h>
 #include <cafPdmPointer.h>
 
-#include <map>
 #include <optional>
 #include <vector>
 
@@ -150,8 +149,6 @@ public:
 
     void                  setSourcePdmObject( const caf::PdmObject* object );
     const caf::PdmObject* sourcePdmObject() const;
-
-    // std::map<QString, QString> parameterMap();
 
     std::vector<RigCompletionMetaData> m_metadata;
 

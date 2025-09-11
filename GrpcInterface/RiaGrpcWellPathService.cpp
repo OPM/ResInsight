@@ -68,7 +68,7 @@ grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*    
         for ( const auto& cd : compdata )
         {
             SimulatorCompdatEntry* grpcData = reply->add_compdat();
-            RiaGrpcWellPathService::copyCompDatToGrpc( cd, grpcData );
+            RiaGrpcWellPathService::copyCompdatToGrpc( cd, grpcData );
         }
 
         auto ijPos = RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath );
@@ -98,11 +98,15 @@ void RiaGrpcWellPathService::copyWelspecsToGrpc( const RimWellPathCompletionSett
     grpcData->set_group_name( compSettings->groupNameForExport().toStdString() );
     grpcData->set_grid_i( gridI );
     grpcData->set_grid_j( gridJ );
-    // bhp depth
-    //.add( completionSettings->referenceDepthForExport() )
+    if ( compSettings->referenceDepth().has_value() )
+    {
+        grpcData->set_bhp_depth( compSettings->referenceDepth().value() );
+    }
     grpcData->set_phase( compSettings->wellTypeNameForExport().toStdString() );
-    // drainage radius
-    //.add( completionSettings->drainageRadiusForExport() )
+    if ( compSettings->drainageRadius().has_value() )
+    {
+        grpcData->set_drainage_radius( compSettings->drainageRadius().value() );
+    }
     grpcData->set_inflow_equation( compSettings->gasInflowEquationForExport().toStdString() );
     grpcData->set_auto_shut_in( compSettings->automaticWellShutInForExport().toStdString() );
     grpcData->set_cross_flow( compSettings->allowWellCrossFlowForExport().toStdString() );
@@ -114,7 +118,7 @@ void RiaGrpcWellPathService::copyWelspecsToGrpc( const RimWellPathCompletionSett
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcWellPathService::copyCompDatToGrpc( const RigCompletionData& inputData, rips::SimulatorCompdatEntry* compDat )
+void RiaGrpcWellPathService::copyCompdatToGrpc( const RigCompletionData& inputData, rips::SimulatorCompdatEntry* compDat )
 {
     compDat->set_comment( inputData.metaDataString().toStdString() );
     compDat->set_well_name( inputData.wellName().toStdString() );

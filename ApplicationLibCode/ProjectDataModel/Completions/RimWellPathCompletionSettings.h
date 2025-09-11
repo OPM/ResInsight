@@ -89,8 +89,10 @@ public:
     QString hydrostaticDensityForExport() const;
     QString fluidInPlaceRegionForExport() const;
 
-    int wellBoreFluidPVT() const;
-    int fluidInPlaceRegion() const;
+    int                   wellBoreFluidPVT() const;
+    int                   fluidInPlaceRegion() const;
+    std::optional<double> referenceDepth() const;
+    std::optional<double> drainageRadius() const;
 
     static QRegularExpression wellNameForExportRegExp();
 
