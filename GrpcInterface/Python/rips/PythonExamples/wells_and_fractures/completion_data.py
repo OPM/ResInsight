@@ -7,8 +7,9 @@
 # Import the ResInsight Processing Server Module
 import rips
 
+
 # helper method to format printing for optional fields
-def fieldValueOrDefaultText(grpc_object, optional_field_name : str):
+def fieldValueOrDefaultText(grpc_object, optional_field_name: str):
     if not grpc_object.HasField(optional_field_name):
         return "1*"
     return str(grpc_object.__getattribute__(optional_field_name))
@@ -64,7 +65,7 @@ for well in wells:
         txt = ""
 
         if line.HasField("start_md"):
-            txt += "-- Perforation MD In " + str(line.start_md) 
+            txt += "-- Perforation MD In " + str(line.start_md)
             txt += ", MD Out " + str(line.end_md) + "\n"
 
         txt += "   "
