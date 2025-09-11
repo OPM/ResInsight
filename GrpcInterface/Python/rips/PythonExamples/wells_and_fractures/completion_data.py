@@ -7,6 +7,13 @@
 # Import the ResInsight Processing Server Module
 import rips
 
+# helper method to format printing for optional fields
+def fieldValueOrDefaultText(grpc_object, optional_field_name : str):
+    if not grpc_object.HasField(optional_field_name):
+        return "1*"
+    return str(grpc_object.__getattribute__(optional_field_name))
+
+
 # Connect to ResInsight
 resinsight = rips.Instance.find()
 if resinsight is None:
@@ -24,7 +31,7 @@ print("Using case " + the_case.name)
 
 print("Got " + str(len(wells)) + " well paths: ")
 for well in wells:
-    print("Well path name: " + well.name)
+    print("Well path name: " + well.name + "\n\n")
 
     print("WELSPECS")
 
@@ -35,48 +42,15 @@ for well in wells:
         txt += line.group_name + "  "
         txt += str(line.grid_i) + "  "
         txt += str(line.grid_j) + "  "
-
-        if line.HasField("bhp_depth"):
-            txt += str(line.bhp_depth) + "  "
-        else:
-            txt += "1*  "
-
+        txt += fieldValueOrDefaultText(line, "bhp_depth") + "  "
         txt += line.phase + "  "
-
-        if line.HasField("drainage_radius"):
-            txt += str(line.drainage_radius) + "  "
-        else:
-            txt += "1*  "
-
-        if line.HasField("inflow_equation"):
-            txt += line.inflow_equation + "  "
-        else:
-            txt += "1*  "
-
-        if line.HasField("auto_shut_in"):
-            txt += line.auto_shut_in + "  "
-        else:
-            txt += "1*  "
-
-        if line.HasField("cross_flow"):
-            txt += line.cross_flow + "  "
-        else:
-            txt += "1*  "
-
-        if line.HasField("pvt_num"):
-            txt += str(line.pvt_num) + "  "
-        else:
-            txt += "1*  "
-
-        if line.HasField("hydrostatic_density_calc"):
-            txt += line.hydrostatic_density_calc + "  "
-        else:
-            txt += "1*  "
-
-        if line.HasField("fip_region"):
-            txt += str(line.fip_region) + "  "
-        else:
-            txt += "1*  "
+        txt += fieldValueOrDefaultText(line, "drainage_radius") + "  "
+        txt += fieldValueOrDefaultText(line, "inflow_equation") + "  "
+        txt += fieldValueOrDefaultText(line, "auto_shut_in") + "  "
+        txt += fieldValueOrDefaultText(line, "cross_flow") + "  "
+        txt += fieldValueOrDefaultText(line, "pvt_num") + "  "
+        txt += fieldValueOrDefaultText(line, "hydrostatic_density_calc") + "  "
+        txt += fieldValueOrDefaultText(line, "fip_region") + "  "
 
         print(txt)
 
@@ -90,9 +64,9 @@ for well in wells:
         txt = ""
 
         if line.HasField("start_md"):
-            txt += (
-                "-- MD In " + str(line.start_md) + "  MD Out " + str(line.end_md) + "\n"
-            )
+            txt += "-- Perforation MD In " + str(line.start_md) 
+            txt += ", MD Out " + str(line.end_md) + "\n"
+
         txt += "   "
         txt += line.well_name + "  "
         txt += str(line.grid_i) + "  "
@@ -100,22 +74,12 @@ for well in wells:
         txt += str(line.upper_k) + "  "
         txt += str(line.lower_k) + "  "
         txt += line.open_shut_flag + "  "
-        if line.HasField("saturation"):
-            txt += str(line.saturation) + "  "
-        else:
-            txt += "1*  "
-
+        txt += fieldValueOrDefaultText(line, "saturation") + "  "
         txt += str(line.transmissibility) + "  "
         txt += str(line.diameter) + "  "
         txt += str(line.kh) + "  "
-        if line.HasField("skin_factor"):
-            txt += str(line.skin_factor) + "  "
-        else:
-            txt += "1*  "
-        if line.HasField("d_factor"):
-            txt += str(line.d_factor) + "  "
-        else:
-            txt += "1*  "
+        txt += fieldValueOrDefaultText(line, "skin_factor") + "  "
+        txt += fieldValueOrDefaultText(line, "d_factor") + "  "
         txt += "'%s'" % line.direction
 
         print(txt)

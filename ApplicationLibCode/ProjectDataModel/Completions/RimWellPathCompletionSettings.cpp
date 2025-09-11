@@ -21,6 +21,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "RimMswCompletionParameters.h"
+#include "RimProject.h"
 #include "RimWellPath.h"
 
 #include "cafPdmDoubleStringValidator.h"
@@ -85,14 +86,13 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     CAF_PDM_InitScriptableField( &m_wellNameForExport, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_referenceDepth, "ReferenceDepth", "BHP Reference Depth" );
+    m_referenceDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_drainageRadius, "DrainageRadius", "Drainage Radius for PI" );
+    m_drainageRadius.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+
     CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_groupName, "WellGroupNameForExport", "GroupNameForExport", QString(), "Group Name" );
-    CAF_PDM_InitScriptableField( &m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for BHP" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_preferredFluidPhase, "WellTypeForExport", "Preferred Fluid Phase" );
-    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_drainageRadiusForPI,
-                                                  "DrainageRadiusForPI",
-                                                  "DrainageRadiusForPi",
-                                                  QString( "0.0" ),
-                                                  "Drainage Radius for PI" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_gasInflowEquation, "GasInflowEq", "Gas Inflow Equation" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_automaticWellShutIn, "AutoWellShutIn", "Automatic well shut-in" );
     CAF_PDM_InitScriptableField( &m_allowWellCrossFlow, "AllowWellCrossFlow", true, "Allow Well Cross-Flow" );
@@ -115,6 +115,11 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     CAF_PDM_InitScriptableFieldNoDefault( &m_mswRoughness, "MswRoughness", "MSW Roughness" );
     m_mswRoughness.registerGetMethod( this, &RimWellPathCompletionSettings::mswRoughness );
     m_mswRoughness.registerSetMethod( this, &RimWellPathCompletionSettings::setMswRoughness );
+
+    CAF_PDM_InitField( &m_referenceDepth_OBSOLETE, "ReferenceDepthForExport", QString(), "Reference Depth for BHP" );
+    CAF_PDM_InitField( &m_drainageRadiusForPI_OBSOLETE, "DrainageRadiusForPI", QString( "0.0" ), "Drainage Radius for PI" );
+    m_referenceDepth_OBSOLETE.xmlCapability()->disableIO();
+    m_drainageRadiusForPI_OBSOLETE.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,13 +134,41 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings( const RimWellPathC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCompletionSettings::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2025.10" ) )
+    {
+        double      tmpValue = 0.0;
+        std::string refDepth = m_referenceDepth_OBSOLETE.v().toStdString();
+        if ( RiaStdStringTools::isNumber( refDepth, '.' ) )
+        {
+            if ( RiaStdStringTools::toDouble( refDepth, tmpValue ) )
+            {
+                m_referenceDepth = std::optional<double>( tmpValue );
+            }
+        }
+
+        std::string radius = m_drainageRadiusForPI_OBSOLETE.v().toStdString();
+        if ( RiaStdStringTools::isNumber( radius, '.' ) )
+        {
+            if ( RiaStdStringTools::toDouble( radius, tmpValue ) )
+            {
+                m_drainageRadius = std::optional<double>( tmpValue );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellPathCompletionSettings& RimWellPathCompletionSettings::operator=( const RimWellPathCompletionSettings& rhs )
 {
     m_wellNameForExport     = rhs.m_wellNameForExport;
     m_groupName             = rhs.m_groupName;
     m_referenceDepth        = rhs.m_referenceDepth;
     m_preferredFluidPhase   = rhs.m_preferredFluidPhase;
-    m_drainageRadiusForPI   = rhs.m_drainageRadiusForPI;
+    m_drainageRadius        = rhs.m_drainageRadius;
     m_gasInflowEquation     = rhs.m_gasInflowEquation;
     m_automaticWellShutIn   = rhs.m_automaticWellShutIn;
     m_allowWellCrossFlow    = rhs.m_allowWellCrossFlow;
@@ -203,11 +236,7 @@ QString RimWellPathCompletionSettings::groupName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletionSettings::referenceDepthForExport() const
 {
-    std::string refDepth = m_referenceDepth.v().toStdString();
-    if ( RiaStdStringTools::isNumber( refDepth, '.' ) )
-    {
-        return m_referenceDepth.v();
-    }
+    if ( m_referenceDepth().has_value() ) return QString::number( m_referenceDepth().value() );
     return "1*";
 }
 
@@ -235,7 +264,8 @@ QString RimWellPathCompletionSettings::wellTypeNameForExport() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletionSettings::drainageRadiusForExport() const
 {
-    return m_drainageRadiusForPI();
+    if ( m_drainageRadius().has_value() ) return QString::number( m_drainageRadius().value() );
+    return "1*";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,7 +362,7 @@ void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf:
         compExportGroup->add( &m_groupName );
         compExportGroup->add( &m_referenceDepth );
         compExportGroup->add( &m_preferredFluidPhase );
-        compExportGroup->add( &m_drainageRadiusForPI );
+        compExportGroup->add( &m_drainageRadius );
         compExportGroup->add( &m_gasInflowEquation );
         compExportGroup->add( &m_automaticWellShutIn );
         compExportGroup->add( &m_allowWellCrossFlow );
@@ -353,24 +383,6 @@ void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf:
 void RimWellPathCompletionSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     m_mswParameters->fieldChangedByUi( changedField, oldValue, newValue );
-
-    if ( changedField == &m_referenceDepth )
-    {
-        if ( !RiaStdStringTools::isNumber( m_referenceDepth.v().toStdString(), '.' ) )
-        {
-            if ( !RiaStdStringTools::isNumber( m_referenceDepth.v().toStdString(), ',' ) )
-            {
-                // Remove invalid input text
-                m_referenceDepth = "";
-            }
-            else
-            {
-                // Wrong decimal sign entered, replace , by .
-                auto text        = m_referenceDepth.v();
-                m_referenceDepth = text.replace( ',', '.' );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,12 +393,7 @@ void RimWellPathCompletionSettings::defineEditorAttribute( const caf::PdmFieldHa
                                                            caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-    if ( field == &m_drainageRadiusForPI && lineEditorAttr )
-    {
-        caf::PdmDoubleStringValidator* validator = new caf::PdmDoubleStringValidator( "1*" );
-        lineEditorAttr->validator                = validator;
-    }
-    else if ( field == &m_wellBoreFluidPVTTable && lineEditorAttr )
+    if ( field == &m_wellBoreFluidPVTTable && lineEditorAttr )
     {
         // Positive integer
         QIntValidator* validator  = new QIntValidator( 0, std::numeric_limits<int>::max(), nullptr );
