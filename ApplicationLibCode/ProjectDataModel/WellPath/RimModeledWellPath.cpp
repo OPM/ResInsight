@@ -27,7 +27,6 @@
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathGeometryTools.h"
 
-#include "CompletionData/RimCompletionData.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimProject.h"
@@ -298,7 +297,6 @@ void RimModeledWellPath::updateReferencePoint()
 void RimModeledWellPath::connectWellPaths( RimWellPath* parentWell, double tieInMeasuredDepth )
 {
     RimWellPath::connectWellPaths( parentWell, tieInMeasuredDepth );
-    retData->setName( QString( "%1 - %2" ).arg( name(), eCase->caseUserDescription() ) );
 
     updateTieInLocationFromParentWell();
 }

@@ -23,7 +23,6 @@
 
 #include "WellPathCommands/RicImportWellPaths.h"
 
-#include "CompletionData/RimCompletionData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimModeledWellPath.h"
@@ -182,69 +181,4 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellP
 QString RimcWellPathCollection_importWellPathFromPointsInternal::classKeywordReturnedType() const
 {
     return RimPointBasedWellPath::classKeywordStatic();
-}
-
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection, RimcWellPathCollection_wellCompletions, "WellCompletions" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimcWellPathCollection_wellCompletions::RimcWellPathCollection_wellCompletions( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
-{
-    CAF_PDM_InitObject( "Well Completions" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellName, "WellName", "Name of Well" );
-    CAF_PDM_InitScriptableField( &m_caseId, "eclipseCaseId", -1, "Eclipse Case to extract data from" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_wellCompletions::execute()
-{
-    auto wellPathCollection = self<RimWellPathCollection>();
-    if ( !wellPathCollection )
-    {
-        return std::unexpected( QString( "Well path collection is missing. Cannot get completion data." ) );
-    }
-
-    if ( m_wellName().isEmpty() )
-    {
-        return std::unexpected( QString( "Well name is empty. Nothing to do." ) );
-    }
-
-    if ( m_caseId() < 0 )
-    {
-        return std::unexpected( QString( "Eclipse case is not set. Cannot get completion data." ) );
-    }
-
-    RimEclipseCase* eCase = RimProject::current()->eclipseCaseFromCaseId( m_caseId() );
-    if ( eCase == nullptr )
-    {
-        return std::unexpected( QString( "Eclipse case is not set. Cannot get completion data." ) );
-    }
-
-    if ( auto wellPath = wellPathCollection->wellPathByName( m_wellName ) )
-    {
-        if ( auto modWellPath = dynamic_cast<RimModeledWellPath*>( wellPath ) )
-        {
-            if ( auto completionData = modWellPath->completionData( eCase ) )
-            {
-                return completionData;
-            }
-            else
-            {
-                return std::unexpected( QString( "Well path '%1' does not have any completion data." ).arg( m_wellName ) );
-            }
-        }
-    }
-    return std::unexpected( QString( "Modeled Well path with name '%1' does not exist. Cannot get completion data." ).arg( m_wellName ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcWellPathCollection_wellCompletions::classKeywordReturnedType() const
-{
-    return RimCompletionData::classKeywordStatic();
 }

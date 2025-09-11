@@ -113,7 +113,6 @@ list(
   ProjectDataModel/Flow/CMakeLists_files.cmake
   ProjectDataModel/Formations/CMakeLists_files.cmake
   ProjectDataModel/Annotations/CMakeLists_files.cmake
-  ProjectDataModel/CompletionData/CMakeLists_files.cmake
   ProjectDataModel/Completions/CMakeLists_files.cmake
   ProjectDataModel/Measurement/CMakeLists_files.cmake
   ProjectDataModel/Parameters/CMakeLists_files.cmake
