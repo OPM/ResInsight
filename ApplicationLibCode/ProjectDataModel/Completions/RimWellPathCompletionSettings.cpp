@@ -88,7 +88,7 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_referenceDepth, "ReferenceDepth", "BHP Reference Depth" );
     m_referenceDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_drainageRadius, "DrainageRadius", "Drainage Radius for PI" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_drainageRadius, "DrainageRadius", "DrainageRadiusForPi", "Drainage Radius for PI" );
     m_drainageRadius.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_groupName, "WellGroupNameForExport", "GroupNameForExport", QString(), "Group Name" );
