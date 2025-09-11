@@ -24,6 +24,8 @@
 
 #include <QRegularExpression>
 
+#include <optional>
+
 class RimMswCompletionParameters;
 class RimWellPathCompletionsLegacy;
 
@@ -98,6 +100,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void initAfterRead() override;
 
 private:
     QString formatStringForExport( const QString& text, const QString& defaultText = "" ) const;
@@ -113,9 +116,9 @@ private:
     caf::PdmField<QString> m_wellNameForExport;
     caf::PdmField<QString> m_groupName;
 
-    caf::PdmField<QString>                 m_referenceDepth;
+    caf::PdmField<std::optional<double>>   m_referenceDepth;
+    caf::PdmField<std::optional<double>>   m_drainageRadius;
     caf::PdmField<WellTypeEnum>            m_preferredFluidPhase;
-    caf::PdmField<QString>                 m_drainageRadiusForPI;
     caf::PdmField<GasInflowEnum>           m_gasInflowEquation;
     caf::PdmField<AutomaticWellShutInEnum> m_automaticWellShutIn;
     caf::PdmField<bool>                    m_allowWellCrossFlow;
@@ -129,4 +132,8 @@ private:
     // scripting object
     caf::PdmProxyValueField<double> m_mswLinerDiameter;
     caf::PdmProxyValueField<double> m_mswRoughness;
+
+    // OBSOLETE fields - kept for backward compatibility when reading old files
+    caf::PdmField<QString> m_referenceDepth_OBSOLETE;
+    caf::PdmField<QString> m_drainageRadiusForPI_OBSOLETE;
 };

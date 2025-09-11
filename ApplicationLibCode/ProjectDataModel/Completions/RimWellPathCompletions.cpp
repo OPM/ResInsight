@@ -296,10 +296,10 @@ void RimWellPathCompletions::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::applyToSettings( gsl::not_null<RimWellPathCompletionSettings*> settings )
 {
-    settings->m_wellNameForExport     = m_wellNameForExport_OBSOLETE;
-    settings->m_referenceDepth        = m_referenceDepth_OBSOLETE;
-    settings->m_preferredFluidPhase   = m_preferredFluidPhase_OBSOLETE;
-    settings->m_drainageRadiusForPI   = m_drainageRadiusForPI_OBSOLETE;
+    settings->m_wellNameForExport = m_wellNameForExport_OBSOLETE;
+    // settings->m_referenceDepth        = m_referenceDepth_OBSOLETE;
+    settings->m_preferredFluidPhase = m_preferredFluidPhase_OBSOLETE;
+    // settings->m_drainageRadiusForPI   = m_drainageRadiusForPI_OBSOLETE;
     settings->m_gasInflowEquation     = m_gasInflowEquation_OBSOLETE;
     settings->m_automaticWellShutIn   = m_automaticWellShutIn_OBSOLETE;
     settings->m_allowWellCrossFlow    = m_allowWellCrossFlow_OBSOLETE;
