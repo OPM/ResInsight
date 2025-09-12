@@ -483,44 +483,6 @@ void StructGridGeometryGenerator::textureCoordinates( Vec2fArray*               
     }
 }
 
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-/// 
-//--------------------------------------------------------------------------------------------------
-void StructGridGeometryGenerator::textureCoordinatesFromSingleFaceValues(Vec2fArray* textureCoords, const ScalarMapper* mapper, const CellFaceValueCalculator* resultAccessor) const
-{
-    if (!resultAccessor) return;
-
-    textureCoords->resize(m_quadMapper->quadCount()*4);
-
-    cvf::Vec2f* rawPtr = textureCoords->ptr();
-
-    double cellFaceValue;
-    cvf::Vec2f texCoord;
-    int quadCount = static_cast<int>(m_quadMapper->quadCount());
-
-#pragma omp parallel for private( texCoord, cellFaceValue )
-    for (int qIdx = 0; qIdx < quadCount; qIdx++)
-    {
-        cellFaceValue = resultAccessor->cellFaceScalar(m_quadMapper->cellIndex(qIdx), m_quadMapper->faceType(qIdx));
-        
-        texCoord = mapper->mapToTextureCoord(cellFaceValue);
-
-        if (cellFaceValue == HUGE_VAL || cellFaceValue != cellFaceValue) // a != a is true for NAN's
-        {
-            texCoord[1] = 1.0f;
-        }
-
-        size_t j;
-        for (j = 0; j < 4; j++)
-        {   
-            rawPtr[qIdx*4 + j] = texCoord;
-        }
-    }
-}
-#endif
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
