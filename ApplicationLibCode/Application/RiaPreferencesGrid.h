@@ -56,6 +56,7 @@ public:
     bool    autoComputeDepthRelatedProperties() const;
     bool    onlyLoadActiveCells() const;
     bool    invalidateLongThinCells() const;
+    bool    useCylindricalVisualization() const;
 
     RiaDefines::GridModelReader gridModelReader() const;
 
@@ -80,4 +81,5 @@ private:
     caf::PdmField<bool>    m_loadAndShowSoil;
     caf::PdmField<bool>    m_onlyLoadActiveCells;
     caf::PdmField<bool>    m_invalidateLongThinCells;
+    caf::PdmField<bool>    m_useCylindricalVisualization;
 };

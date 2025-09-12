@@ -94,6 +94,9 @@ RiaPreferencesGrid::RiaPreferencesGrid()
 
     CAF_PDM_InitField( &m_invalidateLongThinCells, "invalidateLongThinCells", false, "Skip Long, Thin Cells" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_invalidateLongThinCells );
+
+    CAF_PDM_InitField( &m_useCylindricalVisualization, "useCylindricalVisualization", false, "Show Radial Grids as Cylindrical Grids" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useCylindricalVisualization );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,6 +145,8 @@ void RiaPreferencesGrid::appendItems( caf::PdmUiOrdering& uiOrdering )
     {
         egridGrp->add( &m_useResultIndexFile );
     }
+
+    egridGrp->add( &m_useCylindricalVisualization );
 
     const bool setFaultImportSettingsReadOnly = !importFaults();
 
@@ -275,6 +280,14 @@ bool RiaPreferencesGrid::onlyLoadActiveCells() const
 bool RiaPreferencesGrid::invalidateLongThinCells() const
 {
     return m_invalidateLongThinCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesGrid::useCylindricalVisualization() const
+{
+    return m_useCylindricalVisualization;
 }
 
 //--------------------------------------------------------------------------------------------------
