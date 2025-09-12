@@ -26,6 +26,7 @@
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "cvfStructGridTools.h"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +56,7 @@ cvf::ref<cvf::Part> RivBoxGeometryGenerator::createBoxFromVertices( const std::v
 
     geo->setVertexArray( cvfVertices.p() );
 
-    cvf::ref<cvf::UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( cvfVertices.p() );
+    cvf::ref<cvf::UIntArray> indices = cvf::StructGridTools::lineIndicesFromQuadVertexArray( cvfVertices.p() );
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
     prim->setIndices( indices.p() );

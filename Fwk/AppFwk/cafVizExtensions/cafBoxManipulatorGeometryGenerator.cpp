@@ -6,6 +6,7 @@
 #include "cvfGeometryBuilderFaceList.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "cvfStructGridTools.h"
 
 using namespace cvf;
 
@@ -60,7 +61,7 @@ cvf::ref<cvf::DrawableGeo> BoxManipulatorGeometryGenerator::createBoundingBoxMes
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_vertices.p() );
 
-    cvf::ref<cvf::UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_vertices.p() );
+    cvf::ref<cvf::UIntArray> indices = cvf::StructGridTools::lineIndicesFromQuadVertexArray( m_vertices.p() );
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
     prim->setIndices( indices.p() );

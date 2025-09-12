@@ -29,6 +29,7 @@
 #include "cvfOutlineEdgeExtractor.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "cvfStructGridTools.h"
 
 #include "cvfScalarMapper.h"
 
@@ -85,7 +86,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_vertices.p() );
 
-    cvf::ref<cvf::UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_vertices.p() );
+    cvf::ref<cvf::UIntArray> indices = cvf::StructGridTools::lineIndicesFromQuadVertexArray( m_vertices.p() );
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
     prim->setIndices( indices.p() );
@@ -93,7 +94,6 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
     geo->addPrimitiveSet( prim.p() );
     return geo;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

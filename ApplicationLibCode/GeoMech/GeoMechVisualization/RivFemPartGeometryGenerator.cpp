@@ -28,6 +28,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "cvfStructGridTools.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -86,7 +87,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray( m_quadVertices.p() );
 
-    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_quadVertices.p() );
+    ref<UIntArray> indices = cvf::StructGridTools::lineIndicesFromQuadVertexArray( m_quadVertices.p() );
 
     ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt( PT_LINES );
     prim->setIndices( indices.p() );
@@ -266,7 +267,7 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray( quadVertices.p() );
 
-    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( quadVertices.p() );
+    ref<UIntArray> indices = cvf::StructGridTools::lineIndicesFromQuadVertexArray( quadVertices.p() );
 
     ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt( PT_LINES );
     prim->setIndices( indices.p() );
