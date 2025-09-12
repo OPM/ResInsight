@@ -20,7 +20,13 @@
 
 #include "QString"
 
+#include "cvfBoundingBox.h"
+#include "cvfVector3.h"
+
+#include <utility>
+
 class RigEclipseCaseData;
+class RigSimWellData;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -29,4 +35,22 @@ class RigEclipseCaseDataTools
 {
 public:
     static QString firstProducer( RigEclipseCaseData* eclipseCaseData );
+
+    static cvf::BoundingBox wellBoundingBoxInDomainCoords( RigEclipseCaseData*   eclipseCaseData,
+                                                           const RigSimWellData* simWellData,
+                                                           int                   timeStepIndex,
+                                                           bool                  isAutoDetectingBranches,
+                                                           bool                  isUsingCellCenterForPipe );
+
+    static std::pair<cvf::Vec3st, cvf::Vec3st> wellBoundingBoxIjk( RigEclipseCaseData*   eclipseCaseData,
+                                                                   const RigSimWellData* simWellData,
+                                                                   int                   timeStepIndex,
+                                                                   bool                  isAutoDetectingBranches,
+                                                                   bool                  isUsingCellCenterForPipe );
+
+    static std::pair<cvf::Vec3st, cvf::Vec3st> wellsBoundingBoxIjk( RigEclipseCaseData*                       eclipseCaseData,
+                                                                    const std::vector<const RigSimWellData*>& simWells,
+                                                                    int                                    timeStepIndex,
+                                                                    bool                                   isAutoDetectingBranches,
+                                                                    bool                                   isUsingCellCenterForPipe );
 };

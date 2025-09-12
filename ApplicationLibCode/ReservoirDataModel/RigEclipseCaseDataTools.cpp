@@ -20,7 +20,11 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 #include "Well/RigSimWellData.h"
+#include "Well/RigSimulationWellCenterLineCalculator.h"
+
+#include "cvfBoundingBox.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -45,4 +49,128 @@ QString RigEclipseCaseDataTools::firstProducer( RigEclipseCaseData* eclipseCaseD
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigEclipseCaseDataTools::wellBoundingBoxInDomainCoords( RigEclipseCaseData*   eclipseCaseData,
+                                                                         const RigSimWellData* simWellData,
+                                                                         int                   timeStepIndex,
+                                                                         bool                  isAutoDetectingBranches,
+                                                                         bool                  isUsingCellCenterForPipe )
+{
+    if ( !eclipseCaseData || !simWellData ) return cvf::BoundingBox();
+
+    auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( eclipseCaseData,
+                                                                                                          simWellData,
+                                                                                                          timeStepIndex,
+                                                                                                          isAutoDetectingBranches,
+                                                                                                          isUsingCellCenterForPipe );
+
+    auto [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
+
+    cvf::BoundingBox bb;
+    for ( const auto& branchCoords : coords )
+    {
+        for ( const auto& coord : branchCoords )
+        {
+            bb.add( coord );
+        }
+    }
+
+    return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::wellBoundingBoxIjk( RigEclipseCaseData*   eclipseCaseData,
+                                                                                 const RigSimWellData* simWellData,
+                                                                                 int                   timeStepIndex,
+                                                                                 bool                  isAutoDetectingBranches,
+                                                                                 bool                  isUsingCellCenterForPipe )
+{
+    if ( !eclipseCaseData || !simWellData ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+
+    cvf::BoundingBox domainBB =
+        wellBoundingBoxInDomainCoords( eclipseCaseData, simWellData, timeStepIndex, isAutoDetectingBranches, isUsingCellCenterForPipe );
+
+    if ( !domainBB.isValid() ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+
+    auto mainGrid = eclipseCaseData->mainGrid();
+    if ( !mainGrid ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+
+    // Convert domain bounding box min/max to cell indices
+    cvf::Vec3d minPoint = domainBB.min();
+    cvf::Vec3d maxPoint = domainBB.max();
+
+    size_t minCellIndex = mainGrid->findReservoirCellIndexFromPoint( minPoint );
+    size_t maxCellIndex = mainGrid->findReservoirCellIndexFromPoint( maxPoint );
+
+    if ( minCellIndex == cvf::UNDEFINED_SIZE_T || maxCellIndex == cvf::UNDEFINED_SIZE_T )
+        return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+
+    // Convert cell indices to IJK coordinates
+    auto ijkFromCellIndex = []( RigMainGrid* mainGrid, size_t index )
+    {
+        if ( auto ijkOpt = mainGrid->ijkFromCellIndex( index ); ijkOpt.has_value() )
+            return cvf::Vec3st( ijkOpt->i(), ijkOpt->j(), ijkOpt->k() );
+        return cvf::Vec3st::UNDEFINED;
+    };
+
+    cvf::Vec3st minIjk = ijkFromCellIndex( mainGrid, minCellIndex );
+    cvf::Vec3st maxIjk = ijkFromCellIndex( mainGrid, maxCellIndex );
+
+    if ( minIjk.isUndefined() || maxIjk.isUndefined() ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+
+    if ( minIjk.x() > maxIjk.x() || minIjk.y() > maxIjk.y() || minIjk.z() > maxIjk.z() )
+    {
+        std::swap( minIjk, maxIjk );
+    }
+
+    return { minIjk, maxIjk };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::wellsBoundingBoxIjk( RigEclipseCaseData*                       eclipseCaseData,
+                                                                                  const std::vector<const RigSimWellData*>& simWells,
+                                                                                  int                                       timeStepIndex,
+                                                                                  bool isAutoDetectingBranches,
+                                                                                  bool isUsingCellCenterForPipe )
+{
+    if ( !eclipseCaseData || simWells.empty() ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+
+    cvf::Vec3st globalMin = cvf::Vec3st::UNDEFINED;
+    cvf::Vec3st globalMax = cvf::Vec3st::UNDEFINED;
+
+    for ( const auto& well : simWells )
+    {
+        if ( !well ) continue;
+
+        auto [minIjk, maxIjk] = wellBoundingBoxIjk( eclipseCaseData, well, timeStepIndex, isAutoDetectingBranches, isUsingCellCenterForPipe );
+
+        if ( !minIjk.isUndefined() && !maxIjk.isUndefined() )
+        {
+            if ( globalMin.isUndefined() && globalMax.isUndefined() )
+            {
+                globalMin = minIjk;
+                globalMax = maxIjk;
+            }
+            else
+            {
+                globalMin.x() = std::min( globalMin.x(), minIjk.x() );
+                globalMin.y() = std::min( globalMin.y(), minIjk.y() );
+                globalMin.z() = std::min( globalMin.z(), minIjk.z() );
+
+                globalMax.x() = std::max( globalMax.x(), maxIjk.x() );
+                globalMax.y() = std::max( globalMax.y(), maxIjk.y() );
+                globalMax.z() = std::max( globalMax.z(), maxIjk.z() );
+            }
+        }
+    }
+
+    return { globalMin, globalMax };
 }
