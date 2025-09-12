@@ -24,7 +24,7 @@
 // Static member definitions
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<RiaToCafLoggingBridge> RiaToCafLoggingBridge::s_instance;
-bool RiaCafLoggingManager::s_isInitialized = false;
+bool                                   RiaCafLoggingManager::s_isInitialized = false;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,7 +91,7 @@ void RiaToCafLoggingBridge::registerWithCafLogging()
     {
         s_instance = std::make_shared<RiaToCafLoggingBridge>();
     }
-    
+
     caf::PdmLogging::registerLogger( s_instance );
 }
 
@@ -124,7 +124,7 @@ void RiaCafLoggingManager::initializeCafLogging()
     {
         RiaToCafLoggingBridge::registerWithCafLogging();
         s_isInitialized = true;
-        
+
         // Log initialization success
         RiaLogging::info( "CAF logging bridge initialized successfully" );
     }
@@ -139,7 +139,7 @@ void RiaCafLoggingManager::shutdownCafLogging()
     {
         RiaToCafLoggingBridge::unregisterFromCafLogging();
         s_isInitialized = false;
-        
+
         // Log shutdown
         RiaLogging::info( "CAF logging bridge shut down" );
     }

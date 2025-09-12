@@ -43,12 +43,12 @@ public:
     void debug( const QString& message ) override;
 
     // Static utility methods for easy integration
-    static void registerWithCafLogging();
-    static void unregisterFromCafLogging();
+    static void                                   registerWithCafLogging();
+    static void                                   unregisterFromCafLogging();
     static std::shared_ptr<RiaToCafLoggingBridge> instance();
 
 private:
-    int m_logLevel;
+    int                                           m_logLevel;
     static std::shared_ptr<RiaToCafLoggingBridge> s_instance;
 };
 
@@ -60,10 +60,10 @@ class RiaCafLoggingManager
 public:
     /// Initialize CAF logging integration - should be called during application startup
     static void initializeCafLogging();
-    
-    /// Cleanup CAF logging integration - should be called during application shutdown  
+
+    /// Cleanup CAF logging integration - should be called during application shutdown
     static void shutdownCafLogging();
-    
+
     /// Check if CAF logging is currently active
     static bool isCafLoggingActive();
 
