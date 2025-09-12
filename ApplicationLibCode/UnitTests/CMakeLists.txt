@@ -28,6 +28,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/HDF5FileReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/HDF5FileWriter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigCylindricalGrid-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ObservedDataParser-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/EclipseRftReader-Test.cpp

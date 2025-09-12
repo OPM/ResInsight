@@ -32,6 +32,7 @@
 #include "cafEffectGenerator.h"
 #include "cvfPart.h"
 #include "cvfRenderStateDepth.h"
+#include "cvfSingleCellMeshFactory.h"
 #include "cvfStructGridGeometryGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -95,9 +96,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
 {
     if ( m_rigCaseData && m_cellIndex != cvf::UNDEFINED_SIZE_T )
     {
-        return cvf::StructGridGeometryGenerator::createMeshDrawableFromSingleCell( m_rigCaseData->grid( m_gridIndex ),
-                                                                                   m_cellIndex,
-                                                                                   m_displayModelOffset );
+        return cvf::SingleCellMeshFactory::createMeshDrawable( m_rigCaseData->grid( m_gridIndex ), m_cellIndex, m_displayModelOffset );
     }
     else if ( m_geoMechCase && m_cellIndex != cvf::UNDEFINED_SIZE_T )
     {

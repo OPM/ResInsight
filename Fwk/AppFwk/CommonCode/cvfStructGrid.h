@@ -43,13 +43,25 @@
 
 #include <array>
 #include <cstddef>
+#include <expected>
+#include <string>
 
 namespace cvf
 {
 class CellFilterBase;
 
-// Navneforslag
-//    StructGridGeometryGeneratorInterface
+enum class GridGeometryType
+{
+    HEXAHEDRAL, // Standard rectangular cells
+    CYLINDRICAL, // Cylindrical/radial cells
+};
+
+struct CylindricalCell
+{
+    double innerRadius, outerRadius;
+    double startAngle, endAngle;
+    double topZ, bottomZ;
+};
 
 // Main purpose of this class is to define the interface to be used by geometry generators
 class StructGridInterface : public Object
@@ -107,6 +119,10 @@ public:
 
     virtual size_t     gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const = 0;
     virtual cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const   = 0;
+
+    // Cylindrical coordinate support
+    virtual GridGeometryType                            gridGeometryType() const;
+    virtual std::expected<CylindricalCell, std::string> getCylindricalCoords( size_t cellIndex ) const;
 
 public:
     static void     cellFaceVertexIndices( FaceType face, cvf::ubyte vertexIndices[4] );

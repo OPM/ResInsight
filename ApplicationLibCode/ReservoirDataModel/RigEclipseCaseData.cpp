@@ -459,11 +459,7 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
 void RigEclipseCaseData::computeActiveCellBoundingBoxes( bool useOptimizedVersion )
 {
     computeActiveCellIJKBBox();
-
-    if ( useOptimizedVersion )
-        computeActiveCellsGeometryBoundingBoxOptimized();
-    else
-        computeActiveCellsGeometryBoundingBoxSlow();
+    computeActiveCellsGeometryBoundingBox( useOptimizedVersion );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -634,7 +630,7 @@ bool RigEclipseCaseData::hasFractureResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
+void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox( bool useOptimizedVersion )
 {
     if ( m_activeCellInfo.isNull() || m_fractureActiveCellInfo.isNull() )
     {
@@ -649,76 +645,65 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
         return;
     }
 
-    RigActiveCellInfo* activeInfos[2];
-    activeInfos[0] = m_fractureActiveCellInfo.p();
-    activeInfos[1] = m_activeCellInfo.p(); // Last, to make this bb.min become display offset
+    computeActiveCellsGeometryBoundingBox( m_fractureActiveCellInfo.p(), useOptimizedVersion );
+    computeActiveCellsGeometryBoundingBox( m_activeCellInfo.p(), useOptimizedVersion );
 
-    cvf::BoundingBox bb;
-    for ( int acIdx = 0; acIdx < 2; ++acIdx )
+    if ( useOptimizedVersion )
     {
-        bb.reset();
-        if ( m_mainGrid->nodes().empty() )
-        {
-            bb.add( cvf::Vec3d::ZERO );
-        }
-        else
-        {
-            for ( size_t i = 0; i < m_mainGrid->cellCount(); i++ )
-            {
-                if ( activeInfos[acIdx]->isActive( i ) )
-                {
-                    std::array<cvf::Vec3d, 8> hexCorners = m_mainGrid->cellCornerVertices( i );
-                    for ( const auto& corner : hexCorners )
-                    {
-                        bb.add( corner );
-                    }
-                }
-            }
-        }
+        auto bbMainGrid = m_mainGrid->boundingBox();
 
-        activeInfos[acIdx]->setGeometryBoundingBox( bb );
+        // Use center of bounding box as display offset. This point will be stable and independent of the active cell bounding box.
+        m_mainGrid->setDisplayModelOffset( bbMainGrid.center() );
     }
-
-    // This design choice is unfortunate, as the bounding box of active cells can be computed in different ways.
-    // Must keep the code to make sure existing projects display 3D model at the same location in the scene.
-    m_mainGrid->setDisplayModelOffset( bb.min() );
+    else
+    {
+        // This design choice is unfortunate, as the bounding box of active cells can be computed in different ways.
+        // Must keep the code to make sure existing projects display 3D model at the same location in the scene.
+        cvf::BoundingBox bb = m_activeCellInfo->geometryBoundingBox();
+        m_mainGrid->setDisplayModelOffset( bb.min() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
+void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox( RigActiveCellInfo* activeInfo, bool useOptimizedVersion )
 {
-    if ( m_activeCellInfo.isNull() || m_fractureActiveCellInfo.isNull() )
-    {
-        return;
-    }
-
-    if ( m_mainGrid.isNull() )
-    {
-        cvf::BoundingBox bb;
-        m_activeCellInfo->setGeometryBoundingBox( bb );
-        m_fractureActiveCellInfo->setGeometryBoundingBox( bb );
-        return;
-    }
-
-    RigActiveCellInfo* activeInfos[2];
-    activeInfos[0] = m_fractureActiveCellInfo.p();
-    activeInfos[1] = m_activeCellInfo.p();
-
     cvf::BoundingBox bb;
-    for ( int acIdx = 0; acIdx < 2; ++acIdx )
+
+    if ( m_mainGrid->nodes().empty() )
     {
-        bb.reset();
-        if ( m_mainGrid->nodes().empty() )
+        bb.add( cvf::Vec3d::ZERO );
+    }
+    else if ( m_mainGrid->gridGeometryType() == cvf::GridGeometryType::CYLINDRICAL )
+    {
+        // For cylindrical grids, find Z-range and largest radius from active cells
+        double maxRadius = 0.0;
+        double minZ      = HUGE_VAL;
+        double maxZ      = -HUGE_VAL;
+
+        for ( size_t reservoirCellIndex : activeInfo->activeReservoirCellIndices() )
         {
-            bb.add( cvf::Vec3d::ZERO );
+            auto result = m_mainGrid->getCylindricalCoords( reservoirCellIndex );
+            if ( result.has_value() )
+            {
+                const auto& cylCell = result.value();
+                maxRadius           = std::max( maxRadius, cylCell.outerRadius );
+                minZ                = std::min( minZ, cylCell.bottomZ );
+                maxZ                = std::max( maxZ, cylCell.topZ );
+            }
         }
-        else
+
+        // Create bounding box: XY extends from -maxRadius to +maxRadius
+        bb.add( cvf::Vec3d( -maxRadius, -maxRadius, minZ ) );
+        bb.add( cvf::Vec3d( maxRadius, maxRadius, maxZ ) );
+    }
+    else
+    {
+        if ( useOptimizedVersion )
         {
             // Use the top and bottom layer of active cells to compute the bounding box
-
-            auto [minBB, maxBB] = activeInfos[acIdx]->ijkBoundingBox();
+            auto [minBB, maxBB] = activeInfo->ijkBoundingBox();
 
             for ( auto k : { minBB.z(), maxBB.z() } )
             {
@@ -740,14 +725,23 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
                 }
             }
         }
-
-        activeInfos[acIdx]->setGeometryBoundingBox( bb );
+        else
+        {
+            for ( size_t i = 0; i < m_mainGrid->cellCount(); i++ )
+            {
+                if ( activeInfo->isActive( i ) )
+                {
+                    std::array<cvf::Vec3d, 8> hexCorners = m_mainGrid->cellCornerVertices( i );
+                    for ( const auto& corner : hexCorners )
+                    {
+                        bb.add( corner );
+                    }
+                }
+            }
+        }
     }
 
-    auto bbMainGrid = m_mainGrid->boundingBox();
-
-    // Use center of bounding box as display offset. This point will be stable and independent of the active cell bounding box.
-    m_mainGrid->setDisplayModelOffset( bbMainGrid.center() );
+    activeInfo->setGeometryBoundingBox( bb );
 }
 
 //--------------------------------------------------------------------------------------------------

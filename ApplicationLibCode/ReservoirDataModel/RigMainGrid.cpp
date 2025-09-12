@@ -462,25 +462,51 @@ void RigMainGrid::computeBoundingBox()
 {
     m_boundingBox.reset();
 
-    const int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+    if ( gridGeometryType() == cvf::GridGeometryType::CYLINDRICAL )
+    {
+        // For cylindrical/radial grids, nodes contain r,theta,z values
+        // Find Z-range and largest radius, then compute XY bounding box
+        double maxRadius = 0.0;
+        double minZ      = HUGE_VAL;
+        double maxZ      = -HUGE_VAL;
 
-    std::vector<cvf::BoundingBox> threadBoundingBoxes( numberOfThreads );
+        for ( const auto& node : m_nodes )
+        {
+            double r = node.x(); // radius
+            double z = node.z(); // height
+
+            maxRadius = std::max( maxRadius, r );
+            minZ      = std::min( minZ, z );
+            maxZ      = std::max( maxZ, z );
+        }
+
+        // Create bounding box: XY extends from -maxRadius to +maxRadius
+        m_boundingBox.add( cvf::Vec3d( -maxRadius, -maxRadius, minZ ) );
+        m_boundingBox.add( cvf::Vec3d( maxRadius, maxRadius, maxZ ) );
+    }
+    else
+    {
+        // For regular grids, nodes are already in Cartesian coordinates
+        const int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+
+        std::vector<cvf::BoundingBox> threadBoundingBoxes( numberOfThreads );
 
 #pragma omp parallel
-    {
-        int myThread = RiaOpenMPTools::currentThreadIndex();
-
-        // NB! We are inside a parallel section, do not use "parallel for" here
-#pragma omp for
-        for ( long i = 0; i < static_cast<long>( m_nodes.size() ); i++ )
         {
-            threadBoundingBoxes[myThread].add( m_nodes[i] );
-        }
-    }
+            int myThread = RiaOpenMPTools::currentThreadIndex();
 
-    for ( int i = 0; i < numberOfThreads; i++ )
-    {
-        m_boundingBox.add( threadBoundingBoxes[i] );
+            // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+            for ( long i = 0; i < static_cast<long>( m_nodes.size() ); i++ )
+            {
+                threadBoundingBoxes[myThread].add( m_nodes[i] );
+            }
+        }
+
+        for ( int i = 0; i < numberOfThreads; i++ )
+        {
+            m_boundingBox.add( threadBoundingBoxes[i] );
+        }
     }
 }
 
@@ -489,6 +515,8 @@ void RigMainGrid::computeBoundingBox()
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 {
+    if ( gridGeometryType() == cvf::GridGeometryType::CYLINDRICAL ) return;
+
     if ( hasFaultWithName( RiaResultNames::undefinedGridFaultName() ) &&
          hasFaultWithName( RiaResultNames::undefinedGridFaultWithInactiveName() ) )
     {

@@ -40,6 +40,7 @@
 
 #include <algorithm>
 #include <array>
+#include <expected>
 
 namespace caf
 {
@@ -66,6 +67,22 @@ StructGridInterface::StructGridInterface()
     m_characteristicCellSizeI = cvf::UNDEFINED_DOUBLE;
     m_characteristicCellSizeJ = cvf::UNDEFINED_DOUBLE;
     m_characteristicCellSizeK = cvf::UNDEFINED_DOUBLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::GridGeometryType StructGridInterface::gridGeometryType() const
+{
+    return GridGeometryType::HEXAHEDRAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<CylindricalCell, std::string> StructGridInterface::getCylindricalCoords( size_t cellIndex ) const
+{
+    return std::unexpected( "Grid does not support cylindrical coordinates" );
 }
 
 //--------------------------------------------------------------------------------------------------

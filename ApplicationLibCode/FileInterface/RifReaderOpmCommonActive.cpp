@@ -19,6 +19,7 @@
 #include "RifReaderOpmCommonActive.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaStdStringTools.h"
 
 #include "RifOpmRadialGridTools.h"
@@ -270,6 +271,11 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     auto radialGridCenterTopLayerOpm = isRadialGrid ? RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmGrid, localGrid )
                                                     : std::map<int, std::pair<double, double>>();
 
+    if ( isRadialGrid && RiaPreferencesGrid::current()->useCylindricalVisualization() )
+    {
+        activeGrid->setGridGeometryType( cvf::GridGeometryType::CYLINDRICAL );
+    }
+
     // use same mapping as resdata
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
@@ -322,7 +328,9 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
         std::array<double, 8> opmX{};
         std::array<double, 8> opmY{};
         std::array<double, 8> opmZ{};
-        opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
+
+        bool convertCylindricalCoords = opmGrid.is_radial() && !RiaPreferencesGrid::current()->useCylindricalVisualization();
+        opmGrid.getCellCorners( opmIJK, opmX, opmY, opmZ, convertCylindricalCoords );
 
         // Each cell has 8 nodes, use active cell index and multiply to find first node index for cell
         auto localNodeIndex   = activeCellMap[opmCellIndex] * 8;

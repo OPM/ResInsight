@@ -19,6 +19,7 @@
 #include "RifOpmRadialGridTools.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RifReaderEclipseOutput.h"
@@ -73,6 +74,10 @@ void RifOpmRadialGridTools::importCoordinatesForRadialGrid( const std::string& g
 
         if ( opmMainGrid.is_radial() )
         {
+            if ( RiaPreferencesGrid::current()->useCylindricalVisualization() )
+            {
+                riMainGrid->setGridGeometryType( cvf::GridGeometryType::CYLINDRICAL );
+            }
             transferCoordinatesRadial( opmMainGrid, opmMainGrid, riMainGrid, riMainGrid );
         }
 
@@ -88,11 +93,21 @@ void RifOpmRadialGridTools::importCoordinatesForRadialGrid( const std::string& g
                     auto riLgrGrid = riMainGrid->gridByIndex( i );
                     if ( riLgrGrid->gridName() == lgrName )
                     {
+                        if ( RiaPreferencesGrid::current()->useCylindricalVisualization() )
+                        {
+                            riLgrGrid->setGridGeometryType( cvf::GridGeometryType::CYLINDRICAL );
+                        }
                         transferCoordinatesRadial( opmMainGrid, opmLgrGrid, riMainGrid, riLgrGrid );
                     }
                 }
             }
         }
+    }
+    catch ( const std::exception& e )
+    {
+        RiaLogging::warning(
+            QString( "Failed to open grid case for import of radial coordinates : %1" ).arg( QString::fromStdString( gridFilePath ) ) );
+        RiaLogging::error( QString::fromStdString( e.what() ) );
     }
     catch ( ... )
     {
@@ -157,13 +172,15 @@ void RifOpmRadialGridTools::transferCoordinatesRadial( Opm::EclIO::EGrid& opmMai
 
     std::vector<cvf::Vec3d> snapToCoordinatesFromMainGrid;
 
+    bool convertCylindricalCoords = opmGrid.is_radial() && !RiaPreferencesGrid::current()->useCylindricalVisualization();
+
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( cellCount ); opmCellIndex++ )
     {
-        opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
+        auto ijkCell = opmGrid.ijk_from_global_index( opmCellIndex );
+        opmGrid.getCellCorners( ijkCell, opmX, opmY, opmZ, convertCylindricalCoords );
 
         // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
         auto riNodeStartIndex = riGrid->reservoirCellIndex( opmCellIndex ) * 8;
-        auto ijkCell          = opmGrid.ijk_from_global_index( opmCellIndex );
 
         double xCenterCoordOpm = 0.0;
         double yCenterCoordOpm = 0.0;
@@ -174,6 +191,9 @@ void RifOpmRadialGridTools::transferCoordinatesRadial( Opm::EclIO::EGrid& opmMai
             xCenterCoordOpm                = xCenter;
             yCenterCoordOpm                = yCenter;
         }
+
+        // Adjustment of center of cylindrical model is not supported
+        if ( RiaPreferencesGrid::current()->useCylindricalVisualization() ) return;
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {
@@ -212,8 +232,8 @@ void RifOpmRadialGridTools::lockToHostPillars( cvf::Vec3d&         riNode,
     std::array<double, 8> cellRadius{};
     std::array<double, 8> cellTheta{};
     std::array<double, 8> cellZ{};
-    bool                  convertToRadialCoords = false;
-    opmGrid.getCellCorners( ijkCell, cellRadius, cellTheta, cellZ, convertToRadialCoords );
+    bool                  convertCylindricalCoords = false;
+    opmGrid.getCellCorners( ijkCell, cellRadius, cellTheta, cellZ, convertCylindricalCoords );
 
     double maxRadius = *std::max_element( cellRadius.begin(), cellRadius.end() );
 

@@ -126,8 +126,8 @@ public:
 private:
     void computeActiveCellIJKBBox();
     void computeWellCellsPrGrid();
-    void computeActiveCellsGeometryBoundingBoxSlow();
-    void computeActiveCellsGeometryBoundingBoxOptimized();
+    void computeActiveCellsGeometryBoundingBox( bool useOptimizedVersion );
+    void computeActiveCellsGeometryBoundingBox( RigActiveCellInfo* activeInfo, bool useOptimizedVersion );
 
     const RigFormationNames* activeFormationNames() const;
 
