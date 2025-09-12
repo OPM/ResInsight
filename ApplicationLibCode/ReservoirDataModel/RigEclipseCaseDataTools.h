@@ -48,14 +48,12 @@ public:
                                                                    bool                  isAutoDetectingBranches,
                                                                    bool                  isUsingCellCenterForPipe );
 
-    static std::pair<cvf::Vec3st, cvf::Vec3st> wellsBoundingBoxIjk( RigEclipseCaseData*                    eclipseCaseData,
+    static std::pair<cvf::Vec3st, cvf::Vec3st> wellsBoundingBoxIjk( RigEclipseCaseData*                       eclipseCaseData,
                                                                     const std::vector<const RigSimWellData*>& simWells,
-                                                                    int                                    timeStepIndex,
-                                                                    bool                                   isAutoDetectingBranches,
-                                                                    bool                                   isUsingCellCenterForPipe );
+                                                                    int                                       timeStepIndex,
+                                                                    bool                                      isAutoDetectingBranches,
+                                                                    bool                                      isUsingCellCenterForPipe );
 
-    static std::pair<cvf::Vec3st, cvf::Vec3st> expandBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData,
-                                                                     const cvf::Vec3st&  minIjk,
-                                                                     const cvf::Vec3st&  maxIjk,
-                                                                     size_t              numPadding );
+    static std::pair<cvf::Vec3st, cvf::Vec3st>
+        expandBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData, const cvf::Vec3st& minIjk, const cvf::Vec3st& maxIjk, size_t numPadding );
 };
