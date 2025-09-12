@@ -88,7 +88,8 @@ void RifStimPlanModelDeviationFrkExporter::appendHeaderToStream( QTextStream& st
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelDeviationFrkExporter::appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values )
 {
-    stream.setRealNumberPrecision( 8 );
+    stream.setRealNumberNotation( QTextStream::FixedNotation );
+    stream.setRealNumberPrecision( 4 );
     stream << "<cNamedSet>" << '\n'
            << "<name>" << '\n'
            << label << '\n'
@@ -170,6 +171,13 @@ void RifStimPlanModelDeviationFrkExporter::fixupDepthValuesForExport( const std:
             // Add small amount in addition to delta TVD to work around floating point imprecision.
             double wiggle = 0.001;
             exportMdValues.push_back( exportMdValues[i - 1] + changeTvd + wiggle );
+        }
+        else if ( std::fabs( changeMd ) < 0.001 )
+        {
+            // Stimplan wants the MD to always be increasing.
+            // Add small amount when that is not the case.
+            double wiggle = 0.002;
+            exportMdValues.push_back( exportMdValues[i - 1] + wiggle );
         }
         else
         {
