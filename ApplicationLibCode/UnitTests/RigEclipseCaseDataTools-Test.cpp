@@ -197,3 +197,96 @@ TEST( RigEclipseCaseDataToolsTest, MultipleWellsBoundingBoxWithBruggeModel )
     ASSERT_LE( minIjk.y(), maxIjk.y() ) << "Min J should be <= Max J";
     ASSERT_LE( minIjk.z(), maxIjk.z() ) << "Min K should be <= Max K";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseCaseDataToolsTest, ExpandBoundingBoxIjkWithPadding )
+{
+    // Load the BRUGGE test model using RifReaderEclipseOutput
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "Case_with_10_timesteps/Real0" );
+    ASSERT_TRUE( subFolderExists ) << "Could not find test model directory";
+
+    QString filename( "BRUGGE_0000.EGRID" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    ASSERT_TRUE( QFile::exists( filePath ) ) << "BRUGGE test model file does not exist: " << filePath.toStdString();
+
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          eclipseCase = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    bool                             success            = readerInterfaceEcl->open( filePath, eclipseCase.p() );
+    ASSERT_TRUE( success ) << "Could not load BRUGGE test model";
+
+    eclipseCase->mainGrid()->computeCachedData();
+
+    // Get grid dimensions for boundary testing
+    auto   mainGrid       = eclipseCase->mainGrid();
+    size_t gridCellCountI = mainGrid->cellCountI();
+    size_t gridCellCountJ = mainGrid->cellCountJ();
+    size_t gridCellCountK = mainGrid->cellCountK();
+
+    // Test case 1: Normal expansion with padding (using safe values that won't hit grid boundaries)
+    cvf::Vec3st originalMin( 20, 20, 3 );
+    cvf::Vec3st originalMax( 22, 22, 4 );
+    size_t      padding = 3;
+
+    auto [expandedMin1, expandedMax1] = RigEclipseCaseDataTools::expandBoundingBoxIjk( eclipseCase.p(), originalMin, originalMax, padding );
+
+    ASSERT_NE( expandedMin1, cvf::Vec3st::UNDEFINED ) << "Expanded min should be valid";
+    ASSERT_NE( expandedMax1, cvf::Vec3st::UNDEFINED ) << "Expanded max should be valid";
+
+    // Check expansion worked correctly (these values should not hit grid boundaries)
+    ASSERT_EQ( expandedMin1.x(), originalMin.x() - padding ) << "Min I should be reduced by padding";
+    ASSERT_EQ( expandedMin1.y(), originalMin.y() - padding ) << "Min J should be reduced by padding";
+    ASSERT_EQ( expandedMin1.z(), originalMin.z() - padding ) << "Min K should be reduced by padding";
+
+    ASSERT_EQ( expandedMax1.x(), originalMax.x() + padding ) << "Max I should be increased by padding";
+    ASSERT_EQ( expandedMax1.y(), originalMax.y() + padding ) << "Max J should be increased by padding";
+    ASSERT_EQ( expandedMax1.z(), originalMax.z() + padding ) << "Max K should be increased by padding";
+
+    // Test case 2: Expansion at grid boundary - ensure min never goes below 0
+    cvf::Vec3st boundaryMin( 1, 1, 1 );
+    cvf::Vec3st boundaryMax( 3, 3, 3 );
+    size_t      largePadding = 5;
+
+    auto [expandedMin2, expandedMax2] =
+        RigEclipseCaseDataTools::expandBoundingBoxIjk( eclipseCase.p(), boundaryMin, boundaryMax, largePadding );
+
+    ASSERT_NE( expandedMin2, cvf::Vec3st::UNDEFINED ) << "Boundary expanded min should be valid";
+    ASSERT_NE( expandedMax2, cvf::Vec3st::UNDEFINED ) << "Boundary expanded max should be valid";
+
+    // Ensure min coordinates never go negative (should be clamped to 0)
+    ASSERT_EQ( expandedMin2.x(), 0 ) << "Min I should be clamped to 0";
+    ASSERT_EQ( expandedMin2.y(), 0 ) << "Min J should be clamped to 0";
+    ASSERT_EQ( expandedMin2.z(), 0 ) << "Min K should be clamped to 0";
+
+    // Test case 3: Expansion at grid upper boundary - ensure max never exceeds grid dimensions
+    cvf::Vec3st upperBoundaryMin( gridCellCountI - 3, gridCellCountJ - 3, gridCellCountK - 3 );
+    cvf::Vec3st upperBoundaryMax( gridCellCountI - 1, gridCellCountJ - 1, gridCellCountK - 1 );
+
+    auto [expandedMin3, expandedMax3] =
+        RigEclipseCaseDataTools::expandBoundingBoxIjk( eclipseCase.p(), upperBoundaryMin, upperBoundaryMax, largePadding );
+
+    ASSERT_NE( expandedMin3, cvf::Vec3st::UNDEFINED ) << "Upper boundary expanded min should be valid";
+    ASSERT_NE( expandedMax3, cvf::Vec3st::UNDEFINED ) << "Upper boundary expanded max should be valid";
+
+    // Ensure max coordinates never exceed grid dimensions (should be clamped to grid size - 1)
+    ASSERT_EQ( expandedMax3.x(), gridCellCountI - 1 ) << "Max I should be clamped to grid size - 1";
+    ASSERT_EQ( expandedMax3.y(), gridCellCountJ - 1 ) << "Max J should be clamped to grid size - 1";
+    ASSERT_EQ( expandedMax3.z(), gridCellCountK - 1 ) << "Max K should be clamped to grid size - 1";
+
+    // General sanity checks for all test cases
+    ASSERT_LE( expandedMin1.x(), expandedMax1.x() ) << "Expanded Min I should be <= Max I";
+    ASSERT_LE( expandedMin1.y(), expandedMax1.y() ) << "Expanded Min J should be <= Max J";
+    ASSERT_LE( expandedMin1.z(), expandedMax1.z() ) << "Expanded Min K should be <= Max K";
+
+    ASSERT_LE( expandedMin2.x(), expandedMax2.x() ) << "Boundary expanded Min I should be <= Max I";
+    ASSERT_LE( expandedMin2.y(), expandedMax2.y() ) << "Boundary expanded Min J should be <= Max J";
+    ASSERT_LE( expandedMin2.z(), expandedMax2.z() ) << "Boundary expanded Min K should be <= Max K";
+
+    ASSERT_LE( expandedMin3.x(), expandedMax3.x() ) << "Upper boundary expanded Min I should be <= Max I";
+    ASSERT_LE( expandedMin3.y(), expandedMax3.y() ) << "Upper boundary expanded Min J should be <= Max J";
+    ASSERT_LE( expandedMin3.z(), expandedMax3.z() ) << "Upper boundary expanded Min K should be <= Max K";
+}
