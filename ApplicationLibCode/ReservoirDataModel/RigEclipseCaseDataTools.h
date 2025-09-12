@@ -53,4 +53,9 @@ public:
                                                                     int                                    timeStepIndex,
                                                                     bool                                   isAutoDetectingBranches,
                                                                     bool                                   isUsingCellCenterForPipe );
+
+    static std::pair<cvf::Vec3st, cvf::Vec3st> expandBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData,
+                                                                     const cvf::Vec3st&  minIjk,
+                                                                     const cvf::Vec3st&  maxIjk,
+                                                                     size_t              numPadding );
 };

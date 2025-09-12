@@ -174,3 +174,28 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::wellsBoundingBoxIjk
 
     return { globalMin, globalMax };
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::expandBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData,
+                                                                                   const cvf::Vec3st&  minIjk,
+                                                                                   const cvf::Vec3st&  maxIjk,
+                                                                                   size_t              numPadding )
+{
+    if ( !eclipseCaseData || minIjk.isUndefined() || maxIjk.isUndefined() ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+
+    auto mainGrid = eclipseCaseData->mainGrid();
+    if ( !mainGrid ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+
+    // Calculate expanded bounds with padding, ensuring we stay within grid bounds
+    size_t expandedMinI = ( minIjk.x() >= numPadding ) ? ( minIjk.x() - numPadding ) : 0;
+    size_t expandedMinJ = ( minIjk.y() >= numPadding ) ? ( minIjk.y() - numPadding ) : 0;
+    size_t expandedMinK = ( minIjk.z() >= numPadding ) ? ( minIjk.z() - numPadding ) : 0;
+
+    size_t expandedMaxI = std::min( maxIjk.x() + numPadding, mainGrid->cellCountI() - 1 );
+    size_t expandedMaxJ = std::min( maxIjk.y() + numPadding, mainGrid->cellCountJ() - 1 );
+    size_t expandedMaxK = std::min( maxIjk.z() + numPadding, mainGrid->cellCountK() - 1 );
+
+    return { cvf::Vec3st( expandedMinI, expandedMinJ, expandedMinK ), cvf::Vec3st( expandedMaxI, expandedMaxJ, expandedMaxK ) };
+}
