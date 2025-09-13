@@ -36,6 +36,8 @@
 
 #include "cafPdmUiFormLayoutObjectEditor.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmLogging.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -407,9 +409,6 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
                                                                                         PdmUiFieldHandle* field,
                                                                                         const QString&    uiConfigName )
 {
-    // If object is hidden in the ui tree, it should not be shown in the form either
-    if ( field->isUiTreeHidden( uiConfigName ) ) return nullptr;
-
     caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
@@ -435,13 +434,21 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
             // See cafPdmUiCoreColor3f and cafPdmUiCoreVec3d
             //
             // Default editors are registered in cafPdmUiDefaultObjectEditor.cpp
+            //
+            // Exclude childArray and child object fields from this warning. A PdmChildArrayFieldHandle field
+            // typically use a list or table editor, see RimWellPathGeometryDef::m_wellTargets
 
-            QString fieldTypeName = field ? field->fieldHandle()->keyword() : "unknown";
-            CAF_PDM_LOG_ERROR(
-                QString( "UI Form Layout Editor: No field editor available for field type '%1' in config '%2'. "
-                         "Check that the field editor is properly registered." )
-                    .arg( fieldTypeName )
-                    .arg( uiConfigName.isEmpty() ? "default" : uiConfigName ) );
+            bool isChildArrayField  = dynamic_cast<PdmChildArrayFieldHandle*>( field->fieldHandle() ) != nullptr;
+            bool isChildObjectField = dynamic_cast<PdmChildFieldHandle*>( field->fieldHandle() ) != nullptr;
+            if ( !isChildArrayField && !isChildObjectField )
+            {
+                QString fieldTypeName = field ? field->fieldHandle()->keyword() : "unknown";
+                CAF_PDM_LOG_ERROR(
+                    QString( "UI Form Layout Editor: No field editor available for field type '%1' in config '%2'. "
+                             "Check that the field editor is properly registered." )
+                        .arg( fieldTypeName )
+                        .arg( uiConfigName.isEmpty() ? "default" : uiConfigName ) );
+            }
         }
     }
     else
