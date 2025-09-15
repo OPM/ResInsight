@@ -71,7 +71,7 @@ void RicExportEclipseSectorModelFeature::openDialogAndExecuteCommand( RimEclipse
     std::tie( min, max ) = getVisibleCellRange( view, cellVisibility );
 
     RicExportEclipseSectorModelUi* exportSettings = RimProject::current()->dialogData()->exportSectorModelUi();
-    exportSettings->setCaseData( caseData, min, max );
+    exportSettings->setCaseData( caseData, view, min, max );
 
     exportSettings->applyBoundaryDefaults();
     exportSettings->removeInvalidKeywords();

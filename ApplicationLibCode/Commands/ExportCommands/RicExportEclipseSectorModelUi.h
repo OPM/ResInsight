@@ -32,6 +32,8 @@
 #include <vector>
 
 class RigEclipseCaseData;
+class RigSimWellData;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -53,6 +55,7 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
     {
         VISIBLE_CELLS_BOX,
         ACTIVE_CELLS_BOX,
+        VISIBLE_WELLS_BOX,
         FULL_GRID_BOX,
         MANUAL_SELECTION
     };
@@ -63,9 +66,10 @@ public:
     ~RicExportEclipseSectorModelUi() override;
     const QStringList& tabNames() const;
 
-    void setCaseData( RigEclipseCaseData* caseData   = nullptr,
-                      const cvf::Vec3i&   visibleMin = cvf::Vec3i::ZERO,
-                      const cvf::Vec3i&   visibleMax = cvf::Vec3i::ZERO );
+    void setCaseData( RigEclipseCaseData* caseData    = nullptr,
+                      RimEclipseView*     eclipseView = nullptr,
+                      const cvf::Vec3i&   visibleMin  = cvf::Vec3i::ZERO,
+                      const cvf::Vec3i&   visibleMax  = cvf::Vec3i::ZERO );
 
     cvf::Vec3i min() const;
     cvf::Vec3i max() const;
@@ -91,6 +95,8 @@ public:
 
     caf::PdmField<GridBoxSelectionEnum> exportGridBox;
 
+    caf::PdmField<int> m_visibleWellsPadding;
+
     caf::PdmField<int> refinementCountI;
     caf::PdmField<int> refinementCountJ;
     caf::PdmField<int> refinementCountK;
@@ -114,6 +120,10 @@ protected:
     QString                  defaultResultsFileName() const;
     QString                  defaultFaultsFileName() const;
 
+    static std::vector<const RigSimWellData*> getVisibleSimulationWells( RimEclipseView* view );
+    static std::pair<cvf::Vec3st, cvf::Vec3st>
+        computeVisibleWellCells( RimEclipseView* view, RigEclipseCaseData* caseData, int visibleWellsPadding );
+
 private:
     caf::PdmField<caf::FilePath> m_exportFolder;
     caf::PdmField<QString>       m_exportFaultsFilename;
@@ -122,6 +132,7 @@ private:
     caf::PdmField<bool>          m_writeEchoInGrdeclFiles;
 
     RigEclipseCaseData* m_caseData;
+    RimEclipseView*     m_eclipseView;
     cvf::Vec3i          m_visibleMin;
     cvf::Vec3i          m_visibleMax;
     QStringList         m_tabNames;
