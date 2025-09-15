@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
 #include "RigFault.h"
 
 #include "cafVecIjk.h"
@@ -28,8 +27,8 @@
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfVector3.h"
-#include <array>
 
+#include <array>
 #include <optional>
 #include <string>
 #include <vector>
@@ -44,11 +43,12 @@ public:
     explicit RigGridBase( RigMainGrid* mainGrid );
     ~RigGridBase() override;
 
-    void setGridPointDimensions( const cvf::Vec3st& gridDimensions );
+    void setCellCounts( const cvf::Vec3st& cellCounts );
 
-    size_t         cellCountI() const override { return m_cellCount.x(); }
-    size_t         cellCountJ() const override { return m_cellCount.y(); }
-    size_t         cellCountK() const override { return m_cellCount.z(); }
+    size_t         cellCountI() const override { return m_cellCounts.x(); }
+    size_t         cellCountJ() const override { return m_cellCounts.y(); }
+    size_t         cellCountK() const override { return m_cellCounts.z(); }
+    cvf::Vec3st    cellCounts() const { return m_cellCounts; }
     virtual size_t cellCount() const { return m_cellCountIJK; }
 
     virtual RigCell&       cell( size_t gridLocalCellIndex );
@@ -121,8 +121,7 @@ protected:
 
 private:
     std::string      m_gridName;
-    cvf::Vec3st      m_gridPointDimensions;
-    cvf::Vec3st      m_cellCount;
+    cvf::Vec3st      m_cellCounts;
     size_t           m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     int              m_gridId; ///< The LGR id of this grid. Main grid has id 0.
     RigMainGrid*     m_mainGrid;

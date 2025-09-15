@@ -30,7 +30,7 @@ public:
     ~RifReaderMockModel() override;
 
     void setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate );
-    void setGridPointDimensions( const cvf::Vec3st& gridPointDimensions );
+    void setCellCounts( const cvf::Vec3st& cellCounts );
     void setResultInfo( size_t resultCount, size_t timeStepCount );
     void enableWellData( bool enableWellData );
 

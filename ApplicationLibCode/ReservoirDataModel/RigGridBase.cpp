@@ -29,7 +29,7 @@
 #include <cstdlib>
 
 RigGridBase::RigGridBase( RigMainGrid* mainGrid )
-    : m_gridPointDimensions( 0, 0, 0 )
+    : m_cellCounts( 0, 0, 0 )
     , m_indexToStartOfCells( 0 )
     , m_mainGrid( mainGrid )
     , m_cellCountIJK( 0 )
@@ -54,14 +54,9 @@ RigGridBase::~RigGridBase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGridBase::setGridPointDimensions( const cvf::Vec3st& gridDimensions )
+void RigGridBase::setCellCounts( const cvf::Vec3st& cellCount )
 {
-    m_gridPointDimensions = gridDimensions;
-
-    m_cellCount.x() = ( m_gridPointDimensions.x() > 0 ? m_gridPointDimensions.x() - 1 : 0 );
-    m_cellCount.y() = ( m_gridPointDimensions.y() > 0 ? m_gridPointDimensions.y() - 1 : 0 );
-    m_cellCount.z() = ( m_gridPointDimensions.z() > 0 ? m_gridPointDimensions.z() - 1 : 0 );
-
+    m_cellCounts   = cellCount;
     m_cellCountIJ  = cellCountI() * cellCountJ();
     m_cellCountIJK = m_cellCountIJ * cellCountK();
 }
@@ -190,9 +185,9 @@ std::array<cvf::Vec3d, 8> RigGridBase::cellCornerVertices( size_t cellIndex ) co
 size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 {
     CVF_TIGHT_ASSERT( i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
-    CVF_TIGHT_ASSERT( i < m_gridPointDimensions.x() && j < m_gridPointDimensions.y() && k < m_gridPointDimensions.z() );
+    CVF_TIGHT_ASSERT( i < m_cellCounts.x() && j < m_cellCounts.y() && k < m_cellCounts.z() );
 
-    return i + j * m_cellCount.x() + k * m_cellCountIJ;
+    return i + j * m_cellCounts.x() + k * m_cellCountIJ;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +195,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
 {
-    return i + j * m_cellCount.x() + k * m_cellCountIJ;
+    return i + j * m_cellCounts.x() + k * m_cellCountIJ;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,13 +214,13 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
 
     size_t index = cellIndex;
 
-    if ( m_gridPointDimensions[0] <= 1u || m_gridPointDimensions[1] <= 1u )
+    if ( m_cellCounts[0] <= 0u || m_cellCounts[1] <= 0u )
     {
         return false;
     }
 
-    const size_t cellCountI = m_cellCount.x();
-    const size_t cellCountJ = m_cellCount.y();
+    const size_t cellCountI = m_cellCounts.x();
+    const size_t cellCountJ = m_cellCounts.y();
 
     *i = index % cellCountI;
     index /= cellCountI;
@@ -257,8 +252,8 @@ void RigGridBase::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t
 {
     size_t index = cellIndex;
 
-    const size_t cellCountI = m_cellCount.x();
-    const size_t cellCountJ = m_cellCount.y();
+    const size_t cellCountI = m_cellCounts.x();
+    const size_t cellCountJ = m_cellCounts.y();
 
     *i = index % cellCountI;
     index /= cellCountI;
@@ -327,7 +322,7 @@ cvf::Vec3d RigGridBase::maxCoordinate() const
 //--------------------------------------------------------------------------------------------------
 bool RigGridBase::isCellValid( size_t i, size_t j, size_t k ) const
 {
-    if ( i >= m_cellCount.x() || j >= m_cellCount.y() || k >= m_cellCount.z() )
+    if ( i >= m_cellCounts.x() || j >= m_cellCounts.y() || k >= m_cellCounts.z() )
     {
         return false;
     }

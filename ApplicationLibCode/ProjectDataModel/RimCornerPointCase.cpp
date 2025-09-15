@@ -200,8 +200,8 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
     RigMainGrid* mainGrid = eclipseCaseData.mainGrid();
     CVF_ASSERT( mainGrid );
 
-    cvf::Vec3st gridPointDim( nx + 1, ny + 1, nz + 1 );
-    mainGrid->setGridPointDimensions( gridPointDim );
+    mainGrid->setCellCounts( cvf::Vec3st( nx, ny, nz ) );
+
     mainGrid->setGridName( "Main grid" );
 
     size_t totalCellCount = nx * ny * nz;

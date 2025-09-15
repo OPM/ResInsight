@@ -37,7 +37,7 @@ TEST( RigEclipseWellLogExtractor, ShortWellPathInsideOneCell )
         cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
 
         mockFileInterface->setWorldCoordinates( cvf::Vec3d( 10, 10, 10 ), cvf::Vec3d( 20, 20, 20 ) );
-        mockFileInterface->setGridPointDimensions( cvf::Vec3st( 4, 5, 6 ) );
+        mockFileInterface->setCellCounts( cvf::Vec3st( 5, 6, 7 ) );
         mockFileInterface->enableWellData( false );
 
         mockFileInterface->open( "", reservoir.p() );

@@ -256,13 +256,7 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
 
     RigMainGrid* mainGrid = eclipseCase->mainGrid();
     CVF_ASSERT( mainGrid );
-    {
-        cvf::Vec3st gridPointDim( 0, 0, 0 );
-        gridPointDim.x() = ecl_grid_get_nx( mainEclGrid ) + 1;
-        gridPointDim.y() = ecl_grid_get_ny( mainEclGrid ) + 1;
-        gridPointDim.z() = ecl_grid_get_nz( mainEclGrid ) + 1;
-        mainGrid->setGridPointDimensions( gridPointDim );
-    }
+    mainGrid->setCellCounts( cvf::Vec3st( ecl_grid_get_nx( mainEclGrid ), ecl_grid_get_ny( mainEclGrid ), ecl_grid_get_nz( mainEclGrid ) ) );
 
     // std::string mainGridName = ecl_grid_get_name(mainEclGrid);
     // ERT returns file path to grid file as name for main grid
@@ -283,18 +277,15 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
         std::string lgrName = ecl_grid_get_name( localEclGrid );
         int         lgrId   = ecl_grid_get_lgr_nr( localEclGrid );
 
-        cvf::Vec3st gridPointDim( 0, 0, 0 );
-        gridPointDim.x() = ecl_grid_get_nx( localEclGrid ) + 1;
-        gridPointDim.y() = ecl_grid_get_ny( localEclGrid ) + 1;
-        gridPointDim.z() = ecl_grid_get_nz( localEclGrid ) + 1;
-
         RigLocalGrid* localGrid = new RigLocalGrid( mainGrid );
         localGrid->setGridId( lgrId );
         mainGrid->addLocalGrid( localGrid );
 
         localGrid->setIndexToStartOfCells( totalCellCount );
         localGrid->setGridName( lgrName );
-        localGrid->setGridPointDimensions( gridPointDim );
+
+        cvf::Vec3st cellCounts( ecl_grid_get_nx( localEclGrid ), ecl_grid_get_ny( localEclGrid ), ecl_grid_get_nz( localEclGrid ) );
+        localGrid->setCellCounts( cellCounts );
 
         totalCellCount += ecl_grid_get_global_size( localEclGrid );
     }

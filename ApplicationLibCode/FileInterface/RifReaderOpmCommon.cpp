@@ -159,7 +159,7 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
 
     const auto& dims = opmGrid.dimension();
-    mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
+    mainGrid->setCellCounts( cvf::Vec3st( dims[0], dims[1], dims[2] ) );
     mainGrid->setGridName( "Main grid" );
     mainGrid->setDualPorosity( opmGrid.porosity_mode() > 0 );
 
@@ -191,7 +191,7 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
         RigLocalGrid* localGrid = new RigLocalGrid( mainGrid );
 
         const auto& lgrDims = lgrGrids[lgrIdx].dimension();
-        localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
+        localGrid->setCellCounts( cvf::Vec3st( lgrDims[0], lgrDims[1], lgrDims[2] ) );
         localGrid->setGridId( lgrIdx + 1 );
         localGrid->setGridName( lgr_names[lgrIdx] );
         localGrid->setIndexToStartOfCells( totalCellCount );

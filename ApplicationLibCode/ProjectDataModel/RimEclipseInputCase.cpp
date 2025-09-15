@@ -249,7 +249,7 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel( QString model
 
         // Create the mock file interface and and RigSerervoir and set them up.
         mockFileInterface->setWorldCoordinates( cvf::Vec3d( 10, 10, 10 ), cvf::Vec3d( 20, 20, 20 ) );
-        mockFileInterface->setGridPointDimensions( cvf::Vec3st( 4, 5, 6 ) );
+        mockFileInterface->setCellCounts( cvf::Vec3st( 5, 6, 7 ) );
         mockFileInterface->addLocalGridRefinement( cvf::Vec3st( 0, 2, 2 ), cvf::Vec3st( 0, 2, 2 ), cvf::Vec3st( 3, 3, 3 ) );
         mockFileInterface->setResultInfo( 3, 10 );
 

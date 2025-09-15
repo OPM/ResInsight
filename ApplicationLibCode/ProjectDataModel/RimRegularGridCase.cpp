@@ -79,8 +79,7 @@ void RimRegularGridCase::createModel()
     RigReservoirBuilder reservoirBuilder;
     reservoirBuilder.setWorldCoordinates( m_minimum, m_maximum );
 
-    cvf::Vec3st gridPointDimensions( m_cellCountI, m_cellCountJ, m_cellCountK );
-    reservoirBuilder.setIJKCount( gridPointDimensions );
+    reservoirBuilder.setIJKCount( cvf::Vec3st( m_cellCountI, m_cellCountJ, m_cellCountK ) );
 
     reservoirBuilder.createGridsAndCells( reservoir.p() );
 

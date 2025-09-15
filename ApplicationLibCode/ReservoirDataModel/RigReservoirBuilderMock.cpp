@@ -49,9 +49,9 @@ RigReservoirBuilderMock::RigReservoirBuilderMock()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::setGridPointDimensions( const cvf::Vec3st& gridPointDimensions )
+void RigReservoirBuilderMock::setCellCounts( const cvf::Vec3st& cellCounts )
 {
-    m_reservoirBuilder.setIJKCount( { gridPointDimensions.x() - 1, gridPointDimensions.y() - 1, gridPointDimensions.z() - 1 } );
+    m_reservoirBuilder.setIJKCount( cellCounts );
 }
 
 //--------------------------------------------------------------------------------------------------

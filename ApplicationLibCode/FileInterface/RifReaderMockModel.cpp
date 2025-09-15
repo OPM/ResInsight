@@ -156,9 +156,9 @@ void RifReaderMockModel::setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderMockModel::setGridPointDimensions( const cvf::Vec3st& gridPointDimensions )
+void RifReaderMockModel::setCellCounts( const cvf::Vec3st& cellCounts )
 {
-    m_reservoirBuilder.setGridPointDimensions( gridPointDimensions );
+    m_reservoirBuilder.setCellCounts( cellCounts );
 }
 
 //--------------------------------------------------------------------------------------------------

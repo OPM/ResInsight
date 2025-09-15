@@ -448,7 +448,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
     {
         // Create the mock file interface and and RigSerervoir and set them up.
         mockFileInterface->setWorldCoordinates( cvf::Vec3d( 10, 10, 10 ), cvf::Vec3d( 20, 20, 20 ) );
-        mockFileInterface->setGridPointDimensions( cvf::Vec3st( 4, 5, 6 ) );
+        mockFileInterface->setCellCounts( cvf::Vec3st( 5, 6, 7 ) );
         mockFileInterface->addLocalGridRefinement( cvf::Vec3st( 0, 2, 2 ), cvf::Vec3st( 0, 2, 2 ), cvf::Vec3st( 3, 3, 3 ) );
         mockFileInterface->enableWellData( false );
 
@@ -457,7 +457,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
     else if ( modelName == RiaDefines::mockModelBasicWithResults() )
     {
         mockFileInterface->setWorldCoordinates( cvf::Vec3d( 10, 10, 10 ), cvf::Vec3d( -20, -20, -20 ) );
-        mockFileInterface->setGridPointDimensions( cvf::Vec3st( 5, 10, 20 ) );
+        mockFileInterface->setCellCounts( cvf::Vec3st( 6, 11, 21 ) );
         mockFileInterface->addLocalGridRefinement( cvf::Vec3st( 0, 3, 3 ), cvf::Vec3st( 1, 4, 9 ), cvf::Vec3st( 2, 2, 2 ) );
         mockFileInterface->setResultInfo( 3, 10 );
 
@@ -488,7 +488,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
 
         mockFileInterface->setWorldCoordinates( cvf::Vec3d( startX + offsetX, startY + offsetY, startZ + offsetZ ),
                                                 cvf::Vec3d( startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ ) );
-        mockFileInterface->setGridPointDimensions( cvf::Vec3st( 50, 100, 200 ) );
+        mockFileInterface->setCellCounts( cvf::Vec3st( 51, 101, 201 ) );
         mockFileInterface->addLocalGridRefinement( cvf::Vec3st( 0, 30, 30 ), cvf::Vec3st( 1, 40, 90 ), cvf::Vec3st( 2, 2, 2 ) );
         mockFileInterface->setResultInfo( 3, 10 );
 
@@ -524,8 +524,8 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
 
             mockFileInterface->setWorldCoordinates( cvf::Vec3d( startX + offsetX, startY + offsetY, startZ + offsetZ ),
                                                     cvf::Vec3d( startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ ) );
-            mockFileInterface->setGridPointDimensions(
-                cvf::Vec3st( mockModelSettings->cellCountX + 1, mockModelSettings->cellCountY + 1, mockModelSettings->cellCountZ + 1 ) );
+            mockFileInterface->setCellCounts(
+                cvf::Vec3st( mockModelSettings->cellCountX, mockModelSettings->cellCountY, mockModelSettings->cellCountZ ) );
             mockFileInterface->setResultInfo( mockModelSettings->resultCount, mockModelSettings->timeStepCount );
             mockFileInterface->enableWellData( false );
 

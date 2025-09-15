@@ -67,7 +67,7 @@ private:
 private:
     cvf::Vec3d  m_minWorldCoordinate;
     cvf::Vec3d  m_maxWorldCoordinate;
-    cvf::Vec3st m_gridPointDimensions;
+    cvf::Vec3st m_ijkCount;
 
     std::vector<LocalGridRefinement> m_localGridRefinements;
 };

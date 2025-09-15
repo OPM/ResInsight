@@ -29,7 +29,7 @@
 RigReservoirBuilder::RigReservoirBuilder()
     : m_minWorldCoordinate( 0.0, 0.0, 0.0 )
     , m_maxWorldCoordinate( 0.0, 0.0, 0.0 )
-    , m_gridPointDimensions( 0, 0, 0 )
+    , m_ijkCount( 0, 0, 0 )
 {
 }
 
@@ -47,7 +47,7 @@ void RigReservoirBuilder::setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cv
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilder::setIJKCount( const cvf::Vec3st& ijkCount )
 {
-    m_gridPointDimensions = { ijkCount.x() + 1, ijkCount.y() + 1, ijkCount.z() + 1 };
+    m_ijkCount = ijkCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,16 +106,14 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
         localGrid->setParentGrid( eclipseCase->mainGrid() );
 
         localGrid->setIndexToStartOfCells( mainGridNodes.size() / 8 );
-        cvf::Vec3st gridPointDimensions( lgr.m_singleCellRefinementFactors.x() *
-                                                 ( lgr.m_mainGridMaxCellPosition.x() - lgr.m_mainGridMinCellPosition.x() + 1 ) +
-                                             1,
-                                         lgr.m_singleCellRefinementFactors.y() *
-                                                 ( lgr.m_mainGridMaxCellPosition.y() - lgr.m_mainGridMinCellPosition.y() + 1 ) +
-                                             1,
-                                         lgr.m_singleCellRefinementFactors.z() *
-                                                 ( lgr.m_mainGridMaxCellPosition.z() - lgr.m_mainGridMinCellPosition.z() + 1 ) +
-                                             1 );
-        localGrid->setGridPointDimensions( gridPointDimensions );
+        cvf::Vec3st cellCounts( lgr.m_singleCellRefinementFactors.x() *
+                                    ( lgr.m_mainGridMaxCellPosition.x() - lgr.m_mainGridMinCellPosition.x() ),
+                                lgr.m_singleCellRefinementFactors.y() *
+                                    ( lgr.m_mainGridMaxCellPosition.y() - lgr.m_mainGridMinCellPosition.y() ),
+                                lgr.m_singleCellRefinementFactors.z() *
+                                    ( lgr.m_mainGridMaxCellPosition.z() - lgr.m_mainGridMinCellPosition.z() ) );
+
+        localGrid->setCellCounts( cellCounts );
 
         cvf::BoundingBox bb;
         for ( size_t cellIdx = 0; cellIdx < mainGridIndicesWithSubGrid.size(); cellIdx++ )
@@ -131,15 +129,15 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
             cell.setSubGrid( localGrid );
         }
 
-        cvf::Vec3st lgrCellDimensions = gridPointDimensions - cvf::Vec3st( 1, 1, 1 );
-        appendNodes( bb.min(), bb.max(), lgrCellDimensions, mainGridNodes );
+        cvf::Vec3st lgrCellCounts = cellCounts;
+        appendNodes( bb.min(), bb.max(), lgrCellCounts, mainGridNodes );
 
         size_t subGridCellCount = ( mainGridNodes.size() / 8 ) - totalCellCount;
         appendCells( totalCellCount * 8, subGridCellCount, localGrid, eclipseCase->mainGrid()->reservoirCells() );
         totalCellCount += subGridCellCount;
     }
 
-    eclipseCase->mainGrid()->setGridPointDimensions( m_gridPointDimensions );
+    eclipseCase->mainGrid()->setCellCounts( m_ijkCount );
 
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -262,11 +260,11 @@ void RigReservoirBuilder::appendCubeNodes( const cvf::Vec3d& min, const cvf::Vec
 //--------------------------------------------------------------------------------------------------
 size_t RigReservoirBuilder::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 {
-    CVF_TIGHT_ASSERT( i < ( m_gridPointDimensions.x() - 1 ) );
-    CVF_TIGHT_ASSERT( j < ( m_gridPointDimensions.y() - 1 ) );
-    CVF_TIGHT_ASSERT( k < ( m_gridPointDimensions.z() - 1 ) );
+    CVF_TIGHT_ASSERT( i < m_ijkCount.x() );
+    CVF_TIGHT_ASSERT( j < m_ijkCount.y() );
+    CVF_TIGHT_ASSERT( k < m_ijkCount.z() );
 
-    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
+    size_t ci = i + j * m_ijkCount.x() + k * m_ijkCount.x() * m_ijkCount.y();
     return ci;
 }
 
@@ -275,5 +273,5 @@ size_t RigReservoirBuilder::cellIndexFromIJK( size_t i, size_t j, size_t k ) con
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3st RigReservoirBuilder::ijkCount() const
 {
-    return cvf::Vec3st( m_gridPointDimensions.x() - 1, m_gridPointDimensions.y() - 1, m_gridPointDimensions.z() - 1 );
+    return m_ijkCount;
 }
