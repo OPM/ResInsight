@@ -159,7 +159,7 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
     if ( minJ == std::numeric_limits<int>::max() ) minJ = m_visibleMin.y() + 1;
     if ( minK == std::numeric_limits<int>::max() ) minK = m_visibleMin.z() + 1;
 
-    if ( maxI == -std::numeric_limits<int>::max() ) maxI = m_visibleMax.x() + 1;
+    if ( maxI == std::numeric_limits<int>::max() ) maxI = m_visibleMax.x() + 1;
     if ( maxJ == std::numeric_limits<int>::max() ) maxJ = m_visibleMax.y() + 1;
     if ( maxK == std::numeric_limits<int>::max() ) maxK = m_visibleMax.z() + 1;
 
