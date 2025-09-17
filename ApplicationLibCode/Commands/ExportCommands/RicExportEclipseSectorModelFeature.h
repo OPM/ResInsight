@@ -46,4 +46,6 @@ protected:
 
 private:
     RimEclipseView* selectedView() const;
+    static cvf::ref<cvf::UByteArray> createVisibilityBasedOnBoxSelection( RimEclipseView*                      view,
+                                                                          const RicExportEclipseSectorModelUi& exportSettings );
 };
