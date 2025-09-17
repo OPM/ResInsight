@@ -36,7 +36,10 @@
 #include "RimFaultInViewCollection.h"
 #include "RimProject.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseCaseDataTools.h"
+#include "RigEclipseResultTools.h"
 #include "RigMainGrid.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -143,10 +146,23 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         }
     }
 
+    // Generate BORDNUM result based on the selected grid box
+    auto bordnumVisibility = createVisibilityBasedOnBoxSelection( view, exportSettings );
+    if ( !bordnumVisibility.isNull() )
+    {
+        RigEclipseResultTools::generateBorderResult( view->eclipseCase(), bordnumVisibility, "BORDNUM" );
+    }
+
     if ( exportSettings.exportParameters() != RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS )
     {
         auto                 task     = progress.task( "Export Properties", resultProgressPercentage );
         std::vector<QString> keywords = exportSettings.selectedKeywords;
+
+        // Automatically add BORDNUM to the keywords list if not already present
+        if ( std::find( keywords.begin(), keywords.end(), "BORDNUM" ) == keywords.end() )
+        {
+            keywords.push_back( "BORDNUM" );
+        }
 
         if ( exportSettings.exportParameters == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
         {
@@ -299,4 +315,66 @@ RimEclipseView* RicExportEclipseSectorModelFeature::selectedView() const
     // Command triggered from project tree or file menu
     auto view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
     return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::UByteArray>
+    RicExportEclipseSectorModelFeature::createVisibilityBasedOnBoxSelection( RimEclipseView*                      view,
+                                                                             const RicExportEclipseSectorModelUi& exportSettings )
+{
+    RigEclipseCaseData* caseData = view->eclipseCase()->eclipseCaseData();
+
+    auto toVec3st = []( const cvf::Vec3i& v )
+    { return cvf::Vec3st( static_cast<size_t>( v.x() ), static_cast<size_t>( v.y() ), static_cast<size_t>( v.z() ) ); };
+
+    switch ( exportSettings.exportGridBox() )
+    {
+        case RicExportEclipseSectorModelUi::VISIBLE_WELLS_BOX:
+        {
+            auto [minWellCells, maxWellCells] =
+                RicExportEclipseSectorModelUi::computeVisibleWellCells( view, caseData, exportSettings.m_visibleWellsPadding() );
+            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minWellCells, maxWellCells );
+        }
+        case RicExportEclipseSectorModelUi::ACTIVE_CELLS_BOX:
+        {
+            // For active cells, we need to create a visibility array based on active cells
+            auto   activeCellInfo       = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            auto   activeReservoirCells = activeCellInfo->activeReservoirCellIndices();
+            size_t totalCellCount       = caseData->mainGrid()->cellCount();
+
+            cvf::ref<cvf::UByteArray> visibility = new cvf::UByteArray( totalCellCount );
+            visibility->setAll( false );
+
+            for ( size_t activeCellIdx : activeReservoirCells )
+            {
+                visibility->set( activeCellIdx, true );
+            }
+            return visibility;
+        }
+        case RicExportEclipseSectorModelUi::VISIBLE_CELLS_BOX:
+        {
+            // Use the current total cell visibility from the view
+            cvf::ref<cvf::UByteArray> cellVisibility = new cvf::UByteArray();
+            view->calculateCurrentTotalCellVisibility( cellVisibility.p(), view->currentTimeStep() );
+            return cellVisibility;
+        }
+        case RicExportEclipseSectorModelUi::MANUAL_SELECTION:
+        {
+            cvf::Vec3st minIjk = toVec3st( exportSettings.min() );
+            cvf::Vec3st maxIjk = toVec3st( exportSettings.max() );
+            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minIjk, maxIjk );
+        }
+        case RicExportEclipseSectorModelUi::FULL_GRID_BOX:
+        {
+            // For full grid, create visibility for all cells
+            const RigMainGrid* mainGrid = caseData->mainGrid();
+            cvf::Vec3st        minIjk( 0, 0, 0 );
+            cvf::Vec3st        maxIjk( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
+            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minIjk, maxIjk );
+        }
+        default:
+            return nullptr;
+    }
 }

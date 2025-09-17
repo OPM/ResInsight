@@ -45,5 +45,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimEclipseView* selectedView() const;
+    RimEclipseView*                  selectedView() const;
+    static cvf::ref<cvf::UByteArray> createVisibilityBasedOnBoxSelection( RimEclipseView*                      view,
+                                                                          const RicExportEclipseSectorModelUi& exportSettings );
 };

@@ -83,6 +83,10 @@ public:
     QString exportParametersFilename() const;
     bool    writeEchoKeywords() const;
 
+    static std::vector<const RigSimWellData*> getVisibleSimulationWells( RimEclipseView* view );
+    static std::pair<cvf::Vec3st, cvf::Vec3st>
+        computeVisibleWellCells( RimEclipseView* view, RigEclipseCaseData* caseData, int visibleWellsPadding );
+
     caf::PdmField<bool> exportGrid;
     caf::PdmField<bool> exportInLocalCoordinates;
     caf::PdmField<bool> makeInvisibleCellsInactive;
@@ -119,10 +123,6 @@ protected:
     QString                  defaultGridFileName() const;
     QString                  defaultResultsFileName() const;
     QString                  defaultFaultsFileName() const;
-
-    static std::vector<const RigSimWellData*> getVisibleSimulationWells( RimEclipseView* view );
-    static std::pair<cvf::Vec3st, cvf::Vec3st>
-        computeVisibleWellCells( RimEclipseView* view, RigEclipseCaseData* caseData, int visibleWellsPadding );
 
 private:
     caf::PdmField<caf::FilePath> m_exportFolder;
