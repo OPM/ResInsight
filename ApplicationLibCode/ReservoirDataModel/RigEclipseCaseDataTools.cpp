@@ -25,6 +25,7 @@
 #include "Well/RigSimulationWellCenterLineCalculator.h"
 
 #include "cvfBoundingBox.h"
+#include "cvfObject.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -198,4 +199,40 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::expandBoundingBoxIj
     size_t expandedMaxK = std::min( maxIjk.z() + numPadding, mainGrid->cellCountK() - 1 );
 
     return { cvf::Vec3st( expandedMinI, expandedMinJ, expandedMinK ), cvf::Vec3st( expandedMaxI, expandedMaxJ, expandedMaxK ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::UByteArray> RigEclipseCaseDataTools::createVisibilityFromIjkBounds( RigEclipseCaseData* eclipseCaseData,
+                                                                                  const cvf::Vec3st&  minIjk,
+                                                                                  const cvf::Vec3st&  maxIjk )
+{
+    if ( !eclipseCaseData || minIjk.isUndefined() || maxIjk.isUndefined() ) return nullptr;
+
+    auto mainGrid = eclipseCaseData->mainGrid();
+    if ( !mainGrid ) return nullptr;
+
+    // Create visibility array sized for the total number of reservoir cells
+    size_t                    totalCellCount = mainGrid->cellCount();
+    cvf::ref<cvf::UByteArray> visibility     = new cvf::UByteArray( totalCellCount );
+    visibility->setAll( false ); // Initialize all cells as invisible
+
+    // Mark cells within the IJK bounds as visible
+    for ( size_t i = minIjk.x(); i <= maxIjk.x() && i < mainGrid->cellCountI(); ++i )
+    {
+        for ( size_t j = minIjk.y(); j <= maxIjk.y() && j < mainGrid->cellCountJ(); ++j )
+        {
+            for ( size_t k = minIjk.z(); k <= maxIjk.z() && k < mainGrid->cellCountK(); ++k )
+            {
+                size_t cellIndex = mainGrid->cellIndexFromIJK( i, j, k );
+                if ( cellIndex < totalCellCount )
+                {
+                    visibility->set( cellIndex, true );
+                }
+            }
+        }
+    }
+
+    return visibility;
 }

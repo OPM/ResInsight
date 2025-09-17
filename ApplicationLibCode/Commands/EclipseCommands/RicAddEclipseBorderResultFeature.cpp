@@ -19,15 +19,12 @@
 #include "RicAddEclipseBorderResultFeature.h"
 
 #include "RiaApplication.h"
-#include "RiaDefines.h"
 
-#include "RimEclipseResultCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 
-#include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultTools.h"
-#include "RigMainGrid.h"
 
 #include "cafSelectionManager.h"
 
@@ -44,8 +41,12 @@ void RicAddEclipseBorderResultFeature::onActionTriggered( bool isChecked )
 {
     if ( RimEclipseView* eclipseView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() )
     {
-        RigEclipseResultTools::generateBorderResult( eclipseView );
-        eclipseView->scheduleCreateDisplayModelAndRedraw();
+        if ( auto eCase = eclipseView->firstAncestorOrThisOfType<RimEclipseCase>() )
+        {
+            auto visibility = eclipseView->currentTotalCellVisibility();
+            RigEclipseResultTools::generateBorderResult( eCase, visibility );
+            eclipseView->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }
 

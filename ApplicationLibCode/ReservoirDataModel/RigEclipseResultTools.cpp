@@ -58,53 +58,48 @@ void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void generateBorderResult( RimEclipseView* eclipseView )
+void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility, const QString& resultName )
 {
-    if ( eclipseView == nullptr ) return;
+    if ( eclipseCase == nullptr || customVisibility.isNull() ) return;
 
-    if ( auto eCase = eclipseView->firstAncestorOrThisOfType<RimEclipseCase>() )
-    {
-        auto visibility = eclipseView->currentTotalCellVisibility();
+    auto activeReservoirCellIdxs =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
+    int numActiveCells = (int)activeReservoirCellIdxs.size();
 
-        auto activeReservoirCellIdxs =
-            eCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
-        int numActiveCells = (int)activeReservoirCellIdxs.size();
+    std::vector<int> result;
+    result.resize( numActiveCells, 0 ); // default 0, cells are invisible
 
-        std::vector<int> result;
-        result.resize( numActiveCells, 0 ); // default 0, cells are invisible
+    auto grid = eclipseCase->eclipseCaseData()->mainGrid();
 
-        auto grid = eclipseView->mainGrid();
-
-        // go through all cells, only check those visible
+    // go through all cells, only check those visible
 #pragma omp parallel for
-        for ( int i = 0; i < (int)activeReservoirCellIdxs.size(); i++ )
+    for ( int i = 0; i < (int)activeReservoirCellIdxs.size(); i++ )
+    {
+        auto cellIdx = activeReservoirCellIdxs[i];
+        if ( customVisibility->val( cellIdx ) )
         {
-            auto cellIdx = activeReservoirCellIdxs[i];
-            if ( visibility->val( cellIdx ) )
+            auto neighbors = grid->neighborCells( cellIdx, true /*ignore invalid k layers*/ );
+
+            int nVisibleNeighbors = 0;
+            for ( auto nIdx : neighbors )
             {
-                auto neighbors = grid->neighborCells( cellIdx, true /*ignore invalid k layers*/ );
+                if ( customVisibility->val( nIdx ) ) nVisibleNeighbors++;
+            }
 
-                int nVisibleNeighbors = 0;
-                for ( auto nIdx : neighbors )
-                {
-                    if ( visibility->val( nIdx ) ) nVisibleNeighbors++;
-                }
-
-                if ( nVisibleNeighbors == 6 ) // interior cell
-                {
-                    result[i] = 2;
-                }
-                else // border cell
-                {
-                    result[i] = 1;
-                }
+            if ( nVisibleNeighbors == 6 ) // interior cell
+            {
+                result[i] = 2;
+            }
+            else // border cell
+            {
+                result[i] = 1;
             }
         }
-
-        RigEclipseResultTools::createResultVector( *eCase, "BORDER", result );
-
-        eCase->updateConnectedEditors();
     }
+
+    RigEclipseResultTools::createResultVector( *eclipseCase, resultName, result );
+
+    eclipseCase->updateConnectedEditors();
 }
 
 } // namespace RigEclipseResultTools

@@ -21,6 +21,8 @@
 #include <QString>
 #include <vector>
 
+#include "cvfArray.h"
+
 class RimEclipseCase;
 class RimEclipseView;
 
@@ -29,6 +31,6 @@ namespace RigEclipseResultTools
 
 void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& intValues );
 
-void generateBorderResult( RimEclipseView* eclipseView );
+void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility, const QString& resultName = "BORDER" );
 
 } // namespace RigEclipseResultTools
