@@ -68,6 +68,8 @@ TEST( RigResdataGridConverterTest, NativeGridExportRoundTrip )
     const RigMainGrid* originalGrid = originalCaseData->mainGrid();
     ASSERT_NE( originalGrid, nullptr ) << "Original grid is null";
 
+    originalCaseData->mainGrid()->computeCachedData();
+
     // Record original grid properties
     size_t originalNI          = originalGrid->cellCountI();
     size_t originalNJ          = originalGrid->cellCountJ();
@@ -124,9 +126,10 @@ TEST( RigResdataGridConverterTest, NativeGridExportRoundTrip )
     QString readBackErrorMessages;
     bool    readBackResult = RifEclipseInputFileTools::openGridFile( exportFilePath, exportedCaseData.p(), false, &readBackErrorMessages );
     ASSERT_TRUE( readBackResult ) << "Failed to read back exported grid: " << readBackErrorMessages.toStdString();
-
     const RigMainGrid* exportedGrid = exportedCaseData->mainGrid();
     ASSERT_NE( exportedGrid, nullptr ) << "Exported grid is null";
+
+    exportedCaseData->mainGrid()->computeCachedData();
 
     // Step 4: Compare original and exported grids
     EXPECT_EQ( originalNI, exportedGrid->cellCountI() ) << "Grid I dimension mismatch";
@@ -220,6 +223,8 @@ TEST( RigResdataGridConverterTest, FullRoundTrip )
     bool    loadResult = RifEclipseInputFileTools::openGridFile( inputFilePath, originalCaseData.p(), false, &errorMessages );
     ASSERT_TRUE( loadResult );
 
+    originalCaseData->mainGrid()->computeCachedData();
+
     const RigMainGrid* originalGrid        = originalCaseData->mainGrid();
     auto               originalMapAxes     = originalGrid->mapAxesF();
     auto               originalBoundingBox = originalGrid->boundingBox();
@@ -283,6 +288,8 @@ TEST( RigResdataGridConverterTest, GridExportWith2x2x2Refinement )
     QString errorMessages;
     bool    loadResult = RifEclipseInputFileTools::openGridFile( inputFilePath, originalCaseData.p(), false, &errorMessages );
     ASSERT_TRUE( loadResult ) << "Failed to load grid: " << errorMessages.toStdString();
+
+    originalCaseData->mainGrid()->computeCachedData();
 
     const RigMainGrid* originalGrid = originalCaseData->mainGrid();
 
@@ -480,6 +487,7 @@ TEST( RigResdataGridConverterTest, GridExportWithLocalCoordinates )
     ASSERT_TRUE( loadResult ) << "Failed to load grid: " << errorMessages.toStdString();
 
     const RigMainGrid* originalGrid = originalCaseData->mainGrid();
+    originalCaseData->mainGrid()->computeCachedData();
 
     // Only test local coordinates if original grid uses MAPAXES
     if ( !originalGrid->useMapAxes() )
