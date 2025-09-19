@@ -41,8 +41,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryPlot::RiuSummaryPlot( RimSummaryPlot* plot, QObject* parent )
-    : QObject( parent )
+RiuSummaryPlot::RiuSummaryPlot( RimSummaryPlot* plot )
 {
 }
 

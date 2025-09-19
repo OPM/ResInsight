@@ -36,7 +36,7 @@ class RiuSummaryPlot : public QObject
 {
     Q_OBJECT
 public:
-    RiuSummaryPlot( RimSummaryPlot* plot, QObject* parent = nullptr );
+    RiuSummaryPlot( RimSummaryPlot* plot );
     ~RiuSummaryPlot() override;
 
     virtual void
