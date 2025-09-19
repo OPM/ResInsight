@@ -369,6 +369,12 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                                                    curveColor,
                                                    face,
                                                    localIntersectionPoint );
+
+            // Check if ctrl button is pressed
+            if ( keyboardModifiers & Qt::ShiftModifier )
+            {
+                static_cast<RiuEclipseSelectionItem*>( selItem )->setShowLgrMeshLines( true );
+            }
         }
 
         if ( geomResDef )

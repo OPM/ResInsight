@@ -387,6 +387,7 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
                                                     eclipseSelItem->m_gridIndex,
                                                     eclipseSelItem->m_gridLocalCellIndex,
                                                     ownerCase()->displayModelOffset() );
+                partGen.setShowLgrMeshLines( eclipseSelItem->showLgrMeshLines() );
 
                 cvf::ref<cvf::Part> part = partGen.createPart( eclipseSelItem->m_color );
                 part->setTransform( scaleTransform() );

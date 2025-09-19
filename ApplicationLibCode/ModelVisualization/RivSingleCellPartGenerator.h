@@ -39,10 +39,13 @@ public:
     RivSingleCellPartGenerator( RigEclipseCaseData* rigCaseData, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& displayModelOffset );
     RivSingleCellPartGenerator( RimGeoMechCase* rimGeoMechCase, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& displayModelOffset );
 
+    void setShowLgrMeshLines( bool enable );
+
     cvf::ref<cvf::Part> createPart( const cvf::Color3f color );
 
 private:
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
+    cvf::ref<cvf::DrawableGeo> createMeshDrawableFromLgrGridCells();
 
 private:
     RigEclipseCaseData* m_rigCaseData;
@@ -50,4 +53,5 @@ private:
     size_t              m_gridIndex;
     size_t              m_cellIndex;
     cvf::Vec3d          m_displayModelOffset;
+    bool                m_showLgrMeshLines{ false };
 };

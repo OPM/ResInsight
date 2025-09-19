@@ -153,6 +153,8 @@ public:
     ~RiuEclipseSelectionItem() override {};
 
     RiuSelectionType type() const override { return ECLIPSE_SELECTION_OBJECT; }
+    void             setShowLgrMeshLines( bool on ) { m_showLgrMeshLines = on; }
+    bool             showLgrMeshLines() const { return m_showLgrMeshLines; }
 
 public:
     caf::PdmPointer<RimGridView>                m_view;
@@ -164,6 +166,7 @@ public:
     cvf::Color3f                                m_color;
     cvf::StructGridInterface::FaceType          m_face;
     cvf::Vec3d                                  m_localIntersectionPointInDisplay;
+    bool                                        m_showLgrMeshLines = false;
 };
 
 //==================================================================================================
