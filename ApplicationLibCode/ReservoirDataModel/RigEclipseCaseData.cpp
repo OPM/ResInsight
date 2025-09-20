@@ -741,6 +741,30 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
             }
         }
 
+        if ( m_mainGrid->totalTemporaryGridCellCount() > 0 )
+        {
+            // When we have LGRs for radial grids, we must loop over all local grids. The local grids can contain coordinates not present
+            // in the main grid
+
+            for ( size_t i = 0; i < m_mainGrid->gridCount(); i++ )
+            {
+                auto localGrid = m_mainGrid->gridByIndex( i );
+                for ( size_t localCellIndex = 0; localCellIndex < localGrid->cellCount(); localCellIndex++ )
+                {
+                    size_t globalCellIndex = localGrid->reservoirCellIndex( localCellIndex );
+
+                    if ( globalCellIndex < activeInfos[acIdx]->reservoirCellCount() && activeInfos[acIdx]->isActive( globalCellIndex ) )
+                    {
+                        std::array<cvf::Vec3d, 8> hexCorners = localGrid->cellCornerVertices( localCellIndex );
+                        for ( const auto& corner : hexCorners )
+                        {
+                            bb.add( corner );
+                        }
+                    }
+                }
+            }
+        }
+
         activeInfos[acIdx]->setGeometryBoundingBox( bb );
     }
 
