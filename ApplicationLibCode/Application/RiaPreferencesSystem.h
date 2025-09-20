@@ -59,6 +59,9 @@ public:
 
     std::optional<int> threadCount() const;
 
+    bool useCylindricalCoordinateConversion() const;
+    int  minimumAngularCellCount() const;
+
     EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
 
     bool isLoggingActivatedForKeyword( const QString& keyword ) const;
@@ -84,7 +87,11 @@ private:
     caf::PdmField<bool>   m_showPdfExportDialog;
     caf::PdmField<double> m_exportScalingFactor;
 
-    caf::PdmField<bool>    m_showProgressBar;
+    caf::PdmField<bool> m_showProgressBar;
+
+    caf::PdmField<bool> m_useCylindricalCoordinateConversion;
+    caf::PdmField<int>  m_mimimumAngularCellCount;
+
     caf::PdmField<QString> m_gtestFilter;
 
     caf::PdmField<EclipseTextFileReaderModeType> m_eclipseReaderMode;

@@ -77,6 +77,11 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_showPdfExportDialog, "showPdfExportDialog", true, "Show PDF Export Dialog" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showPdfExportDialog );
 
+    CAF_PDM_InitField( &m_useCylindricalCoordinateConversion, "useCylindricalCoordinateConversion", true, "Use Cylindrical Coords" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useCylindricalCoordinateConversion );
+
+    CAF_PDM_InitField( &m_mimimumAngularCellCount, "mimimumAngularCellCount", 40, "Minimum Angular Cell Count" );
+
     CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)" );
     CAF_PDM_InitField( &m_exportScalingFactor, "exportScalingFactor", -1.0, "Export Scaling Factor (<0 disable)" );
 
@@ -242,6 +247,22 @@ std::optional<int> RiaPreferencesSystem::threadCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::useCylindricalCoordinateConversion() const
+{
+    return m_useCylindricalCoordinateConversion();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferencesSystem::minimumAngularCellCount() const
+{
+    return m_mimimumAngularCellCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTextFileReaderMode() const
 {
     return m_eclipseReaderMode();
@@ -288,6 +309,12 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_showPdfExportDialog );
     uiOrdering.add( &m_exportScalingFactor );
     uiOrdering.add( &m_eclipseReaderMode );
+
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Radial Grid" );
+        group->add( &m_useCylindricalCoordinateConversion );
+        group->add( &m_mimimumAngularCellCount );
+    }
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Developer Settings" );
