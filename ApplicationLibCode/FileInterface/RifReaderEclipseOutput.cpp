@@ -31,7 +31,6 @@
 #include "RifEclipseRestartDataAccess.h"
 #include "RifEdfmTools.h"
 #include "RifHdf5ReaderInterface.h"
-#include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseWell.h"
 
 #ifdef USE_HDF5
@@ -399,8 +398,6 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
     {
         auto task = progress.task( "Transferring grid geometry", 10 );
         if ( !transferGeometry( mainEclGrid, eclipseCaseData, invalidateLongThinCells() ) ) return false;
-
-        RifOpmRadialGridTools::importCoordinatesForRadialGrid( fileName.toStdString(), eclipseCaseData->mainGrid() );
     }
 
     auto iLimitFromEdfm = RifEdfmTools::checkForEdfmLimitI( fileName );

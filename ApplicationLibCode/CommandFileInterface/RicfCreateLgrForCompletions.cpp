@@ -18,12 +18,17 @@
 
 #include "RicfCreateLgrForCompletions.h"
 
+#include "RiaLogging.h"
+#include "RiaWellNameComparer.h"
+
 #include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "RicCreateTemporaryLgrFeature.h"
 #include "RicDeleteTemporaryLgrsFeature.h"
+
+#include "RigReservoirGridTools.h"
 
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
@@ -32,9 +37,6 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
-
-#include "RiaLogging.h"
-#include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -121,7 +123,7 @@ caf::PdmScriptResponse RicfCreateLgrForCompletions::execute()
                                        RigCompletionData::CompletionType::FISHBONES },
                                      &wellsIntersectingOtherLgrs );
 
-    feature->updateViews( eclipseCase );
+    RigReservoirGridTools::updateViews( eclipseCase );
 
     caf::PdmScriptResponse response;
     if ( !wellsIntersectingOtherLgrs.empty() )

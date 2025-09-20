@@ -18,7 +18,10 @@
 
 #include "RigReservoirGridTools.h"
 
+#include "RiaGuiApplication.h"
+
 #include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -28,6 +31,9 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
+#include "RimGridCollection.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 
 #include <QString>
 
@@ -116,6 +122,36 @@ const RigActiveCellInfo* RigReservoirGridTools::activeCellInfo( Rim3dView* rimVi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigReservoirGridTools::updateViews( RimEclipseCase* eclipseCase )
+{
+    RiaGuiApplication* guiApp = nullptr;
+    if ( RiaGuiApplication::isRunning() )
+    {
+        guiApp = RiaGuiApplication::instance();
+    }
+
+    if ( guiApp ) RiaGuiApplication::clearAllSelections();
+
+    deleteAllCachedData( eclipseCase );
+    RimMainPlotCollection::current()->deleteAllCachedData();
+    computeCachedData( eclipseCase );
+
+    for ( auto view : eclipseCase->reservoirViews() )
+    {
+        if ( view && view->gridCollection() )
+        {
+            view->gridCollection()->syncFromMainEclipseGrid();
+        }
+    }
+
+    RimMainPlotCollection::current()->wellLogPlotCollection()->loadDataAndUpdateAllPlots();
+
+    if ( guiApp ) eclipseCase->createDisplayModelAndUpdateAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigMainGrid* RigReservoirGridTools::eclipseMainGrid( RimCase* rimCase )
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
@@ -139,4 +175,62 @@ RigFemPartCollection* RigReservoirGridTools::geoMechPartCollection( RimCase* rim
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigReservoirGridTools::computeCachedData( RimEclipseCase* eclipseCase )
+{
+    if ( !eclipseCase ) return;
+
+    RigCaseCellResultsData* cellResultsDataMatrix   = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+    if ( eclipseCaseData )
+    {
+        eclipseCaseData->mainGrid()->computeCachedData();
+        eclipseCase->computeActiveCellsBoundingBox();
+    }
+
+    if ( cellResultsDataMatrix )
+    {
+        cellResultsDataMatrix->computeDepthRelatedResults();
+        cellResultsDataMatrix->computeCellVolumes();
+    }
+
+    if ( cellResultsDataFracture )
+    {
+        cellResultsDataFracture->computeDepthRelatedResults();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigReservoirGridTools::deleteAllCachedData( RimEclipseCase* eclipseCase )
+{
+    if ( !eclipseCase ) return;
+
+    std::vector<RiaDefines::ResultCatType> categoriesToExclude = { RiaDefines::ResultCatType::GENERATED };
+
+    RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( cellResultsDataMatrix )
+    {
+        cellResultsDataMatrix->freeAllocatedResultsData( categoriesToExclude, std::nullopt );
+    }
+
+    RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    if ( cellResultsDataFracture )
+    {
+        cellResultsDataFracture->freeAllocatedResultsData( categoriesToExclude, std::nullopt );
+    }
+
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+    if ( eclipseCaseData )
+    {
+        eclipseCaseData->clearWellCellsInGridCache();
+        eclipseCaseData->setVirtualPerforationTransmissibilities( nullptr );
+    }
 }

@@ -27,6 +27,7 @@ class RigFemPartCollection;
 class RigMainGrid;
 class RimCase;
 class Rim3dView;
+class RimEclipseCase;
 
 namespace cvf
 {
@@ -50,33 +51,43 @@ public:
     static const RigActiveCellInfo* activeCellInfo( Rim3dView* rimView );
 
     template <class InputIterator>
-    static QString globalCellIndicesToOneBasedIJKText( InputIterator first, InputIterator last, const RigMainGrid* mainGrid )
-    {
-        QString txt;
+    static QString globalCellIndicesToOneBasedIJKText( InputIterator first, InputIterator last, const RigMainGrid* mainGrid );
 
-        if ( mainGrid )
-        {
-            while ( first != last )
-            {
-                size_t globalCellIndex = *first;
-                size_t i, j, k;
-                mainGrid->ijkFromCellIndex( globalCellIndex, &i, &j, &k );
-                i++;
-                j++;
-                k++;
-
-                QString itemText = QString( "%1 %2 %3" ).arg( i ).arg( j ).arg( k );
-
-                txt += itemText + "\n";
-
-                ++first;
-            }
-        }
-
-        return txt;
-    }
+    static void updateViews( RimEclipseCase* eclipseCase );
 
 private:
     static RigMainGrid*          eclipseMainGrid( RimCase* rimCase );
     static RigFemPartCollection* geoMechPartCollection( RimCase* rimCase );
+    static void                  computeCachedData( RimEclipseCase* eclipseCase );
+    static void                  deleteAllCachedData( RimEclipseCase* eclipseCase );
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <class InputIterator>
+QString RigReservoirGridTools::globalCellIndicesToOneBasedIJKText( InputIterator first, InputIterator last, const RigMainGrid* mainGrid )
+{
+    QString txt;
+
+    if ( mainGrid )
+    {
+        while ( first != last )
+        {
+            size_t globalCellIndex = *first;
+            size_t i, j, k;
+            mainGrid->ijkFromCellIndex( globalCellIndex, &i, &j, &k );
+            i++;
+            j++;
+            k++;
+
+            QString itemText = QString( "%1 %2 %3" ).arg( i ).arg( j ).arg( k );
+
+            txt += itemText + "\n";
+
+            ++first;
+        }
+    }
+
+    return txt;
+}
