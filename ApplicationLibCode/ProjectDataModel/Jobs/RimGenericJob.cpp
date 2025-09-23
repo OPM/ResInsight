@@ -63,7 +63,13 @@ QString RimGenericJob::workingDirectory() const
 //--------------------------------------------------------------------------------------------------
 bool RimGenericJob::execute()
 {
-    if ( !onPrepare() ) return false;
+    {
+        caf::ProgressInfo prepProgress( 1, title(), false );
+
+        auto prepRun = prepProgress.task( "Preparing for run, please wait..." );
+
+        if ( !onPrepare() ) return false;
+    }
 
     bool runOk = false;
     {

@@ -192,7 +192,14 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     genGrp->add( nameField() );
     genGrp->add( &m_deckFileName );
     genGrp->add( &m_workDir );
-    genGrp->add( &m_addNewWell );
+    if ( m_eclipseCase() == nullptr )
+    {
+        m_addNewWell = false;
+    }
+    else
+    {
+        genGrp->add( &m_addNewWell );
+    }
 
     if ( m_addNewWell() )
     {
@@ -600,7 +607,7 @@ bool RimOpmFlowJob::onPrepare()
                 return false;
             }
 
-            int fallbackPosition = ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE ) ? -1 : m_openWellDeckPosition();
+            int fallbackPosition = ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE ) ? -1 : m_openWellDeckPosition() - 1;
 
             // merge new well settings from resinsight into DATA deck
             if ( !m_deckFile->mergeWellDeck( m_openTimeStep(), wellTempFile().toStdString(), fallbackPosition ) )

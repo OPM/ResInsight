@@ -52,6 +52,8 @@ public:
 
     std::vector<std::string> keywords();
     bool                     hasDatesKeyword();
+    std::vector<int>         welldims();
+    bool                     setWelldims( int maxWells, int maxConnections, int maxGroups, int maxWellsInGroup );
 
 private:
     Opm::DeckItem            item( std::string name, std::string value );

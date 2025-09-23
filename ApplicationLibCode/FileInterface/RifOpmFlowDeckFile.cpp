@@ -193,6 +193,9 @@ bool RifOpmFlowDeckFile::mergeWellDeck( int timeStep, std::string filename, int 
     if ( compdatIndexes.empty() ) return false;
     auto& mergeCompdatKw = deckToMerge[compdatIndexes[0]];
 
+    auto additionalConnections = mergeCompdatKw.size();
+    auto welldims              = this->welldims();
+
     auto datePos = internal::locateTimeStep( m_fileDeck, timeStep );
     if ( datePos.has_value() )
     {
@@ -292,7 +295,9 @@ bool RifOpmFlowDeckFile::mergeWellDeck( int timeStep, std::string filename, int 
             }
         }
     }
-    return true;
+
+    // increase wells and connections in welldims to make sure they are big enough
+    return setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2], (int)welldims[3] );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -388,6 +393,55 @@ bool RifOpmFlowDeckFile::hasDatesKeyword()
     if ( m_fileDeck.get() == nullptr ) return false;
     auto pos = m_fileDeck->find( "DATES" );
     return pos.has_value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RifOpmFlowDeckFile::welldims()
+{
+    if ( m_fileDeck.get() == nullptr ) return {};
+    auto pos = m_fileDeck->find( "WELLDIMS" );
+    if ( pos.has_value() )
+    {
+        std::vector<int> dims;
+
+        auto&       kw  = m_fileDeck->operator[]( pos.value() );
+        const auto& rec = kw.getRecord( 0 );
+        dims.push_back( rec.getItem( "MAXWELLS" ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( "MAXCONN" ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( "MAXGROUPS" ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( "MAX_GROUPSIZE" ).get<int>( 0 ) );
+
+        return dims;
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::setWelldims( int maxWells, int maxConnections, int maxGroups, int maxWellsInGroup )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+    auto pos = m_fileDeck->find( "WELLDIMS" );
+    if ( pos.has_value() )
+    {
+        std::vector<int> dims;
+
+        auto& oldkw = m_fileDeck->operator[]( pos.value() );
+
+        Opm::DeckKeyword newKw( Opm::ParserKeyword( oldkw.name() ) );
+        newKw.addRecord( Opm::DeckRecord{ { item( "MAXWELLS", maxWells ),
+                                            item( "MAXCONN", maxConnections ),
+                                            item( "MAXGROUPS", maxGroups ),
+                                            item( "MAX_GROUPSIZE", maxWellsInGroup ) } } );
+
+        m_fileDeck->erase( pos.value() );
+        m_fileDeck->insert( pos.value(), newKw );
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
