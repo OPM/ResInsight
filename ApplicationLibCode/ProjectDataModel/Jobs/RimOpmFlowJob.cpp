@@ -600,8 +600,10 @@ bool RimOpmFlowJob::onPrepare()
                 return false;
             }
 
+            int fallbackPosition = ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE ) ? -1 : m_openWellDeckPosition();
+
             // merge new well settings from resinsight into DATA deck
-            if ( !m_deckFile->mergeWellDeck( m_openTimeStep(), wellTempFile().toStdString() ) )
+            if ( !m_deckFile->mergeWellDeck( m_openTimeStep(), wellTempFile().toStdString(), fallbackPosition ) )
             {
                 RiaLogging::error( "Unable to merge new well data into DATA file. Are there WELSPECS and COMPDAT keywords?" );
                 return false;
@@ -738,6 +740,11 @@ void RimOpmFlowJob::onCompleted( bool success )
                 {
                     newCase->setCustomCaseName( name() );
                     newCase->updateConnectedEditors();
+                    if ( m_eclipseCase() == nullptr )
+                    {
+                        m_eclipseCase = newCase;
+                    }
+
                     Riu3DMainWindowTools::selectAsCurrentItem( newCase );
                     Riu3DMainWindowTools::setExpanded( newCase, true );
                 }
