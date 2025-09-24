@@ -130,7 +130,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered( bool isChecked )
 
         createLgrsForWellPaths( wellPaths, eclipseCase, timeStep, refinement, splitType, completionTypes, &wellsIntersectingOtherLgrs );
 
-        RigReservoirGridTools::updateViews( eclipseCase );
+        RigReservoirGridTools::refreshEclipseCaseDataAndViews( eclipseCase );
 
         if ( !wellsIntersectingOtherLgrs.empty() )
         {

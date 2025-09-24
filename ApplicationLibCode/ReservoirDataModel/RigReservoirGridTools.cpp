@@ -122,7 +122,7 @@ const RigActiveCellInfo* RigReservoirGridTools::activeCellInfo( Rim3dView* rimVi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirGridTools::updateViews( RimEclipseCase* eclipseCase )
+void RigReservoirGridTools::refreshEclipseCaseDataAndViews( RimEclipseCase* eclipseCase )
 {
     RiaGuiApplication* guiApp = nullptr;
     if ( RiaGuiApplication::isRunning() )

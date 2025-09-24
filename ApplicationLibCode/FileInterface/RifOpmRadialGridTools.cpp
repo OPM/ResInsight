@@ -116,8 +116,7 @@ bool RifOpmRadialGridTools::importCoordinatesForRadialGrid( const std::string& g
 {
     try
     {
-        bool isRadialGridPresent = false;
-
+        auto isRadialGrid = []( const std::string& gridFilePath )
         {
             // Open the file and only check "GRIDHEAD" to be able to do an early return if no radial grids are present
 
@@ -132,15 +131,16 @@ bool RifOpmRadialGridTools::importCoordinatesForRadialGrid( const std::string& g
                     auto gridhead = gridFile.get<int>( index );
                     if ( gridhead.size() > 26 && gridhead[26] > 0 )
                     {
-                        isRadialGridPresent = true;
-                        break;
+                        return true;
                     }
                 }
                 index++;
             }
-        }
 
-        if ( !isRadialGridPresent ) return false;
+            return false;
+        };
+
+        if ( !isRadialGrid( gridFilePath ) ) return false;
 
         Opm::EclIO::EGrid opmMainGrid( gridFilePath );
 

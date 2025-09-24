@@ -53,7 +53,7 @@ public:
     template <class InputIterator>
     static QString globalCellIndicesToOneBasedIJKText( InputIterator first, InputIterator last, const RigMainGrid* mainGrid );
 
-    static void updateViews( RimEclipseCase* eclipseCase );
+    static void refreshEclipseCaseDataAndViews( RimEclipseCase* eclipseCase );
 
 private:
     static RigMainGrid*          eclipseMainGrid( RimCase* rimCase );

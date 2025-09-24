@@ -123,7 +123,7 @@ caf::PdmScriptResponse RicfCreateLgrForCompletions::execute()
                                        RigCompletionData::CompletionType::FISHBONES },
                                      &wellsIntersectingOtherLgrs );
 
-    RigReservoirGridTools::updateViews( eclipseCase );
+    RigReservoirGridTools::refreshEclipseCaseDataAndViews( eclipseCase );
 
     caf::PdmScriptResponse response;
     if ( !wellsIntersectingOtherLgrs.empty() )

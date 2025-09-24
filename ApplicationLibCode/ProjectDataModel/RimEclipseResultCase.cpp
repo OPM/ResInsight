@@ -302,7 +302,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     }
 
     bool buildCacheData = false;
-    if ( RiaPreferencesSystem::current()->useCylindricalCoordinateConversion() )
+    if ( RiaPreferencesSystem::current()->useCylindricalCoordinates() )
     {
         // Check if radial grid data is available. Create LGR if radial section count is below specified limit. Rebuild cached data if
         // required.
@@ -334,7 +334,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
     if ( buildCacheData )
     {
-        RigReservoirGridTools::updateViews( this );
+        RigReservoirGridTools::refreshEclipseCaseDataAndViews( this );
     }
 
     return true;
