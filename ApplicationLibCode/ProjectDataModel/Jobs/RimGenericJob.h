@@ -44,5 +44,6 @@ protected:
     virtual QStringList command() = 0;
     virtual QString     workingDirectory() const;
     virtual bool        onPrepare()                 = 0;
+    virtual bool        onRun()                     = 0;
     virtual void        onCompleted( bool success ) = 0;
 };

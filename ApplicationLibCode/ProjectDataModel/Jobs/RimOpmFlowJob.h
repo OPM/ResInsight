@@ -66,6 +66,7 @@ protected:
     QStringList command() override;
     QString     workingDirectory() const override;
     bool        onPrepare() override;
+    bool        onRun() override;
     void        onCompleted( bool success ) override;
 
     bool openDeckFile();
