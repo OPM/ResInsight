@@ -56,21 +56,21 @@ def test_export_corner_point_grid_basic(rips_instance, initialize_test):
     )
 
     # Basic validation
-    assert len(exported_zcorn) == len(zcorn), (
-        f"ZCORN length mismatch: {len(exported_zcorn)} vs {len(zcorn)}"
-    )
-    assert len(exported_coord) == len(coord), (
-        f"COORD length mismatch: {len(exported_coord)} vs {len(coord)}"
-    )
-    assert len(exported_actnum) == len(actnum), (
-        f"ACTNUM length mismatch: {len(exported_actnum)} vs {len(actnum)}"
-    )
+    assert len(exported_zcorn) == len(
+        zcorn
+    ), f"ZCORN length mismatch: {len(exported_zcorn)} vs {len(zcorn)}"
+    assert len(exported_coord) == len(
+        coord
+    ), f"COORD length mismatch: {len(exported_coord)} vs {len(coord)}"
+    assert len(exported_actnum) == len(
+        actnum
+    ), f"ACTNUM length mismatch: {len(exported_actnum)} vs {len(actnum)}"
 
     # Check that all cells are active
     active_count = sum(1 for x in exported_actnum if x > 0)
-    assert active_count == sum(actnum), (
-        f"Active cell count mismatch: {active_count} vs {sum(actnum)}"
-    )
+    assert active_count == sum(
+        actnum
+    ), f"Active cell count mismatch: {active_count} vs {sum(actnum)}"
 
     # Verify dimensions are returned correctly
     assert export_nx == nx, f"Dimension mismatch: nx={export_nx} vs expected {nx}"
@@ -103,15 +103,15 @@ def test_export_corner_point_grid_return_types(rips_instance, initialize_test):
     assert isinstance(exported_actnum, list), "ACTNUM should be a list"
 
     # Check element types
-    assert all(isinstance(x, (int, float)) for x in exported_zcorn), (
-        "ZCORN elements should be numeric"
-    )
-    assert all(isinstance(x, (int, float)) for x in exported_coord), (
-        "COORD elements should be numeric"
-    )
-    assert all(isinstance(x, int) for x in exported_actnum), (
-        "ACTNUM elements should be integers"
-    )
+    assert all(
+        isinstance(x, (int, float)) for x in exported_zcorn
+    ), "ZCORN elements should be numeric"
+    assert all(
+        isinstance(x, (int, float)) for x in exported_coord
+    ), "COORD elements should be numeric"
+    assert all(
+        isinstance(x, int) for x in exported_actnum
+    ), "ACTNUM elements should be integers"
 
     # Check dimension types
     assert isinstance(export_nx, int), "nx dimension should be integer"
@@ -128,9 +128,9 @@ def test_export_corner_point_grid_roundtrip(rips_instance, initialize_test):
     )
 
     assert original_case is not None, "Failed to load test case"
-    assert original_case.name == "BRUGGE_0000", (
-        f"Expected case name BRUGGE_0000, got {original_case.name}"
-    )
+    assert (
+        original_case.name == "BRUGGE_0000"
+    ), f"Expected case name BRUGGE_0000, got {original_case.name}"
 
     # Get original geometry data for comparison
     original_active_count = original_case.cell_count().active_cell_count
@@ -155,24 +155,24 @@ def test_export_corner_point_grid_roundtrip(rips_instance, initialize_test):
 
     # Validate that the returned dimensions match the exported array sizes
     total_cells = len(exported_actnum)
-    assert nx * ny * nz == total_cells, (
-        f"Dimension validation failed: {nx}x{ny}x{nz}={nx * ny * nz} != {total_cells} total cells"
-    )
+    assert (
+        nx * ny * nz == total_cells
+    ), f"Dimension validation failed: {nx}x{ny}x{nz}={nx * ny * nz} != {total_cells} total cells"
 
     # Validate array sizes make sense for these dimensions
     expected_coord_size = (nx + 1) * (ny + 1) * 6  # 6 values per coordinate line
     expected_zcorn_size = nx * ny * nz * 8  # 8 corner depths per cell
     expected_actnum_size = nx * ny * nz  # 1 value per cell
 
-    assert len(exported_coord) == expected_coord_size, (
-        f"COORD size mismatch: expected {expected_coord_size}, got {len(exported_coord)}"
-    )
-    assert len(exported_zcorn) == expected_zcorn_size, (
-        f"ZCORN size mismatch: expected {expected_zcorn_size}, got {len(exported_zcorn)}"
-    )
-    assert len(exported_actnum) == expected_actnum_size, (
-        f"ACTNUM size mismatch: expected {expected_actnum_size}, got {len(exported_actnum)}"
-    )
+    assert (
+        len(exported_coord) == expected_coord_size
+    ), f"COORD size mismatch: expected {expected_coord_size}, got {len(exported_coord)}"
+    assert (
+        len(exported_zcorn) == expected_zcorn_size
+    ), f"ZCORN size mismatch: expected {expected_zcorn_size}, got {len(exported_zcorn)}"
+    assert (
+        len(exported_actnum) == expected_actnum_size
+    ), f"ACTNUM size mismatch: expected {expected_actnum_size}, got {len(exported_actnum)}"
 
     # Create new corner point grid from exported data
     recreated_case = rips_instance.project.create_corner_point_grid(
@@ -190,14 +190,14 @@ def test_export_corner_point_grid_roundtrip(rips_instance, initialize_test):
     )
 
     # Compare active cell counts
-    assert recreated_active_count == original_active_count, (
-        f"Active cell count mismatch: original={original_active_count}, recreated={recreated_active_count}"
-    )
+    assert (
+        recreated_active_count == original_active_count
+    ), f"Active cell count mismatch: original={original_active_count}, recreated={recreated_active_count}"
 
     # Compare number of corner points (should be same for active cells)
-    assert len(recreated_cell_corners) == len(original_cell_corners), (
-        f"Cell corner count mismatch: original={len(original_cell_corners)}, recreated={len(recreated_cell_corners)}"
-    )
+    assert len(recreated_cell_corners) == len(
+        original_cell_corners
+    ), f"Cell corner count mismatch: original={len(original_cell_corners)}, recreated={len(recreated_cell_corners)}"
 
     # Compare individual corner coordinates - but first understand the coordinate ranges
     print("Analyzing coordinate ranges...")
