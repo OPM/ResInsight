@@ -171,14 +171,67 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
                                                               std::vector<float>&         zcornArray,
                                                               std::vector<int>&           actnumArray )
 {
-    size_t nx = gridAdapter.cellCountI();
-    size_t ny = gridAdapter.cellCountJ();
-    size_t nz = gridAdapter.cellCountK();
+    auto findBestCornerForPillar = []( size_t i, size_t j, const RigGridExportAdapter& gridAdapter ) -> std::pair<cvf::Vec3d, cvf::Vec3d>
+    {
+        const size_t nx = gridAdapter.cellCountI();
+        const size_t ny = gridAdapter.cellCountJ();
+        const size_t nz = gridAdapter.cellCountK();
+
+        cvf::Vec3d topCoord( 0.0, 0.0, 0.0 );
+        cvf::Vec3d bottomCoord( 0.0, 0.0, 0.0 );
+
+        double maxDistance = -std::numeric_limits<double>::max();
+
+        // Find pillar coordinates from adjacent cells using the adapter
+        for ( int di = -1; di <= 0; ++di )
+        {
+            for ( int dj = -1; dj <= 0; ++dj )
+            {
+                int cellI = static_cast<int>( i ) + di;
+                int cellJ = static_cast<int>( j ) + dj;
+
+                if ( cellI >= 0 && cellI < static_cast<int>( nx ) && cellJ >= 0 && cellJ < static_cast<int>( ny ) )
+                {
+                    // Get corners for this cell (from top and bottom layers)
+                    auto topCorners    = gridAdapter.getCellCorners( cellI, cellJ, 0 );
+                    auto bottomCorners = gridAdapter.getCellCorners( cellI, cellJ, nz - 1 );
+
+                    // Determine which corner corresponds to this pillar
+                    size_t cornerIdx = 0;
+                    if ( di == 0 && dj == 0 )
+                        cornerIdx = 0; // cell's SW corner
+                    else if ( di == -1 && dj == 0 )
+                        cornerIdx = 1; // cell's SE corner
+                    else if ( di == 0 && dj == -1 )
+                        cornerIdx = 3; // cell's NW corner
+                    else if ( di == -1 && dj == -1 )
+                        cornerIdx = 2; // cell's NE corner
+
+                    cvf::Vec3d candidateTopCoord    = topCorners[cornerIdx];
+                    cvf::Vec3d candidateBottomCoord = bottomCorners[cornerIdx + 4];
+
+                    double distance = candidateTopCoord.pointDistance( candidateBottomCoord );
+                    if ( distance > maxDistance )
+                    {
+                        topCoord    = candidateTopCoord;
+                        bottomCoord = candidateBottomCoord;
+                        maxDistance = distance;
+                    }
+                }
+            }
+        }
+
+        return { topCoord, bottomCoord };
+    };
+
+    const size_t nx = gridAdapter.cellCountI();
+    const size_t ny = gridAdapter.cellCountJ();
+    const size_t nz = gridAdapter.cellCountK();
 
     // Resize arrays to correct size
-    size_t coordSize  = ( nx + 1 ) * ( ny + 1 ) * 6;
-    size_t zcornSize  = nx * ny * nz * 8;
-    size_t actnumSize = nx * ny * nz;
+    const size_t coordSize  = ( nx + 1 ) * ( ny + 1 ) * 6;
+    const size_t zcornSize  = nx * ny * nz * 8;
+    const size_t actnumSize = nx * ny * nz;
 
     coordArray.resize( coordSize, 0.0f );
     zcornArray.resize( zcornSize, 0.0f );
@@ -189,78 +242,12 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
     {
         for ( size_t i = 0; i <= nx; ++i )
         {
+            const auto& [topCoord, bottomCoord] = findBestCornerForPillar( i, j, gridAdapter );
+
+            // Store pillar coordinates in COORD array
             size_t pillarIndex = j * ( nx + 1 ) + i;
             size_t coordIndex  = pillarIndex * 6;
 
-            cvf::Vec3d topCoord( 0.0, 0.0, 0.0 );
-            cvf::Vec3d bottomCoord( 0.0, 0.0, 0.0 );
-            bool       foundCoords = false;
-
-            // Find pillar coordinates from adjacent cells using the adapter
-            for ( int di = -1; di <= 0 && !foundCoords; ++di )
-            {
-                for ( int dj = -1; dj <= 0 && !foundCoords; ++dj )
-                {
-                    int cellI = static_cast<int>( i ) + di;
-                    int cellJ = static_cast<int>( j ) + dj;
-
-                    if ( cellI >= 0 && cellI < static_cast<int>( nx ) && cellJ >= 0 && cellJ < static_cast<int>( ny ) )
-                    {
-                        // Get corners for this cell (from top layer k=0)
-                        auto corners = gridAdapter.getCellCorners( cellI, cellJ, 0 );
-
-                        // Determine which corner corresponds to this pillar
-                        size_t cornerIdx = 0;
-                        if ( di == 0 && dj == 0 )
-                            cornerIdx = 0; // cell's SW corner
-                        else if ( di == -1 && dj == 0 )
-                            cornerIdx = 1; // cell's SE corner
-                        else if ( di == 0 && dj == -1 )
-                            cornerIdx = 3; // cell's NW corner
-                        else if ( di == -1 && dj == -1 )
-                            cornerIdx = 2; // cell's NE corner
-
-                        topCoord    = corners[cornerIdx];
-                        bottomCoord = corners[cornerIdx + 4]; // bottom corner
-                        foundCoords = true;
-                    }
-                }
-            }
-
-            // For pillars, find the true bottom coordinates from the bottom layer
-            if ( foundCoords && nz > 1 )
-            {
-                for ( int di = -1; di <= 0; ++di )
-                {
-                    for ( int dj = -1; dj <= 0; ++dj )
-                    {
-                        int cellI = static_cast<int>( i ) + di;
-                        int cellJ = static_cast<int>( j ) + dj;
-
-                        if ( cellI >= 0 && cellI < static_cast<int>( nx ) && cellJ >= 0 && cellJ < static_cast<int>( ny ) )
-                        {
-                            // Get corners for this cell from bottom layer
-                            auto bottomCorners = gridAdapter.getCellCorners( cellI, cellJ, nz - 1 );
-
-                            size_t cornerIdx = 0;
-                            if ( di == 0 && dj == 0 )
-                                cornerIdx = 0;
-                            else if ( di == -1 && dj == 0 )
-                                cornerIdx = 1;
-                            else if ( di == 0 && dj == -1 )
-                                cornerIdx = 3;
-                            else if ( di == -1 && dj == -1 )
-                                cornerIdx = 2;
-
-                            bottomCoord = bottomCorners[cornerIdx + 4]; // bottom face corner
-                            break;
-                        }
-                    }
-                    if ( bottomCoord != topCoord ) break; // Found different bottom coordinate
-                }
-            }
-
-            // Store pillar coordinates in COORD array
             coordArray[coordIndex + 0] = static_cast<float>( topCoord.x() );
             coordArray[coordIndex + 1] = static_cast<float>( topCoord.y() );
             coordArray[coordIndex + 2] = static_cast<float>( -topCoord.z() ); // Negate Z for Eclipse convention
