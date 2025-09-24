@@ -89,6 +89,7 @@ private:
     void loadAndUpdateSourSimData();
     void ensureRftDataIsImported();
     bool showTimeStepFilterGUI();
+    void checkAndImportRadialGrid();
 
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );
     void                         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

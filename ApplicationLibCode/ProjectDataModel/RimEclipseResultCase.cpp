@@ -156,6 +156,49 @@ bool RimEclipseResultCase::showTimeStepFilterGUI()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::checkAndImportRadialGrid()
+{
+    bool refreshEclipseCaseData = false;
+    if ( RiaPreferencesSystem::current()->useCylindricalCoordinates() )
+    {
+        // Check if radial grid data is available. Create LGR if radial section count is below specified limit. Rebuild cached data if
+        // required.
+        bool isLgrCreated = RifOpmRadialGridTools::importCylindricalCoordinates( gridFileName().toStdString(), eclipseCaseData() );
+        if ( !isLgrCreated )
+        {
+            // Check if min J coordinate is close to 0.0 and max is close to 360. This is a workaround for import of simulation cases that
+            // has an invalid header and is not possible to import using opm-common
+            auto         bb      = mainGrid()->boundingBox();
+            const double epsilon = 1.0;
+            if ( ( std::abs( bb.min().y() ) < epsilon ) && ( std::abs( bb.max().y() - 360.0 ) < epsilon ) )
+            {
+                size_t minimumAngularCellCount = static_cast<size_t>( RiaPreferencesSystem::current()->minimumAngularCellCount() );
+                if ( mainGrid()->cellCountJ() < minimumAngularCellCount )
+                {
+                    auto angularRefinement = ( minimumAngularCellCount / mainGrid()->cellCountJ() ) + 1;
+
+                    isLgrCreated = RifOpmRadialGridTools::createAngularGridRefinement( eclipseCaseData(), angularRefinement );
+                }
+            }
+        }
+
+        refreshEclipseCaseData = isLgrCreated;
+    }
+    else
+    {
+        refreshEclipseCaseData =
+            RifOpmRadialGridTools::importCoordinatesForRadialGrid( gridFileName().toStdString(), eclipseCaseData()->mainGrid() );
+    }
+
+    if ( refreshEclipseCaseData )
+    {
+        RigReservoirGridTools::refreshEclipseCaseDataAndViews( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter )
 {
     // Early exit if data is already read
@@ -301,41 +344,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
     }
 
-    bool buildCacheData = false;
-    if ( RiaPreferencesSystem::current()->useCylindricalCoordinates() )
-    {
-        // Check if radial grid data is available. Create LGR if radial section count is below specified limit. Rebuild cached data if
-        // required.
-        bool isLgrCreated = RifOpmRadialGridTools::importCylindricalCoordinates( gridFileName().toStdString(), eclipseCaseData() );
-        if ( !isLgrCreated )
-        {
-            // Check if min J coordinate is close to 0.0 and max is close to 360. This is a workaround for import of simulation cases that
-            // has an invalid header and is not possible to import using opm-common
-            auto         bb      = mainGrid()->boundingBox();
-            const double epsilon = 1.0;
-            if ( ( std::abs( bb.min().y() ) < epsilon ) && ( std::abs( bb.max().y() - 360.0 ) < epsilon ) )
-            {
-                size_t minimumAngularCellCount = static_cast<size_t>( RiaPreferencesSystem::current()->minimumAngularCellCount() );
-                if ( mainGrid()->cellCountJ() < minimumAngularCellCount )
-                {
-                    auto angularRefinement = ( minimumAngularCellCount / mainGrid()->cellCountJ() ) + 1;
-
-                    isLgrCreated = RifOpmRadialGridTools::createAngularGridRefinement( eclipseCaseData(), angularRefinement );
-                }
-            }
-        }
-
-        buildCacheData = isLgrCreated;
-    }
-    else
-    {
-        buildCacheData = RifOpmRadialGridTools::importCoordinatesForRadialGrid( gridFileName().toStdString(), eclipseCaseData()->mainGrid() );
-    }
-
-    if ( buildCacheData )
-    {
-        RigReservoirGridTools::refreshEclipseCaseDataAndViews( this );
-    }
+    checkAndImportRadialGrid();
 
     return true;
 }
