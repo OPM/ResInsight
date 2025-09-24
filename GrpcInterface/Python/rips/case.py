@@ -52,6 +52,7 @@ from .resinsight_classes import (
     Case as Case,
     EclipseCase as EclipseCase,
     GeoMechCase as GeoMechCase,
+    Reservoir as Reservoir,
     WellBoreStabilityPlot as WellBoreStabilityPlot,
     WbsParameters as WbsParameters,
 )
@@ -1386,3 +1387,50 @@ def grid_property_for_positions(
         return result
     else:
         return []
+
+
+@add_method(Reservoir)
+def export_corner_point_grid(
+    self,
+) -> Tuple[List[float], List[float], List[int], int, int, int]:
+    """Export corner point grid data from case
+
+    Returns:
+        Tuple of (zcorn, coord, actnum, nx, ny, nz) where:
+        - zcorn: Corner depths as defined by the Eclipse keyword ZCORN
+        - coord: Coordinate lines as COORD keyword in Eclipse
+        - actnum: Active cell info: cells with values > 0 are active
+        - nx, ny, nz: Grid dimensions in I, J, K directions
+    """
+    shared_uuid = uuid.uuid4()
+    zcorn_key = "{}_{}".format(shared_uuid, "zcorn")
+    coord_key = "{}_{}".format(shared_uuid, "coord")
+    actnum_key = "{}_{}".format(shared_uuid, "actnum")
+
+    # Call internal C++ method to populate key-value store
+    self.export_corner_point_grid_internal(
+        zcorn_key=zcorn_key, coord_key=coord_key, actnum_key=actnum_key
+    )
+
+    # Retrieve results from key-value store
+    project = self.ancestor(Project)
+    if project:
+        zcorn = project.key_values(zcorn_key)
+        coord = project.key_values(coord_key)
+        actnum_raw = project.key_values(actnum_key)
+        actnum = [int(x) for x in actnum_raw]
+
+        # Retrieve grid dimensions
+        dimensions_key = zcorn_key + "_dimensions"
+        dimensions = project.key_values(dimensions_key)
+        nx, ny, nz = int(dimensions[0]), int(dimensions[1]), int(dimensions[2])
+
+        # Clean up
+        project.remove_key_values(zcorn_key)
+        project.remove_key_values(coord_key)
+        project.remove_key_values(actnum_key)
+        project.remove_key_values(dimensions_key)
+
+        return (zcorn, coord, actnum, nx, ny, nz)
+    else:
+        return ([], [], [], 0, 0, 0)

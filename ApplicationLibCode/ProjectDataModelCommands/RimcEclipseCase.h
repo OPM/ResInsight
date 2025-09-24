@@ -24,8 +24,6 @@
 
 #include <QString>
 
-#include <memory>
-
 //==================================================================================================
 ///
 //==================================================================================================
@@ -63,4 +61,22 @@ private:
     caf::PdmField<int>     m_timeStep;
     caf::PdmField<QString> m_porosityModel;
     caf::PdmField<QString> m_resultKey;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcEclipseCase_exportCornerPointGridInternal : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcEclipseCase_exportCornerPointGridInternal( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString> m_zcornKey;
+    caf::PdmField<QString> m_coordKey;
+    caf::PdmField<QString> m_actnumKey;
 };
