@@ -90,15 +90,9 @@ static std::optional<Opm::FileDeck::Index> locateKeywordAtTimeStep( std::unique_
 //--------------------------------------------------------------------------------------------------
 static std::optional<Opm::FileDeck::Index> positionToIndex( int deckPosition, std::unique_ptr<Opm::FileDeck>& fileDeck )
 {
-    int currentPos = 0;
-    for ( auto it = fileDeck->start(); it != fileDeck->stop(); it++ )
-    {
-        if ( currentPos == deckPosition )
-        {
-            return it;
-        }
-        currentPos++;
-    }
+    auto it = fileDeck->start();
+    it      = it + deckPosition;
+    if ( it != fileDeck->stop() ) return it;
     return std::nullopt;
 }
 
