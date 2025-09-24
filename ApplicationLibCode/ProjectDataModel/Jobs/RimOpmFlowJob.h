@@ -62,12 +62,13 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
 
-    QString     title() override;
-    QStringList command() override;
-    QString     workingDirectory() const override;
-    bool        onPrepare() override;
-    bool        onRun() override;
-    void        onCompleted( bool success ) override;
+    QString                    title() override;
+    QStringList                command() override;
+    std::map<QString, QString> environment() override;
+    QString                    workingDirectory() const override;
+    bool                       onPrepare() override;
+    bool                       onRun() override;
+    void                       onCompleted( bool success ) override;
 
     bool openDeckFile();
     bool copyUnrstFileToWorkDir();

@@ -43,7 +43,11 @@ QStringList RiaWslTools::wslDistributionList()
     if ( !wslCmd.isEmpty() )
     {
         RimProcess wslProc( false /*no logging*/ );
-        wslProc.addEnvironmentVariable( "WSL_UTF8", "1" );
+
+        for ( auto& [key, val] : wslEnvironmentVariables() )
+        {
+            wslProc.addEnvironmentVariable( key, val );
+        }
         wslProc.setCommand( wslCmd );
         wslProc.addParameter( "--list" ); // list distribution names
         wslProc.addParameter( "--quiet" ); // quiet, only show name
@@ -72,4 +76,14 @@ QString RiaWslTools::convertToWslPath( QString windowsPath )
     path      = path.section( ':', -1 );
 
     return QString( "/mnt/%1%2" ).arg( drive ).arg( path );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the input windows path as seen in the wsl world. I.e. c:\tmp -> /mnt/c/tmp
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RiaWslTools::wslEnvironmentVariables()
+{
+    std::map<QString, QString> env;
+    env["WSL_UTF8"] = "1";
+    return env;
 }

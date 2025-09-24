@@ -21,14 +21,17 @@
 #include <QString>
 #include <QStringList>
 
+#include <map>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 namespace RiaWslTools
 {
 
-QString     wslCommand();
-QStringList wslDistributionList();
-QString     convertToWslPath( QString windowsPath );
+QString                    wslCommand();
+QStringList                wslDistributionList();
+QString                    convertToWslPath( QString windowsPath );
+std::map<QString, QString> wslEnvironmentVariables();
 
 } // namespace RiaWslTools

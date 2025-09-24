@@ -23,6 +23,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <map>
+
 //==================================================================================================
 ///
 ///
@@ -40,10 +42,11 @@ public:
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
-    virtual QString     title()   = 0;
-    virtual QStringList command() = 0;
-    virtual QString     workingDirectory() const;
-    virtual bool        onPrepare()                 = 0;
-    virtual bool        onRun()                     = 0;
-    virtual void        onCompleted( bool success ) = 0;
+    virtual QString                    title()       = 0;
+    virtual QStringList                command()     = 0;
+    virtual std::map<QString, QString> environment() = 0;
+    virtual QString                    workingDirectory() const;
+    virtual bool                       onPrepare()                 = 0;
+    virtual bool                       onRun()                     = 0;
+    virtual void                       onCompleted( bool success ) = 0;
 };

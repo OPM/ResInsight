@@ -91,6 +91,10 @@ bool RimGenericJob::execute()
         process.setCommand( cmd );
         if ( !cmdLine.isEmpty() ) process.addParameters( cmdLine );
         process.setWorkingDirectory( workingDirectory() );
+        for ( const auto& [name, value] : environment() )
+        {
+            process.addEnvironmentVariable( name, value );
+        }
 
         runOk = process.execute();
     }

@@ -123,7 +123,50 @@ bool RifOpmFlowDeckFile::loadDeck( std::string filename )
 
     m_fileDeck = std::make_unique<Opm::FileDeck>( deck );
 
+    splitDatesIfNecessary();
+
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOpmFlowDeckFile::splitDatesIfNecessary()
+{
+    if ( m_fileDeck.get() == nullptr ) return;
+
+    bool keepSplitting = true;
+    while ( keepSplitting )
+    {
+        keepSplitting = false;
+        for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+        {
+            auto& kw = m_fileDeck->operator[]( it );
+            if ( ( kw.name() == "DATES" ) && ( kw.size() > 1 ) )
+            {
+                // split this keyword into multiple keywords
+                keepSplitting                         = true;
+                int                           records = (int)kw.size();
+                std::vector<Opm::DeckKeyword> newKeywords;
+
+                for ( int i = 0; i < records; i++ )
+                {
+                    Opm::DeckKeyword newKw( kw.emptyStructuralCopy() );
+                    Opm::DeckRecord  newRecToAdd( kw.getRecord( i ) );
+                    newKw.addRecord( std::move( newRecToAdd ) );
+                    newKeywords.push_back( newKw );
+                }
+
+                std::reverse( newKeywords.begin(), newKeywords.end() );
+                m_fileDeck->erase( it );
+                for ( auto& newKw : newKeywords )
+                {
+                    m_fileDeck->insert( it, newKw );
+                }
+                break;
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

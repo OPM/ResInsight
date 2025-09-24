@@ -549,6 +549,19 @@ QStringList RimOpmFlowJob::command()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RimOpmFlowJob::environment()
+{
+    auto opmPref = RiaPreferencesOpm::current();
+    if ( opmPref->useWsl() )
+    {
+        return RiaWslTools::wslEnvironmentVariables();
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::onPrepare()
 {
     // reload file deck to make sure we start with the original
@@ -647,7 +660,7 @@ bool RimOpmFlowJob::onPrepare()
         }
         else
         {
-            if ( !m_deckFile->openWellAtDeckPosition( m_openWellDeckPosition, openWellText.toStdString() ) )
+            if ( !m_deckFile->openWellAtDeckPosition( m_openWellDeckPosition + 1, openWellText.toStdString() ) )
             {
                 RiaLogging::error( "Unable to open new well at selected position in DATA file." );
                 return false;

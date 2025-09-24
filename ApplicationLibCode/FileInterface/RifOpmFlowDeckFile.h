@@ -61,6 +61,8 @@ private:
     Opm::DeckItem            defaultItem( std::string name, int cols );
     static Opm::ParseContext defaultParseContext();
 
+    void splitDatesIfNecessary();
+
 private:
     std::unique_ptr<Opm::FileDeck> m_fileDeck;
 };
