@@ -31,7 +31,6 @@
 #include "RiaViewRedrawScheduler.h"
 
 #include "RifEclipseSummaryTools.h"
-#include "RifReaderSettings.h"
 #include "RifSummaryCaseRestartSelector.h"
 #include "RifSummaryReaderInterface.h"
 

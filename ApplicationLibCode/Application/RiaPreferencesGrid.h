@@ -24,9 +24,9 @@
 
 #include "RiaDefines.h"
 
-#include "RifReaderSettings.h"
-
 #include <QString>
+
+struct RifReaderSettings;
 
 //==================================================================================================
 ///

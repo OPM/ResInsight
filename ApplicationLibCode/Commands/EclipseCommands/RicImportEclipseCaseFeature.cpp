@@ -22,6 +22,8 @@
 #include "RiaApplication.h"
 #include "RiaPreferencesGrid.h"
 
+#include "RifReaderSettings.h"
+
 #include "RimEclipseCaseCollection.h"
 
 #include "Riu3DMainWindowTools.h"

@@ -27,7 +27,7 @@
 #include <memory>
 #include <vector>
 
-#include "RifReaderSettings.h"
+struct RifReaderSettings;
 
 //==================================================================================================
 ///

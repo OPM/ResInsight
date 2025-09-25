@@ -20,17 +20,16 @@
 
 #include <QStringList>
 
-#include "RifReaderSettings.h"
-
 #include <map>
 #include <memory>
 #include <utility>
 #include <vector>
 
 class QString;
-
 class RimIdenticalGridCaseGroup;
 class RimRoffCase;
+
+struct RifReaderSettings;
 
 //==================================================================================================
 ///

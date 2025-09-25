@@ -27,14 +27,14 @@
 //==================================================================================================
 struct RifReaderSettings
 {
-    bool    importFaults;
-    bool    importNNCs;
-    bool    includeInactiveCellsInFaultGeometry;
-    bool    importAdvancedMswData;
-    bool    useResultIndexFile;
-    bool    skipWellData;
-    bool    importSummaryData;
-    QString includeFileAbsolutePathPrefix;
-    bool    onlyLoadActiveCells;
-    bool    invalidateLongThinCells;
+    bool    importFaults                        = false;
+    bool    importNNCs                          = false;
+    bool    includeInactiveCellsInFaultGeometry = false;
+    bool    importAdvancedMswData               = false;
+    bool    useResultIndexFile                  = false;
+    bool    skipWellData                        = true;
+    bool    importSummaryData                   = false;
+    QString includeFileAbsolutePathPrefix       = "";
+    bool    onlyLoadActiveCells                 = false;
+    bool    invalidateLongThinCells             = true;
 };
