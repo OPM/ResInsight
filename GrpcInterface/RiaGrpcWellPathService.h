@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@
 #include "SimulatorTables.grpc.pb.h"
 
 #include "RiaGrpcServiceInterface.h"
-
-#include "cvfObject.h"
 
 #include <string>
 #include <vector>
