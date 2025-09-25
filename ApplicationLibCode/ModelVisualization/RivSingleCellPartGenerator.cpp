@@ -167,7 +167,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawableFromLgr
         cvf::ubyte faceConn[4];
 
         // Show grid lines for vertical lines along the radius of the cylinder segment
-        currentGrid->cellFaceVertexIndices( cvf::StructGridInterface::NEG_I, faceConn );
+        RigGridBase::cellFaceVertexIndices( cvf::StructGridInterface::NEG_I, faceConn );
 
         lineVertexPairs.push_back( cornerVerts[faceConn[1]] );
         lineVertexPairs.push_back( cornerVerts[faceConn[2]] );
@@ -175,7 +175,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawableFromLgr
         lineVertexPairs.push_back( cornerVerts[faceConn[0]] );
 
         // Show grid lines for vertical lines along the radius of the cylinder segment
-        currentGrid->cellFaceVertexIndices( cvf::StructGridInterface::POS_I, faceConn );
+        RigGridBase::cellFaceVertexIndices( cvf::StructGridInterface::POS_I, faceConn );
 
         lineVertexPairs.push_back( cornerVerts[faceConn[0]] );
         lineVertexPairs.push_back( cornerVerts[faceConn[1]] );
@@ -185,7 +185,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawableFromLgr
         // Show quad lines for min/max J faces
         if ( cellIndex == lgrCellIndices.back() )
         {
-            currentGrid->cellFaceVertexIndices( cvf::StructGridInterface::POS_J, faceConn );
+            RigGridBase::cellFaceVertexIndices( cvf::StructGridInterface::POS_J, faceConn );
 
             quadVertices.push_back( cornerVerts[faceConn[0]] );
             quadVertices.push_back( cornerVerts[faceConn[1]] );
@@ -195,7 +195,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawableFromLgr
 
         if ( cellIndex == lgrCellIndices.front() )
         {
-            currentGrid->cellFaceVertexIndices( cvf::StructGridInterface::NEG_J, faceConn );
+            RigGridBase::cellFaceVertexIndices( cvf::StructGridInterface::NEG_J, faceConn );
 
             quadVertices.push_back( cornerVerts[faceConn[0]] );
             quadVertices.push_back( cornerVerts[faceConn[1]] );
@@ -214,7 +214,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawableFromLgr
     cvf::ref<cvf::Vec3fArray> cvfVertices = new cvf::Vec3fArray;
     cvfVertices->assign( displayVertices );
 
-    if ( !( cvfVertices.notNull() && cvfVertices->size() != 0 ) ) return nullptr;
+    if ( !cvfVertices.notNull() || cvfVertices->size() == 0 ) return nullptr;
 
     ref<UIntArray> indices = StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( cvfVertices.p() );
 
