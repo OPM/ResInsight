@@ -62,6 +62,15 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
 
+    if ( opmGrid.is_radial() )
+    {
+        QString txt = QString( "Radial grid detected in file '%1'. This grid reader (opm-common with only active cells) does not support "
+                               "radial grids. Adjust grid reader in Preferences. The grid is imported as estimated Cartesian grid." )
+                          .arg( QString::fromStdString( m_gridFileName ) );
+
+        RiaLogging::warning( txt );
+    }
+
     const auto& dims = opmGrid.dimension();
     activeGrid->setCellCounts( cvf::Vec3st( dims[0], dims[1], dims[2] ) );
     activeGrid->setGridName( "Main grid" );
