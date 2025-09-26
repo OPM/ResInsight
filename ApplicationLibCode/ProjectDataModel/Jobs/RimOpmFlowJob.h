@@ -116,4 +116,5 @@ private:
     QString                             m_deckName;
     std::unique_ptr<RifOpmFlowDeckFile> m_deckFile;
     bool                                m_fileDeckHasDates;
+    bool                                m_fileDeckIsRestart;
 };

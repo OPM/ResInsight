@@ -52,14 +52,16 @@ public:
 
     std::vector<std::string> keywords();
     bool                     hasDatesKeyword();
-    std::vector<int>         welldims();
-    bool                     setWelldims( int maxWells, int maxConnections, int maxGroups, int maxWellsInGroup );
+    bool                     isRestartFile();
+    std::vector<std::string> dateStrings();
+
+    std::vector<int> welldims();
+    bool             setWelldims( int maxWells, int maxConnections, int maxGroups, int maxWellsInGroup );
 
 private:
-    Opm::DeckItem            item( std::string name, std::string value );
-    Opm::DeckItem            item( std::string name, int value );
-    Opm::DeckItem            defaultItem( std::string name, int cols );
-    static Opm::ParseContext defaultParseContext();
+    Opm::DeckItem item( std::string name, std::string value );
+    Opm::DeckItem item( std::string name, int value );
+    Opm::DeckItem defaultItem( std::string name, int cols );
 
     void splitDatesIfNecessary();
 

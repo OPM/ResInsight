@@ -80,6 +80,7 @@ void caf::AppEnum<RimOpmFlowJob::WellOpenType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimOpmFlowJob::RimOpmFlowJob()
     : m_fileDeckHasDates( false )
+    , m_fileDeckIsRestart( false )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/opm.png" );
 
@@ -217,13 +218,21 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
             if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
             {
                 wellGrp->add( &m_openTimeStep );
-                wellGrp->add( &m_useRestart );
-                if ( !m_useRestart() )
+                if ( !m_fileDeckIsRestart )
                 {
-                    wellGrp->add( &m_includeMSWData );
+                    wellGrp->add( &m_useRestart );
+                    if ( !m_useRestart() )
+                    {
+                        wellGrp->add( &m_includeMSWData );
+                    }
+                    else
+                    {
+                        m_includeMSWData = false;
+                    }
                 }
                 else
                 {
+                    m_useRestart     = false;
                     m_includeMSWData = false;
                 }
             }
@@ -265,9 +274,14 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
     }
     else if ( fieldNeedingOptions == &m_openTimeStep )
     {
-        if ( auto ec = m_eclipseCase() )
+        openDeckFile();
+        if ( m_deckFile != nullptr )
         {
-            RimTools::timeStepsForCase( ec, &options );
+            auto timeStepNames = m_deckFile->dateStrings();
+            for ( int i = 0; i < static_cast<int>( timeStepNames.size() - 1 ); ++i )
+            {
+                options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( timeStepNames[i] ), QVariant::fromValue( i ) ) );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_wellOpenKeyword )
@@ -381,11 +395,13 @@ bool RimOpmFlowJob::openDeckFile()
 
         if ( deckLoadOk )
         {
-            m_fileDeckHasDates = m_deckFile->hasDatesKeyword();
+            m_fileDeckHasDates  = m_deckFile->hasDatesKeyword();
+            m_fileDeckIsRestart = m_deckFile->isRestartFile();
         }
         else
         {
-            m_fileDeckHasDates = false;
+            m_fileDeckHasDates  = false;
+            m_fileDeckIsRestart = false;
             m_deckFile.reset();
         }
     }
@@ -660,7 +676,8 @@ bool RimOpmFlowJob::onPrepare()
         }
         else
         {
-            if ( !m_deckFile->openWellAtDeckPosition( m_openWellDeckPosition + 1, openWellText.toStdString() ) )
+            // we have added welspecs and compdat, so add two positions to be sure we are after these
+            if ( !m_deckFile->openWellAtDeckPosition( m_openWellDeckPosition + 2, openWellText.toStdString() ) )
             {
                 RiaLogging::error( "Unable to open new well at selected position in DATA file." );
                 return false;
