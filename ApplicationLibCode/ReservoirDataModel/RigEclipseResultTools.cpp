@@ -102,4 +102,126 @@ void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray
     eclipseCase->updateConnectedEditors();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
+{
+    if ( eclipseCase == nullptr ) return;
+
+    // Auto-determine border cell value if not specified
+    if ( borderCellValue == -1 )
+    {
+        int maxOperNum  = findMaxOperNumValue( eclipseCase );
+        borderCellValue = maxOperNum + 1;
+    }
+
+    auto activeReservoirCellIdxs =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
+    int numActiveCells = static_cast<int>( activeReservoirCellIdxs.size() );
+
+    std::vector<int> result;
+    result.resize( numActiveCells, 0 );
+
+    // Check if OPERNUM already exists - if so, keep existing values.
+    RigEclipseResultAddress operNumAddrNative( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
+    RigEclipseResultAddress operNumAddrGenerated( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
+    auto                    resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    RigEclipseResultAddress operNumAddr;
+    bool                    hasExistingOperNum = false;
+
+    if ( resultsData->hasResultEntry( operNumAddrNative ) )
+    {
+        operNumAddr        = operNumAddrNative;
+        hasExistingOperNum = true;
+    }
+    else if ( resultsData->hasResultEntry( operNumAddrGenerated ) )
+    {
+        operNumAddr        = operNumAddrGenerated;
+        hasExistingOperNum = true;
+    }
+
+    if ( hasExistingOperNum )
+    {
+        resultsData->ensureKnownResultLoaded( operNumAddr );
+        auto existingValues = resultsData->cellScalarResults( operNumAddr );
+        if ( !existingValues.empty() )
+        {
+            for ( int i = 0; i < numActiveCells; i++ )
+            {
+                result[i] = static_cast<int>( existingValues[0][i] );
+            }
+        }
+    }
+
+    // Check if BORDNUM exists to modify border cells
+    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BORDNUM" );
+    if ( resultsData->hasResultEntry( bordNumAddr ) )
+    {
+        resultsData->ensureKnownResultLoaded( bordNumAddr );
+        auto bordNumValues = resultsData->cellScalarResults( bordNumAddr );
+        if ( !bordNumValues.empty() )
+        {
+            for ( int i = 0; i < numActiveCells; i++ )
+            {
+                // If BORDNUM = 1 (BORDER_CELL), assign the border cell value
+                if ( static_cast<int>( bordNumValues[0][i] ) == BorderType::BORDER_CELL )
+                {
+                    result[i] = borderCellValue;
+                }
+            }
+        }
+    }
+
+    RigEclipseResultTools::createResultVector( *eclipseCase, "OPERNUM", result );
+
+    eclipseCase->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int findMaxOperNumValue( RimEclipseCase* eclipseCase )
+{
+    if ( eclipseCase == nullptr ) return 0;
+
+    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !resultsData ) return 0;
+
+    // Try to find OPERNUM in both STATIC_NATIVE (from file) and GENERATED (created by us) categories
+    RigEclipseResultAddress operNumAddrNative( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
+    RigEclipseResultAddress operNumAddrGenerated( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
+
+    RigEclipseResultAddress operNumAddr;
+    bool                    hasOperNum = false;
+
+    if ( resultsData->hasResultEntry( operNumAddrNative ) )
+    {
+        operNumAddr = operNumAddrNative;
+        hasOperNum  = true;
+    }
+    else if ( resultsData->hasResultEntry( operNumAddrGenerated ) )
+    {
+        operNumAddr = operNumAddrGenerated;
+        hasOperNum  = true;
+    }
+
+    if ( !hasOperNum ) return 0;
+
+    resultsData->ensureKnownResultLoaded( operNumAddr );
+    auto operNumValues = resultsData->cellScalarResults( operNumAddr );
+    if ( operNumValues.empty() ) return 0;
+
+    // Find maximum value
+    int maxValue = 0;
+    for ( double value : operNumValues[0] )
+    {
+        int intValue = static_cast<int>( value );
+        maxValue     = std::max( maxValue, intValue );
+    }
+
+    return maxValue;
+}
+
 } // namespace RigEclipseResultTools

@@ -39,4 +39,8 @@ void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName,
 
 void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility, const QString& resultName = "BORDER" );
 
+void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue = -1 );
+
+int findMaxOperNumValue( RimEclipseCase* eclipseCase );
+
 } // namespace RigEclipseResultTools

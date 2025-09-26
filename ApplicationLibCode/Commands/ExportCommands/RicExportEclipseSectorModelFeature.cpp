@@ -151,6 +151,9 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
     if ( !bordnumVisibility.isNull() )
     {
         RigEclipseResultTools::generateBorderResult( view->eclipseCase(), bordnumVisibility, "BORDNUM" );
+
+        // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
+        RigEclipseResultTools::generateOperNumResult( view->eclipseCase() );
     }
 
     if ( exportSettings.exportParameters() != RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS )
@@ -162,6 +165,12 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         if ( std::find( keywords.begin(), keywords.end(), "BORDNUM" ) == keywords.end() )
         {
             keywords.push_back( "BORDNUM" );
+        }
+
+        // Automatically add OPERNUM to the keywords list if not already present
+        if ( std::find( keywords.begin(), keywords.end(), "OPERNUM" ) == keywords.end() )
+        {
+            keywords.push_back( "OPERNUM" );
         }
 
         if ( exportSettings.exportParameters == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
