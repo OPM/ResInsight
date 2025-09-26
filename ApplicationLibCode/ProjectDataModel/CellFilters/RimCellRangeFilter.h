@@ -72,6 +72,7 @@ protected:
 
 private:
     void computeAndSetValidValues();
+    bool isMainGridRadial() const;
 
     caf::PdmField<QString> m_labelI;
     caf::PdmField<QString> m_labelJ;

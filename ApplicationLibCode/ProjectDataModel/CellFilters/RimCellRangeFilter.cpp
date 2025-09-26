@@ -92,29 +92,36 @@ RimCellRangeFilter::~RimCellRangeFilter()
 //--------------------------------------------------------------------------------------------------
 QString RimCellRangeFilter::fullName() const
 {
-    QString postfix;
-    if ( ( cellCountI == 1 ) && ( cellCountJ > 1 ) && ( cellCountK > 1 ) )
-    {
-        postfix = QString( "I-slice %1" ).arg( QString::number( startIndexI ) );
-    }
-    else if ( ( cellCountJ == 1 ) && ( cellCountI > 1 ) && ( cellCountK > 1 ) )
-    {
-        postfix = QString( "J-slice %1" ).arg( QString::number( startIndexJ ) );
-    }
-    else if ( ( cellCountK == 1 ) && ( cellCountI > 1 ) && ( cellCountJ > 1 ) )
-    {
-        postfix = QString( "K-slice %1" ).arg( QString::number( startIndexK ) );
-    }
-    else
-    {
-        QString irange = QString( "I=%1-%2" ).arg( QString::number( startIndexI ), QString::number( startIndexI + cellCountI - 1 ) );
-        QString jrange = QString( "J=%1-%2" ).arg( QString::number( startIndexJ ), QString::number( startIndexJ + cellCountJ - 1 ) );
-        QString krange = QString( "K=%1-%2" ).arg( QString::number( startIndexK ), QString::number( startIndexK + cellCountK - 1 ) );
+    bool isRadialGrid = isMainGridRadial();
 
-        postfix = QString( "%1 %2 %3" ).arg( irange, jrange, krange );
-    }
+    auto axisI = isRadialGrid ? "R" : "I";
+    auto axisJ = isRadialGrid ? "θ" : "J";
+    auto axisK = isRadialGrid ? "Z" : "K";
 
-    return QString( "%1 [%2]" ).arg( RimCellFilter::fullName(), postfix );
+    auto makePostfix = [&]() -> QString
+    {
+        if ( ( cellCountI == 1 ) && ( cellCountJ > 1 ) && ( cellCountK > 1 ) )
+        {
+            return QString( "%1-slice %2" ).arg( axisI ).arg( startIndexI );
+        }
+        else if ( ( cellCountJ == 1 ) && ( cellCountI > 1 ) && ( cellCountK > 1 ) )
+        {
+            return QString( "%1-slice %2" ).arg( axisJ ).arg( startIndexJ );
+        }
+        else if ( ( cellCountK == 1 ) && ( cellCountI > 1 ) && ( cellCountJ > 1 ) )
+        {
+            return QString( "%1-slice %2" ).arg( axisK ).arg( startIndexK );
+        }
+        else
+        {
+            QString irange = QString( "%1=%2-%3" ).arg( axisI ).arg( startIndexI ).arg( startIndexI + cellCountI - 1 );
+            QString jrange = QString( "%1=%2-%3" ).arg( axisJ ).arg( startIndexJ ).arg( startIndexJ + cellCountJ - 1 );
+            QString krange = QString( "%1=%2-%3" ).arg( axisK ).arg( startIndexK ).arg( startIndexK + cellCountK - 1 );
+            return QString( "%1 %2 %3" ).arg( irange, jrange, krange );
+        }
+    };
+
+    return QString( "%1 [%2]" ).arg( RimCellFilter::fullName(), makePostfix() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,6 +174,16 @@ void RimCellRangeFilter::computeAndSetValidValues()
         startIndexK = std::clamp( startIndexK.v(), 1, static_cast<int>( grid->cellCountK() ) );
     }
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellRangeFilter::isMainGridRadial() const
+{
+    auto rimCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+
+    return RigReservoirGridTools::isRadialGrid( rimCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,6 +320,8 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     auto rimView     = firstAncestorOrThisOfType<Rim3dView>();
     auto actCellInfo = RigReservoirGridTools::activeCellInfo( rimView );
 
+    bool isRadialGrid = isMainGridRadial();
+
     if ( grid == mainGrid && actCellInfo )
     {
         auto [min, max] = actCellInfo->ijkBoundingBox();
@@ -318,23 +337,43 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
         QString label;
 
-        label = QString( "I Active Cell Range %1 to %2, %3 cells" ).arg( min.x() ).arg( max.x() ).arg( max.x() - min.x() + 1 );
+        if ( isRadialGrid )
+        {
+            label = QString( "I (Radial) Active Cell Range %1 to %2, %3 cells" ).arg( min.x() ).arg( max.x() ).arg( max.x() - min.x() + 1 );
+            m_labelI.uiCapability()->setUiName( label );
 
-        m_labelI.uiCapability()->setUiName( label );
+            label = QString( "J (Angular) Active Cell Range %1 to %2, %3 cells" ).arg( min.y() ).arg( max.y() ).arg( max.y() - min.y() + 1 );
+            m_labelJ.uiCapability()->setUiName( label );
 
-        label = QString( "J Active Cell Range %1 to %2, %3 cells" ).arg( min.y() ).arg( max.y() ).arg( max.y() - min.y() + 1 );
+            label = QString( "K (Height) Active Cell Range %1 to %2, %3 cells" ).arg( min.z() ).arg( max.z() ).arg( max.z() - min.z() + 1 );
+            m_labelK.uiCapability()->setUiName( label );
+        }
+        else
+        {
+            label = QString( "I Active Cell Range %1 to %2, %3 cells" ).arg( min.x() ).arg( max.x() ).arg( max.x() - min.x() + 1 );
+            m_labelI.uiCapability()->setUiName( label );
 
-        m_labelJ.uiCapability()->setUiName( label );
+            label = QString( "J Active Cell Range %1 to %2, %3 cells" ).arg( min.y() ).arg( max.y() ).arg( max.y() - min.y() + 1 );
+            m_labelJ.uiCapability()->setUiName( label );
 
-        label = QString( "K Active Cell Range %1 to %2, %3 cells" ).arg( min.z() ).arg( max.z() ).arg( max.z() - min.z() + 1 );
-
-        m_labelK.uiCapability()->setUiName( label );
+            label = QString( "K Active Cell Range %1 to %2, %3 cells" ).arg( min.z() ).arg( max.z() ).arg( max.z() - min.z() + 1 );
+            m_labelK.uiCapability()->setUiName( label );
+        }
     }
     else
     {
-        m_labelI.uiCapability()->setUiName( "" );
-        m_labelJ.uiCapability()->setUiName( "" );
-        m_labelK.uiCapability()->setUiName( "" );
+        if ( isRadialGrid )
+        {
+            m_labelI.uiCapability()->setUiName( "I (Radial)" );
+            m_labelJ.uiCapability()->setUiName( "J (Angular)" );
+            m_labelK.uiCapability()->setUiName( "K (Height)" );
+        }
+        else
+        {
+            m_labelI.uiCapability()->setUiName( "I" );
+            m_labelJ.uiCapability()->setUiName( "J" );
+            m_labelK.uiCapability()->setUiName( "K" );
+        }
     }
 
     auto group = uiOrdering.addNewGroup( "Range Selection" );
