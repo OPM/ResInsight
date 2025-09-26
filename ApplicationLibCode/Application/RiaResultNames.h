@@ -93,6 +93,9 @@ QString sogcr();
 QString sgcr();
 QString convergence();
 
+QString opernum();
+QString bordnum();
+
 // Well path derived results
 QString wbsAzimuthResult();
 QString wbsInclinationResult();

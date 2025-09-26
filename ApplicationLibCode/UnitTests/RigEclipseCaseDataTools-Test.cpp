@@ -18,6 +18,7 @@
 
 #include "gtest/gtest.h"
 
+#include "RiaResultNames.h"
 #include "RiaTestDataDirectory.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -459,13 +460,13 @@ TEST( RigEclipseCaseDataToolsTest, GenerateBorderResultFromIjkBounds )
     ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
 
     // Generate border result using the custom visibility
-    RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility, "BORDNUM" );
+    RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility, RiaResultNames::bordnum() );
 
     // Verify that the result was created
     auto resultsData = resultCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( resultsData, nullptr ) << "Results data should not be null";
 
-    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BORDNUM" );
+    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, RiaResultNames::bordnum() );
     ASSERT_TRUE( resultsData->hasResultEntry( resultAddress ) ) << "BORDNUM result should exist";
 
     // Get the result data and verify it contains expected values
@@ -530,20 +531,24 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
 
     // Generate border result first (required for OPERNUM generation)
-    RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility, "BORDNUM" );
+    RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility, RiaResultNames::bordnum() );
 
     // Verify BORDNUM was created
     auto resultsData = resultCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( resultsData, nullptr ) << "Results data should not be null";
 
-    RigEclipseResultAddress bordnumAddress( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BORDNUM" );
+    RigEclipseResultAddress bordnumAddress( RiaDefines::ResultCatType::GENERATED,
+                                            RiaDefines::ResultDataType::INTEGER,
+                                            RiaResultNames::bordnum() );
     ASSERT_TRUE( resultsData->hasResultEntry( bordnumAddress ) ) << "BORDNUM result should exist";
 
     // Test case 1: Generate OPERNUM with automatic border cell value (no existing OPERNUM, should get 1)
     RigEclipseResultTools::generateOperNumResult( resultCase.get() );
 
     // Verify OPERNUM was created
-    RigEclipseResultAddress opernumAddress( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
+    RigEclipseResultAddress opernumAddress( RiaDefines::ResultCatType::GENERATED,
+                                            RiaDefines::ResultDataType::INTEGER,
+                                            RiaResultNames::opernum() );
     ASSERT_TRUE( resultsData->hasResultEntry( opernumAddress ) ) << "OPERNUM result should exist";
 
     // Get the result data
@@ -596,7 +601,7 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     }
 
     // Create the OPERNUM result directly
-    RigEclipseResultTools::createResultVector( *resultCase, "OPERNUM", customOperValues );
+    RigEclipseResultTools::createResultVector( *resultCase, RiaResultNames::opernum(), customOperValues );
 
     // Test case 3: Test the utility function directly (before regeneration)
     int maxOperValue = RigEclipseResultTools::findMaxOperNumValue( resultCase.get() );

@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 
 #include "RicExportEclipseSectorModelUi.h"
 #include "RicExportFeatureImpl.h"
@@ -150,7 +151,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
     auto bordnumVisibility = createVisibilityBasedOnBoxSelection( view, exportSettings );
     if ( !bordnumVisibility.isNull() )
     {
-        RigEclipseResultTools::generateBorderResult( view->eclipseCase(), bordnumVisibility, "BORDNUM" );
+        RigEclipseResultTools::generateBorderResult( view->eclipseCase(), bordnumVisibility, RiaResultNames::bordnum() );
 
         // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
         RigEclipseResultTools::generateOperNumResult( view->eclipseCase() );
@@ -162,15 +163,15 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         std::vector<QString> keywords = exportSettings.selectedKeywords;
 
         // Automatically add BORDNUM to the keywords list if not already present
-        if ( std::find( keywords.begin(), keywords.end(), "BORDNUM" ) == keywords.end() )
+        if ( std::find( keywords.begin(), keywords.end(), RiaResultNames::bordnum() ) == keywords.end() )
         {
-            keywords.push_back( "BORDNUM" );
+            keywords.push_back( RiaResultNames::bordnum() );
         }
 
         // Automatically add OPERNUM to the keywords list if not already present
-        if ( std::find( keywords.begin(), keywords.end(), "OPERNUM" ) == keywords.end() )
+        if ( std::find( keywords.begin(), keywords.end(), RiaResultNames::opernum() ) == keywords.end() )
         {
-            keywords.push_back( "OPERNUM" );
+            keywords.push_back( RiaResultNames::opernum() );
         }
 
         if ( exportSettings.exportParameters == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )

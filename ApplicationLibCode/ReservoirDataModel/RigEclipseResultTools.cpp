@@ -21,6 +21,7 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
+#include "RiaResultNames.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -124,8 +125,12 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
     result.resize( numActiveCells, 0 );
 
     // Check if OPERNUM already exists - if so, keep existing values.
-    RigEclipseResultAddress operNumAddrNative( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
-    RigEclipseResultAddress operNumAddrGenerated( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
+    RigEclipseResultAddress operNumAddrNative( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                               RiaDefines::ResultDataType::INTEGER,
+                                               RiaResultNames::opernum() );
+    RigEclipseResultAddress operNumAddrGenerated( RiaDefines::ResultCatType::GENERATED,
+                                                  RiaDefines::ResultDataType::INTEGER,
+                                                  RiaResultNames::opernum() );
     auto                    resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     RigEclipseResultAddress operNumAddr;
@@ -156,7 +161,7 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
     }
 
     // Check if BORDNUM exists to modify border cells
-    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BORDNUM" );
+    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, RiaResultNames::bordnum() );
     if ( resultsData->hasResultEntry( bordNumAddr ) )
     {
         resultsData->ensureKnownResultLoaded( bordNumAddr );
@@ -174,7 +179,7 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
         }
     }
 
-    RigEclipseResultTools::createResultVector( *eclipseCase, "OPERNUM", result );
+    RigEclipseResultTools::createResultVector( *eclipseCase, RiaResultNames::opernum(), result );
 
     eclipseCase->updateConnectedEditors();
 }
@@ -190,8 +195,12 @@ int findMaxOperNumValue( RimEclipseCase* eclipseCase )
     if ( !resultsData ) return 0;
 
     // Try to find OPERNUM in both STATIC_NATIVE (from file) and GENERATED (created by us) categories
-    RigEclipseResultAddress operNumAddrNative( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
-    RigEclipseResultAddress operNumAddrGenerated( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "OPERNUM" );
+    RigEclipseResultAddress operNumAddrNative( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                               RiaDefines::ResultDataType::INTEGER,
+                                               RiaResultNames::opernum() );
+    RigEclipseResultAddress operNumAddrGenerated( RiaDefines::ResultCatType::GENERATED,
+                                                  RiaDefines::ResultDataType::INTEGER,
+                                                  RiaResultNames::opernum() );
 
     RigEclipseResultAddress operNumAddr;
     bool                    hasOperNum = false;
