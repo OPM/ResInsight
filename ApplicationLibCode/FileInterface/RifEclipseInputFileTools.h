@@ -24,7 +24,6 @@
 #include "cvfObject.h"
 
 #include "RiaDefines.h"
-#include "RifReaderInterface.h"
 #include "RigFault.h"
 
 #include "ert/ecl/ecl_kw.h"

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
+#include "RiaPorosityModel.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"

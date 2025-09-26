@@ -19,7 +19,9 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
+#include "RiaPorosityModel.h"
+
+#include "cvfObject.h"
 
 class RigEclipseCaseData;
 class RigResultModifier;

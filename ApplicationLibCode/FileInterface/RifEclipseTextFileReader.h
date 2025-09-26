@@ -18,7 +18,8 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
+#include <string>
+#include <vector>
 
 class RifEclipseKeywordContent;
 

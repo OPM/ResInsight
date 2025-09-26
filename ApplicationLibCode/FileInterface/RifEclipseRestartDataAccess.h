@@ -30,7 +30,6 @@
 #include "ert/ecl_well/well_info.hpp"
 
 #include "RifEclipseReportKeywords.h"
-#include "RifReaderInterface.h"
 
 //==================================================================================================
 //

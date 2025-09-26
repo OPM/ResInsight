@@ -19,13 +19,14 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
 #include "RigResultAccessor.h"
 
 #include "RiaDefines.h"
+#include "RiaPorosityModel.h"
 
 class RigActiveCellInfo;
 class RigGridBase;
+class RigEclipseCaseData;
 
 class RimEclipseResultDefinition;
 class RigEclipseResultAddress;

@@ -20,9 +20,8 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
-
 #include "RiaDefines.h"
+#include "RiaPorosityModel.h"
 
 #include "cvfArray.h"
 #include "cvfAssert.h"
