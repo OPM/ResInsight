@@ -79,10 +79,13 @@ public:
 
     virtual void updateFromGridCount( size_t gridCount ) {};
 
+    virtual bool isRadialGrid() const;
+
 protected:
-    bool   isTimeStepIncludedByFilter( size_t timeStepIndex ) const;
-    size_t timeStepIndexOnFile( size_t timeStepIndex ) const;
-    void   importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults );
+    bool              isTimeStepIncludedByFilter( size_t timeStepIndex ) const;
+    size_t            timeStepIndexOnFile( size_t timeStepIndex ) const;
+    void              importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults );
+    RifReaderSettings readerSettings() const;
 
 private:
     std::vector<QString> m_filenamesWithFaults;

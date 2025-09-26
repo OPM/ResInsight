@@ -88,6 +88,8 @@ public:
 
     void updateFromGridCount( size_t gridCount ) override;
 
+    bool isRadialGrid() const override;
+
 private:
     bool readActiveCellInfo();
 
@@ -124,4 +126,5 @@ private:
     mutable cvf::ref<RifEclipseRestartDataAccess> m_dynamicResultsAccess; // File access to dynamic results
 
     std::unique_ptr<RifHdf5ReaderInterface> m_hdfReaderInterface;
+    bool                                    m_isRadialGrid = false;
 };

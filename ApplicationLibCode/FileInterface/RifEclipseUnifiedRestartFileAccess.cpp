@@ -134,6 +134,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUnifiedRestartFileAccess::useResultIndexFile() const
 {
+    // Refactoring note: Consider using RifReaderSettings instead of RiaPreferencesGrid directly
     RiaPreferencesGrid* prefs = RiaPreferencesGrid::current();
     return prefs->useResultIndexFile();
 }

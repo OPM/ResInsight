@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 
 #include "RifReaderSettings.h"
 
@@ -170,12 +171,15 @@ RifReaderSettings RiaPreferencesGrid::readerSettings()
                           .importNNCs                          = m_importNNCs,
                           .includeInactiveCellsInFaultGeometry = m_includeInactiveCellsInFaultGeometry,
                           .importAdvancedMswData               = m_importAdvancedMswData,
-                          .useResultIndexFile                  = m_useResultIndexFile,
                           .skipWellData                        = m_skipWellData,
                           .importSummaryData                   = true,
                           .includeFileAbsolutePathPrefix       = m_includeFileAbsolutePathPrefix,
-                          .onlyLoadActiveCells                 = onlyLoadActiveCells(),
-                          .invalidateLongThinCells             = m_invalidateLongThinCells };
+                          .onlyLoadActiveCells                 = m_onlyLoadActiveCells,
+                          .invalidateLongThinCells             = m_invalidateLongThinCells,
+                          .useCylindricalCoordinates           = RiaPreferencesSystem::current()->useCylindricalCoordinates(),
+                          .minimumAngularCellCount             = RiaPreferencesSystem::current()->minimumAngularCellCount()
+
+    };
     return rs;
 }
 

@@ -61,6 +61,8 @@ public:
 
     std::vector<QDateTime> timeStepsOnFile( QString gridFileName );
 
+    bool isRadialGrid() const override;
+
 protected:
     virtual bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
 
@@ -123,4 +125,5 @@ private:
     std::string                        m_restartFileName;
     std::unique_ptr<Opm::EclIO::ERst>  m_restartFile;
     std::unique_ptr<Opm::EclIO::EInit> m_initFile;
+    bool                               m_radialGridDetected = false;
 };

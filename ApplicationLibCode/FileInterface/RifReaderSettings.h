@@ -31,10 +31,11 @@ struct RifReaderSettings
     bool    importNNCs                          = false;
     bool    includeInactiveCellsInFaultGeometry = false;
     bool    importAdvancedMswData               = false;
-    bool    useResultIndexFile                  = false;
     bool    skipWellData                        = true;
     bool    importSummaryData                   = false;
     QString includeFileAbsolutePathPrefix       = "";
     bool    onlyLoadActiveCells                 = false;
     bool    invalidateLongThinCells             = true;
+    bool    useCylindricalCoordinates           = false;
+    int     minimumAngularCellCount             = 20;
 };

@@ -118,6 +118,16 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
             buildMetaData( eclipseCaseData, progress );
         }
 
+        if ( readerSettings().useCylindricalCoordinates && m_radialGridDetected )
+        {
+            auto task         = progress.task( "Check for Radial Grid", 25 );
+            bool isLgrCreated = RifOpmRadialGridTools::importCylindricalCoordinates( fileName.toStdString(), m_eclipseCaseData );
+            if ( isLgrCreated )
+            {
+                m_eclipseCaseData->clearWellCellsInGridCache();
+            }
+        }
+
         if ( isNNCsEnabled() )
         {
             auto task = progress.task( "Handling NCC Result data", 25 );
@@ -157,6 +167,8 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     caf::ProgressInfo progInfo( 5, "Importing Eclipse Grid" );
 
     Opm::EclIO::EGrid opmGrid( m_gridFileName );
+
+    m_radialGridDetected = opmGrid.is_radial();
 
     const auto& dims = opmGrid.dimension();
     mainGrid->setCellCounts( cvf::Vec3st( dims[0], dims[1], dims[2] ) );
@@ -1046,6 +1058,14 @@ std::vector<QDateTime> RifReaderOpmCommon::timeStepsOnFile( QString gridFileName
     }
 
     return dateTimes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderOpmCommon::isRadialGrid() const
+{
+    return m_radialGridDetected;
 }
 
 //--------------------------------------------------------------------------------------------------

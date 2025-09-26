@@ -24,7 +24,6 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
-#include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaResultNames.h"
 
@@ -33,7 +32,6 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartDataAccess.h"
 #include "RifInputPropertyLoader.h"
-#include "RifOpmRadialGridTools.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderMockModel.h"
@@ -45,7 +43,6 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
-#include "RigReservoirGridTools.h"
 
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationTools.h"
@@ -151,49 +148,6 @@ bool RimEclipseResultCase::showTimeStepFilterGUI()
     m_timeStepFilter->updateFilteredTimeStepsFromUi();
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::checkAndImportRadialGrid()
-{
-    bool refreshEclipseCaseData = false;
-    if ( RiaPreferencesSystem::current()->useCylindricalCoordinates() )
-    {
-        // Check if radial grid data is available. Create LGR if radial section count is below specified limit. Rebuild cached data if
-        // required.
-        bool isLgrCreated = RifOpmRadialGridTools::importCylindricalCoordinates( gridFileName().toStdString(), eclipseCaseData() );
-        if ( !isLgrCreated )
-        {
-            // Check if min J coordinate is close to 0.0 and max is close to 360. This is a workaround for import of simulation cases that
-            // has an invalid header and is not possible to import using opm-common
-            auto         bb      = mainGrid()->boundingBox();
-            const double epsilon = 1.0;
-            if ( ( std::abs( bb.min().y() ) < epsilon ) && ( std::abs( bb.max().y() - 360.0 ) < epsilon ) )
-            {
-                size_t minimumAngularCellCount = static_cast<size_t>( RiaPreferencesSystem::current()->minimumAngularCellCount() );
-                if ( mainGrid()->cellCountJ() < minimumAngularCellCount )
-                {
-                    auto angularRefinement = ( minimumAngularCellCount / mainGrid()->cellCountJ() ) + 1;
-
-                    isLgrCreated = RifOpmRadialGridTools::createAngularGridRefinement( eclipseCaseData(), angularRefinement );
-                }
-            }
-        }
-
-        refreshEclipseCaseData = isLgrCreated;
-    }
-    else
-    {
-        refreshEclipseCaseData =
-            RifOpmRadialGridTools::importCoordinatesForRadialGrid( gridFileName().toStdString(), eclipseCaseData()->mainGrid() );
-    }
-
-    if ( refreshEclipseCaseData )
-    {
-        RigReservoirGridTools::refreshEclipseCaseDataAndViews( this );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,8 +297,6 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
     }
-
-    checkAndImportRadialGrid();
 
     return true;
 }

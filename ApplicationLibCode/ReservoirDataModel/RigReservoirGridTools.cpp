@@ -20,6 +20,8 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RifReaderInterface.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -29,6 +31,7 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGridCollection.h"
@@ -103,6 +106,26 @@ QString RigReservoirGridTools::gridName( RimCase* rimCase, int gridIndex )
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigReservoirGridTools::isRadialGrid( RimCase* rimCase )
+{
+    RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( rimCase );
+    if ( !eclipseResultCase ) return false;
+
+    auto eclipseCaseData = eclipseResultCase->eclipseCaseData();
+    if ( !eclipseCaseData ) return false;
+
+    auto results = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !results ) return false;
+
+    auto readerInterface = results->readerInterface();
+    if ( !readerInterface ) return false;
+
+    return readerInterface->isRadialGrid();
 }
 
 //--------------------------------------------------------------------------------------------------
