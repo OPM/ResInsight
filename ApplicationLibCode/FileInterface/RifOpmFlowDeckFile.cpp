@@ -25,6 +25,7 @@
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/D.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
 #include <format>
@@ -38,15 +39,13 @@ namespace internal
 //--------------------------------------------------------------------------------------------------
 static std::optional<Opm::FileDeck::Index> locateTimeStep( std::unique_ptr<Opm::FileDeck>& fileDeck, int timeStep )
 {
-    using D = Opm::ParserKeywords::DATES;
-
     int currentStep = 0;
 
     // locate dates keyword for the selected step
     for ( auto it = fileDeck->start(); it != fileDeck->stop(); it++ )
     {
         auto& kw = fileDeck->operator[]( it );
-        if ( kw.name() != D::keywordName ) continue;
+        if ( kw.name() != Opm::ParserKeywords::DATES::keywordName ) continue;
 
         if ( currentStep == timeStep )
         {
@@ -62,7 +61,6 @@ static std::optional<Opm::FileDeck::Index> locateTimeStep( std::unique_ptr<Opm::
 //--------------------------------------------------------------------------------------------------
 static std::optional<Opm::FileDeck::Index> locateKeywordAtTimeStep( std::unique_ptr<Opm::FileDeck>& fileDeck, int timeStep, std::string keyword )
 {
-    using D       = Opm::ParserKeywords::DATES;
     auto startPos = internal::locateTimeStep( fileDeck, timeStep );
     if ( startPos.has_value() )
     {
@@ -72,7 +70,7 @@ static std::optional<Opm::FileDeck::Index> locateKeywordAtTimeStep( std::unique_
         for ( auto it = startIdx; it != fileDeck->start(); it-- )
         {
             auto& kw = fileDeck->operator[]( it );
-            if ( kw.name() == D::keywordName )
+            if ( kw.name() == Opm::ParserKeywords::DATES::keywordName )
             {
                 break;
             }
@@ -693,5 +691,23 @@ bool RifOpmFlowDeckFile::restartAtTimeStep( int timeStep, std::string deckName )
 
     m_fileDeck->rst_solution( deckName, timeStep );
     m_fileDeck->insert_skiprest();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::stopAtTimeStep( int timeStep )
+{
+    if ( !m_fileDeck ) return false;
+
+    auto datePos = internal::locateTimeStep( m_fileDeck, timeStep );
+    if ( datePos.has_value() )
+    {
+        auto             pkw = Opm::ParserKeyword( Opm::ParserKeywords::END::keywordName );
+        Opm::DeckKeyword newKw( pkw );
+        m_fileDeck->insert( datePos.value(), newKw );
+    }
+
     return true;
 }

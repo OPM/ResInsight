@@ -106,6 +106,8 @@ private:
     caf::PdmPtrField<RimEclipseCaseEnsemble*> m_gridEnsemble;
     caf::PdmPtrField<RimSummaryEnsemble*>     m_summaryEnsemble;
     caf::PdmField<int>                        m_openTimeStep;
+    caf::PdmField<bool>                       m_endTimeStepEnabled;
+    caf::PdmField<int>                        m_endTimeStep;
     caf::PdmField<bool>                       m_addNewWell;
     caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;
     caf::PdmField<bool>                       m_includeMSWData;

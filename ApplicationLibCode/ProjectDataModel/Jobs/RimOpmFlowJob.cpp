@@ -101,12 +101,6 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_useRestart, "UseRestart", false, "Restart Simulation at Well Open Date" );
     CAF_PDM_InitField( &m_currentRunId, "CurrentRunID", 0, "Current Run ID" );
 
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useRestart );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeMSWData );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addNewWell );
-
     CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_AT_DATE ), "Open Well" );
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -115,6 +109,8 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_wellOpenText, "WellOpenText", QString( "'GRUP' 5000 4* 100 20 5" ), "Open Well Parameters" );
 
     CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, " " );
+    CAF_PDM_InitField( &m_endTimeStep, "EndTimeStep", 0, " " );
+    CAF_PDM_InitField( &m_endTimeStepEnabled, "EndTimeStepEnabled", false, "Stop Simulation at Date" );
 
     CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
@@ -127,6 +123,13 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_openSelectButton, "openSelectButton", false, " " );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_openSelectButton );
     m_openSelectButton.xmlCapability()->disableIO();
+
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useRestart );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeMSWData );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addNewWell );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_endTimeStepEnabled );
 
     setDeletable( true );
 }
@@ -250,6 +253,14 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     auto opmGrp = uiOrdering.addNewGroup( "Opm Flow" );
     opmGrp->add( &m_runButton );
     opmGrp->add( &m_pauseBeforeRun );
+    if ( m_fileDeckHasDates )
+    {
+        opmGrp->add( &m_endTimeStepEnabled );
+        if ( m_endTimeStepEnabled() )
+        {
+            opmGrp->add( &m_endTimeStep );
+        }
+    }
     opmGrp->add( &m_addToEnsemble );
     if ( m_addToEnsemble() )
     {
@@ -273,6 +284,18 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
         RimTools::wellPathOptionItems( &options );
     }
     else if ( fieldNeedingOptions == &m_openTimeStep )
+    {
+        openDeckFile();
+        if ( m_deckFile != nullptr )
+        {
+            auto timeStepNames = m_deckFile->dateStrings();
+            for ( int i = 0; i < static_cast<int>( timeStepNames.size() - 1 ); ++i )
+            {
+                options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( timeStepNames[i] ), QVariant::fromValue( i ) ) );
+            }
+        }
+    }
+    else if ( fieldNeedingOptions == &m_endTimeStep )
     {
         openDeckFile();
         if ( m_deckFile != nullptr )
@@ -692,6 +715,15 @@ bool RimOpmFlowJob::onPrepare()
         if ( !m_deckFile->restartAtTimeStep( m_openTimeStep(), restartDeckName().toStdString() ) )
         {
             RiaLogging::error( "Unable to insert restart keywords in DATA file." );
+            return false;
+        }
+    }
+
+    if ( m_endTimeStepEnabled() )
+    {
+        if ( !m_deckFile->stopAtTimeStep( m_endTimeStep() ) )
+        {
+            RiaLogging::error( "Unable to insert END keyword in DATA file." );
             return false;
         }
     }
