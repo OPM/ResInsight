@@ -609,79 +609,90 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
-        if ( m_includeMSWData && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+        if ( m_includeMSWData )
         {
-            if ( m_eclipseCase() )
-            {
-                std::vector<std::string> mswData;
-                int                      i = 0;
-                for ( auto& date : m_eclipseCase->timeStepDates() )
-                {
-                    mswData.push_back( exportMswWellSettings( date, i++ ) );
-                }
+            // if ( m_eclipseCase() )
+            //{
+            //     std::vector<std::string> mswData;
+            //     int                      i = 0;
+            //     for ( auto& date : m_eclipseCase->timeStepDates() )
+            //     {
+            //         mswData.push_back( exportMswWellSettings( date, i++ ) );
+            //     }
 
-                if ( !m_deckFile->mergeMswData( mswData ) )
-                {
-                    RiaLogging::error( "Failed to merge MSW data into file deck." );
-                    return false;
-                }
+            //    if ( !m_deckFile->mergeMswData( mswData ) )
+            //    {
+            //        RiaLogging::error( "Failed to merge MSW data into file deck." );
+            //        return false;
+            //    }
+            //}
+
+            RiaLogging::error( "MSW data not supported (for now)." );
+            return false;
+        }
+
+        // export new well settings from resinsight
+        exportBasicWellSettings();
+        if ( !QFile::exists( wellTempFile() ) )
+        {
+            RiaLogging::error( "Could not find exported well data from ResInsight: " + wellTempFile() );
+            return false;
+        }
+
+        int mergePosition = m_openWellDeckPosition();
+
+        if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+        {
+            if ( !m_deckFile->mergeWellDeckAtTimeStep( m_openTimeStep(), wellTempFile().toStdString() ) )
+            {
+                RiaLogging::error( "Unable to merge new well data into DATA file at selected time step due to parse errors." );
+                return false;
             }
         }
         else
         {
-            // export new well settings from resinsight
-            exportBasicWellSettings();
-            if ( !QFile::exists( wellTempFile() ) )
+            mergePosition = m_deckFile->mergeWellDeckAtPosition( mergePosition, wellTempFile().toStdString() );
+            if ( mergePosition < m_openWellDeckPosition() )
             {
-                RiaLogging::error( "Could not find exported well data from ResInsight: " + wellTempFile() );
+                RiaLogging::error( "Unable to merge new well data into DATA file due to parse errors." );
                 return false;
             }
-
-            int fallbackPosition = ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE ) ? -1 : m_openWellDeckPosition() - 1;
-
-            // merge new well settings from resinsight into DATA deck
-            if ( !m_deckFile->mergeWellDeck( m_openTimeStep(), wellTempFile().toStdString(), fallbackPosition ) )
-            {
-                RiaLogging::error( "Unable to merge new well data into DATA file. Are there WELSPECS and COMPDAT keywords?" );
-                return false;
-            }
-            QFile::remove( wellTempFile() );
         }
+        QFile::remove( wellTempFile() );
 
         QString openWellText = generateBasicOpenWellText();
 
         // open new well at selected timestep
-        if ( m_fileDeckHasDates && m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+        if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
         {
             if ( !m_deckFile->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
             {
-                RiaLogging::error( "Unable to open new well in DATA file." );
+                RiaLogging::error( "Unable to open new well at selected timestep in DATA file." );
                 return false;
-            }
-
-            if ( m_useRestart() )
-            {
-                if ( !copyUnrstFileToWorkDir() )
-                {
-                    RiaLogging::error( "Unable to locate UNRST file from input case." );
-                    return false;
-                }
-
-                if ( !m_deckFile->restartAtTimeStep( std::max( m_openTimeStep() - 1, 0 ), restartDeckName().toStdString() ) )
-                {
-                    RiaLogging::error( "Unable to insert restart keywords in DATA file." );
-                    return false;
-                }
             }
         }
         else
         {
-            // we have added welspecs and compdat, so add two positions to be sure we are after these
-            if ( !m_deckFile->openWellAtDeckPosition( m_openWellDeckPosition + 2, openWellText.toStdString() ) )
+            if ( !m_deckFile->openWellAtDeckPosition( mergePosition, openWellText.toStdString() ) )
             {
                 RiaLogging::error( "Unable to open new well at selected position in DATA file." );
                 return false;
             }
+        }
+    }
+
+    if ( m_useRestart() )
+    {
+        if ( !copyUnrstFileToWorkDir() )
+        {
+            RiaLogging::error( "Unable to locate UNRST file from input case." );
+            return false;
+        }
+
+        if ( !m_deckFile->restartAtTimeStep( m_openTimeStep(), restartDeckName().toStdString() ) )
+        {
+            RiaLogging::error( "Unable to insert restart keywords in DATA file." );
+            return false;
         }
     }
 
