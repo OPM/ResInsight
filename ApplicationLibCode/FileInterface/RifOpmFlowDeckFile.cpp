@@ -28,6 +28,9 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/D.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/G.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/R.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
@@ -188,8 +191,10 @@ static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::uniqu
         auto& kw = fileDeck->operator[]( it );
 
         // Stop if we hit another major section
-        if ( kw.name() == "RUNSPEC" || kw.name() == "GRID" || kw.name() == "EDIT" || kw.name() == "PROPS" || kw.name() == "REGIONS" ||
-             kw.name() == "SOLUTION" || kw.name() == "SUMMARY" || kw.name() == "SCHEDULE" )
+        if ( kw.name() == Opm::ParserKeywords::RUNSPEC::keywordName || kw.name() == Opm::ParserKeywords::GRID::keywordName ||
+             kw.name() == Opm::ParserKeywords::EDIT::keywordName || kw.name() == Opm::ParserKeywords::REGIONS::keywordName ||
+             kw.name() == Opm::ParserKeywords::SOLUTION::keywordName || kw.name() == Opm::ParserKeywords::SUMMARY::keywordName ||
+             kw.name() == Opm::ParserKeywords::SCHEDULE::keywordName )
         {
             insertPos = it;
             break;
@@ -656,18 +661,19 @@ bool RifOpmFlowDeckFile::setWelldims( int maxWells, int maxConnections, int maxG
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RifOpmFlowDeckFile::regdims()
 {
+    using R = Opm::ParserKeywords::REGDIMS;
     if ( m_fileDeck.get() == nullptr ) return {};
-    auto pos = m_fileDeck->find( "REGDIMS" );
+    auto pos = m_fileDeck->find( R::keywordName );
     if ( pos.has_value() )
     {
         std::vector<int> dims;
 
         auto&       kw  = m_fileDeck->operator[]( pos.value() );
         const auto& rec = kw.getRecord( 0 );
-        dims.push_back( rec.getItem( "NTFIP" ).get<int>( 0 ) );
-        dims.push_back( rec.getItem( "NMFIPR" ).get<int>( 0 ) );
-        dims.push_back( rec.getItem( "NRFREG" ).get<int>( 0 ) );
-        dims.push_back( rec.getItem( "NTFREG" ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( R::NTFIP::itemName ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( R::NMFIPR::itemName ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( R::NRFREG::itemName ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( R::NTFREG::itemName ).get<int>( 0 ) );
 
         return dims;
     }
@@ -679,19 +685,18 @@ std::vector<int> RifOpmFlowDeckFile::regdims()
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::setRegdims( int maxRegions, int maxRegionDefinitions, int maxRegionFlowConnections, int maxFIPRegions )
 {
+    using R = Opm::ParserKeywords::REGDIMS;
     if ( m_fileDeck.get() == nullptr ) return false;
-    auto pos = m_fileDeck->find( "REGDIMS" );
+    auto pos = m_fileDeck->find( R::keywordName );
     if ( pos.has_value() )
     {
-        std::vector<int> dims;
-
         auto& oldkw = m_fileDeck->operator[]( pos.value() );
 
         Opm::DeckKeyword newKw( Opm::ParserKeyword( oldkw.name() ) );
-        newKw.addRecord( Opm::DeckRecord{ { item( "NTFIP", maxRegions ),
-                                            item( "NMFIPR", maxRegionDefinitions ),
-                                            item( "NRFREG", maxRegionFlowConnections ),
-                                            item( "NTFREG", maxFIPRegions ) } } );
+        newKw.addRecord( Opm::DeckRecord{ { item( R::NTFIP::itemName, maxRegions ),
+                                            item( R::NMFIPR::itemName, maxRegionDefinitions ),
+                                            item( R::NRFREG::itemName, maxRegionFlowConnections ),
+                                            item( R::NTFREG::itemName, maxFIPRegions ) } } );
 
         m_fileDeck->erase( pos.value() );
         m_fileDeck->insert( pos.value(), newKw );
@@ -705,17 +710,18 @@ bool RifOpmFlowDeckFile::setRegdims( int maxRegions, int maxRegionDefinitions, i
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
 {
+    using R = Opm::ParserKeywords::REGDIMS;
     if ( m_fileDeck.get() == nullptr ) return false;
 
     // Check if REGDIMS already exists
-    auto pos = m_fileDeck->find( "REGDIMS" );
+    auto pos = m_fileDeck->find( R::keywordName );
     if ( pos.has_value() )
     {
         return true; // Already exists
     }
 
     // Find RUNSPEC section to add REGDIMS
-    auto runspecPos = m_fileDeck->find( "RUNSPEC" );
+    auto runspecPos = m_fileDeck->find( Opm::ParserKeywords::RUNSPEC::keywordName );
     if ( !runspecPos.has_value() )
     {
         return false; // Cannot add REGDIMS without RUNSPEC section
@@ -729,7 +735,8 @@ bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
     for ( auto it = insertPos; it != m_fileDeck->stop(); it++ )
     {
         auto& kw = m_fileDeck->operator[]( it );
-        if ( kw.name() == "GRID" || kw.name() == "PROPS" || kw.name() == "SOLUTION" || kw.name() == "SCHEDULE" )
+        if ( kw.name() == Opm::ParserKeywords::GRID::keywordName || kw.name() == Opm::ParserKeywords::SOLUTION::keywordName ||
+             kw.name() == Opm::ParserKeywords::SCHEDULE::keywordName )
         {
             insertPos = it;
             break;
@@ -737,8 +744,9 @@ bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
     }
 
     // Create REGDIMS keyword with default values: "6* 1 /"
-    Opm::DeckKeyword regdimsKw( Opm::ParserKeyword( "REGDIMS" ) );
-    regdimsKw.addRecord( Opm::DeckRecord{ { item( "NTFIP", 1 ), item( "NMFIPR", 1 ), item( "NRFREG", 1 ), item( "NTFREG", 1 ) } } );
+    Opm::DeckKeyword regdimsKw( ( Opm::ParserKeyword( R::keywordName ) ) );
+    regdimsKw.addRecord( Opm::DeckRecord{
+        { item( R::NTFIP::itemName, 1 ), item( R::NMFIPR::itemName, 1 ), item( R::NRFREG::itemName, 1 ), item( R::NTFREG::itemName, 1 ) } } );
 
     m_fileDeck->insert( insertPos, regdimsKw );
     return true;
@@ -759,8 +767,8 @@ bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string key
     }
 
     // Create the INCLUDE keyword
-    Opm::DeckKeyword includeKw( Opm::ParserKeyword( "INCLUDE" ) );
-    includeKw.addRecord( Opm::DeckRecord{ { item( "FILENAME", filePath ) } } );
+    Opm::DeckKeyword includeKw( ( Opm::ParserKeyword( Opm::ParserKeywords::INCLUDE::keywordName ) ) );
+    includeKw.addRecord( Opm::DeckRecord{ { item( Opm::ParserKeywords::INCLUDE::IncludeFile::itemName, filePath ) } } );
 
     m_fileDeck->insert( insertPos.value(), includeKw );
     return true;
@@ -786,37 +794,39 @@ bool RifOpmFlowDeckFile::addOperaterKeyword( std::string          section,
         return false; // Section not found
     }
 
+    using O = Opm::ParserKeywords::OPERATER;
+
     // Create the OPERATER keyword
-    Opm::DeckKeyword operaterKw( Opm::ParserKeyword( "OPERATER" ) );
+    Opm::DeckKeyword operaterKw( ( Opm::ParserKeyword( O::keywordName ) ) );
 
     std::vector<Opm::DeckItem> recordItems;
-    recordItems.push_back( item( "TARGET_PROPERTY", targetProperty ) );
-    recordItems.push_back( item( "REGION_ID", regionId ) );
-    recordItems.push_back( item( "EQUATION", equation ) );
-    recordItems.push_back( item( "INPUT_PROPERTY", inputProperty ) );
+    recordItems.push_back( item( O::TARGET_ARRAY::itemName, targetProperty ) );
+    recordItems.push_back( item( O::REGION_NUMBER::itemName, regionId ) );
+    recordItems.push_back( item( O::OPERATION::itemName, equation ) );
+    recordItems.push_back( item( O::ARRAY_PARAMETER::itemName, inputProperty ) );
 
     // Add alpha parameter
     if ( alpha.has_value() )
     {
-        recordItems.push_back( item( "ALPHA", std::to_string( alpha.value() ) ) );
+        recordItems.push_back( item( O::PARAM1::itemName, std::to_string( alpha.value() ) ) );
     }
     else
     {
-        recordItems.push_back( defaultItem( "ALPHA", 1 ) ); // 1* for default
+        recordItems.push_back( defaultItem( O::PARAM1::itemName, 1 ) ); // 1* for default
     }
 
     // Add beta parameter
     if ( beta.has_value() )
     {
-        recordItems.push_back( item( "BETA", std::to_string( beta.value() ) ) );
+        recordItems.push_back( item( O::PARAM2::itemName, std::to_string( beta.value() ) ) );
     }
     else
     {
-        recordItems.push_back( defaultItem( "BETA", 1 ) ); // 1* for default
+        recordItems.push_back( defaultItem( O::PARAM2::itemName, 1 ) ); // 1* for default
     }
 
     // Add final default item
-    recordItems.push_back( defaultItem( "EXTRA", 1 ) ); // 1* for the last field
+    recordItems.push_back( defaultItem( O::REGION_NAME::itemName, 1 ) ); // 1* for the last field
 
     operaterKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
 
