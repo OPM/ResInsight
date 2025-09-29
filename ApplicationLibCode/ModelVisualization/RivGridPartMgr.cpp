@@ -179,14 +179,16 @@ void RivGridPartMgr::generatePartGeometry( cvf::StructGridGeometryGenerator& geo
     {
         cvf::ref<cvf::DrawableGeo> geoMesh;
 
-        if ( RiaPreferencesGrid::current()->radialGridMode() == RiaGridDefines::RadialGridMode::USE_CYLINDRICAL && m_grid->isRadial() &&
+        if ( RiaPreferencesGrid::current()->radialGridMode() == RiaGridDefines::RadialGridMode::CYLINDRICAL && m_grid->isRadial() &&
              m_grid->isTempGrid() )
         {
             std::vector<size_t> localGridCellIndices;
             for ( size_t i = 0; i < m_grid->cellCount(); i++ )
             {
-                if ( !( *m_cellVisibility )[i] ) continue;
-                localGridCellIndices.push_back( i );
+                if ( ( *m_cellVisibility )[i] )
+                {
+                    localGridCellIndices.push_back( i );
+                }
             }
 
             geoMesh = RivSingleCellPartGenerator::createMeshLinesOfParentGridCells( m_grid.p(),

@@ -222,7 +222,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
         auto grid = m_rigCaseData->grid( m_gridIndex );
         if ( !grid ) return nullptr;
 
-        if ( m_showLgrMeshLines && RiaPreferencesGrid::current()->radialGridMode() == RiaGridDefines::RadialGridMode::USE_CYLINDRICAL )
+        if ( m_showLgrMeshLines && RiaPreferencesGrid::current()->radialGridMode() == RiaGridDefines::RadialGridMode::CYLINDRICAL )
         {
             return createMeshDrawableFromLgrGridCells();
         }

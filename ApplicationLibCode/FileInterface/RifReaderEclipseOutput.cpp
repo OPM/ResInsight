@@ -442,12 +442,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
             auto         bb      = mainGrid->boundingBox();
             const double epsilon = 1.0;
-            if ( bb.isValid() && ( std::abs( bb.min().y() ) < epsilon ) && ( std::abs( bb.max().y() - 360.0 ) < epsilon ) )
-            {
-                return true;
-            }
-
-            return false;
+            return ( bb.isValid() && ( std::abs( bb.min().y() ) < epsilon ) && ( std::abs( bb.max().y() - 360.0 ) < epsilon ) );
         };
 
         bool isDetectedAsRadial = isAngularRangeCylindrical();

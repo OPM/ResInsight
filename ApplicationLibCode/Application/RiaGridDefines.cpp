@@ -25,9 +25,9 @@ namespace caf
 template <>
 void caf::AppEnum<RiaGridDefines::RadialGridMode>::setUp()
 {
-    addItem( RiaGridDefines::RadialGridMode::USE_CARTESIAN, "USE_CARTESIAN", "Show Cells as Cartesian Hex Elements" );
-    addItem( RiaGridDefines::RadialGridMode::USE_CYLINDRICAL, "USE_CYLINDRICAL", "Show Cells as Cylinder Segments" );
-    setDefault( RiaGridDefines::RadialGridMode::USE_CYLINDRICAL );
+    addItem( RiaGridDefines::RadialGridMode::CARTESIAN, "CARTESIAN", "Show Cells as Cartesian Hex Elements" );
+    addItem( RiaGridDefines::RadialGridMode::CYLINDRICAL, "CYLINDRICAL", "Show Cells as Cylinder Segments" );
+    setDefault( RiaGridDefines::RadialGridMode::CYLINDRICAL );
 }
 
 } // namespace caf
