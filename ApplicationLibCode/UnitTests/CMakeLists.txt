@@ -10,6 +10,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Ert-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifcCommandCore-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo-Test.cpp

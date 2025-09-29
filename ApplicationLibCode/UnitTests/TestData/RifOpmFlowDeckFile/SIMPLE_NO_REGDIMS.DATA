@@ -1,0 +1,111 @@
+-- Simple test deck without REGDIMS keyword
+RUNSPEC
+
+DIMENS
+10 10 3 /
+
+OIL
+
+WATER
+
+GAS
+
+METRIC
+
+START
+ 01  'JAN' 2000 /
+
+WELLDIMS
+ 5  10  2  5 /
+
+GRID
+
+GRIDFILE
+  0  1 /
+
+INIT
+
+DX
+1000*100.0 /
+
+DY  
+1000*100.0 /
+
+DZ
+1000*10.0 /
+
+TOPS
+100*2000.0 /
+
+PORO
+1000*0.2 /
+
+PERMX
+1000*100.0 /
+
+COPY
+   PERMX PERMY /
+   PERMX PERMZ /
+/
+
+PROPS
+
+SWOF
+0.2  0.0  1.0  0.0
+0.8  0.5  0.5  0.0
+1.0  1.0  0.0  0.0 /
+
+SGOF  
+0.0  0.0  1.0  0.0
+0.2  0.05 0.95 0.0
+0.8  0.8  0.2  0.0
+1.0  1.0  0.0  0.0 /
+
+PVTO
+0.0  1.0  1.0  1.0
+     50.0 0.95 1.1 /
+/
+
+PVTW
+1.0  1.0  0.0  1.0  0.0 /
+
+PVTG
+0.0  1.0  1.0
+10.0 0.5  1.1 /
+/
+
+ROCK
+4000.0  3.0e-6 /
+
+REGIONS
+
+SATNUM
+1000*1 /
+
+PVTNUM  
+1000*1 /
+
+SOLUTION
+
+EQUIL
+2030.0  300.0  2080.0  0.0  2000.0  0.0  1  1  0 /
+
+SCHEDULE
+
+WELSPECS
+'PROD1'  'G1'  5  5  2020.0  'OIL' /
+/
+
+COMPDAT  
+'PROD1'  5  5  1  3  'OPEN'  1*  1*  0.2 /
+/
+
+WCONPROD
+'PROD1'  'OPEN'  'ORAT'  1000.0  4*  50.0 /
+/
+
+DATES
+ 1 'FEB' 2000 /
+/
+
+END

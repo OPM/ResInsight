@@ -618,6 +618,99 @@ bool RifOpmFlowDeckFile::setWelldims( int maxWells, int maxConnections, int maxG
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<int> RifOpmFlowDeckFile::regdims()
+{
+    if ( m_fileDeck.get() == nullptr ) return {};
+    auto pos = m_fileDeck->find( "REGDIMS" );
+    if ( pos.has_value() )
+    {
+        std::vector<int> dims;
+
+        auto&       kw  = m_fileDeck->operator[]( pos.value() );
+        const auto& rec = kw.getRecord( 0 );
+        dims.push_back( rec.getItem( "NTFIP" ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( "NMFIPR" ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( "NRFREG" ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( "NTFREG" ).get<int>( 0 ) );
+
+        return dims;
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::setRegdims( int maxRegions, int maxRegionDefinitions, int maxRegionFlowConnections, int maxFIPRegions )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+    auto pos = m_fileDeck->find( "REGDIMS" );
+    if ( pos.has_value() )
+    {
+        std::vector<int> dims;
+
+        auto& oldkw = m_fileDeck->operator[]( pos.value() );
+
+        Opm::DeckKeyword newKw( Opm::ParserKeyword( oldkw.name() ) );
+        newKw.addRecord( Opm::DeckRecord{ { item( "NTFIP", maxRegions ),
+                                            item( "NMFIPR", maxRegionDefinitions ),
+                                            item( "NRFREG", maxRegionFlowConnections ),
+                                            item( "NTFREG", maxFIPRegions ) } } );
+
+        m_fileDeck->erase( pos.value() );
+        m_fileDeck->insert( pos.value(), newKw );
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Check if REGDIMS already exists
+    auto pos = m_fileDeck->find( "REGDIMS" );
+    if ( pos.has_value() )
+    {
+        return true; // Already exists
+    }
+
+    // Find RUNSPEC section to add REGDIMS
+    auto runspecPos = m_fileDeck->find( "RUNSPEC" );
+    if ( !runspecPos.has_value() )
+    {
+        return false; // Cannot add REGDIMS without RUNSPEC section
+    }
+
+    // Look for a good insertion point after RUNSPEC and before GRID section
+    auto insertPos = runspecPos.value();
+    insertPos++; // Start after RUNSPEC keyword
+
+    // Try to find GRID or other sections that should come after REGDIMS
+    for ( auto it = insertPos; it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == "GRID" || kw.name() == "PROPS" || kw.name() == "SOLUTION" || kw.name() == "SCHEDULE" )
+        {
+            insertPos = it;
+            break;
+        }
+    }
+
+    // Create REGDIMS keyword with default values: "6* 1 /"
+    Opm::DeckKeyword regdimsKw( Opm::ParserKeyword( "REGDIMS" ) );
+    regdimsKw.addRecord( Opm::DeckRecord{ { item( "NTFIP", 1 ), item( "NMFIPR", 1 ), item( "NRFREG", 1 ), item( "NTFREG", 1 ) } } );
+
+    m_fileDeck->insert( insertPos, regdimsKw );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::mergeMswData( std::vector<std::string>& mswFileData )
 {
     Opm::ErrorGuard errors{};
