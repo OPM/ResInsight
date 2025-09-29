@@ -159,8 +159,12 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
     }
     catch ( std::exception& e )
     {
-        auto description = e.what();
-        RiaLogging::error( description );
+        RiaLogging::debug( e.what() );
+
+        QString errorMsg = "Unable to read cell data from grid. Change grid reader to resdata and try again.";
+        RiaLogging::error( errorMsg );
+
+        return false;
     }
 
     return true;
