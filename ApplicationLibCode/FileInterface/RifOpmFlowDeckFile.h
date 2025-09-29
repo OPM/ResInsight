@@ -64,12 +64,18 @@ public:
     std::vector<int> welldims();
     bool             setWelldims( int maxWells, int maxConnections, int maxGroups, int maxWellsInGroup );
 
-    std::vector<int>         regdims();
-    bool                     setRegdims( int maxRegions, int maxRegionDefinitions, int maxRegionFlowConnections, int maxFIPRegions );
-    bool                     ensureRegdimsKeyword();
+    std::vector<int> regdims();
+    bool             setRegdims( int maxRegions, int maxRegionDefinitions, int maxRegionFlowConnections, int maxFIPRegions );
+    bool             ensureRegdimsKeyword();
 
-    bool                     addIncludeKeyword( std::string section, std::string keyword, std::string filePath );
-    bool                     addOperaterKeyword( std::string section, std::string targetProperty, int regionId, std::string equation, std::string inputProperty, std::optional<float> alpha, std::optional<float> beta );
+    bool addIncludeKeyword( std::string section, std::string keyword, std::string filePath );
+    bool addOperaterKeyword( std::string          section,
+                             std::string          targetProperty,
+                             int                  regionId,
+                             std::string          equation,
+                             std::string          inputProperty,
+                             std::optional<float> alpha,
+                             std::optional<float> beta );
 
 private:
     Opm::DeckItem item( std::string name, std::string value );

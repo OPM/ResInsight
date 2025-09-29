@@ -167,6 +167,42 @@ static bool insertDataAtPosition( std::unique_ptr<Opm::FileDeck>& fileDeck, std:
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::unique_ptr<Opm::FileDeck>& fileDeck, const std::string& section )
+{
+    // Find the specified section
+    auto sectionPos = fileDeck->find( section );
+    if ( !sectionPos.has_value() )
+    {
+        return std::nullopt; // Section not found
+    }
+
+    auto insertPos = sectionPos.value();
+    insertPos++; // Start after the section keyword
+
+    // Find a good insertion point within the section
+    for ( auto it = insertPos; it != fileDeck->stop(); it++ )
+    {
+        auto& kw = fileDeck->operator[]( it );
+
+        // Stop if we hit another major section
+        if ( kw.name() == "RUNSPEC" || kw.name() == "GRID" || kw.name() == "EDIT" || kw.name() == "PROPS" || kw.name() == "REGIONS" ||
+             kw.name() == "SOLUTION" || kw.name() == "SUMMARY" || kw.name() == "SCHEDULE" )
+        {
+            insertPos = it;
+            break;
+        }
+
+        // Keep moving forward in the current section
+        insertPos = it;
+        insertPos++;
+    }
+
+    return insertPos;
+}
+
 } // namespace internal
 
 //--------------------------------------------------------------------------------------------------
@@ -715,40 +751,18 @@ bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string key
 {
     if ( m_fileDeck.get() == nullptr ) return false;
 
-    // Find the specified section
-    auto sectionPos = m_fileDeck->find( section );
-    if ( !sectionPos.has_value() )
+    // Find insertion point within the section
+    auto insertPos = internal::findSectionInsertionPoint( m_fileDeck, section );
+    if ( !insertPos.has_value() )
     {
         return false; // Section not found
-    }
-
-    auto insertPos = sectionPos.value();
-    insertPos++; // Start after the section keyword
-
-    // Find a good insertion point within the section
-    // Look for the end of the section or insert at the end of existing content
-    for ( auto it = insertPos; it != m_fileDeck->stop(); it++ )
-    {
-        auto& kw = m_fileDeck->operator[]( it );
-
-        // Stop if we hit another major section
-        if ( kw.name() == "RUNSPEC" || kw.name() == "GRID" || kw.name() == "EDIT" || kw.name() == "PROPS" || kw.name() == "REGIONS" ||
-             kw.name() == "SOLUTION" || kw.name() == "SUMMARY" || kw.name() == "SCHEDULE" )
-        {
-            insertPos = it;
-            break;
-        }
-
-        // Keep moving forward in the current section
-        insertPos = it;
-        insertPos++;
     }
 
     // Create the INCLUDE keyword
     Opm::DeckKeyword includeKw( Opm::ParserKeyword( "INCLUDE" ) );
     includeKw.addRecord( Opm::DeckRecord{ { item( "FILENAME", filePath ) } } );
 
-    m_fileDeck->insert( insertPos, includeKw );
+    m_fileDeck->insert( insertPos.value(), includeKw );
     return true;
 }
 
@@ -765,33 +779,11 @@ bool RifOpmFlowDeckFile::addOperaterKeyword( std::string          section,
 {
     if ( m_fileDeck.get() == nullptr ) return false;
 
-    // Find the specified section
-    auto sectionPos = m_fileDeck->find( section );
-    if ( !sectionPos.has_value() )
+    // Find insertion point within the section
+    auto insertPos = internal::findSectionInsertionPoint( m_fileDeck, section );
+    if ( !insertPos.has_value() )
     {
         return false; // Section not found
-    }
-
-    auto insertPos = sectionPos.value();
-    insertPos++; // Start after the section keyword
-
-    // Find a good insertion point within the section
-    // Look for the end of the section or insert at the end of existing content
-    for ( auto it = insertPos; it != m_fileDeck->stop(); it++ )
-    {
-        auto& kw = m_fileDeck->operator[]( it );
-
-        // Stop if we hit another major section
-        if ( kw.name() == "RUNSPEC" || kw.name() == "GRID" || kw.name() == "EDIT" || kw.name() == "PROPS" || kw.name() == "REGIONS" ||
-             kw.name() == "SOLUTION" || kw.name() == "SUMMARY" || kw.name() == "SCHEDULE" )
-        {
-            insertPos = it;
-            break;
-        }
-
-        // Keep moving forward in the current section
-        insertPos = it;
-        insertPos++;
     }
 
     // Create the OPERATER keyword
@@ -828,7 +820,7 @@ bool RifOpmFlowDeckFile::addOperaterKeyword( std::string          section,
 
     operaterKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
 
-    m_fileDeck->insert( insertPos, operaterKw );
+    m_fileDeck->insert( insertPos.value(), operaterKw );
     return true;
 }
 
