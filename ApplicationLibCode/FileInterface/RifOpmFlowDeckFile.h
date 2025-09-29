@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <ctime>
 #include <memory>
 #include <string>
 #include <vector>
