@@ -77,14 +77,15 @@ private:
     RimEclipseCase* findExistingCase( QString filename );
     QString         deckExtension() const;
     QString         wellTempFile( int timeStep = -1, bool includeMSW = false, bool includeLGR = false ) const;
-    QString         openWellTempFile() const;
     QString         baseDeckName() const;
     QString         restartDeckName() const;
+
+    std::vector<QDateTime> datesInFileDeck();
 
     static QString readFileContent( QString filename );
 
     void        exportBasicWellSettings();
-    std::string exportMswWellSettings( QDateTime date, int timeStep );
+    std::string exportMswWellSettings( int timeStep );
     QString     generateBasicOpenWellText();
     void        selectOpenWellPosition();
 

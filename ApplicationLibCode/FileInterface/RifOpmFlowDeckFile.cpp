@@ -18,6 +18,7 @@
 
 #include "RifOpmFlowDeckFile.h"
 
+#include "opm/common/utility/TimeService.hpp"
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Deck/FileDeck.hpp"
 #include "opm/input/eclipse/Parser/ErrorGuard.hpp"
@@ -539,6 +540,26 @@ std::vector<std::string> RifOpmFlowDeckFile::dateStrings()
             values.push_back( internal::datesKeywordToString( kw ) );
         }
     }
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::time_t> RifOpmFlowDeckFile::dates()
+{
+    std::vector<std::time_t> values;
+    if ( m_fileDeck.get() == nullptr ) return values;
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == Opm::ParserKeywords::DATES::keywordName )
+        {
+            const auto& rec = kw.getRecord( 0 );
+            values.push_back( Opm::TimeService::timeFromEclipse( rec ) );
+        }
+    }
+
     return values;
 }
 
