@@ -711,6 +711,50 @@ bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string keyword, std::string filePath )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Find the specified section
+    auto sectionPos = m_fileDeck->find( section );
+    if ( !sectionPos.has_value() )
+    {
+        return false; // Section not found
+    }
+
+    auto insertPos = sectionPos.value();
+    insertPos++; // Start after the section keyword
+
+    // Find a good insertion point within the section
+    // Look for the end of the section or insert at the end of existing content
+    for ( auto it = insertPos; it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+
+        // Stop if we hit another major section
+        if ( kw.name() == "RUNSPEC" || kw.name() == "GRID" || kw.name() == "EDIT" || kw.name() == "PROPS" || kw.name() == "REGIONS" ||
+             kw.name() == "SOLUTION" || kw.name() == "SUMMARY" || kw.name() == "SCHEDULE" )
+        {
+            insertPos = it;
+            break;
+        }
+
+        // Keep moving forward in the current section
+        insertPos = it;
+        insertPos++;
+    }
+
+    // Create the INCLUDE keyword
+    Opm::DeckKeyword includeKw( Opm::ParserKeyword( "INCLUDE" ) );
+    includeKw.addRecord( Opm::DeckRecord{ { item( "FILENAME", filePath ) } } );
+
+    m_fileDeck->insert( insertPos, includeKw );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::mergeMswData( std::vector<std::string>& mswFileData )
 {
     Opm::ErrorGuard errors{};

@@ -67,6 +67,8 @@ public:
     bool                     setRegdims( int maxRegions, int maxRegionDefinitions, int maxRegionFlowConnections, int maxFIPRegions );
     bool                     ensureRegdimsKeyword();
 
+    bool                     addIncludeKeyword( std::string section, std::string keyword, std::string filePath );
+
 private:
     Opm::DeckItem item( std::string name, std::string value );
     Opm::DeckItem item( std::string name, int value );

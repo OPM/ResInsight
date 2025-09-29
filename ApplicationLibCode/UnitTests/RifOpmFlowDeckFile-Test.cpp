@@ -130,3 +130,117 @@ TEST( RifOpmFlowDeckFileTest, RegdimsSaveAndReload )
     EXPECT_FALSE( reloadedRegdimsValues.empty() ) << "REGDIMS should exist in reloaded deck";
     EXPECT_EQ( 4, reloadedRegdimsValues.size() ) << "REGDIMS should have 4 values in reloaded deck";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, AddIncludeKeyword )
+{
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
+
+    // Add INCLUDE statement in REGIONS section for OPERNUM
+    bool addSuccess = deckFile.addIncludeKeyword( "REGIONS", "OPERNUM", "./include/opernum.prop" );
+    EXPECT_TRUE( addSuccess ) << "Should successfully add INCLUDE statement in REGIONS section";
+
+    // Add INCLUDE statement in GRID section for PERMX
+    bool addGridSuccess = deckFile.addIncludeKeyword( "GRID", "PERMX", "./include/permx.prop" );
+    EXPECT_TRUE( addGridSuccess ) << "Should successfully add INCLUDE statement in GRID section";
+
+    // Test adding to non-existent section
+    bool addFailure = deckFile.addIncludeKeyword( "NONEXISTENT", "SOME_KEYWORD", "./include/test.prop" );
+    EXPECT_FALSE( addFailure ) << "Should fail when adding to non-existent section";
+
+    // Verify the keywords list contains our INCLUDE statements
+    auto keywords            = deckFile.keywords();
+    bool foundRegionsInclude = false;
+    bool foundGridInclude    = false;
+
+    for ( const auto& keyword : keywords )
+    {
+        if ( keyword == "INCLUDE" )
+        {
+            // We can't easily verify the file path from keywords() output,
+            // but we can verify INCLUDE keywords were added
+            if ( !foundRegionsInclude )
+            {
+                foundRegionsInclude = true;
+            }
+            else if ( !foundGridInclude )
+            {
+                foundGridInclude = true;
+            }
+        }
+    }
+
+    EXPECT_TRUE( foundRegionsInclude || foundGridInclude ) << "Should have added at least one INCLUDE keyword";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, AddIncludeSaveAndReload )
+{
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
+
+    // Create a temporary directory and OPERNUM include file
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    // Create the regions subdirectory
+    QDir().mkpath( tempDir.path() + "/regions" );
+
+    // Create a temporary OPERNUM file
+    QString opernumFilePath = tempDir.path() + "/regions/opernum.inc";
+    QFile   opernumFile( opernumFilePath );
+    ASSERT_TRUE( opernumFile.open( QIODevice::WriteOnly | QIODevice::Text ) );
+
+    QTextStream out( &opernumFile );
+    out << "OPERNUM\n";
+    out << "1000*1 /\n"; // Simple OPERNUM data for 1000 cells, all region 1
+    opernumFile.close();
+
+    // Add INCLUDE statement with relative path
+    bool addSuccess = deckFile.addIncludeKeyword( "REGIONS", "OPERNUM", "./regions/opernum.inc" );
+    EXPECT_TRUE( addSuccess ) << "Should successfully add INCLUDE statement";
+
+    bool saveSuccess = deckFile.saveDeck( tempDir.path().toStdString(), "test_with_include.DATA" );
+    EXPECT_TRUE( saveSuccess ) << "Should successfully save deck with INCLUDE";
+
+    // Read the saved file as text to verify INCLUDE statement was written
+    QString savedFileName = tempDir.path() + "/test_with_include.DATA";
+    QFile   savedFile( savedFileName );
+    ASSERT_TRUE( savedFile.open( QIODevice::ReadOnly | QIODevice::Text ) );
+
+    QString content = savedFile.readAll();
+    EXPECT_TRUE( content.contains( "INCLUDE" ) ) << "Saved file should contain INCLUDE keyword";
+    EXPECT_TRUE( content.contains( "./regions/opernum.inc" ) ) << "Saved file should contain the include file path";
+    savedFile.close();
+
+    // Reload the saved deck
+    RifOpmFlowDeckFile reloadedDeckFile;
+    bool               reloadSuccess = reloadedDeckFile.loadDeck( savedFileName.toStdString() );
+    EXPECT_TRUE( reloadSuccess ) << "Should successfully reload saved deck with INCLUDE";
+
+    // Verify that OPERNUM keyword appears in reloaded deck (it should be included from the file)
+    auto reloadedKeywords = reloadedDeckFile.keywords();
+    bool foundOpernum     = false;
+    for ( const auto& keyword : reloadedKeywords )
+    {
+        if ( keyword == "OPERNUM" )
+        {
+            foundOpernum = true;
+            break;
+        }
+    }
+    EXPECT_TRUE( foundOpernum ) << "Reloaded deck should contain OPERNUM keyword from included file";
+}
