@@ -755,6 +755,86 @@ bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string key
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::addOperaterKeyword( std::string          section,
+                                             std::string          targetProperty,
+                                             int                  regionId,
+                                             std::string          equation,
+                                             std::string          inputProperty,
+                                             std::optional<float> alpha,
+                                             std::optional<float> beta )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Find the specified section
+    auto sectionPos = m_fileDeck->find( section );
+    if ( !sectionPos.has_value() )
+    {
+        return false; // Section not found
+    }
+
+    auto insertPos = sectionPos.value();
+    insertPos++; // Start after the section keyword
+
+    // Find a good insertion point within the section
+    // Look for the end of the section or insert at the end of existing content
+    for ( auto it = insertPos; it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+
+        // Stop if we hit another major section
+        if ( kw.name() == "RUNSPEC" || kw.name() == "GRID" || kw.name() == "EDIT" || kw.name() == "PROPS" || kw.name() == "REGIONS" ||
+             kw.name() == "SOLUTION" || kw.name() == "SUMMARY" || kw.name() == "SCHEDULE" )
+        {
+            insertPos = it;
+            break;
+        }
+
+        // Keep moving forward in the current section
+        insertPos = it;
+        insertPos++;
+    }
+
+    // Create the OPERATER keyword
+    Opm::DeckKeyword operaterKw( Opm::ParserKeyword( "OPERATER" ) );
+
+    std::vector<Opm::DeckItem> recordItems;
+    recordItems.push_back( item( "TARGET_PROPERTY", targetProperty ) );
+    recordItems.push_back( item( "REGION_ID", regionId ) );
+    recordItems.push_back( item( "EQUATION", equation ) );
+    recordItems.push_back( item( "INPUT_PROPERTY", inputProperty ) );
+
+    // Add alpha parameter
+    if ( alpha.has_value() )
+    {
+        recordItems.push_back( item( "ALPHA", std::to_string( alpha.value() ) ) );
+    }
+    else
+    {
+        recordItems.push_back( defaultItem( "ALPHA", 1 ) ); // 1* for default
+    }
+
+    // Add beta parameter
+    if ( beta.has_value() )
+    {
+        recordItems.push_back( item( "BETA", std::to_string( beta.value() ) ) );
+    }
+    else
+    {
+        recordItems.push_back( defaultItem( "BETA", 1 ) ); // 1* for default
+    }
+
+    // Add final default item
+    recordItems.push_back( defaultItem( "EXTRA", 1 ) ); // 1* for the last field
+
+    operaterKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
+
+    m_fileDeck->insert( insertPos, operaterKw );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::mergeMswData( std::vector<std::string>& mswFileData )
 {
     Opm::ErrorGuard errors{};

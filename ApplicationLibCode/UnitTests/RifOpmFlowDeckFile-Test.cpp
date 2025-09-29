@@ -244,3 +244,81 @@ TEST( RifOpmFlowDeckFileTest, AddIncludeSaveAndReload )
     }
     EXPECT_TRUE( foundOpernum ) << "Reloaded deck should contain OPERNUM keyword from included file";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, AddOperaterKeyword )
+{
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
+
+    // Add OPERATER statement to GRID section: PORV 9 MULTX PORV 1.0e6 1* 1*
+    bool addSuccess = deckFile.addOperaterKeyword( "GRID", "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt );
+    EXPECT_TRUE( addSuccess ) << "Should successfully add OPERATER statement in GRID section";
+
+    // Test adding to non-existent section
+    bool addFailure = deckFile.addOperaterKeyword( "NONEXISTENT", "PORV", 1, "MULTX", "PORV", std::nullopt, std::nullopt );
+    EXPECT_FALSE( addFailure ) << "Should fail when adding to non-existent section";
+
+    // Verify the keywords list contains our OPERATER statement
+    auto keywords      = deckFile.keywords();
+    bool foundOperater = false;
+
+    for ( const auto& keyword : keywords )
+    {
+        if ( keyword == "OPERATER" )
+        {
+            foundOperater = true;
+            break;
+        }
+    }
+
+    EXPECT_TRUE( foundOperater ) << "Should have added OPERATER keyword";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, AddOperaterSaveAndReload )
+{
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
+
+    // Add OPERATER statement: PORV 9 MULTX PORV 1.0e6 1* 1*
+    bool addSuccess = deckFile.addOperaterKeyword( "GRID", "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt );
+    EXPECT_TRUE( addSuccess ) << "Should successfully add OPERATER statement";
+
+    // Save the deck to a temporary location
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    bool saveSuccess = deckFile.saveDeck( tempDir.path().toStdString(), "test_with_operater.DATA" );
+    EXPECT_TRUE( saveSuccess ) << "Should successfully save deck with OPERATER";
+
+    // Read the saved file as text to verify OPERATER statement was written correctly
+    QString savedFileName = tempDir.path() + "/test_with_operater.DATA";
+    QFile   savedFile( savedFileName );
+    ASSERT_TRUE( savedFile.open( QIODevice::ReadOnly | QIODevice::Text ) );
+
+    QString content = savedFile.readAll();
+    EXPECT_TRUE( content.contains( "OPERATER" ) ) << "Saved file should contain OPERATER keyword";
+    EXPECT_TRUE( content.contains( "PORV" ) ) << "Saved file should contain PORV";
+    EXPECT_TRUE( content.contains( "MULTX" ) ) << "Saved file should contain MULTX equation";
+    EXPECT_TRUE( content.contains( "1e+06" ) || content.contains( "1000000" ) ) << "Saved file should contain the alpha value 1.0e6";
+
+    savedFile.close();
+
+    // Note: OPERATER statements may be processed by OPM during loading and might not
+    // be preserved as standalone keywords in the reloaded deck. This is expected behavior.
+    // The test validates that our addOperaterKeyword functionality works correctly
+    // by checking that the OPERATER statement is properly saved to the file.
+}

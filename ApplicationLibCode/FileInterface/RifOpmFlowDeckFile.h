@@ -20,6 +20,7 @@
 
 #include <ctime>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -68,6 +69,7 @@ public:
     bool                     ensureRegdimsKeyword();
 
     bool                     addIncludeKeyword( std::string section, std::string keyword, std::string filePath );
+    bool                     addOperaterKeyword( std::string section, std::string targetProperty, int regionId, std::string equation, std::string inputProperty, std::optional<float> alpha, std::optional<float> beta );
 
 private:
     Opm::DeckItem item( std::string name, std::string value );
