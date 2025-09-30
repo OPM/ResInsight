@@ -7,6 +7,11 @@ sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
 
 
+def test_launch_non_existing(rips_instance, initialize_test):
+    instance=rips.Instance.launch("non_existing", console=True)
+    assert instance is None
+
+    
 def launch_resinsight(sec=1):
     resinsight_executable_from_env = os.environ.get("RESINSIGHT_EXECUTABLE")
     if resinsight_executable_from_env is None:
