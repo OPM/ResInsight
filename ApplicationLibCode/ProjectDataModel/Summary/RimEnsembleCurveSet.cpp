@@ -2119,8 +2119,9 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    auto addressText        = m_yValuesSummaryAddress()->address().toEclipseTextAddress();
-    auto newRealizationHash = RiaHashTools::hash( sumCases, addressText );
+    auto yAddressText       = m_yValuesSummaryAddress()->address().toEclipseTextAddress();
+    auto xAaddressText      = m_xAddressSelector->summaryAddress().toEclipseTextAddress();
+    auto newRealizationHash = RiaHashTools::hash( sumCases, yAddressText, xAaddressText );
     if ( newRealizationHash != m_realizationHash )
     {
         deleteEnsembleCurves();
