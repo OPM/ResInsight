@@ -19,10 +19,15 @@
 #include "RicNewRangeFilterSlice3dviewFeature.h"
 
 #include "RiaApplication.h"
+
+#include "RigMainGrid.h"
+
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
+#include "RimEclipseCase.h"
 #include "RimGridView.h"
 #include "RimViewController.h"
+
 #include "Riu3DMainWindowTools.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -73,6 +78,25 @@ void RicNewRangeFilterSlice3dviewFeature::onActionTriggered( bool isChecked )
     int direction  = list[0].toInt();
     int sliceStart = list[1].toInt();
     int gridIndex  = list[2].toInt();
+
+    if ( auto eclipseCase = dynamic_cast<RimEclipseCase*>( sourceCase ) )
+    {
+        if ( auto mainGrid = eclipseCase->mainGrid() )
+        {
+            auto currentGrid = mainGrid->gridByIndex( gridIndex );
+            if ( currentGrid && currentGrid->isRadial() && currentGrid->isTempGrid() )
+            {
+                // For a temporary radial grid, select main grid and adjust slice index. Only required to adjust slice start for angular
+                // direction.
+                gridIndex = static_cast<int>( mainGrid->gridIndex() );
+                if ( direction == 1 )
+                {
+                    auto sliceStartMainGrid = ( sliceStart * mainGrid->cellCountJ() / currentGrid->cellCountJ() ) + 1;
+                    sliceStart              = static_cast<int>( sliceStartMainGrid );
+                }
+            }
+        }
+    }
 
     RimCellFilter* newFilter = filtColl->addNewCellRangeFilter( sourceCase, gridIndex, direction, sliceStart );
     if ( newFilter )
