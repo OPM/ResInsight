@@ -153,6 +153,13 @@ class Instance:
             else:
                 resinsight_executable = resinsight_executable_from_env
 
+        # Check if executable file exists
+        if not os.path.isfile(resinsight_executable):
+            print(
+                f"ERROR: ResInsight executable not found at path: {resinsight_executable}"
+            )
+            return None
+
         print("Trying to launch", resinsight_executable)
         with tempfile.TemporaryDirectory() as tmp_dir_path:
             port_number_file = tmp_dir_path + "/portnumber.txt"
