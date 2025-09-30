@@ -26,6 +26,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcIntersection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseStatisticsCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcGridView.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcIdenticalGridCaseGroup.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcPressureTable.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcFishbonesCollection.h
@@ -64,6 +65,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcIntersection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseStatisticsCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcGridView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcIdenticalGridCaseGroup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcPressureTable.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcFishbonesCollection.cpp

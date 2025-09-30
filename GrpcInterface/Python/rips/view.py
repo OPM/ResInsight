@@ -4,6 +4,9 @@ ResInsight 3d view module
 
 import Commands_pb2 as Cmd
 
+import uuid
+import rips.project
+
 import rips.case  # Circular import of Case, which already imports View. Use full name.
 from .pdmobject import add_method
 from .resinsight_classes import (
@@ -209,6 +212,37 @@ def case(self):
         if c.address() == eclipse_case_addr:
             return c
     return None
+
+
+@add_method(View)
+def visible_cells(self, time_step=0):
+    """Get the visibility status of all cells in the view
+
+    Arguments:
+        time_step (int): The time step to get visibility for. Defaults to 0.
+
+    Returns:
+        List[int]: A list where 1 represents a visible cell and 0 represents an invisible cell
+    """
+
+    # Generate temporary key for key-value store
+    visibility_key = f"{uuid.uuid4()}_visibility"
+
+    # Get the project
+    project = self.ancestor(rips.project.Project)
+    try:
+        # Call internal method to store visibility data
+        self.visible_cells_internal(visibility_key=visibility_key, time_step=time_step)
+
+        # Retrieve visibility data from key-value store
+        visibility_values = project.key_values(visibility_key)
+
+        # Convert floats to integers (1 for visible, 0 for invisible)
+        return [int(v) for v in visibility_values]
+
+    finally:
+        # Clean up temporary key from key-value store
+        project.remove_key_values(visibility_key)
 
 
 @add_method(ViewWindow)
