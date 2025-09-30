@@ -30,14 +30,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEnsembleImportConfig::shouldCreateEsmryFile() const
-{
-    return m_shouldCreateEsmryFile;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RifEnsembleImportConfig::useConfigValues() const
 {
     return m_useConfigValues;
@@ -74,8 +66,6 @@ void RifEnsembleImportConfig::computePatternsFromSummaryFilePaths( const QString
 
     computeRestartPatternsFromTwoRealizations( restartFileNames1, restartFileNames2 );
     computeParameterFilePathPattern( { paramFilePath1, paramFilePath2 } );
-
-    m_shouldCreateEsmryFile = RifOpmSummaryTools::isEsmryConversionRequired( filePath1 );
 
     m_useConfigValues = true;
 }

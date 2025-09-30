@@ -132,8 +132,7 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
 
     auto startTime = RiaLogging::currentTime();
 
-    bool isEsmryConversionRequired = m_ensembleImportState.useConfigValues() ? m_ensembleImportState.shouldCreateEsmryFile()
-                                                                             : RifOpmSummaryTools::isEsmryConversionRequired( fileName );
+    bool isEsmryConversionRequired = RifOpmSummaryTools::isEsmryConversionRequired( fileName );
 
     bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "OpmSummaryImport" );
     if ( isLoggingEnabled ) RiaLogging::logElapsedTime( "Check if conversion from SMSPEC to ESMRY is required", startTime );
