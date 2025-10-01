@@ -80,6 +80,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSeismicZGYReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmRadialGridTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmDeckTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealSummaryCsvReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.h
@@ -176,6 +177,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifParameterXmlReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmDeckTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderAggregator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclEclipseSummary.cpp

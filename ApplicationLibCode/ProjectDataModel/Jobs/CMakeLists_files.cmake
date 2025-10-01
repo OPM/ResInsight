@@ -4,6 +4,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimJobCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDeckPositionDlg.h
     ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconprod.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconinje.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -12,6 +13,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimJobCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDeckPositionDlg.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconprod.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconinje.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

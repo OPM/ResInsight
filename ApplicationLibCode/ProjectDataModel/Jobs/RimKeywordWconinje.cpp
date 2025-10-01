@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimKeywordWconprod.h"
+#include "RimKeywordWconinje.h"
 
 #include "RifOpmDeckTools.h"
 
@@ -28,40 +28,38 @@
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
-CAF_PDM_SOURCE_INIT( RimKeywordWconprod, "KeywordWconprod" );
+CAF_PDM_SOURCE_INIT( RimKeywordWconinje, "KeywordWconinje" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimKeywordWconprod::RimKeywordWconprod()
+RimKeywordWconinje::RimKeywordWconinje()
 {
-    CAF_PDM_InitObject( "WCONPROD Keyword" );
+    CAF_PDM_InitObject( "WCONINJE Keyword" );
     CAF_PDM_InitField( &m_wellName, "wellName", QString(), "Well Name" );
     m_wellName.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitField( &m_type, "type", QString( "WAT" ), "Injection Type" );
     CAF_PDM_InitField( &m_status, "status", QString( "OPEN" ), "Well Status" );
-    CAF_PDM_InitField( &m_target, "target", QString( "LRAT" ), "Target Production Phase" );
-    CAF_PDM_InitFieldNoDefault( &m_orat, "orat", "Max Surface Oil Production Rate" );
-    CAF_PDM_InitFieldNoDefault( &m_wrat, "wrat", "Max Surface Water Production Rate" );
-    CAF_PDM_InitFieldNoDefault( &m_grat, "grat", "Max Surface Gas Production Rate" );
-    CAF_PDM_InitFieldNoDefault( &m_lrat, "lrat", "Max Surface Liquid Production Rate" );
+    CAF_PDM_InitField( &m_target, "target", QString( "RATE" ), "Target Injection Control Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_rate, "rate", "Max Surface Injection Rate" );
     CAF_PDM_InitFieldNoDefault( &m_resv, "resv", "Max Reservoir Volume Rate" );
     CAF_PDM_InitFieldNoDefault( &m_bhp, "bhp", "Max Bottom Hole Pressure" );
-    CAF_PDM_InitFieldNoDefault( &m_thp, "thp", "Min Tubing Head Pressure" );
+    CAF_PDM_InitFieldNoDefault( &m_thp, "thp", "Max Tubing Head Pressure" );
     CAF_PDM_InitFieldNoDefault( &m_vfptab, "vfptab", "VFP Table Index" );
-    CAF_PDM_InitFieldNoDefault( &m_alqWell, "alqWell", "Artificial Lift Quantity" );
+    CAF_PDM_InitFieldNoDefault( &m_rsrvinj, "rsrvinj", "Gas<->Oil ratio" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimKeywordWconprod::~RimKeywordWconprod()
+RimKeywordWconinje::~RimKeywordWconinje()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimKeywordWconprod::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimKeywordWconinje::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -72,12 +70,15 @@ QList<caf::PdmOptionItemInfo> RimKeywordWconprod::calculateValueOptions( const c
         options.push_back( caf::PdmOptionItemInfo( "SHUT", QVariant::fromValue( QString( "SHUT" ) ) ) );
         options.push_back( caf::PdmOptionItemInfo( "AUTO", QVariant::fromValue( QString( "AUTO" ) ) ) );
     }
+    else if ( fieldNeedingOptions == &m_type )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "WATER", QVariant::fromValue( QString( "WAT" ) ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "GAS", QVariant::fromValue( QString( "GAS" ) ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "OIL", QVariant::fromValue( QString( "OIL" ) ) ) );
+    }
     else if ( fieldNeedingOptions == &m_target )
     {
-        options.push_back( caf::PdmOptionItemInfo( "ORAT", QVariant::fromValue( QString( "ORAT" ) ) ) );
-        options.push_back( caf::PdmOptionItemInfo( "WRAT", QVariant::fromValue( QString( "WRAT" ) ) ) );
-        options.push_back( caf::PdmOptionItemInfo( "GRAT", QVariant::fromValue( QString( "GRAT" ) ) ) );
-        options.push_back( caf::PdmOptionItemInfo( "LRAT", QVariant::fromValue( QString( "LRAT" ) ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "RATE", QVariant::fromValue( QString( "RATE" ) ) ) );
         options.push_back( caf::PdmOptionItemInfo( "RESV", QVariant::fromValue( QString( "RESV" ) ) ) );
         options.push_back( caf::PdmOptionItemInfo( "BHP", QVariant::fromValue( QString( "BHP" ) ) ) );
         options.push_back( caf::PdmOptionItemInfo( "THP", QVariant::fromValue( QString( "THP" ) ) ) );
@@ -90,7 +91,7 @@ QList<caf::PdmOptionItemInfo> RimKeywordWconprod::calculateValueOptions( const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimKeywordWconprod::setWellName( const QString& name )
+void RimKeywordWconinje::setWellName( const QString& name )
 {
     m_wellName = name;
 }
@@ -98,41 +99,31 @@ void RimKeywordWconprod::setWellName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimKeywordWconprod::uiOrdering( caf::PdmUiGroup* uiGroup )
+void RimKeywordWconinje::uiOrdering( caf::PdmUiGroup* uiGroup )
 {
+    uiGroup->add( &m_type );
     uiGroup->add( &m_status );
     uiGroup->add( &m_target );
-    uiGroup->add( &m_orat );
-    uiGroup->add( &m_wrat );
-    uiGroup->add( &m_grat );
-    uiGroup->add( &m_lrat );
     uiGroup->add( &m_resv );
     uiGroup->add( &m_bhp );
     uiGroup->add( &m_thp );
     uiGroup->add( &m_vfptab );
-    uiGroup->add( &m_alqWell );
+    uiGroup->add( &m_rsrvinj );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckKeyword RimKeywordWconprod::keyword()
+Opm::DeckKeyword RimKeywordWconinje::keyword()
 {
-    using W = Opm::ParserKeywords::WCONPROD;
+    using W = Opm::ParserKeywords::WCONINJE;
 
     std::vector<Opm::DeckItem> items;
 
     items.push_back( RifOpmDeckTools::item( W::WELL::itemName, m_wellName().toStdString() ) );
+    items.push_back( RifOpmDeckTools::item( W::TYPE::itemName, m_type().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::STATUS::itemName, m_status().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::CMODE::itemName, m_target().toStdString() ) );
-    items.push_back( m_orat().has_value() ? RifOpmDeckTools::item( W::ORAT::itemName, m_orat().value() )
-                                          : RifOpmDeckTools::defaultItem( W::ORAT::itemName ) );
-    items.push_back( m_wrat().has_value() ? RifOpmDeckTools::item( W::WRAT::itemName, m_wrat().value() )
-                                          : RifOpmDeckTools::defaultItem( W::WRAT::itemName ) );
-    items.push_back( m_grat().has_value() ? RifOpmDeckTools::item( W::GRAT::itemName, m_grat().value() )
-                                          : RifOpmDeckTools::defaultItem( W::GRAT::itemName ) );
-    items.push_back( m_lrat().has_value() ? RifOpmDeckTools::item( W::LRAT::itemName, m_lrat().value() )
-                                          : RifOpmDeckTools::defaultItem( W::LRAT::itemName ) );
     items.push_back( m_resv().has_value() ? RifOpmDeckTools::item( W::RESV::itemName, m_resv().value() )
                                           : RifOpmDeckTools::defaultItem( W::RESV::itemName ) );
     items.push_back( m_bhp().has_value() ? RifOpmDeckTools::item( W::BHP::itemName, m_bhp().value() )
@@ -141,10 +132,10 @@ Opm::DeckKeyword RimKeywordWconprod::keyword()
                                          : RifOpmDeckTools::defaultItem( W::THP::itemName ) );
     items.push_back( m_vfptab().has_value() ? RifOpmDeckTools::item( W::VFP_TABLE::itemName, m_vfptab().value() )
                                             : RifOpmDeckTools::defaultItem( W::VFP_TABLE::itemName ) );
-    items.push_back( m_alqWell().has_value() ? RifOpmDeckTools::item( W::ALQ::itemName, m_alqWell().value() )
-                                             : RifOpmDeckTools::defaultItem( W::ALQ::itemName ) );
+    items.push_back( m_rsrvinj().has_value() ? RifOpmDeckTools::item( W::VAPOIL_C::itemName, m_rsrvinj().value() )
+                                             : RifOpmDeckTools::defaultItem( W::VAPOIL_C::itemName ) );
 
-    Opm::DeckKeyword kw( ( Opm::ParserKeywords::WCONPROD() ) );
+    Opm::DeckKeyword kw( ( Opm::ParserKeywords::WCONINJE() ) );
     kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
 
     return kw;

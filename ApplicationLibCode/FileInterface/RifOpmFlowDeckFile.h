@@ -27,7 +27,7 @@
 namespace Opm
 {
 class FileDeck;
-class DeckItem;
+class DeckKeyword;
 class ParseContext;
 } // namespace Opm
 
@@ -49,8 +49,8 @@ public:
 
     bool mergeMswData( std::vector<std::string>& mswFileData );
 
-    bool openWellAtTimeStep( int timeStep, std::string openText );
-    bool openWellAtDeckPosition( int deckPosition, std::string openText );
+    bool openWellAtTimeStep( int timeStep, Opm::DeckKeyword& openKeyword );
+    bool openWellAtDeckPosition( int deckPosition, Opm::DeckKeyword& openKeyword );
 
     bool restartAtTimeStep( int timeStep, std::string deckName );
     bool stopAtTimeStep( int timeStep );
@@ -78,10 +78,6 @@ public:
                              std::optional<float> beta );
 
 private:
-    Opm::DeckItem item( std::string name, std::string value );
-    Opm::DeckItem item( std::string name, int value );
-    Opm::DeckItem defaultItem( std::string name, int cols );
-
     void splitDatesIfNecessary();
 
 private:

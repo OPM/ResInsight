@@ -29,6 +29,8 @@ class RimWellPath;
 class RifOpmFlowDeckFile;
 class RimEclipseCaseEnsemble;
 class RimSummaryEnsemble;
+class RimKeywordWconprod;
+class RimKeywordWconinje;
 
 //==================================================================================================
 ///
@@ -86,7 +88,6 @@ private:
 
     void        exportBasicWellSettings();
     std::string exportMswWellSettings( int timeStep );
-    QString     generateBasicOpenWellText();
     void        selectOpenWellPosition();
 
 private:
@@ -113,8 +114,10 @@ private:
     caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;
     caf::PdmField<bool>                       m_includeMSWData;
 
+    caf::PdmChildField<RimKeywordWconprod*> m_wconprodKeyword;
+    caf::PdmChildField<RimKeywordWconinje*> m_wconinjeKeyword;
+
     caf::PdmField<QString> m_wellOpenKeyword;
-    caf::PdmField<QString> m_wellOpenText;
 
     QString                             m_deckName;
     std::unique_ptr<RifOpmFlowDeckFile> m_deckFile;

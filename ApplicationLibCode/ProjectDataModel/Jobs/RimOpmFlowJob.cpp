@@ -38,6 +38,8 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimFishbones.h"
+#include "RimKeywordWconinje.h"
+#include "RimKeywordWconprod.h"
 #include "RimOilField.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
@@ -55,6 +57,8 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafProgressInfo.h"
+
+#include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 
 #include <QFile>
 #include <QFileInfo>
@@ -106,7 +110,13 @@ RimOpmFlowJob::RimOpmFlowJob()
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_wellOpenKeyword.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_wellOpenText, "WellOpenText", QString( "'GRUP' 5000 4* 100 20 5" ), "Open Well Parameters" );
+    CAF_PDM_InitFieldNoDefault( &m_wconprodKeyword, "WconprodKeyword", "WCONPROD Settings" );
+    m_wconprodKeyword = new RimKeywordWconprod();
+    m_wconprodKeyword.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wconinjeKeyword, "WconinjeKeyword", "WCONINJE Settings" );
+    m_wconinjeKeyword = new RimKeywordWconinje();
+    m_wconinjeKeyword.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, " " );
     CAF_PDM_InitField( &m_endTimeStep, "EndTimeStep", 0, " " );
@@ -212,7 +222,16 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
         wellGrp->add( &m_wellPath );
         wellGrp->add( &m_wellOpenKeyword );
-        wellGrp->add( &m_wellOpenText );
+        if ( m_wellOpenKeyword() == "WCONPROD" )
+        {
+            auto wconGrp = wellGrp->addNewGroup( "WCONPROD Settings" );
+            m_wconprodKeyword->uiOrdering( wconGrp );
+        }
+        else
+        {
+            auto wconGrp = wellGrp->addNewGroup( "WCONINJE Settings" );
+            m_wconinjeKeyword->uiOrdering( wconGrp );
+        }
 
         wellGrp->add( &m_wellOpenType );
 
@@ -320,17 +339,6 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
         if ( reply == QMessageBox::Yes )
         {
             m_currentRunId = 0;
-        }
-    }
-    else if ( changedField == &m_wellOpenKeyword )
-    {
-        if ( newValue.toString() == "WCONPROD" )
-        {
-            m_wellOpenText.setValueWithFieldChanged( "'GRUP' 5000 4* 100 20 5" );
-        }
-        else
-        {
-            m_wellOpenText.setValueWithFieldChanged( "'GRUP' 6500 1* 350" );
         }
     }
     else if ( changedField == &m_openSelectButton )
@@ -592,7 +600,8 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
-        if ( m_wellPath->completionSettings()->wellName().isEmpty() )
+        auto wellNameInDeck = m_wellPath->completionSettings()->wellName();
+        if ( wellNameInDeck.isEmpty() )
         {
             RiaLogging::error( "Selected Well Path does not have a WELL NAME set, please check the completion settings." );
             return false;
@@ -603,6 +612,9 @@ bool RimOpmFlowJob::onPrepare()
             RiaLogging::error( "Selected Well Path does not have a GROUP NAME set, please check the completion settings." );
             return false;
         }
+
+        m_wconinjeKeyword->setWellName( wellNameInDeck );
+        m_wconprodKeyword->setWellName( wellNameInDeck );
 
         int mergePosition = m_openWellDeckPosition();
 
@@ -651,12 +663,16 @@ bool RimOpmFlowJob::onPrepare()
             QFile::remove( wellTempFile() );
         }
 
-        QString openWellText = generateBasicOpenWellText();
+        Opm::DeckKeyword openKeyword = m_wconinjeKeyword->keyword();
+        if ( m_wellOpenKeyword() == "WCONPROD" )
+        {
+            openKeyword = m_wconprodKeyword->keyword();
+        }
 
         // open new well at selected timestep
         if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
         {
-            if ( !m_deckFile->openWellAtTimeStep( m_openTimeStep(), openWellText.toStdString() ) )
+            if ( !m_deckFile->openWellAtTimeStep( m_openTimeStep(), openKeyword ) )
             {
                 RiaLogging::error( "Unable to open new well at selected timestep in DATA file." );
                 return false;
@@ -664,7 +680,7 @@ bool RimOpmFlowJob::onPrepare()
         }
         else
         {
-            if ( !m_deckFile->openWellAtDeckPosition( mergePosition, openWellText.toStdString() ) )
+            if ( !m_deckFile->openWellAtDeckPosition( mergePosition, openKeyword ) )
             {
                 RiaLogging::error( "Unable to open new well at selected position in DATA file." );
                 return false;
@@ -929,28 +945,6 @@ std::string RimOpmFlowJob::exportMswWellSettings( int timeStep )
     QFile::remove( customMswLgrName );
 
     return fileContent.toStdString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::generateBasicOpenWellText()
-{
-    auto cs = m_wellPath->completionSettings();
-
-    QString wellText = m_wellOpenKeyword() + "\n";
-
-    if ( m_wellOpenKeyword() == "WCONPROD" )
-    {
-        wellText += QString( "'%1' 'OPEN' %2 /\n" ).arg( cs->wellNameForExport() ).arg( m_wellOpenText );
-    }
-    else if ( m_wellOpenKeyword() == "WCONINJE" )
-    {
-        wellText += QString( "'%1' 'WATER' 'OPEN' %2 /\n" ).arg( cs->wellNameForExport() ).arg( m_wellOpenText );
-    }
-    wellText += "/\n";
-
-    return wellText;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -37,13 +37,13 @@ class DeckItem;
 ///
 ///
 //==================================================================================================
-class RimKeywordWconprod : public caf::PdmObject
+class RimKeywordWconinje : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimKeywordWconprod();
-    ~RimKeywordWconprod() override;
+    RimKeywordWconinje();
+    ~RimKeywordWconinje() override;
 
     void setWellName( const QString& name );
 
@@ -56,15 +56,13 @@ protected:
 
 private:
     caf::PdmField<QString>               m_wellName;
+    caf::PdmField<QString>               m_type;
     caf::PdmField<QString>               m_status;
     caf::PdmField<QString>               m_target;
-    caf::PdmField<std::optional<double>> m_orat;
-    caf::PdmField<std::optional<double>> m_wrat;
-    caf::PdmField<std::optional<double>> m_grat;
-    caf::PdmField<std::optional<double>> m_lrat;
+    caf::PdmField<std::optional<double>> m_rate;
     caf::PdmField<std::optional<double>> m_resv;
     caf::PdmField<std::optional<double>> m_bhp;
     caf::PdmField<std::optional<double>> m_thp;
     caf::PdmField<std::optional<int>>    m_vfptab;
-    caf::PdmField<std::optional<double>> m_alqWell;
+    caf::PdmField<std::optional<double>> m_rsrvinj;
 };
