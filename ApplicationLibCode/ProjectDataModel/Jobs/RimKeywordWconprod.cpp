@@ -20,6 +20,10 @@
 
 #include "cafPdmFieldCapability.h"
 
+#include "opm/input/eclipse/Deck/DeckItem.hpp"
+#include "opm/input/eclipse/Deck/DeckRecord.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+
 CAF_PDM_SOURCE_INIT( RimKeywordWconprod, "KeywordWconprod" );
 
 //--------------------------------------------------------------------------------------------------
@@ -127,4 +131,59 @@ QString RimKeywordWconprod::recordAsString() const
     record += "/\n";
 
     return record;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckRecord RimKeywordWconprod::toRecord()
+{
+    using W = Opm::ParserKeywords::WCONPROD;
+
+    Opm::DeckRecord record;
+
+    record.addItem( item( W::WELL::itemName, m_wellName().toStdString() ) );
+    record.addItem( item( W::STATUS::itemName, m_status().toStdString() ) );
+    record.addItem( item( W::CMODE::itemName, m_target().toStdString() ) );
+    record.addItem( m_orat().has_value() ? item( W::ORAT::itemName, m_orat().value() ) : defaultItem( W::ORAT::itemName, 1 ) );
+    record.addItem( m_wrat().has_value() ? item( W::WRAT::itemName, m_wrat().value() ) : defaultItem( W::WRAT::itemName, 1 ) );
+    record.addItem( m_grat().has_value() ? item( W::GRAT::itemName, m_grat().value() ) : defaultItem( W::GRAT::itemName, 1 ) );
+    record.addItem( m_lrat().has_value() ? item( W::LRAT::itemName, m_lrat().value() ) : defaultItem( W::LRAT::itemName, 1 ) );
+    record.addItem( m_resv().has_value() ? item( W::RESV::itemName, m_resv().value() ) : defaultItem( W::RESV::itemName, 1 ) );
+    record.addItem( m_bhp().has_value() ? item( W::BHP::itemName, m_bhp().value() ) : defaultItem( W::BHP::itemName, 1 ) );
+    record.addItem( m_thp().has_value() ? item( W::THP::itemName, m_thp().value() ) : defaultItem( W::THP::itemName, 1 ) );
+    record.addItem( m_vfptab().has_value() ? item( W::VFP_TABLE::itemName, m_vfptab().value() ) : defaultItem( W::VFP_TABLE::itemName, 1 ) );
+    record.addItem( m_alqWell().has_value() ? item( W::ALQ::itemName, m_alqWell().value() ) : defaultItem( W::ALQ::itemName, 1 ) );
+
+    return record;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem RimKeywordWconprod::item( const std::string name, std::string value )
+{
+    Opm::DeckItem item1( name, value );
+    item1.push_back( value );
+    return item1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem RimKeywordWconprod::item( const std::string name, int value )
+{
+    Opm::DeckItem item1( name, value );
+    item1.push_back( value );
+    return item1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem RimKeywordWconprod::defaultItem( const std::string name, int cols )
+{
+    Opm::DeckItem item1( name, 0 );
+    item1.push_backDummyDefault<int>( cols );
+    return item1;
 }
