@@ -29,6 +29,8 @@ namespace Opm
 {
 class FileDeck;
 class DeckKeyword;
+class DeckItem;
+class DeckRecord;
 class ParseContext;
 } // namespace Opm
 
@@ -87,6 +89,9 @@ public:
                              std::optional<float> beta );
 
     bool addBcconKeyword( std::string section, const std::vector<RigEclipseResultTools::BorderCellFace>& borderCellFaces );
+    bool addBcpropKeyword( std::string                                               section,
+                           const std::vector<RigEclipseResultTools::BorderCellFace>& boundaryConditions,
+                           const std::vector<Opm::DeckRecord>&                       boundaryConditionProperties );
 
 private:
     void splitDatesIfNecessary();

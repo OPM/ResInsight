@@ -1,7 +1,17 @@
 #include "gtest/gtest.h"
 
 #include "RiaTestDataDirectory.h"
+
+#include "RifOpmDeckTools.h"
 #include "RifOpmFlowDeckFile.h"
+
+#include "RigEclipseResultTools.h"
+
+#include "cvfStructGrid.h"
+
+#include "opm/input/eclipse/Deck/DeckItem.hpp"
+#include "opm/input/eclipse/Deck/DeckRecord.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 
 #include <QDebug>
 #include <QDir>
@@ -321,4 +331,112 @@ TEST( RifOpmFlowDeckFileTest, AddOperaterSaveAndReload )
     // be preserved as standalone keywords in the reloaded deck. This is expected behavior.
     // The test validates that our addOperaterKeyword functionality works correctly
     // by checking that the OPERATER statement is properly saved to the file.
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test BCPROP keyword generation
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, BcpropKeyword )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() ) << "Failed to create temporary directory";
+
+    // Load the deck file
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+
+    ASSERT_TRUE( loadSuccess ) << "Failed to load deck file";
+
+    // Create boundary conditions with different indices
+    std::vector<RigEclipseResultTools::BorderCellFace> boundaryConditions;
+    boundaryConditions.push_back( { cvf::Vec3st( 5, 5, 2 ), cvf::StructGridInterface::POS_I, 1 } );
+    boundaryConditions.push_back( { cvf::Vec3st( 5, 6, 2 ), cvf::StructGridInterface::POS_J, 1 } );
+    boundaryConditions.push_back( { cvf::Vec3st( 6, 5, 2 ), cvf::StructGridInterface::NEG_I, 2 } );
+    boundaryConditions.push_back( { cvf::Vec3st( 7, 5, 2 ), cvf::StructGridInterface::POS_K, 2 } );
+
+    // Create boundary condition properties
+    // BC 1: Free flow boundary with specified pressure
+    // BC 2: Fixed pressure boundary with temperature
+    std::vector<Opm::DeckRecord> bcProperties;
+
+    using B = Opm::ParserKeywords::BCPROP;
+
+    // Property for BC 1 (index will be added by addBcpropKeyword)
+    {
+        std::vector<Opm::DeckItem> items;
+        items.push_back( RifOpmDeckTools::item( B::TYPE::itemName, std::string( "FREE" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::COMPONENT::itemName, std::string( "NONE" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::RATE::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::PRESSURE::itemName, 200.0 ) ); // 200 bar
+        items.push_back( RifOpmDeckTools::item( B::TEMPERATURE::itemName, 80.0 ) ); // 80 C
+        items.push_back( RifOpmDeckTools::item( B::MECHTYPE::itemName, std::string( "NONE" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDX::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDY::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDZ::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSXX::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSYY::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSZZ::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPX::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPY::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPZ::itemName, 0.0 ) );
+        bcProperties.push_back( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    // Property for BC 2
+    {
+        std::vector<Opm::DeckItem> items;
+        items.push_back( RifOpmDeckTools::item( B::TYPE::itemName, std::string( "DIRICH" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::COMPONENT::itemName, std::string( "WATER" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::RATE::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::PRESSURE::itemName, 250.0 ) ); // 250 bar
+        items.push_back( RifOpmDeckTools::item( B::TEMPERATURE::itemName, 90.0 ) ); // 90 C
+        items.push_back( RifOpmDeckTools::item( B::MECHTYPE::itemName, std::string( "NONE" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDX::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDY::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDZ::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSXX::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSYY::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSZZ::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPX::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPY::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPZ::itemName, 0.0 ) );
+        bcProperties.push_back( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    // Add BCPROP keyword
+    bool bcpropAdded = deckFile.addBcpropKeyword( "GRID", boundaryConditions, bcProperties );
+    ASSERT_TRUE( bcpropAdded ) << "Failed to add BCPROP keyword";
+
+    // Save deck and verify format
+    QString outputDeckPath = tempDir.filePath( "output_bcprop.DATA" );
+    bool    deckSaved      = deckFile.saveDeck( tempDir.path().toStdString(), "output_bcprop.DATA" );
+    ASSERT_TRUE( deckSaved ) << "Failed to save deck file";
+    ASSERT_TRUE( QFile::exists( outputDeckPath ) ) << "Output deck file not created";
+
+    // Read and verify BCPROP content
+    QFile outputFile( outputDeckPath );
+    ASSERT_TRUE( outputFile.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    QString content = QTextStream( &outputFile ).readAll();
+    outputFile.close();
+
+    // Verify BCPROP keyword is present
+    EXPECT_TRUE( content.contains( "BCPROP" ) ) << "BCPROP keyword not found in output";
+
+    // Verify boundary condition types are present
+    EXPECT_TRUE( content.contains( "FREE" ) ) << "FREE boundary condition type not found";
+    EXPECT_TRUE( content.contains( "DIRICH" ) ) << "DIRICH boundary condition type not found";
+
+    // Verify pressure values
+    EXPECT_TRUE( content.contains( "200" ) ) << "Pressure 200 bar not found";
+    EXPECT_TRUE( content.contains( "250" ) ) << "Pressure 250 bar not found";
+
+    // Verify temperature values
+    EXPECT_TRUE( content.contains( "80" ) ) << "Temperature 80 C not found";
+    EXPECT_TRUE( content.contains( "90" ) ) << "Temperature 90 C not found";
+
+    // Verify component
+    EXPECT_TRUE( content.contains( "WATER" ) ) << "Component WATER not found";
 }

@@ -922,19 +922,74 @@ bool RifOpmFlowDeckFile::addBcconKeyword( std::string section, const std::vector
         // Create items for the record using proper BCCON item names
         std::vector<Opm::DeckItem> recordItems;
 
-        recordItems.push_back( item( B::INDEX::itemName, borderFace.boundaryCondition ) );
-        recordItems.push_back( item( B::I1::itemName, i1 ) );
-        recordItems.push_back( item( B::I2::itemName, i1 ) ); // Same as i1 for single cell
-        recordItems.push_back( item( B::J1::itemName, j1 ) );
-        recordItems.push_back( item( B::J2::itemName, j1 ) ); // Same as j1 for single cell
-        recordItems.push_back( item( B::K1::itemName, k1 ) );
-        recordItems.push_back( item( B::K2::itemName, k1 ) ); // Same as k1 for single cell
-        recordItems.push_back( item( B::DIRECTION::itemName, faceStr ) );
+        recordItems.push_back( RifOpmDeckTools::item( B::INDEX::itemName, borderFace.boundaryCondition ) );
+        recordItems.push_back( RifOpmDeckTools::item( B::I1::itemName, i1 ) );
+        recordItems.push_back( RifOpmDeckTools::item( B::I2::itemName, i1 ) ); // Same as i1 for single cell
+        recordItems.push_back( RifOpmDeckTools::item( B::J1::itemName, j1 ) );
+        recordItems.push_back( RifOpmDeckTools::item( B::J2::itemName, j1 ) ); // Same as j1 for single cell
+        recordItems.push_back( RifOpmDeckTools::item( B::K1::itemName, k1 ) );
+        recordItems.push_back( RifOpmDeckTools::item( B::K2::itemName, k1 ) ); // Same as k1 for single cell
+        recordItems.push_back( RifOpmDeckTools::item( B::DIRECTION::itemName, faceStr ) );
 
         bcconKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
     }
 
     m_fileDeck->insert( insertPos.value(), bcconKw );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::addBcpropKeyword( std::string                                               section,
+                                           const std::vector<RigEclipseResultTools::BorderCellFace>& boundaryConditions,
+                                           const std::vector<Opm::DeckRecord>&                       boundaryConditionProperties )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    if ( boundaryConditions.empty() ) return true; // Nothing to add
+
+    // Find insertion point within the section
+    auto insertPos = internal::findSectionInsertionPoint( m_fileDeck, section );
+    if ( !insertPos.has_value() )
+    {
+        return false; // Section not found
+    }
+
+    // Create the BCPROP keyword using OPM's BCPROP parser keyword
+    using B = Opm::ParserKeywords::BCPROP;
+
+    Opm::DeckKeyword bcpropKw( ( Opm::ParserKeywords::BCPROP() ) );
+
+    // Add one entry per boundary condition
+    for ( const auto& bc : boundaryConditions )
+    {
+        if ( bc.boundaryCondition <= 0 ) continue; // Skip entries without a valid boundary condition
+
+        // Find the corresponding property record
+        // The properties vector should be indexed by boundaryCondition - 1
+        size_t propIndex = static_cast<size_t>( bc.boundaryCondition - 1 );
+        if ( propIndex < boundaryConditionProperties.size() )
+        {
+            const auto& propRecord = boundaryConditionProperties[propIndex];
+
+            // Create a new record with the boundary condition INDEX
+            std::vector<Opm::DeckItem> recordItems;
+
+            // Add INDEX field
+            recordItems.push_back( RifOpmDeckTools::item( B::INDEX::itemName, bc.boundaryCondition ) );
+
+            // Copy all items from the property record (which doesn't include INDEX)
+            for ( size_t i = 0; i < propRecord.size(); ++i )
+            {
+                recordItems.push_back( propRecord.getItem( i ) );
+            }
+
+            bcpropKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
+        }
+    }
+
+    m_fileDeck->insert( insertPos.value(), bcpropKw );
     return true;
 }
 
