@@ -15,6 +15,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseDataTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoir-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridExportAdapter-Test.cpp

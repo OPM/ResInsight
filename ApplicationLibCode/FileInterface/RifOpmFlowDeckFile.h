@@ -32,6 +32,11 @@ class DeckKeyword;
 class ParseContext;
 } // namespace Opm
 
+namespace RigEclipseResultTools
+{
+struct BorderCellFace;
+}
+
 //==================================================================================================
 ///
 ///
@@ -80,6 +85,8 @@ public:
                              std::string          inputProperty,
                              std::optional<float> alpha,
                              std::optional<float> beta );
+
+    bool addBcconKeyword( std::string section, const std::vector<RigEclipseResultTools::BorderCellFace>& borderCellFaces );
 
 private:
     void splitDatesIfNecessary();

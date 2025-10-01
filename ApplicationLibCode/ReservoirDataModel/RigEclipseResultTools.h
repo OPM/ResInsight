@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "cvfArray.h"
+#include "cvfStructGrid.h"
 
 class RimEclipseCase;
 class RimEclipseView;
@@ -35,6 +36,13 @@ enum BorderType : int
     INTERIOR_CELL  = 2
 };
 
+struct BorderCellFace
+{
+    cvf::Vec3st                        ijk; // Cell indices (0-based)
+    cvf::StructGridInterface::FaceType faceType;
+    int                                boundaryCondition; // BCCON grid value
+};
+
 void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& intValues );
 
 void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility, const QString& resultName = "BORDER" );
@@ -42,5 +50,7 @@ void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray
 void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue = -1 );
 
 int findMaxOperNumValue( RimEclipseCase* eclipseCase );
+
+std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase );
 
 } // namespace RigEclipseResultTools

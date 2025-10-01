@@ -20,6 +20,8 @@
 
 #include "RifOpmDeckTools.h"
 
+#include "RigEclipseResultTools.h"
+
 #include "opm/common/utility/TimeService.hpp"
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Deck/FileDeck.hpp"
@@ -27,6 +29,7 @@
 #include "opm/input/eclipse/Parser/InputErrorAction.hpp"
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/D.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
@@ -36,6 +39,8 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/R.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+
+#include "cvfStructGrid.h"
 
 #include <format>
 #include <memory>
@@ -859,6 +864,77 @@ bool RifOpmFlowDeckFile::addOperaterKeyword( std::string          section,
     operaterKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
 
     m_fileDeck->insert( insertIdx.value(), operaterKw );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::addBcconKeyword( std::string section, const std::vector<RigEclipseResultTools::BorderCellFace>& borderCellFaces )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    if ( borderCellFaces.empty() ) return true; // Nothing to add
+
+    // Find insertion point within the section
+    auto insertPos = internal::findSectionInsertionPoint( m_fileDeck, section );
+    if ( !insertPos.has_value() )
+    {
+        return false; // Section not found
+    }
+
+    // Helper lambda to convert FaceType to string
+    auto faceTypeToString = []( cvf::StructGridInterface::FaceType faceType ) -> std::string
+    {
+        switch ( faceType )
+        {
+            case cvf::StructGridInterface::POS_I:
+                return "X";
+            case cvf::StructGridInterface::NEG_I:
+                return "X-";
+            case cvf::StructGridInterface::POS_J:
+                return "Y";
+            case cvf::StructGridInterface::NEG_J:
+                return "Y-";
+            case cvf::StructGridInterface::POS_K:
+                return "Z";
+            case cvf::StructGridInterface::NEG_K:
+                return "Z-";
+            default:
+                return "";
+        }
+    };
+
+    // Create the BCCON keyword using OPM's BCCON parser keyword
+    using B = Opm::ParserKeywords::BCCON;
+
+    Opm::DeckKeyword bcconKw( ( Opm::ParserKeywords::BCCON() ) );
+
+    for ( const auto& borderFace : borderCellFaces )
+    {
+        // Convert from 0-based to 1-based Eclipse indexing
+        int i1 = static_cast<int>( borderFace.ijk[0] ) + 1;
+        int j1 = static_cast<int>( borderFace.ijk[1] ) + 1;
+        int k1 = static_cast<int>( borderFace.ijk[2] ) + 1;
+
+        std::string faceStr = faceTypeToString( borderFace.faceType );
+
+        // Create items for the record using proper BCCON item names
+        std::vector<Opm::DeckItem> recordItems;
+
+        recordItems.push_back( item( B::INDEX::itemName, borderFace.boundaryCondition ) );
+        recordItems.push_back( item( B::I1::itemName, i1 ) );
+        recordItems.push_back( item( B::I2::itemName, i1 ) ); // Same as i1 for single cell
+        recordItems.push_back( item( B::J1::itemName, j1 ) );
+        recordItems.push_back( item( B::J2::itemName, j1 ) ); // Same as j1 for single cell
+        recordItems.push_back( item( B::K1::itemName, k1 ) );
+        recordItems.push_back( item( B::K2::itemName, k1 ) ); // Same as k1 for single cell
+        recordItems.push_back( item( B::DIRECTION::itemName, faceStr ) );
+
+        bcconKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
+    }
+
+    m_fileDeck->insert( insertPos.value(), bcconKw );
     return true;
 }
 
