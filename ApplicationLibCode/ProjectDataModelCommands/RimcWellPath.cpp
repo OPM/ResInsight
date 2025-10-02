@@ -656,11 +656,24 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendLateralFromGeom
         return std::unexpected( txt );
     }
 
+    auto connectLateralToWellPath = []( RimWellPath* mainWell, RimWellPath* lateral, double measuredDepth )
+    {
+        if ( !mainWell || !lateral ) return;
+
+        lateral->connectWellPaths( mainWell, measuredDepth );
+
+        auto wellPathCollection = RimTools::wellPathCollection();
+        wellPathCollection->rebuildWellPathNodes();
+
+        mainWell->updateAllRequiredEditors();
+    };
+
     const double sharedWellPathLength = lateralGeometry->identicalTubeLength( *mainWellPathGeometry );
     const double epsilon              = 1.0e-8;
     if ( sharedWellPathLength > epsilon )
     {
-        m_lateral->connectWellPaths( wellPath, sharedWellPathLength );
+        connectLateralToWellPath( wellPath, m_lateral, sharedWellPathLength );
+
         return nullptr;
     }
 
@@ -678,7 +691,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendLateralFromGeom
         return std::unexpected( txt );
     }
 
-    m_lateral->connectWellPaths( wellPath, closestMdOnMainWell );
+    connectLateralToWellPath( wellPath, m_lateral, closestMdOnMainWell );
 
     return nullptr;
 }

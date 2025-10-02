@@ -60,4 +60,4 @@ coord = [1054.28, 250, -50]
 target = lateral_geometry.append_well_target(coord)
 
 # Append the lateral to the main well path
-well_path.append_lateral(lateral_well)
+well_path.append_lateral_from_geometry(lateral_well)
