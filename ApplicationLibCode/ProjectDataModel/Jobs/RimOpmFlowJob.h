@@ -83,6 +83,7 @@ private:
     QString         restartDeckName() const;
 
     std::vector<QDateTime> datesInFileDeck();
+    std::vector<QString>   wellgroupsInFileDeck();
 
     static QString readFileContent( QString filename );
 
@@ -113,6 +114,7 @@ private:
     caf::PdmField<bool>                       m_addNewWell;
     caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;
     caf::PdmField<bool>                       m_includeMSWData;
+    caf::PdmField<QString>                    m_wellGroupName;
 
     caf::PdmChildField<RimKeywordWconprod*> m_wconprodKeyword;
     caf::PdmChildField<RimKeywordWconinje*> m_wconinjeKeyword;

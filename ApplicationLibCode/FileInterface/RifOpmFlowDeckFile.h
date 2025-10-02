@@ -21,6 +21,7 @@
 #include <ctime>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -60,6 +61,8 @@ public:
     bool                     isRestartFile();
     std::vector<std::string> dateStrings();
     std::vector<std::time_t> dates();
+
+    std::set<std::string> wellGroupsInFile();
 
     std::vector<int> welldims();
     bool             setWelldims( int maxWells, int maxConnections, int maxGroups, int maxWellsInGroup );

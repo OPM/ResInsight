@@ -72,8 +72,8 @@ namespace caf
 template <>
 void caf::AppEnum<RimOpmFlowJob::WellOpenType>::setUp()
 {
-    addItem( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION, "OpenByPosition", "Select Keyword Position in File" );
-    addItem( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE, "AtSelectedDate", "Select a Date" );
+    addItem( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION, "OpenByPosition", "By Position in File" );
+    addItem( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE, "AtSelectedDate", "By Date" );
 
     setDefault( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE );
 }
@@ -104,6 +104,9 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_addToEnsemble, "AddToEnsemble", false, "Add Runs to Ensemble" );
     CAF_PDM_InitField( &m_useRestart, "UseRestart", false, "Restart Simulation at Well Open Date" );
     CAF_PDM_InitField( &m_currentRunId, "CurrentRunID", 0, "Current Run ID" );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "WellGroupName", "Well Group Name" );
+    m_wellGroupName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_AT_DATE ), "Open Well" );
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
@@ -196,6 +199,16 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
             pbAttribute->m_buttonText = "Reset Ensemble Run Id";
         }
     }
+    else if ( field == &m_wellGroupName )
+    {
+        auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+        if ( attr )
+        {
+            attr->enableEditableContent = true;
+            attr->enableAutoComplete    = false;
+            attr->adjustWidthToContents = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,6 +234,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         auto wellGrp = uiOrdering.addNewGroup( "New Well Settings" );
 
         wellGrp->add( &m_wellPath );
+        wellGrp->add( &m_wellGroupName );
         wellGrp->add( &m_wellOpenKeyword );
         if ( m_wellOpenKeyword() == "WCONPROD" )
         {
@@ -311,6 +325,13 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
         options.push_back( caf::PdmOptionItemInfo( "WCONPROD", QVariant::fromValue( QString( "WCONPROD" ) ) ) );
         options.push_back( caf::PdmOptionItemInfo( "WCONINJE", QVariant::fromValue( QString( "WCONINJE" ) ) ) );
     }
+    else if ( fieldNeedingOptions == &m_wellGroupName )
+    {
+        for ( auto grp : wellgroupsInFileDeck() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( grp, QVariant::fromValue( grp ) ) );
+        }
+    }
 
     return options;
 }
@@ -345,6 +366,17 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
     {
         m_openSelectButton = false;
         selectOpenWellPosition();
+    }
+    else if ( changedField == &m_wellPath )
+    {
+        if ( ( m_wellPath() != nullptr ) && ( m_wellPath->completionSettings() != nullptr ) )
+        {
+            auto wellSettings = m_wellPath->completionSettings();
+            if ( !wellSettings->groupName().isEmpty() && m_wellGroupName().isEmpty() )
+            {
+                m_wellGroupName = wellSettings->groupName();
+            }
+        }
     }
 }
 
@@ -600,6 +632,12 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
+        if ( m_wellPath->completionSettings() == nullptr )
+        {
+            RiaLogging::error( "The selected well path has no completions defined." );
+            return false;
+        }
+
         auto wellNameInDeck = m_wellPath->completionSettings()->wellName();
         if ( wellNameInDeck.isEmpty() )
         {
@@ -607,9 +645,9 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
-        if ( m_wellPath->completionSettings()->groupName().isEmpty() )
+        if ( m_wellGroupName().isEmpty() )
         {
-            RiaLogging::error( "Selected Well Path does not have a GROUP NAME set, please check the completion settings." );
+            RiaLogging::error( "Please set the well group name." );
             return false;
         }
 
@@ -995,4 +1033,21 @@ std::vector<QDateTime> RimOpmFlowJob::datesInFileDeck()
     }
 
     return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimOpmFlowJob::wellgroupsInFileDeck()
+{
+    std::vector<QString> groups;
+
+    if ( openDeckFile() )
+    {
+        for ( auto& grp : m_deckFile->wellGroupsInFile() )
+        {
+            groups.push_back( QString::fromStdString( grp ) );
+        }
+    }
+    return groups;
 }

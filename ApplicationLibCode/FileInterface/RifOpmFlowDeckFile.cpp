@@ -536,6 +536,30 @@ bool RifOpmFlowDeckFile::isRestartFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<std::string> RifOpmFlowDeckFile::wellGroupsInFile()
+{
+    std::set<std::string> values;
+
+    if ( m_fileDeck.get() == nullptr ) return values;
+
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == Opm::ParserKeywords::WELSPECS::keywordName )
+        {
+            for ( int i = 0; i < (int)kw.size(); i++ )
+            {
+                auto& item = kw.getRecord( i ).getItem( Opm::ParserKeywords::WELSPECS::GROUP::itemName );
+                values.insert( item.get<std::string>( 0 ) );
+            }
+        }
+    }
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifOpmFlowDeckFile::dateStrings()
 {
     std::vector<std::string> values;
