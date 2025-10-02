@@ -36,8 +36,6 @@ CAF_PDM_SOURCE_INIT( RimKeywordWconinje, "KeywordWconinje" );
 RimKeywordWconinje::RimKeywordWconinje()
 {
     CAF_PDM_InitObject( "WCONINJE Keyword" );
-    CAF_PDM_InitField( &m_wellName, "wellName", QString(), "Well Name" );
-    m_wellName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitField( &m_type, "type", QString( "WAT" ), "Injection Type" );
     CAF_PDM_InitField( &m_status, "status", QString( "OPEN" ), "Well Status" );
     CAF_PDM_InitField( &m_target, "target", QString( "RATE" ), "Target Injection Control Mode" );
@@ -91,14 +89,6 @@ QList<caf::PdmOptionItemInfo> RimKeywordWconinje::calculateValueOptions( const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimKeywordWconinje::setWellName( const QString& name )
-{
-    m_wellName = name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimKeywordWconinje::uiOrdering( caf::PdmUiGroup* uiGroup )
 {
     uiGroup->add( &m_type );
@@ -114,13 +104,13 @@ void RimKeywordWconinje::uiOrdering( caf::PdmUiGroup* uiGroup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckKeyword RimKeywordWconinje::keyword()
+Opm::DeckKeyword RimKeywordWconinje::keyword( const QString& wellName )
 {
     using W = Opm::ParserKeywords::WCONINJE;
 
     std::vector<Opm::DeckItem> items;
 
-    items.push_back( RifOpmDeckTools::item( W::WELL::itemName, m_wellName().toStdString() ) );
+    items.push_back( RifOpmDeckTools::item( W::WELL::itemName, wellName.toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::TYPE::itemName, m_type().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::STATUS::itemName, m_status().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::CMODE::itemName, m_target().toStdString() ) );

@@ -613,9 +613,6 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
-        m_wconinjeKeyword->setWellName( wellNameInDeck );
-        m_wconprodKeyword->setWellName( wellNameInDeck );
-
         int mergePosition = m_openWellDeckPosition();
 
         if ( ( m_includeMSWData ) && ( m_wellOpenType == WellOpenType::OPEN_AT_DATE ) )
@@ -663,10 +660,10 @@ bool RimOpmFlowJob::onPrepare()
             QFile::remove( wellTempFile() );
         }
 
-        Opm::DeckKeyword openKeyword = m_wconinjeKeyword->keyword();
+        Opm::DeckKeyword openKeyword = m_wconinjeKeyword->keyword( wellNameInDeck );
         if ( m_wellOpenKeyword() == "WCONPROD" )
         {
-            openKeyword = m_wconprodKeyword->keyword();
+            openKeyword = m_wconprodKeyword->keyword( wellNameInDeck );
         }
 
         // open new well at selected timestep

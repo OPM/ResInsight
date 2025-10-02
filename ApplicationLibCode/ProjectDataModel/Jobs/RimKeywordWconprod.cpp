@@ -36,8 +36,6 @@ CAF_PDM_SOURCE_INIT( RimKeywordWconprod, "KeywordWconprod" );
 RimKeywordWconprod::RimKeywordWconprod()
 {
     CAF_PDM_InitObject( "WCONPROD Keyword" );
-    CAF_PDM_InitField( &m_wellName, "wellName", QString(), "Well Name" );
-    m_wellName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitField( &m_status, "status", QString( "OPEN" ), "Well Status" );
     CAF_PDM_InitField( &m_target, "target", QString( "LRAT" ), "Target Production Phase" );
     CAF_PDM_InitFieldNoDefault( &m_orat, "orat", "Max Surface Oil Production Rate" );
@@ -90,14 +88,6 @@ QList<caf::PdmOptionItemInfo> RimKeywordWconprod::calculateValueOptions( const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimKeywordWconprod::setWellName( const QString& name )
-{
-    m_wellName = name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimKeywordWconprod::uiOrdering( caf::PdmUiGroup* uiGroup )
 {
     uiGroup->add( &m_status );
@@ -116,13 +106,13 @@ void RimKeywordWconprod::uiOrdering( caf::PdmUiGroup* uiGroup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckKeyword RimKeywordWconprod::keyword()
+Opm::DeckKeyword RimKeywordWconprod::keyword( const QString& wellName )
 {
     using W = Opm::ParserKeywords::WCONPROD;
 
     std::vector<Opm::DeckItem> items;
 
-    items.push_back( RifOpmDeckTools::item( W::WELL::itemName, m_wellName().toStdString() ) );
+    items.push_back( RifOpmDeckTools::item( W::WELL::itemName, wellName.toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::STATUS::itemName, m_status().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::CMODE::itemName, m_target().toStdString() ) );
     items.push_back( m_orat().has_value() ? RifOpmDeckTools::item( W::ORAT::itemName, m_orat().value() )

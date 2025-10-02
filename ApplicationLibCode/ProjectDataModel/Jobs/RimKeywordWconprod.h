@@ -45,17 +45,14 @@ public:
     RimKeywordWconprod();
     ~RimKeywordWconprod() override;
 
-    void setWellName( const QString& name );
-
     void uiOrdering( caf::PdmUiGroup* uiGroup );
 
-    Opm::DeckKeyword keyword();
+    Opm::DeckKeyword keyword( const QString& wellName );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    caf::PdmField<QString>               m_wellName;
     caf::PdmField<QString>               m_status;
     caf::PdmField<QString>               m_target;
     caf::PdmField<std::optional<double>> m_orat;
