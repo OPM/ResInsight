@@ -236,5 +236,3 @@ def test_perforation_settings(rips_instance, initialize_test):
     assert non_darcy_parameters_updated.porosity_scaling_factor == 0.59
     assert non_darcy_parameters_updated.relative_gas_density == 0.23
     assert non_darcy_parameters_updated.well_radius == 12.12
-
-

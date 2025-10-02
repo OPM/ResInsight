@@ -7,6 +7,7 @@ import rips
 
 import dataroot
 
+
 def test_append_lateral_from_measured_depth(rips_instance, initialize_test):
     well_path_coll = rips_instance.project.well_path_collection()
 
@@ -26,6 +27,7 @@ def test_append_lateral_from_measured_depth(rips_instance, initialize_test):
     measured_depth = 150
     lateral = main_well_path.append_lateral(measured_depth)
     assert lateral is not None
+
 
 def test_append_lateral(rips_instance, initialize_test):
     well_path_coll = rips_instance.project.well_path_collection()
