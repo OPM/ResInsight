@@ -6,6 +6,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconprod.h
     ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconinje.h
     ${CMAKE_CURRENT_LIST_DIR}/RimJobMonitor.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimKeywordBcprop.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +17,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconprod.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconinje.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimJobMonitor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimKeywordBcprop.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
