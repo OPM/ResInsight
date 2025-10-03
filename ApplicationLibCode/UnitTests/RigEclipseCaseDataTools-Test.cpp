@@ -18,6 +18,7 @@
 
 #include "gtest/gtest.h"
 
+#include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
 #include "RiaTestDataDirectory.h"
 
@@ -592,7 +593,8 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     int  numActiveCells          = static_cast<int>( activeReservoirCellIdxs.size() );
 
     std::vector<int> customOperValues;
-    customOperValues.resize( numActiveCells, 5 ); // Set all to 5 initially
+    customOperValues.resize( eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirCellCount(),
+                             5 ); // Set all to 5 initially
     // Add some higher values to test max detection
     if ( numActiveCells > 10 )
     {

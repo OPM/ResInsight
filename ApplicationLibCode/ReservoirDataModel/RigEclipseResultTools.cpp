@@ -67,8 +67,9 @@ void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
     int numActiveCells = static_cast<int>( activeReservoirCellIdxs.size() );
 
-    std::vector<int> result;
-    result.resize( numActiveCells, BorderType::INVISIBLE_CELL );
+    size_t reservoirCellCount =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirCellCount();
+    std::vector<int> result( reservoirCellCount, BorderType::INVISIBLE_CELL );
 
     auto grid = eclipseCase->eclipseCaseData()->mainGrid();
 
@@ -89,11 +90,11 @@ void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray
 
             if ( nVisibleNeighbors == 6 )
             {
-                result[i] = BorderType::INTERIOR_CELL;
+                result[cellIdx] = BorderType::INTERIOR_CELL;
             }
             else
             {
-                result[i] = BorderType::BORDER_CELL;
+                result[cellIdx] = BorderType::BORDER_CELL;
             }
         }
     }
@@ -119,10 +120,6 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
 
     auto activeReservoirCellIdxs =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
-    int numActiveCells = static_cast<int>( activeReservoirCellIdxs.size() );
-
-    std::vector<int> result;
-    result.resize( numActiveCells, 0 );
 
     // Check if OPERNUM already exists - if so, keep existing values.
     RigEclipseResultAddress operNumAddrNative( RiaDefines::ResultCatType::STATIC_NATIVE,
@@ -147,16 +144,17 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
         hasExistingOperNum = true;
     }
 
+    std::vector<int> result;
+
     if ( hasExistingOperNum )
     {
         resultsData->ensureKnownResultLoaded( operNumAddr );
-        auto existingValues = resultsData->cellScalarResults( operNumAddr );
-        if ( !existingValues.empty() )
+        auto existingValues = resultsData->cellScalarResults( operNumAddr, 0 );
+        result.resize( existingValues.size() );
+
+        for ( size_t i = 0; i < existingValues.size(); i++ )
         {
-            for ( int i = 0; i < numActiveCells; i++ )
-            {
-                result[i] = static_cast<int>( existingValues[0][i] );
-            }
+            result[i] = static_cast<int>( existingValues[i] );
         }
     }
 
@@ -165,15 +163,16 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
     if ( resultsData->hasResultEntry( bordNumAddr ) )
     {
         resultsData->ensureKnownResultLoaded( bordNumAddr );
-        auto bordNumValues = resultsData->cellScalarResults( bordNumAddr );
+        auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
         if ( !bordNumValues.empty() )
         {
-            for ( int i = 0; i < numActiveCells; i++ )
+            if ( result.empty() ) result.resize( bordNumValues.size(), 0 );
+            for ( size_t activeCellIdx : activeReservoirCellIdxs )
             {
                 // If BORDNUM = 1 (BORDER_CELL), assign the border cell value
-                if ( static_cast<int>( bordNumValues[0][i] ) == BorderType::BORDER_CELL )
+                if ( static_cast<int>( bordNumValues[activeCellIdx] ) == BorderType::BORDER_CELL )
                 {
-                    result[i] = borderCellValue;
+                    result[activeCellIdx] = borderCellValue;
                 }
             }
         }
@@ -219,15 +218,14 @@ int findMaxOperNumValue( RimEclipseCase* eclipseCase )
     if ( !hasOperNum ) return 0;
 
     resultsData->ensureKnownResultLoaded( operNumAddr );
-    auto operNumValues = resultsData->cellScalarResults( operNumAddr );
+    auto operNumValues = resultsData->cellScalarResults( operNumAddr, 0 );
     if ( operNumValues.empty() ) return 0;
 
     // Find maximum value
     int maxValue = 0;
-    for ( double value : operNumValues[0] )
+    for ( double value : operNumValues )
     {
-        int intValue = static_cast<int>( value );
-        maxValue     = std::max( maxValue, intValue );
+        maxValue = std::max( maxValue, static_cast<int>( value ) );
     }
 
     return maxValue;
