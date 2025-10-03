@@ -130,11 +130,10 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping( RigMainGrid* master
 {
     // Find tolerance
 
-    double cellSizeI, cellSizeJ, cellSizeK;
-    masterEclGrid->characteristicCellSizes( &cellSizeI, &cellSizeJ, &cellSizeK );
+    cvf::Vec3d cellSize = masterEclGrid->characteristicCellSizes();
 
-    double xyTolerance = cellSizeI * 0.4;
-    double zTolerance  = cellSizeK * 0.4;
+    double xyTolerance = cellSize.x() * 0.4;
+    double zTolerance  = cellSize.z() * 0.4;
 
     bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
 

@@ -408,11 +408,10 @@ double RigGridBase::characteristicIJCellSize() const
 {
     double characteristicCellSize = HUGE_VAL;
 
-    double cellSizeI, cellSizeJ, cellSizeK;
-    characteristicCellSizes( &cellSizeI, &cellSizeJ, &cellSizeK );
+    cvf::Vec3d cellSize = characteristicCellSizes();
 
-    if ( cellSizeI < characteristicCellSize ) characteristicCellSize = cellSizeI;
-    if ( cellSizeJ < characteristicCellSize ) characteristicCellSize = cellSizeJ;
+    if ( cellSize.x() < characteristicCellSize ) return cellSize.x();
+    if ( cellSize.y() < characteristicCellSize ) return cellSize.y();
 
     return characteristicCellSize;
 }
@@ -420,10 +419,8 @@ double RigGridBase::characteristicIJCellSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGridBase::characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const
+cvf::Vec3d RigGridBase::characteristicCellSizes() const
 {
-    CVF_ASSERT( iSize && jSize && kSize );
-
     if ( !hasValidCharacteristicCellSizes() )
     {
         std::vector<size_t> reservoirCellIndices;
@@ -433,9 +430,7 @@ void RigGridBase::characteristicCellSizes( double* iSize, double* jSize, double*
         computeCharacteristicCellSize( reservoirCellIndices );
     }
 
-    *iSize = m_characteristicCellSizeI;
-    *jSize = m_characteristicCellSizeJ;
-    *kSize = m_characteristicCellSizeK;
+    return m_characteristicCellSize;
 }
 
 //--------------------------------------------------------------------------------------------------

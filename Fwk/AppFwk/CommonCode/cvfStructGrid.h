@@ -87,7 +87,7 @@ public:
 
     virtual cvf::Vec3d minCoordinate() const = 0;
     virtual cvf::Vec3d maxCoordinate() const = 0;
-    virtual void       characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const;
+    virtual cvf::Vec3d characteristicCellSizes() const;
 
     bool hasValidCharacteristicCellSizes() const;
     void computeCharacteristicCellSize( const std::vector<size_t>& globalCellIndices ) const;
@@ -126,9 +126,7 @@ public:
     static std::vector<FaceType>   validFaceTypes();
 
 protected:
-    mutable double m_characteristicCellSizeI;
-    mutable double m_characteristicCellSizeJ;
-    mutable double m_characteristicCellSizeK;
+    mutable cvf::Vec3d m_characteristicCellSize;
 };
 
 } // namespace cvf

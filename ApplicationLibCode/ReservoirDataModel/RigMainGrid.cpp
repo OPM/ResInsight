@@ -740,9 +740,8 @@ void RigMainGrid::computeFaceNormalsDirection( const std::vector<size_t>& reserv
 
     double ijSize = characteristicIJCellSize();
 
-    double iSize, jSize, kSize = 0.0;
-    characteristicCellSizes( &iSize, &jSize, &kSize );
-    const double characteristicVolume = iSize * jSize * kSize;
+    cvf::Vec3d   cellSize             = characteristicCellSizes();
+    const double characteristicVolume = cellSize.x() * cellSize.y() * cellSize.z();
 
     for ( const auto& index : reservoirCellIndices )
     {
@@ -753,10 +752,10 @@ void RigMainGrid::computeFaceNormalsDirection( const std::vector<size_t>& reserv
             const double cellVolume = cell.volume();
             if ( cellVolume < characteristicVolume * 0.8 ) continue;
 
-            auto [isValid1, direction1] = isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_I );
-            auto [isValid2, direction2] = isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_I );
-            auto [isValid3, direction3] = isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_J );
-            auto [isValid4, direction4] = isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_J );
+            auto [isValid1, direction1] = isValidAndFaceNormalDir( ijSize, cellSize.z(), cell, cvf::StructGridInterface::FaceType::NEG_I );
+            auto [isValid2, direction2] = isValidAndFaceNormalDir( ijSize, cellSize.z(), cell, cvf::StructGridInterface::FaceType::POS_I );
+            auto [isValid3, direction3] = isValidAndFaceNormalDir( ijSize, cellSize.z(), cell, cvf::StructGridInterface::FaceType::NEG_J );
+            auto [isValid4, direction4] = isValidAndFaceNormalDir( ijSize, cellSize.z(), cell, cvf::StructGridInterface::FaceType::POS_J );
 
             if ( !isValid1 || !isValid2 || !isValid3 || !isValid4 ) continue;
 

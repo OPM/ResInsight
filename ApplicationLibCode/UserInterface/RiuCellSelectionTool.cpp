@@ -224,10 +224,9 @@ RiuEclipseSelectionItem* RiuCellSelectionTool::createSelectionItemFromInput()
 
         m_cellEdit->clear();
 
-        double iSize, jSize, kSize;
-        mainGrid->characteristicCellSizes( &iSize, &jSize, &kSize );
+        cvf::Vec3d cellSize = mainGrid->characteristicCellSizes();
 
-        auto distance = std::min( { iSize, jSize, kSize } ) * 0.4;
+        auto distance = std::min( { cellSize.x(), cellSize.y(), cellSize.z() } ) * 0.4;
 
         if ( coords.size() == 3 )
         {

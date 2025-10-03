@@ -63,9 +63,7 @@ namespace cvf
 //--------------------------------------------------------------------------------------------------
 StructGridInterface::StructGridInterface()
 {
-    m_characteristicCellSizeI = cvf::UNDEFINED_DOUBLE;
-    m_characteristicCellSizeJ = cvf::UNDEFINED_DOUBLE;
-    m_characteristicCellSizeK = cvf::UNDEFINED_DOUBLE;
+    m_characteristicCellSize = cvf::Vec3d::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,10 +301,8 @@ cvf::Vec3d StructGridInterface::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void StructGridInterface::characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const
+cvf::Vec3d StructGridInterface::characteristicCellSizes() const
 {
-    CVF_ASSERT( iSize && jSize && kSize );
-
     if ( !hasValidCharacteristicCellSizes() )
     {
         std::vector<size_t> reservoirCellIndices;
@@ -316,9 +312,7 @@ void StructGridInterface::characteristicCellSizes( double* iSize, double* jSize,
         computeCharacteristicCellSize( reservoirCellIndices );
     }
 
-    *iSize = m_characteristicCellSizeI;
-    *jSize = m_characteristicCellSizeJ;
-    *kSize = m_characteristicCellSizeK;
+    return m_characteristicCellSize;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,11 +320,7 @@ void StructGridInterface::characteristicCellSizes( double* iSize, double* jSize,
 //--------------------------------------------------------------------------------------------------
 bool StructGridInterface::hasValidCharacteristicCellSizes() const
 {
-    if ( m_characteristicCellSizeI == cvf::UNDEFINED_DOUBLE || m_characteristicCellSizeJ == cvf::UNDEFINED_DOUBLE ||
-         m_characteristicCellSizeK == cvf::UNDEFINED_DOUBLE )
-        return false;
-
-    return true;
+    return !m_characteristicCellSize.isUndefined();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -427,9 +417,9 @@ void StructGridInterface::computeCharacteristicCellSize( const std::vector<size_
 
             if ( divisor > 0.0 )
             {
-                m_characteristicCellSizeI = cvf::Math::sqrt( iLengthAccumulated / divisor );
-                m_characteristicCellSizeJ = cvf::Math::sqrt( jLengthAccumulated / divisor );
-                m_characteristicCellSizeK = cvf::Math::sqrt( kLengthAccumulated / divisor );
+                m_characteristicCellSize = cvf::Vec3d( cvf::Math::sqrt( iLengthAccumulated / divisor ),
+                                                       cvf::Math::sqrt( jLengthAccumulated / divisor ),
+                                                       cvf::Math::sqrt( kLengthAccumulated / divisor ) );
 
                 return;
             }

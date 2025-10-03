@@ -57,7 +57,7 @@ public:
     virtual RigCell&       cell( size_t gridLocalCellIndex );
     virtual const RigCell& cell( size_t gridLocalCellIndex ) const;
 
-    void characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const override;
+    cvf::Vec3d characteristicCellSizes() const override;
 
     size_t reservoirCellIndex( size_t gridLocalCellIndex ) const;
     void   setIndexToStartOfCells( size_t indexToStartOfCells ) { m_indexToStartOfCells = indexToStartOfCells; }
