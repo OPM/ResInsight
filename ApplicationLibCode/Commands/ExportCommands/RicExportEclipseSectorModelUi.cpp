@@ -29,6 +29,8 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include "ProjectDataModel/Jobs/RimKeywordBcprop.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInView.h"
@@ -37,6 +39,7 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QDir>
@@ -134,12 +137,23 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
     m_exportFolder = defaultFolder();
 
+    CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
+
+    CAF_PDM_InitField( &m_exportSimulationInput, "ExportSimulationInput", false, "Export Simulation Input" );
+
     m_exportGridFilename       = defaultGridFileName();
     m_exportParametersFilename = defaultResultsFileName();
     m_exportFaultsFilename     = defaultFaultsFileName();
 
+    // Add 10 default BCPROP keywords
+    for ( int i = 0; i < 10; ++i )
+    {
+        m_bcpropKeywords.push_back( new RimKeywordBcprop() );
+    }
+
     m_tabNames << "Grid Data";
     m_tabNames << "Parameters";
+    m_tabNames << "Simulation Input";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,6 +183,18 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
     m_eclipseView = eclipseView;
     m_visibleMin  = visibleMin;
     m_visibleMax  = visibleMax;
+
+    // Check if a .DATA file exists next to the grid file
+    m_exportSimulationInput = false;
+    if ( eclipseView && eclipseView->eclipseCase() )
+    {
+        QFileInfo fi( eclipseView->eclipseCase()->gridFileName() );
+        QString   dataFileName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
+        if ( QFile::exists( dataFileName ) )
+        {
+            m_exportSimulationInput = true;
+        }
+    }
 
     if ( minI == std::numeric_limits<int>::max() ) minI = m_visibleMin.x() + 1;
     if ( minJ == std::numeric_limits<int>::max() ) minJ = m_visibleMin.y() + 1;
@@ -269,6 +295,15 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
         if ( myAttr )
         {
             myAttr->heightHint = 280;
+        }
+    }
+    else if ( field == &m_bcpropKeywords )
+    {
+        auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttr )
+        {
+            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+            tvAttr->alwaysEnforceResizePolicy = true;
         }
     }
     else if ( field == &m_visibleWellsPadding )
@@ -397,6 +432,11 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         {
             resultsGroup->add( &selectedKeywords );
         }
+    }
+    else if ( uiConfigName == m_tabNames[2] )
+    {
+        m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+        uiOrdering.add( &m_bcpropKeywords );
     }
     uiOrdering.skipRemainingFields( true );
 }
