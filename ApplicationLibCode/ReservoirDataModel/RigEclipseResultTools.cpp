@@ -28,6 +28,7 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include "RigTypeSafeIndex.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -78,9 +79,9 @@ void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray
     for ( int i = 0; i < numActiveCells; i++ )
     {
         auto cellIdx = activeReservoirCellIdxs[i];
-        if ( customVisibility->val( cellIdx ) )
+        if ( customVisibility->val( cellIdx.value() ) )
         {
-            auto neighbors = grid->neighborCells( cellIdx, true /*ignore invalid k layers*/ );
+            auto neighbors = grid->neighborCells( cellIdx.value(), true /*ignore invalid k layers*/ );
 
             int nVisibleNeighbors = 0;
             for ( auto nIdx : neighbors )
@@ -90,11 +91,11 @@ void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray
 
             if ( nVisibleNeighbors == 6 )
             {
-                result[cellIdx] = BorderType::INTERIOR_CELL;
+                result[cellIdx.value()] = BorderType::INTERIOR_CELL;
             }
             else
             {
-                result[cellIdx] = BorderType::BORDER_CELL;
+                result[cellIdx.value()] = BorderType::BORDER_CELL;
             }
         }
     }
@@ -167,12 +168,12 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
         if ( !bordNumValues.empty() )
         {
             if ( result.empty() ) result.resize( bordNumValues.size(), 0 );
-            for ( size_t activeCellIdx : activeReservoirCellIdxs )
+            for ( auto activeCellIdx : activeReservoirCellIdxs )
             {
                 // If BORDNUM = 1 (BORDER_CELL), assign the border cell value
-                if ( static_cast<int>( bordNumValues[activeCellIdx] ) == BorderType::BORDER_CELL )
+                if ( static_cast<int>( bordNumValues[activeCellIdx.value()] ) == BorderType::BORDER_CELL )
                 {
-                    result[activeCellIdx] = borderCellValue;
+                    result[activeCellIdx.value()] = borderCellValue;
                 }
             }
         }
@@ -265,15 +266,15 @@ std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase
     std::vector<BorderCellFace> borderCellFaces;
 
     // Iterate through all active cells
-    for ( size_t activeCellIdx : activeReservoirCellIdxs )
+    for ( auto activeCellIdx : activeReservoirCellIdxs )
     {
         // Check if this cell is a border cell
-        int borderValue = static_cast<int>( bordNumValues[activeCellIdx] );
+        int borderValue = static_cast<int>( bordNumValues[activeCellIdx.value()] );
         if ( borderValue != BorderType::BORDER_CELL ) continue;
 
         // Get IJK indices for this cell
         size_t i, j, k;
-        if ( !grid->ijkFromCellIndex( activeCellIdx, &i, &j, &k ) ) continue;
+        if ( !grid->ijkFromCellIndex( activeCellIdx.value(), &i, &j, &k ) ) continue;
 
         // Check all 6 faces
         std::vector<cvf::StructGridInterface::FaceType> faces = cvf::StructGridInterface::validFaceTypes();
@@ -291,7 +292,7 @@ std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase
             size_t neighborReservoirIdx = grid->cellIndexFromIJK( ni, nj, nk );
 
             // Find active cell index for neighbor
-            auto it = std::find( activeReservoirCellIdxs.begin(), activeReservoirCellIdxs.end(), neighborReservoirIdx );
+            auto it = std::find( activeReservoirCellIdxs.begin(), activeReservoirCellIdxs.end(), ReservoirCellIndex( neighborReservoirIdx ) );
             if ( it == activeReservoirCellIdxs.end() ) continue; // Neighbor not active
 
             // Check if neighbor is an interior cell
@@ -299,7 +300,7 @@ std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase
             if ( neighborBorderValue == BorderType::INTERIOR_CELL )
             {
                 // Get boundary condition value from BCCON grid property
-                int boundaryCondition = static_cast<int>( bcconValues[activeCellIdx] );
+                int boundaryCondition = static_cast<int>( bcconValues[activeCellIdx.value()] );
                 if ( boundaryCondition > 0 )
                 {
                     // Add this face to the result

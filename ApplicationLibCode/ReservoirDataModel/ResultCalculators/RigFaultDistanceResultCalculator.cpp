@@ -87,11 +87,11 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
     const auto              activeCells = m_resultsData->activeCellInfo()->activeReservoirCellIndices();
     for ( auto cellIdx : activeCells )
     {
-        const RigCell& cell = mainGrid->cell( cellIdx );
+        const RigCell& cell = mainGrid->cell( cellIdx.value() );
         if ( cell.isInvalid() ) continue;
         for ( auto faceType : faceTypes )
         {
-            if ( m_resultsData->m_ownerMainGrid->findFaultFromCellIndexAndCellFace( cellIdx, faceType ) )
+            if ( m_resultsData->m_ownerMainGrid->findFaultFromCellIndexAndCellFace( cellIdx.value(), faceType ) )
                 faultFaceCenters.push_back( cell.faceCenter( faceType ) );
         }
     }
@@ -122,9 +122,9 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
     for ( int activeIndex = 0; activeIndex < static_cast<int>( activeCells.size() ); activeIndex++ )
     {
         auto cellIdx = activeCells[activeIndex];
-        if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+        if ( cellIdx.value() == cvf::UNDEFINED_SIZE_T ) continue;
 
-        const RigCell& cell = mainGrid->cell( cellIdx );
+        const RigCell& cell = mainGrid->cell( cellIdx.value() );
         if ( cell.isInvalid() ) continue;
 
         std::vector<size_t> candidateFaceIndices;

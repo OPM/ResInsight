@@ -84,7 +84,7 @@ void RigActiveCellInfo::setCellResultIndex( size_t reservoirCellIndex, size_t re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigActiveCellInfo::activeReservoirCellIndices() const
+std::vector<ReservoirCellIndex> RigActiveCellInfo::activeReservoirCellIndices() const
 {
     return m_activeCellIndices;
 }
@@ -123,7 +123,7 @@ void RigActiveCellInfo::computeDerivedData()
     {
         if ( m_cellIndexToResultIndex[i] != cvf::UNDEFINED_SIZE_T )
         {
-            m_activeCellIndices.push_back( i );
+            m_activeCellIndices.push_back( ReservoirCellIndex( i ) );
         }
     }
 }

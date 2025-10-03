@@ -4,6 +4,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo.h
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellLocalGrid.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigTypeSafeIndex.h
     ${CMAKE_CURRENT_LIST_DIR}/RigAllanDiagramData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigBasicPlane.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.h

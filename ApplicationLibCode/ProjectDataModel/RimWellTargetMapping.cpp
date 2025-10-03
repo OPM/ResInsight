@@ -588,7 +588,7 @@ std::vector<double> RimWellTargetMapping::getVisibilityFilter() const
             for ( int i = 0; i < numActiveCells; i++ )
             {
                 const auto reservoirCellIndex = activeReservoirCellIndices[i];
-                filter[i]                     = visibility->val( reservoirCellIndex ) ? 1.0 : 0.0;
+                filter[i]                     = visibility->val( reservoirCellIndex.value() ) ? 1.0 : 0.0;
             }
         }
     }

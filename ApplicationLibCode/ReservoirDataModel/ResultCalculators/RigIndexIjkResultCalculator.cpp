@@ -106,9 +106,9 @@ void RigIndexIjkResultCalculator::calculate( const RigEclipseResultAddress& resV
     for ( int activeIndex = 0; activeIndex < static_cast<int>( activeReservoirCellIndices.size() ); activeIndex++ )
     {
         auto cellIdx = activeReservoirCellIndices[activeIndex];
-        if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+        if ( cellIdx.value() == cvf::UNDEFINED_SIZE_T ) continue;
 
-        const RigCell& cell = mainGrid->cell( cellIdx );
+        const RigCell& cell = mainGrid->cell( cellIdx.value() );
         if ( cell.isInvalid() ) continue;
 
         bool isTemporaryGrid = cell.hostGrid()->isTempGrid();

@@ -665,7 +665,7 @@ std::vector<double> RimGridCalculation::getActiveCellValues( const QString&     
 #pragma omp parallel for
     for ( int i = 0; i < static_cast<int>( activeReservoirCells.size() ); i++ )
     {
-        values[i] = resultAccessor->cellScalarGlobIdx( activeReservoirCells[i] );
+        values[i] = resultAccessor->cellScalarGlobIdx( activeReservoirCells[i].value() );
     }
 
     if ( m_releaseMemoryAfterDataIsExtracted )
@@ -698,7 +698,7 @@ void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<doub
     for ( int i = 0; i < numActiveCells; i++ )
     {
         const auto reservoirCellIndex = activeReservoirCellIndices[i];
-        if ( !visibility->val( reservoirCellIndex ) )
+        if ( !visibility->val( reservoirCellIndex.value() ) )
         {
             resultValues[i] = inputValues[i];
         }
@@ -723,7 +723,7 @@ void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double          
     for ( int i = 0; i < numActiveCells; i++ )
     {
         const auto reservoirCellIndex = activeReservoirCellIndices[i];
-        if ( !visibility->val( reservoirCellIndex ) )
+        if ( !visibility->val( reservoirCellIndex.value() ) )
         {
             resultValues[i] = defaultValue;
         }

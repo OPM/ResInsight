@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RigTypeSafeIndex.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -35,10 +37,10 @@ public:
     size_t reservoirCellCount() const;
     size_t reservoirActiveCellCount() const;
 
-    bool                isActive( size_t reservoirCellIndex ) const;
-    size_t              cellResultIndex( size_t reservoirCellIndex ) const;
-    void                setCellResultIndex( size_t reservoirCellIndex, size_t globalResultCellIndex );
-    std::vector<size_t> activeReservoirCellIndices() const;
+    bool                            isActive( size_t reservoirCellIndex ) const;
+    size_t                          cellResultIndex( size_t reservoirCellIndex ) const;
+    void                            setCellResultIndex( size_t reservoirCellIndex, size_t globalResultCellIndex );
+    std::vector<ReservoirCellIndex> activeReservoirCellIndices() const;
 
     void   setGridCount( size_t gridCount );
     void   setGridActiveCellCounts( size_t gridIndex, size_t activeCellCount );
@@ -71,8 +73,8 @@ private:
 private:
     std::vector<GridActiveCellCounts> m_perGridActiveCellInfo;
 
-    std::vector<size_t> m_cellIndexToResultIndex;
-    std::vector<size_t> m_activeCellIndices;
+    std::vector<size_t>             m_cellIndexToResultIndex;
+    std::vector<ReservoirCellIndex> m_activeCellIndices;
 
     size_t m_reservoirActiveCellCount;
 

@@ -357,9 +357,9 @@ cvf::ref<cvf::UByteArray>
             cvf::ref<cvf::UByteArray> visibility = new cvf::UByteArray( totalCellCount );
             visibility->setAll( false );
 
-            for ( size_t activeCellIdx : activeReservoirCells )
+            for ( auto activeCellIdx : activeReservoirCells )
             {
-                visibility->set( activeCellIdx, true );
+                visibility->set( activeCellIdx.value(), true );
             }
             return visibility;
         }
