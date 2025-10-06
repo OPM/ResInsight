@@ -69,12 +69,6 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
 
     CAF_PDM_InitFieldNoDefault( &m_variables, "Variables", "Variables" );
 
-    CAF_PDM_InitFieldNoDefault( &m_calculatedValues_OBSOLETE, "CalculatedValues", "Calculated Values" );
-    m_calculatedValues_OBSOLETE.xmlCapability()->disableIO();
-
-    CAF_PDM_InitFieldNoDefault( &m_timesteps_OBSOLETE, "TimeSteps", "Time Steps" );
-    m_timesteps_OBSOLETE.xmlCapability()->disableIO();
-
     CAF_PDM_InitField( &m_id, "Id", -1, "Id" );
     m_id.uiCapability()->setUiHidden( true );
 
