@@ -223,6 +223,8 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
         }
 
         RimMultiPlot::insertPlot( plot, index );
+
+        updateReadOutSettings();
     }
 }
 

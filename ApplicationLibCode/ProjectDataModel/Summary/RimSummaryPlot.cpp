@@ -1108,7 +1108,7 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::enableCurvePointTracking( bool enable )
 {
-    m_summaryPlot->enableCurvePointTracking( enable );
+    if ( m_summaryPlot ) m_summaryPlot->enableCurvePointTracking( enable );
 }
 
 //--------------------------------------------------------------------------------------------------
