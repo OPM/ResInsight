@@ -91,9 +91,9 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 
     if ( !std::filesystem::exists( smspecFileName ) ) return false;
 
-    bool exportIsRequired = false;
-
-    bool h5FileExists = std::filesystem::exists( h5FileName );
+    bool      exportIsRequired       = false;
+    const int timeThresholdInSeconds = 0;
+    bool      h5FileExists           = std::filesystem::exists( h5FileName );
     if ( !h5FileExists )
     {
         if ( createHdfIfNotPresent )
@@ -101,7 +101,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
             exportIsRequired = true;
         }
     }
-    else if ( RiaFilePathTools::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+    else if ( RiaFilePathTools::isFirstOlderThanSecond( h5FileName, smspecFileName, timeThresholdInSeconds ) )
     {
         // If both files are present, check if the SMSPEC file is newer than the H5 file. If the SMSPEC file is newer, we abort if it is not
         // possible to write to the H5 file

@@ -20,6 +20,7 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesSummary.h"
 
 #ifdef _MSC_VER
 // Disable warning from external library to make sure treat warnings as error works
@@ -28,9 +29,9 @@
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
 
-#include "QRegularExpression"
 #include <QFile>
 #include <QFileInfo>
+#include <QRegularExpression>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -181,7 +182,8 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
         return true;
     }
 
-    if ( RiaFilePathTools::isFirstOlderThanSecond( candidateEsmryFileName.toStdString(), smspecFileName.toStdString() ) )
+    const int timeThresholdInSeconds = RiaPreferencesSummary::current()->esmryTimeThreshold();
+    if ( RiaFilePathTools::isFirstOlderThanSecond( candidateEsmryFileName.toStdString(), smspecFileName.toStdString(), timeThresholdInSeconds ) )
     {
         QString root = QFileInfo( smspecFileName ).canonicalPath();
 

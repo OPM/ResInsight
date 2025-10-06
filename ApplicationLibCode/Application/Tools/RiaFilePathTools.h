@@ -48,5 +48,5 @@ QStringList splitPathIntoComponents( const QString& path, bool splitExtensionInt
 
 std::map<QString, QStringList> keyPathComponentsForEachFilePath( const QStringList& filePaths );
 
-bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName );
+bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName, int timeThresholdInSeconds );
 }; // namespace RiaFilePathTools

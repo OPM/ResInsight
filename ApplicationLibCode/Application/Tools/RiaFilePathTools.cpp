@@ -372,13 +372,18 @@ std::map<QString, QStringList> keyPathComponentsForEachFilePath( const QStringLi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
+bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName, int timeThresholdInSeconds )
 {
     if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
 
     auto timeFirstFile  = std::filesystem::last_write_time( firstFileName );
     auto timeSecondFile = std::filesystem::last_write_time( secondFileName );
 
+    if ( timeThresholdInSeconds > 0 )
+    {
+        auto timeDiff = std::chrono::seconds( timeThresholdInSeconds );
+        timeFirstFile += timeDiff;
+    }
     return ( timeFirstFile < timeSecondFile );
 }
 

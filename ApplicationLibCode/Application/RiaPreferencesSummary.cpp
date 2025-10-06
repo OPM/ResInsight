@@ -26,6 +26,7 @@
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -145,6 +146,15 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "If present, import summary files with extension '*.ESMRY'",
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useEnhancedSummaryDataFile );
+
+    CAF_PDM_InitField( &m_esmryTimeThreshold,
+                       "esmryTimeThreshold",
+                       std::make_pair( false, 30 ),
+                       "ESMRY Time Difference Threshold [s]",
+                       "",
+                       " Create ESMRY file if time difference between SMSPEC and ESMRY is larger than the threshold.",
+                       "" );
+    m_esmryTimeThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_createH5SummaryDataFile,
                        "createH5SummaryDataFile_v01",
@@ -351,6 +361,19 @@ bool RiaPreferencesSummary::useImprovedSummaryImport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RiaPreferencesSummary::esmryTimeThreshold() const
+{
+    if ( m_esmryTimeThreshold().first )
+    {
+        return m_esmryTimeThreshold().second;
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::summaryImportMode() const
 {
     return m_summaryImportMode();
@@ -430,6 +453,10 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
             uiOrdering.add( &m_useEnhancedSummaryDataFile );
         }
         uiOrdering.add( &m_createEnhancedSummaryDataFile );
+        if ( m_createEnhancedSummaryDataFile() )
+        {
+            uiOrdering.add( &m_esmryTimeThreshold );
+        }
     }
     else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
     {

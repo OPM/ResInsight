@@ -101,6 +101,8 @@ public:
     bool summaryRestartFilesShowImportDialog() const;
     bool useImprovedSummaryImport() const;
 
+    int esmryTimeThreshold() const;
+
     SummaryRestartFilesImportMode summaryImportMode() const;
     SummaryRestartFilesImportMode gridImportMode() const;
     SummaryRestartFilesImportMode summaryEnsembleImportMode() const;
@@ -143,8 +145,9 @@ private:
     caf::PdmField<bool> m_showSummaryTimeAsLongString;
     caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryCases;
 
-    caf::PdmField<bool> m_createEnhancedSummaryDataFile;
-    caf::PdmField<bool> m_useEnhancedSummaryDataFile;
+    caf::PdmField<bool>                 m_createEnhancedSummaryDataFile;
+    caf::PdmField<bool>                 m_useEnhancedSummaryDataFile;
+    caf::PdmField<std::pair<bool, int>> m_esmryTimeThreshold;
 
     caf::PdmField<bool> m_createH5SummaryDataFile;
     caf::PdmField<int>  m_createH5SummaryFileThreadCount;
