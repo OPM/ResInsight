@@ -47,6 +47,12 @@ public:
         OPEN_AT_DATE
     };
 
+    enum class DateAppendType
+    {
+        ADD_DAYS,
+        ADD_MONTHS
+    };
+
 public:
     RimOpmFlowJob();
     ~RimOpmFlowJob() override;
@@ -85,6 +91,10 @@ private:
     std::vector<QDateTime> datesInFileDeck();
     std::vector<QString>   wellgroupsInFileDeck();
 
+    std::vector<QString>   dateStrings();
+    std::vector<QDateTime> dateTimes();
+    std::vector<QDateTime> addedDateTimes();
+
     static QString readFileContent( QString filename );
 
     void        exportBasicWellSettings();
@@ -115,6 +125,11 @@ private:
     caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;
     caf::PdmField<bool>                       m_includeMSWData;
     caf::PdmField<QString>                    m_wellGroupName;
+
+    caf::PdmField<bool>                         m_appendNewDates;
+    caf::PdmField<int>                          m_newDatesInterval;
+    caf::PdmField<int>                          m_numberOfNewDates;
+    caf::PdmField<caf::AppEnum<DateAppendType>> m_dateAppendType;
 
     caf::PdmChildField<RimKeywordWconprod*> m_wconprodKeyword;
     caf::PdmChildField<RimKeywordWconinje*> m_wconinjeKeyword;

@@ -61,6 +61,7 @@ public:
     bool                     isRestartFile();
     std::vector<std::string> dateStrings();
     std::vector<std::time_t> dates();
+    bool                     appendDateKeywords( const std::vector<std::time_t>& dates );
 
     std::set<std::string> wellGroupsInFile();
 

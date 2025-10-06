@@ -601,6 +601,35 @@ std::vector<std::time_t> RifOpmFlowDeckFile::dates()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::appendDateKeywords( const std::vector<std::time_t>& dates )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    for ( auto dt : dates )
+    {
+        Opm::DeckKeyword newKw( ( Opm::ParserKeywords::DATES() ) );
+        Opm::DeckRecord  newRec;
+
+        std::tm* lt = localtime( &dt );
+
+        std::string month = Opm::TimeService::eclipseMonthNames().at( lt->tm_mon + 1 );
+
+        newRec.addItem( RifOpmDeckTools::item( Opm::ParserKeywords::DATES::DAY::itemName, lt->tm_mday ) );
+        newRec.addItem( RifOpmDeckTools::item( Opm::ParserKeywords::DATES::MONTH::itemName, month ) );
+        newRec.addItem( RifOpmDeckTools::item( Opm::ParserKeywords::DATES::YEAR::itemName, lt->tm_year + 1900 ) );
+
+        newKw.addRecord( std::move( newRec ) );
+
+        // TODO - cannot append to end of deck, need to replace last record
+        m_fileDeck->insert( m_fileDeck->stop(), newKw );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<int> RifOpmFlowDeckFile::welldims()
 {
     using W = Opm::ParserKeywords::WELLDIMS;

@@ -77,6 +77,16 @@ void caf::AppEnum<RimOpmFlowJob::WellOpenType>::setUp()
 
     setDefault( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE );
 }
+
+template <>
+void caf::AppEnum<RimOpmFlowJob::DateAppendType>::setUp()
+{
+    addItem( RimOpmFlowJob::DateAppendType::ADD_DAYS, "AppendDays", "Day(s)" );
+    addItem( RimOpmFlowJob::DateAppendType::ADD_MONTHS, "AppendMonths", "Month(s)" );
+
+    setDefault( RimOpmFlowJob::DateAppendType::ADD_MONTHS );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -125,6 +135,11 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_endTimeStep, "EndTimeStep", 0, " " );
     CAF_PDM_InitField( &m_endTimeStepEnabled, "EndTimeStepEnabled", false, "Stop Simulation at Date" );
 
+    CAF_PDM_InitField( &m_appendNewDates, "AppendNewDates", false, "Append Extra Dates" );
+    CAF_PDM_InitField( &m_newDatesInterval, "NewDatesInterval", 1, "Interval" );
+    CAF_PDM_InitField( &m_numberOfNewDates, "NumberOfNewDates", 12, "Number of Dates to Append" );
+    CAF_PDM_InitField( &m_dateAppendType, "DateAppendType", caf::AppEnum<DateAppendType>( DateAppendType::ADD_MONTHS ), " " );
+
     CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
     m_runButton.xmlCapability()->disableIO();
@@ -143,6 +158,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeMSWData );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addNewWell );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_endTimeStepEnabled );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendNewDates );
 
     setDeletable( true );
 }
@@ -220,62 +236,78 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     genGrp->add( nameField() );
     genGrp->add( &m_deckFileName );
     genGrp->add( &m_workDir );
+    genGrp->add( &m_eclipseCase );
+
     if ( m_eclipseCase() == nullptr )
     {
         m_addNewWell = false;
     }
     else
     {
-        genGrp->add( &m_addNewWell );
-    }
-
-    if ( m_addNewWell() )
-    {
         auto wellGrp = uiOrdering.addNewGroup( "New Well Settings" );
+        wellGrp->add( &m_addNewWell );
 
-        wellGrp->add( &m_wellPath );
-        wellGrp->add( &m_wellGroupName );
-        wellGrp->add( &m_wellOpenKeyword );
-        if ( m_wellOpenKeyword() == "WCONPROD" )
+        if ( m_addNewWell() )
         {
-            auto wconGrp = wellGrp->addNewGroup( "WCONPROD Settings" );
-            m_wconprodKeyword->uiOrdering( wconGrp );
-        }
-        else
-        {
-            auto wconGrp = wellGrp->addNewGroup( "WCONINJE Settings" );
-            m_wconinjeKeyword->uiOrdering( wconGrp );
-        }
-
-        wellGrp->add( &m_wellOpenType );
-
-        if ( m_fileDeckHasDates )
-        {
-            if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
+            wellGrp->add( &m_wellPath );
+            wellGrp->add( &m_wellGroupName );
+            wellGrp->add( &m_wellOpenKeyword );
+            if ( m_wellOpenKeyword() == "WCONPROD" )
             {
-                wellGrp->add( &m_openTimeStep );
-                if ( !m_fileDeckIsRestart )
-                {
-                    wellGrp->add( &m_useRestart );
-                }
-                else
-                {
-                    m_useRestart = false;
-                }
-                if ( m_eclipseCase() ) wellGrp->add( &m_includeMSWData );
+                auto wconGrp = wellGrp->addNewGroup( "WCONPROD Settings" );
+                m_wconprodKeyword->uiOrdering( wconGrp );
+                wconGrp->setCollapsedByDefault();
             }
-            else if ( m_wellOpenType == WellOpenType::OPEN_BY_POSITION )
+            else
+            {
+                auto wconGrp = wellGrp->addNewGroup( "WCONINJE Settings" );
+                m_wconinjeKeyword->uiOrdering( wconGrp );
+                wconGrp->setCollapsedByDefault();
+            }
+
+            wellGrp->add( &m_wellOpenType );
+
+            if ( m_fileDeckHasDates )
+            {
+                if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
+                {
+                    wellGrp->add( &m_openTimeStep );
+                    if ( !m_fileDeckIsRestart )
+                    {
+                        wellGrp->add( &m_useRestart );
+                    }
+                    else
+                    {
+                        m_useRestart = false;
+                    }
+                    if ( m_eclipseCase() ) wellGrp->add( &m_includeMSWData );
+                }
+                else if ( m_wellOpenType == WellOpenType::OPEN_BY_POSITION )
+                {
+                    wellGrp->add( &m_openSelectButton );
+                }
+            }
+            else
             {
                 wellGrp->add( &m_openSelectButton );
             }
         }
-        else
+    }
+
+    if ( m_fileDeckHasDates )
+    {
+        auto dateGrp = uiOrdering.addNewGroup( "Date Settings" );
+        dateGrp->setCollapsedByDefault();
+        dateGrp->add( &m_appendNewDates );
+        if ( m_appendNewDates() )
         {
-            wellGrp->add( &m_openSelectButton );
+            dateGrp->add( &m_numberOfNewDates );
+            dateGrp->add( &m_newDatesInterval );
+            dateGrp->appendToRow( &m_dateAppendType );
         }
     }
 
-    auto opmGrp = uiOrdering.addNewGroup( "Opm Flow" );
+    auto opmGrp = uiOrdering.addNewGroup( "OPM Flow" );
     opmGrp->add( &m_runButton );
     opmGrp->add( &m_pauseBeforeRun );
     if ( m_fileDeckHasDates )
@@ -313,10 +345,10 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
         openDeckFile();
         if ( m_deckFile != nullptr )
         {
-            auto timeStepNames = m_deckFile->dateStrings();
+            auto timeStepNames = dateStrings();
             for ( int i = 0; i < static_cast<int>( timeStepNames.size() - 1 ); ++i )
             {
-                options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( timeStepNames[i] ), QVariant::fromValue( i ) ) );
+                options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], QVariant::fromValue( i ) ) );
             }
         }
     }
@@ -334,6 +366,59 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimOpmFlowJob::dateStrings()
+{
+    std::vector<QString> dateStrs;
+
+    for ( auto& dt : dateTimes() )
+    {
+        dateStrs.push_back( dt.toString( "dd-MMM-yyyy  (HH:mm)" ) );
+    }
+
+    return dateStrs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimOpmFlowJob::dateTimes()
+{
+    auto dates = datesInFileDeck();
+    dates.insert_range( dates.end(), addedDateTimes() );
+
+    return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimOpmFlowJob::addedDateTimes()
+{
+    if ( !m_appendNewDates() || !m_fileDeckHasDates ) return {};
+
+    auto  existingDates = datesInFileDeck();
+    auto& startDate     = existingDates.back();
+
+    std::vector<QDateTime> newDates;
+    for ( auto dt = startDate; newDates.size() < static_cast<size_t>( m_numberOfNewDates() ); )
+    {
+        if ( m_dateAppendType() == DateAppendType::ADD_DAYS )
+        {
+            dt = dt.addDays( m_newDatesInterval() );
+        }
+        else if ( m_dateAppendType() == DateAppendType::ADD_MONTHS )
+        {
+            dt = dt.addMonths( m_newDatesInterval() );
+        }
+        newDates.push_back( dt );
+    }
+
+    return newDates;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -621,6 +706,17 @@ bool RimOpmFlowJob::onPrepare()
     {
         RiaLogging::error( "Unable to open input DATA file " + m_deckFileName().path() );
         return false;
+    }
+
+    // add extra date keywords
+    if ( m_appendNewDates() && m_fileDeckHasDates )
+    {
+        std::vector<std::time_t> newDates;
+        for ( auto& dt : addedDateTimes() )
+        {
+            newDates.push_back( dt.toSecsSinceEpoch() );
+        }
+        m_deckFile->appendDateKeywords( newDates );
     }
 
     // add a new well?
