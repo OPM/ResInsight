@@ -250,6 +250,14 @@ QString RimWellPathCompletionSettings::groupName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCompletionSettings::setGroupName( const QString& name )
+{
+    m_groupName = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletionSettings::referenceDepthForExport() const
 {
     if ( m_referenceDepth().has_value() ) return QString::number( m_referenceDepth().value() );

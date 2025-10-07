@@ -364,6 +364,10 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
             options.push_back( caf::PdmOptionItemInfo( grp, QVariant::fromValue( grp ) ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_eclipseCase )
+    {
+        RimTools::eclipseCaseOptionItems( &options );
+    }
 
     return options;
 }
@@ -746,6 +750,7 @@ bool RimOpmFlowJob::onPrepare()
             RiaLogging::error( "Please set the well group name." );
             return false;
         }
+        m_wellPath->completionSettings()->setGroupName( m_wellGroupName() );
 
         int mergePosition = m_openWellDeckPosition();
 

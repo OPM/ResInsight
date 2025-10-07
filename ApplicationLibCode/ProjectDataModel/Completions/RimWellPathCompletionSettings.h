@@ -73,6 +73,7 @@ public:
 
     QString groupName() const;
     QString wellName() const;
+    void    setGroupName( const QString& name );
 
     void    setWellNameForExport( const QString& name );
     void    updateWellPathNameHasChanged( const QString& newWellPathName, const QString& previousWellPathName );
