@@ -95,6 +95,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     QwtText trackerText( const QPoint& screenPixelCoordinates ) const override
     {
+        // Avoid updates if we do not have a valid plot. The invTransform call below use the plot without checking for nullptr.
+        if ( !plot() ) return {};
+
         if ( m_summaryMultiPlot )
         {
             auto domainCoordinates = invTransform( screenPixelCoordinates );
