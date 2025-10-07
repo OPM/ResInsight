@@ -308,6 +308,12 @@ void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem, bool notifyEditors
 {
     if ( m_treeViewModel )
     {
+        // Clear filter, to avoid infinite recursion when updating the tree. This can happen if a search filter is
+        // active and a calculation is parsed. This will cause a rebuild of the tree, and infinite recursion if a filter
+        // is active.
+        // https://github.com/OPM/ResInsight/issues/12983
+        m_filterModel->setFilterWildcard( "" );
+
         PdmUiItem* itemToUpdate = uiItem;
 
         PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( uiItem );
