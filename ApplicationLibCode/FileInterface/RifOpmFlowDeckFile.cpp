@@ -70,13 +70,13 @@ static std::optional<Opm::FileDeck::Index> locateTimeStep( std::unique_ptr<Opm::
 //--------------------------------------------------------------------------------------------------
 static std::optional<Opm::FileDeck::Index> locateKeywordAtTimeStep( std::unique_ptr<Opm::FileDeck>& fileDeck, int timeStep, std::string keyword )
 {
-    auto startPos = internal::locateTimeStep( fileDeck, timeStep );
-    if ( startPos.has_value() )
+    auto startIdx = internal::locateTimeStep( fileDeck, timeStep );
+    if ( startIdx.has_value() )
     {
-        auto startIdx = startPos.value();
-        startIdx--;
+        auto idx = startIdx.value();
+        idx--;
         // locate keyword for the selected step, break if another date is found
-        for ( auto it = startIdx; it != fileDeck->start(); it-- )
+        for ( auto it = idx; it != fileDeck->start(); it-- )
         {
             auto& kw = fileDeck->operator[]( it );
             if ( kw.name() == Opm::ParserKeywords::DATES::keywordName )
@@ -154,13 +154,13 @@ static Opm::ParseContext defaultParseContext()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-static bool insertDataAtPosition( std::unique_ptr<Opm::FileDeck>& fileDeck, Opm::DeckKeyword& keyword, Opm::FileDeck::Index insertPos )
+static bool insertKeywordAtIndex( std::unique_ptr<Opm::FileDeck>& fileDeck, Opm::DeckKeyword& keyword, Opm::FileDeck::Index insertIdx )
 {
     Opm::ErrorGuard errors{};
 
     try
     {
-        fileDeck->insert( insertPos, keyword );
+        fileDeck->insert( insertIdx, keyword );
     }
     catch ( ... )
     {
@@ -176,17 +176,17 @@ static bool insertDataAtPosition( std::unique_ptr<Opm::FileDeck>& fileDeck, Opm:
 static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::unique_ptr<Opm::FileDeck>& fileDeck, const std::string& section )
 {
     // Find the specified section
-    auto sectionPos = fileDeck->find( section );
-    if ( !sectionPos.has_value() )
+    auto sectionIdx = fileDeck->find( section );
+    if ( !sectionIdx.has_value() )
     {
         return std::nullopt; // Section not found
     }
 
-    auto insertPos = sectionPos.value();
-    insertPos++; // Start after the section keyword
+    auto insertIdx = sectionIdx.value();
+    insertIdx++; // Start after the section keyword
 
     // Find a good insertion point within the section
-    for ( auto it = insertPos; it != fileDeck->stop(); it++ )
+    for ( auto it = insertIdx; it != fileDeck->stop(); it++ )
     {
         auto& kw = fileDeck->operator[]( it );
 
@@ -196,16 +196,16 @@ static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::uniqu
              kw.name() == Opm::ParserKeywords::SOLUTION::keywordName || kw.name() == Opm::ParserKeywords::SUMMARY::keywordName ||
              kw.name() == Opm::ParserKeywords::SCHEDULE::keywordName )
         {
-            insertPos = it;
+            insertIdx = it;
             break;
         }
 
         // Keep moving forward in the current section
-        insertPos = it;
-        insertPos++;
+        insertIdx = it;
+        insertIdx++;
     }
 
-    return insertPos;
+    return insertIdx;
 }
 
 } // namespace internal
@@ -278,7 +278,7 @@ void RifOpmFlowDeckFile::splitDatesIfNecessary()
                 }
 
                 std::reverse( newKeywords.begin(), newKeywords.end() );
-                // erase old kw and insert the new ones at the same position
+                // erase old kw and insert the new ones at the same index
                 m_fileDeck->erase( it );
                 for ( auto& newKw : newKeywords )
                 {
@@ -409,14 +409,14 @@ int RifOpmFlowDeckFile::mergeWellDeckAtPosition( int position, std::string filen
     const auto foundWelspecs = m_fileDeck->find( Opm::ParserKeywords::WELSPECS::keywordName );
     if ( foundWelspecs.has_value() )
     {
-        auto& existing_pos = foundWelspecs.value();
-        auto& welspecs_kw  = m_fileDeck->operator[]( existing_pos );
+        auto& existing_idx = foundWelspecs.value();
+        auto& welspecs_kw  = m_fileDeck->operator[]( existing_idx );
 
         Opm::DeckKeyword newWelspecsKw( welspecs_kw );
         newWelspecsKw.addRecord( std::move( newWelspecRecToAdd ) );
 
-        m_fileDeck->erase( existing_pos );
-        m_fileDeck->insert( existing_pos, newWelspecsKw );
+        m_fileDeck->erase( existing_idx );
+        m_fileDeck->insert( existing_idx, newWelspecsKw );
     }
     else
     {
@@ -431,8 +431,8 @@ int RifOpmFlowDeckFile::mergeWellDeckAtPosition( int position, std::string filen
     const auto foundCompdat = m_fileDeck->find( Opm::ParserKeywords::COMPDAT::keywordName );
     if ( foundCompdat.has_value() )
     {
-        auto& existing_pos = foundCompdat.value();
-        auto& compdat_kw   = m_fileDeck->operator[]( existing_pos );
+        auto& existing_idx = foundCompdat.value();
+        auto& compdat_kw   = m_fileDeck->operator[]( existing_idx );
 
         Opm::DeckKeyword newCompdatKw( compdat_kw );
 
@@ -442,8 +442,8 @@ int RifOpmFlowDeckFile::mergeWellDeckAtPosition( int position, std::string filen
             newCompdatKw.addRecord( std::move( newRecToAdd ) );
         }
 
-        m_fileDeck->erase( existing_pos );
-        m_fileDeck->insert( existing_pos, newCompdatKw );
+        m_fileDeck->erase( existing_idx );
+        m_fileDeck->insert( existing_idx, newCompdatKw );
     }
     else
     {
@@ -465,12 +465,12 @@ int RifOpmFlowDeckFile::mergeWellDeckAtPosition( int position, std::string filen
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::openWellAtTimeStep( int timeStep, Opm::DeckKeyword& openKeyword )
 {
-    auto datePos = internal::locateTimeStep( m_fileDeck, timeStep + 1 );
-    if ( datePos.has_value() )
+    auto dateIndex = internal::locateTimeStep( m_fileDeck, timeStep + 1 );
+    if ( dateIndex.has_value() )
     {
-        auto insertPos = datePos.value();
-        insertPos--;
-        return internal::insertDataAtPosition( m_fileDeck, openKeyword, insertPos );
+        auto insertIdx = dateIndex.value();
+        insertIdx--;
+        return internal::insertKeywordAtIndex( m_fileDeck, openKeyword, insertIdx );
     }
     return false;
 }
@@ -483,7 +483,7 @@ bool RifOpmFlowDeckFile::openWellAtDeckPosition( int deckPosition, Opm::DeckKeyw
     auto index = internal::positionToIndex( deckPosition, m_fileDeck );
     if ( index.has_value() )
     {
-        return internal::insertDataAtPosition( m_fileDeck, openKeyword, index.value() );
+        return internal::insertKeywordAtIndex( m_fileDeck, openKeyword, index.value() );
     }
     return false;
 }
@@ -519,8 +519,8 @@ std::vector<std::string> RifOpmFlowDeckFile::keywords()
 bool RifOpmFlowDeckFile::hasDatesKeyword()
 {
     if ( m_fileDeck.get() == nullptr ) return false;
-    auto pos = m_fileDeck->find( Opm::ParserKeywords::DATES::keywordName );
-    return pos.has_value();
+    auto idx = m_fileDeck->find( Opm::ParserKeywords::DATES::keywordName );
+    return idx.has_value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -529,8 +529,8 @@ bool RifOpmFlowDeckFile::hasDatesKeyword()
 bool RifOpmFlowDeckFile::isRestartFile()
 {
     if ( m_fileDeck.get() == nullptr ) return false;
-    auto pos = m_fileDeck->find( Opm::ParserKeywords::RESTART::keywordName );
-    return pos.has_value();
+    auto idx = m_fileDeck->find( Opm::ParserKeywords::RESTART::keywordName );
+    return idx.has_value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,7 +605,19 @@ bool RifOpmFlowDeckFile::appendDateKeywords( const std::vector<std::time_t>& dat
 {
     if ( m_fileDeck.get() == nullptr ) return false;
 
-    for ( auto dt : dates )
+    auto kws = keywords();
+    if ( kws.size() < 1 ) return false;
+
+    auto lastIdx = internal::positionToIndex( (int)kws.size() - 1, m_fileDeck );
+    if ( !lastIdx.has_value() ) return false;
+
+    auto lastKw = m_fileDeck->operator[]( lastIdx.value() );
+    m_fileDeck->erase( lastIdx.value() );
+
+    std::vector<std::time_t> revDates;
+    std::reverse_copy( dates.begin(), dates.end(), std::back_inserter( revDates ) );
+
+    for ( auto dt : revDates )
     {
         Opm::DeckKeyword newKw( ( Opm::ParserKeywords::DATES() ) );
         Opm::DeckRecord  newRec;
@@ -620,9 +632,10 @@ bool RifOpmFlowDeckFile::appendDateKeywords( const std::vector<std::time_t>& dat
 
         newKw.addRecord( std::move( newRec ) );
 
-        // TODO - cannot append to end of deck, need to replace last record
-        m_fileDeck->insert( m_fileDeck->stop(), newKw );
+        m_fileDeck->insert( lastIdx.value(), newKw );
     }
+
+    m_fileDeck->insert( lastIdx.value(), lastKw );
 
     return true;
 }
@@ -634,12 +647,12 @@ std::vector<int> RifOpmFlowDeckFile::welldims()
 {
     using W = Opm::ParserKeywords::WELLDIMS;
     if ( m_fileDeck.get() == nullptr ) return {};
-    auto pos = m_fileDeck->find( W::keywordName );
-    if ( pos.has_value() )
+    auto idx = m_fileDeck->find( W::keywordName );
+    if ( idx.has_value() )
     {
         std::vector<int> dims;
 
-        auto&       kw  = m_fileDeck->operator[]( pos.value() );
+        auto&       kw  = m_fileDeck->operator[]( idx.value() );
         const auto& rec = kw.getRecord( 0 );
         dims.push_back( rec.getItem<W::MAXWELLS>().get<int>( 0 ) );
         dims.push_back( rec.getItem<W::MAXCONN>().get<int>( 0 ) );
@@ -658,12 +671,10 @@ bool RifOpmFlowDeckFile::setWelldims( int maxWells, int maxConnections, int maxG
 {
     using W = Opm::ParserKeywords::WELLDIMS;
     if ( m_fileDeck.get() == nullptr ) return false;
-    auto pos = m_fileDeck->find( W::keywordName );
-    if ( pos.has_value() )
+    auto idx = m_fileDeck->find( W::keywordName );
+    if ( idx.has_value() )
     {
-        std::vector<int> dims;
-
-        auto& oldkw = m_fileDeck->operator[]( pos.value() );
+        auto& oldkw = m_fileDeck->operator[]( idx.value() );
 
         Opm::DeckKeyword newKw( Opm::ParserKeyword( oldkw.name() ) );
 
@@ -672,8 +683,8 @@ bool RifOpmFlowDeckFile::setWelldims( int maxWells, int maxConnections, int maxG
                                             RifOpmDeckTools::item( W::MAXGROUPS::itemName, maxGroups ),
                                             RifOpmDeckTools::item( W::MAX_GROUPSIZE::itemName, maxWellsInGroup ) } } );
 
-        m_fileDeck->erase( pos.value() );
-        m_fileDeck->insert( pos.value(), newKw );
+        m_fileDeck->erase( idx.value() );
+        m_fileDeck->insert( idx.value(), newKw );
         return true;
     }
     return false;
@@ -686,12 +697,12 @@ std::vector<int> RifOpmFlowDeckFile::regdims()
 {
     using R = Opm::ParserKeywords::REGDIMS;
     if ( m_fileDeck.get() == nullptr ) return {};
-    auto pos = m_fileDeck->find( R::keywordName );
-    if ( pos.has_value() )
+    auto idx = m_fileDeck->find( R::keywordName );
+    if ( idx.has_value() )
     {
         std::vector<int> dims;
 
-        auto&       kw  = m_fileDeck->operator[]( pos.value() );
+        auto&       kw  = m_fileDeck->operator[]( idx.value() );
         const auto& rec = kw.getRecord( 0 );
         dims.push_back( rec.getItem( R::NTFIP::itemName ).get<int>( 0 ) );
         dims.push_back( rec.getItem( R::NMFIPR::itemName ).get<int>( 0 ) );
@@ -710,10 +721,10 @@ bool RifOpmFlowDeckFile::setRegdims( int maxRegions, int maxRegionDefinitions, i
 {
     using R = Opm::ParserKeywords::REGDIMS;
     if ( m_fileDeck.get() == nullptr ) return false;
-    auto pos = m_fileDeck->find( R::keywordName );
-    if ( pos.has_value() )
+    auto idx = m_fileDeck->find( R::keywordName );
+    if ( idx.has_value() )
     {
-        auto& oldkw = m_fileDeck->operator[]( pos.value() );
+        auto& oldkw = m_fileDeck->operator[]( idx.value() );
 
         Opm::DeckKeyword newKw( Opm::ParserKeyword( oldkw.name() ) );
         newKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( R::NTFIP::itemName, maxRegions ),
@@ -721,8 +732,8 @@ bool RifOpmFlowDeckFile::setRegdims( int maxRegions, int maxRegionDefinitions, i
                                             RifOpmDeckTools::item( R::NRFREG::itemName, maxRegionFlowConnections ),
                                             RifOpmDeckTools::item( R::NTFREG::itemName, maxFIPRegions ) } } );
 
-        m_fileDeck->erase( pos.value() );
-        m_fileDeck->insert( pos.value(), newKw );
+        m_fileDeck->erase( idx.value() );
+        m_fileDeck->insert( idx.value(), newKw );
         return true;
     }
     return false;
@@ -737,31 +748,28 @@ bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
     if ( m_fileDeck.get() == nullptr ) return false;
 
     // Check if REGDIMS already exists
-    auto pos = m_fileDeck->find( R::keywordName );
-    if ( pos.has_value() )
+    auto idx = m_fileDeck->find( R::keywordName );
+    if ( idx.has_value() )
     {
         return true; // Already exists
     }
 
     // Find RUNSPEC section to add REGDIMS
-    auto runspecPos = m_fileDeck->find( Opm::ParserKeywords::RUNSPEC::keywordName );
-    if ( !runspecPos.has_value() )
-    {
-        return false; // Cannot add REGDIMS without RUNSPEC section
-    }
+    auto runspecIdx = m_fileDeck->find( Opm::ParserKeywords::RUNSPEC::keywordName );
+    if ( !runspecIdx.has_value() ) return false; // Cannot add REGDIMS without RUNSPEC section
 
     // Look for a good insertion point after RUNSPEC and before GRID section
-    auto insertPos = runspecPos.value();
-    insertPos++; // Start after RUNSPEC keyword
+    auto insertIdx = runspecIdx.value();
+    insertIdx++; // Start after RUNSPEC keyword
 
     // Try to find GRID or other sections that should come after REGDIMS
-    for ( auto it = insertPos; it != m_fileDeck->stop(); it++ )
+    for ( auto it = insertIdx; it != m_fileDeck->stop(); it++ )
     {
         auto& kw = m_fileDeck->operator[]( it );
         if ( kw.name() == Opm::ParserKeywords::GRID::keywordName || kw.name() == Opm::ParserKeywords::SOLUTION::keywordName ||
              kw.name() == Opm::ParserKeywords::SCHEDULE::keywordName )
         {
-            insertPos = it;
+            insertIdx = it;
             break;
         }
     }
@@ -773,7 +781,7 @@ bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
                                             RifOpmDeckTools::item( R::NRFREG::itemName, 1 ),
                                             RifOpmDeckTools::item( R::NTFREG::itemName, 1 ) } } );
 
-    m_fileDeck->insert( insertPos, regdimsKw );
+    m_fileDeck->insert( insertIdx, regdimsKw );
     return true;
 }
 
@@ -785,17 +793,14 @@ bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string key
     if ( m_fileDeck.get() == nullptr ) return false;
 
     // Find insertion point within the section
-    auto insertPos = internal::findSectionInsertionPoint( m_fileDeck, section );
-    if ( !insertPos.has_value() )
-    {
-        return false; // Section not found
-    }
+    auto insertIdx = internal::findSectionInsertionPoint( m_fileDeck, section );
+    if ( !insertIdx.has_value() ) return false; // Section not found
 
     // Create the INCLUDE keyword
     Opm::DeckKeyword includeKw( ( Opm::ParserKeywords::INCLUDE() ) );
     includeKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( Opm::ParserKeywords::INCLUDE::IncludeFile::itemName, filePath ) } } );
 
-    m_fileDeck->insert( insertPos.value(), includeKw );
+    m_fileDeck->insert( insertIdx.value(), includeKw );
     return true;
 }
 
@@ -813,11 +818,8 @@ bool RifOpmFlowDeckFile::addOperaterKeyword( std::string          section,
     if ( m_fileDeck.get() == nullptr ) return false;
 
     // Find insertion point within the section
-    auto insertPos = internal::findSectionInsertionPoint( m_fileDeck, section );
-    if ( !insertPos.has_value() )
-    {
-        return false; // Section not found
-    }
+    auto insertIdx = internal::findSectionInsertionPoint( m_fileDeck, section );
+    if ( !insertIdx.has_value() ) return false; // Section not found
 
     using O = Opm::ParserKeywords::OPERATER;
 
@@ -855,7 +857,7 @@ bool RifOpmFlowDeckFile::addOperaterKeyword( std::string          section,
 
     operaterKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
 
-    m_fileDeck->insert( insertPos.value(), operaterKw );
+    m_fileDeck->insert( insertIdx.value(), operaterKw );
     return true;
 }
 
@@ -876,7 +878,7 @@ bool RifOpmFlowDeckFile::mergeMswData( std::vector<std::string>& mswFileData )
         auto& kw = m_fileDeck->operator[]( it );
         if ( kw.name() != Opm::ParserKeywords::DATES::keywordName ) continue;
 
-        Opm::FileDeck::Index insertPos( it );
+        Opm::FileDeck::Index insertIdx( it );
 
         if ( mswFileData[curTimeStep] != prevFileData )
         {
@@ -891,21 +893,21 @@ bool RifOpmFlowDeckFile::mergeMswData( std::vector<std::string>& mswFileData )
                     const auto found = m_fileDeck->find( Opm::ParserKeywords::WELSPECS::keywordName );
                     if ( !found.has_value() )
                     {
-                        m_fileDeck->insert( insertPos, newKw );
-                        insertPos++;
+                        m_fileDeck->insert( insertIdx, newKw );
+                        insertIdx++;
                     }
                     else
                     {
                         Opm::DeckRecord newRecToAdd( newKw.getRecord( 0 ) );
 
-                        auto& existing_pos = found.value();
-                        auto& welspecs_kw  = m_fileDeck->operator[]( existing_pos );
+                        auto& existing_idx = found.value();
+                        auto& welspecs_kw  = m_fileDeck->operator[]( existing_idx );
 
                         Opm::DeckKeyword newWelspecsKw( welspecs_kw );
                         newWelspecsKw.addRecord( std::move( newRecToAdd ) );
 
-                        m_fileDeck->erase( existing_pos );
-                        m_fileDeck->insert( existing_pos, newWelspecsKw );
+                        m_fileDeck->erase( existing_idx );
+                        m_fileDeck->insert( existing_idx, newWelspecsKw );
                     }
                 }
                 else if ( ( newKw.name() == Opm::ParserKeywords::COMPDAT::keywordName ) && ( curTimeStep == 0 ) )
@@ -913,13 +915,13 @@ bool RifOpmFlowDeckFile::mergeMswData( std::vector<std::string>& mswFileData )
                     const auto found = m_fileDeck->find( Opm::ParserKeywords::COMPDAT::keywordName );
                     if ( !found.has_value() )
                     {
-                        m_fileDeck->insert( insertPos, newKw );
-                        insertPos++;
+                        m_fileDeck->insert( insertIdx, newKw );
+                        insertIdx++;
                     }
                     else
                     {
-                        auto& existing_pos = found.value();
-                        auto& compdat_kw   = m_fileDeck->operator[]( existing_pos );
+                        auto& existing_idx = found.value();
+                        auto& compdat_kw   = m_fileDeck->operator[]( existing_idx );
 
                         Opm::DeckKeyword newCompdatKw( compdat_kw );
 
@@ -929,14 +931,14 @@ bool RifOpmFlowDeckFile::mergeMswData( std::vector<std::string>& mswFileData )
                             newCompdatKw.addRecord( std::move( newRecToAdd ) );
                         }
 
-                        m_fileDeck->erase( existing_pos );
-                        m_fileDeck->insert( existing_pos, newCompdatKw );
+                        m_fileDeck->erase( existing_idx );
+                        m_fileDeck->insert( existing_idx, newCompdatKw );
                     }
                 }
                 else
                 {
-                    m_fileDeck->insert( insertPos, newKw );
-                    insertPos++;
+                    m_fileDeck->insert( insertIdx, newKw );
+                    insertIdx++;
                 }
             }
 
@@ -969,12 +971,11 @@ bool RifOpmFlowDeckFile::stopAtTimeStep( int timeStep )
 {
     if ( !m_fileDeck ) return false;
 
-    auto datePos = internal::locateTimeStep( m_fileDeck, timeStep );
-    if ( datePos.has_value() )
+    auto dateIdx = internal::locateTimeStep( m_fileDeck, timeStep );
+    if ( dateIdx.has_value() )
     {
         Opm::DeckKeyword newKw( ( Opm::ParserKeywords::END() ) );
-        m_fileDeck->insert( datePos.value(), newKw );
+        m_fileDeck->insert( dateIdx.value(), newKw );
     }
-
     return true;
 }
