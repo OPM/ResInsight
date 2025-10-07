@@ -372,7 +372,7 @@ bool RifOpmFlowDeckFile::mergeWellDeckAtTimeStep( int timeStep, std::string file
         }
 
         // increase wells and connections in welldims to make sure they are big enough
-        return setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2], (int)welldims[3] );
+        return setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2] + 1, (int)welldims[3] + 1 );
     }
 
     return false;
@@ -453,7 +453,7 @@ int RifOpmFlowDeckFile::mergeWellDeckAtPosition( int position, std::string filen
     }
 
     // increase wells and connections in welldims to make sure they are big enough
-    if ( setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2], (int)welldims[3] ) )
+    if ( setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2] + 1, (int)welldims[3] + 1 ) )
     {
         return position;
     }

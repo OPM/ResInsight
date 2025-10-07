@@ -286,10 +286,13 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
                 {
                     wellGrp->add( &m_openSelectButton );
                 }
+                m_wellOpenType.uiCapability()->setUiReadOnly( false );
             }
             else
             {
                 wellGrp->add( &m_openSelectButton );
+                m_wellOpenType = WellOpenType::OPEN_BY_POSITION;
+                m_wellOpenType.uiCapability()->setUiReadOnly( true );
             }
         }
     }
