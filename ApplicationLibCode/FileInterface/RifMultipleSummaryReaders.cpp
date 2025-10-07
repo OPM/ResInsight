@@ -33,6 +33,19 @@ void RifMultipleSummaryReaders::addReader( std::unique_ptr<RifSummaryReaderInter
     if ( findReader( reader->serialNumber() ) != nullptr ) return;
 
     m_readers.push_back( std::move( reader ) );
+
+    // Reorder readers so the calculated reader is at the front of the vector. This ensures that calculated data is used before other data.
+    // https://github.com/OPM/ResInsight/issues/12989
+    std::sort( m_readers.begin(),
+               m_readers.end(),
+               []( const auto& first, const auto& second )
+               {
+                   bool isFirstCalc  = dynamic_cast<RifCalculatedSummaryCurveReader*>( first.get() ) != nullptr;
+                   bool isSecondCalc = dynamic_cast<RifCalculatedSummaryCurveReader*>( second.get() ) != nullptr;
+                   if ( isFirstCalc && !isSecondCalc ) return true;
+                   if ( !isFirstCalc && isSecondCalc ) return false;
+                   return first->serialNumber() < second->serialNumber();
+               } );
 }
 
 //--------------------------------------------------------------------------------------------------
