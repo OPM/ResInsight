@@ -392,8 +392,9 @@ std::vector<QString> RimOpmFlowJob::dateStrings()
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimOpmFlowJob::dateTimes()
 {
-    auto dates = datesInFileDeck();
-    dates.insert_range( dates.end(), addedDateTimes() );
+    auto dates    = datesInFileDeck();
+    auto newDates = addedDateTimes();
+    dates.insert( dates.end(), newDates.begin(), newDates.end() );
 
     return dates;
 }
