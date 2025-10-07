@@ -220,9 +220,10 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
         auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
         if ( attr )
         {
-            attr->enableEditableContent = true;
-            attr->enableAutoComplete    = false;
-            attr->adjustWidthToContents = true;
+            attr->enableEditableContent  = true;
+            attr->enableAutoComplete     = false;
+            attr->adjustWidthToContents  = true;
+            attr->notifyWhenTextIsEdited = true;
         }
     }
 }
