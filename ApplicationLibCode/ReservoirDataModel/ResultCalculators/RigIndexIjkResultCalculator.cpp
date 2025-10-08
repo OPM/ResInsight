@@ -55,7 +55,8 @@ bool RigIndexIjkResultCalculator::isMatching( const RigEclipseResultAddress& res
 //--------------------------------------------------------------------------------------------------
 void RigIndexIjkResultCalculator::calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex )
 {
-    size_t activeCellCount = m_resultsData->activeCellInfo()->reservoirActiveCellCount();
+    const auto   activeReservoirCellIndices = m_resultsData->activeCellInfo()->activeReservoirCellIndices();
+    const size_t activeCellCount            = activeReservoirCellIndices.size();
     if ( activeCellCount == 0 ) return;
 
     size_t iResultIndex =
@@ -98,13 +99,12 @@ void RigIndexIjkResultCalculator::calculate( const RigEclipseResultAddress& resV
 
     if ( !( computeIndexI || computeIndexJ || computeIndexK ) ) return;
 
-    const auto mainGrid    = m_resultsData->m_ownerMainGrid;
-    const auto activeCells = m_resultsData->activeCellInfo()->activeReservoirCellIndices();
+    const auto mainGrid = m_resultsData->m_ownerMainGrid;
 
 #pragma omp parallel for
-    for ( int activeIndex = 0; activeIndex < static_cast<int>( activeCells.size() ); activeIndex++ )
+    for ( int activeIndex = 0; activeIndex < static_cast<int>( activeReservoirCellIndices.size() ); activeIndex++ )
     {
-        auto cellIdx = activeCells[activeIndex];
+        auto cellIdx = activeReservoirCellIndices[activeIndex];
         if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
         const RigCell& cell = mainGrid->cell( cellIdx );

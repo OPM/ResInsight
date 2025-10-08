@@ -64,24 +64,12 @@ void RicCreateTemporaryLgrFeature::createLgrsForWellPaths( std::vector<RimWellPa
                                                            const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                            QStringList*                                       wellsIntersectingOtherLgrs )
 {
-    auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
-    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-
     auto lgrs =
         RicExportLgrFeature::buildLgrsForWellPaths( wellPaths, eclipseCase, timeStep, refinement, splitType, completionTypes, wellsIntersectingOtherLgrs );
 
     for ( const auto& lgr : lgrs )
     {
-        createLgr( lgr, eclipseCase->eclipseCaseData()->mainGrid() );
-
-        size_t lgrCellCount = lgr.lgrCellCount();
-
-        activeCellInfo->addLgr( lgrCellCount );
-        if ( fractureActiveCellInfo->reservoirActiveCellCount() > 0 )
-        {
-            fractureActiveCellInfo->addLgr( lgrCellCount );
-        }
+        createLgr( lgr, eclipseCase->eclipseCaseData() );
     }
 }
 
@@ -154,7 +142,7 @@ void RicCreateTemporaryLgrFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 /// Todo: Guarding, caching LGR corner nodes calculations
 //--------------------------------------------------------------------------------------------------
-RigGridBase* RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, RigMainGrid* mainGrid )
+RigGridBase* RicCreateTemporaryLgrFeature::createLgrForGrid( const LgrInfo& lgrInfo, RigMainGrid* mainGrid )
 {
     int    lgrId          = lgrInfo.id;
     size_t totalCellCount = mainGrid->totalCellCount();
@@ -245,7 +233,7 @@ RigGridBase* RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, Ri
     auto gridCount         = mainGrid->gridCount();
     auto mainGridCellCount = mainGrid->totalCellCount();
 
-    auto localGrid = createLgr( lgrInfo, mainGrid );
+    auto localGrid = createLgrForGrid( lgrInfo, mainGrid );
 
     if ( auto activeInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
     {

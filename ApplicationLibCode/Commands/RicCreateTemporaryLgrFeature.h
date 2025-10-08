@@ -52,10 +52,11 @@ public:
                                  QStringList*                                       wellsIntersectingOtherLgrs );
 
     static RigGridBase* createLgr( const LgrInfo& lgrInfo, RigEclipseCaseData* caseData );
-    static RigGridBase* createLgr( const LgrInfo& lgrInfo, RigMainGrid* mainGrid );
 
-protected:
+private:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static RigGridBase* createLgrForGrid( const LgrInfo& lgrInfo, RigMainGrid* mainGrid );
 };
