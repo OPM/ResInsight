@@ -518,9 +518,18 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     cvf::ref<RifEclipseRestartDataAccess> resultsAccess;
 
     // Look for unified restart file
-    QString unrstFileName = RifEclipseOutputFileTools::firstFileNameOfType( filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
-    if ( unrstFileName.size() > 0 )
+    auto unrstFileNames = RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
+    if ( !unrstFileNames.empty() )
     {
+        QString unrstFileName = unrstFileNames.front();
+        if ( unrstFileNames.size() > 1 )
+        {
+            for ( const auto& candidate : unrstFileNames )
+            {
+                if ( candidate.endsWith( ".UNRST" ) ) unrstFileName = candidate;
+            }
+        }
+
         resultsAccess = new RifEclipseUnifiedRestartFileAccess();
         resultsAccess->setRestartFiles( QStringList( unrstFileName ) );
     }
