@@ -606,7 +606,7 @@ bool RifOpmFlowDeckFile::appendDateKeywords( const std::vector<std::time_t>& dat
     if ( m_fileDeck.get() == nullptr ) return false;
 
     auto kws = keywords();
-    if ( kws.size() < 1 ) return false;
+    if ( kws.empty() ) return false;
 
     auto lastIdx = internal::positionToIndex( (int)kws.size() - 1, m_fileDeck );
     if ( !lastIdx.has_value() ) return false;
