@@ -213,6 +213,8 @@ private:
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
 
+    bool isRadialModel() const;
+
 private:
     cvf::ref<RifReaderInterface>  m_readerInterface;
     cvf::cref<RigFormationNames>  m_activeFormationNamesData;

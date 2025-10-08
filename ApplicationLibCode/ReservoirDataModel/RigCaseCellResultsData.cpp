@@ -466,6 +466,8 @@ QStringList RigCaseCellResultsData::resultNames( RiaDefines::ResultCatType resTy
         if ( resultAddress.isDeltaTimeStepActive() || resultAddress.isDeltaCaseActive() || resultAddress.isDivideByCellFaceAreaActive() )
             continue;
 
+        if ( isRadialModel() && ( it->resultName() == "DX" || it->resultName() == "DY" ) ) continue;
+
         if ( it->resultType() == resType )
         {
             varList.push_back( it->resultName() );
@@ -1136,8 +1138,10 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // I/J/K indexes
     {
-        findOrCreateScalarResultIndex( RiaResultNames::staticIntegerAddress( RiaResultNames::indexIResultName() ), needsToBeStored );
-        findOrCreateScalarResultIndex( RiaResultNames::staticIntegerAddress( RiaResultNames::indexJResultName() ), needsToBeStored );
+        findOrCreateScalarResultIndex( RiaResultNames::staticIntegerAddress( RiaResultNames::indexIResultName( isRadialModel() ) ),
+                                       needsToBeStored );
+        findOrCreateScalarResultIndex( RiaResultNames::staticIntegerAddress( RiaResultNames::indexJResultName( isRadialModel() ) ),
+                                       needsToBeStored );
         findOrCreateScalarResultIndex( RiaResultNames::staticIntegerAddress( RiaResultNames::indexKResultName() ), needsToBeStored );
     }
 
@@ -1378,8 +1382,8 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             }
             RigAllanUtil::computeAllanResults( this, m_ownerMainGrid, includeInactiveCells );
         }
-        else if ( resultName == RiaResultNames::indexIResultName() || resultName == RiaResultNames::indexJResultName() ||
-                  resultName == RiaResultNames::indexKResultName() )
+        else if ( resultName == RiaResultNames::indexIResultName( isRadialModel() ) ||
+                  resultName == RiaResultNames::indexJResultName( isRadialModel() ) || resultName == RiaResultNames::indexKResultName() )
         {
             computeIndexResults();
         }
@@ -1945,7 +1949,7 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeIndexResults()
 {
-    RigEclipseResultAddress     addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName() );
+    RigEclipseResultAddress     addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName( isRadialModel() ) );
     RigIndexIjkResultCalculator calculator( *this );
     calculator.calculate( addr, 0 );
 }
@@ -2997,6 +3001,16 @@ RigStatisticsDataCache* RigCaseCellResultsData::statistics( const RigEclipseResu
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
     CAF_ASSERT( scalarResultIndex < m_statisticsDataCache.size() );
     return m_statisticsDataCache[scalarResultIndex].p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::isRadialModel() const
+{
+    if ( !m_ownerMainGrid ) return false;
+
+    return m_ownerMainGrid->isRadial();
 }
 
 //--------------------------------------------------------------------------------------------------

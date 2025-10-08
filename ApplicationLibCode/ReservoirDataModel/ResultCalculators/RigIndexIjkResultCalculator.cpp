@@ -45,7 +45,8 @@ RigIndexIjkResultCalculator::~RigIndexIjkResultCalculator()
 //--------------------------------------------------------------------------------------------------
 bool RigIndexIjkResultCalculator::isMatching( const RigEclipseResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.resultName() == RiaResultNames::indexIResultName() || resVarAddr.resultName() == RiaResultNames::indexJResultName() ||
+    return ( resVarAddr.resultName() == RiaResultNames::indexIResultName( m_resultsData->isRadialModel() ) ||
+             resVarAddr.resultName() == RiaResultNames::indexJResultName( m_resultsData->isRadialModel() ) ||
              resVarAddr.resultName() == RiaResultNames::indexKResultName() ) &&
            resVarAddr.resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE;
 }
@@ -59,10 +60,10 @@ void RigIndexIjkResultCalculator::calculate( const RigEclipseResultAddress& resV
     const size_t activeCellCount            = activeReservoirCellIndices.size();
     if ( activeCellCount == 0 ) return;
 
-    size_t iResultIndex =
-        m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexIResultName() ) );
-    size_t jResultIndex =
-        m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexJResultName() ) );
+    size_t iResultIndex = m_resultsData->findScalarResultIndexFromAddress(
+        RiaResultNames::staticIntegerAddress( RiaResultNames::indexIResultName( m_resultsData->isRadialModel() ) ) );
+    size_t jResultIndex = m_resultsData->findScalarResultIndexFromAddress(
+        RiaResultNames::staticIntegerAddress( RiaResultNames::indexJResultName( m_resultsData->isRadialModel() ) ) );
     size_t kResultIndex =
         m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexKResultName() ) );
 

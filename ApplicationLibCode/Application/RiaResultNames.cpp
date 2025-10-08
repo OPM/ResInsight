@@ -392,17 +392,17 @@ QString RiaResultNames::formationAllanResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaResultNames::indexIResultName()
+QString RiaResultNames::indexIResultName( bool isRadial )
 {
-    return "INDEX_I";
+    return isRadial ? "INDEX_RADIAL" : "INDEX_I";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaResultNames::indexJResultName()
+QString RiaResultNames::indexJResultName( bool isRadial )
 {
-    return "INDEX_J";
+    return isRadial ? "INDEX_THETA" : "INDEX_J";
 }
 
 //--------------------------------------------------------------------------------------------------

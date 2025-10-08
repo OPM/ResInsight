@@ -75,8 +75,8 @@ QString faultReactAssessmentPrefix();
 
 QString completionTypeResultName();
 
-QString                 indexIResultName();
-QString                 indexJResultName();
+QString                 indexIResultName( bool isRadial );
+QString                 indexJResultName( bool isRadial );
 QString                 indexKResultName();
 RigEclipseResultAddress staticIntegerAddress( const QString& resultName );
 

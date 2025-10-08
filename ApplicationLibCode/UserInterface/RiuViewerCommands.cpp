@@ -377,8 +377,16 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                     menuBuilder.subMenuStart( "Range Filter", QIcon( ":/CellFilter_Range.png" ) );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "I Slice", iSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "J Slice", jSliceList );
+                    if ( isRadialGrid( mainOrComparisonView, m_currentGridIdx ) )
+                    {
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Radial Slice", iSliceList );
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Theta Slice", jSliceList );
+                    }
+                    else
+                    {
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "I Slice", iSliceList );
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "J Slice", jSliceList );
+                    }
                     menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "K Slice", kSliceList );
                     menuBuilder.addCmdFeature( "RicNewCellRangeFilterFeature", "IJK Filter" );
 
@@ -1182,6 +1190,20 @@ void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_
     {
         geomView->femParts()->part( gridIdx )->getOrCreateStructGrid()->ijkFromCellIndex( cellIndex, i, j, k );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuViewerCommands::isRadialGrid( Rim3dView* mainOrComparisonView, size_t gridIdx )
+{
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+    if ( eclipseView && eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
+    {
+        return eclipseView->eclipseCase()->eclipseCaseData()->grid( gridIdx )->isRadial();
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
