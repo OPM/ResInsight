@@ -312,57 +312,6 @@ QMargins PdmUiComboBoxEditor::calculateLabelContentMargins() const
 }
 
 //--------------------------------------------------------------------------------------------------
-// Special class used to prevent a combo box to steal focus when scrolling
-// the QScrollArea using the mouse wheel
-//
-// Based on
-// http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
-//--------------------------------------------------------------------------------------------------
-class CustomQComboBox : public QComboBox
-{
-public:
-    explicit CustomQComboBox( QWidget* parent = nullptr )
-        : QComboBox( parent )
-    {
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void wheelEvent( QWheelEvent* e ) override
-    {
-        if ( hasFocus() )
-        {
-            QComboBox::wheelEvent( e );
-        }
-        else
-        {
-            // Ignore the event to make sure event is handled by another widget
-            e->ignore();
-        }
-    }
-
-protected:
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void focusInEvent( QFocusEvent* e ) override
-    {
-        setFocusPolicy( Qt::WheelFocus );
-        QComboBox::focusInEvent( e );
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void focusOutEvent( QFocusEvent* e ) override
-    {
-        setFocusPolicy( Qt::StrongFocus );
-        QComboBox::focusOutEvent( e );
-    }
-};
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiComboBoxEditor::PdmUiComboBoxEditor()
@@ -386,6 +335,7 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
     m_layout->addWidget( m_comboBox );
 
     connect( m_comboBox, SIGNAL( activated( int ) ), this, SLOT( slotIndexActivated( int ) ) );
+    connect( m_comboBox, SIGNAL( signalFocusOutEvent() ), this, SLOT( slotSetCurrentTextToField() ) );
 
     m_autoValueToolButton = new QToolButton( m_placeholder );
     m_autoValueToolButton->setCheckable( true );
@@ -448,6 +398,20 @@ void PdmUiComboBoxEditor::slotEditTextChanged( const QString& text )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiComboBoxEditor::slotSetCurrentTextToField()
+{
+    if ( m_attributes.enableEditableContent )
+    {
+        // Use the text directly, as the item text could be entered directly by the user
+
+        auto text = m_comboBox->currentText();
+        this->setValueToField( text );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::slotNextButtonPressed()
 {
     int indexCandidate = m_comboBox->currentIndex() + 1;
@@ -481,6 +445,50 @@ void PdmUiComboBoxEditor::slotApplyAutoValue()
     bool enable = m_autoValueToolButton->isChecked();
     uiField()->enableAutoValue( enable );
     configureAndUpdateUi( "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+CustomQComboBox::CustomQComboBox( QWidget* parent /*= nullptr */ )
+    : QComboBox( parent )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CustomQComboBox::wheelEvent( QWheelEvent* e )
+{
+    if ( hasFocus() )
+    {
+        QComboBox::wheelEvent( e );
+    }
+    else
+    {
+        // Ignore the event to make sure event is handled by another widget
+        e->ignore();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CustomQComboBox::focusInEvent( QFocusEvent* e )
+{
+    setFocusPolicy( Qt::WheelFocus );
+    QComboBox::focusInEvent( e );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CustomQComboBox::focusOutEvent( QFocusEvent* e )
+{
+    setFocusPolicy( Qt::StrongFocus );
+    QComboBox::focusOutEvent( e );
+
+    emit signalFocusOutEvent();
 }
 
 } // end namespace caf

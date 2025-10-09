@@ -108,6 +108,7 @@ protected slots:
     void slotIndexActivated( int index );
     void slotEditTextChanged( const QString& );
 
+    void slotSetCurrentTextToField();
     void slotNextButtonPressed();
     void slotPreviousButtonPressed();
     void slotApplyAutoValue();
@@ -125,6 +126,29 @@ private:
 
     QString m_interactiveEditText;
     int     m_interactiveEditCursorPosition;
+};
+
+//--------------------------------------------------------------------------------------------------
+// Special class used to prevent a combo box to steal focus when scrolling
+// the QScrollArea using the mouse wheel
+//
+// Based on
+// http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
+//--------------------------------------------------------------------------------------------------
+class CustomQComboBox : public QComboBox
+{
+    Q_OBJECT
+public:
+    explicit CustomQComboBox( QWidget* parent = nullptr );
+
+    void wheelEvent( QWheelEvent* e ) override;
+
+protected:
+    void focusInEvent( QFocusEvent* e ) override;
+    void focusOutEvent( QFocusEvent* e ) override;
+
+signals:
+    void signalFocusOutEvent();
 };
 
 } // end namespace caf
