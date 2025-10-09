@@ -172,29 +172,41 @@ std::unique_ptr<RifSummaryReaderInterface> RimFileSummaryCase::findRelatedFilesA
         auto startTime = RiaLogging::currentTime();
 
         std::vector<QString> warnings;
-        std::vector<QString> restartFileNames;
-        if ( RiaPreferencesSummary::current()->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
-        {
-            if ( ensembleImportState.useConfigValues() )
-            {
-                auto realizationNumber = RifOpmSummaryTools::extractRealizationNumber( headerFileName );
-                if ( !realizationNumber.has_value() )
-                {
-                    RiaLogging::error( realizationNumber.error() );
-                    return nullptr;
-                }
 
-                restartFileNames = ensembleImportState.restartFilesForRealization( realizationNumber.value() );
+        auto findFileCandidates = [&ensembleImportState, &headerFileName, &warnings] -> std::vector<QString>
+        {
+            if ( RiaPreferencesSummary::current()->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
+            {
+                if ( ensembleImportState.useConfigValues() )
+                {
+                    auto realizationNumber = RifOpmSummaryTools::extractRealizationNumber( headerFileName );
+                    if ( !realizationNumber.has_value() )
+                    {
+                        RiaLogging::error( realizationNumber.error() );
+                        return {};
+                    }
+                    return ensembleImportState.restartFilesForRealization( realizationNumber.value() );
+                }
+                else
+                {
+                    // If the restart file names are not provided, we search for them
+                    return RifEclipseSummaryTools::getRestartFileNamesOpm( headerFileName, warnings );
+                }
             }
             else
             {
-                // If the restart file names are not provided, we search for them
-                restartFileNames = RifEclipseSummaryTools::getRestartFileNamesOpm( headerFileName, warnings );
+                return RifEclipseSummaryTools::getRestartFileNames( headerFileName, warnings );
             }
-        }
-        else
+        };
+
+        std::vector<QString> restartFileNames;
+        for ( const auto& fileName : findFileCandidates() )
         {
-            restartFileNames = RifEclipseSummaryTools::getRestartFileNames( headerFileName, warnings );
+            QFileInfo fi( fileName );
+            if ( fi.exists() )
+            {
+                restartFileNames.push_back( fileName );
+            }
         }
 
         bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "OpmSummaryImport" );
