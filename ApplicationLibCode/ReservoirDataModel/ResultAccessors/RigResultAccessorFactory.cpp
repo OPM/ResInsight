@@ -371,9 +371,26 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromResultAddr
     bool useGlobalActiveIndex = eclipseCase->results( porosityModel )->isUsingGlobalActiveIndex( resultAddress );
     if ( eclipseCase->mainGrid()->gridCount() > 1 )
     {
-        // Always use active cell indexing for multi-grid cases. If all cells in the main grid is active, and a local grid is created, this
-        // option must be set to true
-        useGlobalActiveIndex = true;
+        bool isRadialTempGrid = [&eclipseCase]() -> bool
+        {
+            for ( size_t gIdx = 0; gIdx < eclipseCase->gridCount(); gIdx++ )
+            {
+                auto currentGrid = eclipseCase->grid( gIdx );
+                if ( currentGrid && currentGrid->isRadial() && currentGrid->isTempGrid() )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }();
+
+        if ( isRadialTempGrid )
+        {
+            // Always use active cell indexing for temporary LGRs of radial multi-grids. If all cells in the main grid is active, and a
+            // local grid is created, this option must be set to true
+            useGlobalActiveIndex = true;
+        }
     }
     if ( useGlobalActiveIndex )
     {
