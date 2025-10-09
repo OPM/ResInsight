@@ -78,8 +78,10 @@ protected:
     bool                       onPrepare() override;
     bool                       onRun() override;
     void                       onCompleted( bool success ) override;
+    void                       onProgress( double percentageDone ) override;
 
     bool openDeckFile();
+    void closeDeckFile();
     bool copyUnrstFileToWorkDir();
 
 private:

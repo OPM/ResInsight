@@ -223,7 +223,7 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
             attr->enableEditableContent  = true;
             attr->enableAutoComplete     = false;
             attr->adjustWidthToContents  = true;
-            attr->notifyWhenTextIsEdited = true;
+            attr->notifyWhenTextIsEdited = false;
         }
     }
 }
@@ -346,8 +346,7 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
     }
     else if ( ( fieldNeedingOptions == &m_openTimeStep ) || ( fieldNeedingOptions == &m_endTimeStep ) )
     {
-        openDeckFile();
-        if ( m_deckFile != nullptr )
+        if ( openDeckFile() )
         {
             auto timeStepNames = dateStrings();
             for ( int i = 0; i < static_cast<int>( timeStepNames.size() - 1 ); ++i )
@@ -363,7 +362,7 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
     }
     else if ( fieldNeedingOptions == &m_wellGroupName )
     {
-        for ( auto grp : wellgroupsInFileDeck() )
+        for ( auto& grp : wellgroupsInFileDeck() )
         {
             options.push_back( caf::PdmOptionItemInfo( grp, QVariant::fromValue( grp ) ) );
         }
@@ -499,13 +498,14 @@ void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
     if ( eCase == nullptr )
     {
         m_deckFileName.setValue( QString() );
+        closeDeckFile();
         return;
     }
 
     QFileInfo fi( eCase->gridFileName() );
     m_deckFileName.setValue( fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension() );
     m_eclipseCase = eCase;
-    m_deckFile.reset();
+    closeDeckFile();
     openDeckFile();
 }
 
@@ -516,7 +516,7 @@ void RimOpmFlowJob::setInputDataFile( QString filename )
 {
     m_deckName = "";
     m_deckFileName.setValue( filename );
-    m_deckFile.reset();
+    closeDeckFile();
     openDeckFile();
 }
 
@@ -525,33 +525,42 @@ void RimOpmFlowJob::setInputDataFile( QString filename )
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::openDeckFile()
 {
-    if ( m_deckFile == nullptr )
+    if ( m_deckFile.get() == nullptr )
     {
         m_deckFile      = std::make_unique<RifOpmFlowDeckFile>();
         bool deckLoadOk = false;
         try
         {
             deckLoadOk = m_deckFile->loadDeck( m_deckFileName().path().toStdString() );
+            if ( deckLoadOk )
+            {
+                m_fileDeckHasDates  = m_deckFile->hasDatesKeyword();
+                m_fileDeckIsRestart = m_deckFile->isRestartFile();
+            }
         }
         catch ( std::filesystem::filesystem_error& )
         {
+            deckLoadOk = false;
             RiaLogging::error( QString( "Failed to open %1, possibly unsupported or incorrect format." ).arg( m_deckFileName().path() ) );
         }
 
-        if ( deckLoadOk )
-        {
-            m_fileDeckHasDates  = m_deckFile->hasDatesKeyword();
-            m_fileDeckIsRestart = m_deckFile->isRestartFile();
-        }
-        else
+        if ( !deckLoadOk )
         {
             m_fileDeckHasDates  = false;
             m_fileDeckIsRestart = false;
-            m_deckFile.reset();
+            closeDeckFile();
         }
     }
 
-    return m_deckFile != nullptr;
+    return m_deckFile.get() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::closeDeckFile()
+{
+    m_deckFile.reset();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -718,7 +727,7 @@ std::map<QString, QString> RimOpmFlowJob::environment()
 bool RimOpmFlowJob::onPrepare()
 {
     // reload file deck to make sure we start with the original
-    m_deckFile.reset();
+    closeDeckFile();
     if ( !openDeckFile() )
     {
         RiaLogging::error( "Unable to open input DATA file " + m_deckFileName().path() );
@@ -865,7 +874,8 @@ bool RimOpmFlowJob::onPrepare()
 
     // save DATA file to working folder
     bool saveOk = m_deckFile->saveDeck( workingDirectory().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
-    m_deckFile.reset();
+
+    closeDeckFile();
 
     return saveOk;
 }
@@ -886,6 +896,14 @@ bool RimOpmFlowJob::onRun()
         if ( reply != QMessageBox::Ok ) return false;
     }
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::onProgress( double percentageDone )
+{
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,9 +18,14 @@
 
 #include "RimGenericJob.h"
 
+#include "RiaColorTools.h"
+
 #include "RimProcess.h"
 
+#include "RiuGuiTheme.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafProgressInfo.h"
 
 #include <QMessageBox>
@@ -31,6 +36,9 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. 
 ///
 //--------------------------------------------------------------------------------------------------
 RimGenericJob::RimGenericJob()
+    : m_percentageDone( 0.0 )
+    , m_lastRunFailed( false )
+    , m_isRunning( false )
 {
     CAF_PDM_InitObject( "Generic Job" );
 }
@@ -40,6 +48,14 @@ RimGenericJob::RimGenericJob()
 //--------------------------------------------------------------------------------------------------
 RimGenericJob::~RimGenericJob()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGenericJob::percentageDone() const
+{
+    return m_percentageDone;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,17 +80,31 @@ QString RimGenericJob::workingDirectory() const
 //--------------------------------------------------------------------------------------------------
 bool RimGenericJob::execute()
 {
+    m_percentageDone = 0.0;
+
     // job preparations
     {
         caf::ProgressInfo prepProgress( 1, title(), false );
 
         auto prepRun = prepProgress.task( "Preparing for run, please wait..." );
 
-        if ( !onPrepare() ) return false;
+        if ( !onPrepare() )
+        {
+            m_lastRunFailed = true;
+            onProgress( m_percentageDone );
+            return false;
+        }
     }
 
     // check if we should run
     if ( !onRun() ) return false;
+
+    QStringList cmdLine = command();
+    if ( cmdLine.isEmpty() ) return false;
+
+    m_isRunning     = true;
+    m_lastRunFailed = false;
+    onProgress( m_percentageDone );
 
     // run job
     bool runOk = false;
@@ -82,9 +112,6 @@ bool RimGenericJob::execute()
         caf::ProgressInfo runProgress( 1, title() );
 
         auto taskRun = runProgress.task( "Running job, please wait..." );
-
-        QStringList cmdLine = command();
-        if ( cmdLine.isEmpty() ) return false;
 
         QString cmd = cmdLine.takeFirst();
 
@@ -100,11 +127,59 @@ bool RimGenericJob::execute()
         runOk = process.execute();
     }
 
+    m_isRunning = false;
+
     onCompleted( runOk );
 
     if ( !runOk )
     {
+        m_lastRunFailed = true;
         QMessageBox::critical( nullptr, title(), "Failed to run job. Check log window for additional information." );
     }
+
+    m_percentageDone = 100.0;
+    onProgress( m_percentageDone );
+
     return runOk;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        if ( m_lastRunFailed )
+        {
+            auto tag = caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::red ),
+                                                                   RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                                   "!!!" );
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+        else
+        {
+            if ( m_percentageDone == 0.0 ) return;
+
+            auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
+
+            if ( m_isRunning )
+            {
+                tag->text = QString( "%1 %" ).arg( m_percentageDone );
+            }
+            else
+            {
+                tag->text = "Done";
+            }
+
+            double factor = m_percentageDone / 100.0;
+
+            cvf::Color3f viewColor = cvf::Color3f( cvf::Color3f::GREEN );
+            viewColor.set( viewColor.r() * factor, viewColor.g() * factor, viewColor.b() * factor );
+            cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
+            tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
+            tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+    }
 }
