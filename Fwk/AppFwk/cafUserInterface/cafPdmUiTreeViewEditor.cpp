@@ -312,6 +312,7 @@ void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem, bool notifyEditors
         // active and a calculation is parsed. This will cause a rebuild of the tree, and infinite recursion if a filter
         // is active.
         // https://github.com/OPM/ResInsight/issues/12983
+        auto currentFilter = m_filterModel->filterRegularExpression();
         m_filterModel->setFilterWildcard( "" );
 
         PdmUiItem* itemToUpdate = uiItem;
@@ -329,6 +330,10 @@ void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem, bool notifyEditors
         }
 
         m_treeViewModel->updateSubTree( itemToUpdate, notifyEditors );
+
+        // Restore filter after the update of the tree view model
+        m_filterModel->setFilterRegularExpression( currentFilter );
+
         updateItemDelegateForSubTree();
     }
 }

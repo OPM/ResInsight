@@ -2120,8 +2120,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     auto yAddressText       = m_yValuesSummaryAddress()->address().toEclipseTextAddress();
-    auto xAaddressText      = m_xAddressSelector->summaryAddress().toEclipseTextAddress();
-    auto newRealizationHash = RiaHashTools::hash( sumCases, yAddressText, xAaddressText );
+    auto xAddressText       = m_xAddressSelector->summaryAddress().toEclipseTextAddress();
+    auto newRealizationHash = RiaHashTools::hash( sumCases, yAddressText, xAddressText );
     if ( newRealizationHash != m_realizationHash )
     {
         deleteEnsembleCurves();
