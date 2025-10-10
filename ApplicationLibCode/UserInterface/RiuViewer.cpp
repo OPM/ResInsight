@@ -605,7 +605,7 @@ void RiuViewer::showZScaleLabel( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setZScale( int scale )
+void RiuViewer::setZScale( double scale )
 {
     bool isScaleChanged = m_zScale != scale;
     m_zScale            = scale;

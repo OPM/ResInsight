@@ -87,7 +87,7 @@ public:
 
     void hideZScaleCheckbox( bool hide );
     void showZScaleLabel( bool enable );
-    void setZScale( int scale );
+    void setZScale( double scale );
 
     void showHistogram( bool enable );
     void setHistogram( double min, double max, const std::vector<size_t>& histogram );
