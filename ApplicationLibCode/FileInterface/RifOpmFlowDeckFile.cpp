@@ -629,6 +629,7 @@ bool RifOpmFlowDeckFile::appendDateKeywords( const std::vector<std::time_t>& dat
         newRec.addItem( RifOpmDeckTools::item( Opm::ParserKeywords::DATES::DAY::itemName, lt->tm_mday ) );
         newRec.addItem( RifOpmDeckTools::item( Opm::ParserKeywords::DATES::MONTH::itemName, month ) );
         newRec.addItem( RifOpmDeckTools::item( Opm::ParserKeywords::DATES::YEAR::itemName, lt->tm_year + 1900 ) );
+        newRec.addItem( RifOpmDeckTools::defaultItem( Opm::ParserKeywords::DATES::TIME::itemName ) );
 
         newKw.addRecord( std::move( newRec ) );
 
