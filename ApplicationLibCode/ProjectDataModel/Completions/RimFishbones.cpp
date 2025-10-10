@@ -576,6 +576,8 @@ void RimFishbones::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
                 m_lateralOpenHoleRoghnessFactor.uiCapability()->setUiName( "Open Hole Roughness Factor [m]" );
                 m_lateralTubingRoghnessFactor.uiCapability()->setUiName( "Tubing Roughness Factor [m]" );
 
+                m_lateralDiameter.uiCapability()->setUiName( "Lateral Diameter [mm]" );
+
                 m_icdOrificeDiameter.uiCapability()->setUiName( "ICD Orifice Diameter [mm]" );
             }
             else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
@@ -585,6 +587,8 @@ void RimFishbones::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
                 m_lateralTubingDiameter.uiCapability()->setUiName( "Tubing Diameter [in]" );
                 m_lateralOpenHoleRoghnessFactor.uiCapability()->setUiName( "Open Hole Roughness Factor [ft]" );
                 m_lateralTubingRoghnessFactor.uiCapability()->setUiName( "Tubing Roughness Factor [ft]" );
+
+                m_lateralDiameter.uiCapability()->setUiName( "Lateral Diameter [in]" );
 
                 m_icdOrificeDiameter.uiCapability()->setUiName( "ICD Orifice Diameter [in]" );
             }
