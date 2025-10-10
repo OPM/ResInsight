@@ -160,8 +160,9 @@ RimFishbones* RimFishbonesCollection::appendFishbonesSubsAtLocations( const std:
     auto* obj = new RimFishbones;
     obj->setValveLocations( subLocations );
 
-    RimFishbonesDefines::RicFishbonesSystemParameters customParameters = RimFishbonesDefines::drillingStandardParameters();
+    appendFishbonesSubs( obj );
 
+    RimFishbonesDefines::RicFishbonesSystemParameters customParameters = RimFishbonesDefines::drillingStandardParameters();
     if ( drillingType == RimFishbonesDefines::DrillingType::EXTENDED )
     {
         customParameters = RimFishbonesDefines::drillingExtendedParameters();
@@ -171,13 +172,12 @@ RimFishbones* RimFishbonesCollection::appendFishbonesSubsAtLocations( const std:
         customParameters = RimFishbonesDefines::acidJettingParameters();
     }
 
+    // NB: Setting the system parameters must be done after appendFishbonesSubs, as the latter sets some default values
     obj->setSystemParameters( customParameters.lateralsPerSub,
                               customParameters.lateralLength,
                               customParameters.holeDiameter,
                               customParameters.buildAngle,
                               customParameters.icdsPerSub );
-
-    appendFishbonesSubs( obj );
 
     return obj;
 }
