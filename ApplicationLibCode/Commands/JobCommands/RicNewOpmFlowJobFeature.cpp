@@ -96,12 +96,13 @@ void RicNewOpmFlowJobFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicNewOpmFlowJobFeature::workingFolder()
+QString RicNewOpmFlowJobFeature::workingFolder( QString defaultDir )
 {
     // get base directory for our work, should be a new, empty folder somewhere
     const QString defaultDirName = "OPM_FLOW_MODELING";
-    QString       defaultDir     = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( defaultDirName );
-    QString       baseDir =
+    if ( defaultDir.isEmpty() )
+        defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( defaultDirName );
+    QString baseDir =
         RiuFileDialogTools::getExistingDirectory( Riu3DMainWindowTools::mainWindowWidget(), "Select Simulation Output Directory", defaultDir );
     if ( baseDir.isNull() || baseDir.isEmpty() ) return "";
     RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirName, baseDir );

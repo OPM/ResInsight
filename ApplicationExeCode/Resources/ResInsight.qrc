@@ -295,7 +295,9 @@
         <file>arrow-swap.svg</file>
         <file>inspect.svg</file>
         <file>pin.svg</file>
-        <file>pinned.svg</file>
+		<file>Play.svg</file>
+		<file>gear_icon_16x16.png</file>
+		<file>pinned.svg</file>
         <file>pinned-remove.svg</file>
         <file>Select.svg</file>
         <file>NavigationProperty.svg</file>

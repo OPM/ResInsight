@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RimJobCollection, "JobCollection" );
 //--------------------------------------------------------------------------------------------------
 RimJobCollection::RimJobCollection()
 {
-    CAF_PDM_InitObject( "Jobs" + RiaDefines::betaFeaturePostfix(), ":/gear.svg" );
+    CAF_PDM_InitObject( "Jobs" + RiaDefines::betaFeaturePostfix(), ":/gear_icon_16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_jobs, "Jobs", "Jobs" );
 

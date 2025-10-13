@@ -23,16 +23,11 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewOpmFlowJobFeature : public caf::CmdFeature
+class RicDuplicateJobFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static QString workingFolder( QString defaultDir = "" );
-    static QString inputDataFile();
-
 protected:
-    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

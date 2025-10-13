@@ -62,6 +62,7 @@ public:
     void setInputDataFile( QString filename );
 
     QString deckName();
+    QString mainWorkingDirectory() const;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;

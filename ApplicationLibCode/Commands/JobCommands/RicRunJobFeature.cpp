@@ -39,8 +39,8 @@ void RicRunJobFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicRunJobFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/gear.png" ) );
-    actionToSetup->setText( "Run Job..." );
+    actionToSetup->setIcon( QIcon( ":/Play.svg" ) );
+    actionToSetup->setText( "Run..." );
 }
 
 //--------------------------------------------------------------------------------------------------

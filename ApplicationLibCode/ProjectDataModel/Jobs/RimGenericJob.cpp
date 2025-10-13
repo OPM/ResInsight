@@ -48,6 +48,7 @@ RimGenericJob::~RimGenericJob()
 void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicRunJobFeature";
+    menuBuilder << "RicDuplicateJobFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
