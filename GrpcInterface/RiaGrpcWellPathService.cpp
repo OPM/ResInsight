@@ -87,8 +87,11 @@ void RiaGrpcWellPathService::copyWelspecsToGrpc( const RimWellPathCompletionSett
 {
     grpcData->set_well_name( compSettings->wellNameForExport().toStdString() );
     grpcData->set_group_name( compSettings->groupNameForExport().toStdString() );
-    grpcData->set_grid_i( gridI );
-    grpcData->set_grid_j( gridJ );
+
+    // Convert to 1-based indexing
+    grpcData->set_grid_i( gridI + 1 );
+    grpcData->set_grid_j( gridJ + 1 );
+
     if ( compSettings->referenceDepth().has_value() )
     {
         grpcData->set_bhp_depth( compSettings->referenceDepth().value() );
@@ -113,10 +116,13 @@ void RiaGrpcWellPathService::copyCompdatToGrpc( const RigCompletionData& inputDa
 {
     compDat->set_comment( inputData.metaDataString().toStdString() );
     compDat->set_well_name( inputData.wellName().toStdString() );
-    compDat->set_grid_i( inputData.completionDataGridCell().localCellIndexI() );
-    compDat->set_grid_j( inputData.completionDataGridCell().localCellIndexJ() );
-    compDat->set_upper_k( inputData.completionDataGridCell().localCellIndexK() );
-    compDat->set_lower_k( inputData.completionDataGridCell().localCellIndexK() );
+
+    // Convert to 1-based indexing
+    compDat->set_grid_i( inputData.completionDataGridCell().localCellIndexI() + 1 );
+    compDat->set_grid_j( inputData.completionDataGridCell().localCellIndexJ() + 1 );
+    compDat->set_upper_k( inputData.completionDataGridCell().localCellIndexK() + 1 );
+    compDat->set_lower_k( inputData.completionDataGridCell().localCellIndexK() + 1 );
+
     compDat->set_open_shut_flag( "OPEN" );
     if ( inputData.saturation() != inputData.defaultValue() )
     {
