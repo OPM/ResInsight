@@ -19,7 +19,6 @@
 #include "RicWellPathExportMswCompletionsImpl.h"
 
 #include "RiaLogging.h"
-#include "RiaWeightedMeanCalculator.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFractureCompletionsImpl.h"
@@ -42,7 +41,6 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFractureTemplate.h"
-#include "RimModeledWellPath.h"
 #include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -58,6 +56,12 @@
 #include <QFileInfo>
 
 #include <algorithm>
+
+namespace internal
+{
+constexpr double VALVE_SEGMENT_LENGTH = 0.1;
+
+}; // namespace internal
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -654,17 +658,20 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const 
 
         for ( const auto& [subIndex, lateralIndices] : subAndLateralIndices )
         {
-            double subEndMD  = subs->measuredDepth( subIndex );
-            double subEndTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( branch->wellPath(), subEndMD );
+            const double subEndMd      = subs->measuredDepth( subIndex );
+            const double subEndTvd     = RicMswTableFormatterTools::tvdFromMeasuredDepth( branch->wellPath(), subEndMd );
+            const double startValveMd  = subEndMd - internal::VALVE_SEGMENT_LENGTH;
+            const double startValveTvd = RicMswTableFormatterTools::tvdFromMeasuredDepth( branch->wellPath(), startValveMd );
 
             {
-                // Add completion for ICD
-                auto icdSegment = std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, subIndex );
+                // Add completion for ICD. Insert the segment at the end of the fishbone section. The laterals flows into the ICD segment,
+                // and the simulator requires increasing MD on laterals. Make sure that the lateral MDs are larger than the ICD segment MDs.
+                auto icdSegment = std::make_unique<RicMswSegment>( "ICD segment", startValveMd, subEndMd, startValveTvd, subEndTvd, subIndex );
 
                 for ( auto lateralIndex : lateralIndices )
                 {
                     QString label = QString( "Lateral %1" ).arg( lateralIndex + 1 );
-                    icdSegment->addCompletion( std::make_unique<RicMswFishbones>( label, wellPath, subEndMD, subEndTVD, lateralIndex ) );
+                    icdSegment->addCompletion( std::make_unique<RicMswFishbones>( label, wellPath, subEndMd, subEndTvd, lateralIndex ) );
                 }
 
                 assignFishbonesLateralIntersections( eclipseCase,
@@ -675,7 +682,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const 
                                                      maxSegmentLength,
                                                      unitSystem );
 
-                auto icdCompletion = std::make_unique<RicMswFishbonesICD>( QString( "ICD" ), wellPath, subEndMD, subEndTVD, nullptr );
+                auto icdCompletion = std::make_unique<RicMswFishbonesICD>( QString( "ICD" ), wellPath, subEndMd, subEndTvd, nullptr );
                 icdCompletion->setFlowCoefficient( subs->icdFlowCoefficient() );
                 double icdOrificeRadius = subs->icdOrificeDiameter( unitSystem ) / 2;
                 icdCompletion->setArea( icdOrificeRadius * icdOrificeRadius * cvf::PI_D * subs->icdCount() );
@@ -721,7 +728,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const 
 
                 icdCompletion->addSegment( std::move( icdSegment ) );
 
-                RicMswSegment* segmentOnParentBranch = branch->findClosestSegmentWithLowerMD( subEndMD );
+                RicMswSegment* segmentOnParentBranch = branch->findClosestSegmentWithLowerMD( subEndMd );
                 if ( segmentOnParentBranch )
                 {
                     segmentOnParentBranch->addCompletion( std::move( icdCompletion ) );
@@ -1177,7 +1184,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions( gsl::not_null<
                     double                    overlap      = std::max( 0.0, overlapEnd - overlapStart );
 
                     double exportStartMD = valveMD;
-                    double exportEndMD   = valveMD + 0.1;
+                    double exportEndMD   = valveMD + internal::VALVE_SEGMENT_LENGTH;
 
                     double exportStartTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, exportStartMD );
                     double exportEndTVD   = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, exportEndMD );
@@ -1568,8 +1575,6 @@ void RicWellPathExportMswCompletionsImpl::assignFishbonesLateralIntersections( c
                                                                               lateralCoords,
                                                                               lateralMDs );
 
-        RigWellPath pathGeometry( lateralCoords, lateralMDs );
-
         double previousExitMD  = lateralMDs.front();
         double previousExitTVD = -lateralCoords.front().z();
 
@@ -1823,12 +1828,13 @@ std::unique_ptr<RicMswBranch> RicWellPathExportMswCompletionsImpl::createChildMs
                                            outletValve );
         if ( branchStartingWithValve )
         {
-            auto dummySegment =
+            const auto segmentEndMd = initialChildMD + internal::VALVE_SEGMENT_LENGTH;
+            auto       dummySegment =
                 std::make_unique<RicMswSegment>( QString( "%1 segment" ).arg( outletValve->componentLabel() ),
                                                  initialChildMD,
-                                                 initialChildMD + 0.1,
+                                                 segmentEndMd,
                                                  initialChildTVD,
-                                                 RicMswTableFormatterTools::tvdFromMeasuredDepth( childWellPath, initialChildMD + 0.1 ) );
+                                                 RicMswTableFormatterTools::tvdFromMeasuredDepth( childWellPath, segmentEndMd ) );
             branchStartingWithValve->addSegment( std::move( dummySegment ) );
 
             return branchStartingWithValve;
