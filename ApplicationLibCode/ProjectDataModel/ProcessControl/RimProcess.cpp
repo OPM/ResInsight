@@ -34,11 +34,14 @@ int RimProcess::m_nextProcessId = 1;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcess::RimProcess( bool logStdOutErr /*true*/ )
+RimProcess::RimProcess( bool logStdOutErr /*true*/, RimProcessMonitor* monitor )
     : m_enableLogging( logStdOutErr )
 {
     int defId = m_nextProcessId++;
-    m_monitor = new RimProcessMonitor( defId, logStdOutErr );
+    if ( monitor == nullptr )
+        m_monitor = std::make_unique<RimProcessMonitor>( defId, logStdOutErr );
+    else
+        m_monitor.reset( monitor );
 
     CAF_PDM_InitObject( "ResInsight Process", ":/Erase.png" );
 
@@ -60,7 +63,6 @@ RimProcess::RimProcess( bool logStdOutErr /*true*/ )
 //--------------------------------------------------------------------------------------------------
 RimProcess::~RimProcess()
 {
-    delete m_monitor;
 }
 
 caf::PdmFieldHandle* RimProcess::userDescriptionField()
@@ -168,10 +170,10 @@ bool RimProcess::execute( bool enableStdOut, bool enableStdErr )
 
     m_monitor->clearStdOutErr();
 
-    QObject::connect( proc, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor, SLOT( finished( int, QProcess::ExitStatus ) ) );
-    if ( enableStdOut ) QObject::connect( proc, SIGNAL( readyReadStandardOutput() ), m_monitor, SLOT( readyReadStandardOutput() ) );
-    if ( enableStdErr ) QObject::connect( proc, SIGNAL( readyReadStandardError() ), m_monitor, SLOT( readyReadStandardError() ) );
-    QObject::connect( proc, SIGNAL( started() ), m_monitor, SLOT( started() ) );
+    QObject::connect( proc, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor.get(), SLOT( finished( int, QProcess::ExitStatus ) ) );
+    if ( enableStdOut ) QObject::connect( proc, SIGNAL( readyReadStandardOutput() ), m_monitor.get(), SLOT( readyReadStandardOutput() ) );
+    if ( enableStdErr ) QObject::connect( proc, SIGNAL( readyReadStandardError() ), m_monitor.get(), SLOT( readyReadStandardError() ) );
+    QObject::connect( proc, SIGNAL( started() ), m_monitor.get(), SLOT( started() ) );
 
     bool retval = false;
 
