@@ -28,7 +28,6 @@
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
-#include "RimModeledWellPath.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
@@ -58,29 +57,21 @@ grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*    
 
     if ( !wellPath )
     {
-        return grpc::Status( grpc::NOT_FOUND, "Wellpath not found" );
+        return grpc::Status( grpc::NOT_FOUND, "Well path " + request->wellpath_name() + " not found" );
     }
 
-    if ( auto modWellPath = dynamic_cast<RimModeledWellPath*>( wellPath ) )
+    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( wellPath, eclipseCase );
+    for ( const auto& cd : compdata )
     {
-        auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( modWellPath, eclipseCase );
-
-        for ( const auto& cd : compdata )
-        {
-            SimulatorCompdatEntry* grpcData = reply->add_compdat();
-            RiaGrpcWellPathService::copyCompdatToGrpc( cd, grpcData );
-        }
-
-        auto ijPos = RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath );
-        auto compSettings = wellPath->completionSettings();
-
-        SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
-        RiaGrpcWellPathService::copyWelspecsToGrpc( compSettings, grpcData, eclipseCase, ijPos.second.x(), ijPos.second.y() );
+        SimulatorCompdatEntry* grpcData = reply->add_compdat();
+        RiaGrpcWellPathService::copyCompdatToGrpc( cd, grpcData );
     }
-    else
-    {
-        return grpc::Status( grpc::NOT_FOUND, "Modeled well path not found" );
-    }
+
+    auto ijPos = RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath );
+    auto compSettings = wellPath->completionSettings();
+
+    SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
+    RiaGrpcWellPathService::copyWelspecsToGrpc( compSettings, grpcData, eclipseCase, ijPos.second.x(), ijPos.second.y() );
 
     return grpc::Status::OK;
 }
