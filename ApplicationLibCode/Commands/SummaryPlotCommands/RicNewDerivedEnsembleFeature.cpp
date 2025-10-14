@@ -18,6 +18,8 @@
 
 #include "RicNewDerivedEnsembleFeature.h"
 
+#include "Summary/RiaSummaryTools.h"
+
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -73,34 +75,32 @@ bool RicNewDerivedEnsembleFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
 {
+    auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !sumCaseMainColl ) return;
+
     if ( isCommandEnabled() )
     {
-        auto project  = RimProject::current();
-        auto mainColl = project->firstSummaryCaseMainCollection();
-
-        auto newColl     = mainColl->addEnsemble( {}, "", true, []() { return new RimDeltaSummaryEnsemble(); } );
+        auto newColl     = sumCaseMainColl->addEnsemble( {}, "", true, []() { return new RimDeltaSummaryEnsemble(); } );
         auto newEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( newColl );
 
+        std::vector<RimSummaryEnsemble*> ensembles = caf::selectedObjectsByType<RimSummaryEnsemble*>();
+
+        if ( !ensembles.empty() ) newEnsemble->setEnsemble1( ensembles[0] );
+        if ( ensembles.size() == 2 )
         {
-            std::vector<RimSummaryEnsemble*> ensembles = caf::selectedObjectsByType<RimSummaryEnsemble*>();
+            newEnsemble->setEnsemble2( ensembles[1] );
+            newEnsemble->createDerivedEnsembleCases();
 
-            if ( !ensembles.empty() ) newEnsemble->setEnsemble1( ensembles[0] );
-            if ( ensembles.size() == 2 )
+            if ( newEnsemble->allSummaryCases().empty() )
             {
-                newEnsemble->setEnsemble2( ensembles[1] );
-                newEnsemble->createDerivedEnsembleCases();
-
-                if ( newEnsemble->allSummaryCases().empty() )
+                if ( !showWarningDialogWithQuestion() )
                 {
-                    if ( !showWarningDialogWithQuestion() )
-                    {
-                        mainColl->removeEnsemble( newEnsemble );
-                    }
+                    sumCaseMainColl->removeEnsemble( newEnsemble );
                 }
             }
         }
 
-        mainColl->updateConnectedEditors();
+        sumCaseMainColl->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( newEnsemble );
     }
 }

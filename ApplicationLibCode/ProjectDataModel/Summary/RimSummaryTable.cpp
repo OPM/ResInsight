@@ -696,6 +696,7 @@ std::vector<RimSummaryCase*> RimSummaryTable::getToplevelSummaryCases() const
 {
     RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
     if ( !summaryCaseMainCollection ) return {};
+
     return summaryCaseMainCollection->topLevelSummaryCases();
 }
 

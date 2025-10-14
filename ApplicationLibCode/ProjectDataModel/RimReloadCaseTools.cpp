@@ -187,9 +187,10 @@ RimEclipseCase* RimReloadCaseTools::gridModelFromSummaryCase( const RimSummaryCa
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclipseResultCase )
 {
-    RiaEclipseFileNameTools helper( eclipseResultCase->gridFileName() );
-
     RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !sumCaseColl ) return nullptr;
+
+    RiaEclipseFileNameTools helper( eclipseResultCase->gridFileName() );
 
     auto summaryFileNames = helper.findSummaryFileCandidates();
     for ( const auto& fileName : summaryFileNames )

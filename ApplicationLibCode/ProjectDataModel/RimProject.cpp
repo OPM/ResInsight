@@ -813,15 +813,6 @@ std::vector<RimSummaryEnsemble*> RimProject::summaryEnsembles() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseMainCollection* RimProject::firstSummaryCaseMainCollection() const
-{
-    if ( oilFields.empty() ) return nullptr;
-    return oilFields[0]->summaryCaseMainCollection;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<Rim3dView*> RimProject::allNotLinkedViews() const
 {
     std::vector<Rim3dView*> alreadyLinkedViews;

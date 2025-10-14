@@ -134,7 +134,6 @@ public:
 
     std::vector<RimSummaryCase*>     allSummaryCases() const;
     std::vector<RimSummaryEnsemble*> summaryEnsembles() const;
-    RimSummaryCaseMainCollection*    firstSummaryCaseMainCollection() const;
 
     [[nodiscard]] std::vector<Rim3dView*>   allViews() const;
     [[nodiscard]] std::vector<Rim3dView*>   allVisibleViews() const;

@@ -83,19 +83,22 @@ std::vector<RimSummarySumoDataSource*> RimCloudDataSourceCollection::sumoDataSou
 //--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const std::vector<RimSummarySumoDataSource*>& dataSources )
 {
+    auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !sumCaseMainColl ) return;
+
     for ( auto dataSource : dataSources )
     {
         RimSummaryEnsembleSumo* ensemble = new RimSummaryEnsembleSumo();
         ensemble->setUsePathKey1( true );
         ensemble->setSumoDataSource( dataSource );
-        RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );
+        sumCaseMainColl->addEnsemble( ensemble );
         ensemble->loadDataAndUpdate();
 
         RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
     RiaSummaryTools::updateSummaryEnsembleNames();
-    RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();
+    sumCaseMainColl->updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -93,7 +93,6 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled() const
 void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
 
     std::vector<RimSummaryCase*>     selectedCases  = caf::selectedObjectsByType<RimSummaryCase*>();
     std::vector<RimSummaryEnsemble*> selectedGroups = caf::selectedObjectsByType<RimSummaryEnsemble*>();
@@ -102,16 +101,20 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
 
     if ( sourcesToSelect.empty() && selectedGroups.empty() )
     {
-        const auto                       allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
-        const auto                       ensembles      = project->summaryEnsembles();
+        const auto                       ensembles = project->summaryEnsembles();
         std::vector<RimSummaryEnsemble*> allEnsembles;
         for ( const auto ensemble : ensembles )
             if ( ensemble->isEnsemble() ) allEnsembles.push_back( ensemble );
 
-        if ( !allSingleCases.empty() )
+        if ( auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection() )
         {
-            sourcesToSelect.push_back( allSingleCases.front() );
+            const auto allSingleCases = sumCaseMainColl->topLevelSummaryCases();
+            if ( !allSingleCases.empty() )
+            {
+                sourcesToSelect.push_back( allSingleCases.front() );
+            }
         }
+
         else if ( !allEnsembles.empty() )
         {
             sourcesToSelect.push_back( allEnsembles.front() );

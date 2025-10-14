@@ -54,19 +54,21 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
 
     // Refresh data sources tree
     // Refresh meta data for all summary cases and rebuild AddressNodes in the summary tree
-    RimSummaryCaseMainCollection* summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection();
-    auto                          summaryCases          = summaryCaseCollection->allSummaryCases();
-    for ( RimSummaryCase* summaryCase : summaryCases )
+    if ( auto summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection() )
     {
-        if ( !summaryCase ) continue;
-
-        if ( summaryCase->showVectorItemsInProjectTree() )
+        auto summaryCases = summaryCaseCollection->allSummaryCases();
+        for ( RimSummaryCase* summaryCase : summaryCases )
         {
-            if ( auto reader = summaryCase->summaryReader() )
+            if ( !summaryCase ) continue;
+
+            if ( summaryCase->showVectorItemsInProjectTree() )
             {
-                reader->createAndSetAddresses();
+                if ( auto reader = summaryCase->summaryReader() )
+                {
+                    reader->createAndSetAddresses();
+                }
+                summaryCase->onCalculationUpdated();
             }
-            summaryCase->onCalculationUpdated();
         }
     }
 
@@ -83,9 +85,12 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
         }
     }
 
-    for ( auto ensemble : summaryCaseCollection->summaryEnsembles() )
+    if ( auto summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection() )
     {
-        ensemble->onCalculationUpdated();
+        for ( auto ensemble : summaryCaseCollection->summaryEnsembles() )
+        {
+            ensemble->onCalculationUpdated();
+        }
     }
 }
 

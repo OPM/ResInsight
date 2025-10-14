@@ -73,10 +73,8 @@ std::vector<RimSummaryCase*> RiaSummaryTools::singleTopLevelSummaryCases()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 {
-    RimProject*                   project                   = RimProject::current();
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = project->activeOilField()->summaryCaseMainCollection();
-    CVF_ASSERT( summaryCaseMainCollection );
-    return summaryCaseMainCollection;
+    RimProject* project = RimProject::current();
+    return project->activeOilField()->summaryCaseMainCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

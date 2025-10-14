@@ -36,18 +36,21 @@ namespace RimEnsembleFileSetTools
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryEnsemble*> createSummaryEnsemblesFromFileSets( const std::vector<RimEnsembleFileSet*> fileSets )
 {
+    auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !sumCaseMainColl ) return {};
+
     std::vector<RimSummaryEnsemble*> ensembles;
     for ( auto fileSet : fileSets )
     {
         auto ensemble = new RimSummaryFileSetEnsemble();
         ensemble->setEnsembleFileSet( fileSet );
-        RiaSummaryTools::summaryCaseMainCollection()->addEnsemble( ensemble );
-        RiaSummaryTools::summaryCaseMainCollection()->updateEnsembleNames();
+        sumCaseMainColl->addEnsemble( ensemble );
+        sumCaseMainColl->updateEnsembleNames();
         ensemble->loadDataAndUpdate();
         ensembles.push_back( ensemble );
     }
 
-    RiaSummaryTools::summaryCaseMainCollection()->updateAllRequiredEditors();
+    sumCaseMainColl->updateAllRequiredEditors();
 
     return ensembles;
 }
