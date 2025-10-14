@@ -31,60 +31,9 @@
 #include "cvfGeometryTools.h"
 
 #include <array>
+#include <cmath>
 
 using namespace cvf;
-
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void ControlVolume::calculateCubeFaceStatus(const cvf::Vec3dArray& nodeCoords, double areaTolerance)
-{
-    int cubeFace;
-    cvf::uint cubeFaceIndices[4];
-    for (cubeFace = 0; cubeFace < 6; ++cubeFace)
-    {
-        surfaceNodeIndices(static_cast<Defines::CubeFace>(cubeFace), cubeFaceIndices);
-
-        std::vector<const brv::Connection*> conns;
-        connections(static_cast<Defines::CubeFace>(cubeFace), &conns);
-
-        if (!conns.size()) 
-        {
-            m_cubeFaceStatus[cubeFace] = FREE_FACE;
-        }
-        else
-        {
-            double area = 0.5 * (nodeCoords[cubeFaceIndices[1]]-nodeCoords[cubeFaceIndices[0]] ^ nodeCoords[cubeFaceIndices[3]]-nodeCoords[cubeFaceIndices[0]]).length();
-            area +=  0.5 * (nodeCoords[cubeFaceIndices[3]]-nodeCoords[cubeFaceIndices[2]] ^ nodeCoords[cubeFaceIndices[1]]-nodeCoords[cubeFaceIndices[2]]).length();
-            double totConnectionArea = 0;
-            size_t i;
-            for (i = 0; i < conns.size(); ++i)
-            {
-                totConnectionArea += conns[i]->brfArea();
-            }
-
-            if ( totConnectionArea < area - areaTolerance )
-            {
-                m_cubeFaceStatus[cubeFace] = PARTIALLY_COVERED;
-            }
-            else
-            {
-                m_cubeFaceStatus[cubeFace] = COMPLETELY_COVERED;
-            }
-        }
-
-        // Create a polygon to store the complete polygon of the faces 
-        // not completely covered by connections
-        // This polygon will be filled with nodes later
-
-        if (m_cubeFaceStatus[cubeFace] != COMPLETELY_COVERED )
-        {
-            m_freeFacePolygons[cubeFace] = new std::list<std::pair<cvf::uint, bool> >;
-        }
-    }
-}
-#endif
 
 template <typename NodeArrayType, typename NodeType, typename IndexType>
 NodeType quadNormal( ArrayWrapperConst<NodeArrayType, NodeType> nodeCoords, const IndexType cubeFaceIndices[4] )
@@ -595,4 +544,223 @@ TEST( EarClipTesselator, ErrorTest )
     {
         // continue;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test robust geometry calculation functions
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsErrorHandling, RobustCalculations )
+{
+    // Test with degenerate polygons
+    std::vector<cvf::Vec3d> degeneratePolygon = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 0, 0, 0 ) };
+
+    cvf::Vec3d center = GeometryTools::computePolygonCenter( degeneratePolygon );
+    EXPECT_TRUE( center.isZero() );
+
+    double area = GeometryTools::polygonArea( degeneratePolygon );
+    EXPECT_DOUBLE_EQ( 0.0, area );
+
+    // Test with collinear points
+    std::vector<cvf::Vec3d> collinearPolygon = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 1, 0, 0 ), cvf::Vec3d( 2, 0, 0 ) };
+
+    area = GeometryTools::polygonArea( collinearPolygon );
+    EXPECT_DOUBLE_EQ( 0.0, area );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test simple error handling cases
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsErrorHandling, BasicErrorHandling )
+{
+    // Test empty polygon center calculation
+    std::vector<cvf::Vec3d> emptyPolygon;
+    cvf::Vec3d              center = GeometryTools::computePolygonCenter( emptyPolygon );
+    EXPECT_TRUE( center.isZero() );
+
+    // Test empty polygon area calculation
+    double area = GeometryTools::polygonArea( emptyPolygon );
+    EXPECT_DOUBLE_EQ( 0.0, area );
+
+    // Test simple geometric functions with valid inputs
+    std::vector<cvf::Vec3d> triangle = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 1, 0, 0 ), cvf::Vec3d( 0, 1, 0 ) };
+
+    center = GeometryTools::computePolygonCenter( triangle );
+    EXPECT_NEAR( 1.0 / 3.0, center.x(), 1e-6 );
+    EXPECT_NEAR( 1.0 / 3.0, center.y(), 1e-6 );
+
+    area = GeometryTools::polygonArea( triangle );
+    EXPECT_NEAR( 0.5, area, 1e-6 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test bounds checking in EdgeIntersectStorage
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsErrorHandling, EdgeIntersectStorageBoundsCheck )
+{
+    EdgeIntersectStorage<cvf::uint> storage;
+    storage.setVertexCount( 4 );
+
+    // Test adding intersection with out-of-bounds index
+    storage.addIntersection( 10, 11, 0, 1, 0, GeometryTools::LINES_CROSSES, 0.5, 0.5 );
+    // Should return early without crashing
+
+    cvf::uint                         intersectionIndex;
+    GeometryTools::IntersectionStatus status;
+    double                            fraction1, fraction2;
+
+    // Test finding intersection with out-of-bounds index
+    bool found = storage.findIntersection( 10, 11, 0, 1, &intersectionIndex, &status, &fraction1, &fraction2 );
+    EXPECT_FALSE( found );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test computePolygonCenter template function
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsTemplate, ComputePolygonCenter )
+{
+    // Test with Vec3d
+    std::vector<cvf::Vec3d> polygon = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 2, 0, 0 ), cvf::Vec3d( 2, 2, 0 ), cvf::Vec3d( 0, 2, 0 ) };
+
+    cvf::Vec3d center = GeometryTools::computePolygonCenter( polygon );
+    EXPECT_DOUBLE_EQ( 1.0, center.x() );
+    EXPECT_DOUBLE_EQ( 1.0, center.y() );
+    EXPECT_DOUBLE_EQ( 0.0, center.z() );
+
+    // Test with empty polygon
+    std::vector<cvf::Vec3d> emptyPolygon;
+    cvf::Vec3d              emptyCenter = GeometryTools::computePolygonCenter( emptyPolygon );
+    EXPECT_TRUE( emptyCenter.isZero() );
+
+    // Test with single point
+    std::vector<cvf::Vec3d> singlePoint  = { cvf::Vec3d( 5, 3, 1 ) };
+    cvf::Vec3d              singleCenter = GeometryTools::computePolygonCenter( singlePoint );
+    EXPECT_DOUBLE_EQ( 5.0, singleCenter.x() );
+    EXPECT_DOUBLE_EQ( 3.0, singleCenter.y() );
+    EXPECT_DOUBLE_EQ( 1.0, singleCenter.z() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test interpolateQuad template function
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsTemplate, InterpolateQuad )
+{
+    cvf::Vec3d v1( 0, 0, 0 );
+    cvf::Vec3d v2( 1, 0, 0 );
+    cvf::Vec3d v3( 1, 1, 0 );
+    cvf::Vec3d v4( 0, 1, 0 );
+
+    // Test interpolation at corners
+    cvf::Vec3d center( 0.5, 0.5, 0 );
+    double     result = GeometryTools::interpolateQuad( v1, 10.0, v2, 20.0, v3, 30.0, v4, 40.0, center );
+    EXPECT_DOUBLE_EQ( 25.0, result ); // Average of corner values
+
+    // Test interpolation at v1 position
+    result = GeometryTools::interpolateQuad( v1, 10.0, v2, 20.0, v3, 30.0, v4, 40.0, v1 );
+    EXPECT_DOUBLE_EQ( 10.0, result );
+
+    // Test with float values
+    float floatResult = GeometryTools::interpolateQuad( v1, 1.0f, v2, 2.0f, v3, 3.0f, v4, 4.0f, center );
+    EXPECT_FLOAT_EQ( 2.5f, floatResult );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test geometric edge cases with simple functions
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsEdgeCases, GeometricEdgeCases )
+{
+    // Test polygon with repeated vertices
+    std::vector<cvf::Vec3d> repeatedVertices = { cvf::Vec3d( 0, 0, 0 ),
+                                                 cvf::Vec3d( 1, 0, 0 ),
+                                                 cvf::Vec3d( 1, 0, 0 ), // Repeated
+                                                 cvf::Vec3d( 1, 1, 0 ),
+                                                 cvf::Vec3d( 0, 1, 0 ) };
+
+    cvf::Vec3d center = GeometryTools::computePolygonCenter( repeatedVertices );
+    EXPECT_GT( center.x(), 0.0 );
+    EXPECT_GT( center.y(), 0.0 );
+
+    // Test very small polygon
+    std::vector<cvf::Vec3d> smallPolygon = { cvf::Vec3d( 0, 0, 0 ),
+                                             cvf::Vec3d( 1e-10, 0, 0 ),
+                                             cvf::Vec3d( 1e-10, 1e-10, 0 ),
+                                             cvf::Vec3d( 0, 1e-10, 0 ) };
+
+    double area = GeometryTools::polygonArea( smallPolygon );
+    EXPECT_GT( area, 0.0 );
+    EXPECT_LT( area, 1e-15 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test additional geometric calculations
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsEdgeCases, AdditionalGeometricTests )
+{
+    // Test polygon normal calculation
+    std::vector<cvf::Vec3d> square = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 1, 0, 0 ), cvf::Vec3d( 1, 1, 0 ), cvf::Vec3d( 0, 1, 0 ) };
+
+    cvf::Vec3d areaNormal = GeometryTools::polygonAreaNormal3D( square );
+    EXPECT_NEAR( 0.0, areaNormal.x(), 1e-6 );
+    EXPECT_NEAR( 0.0, areaNormal.y(), 1e-6 );
+    EXPECT_NEAR( 1.0, areaNormal.z(), 1e-6 ); // Positive due to opposite winding
+
+    // Test with different winding
+    std::vector<cvf::Vec3d> squareReversed = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 0, 1, 0 ), cvf::Vec3d( 1, 1, 0 ), cvf::Vec3d( 1, 0, 0 ) };
+
+    areaNormal = GeometryTools::polygonAreaNormal3D( squareReversed );
+    EXPECT_NEAR( 0.0, areaNormal.x(), 1e-6 );
+    EXPECT_NEAR( 0.0, areaNormal.y(), 1e-6 );
+    EXPECT_NEAR( -1.0, areaNormal.z(), 1e-6 ); // Negative due to winding
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test numerical precision handling
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsEdgeCases, NumericalPrecision )
+{
+    // Test with very small differences
+    std::vector<cvf::Vec3d> nearIdenticalPoints = { cvf::Vec3d( 0, 0, 0 ),
+                                                    cvf::Vec3d( 1, 0, 0 ),
+                                                    cvf::Vec3d( 1.0000001, 1e-10, 0 ), // Very close to (1, 0, 0)
+                                                    cvf::Vec3d( 0, 1, 0 ) };
+
+    double area = GeometryTools::polygonArea( nearIdenticalPoints );
+    EXPECT_GT( area, 0.0 );
+    EXPECT_LT( area, 1.0 ); // Should be less than unit square
+
+    // Test with extreme coordinates
+    std::vector<cvf::Vec3d> extremeCoords = { cvf::Vec3d( 1e6, 1e6, 0 ),
+                                              cvf::Vec3d( 1e6 + 1, 1e6, 0 ),
+                                              cvf::Vec3d( 1e6 + 1, 1e6 + 1, 0 ),
+                                              cvf::Vec3d( 1e6, 1e6 + 1, 0 ) };
+
+    area = GeometryTools::polygonArea( extremeCoords );
+    EXPECT_NEAR( 1.0, area, 1e-6 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test with various polygon sizes and configurations
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsEdgeCases, PolygonVariations )
+{
+    // Test with triangle
+    std::vector<cvf::Vec3d> triangleNodes = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 1, 0, 0 ), cvf::Vec3d( 0.5, 1, 0 ) };
+
+    cvf::Vec3d triangleCenter = GeometryTools::computePolygonCenter( triangleNodes );
+    EXPECT_NEAR( 0.5, triangleCenter.x(), 1e-6 );
+    EXPECT_NEAR( 1.0 / 3.0, triangleCenter.y(), 1e-6 );
+
+    // Test with hexagon
+    std::vector<cvf::Vec3d> hexagonNodes;
+    for ( int i = 0; i < 6; ++i )
+    {
+        double angle = i * 2.0 * M_PI / 6.0;
+        hexagonNodes.push_back( cvf::Vec3d( cos( angle ), sin( angle ), 0 ) );
+    }
+
+    cvf::Vec3d hexagonCenter = GeometryTools::computePolygonCenter( hexagonNodes );
+    EXPECT_NEAR( 0.0, hexagonCenter.x(), 1e-6 );
+    EXPECT_NEAR( 0.0, hexagonCenter.y(), 1e-6 );
+
+    double hexagonArea = GeometryTools::polygonArea( hexagonNodes );
+    EXPECT_GT( hexagonArea, 0.0 );
 }
