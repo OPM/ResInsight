@@ -325,6 +325,7 @@ QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlo
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotTools::enableGridLines( QwtPlot* plot, QwtAxis::Position axis, bool enableMajor, bool enableMinor )
 {
+    // NB: Make a copy, not reference to avoid iterator invalidation
     QwtPlotItemList plotItems = plot->itemList( QwtPlotItem::Rtti_PlotGrid );
     for ( QwtPlotItem* plotItem : plotItems )
     {

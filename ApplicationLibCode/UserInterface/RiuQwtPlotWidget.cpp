@@ -349,6 +349,7 @@ void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( RiuPlotAxis axis, bool enab
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines )
 {
+    // NB: Make a copy, not reference to avoid iterator invalidation
     QwtPlotItemList plotItems = m_plot->itemList( QwtPlotItem::Rtti_PlotGrid );
     auto            qwtAxis   = toQwtPlotAxis( axis );
     for ( QwtPlotItem* plotItem : plotItems )
@@ -893,6 +894,7 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos, QwtPlotItem** clo
     *closestCurveSampleIndex = -1;
     *distanceFromClick       = std::numeric_limits<double>::infinity();
 
+    // Ok to access reference to list, no add/remove of item during iteration
     const QwtPlotItemList& itmList = m_plot->itemList();
     for ( auto it : itmList )
     {
@@ -1109,6 +1111,7 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::vector<RimPlotCurve*>& cu
         return;
     }
 
+    // NB: Make a copy, not reference to avoid iterator invalidation
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
@@ -1190,6 +1193,7 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::vector<RimPlotCurve*>& cu
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::highlightPlotShapeItems( const std::set<const QwtPlotItem*>& closestItems )
 {
+    // NB: Make a copy, not reference to avoid iterator invalidation
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
@@ -1238,7 +1242,8 @@ void RiuQwtPlotWidget::resetPlotCurveHighlighting()
         return;
     }
 
-    const auto& plotItemList = m_plot->itemList();
+    // NB: Make a copy, not reference to avoid iterator invalidation
+    const QwtPlotItemList plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
         if ( auto* riuPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( plotItem ) )
@@ -1260,7 +1265,8 @@ void RiuQwtPlotWidget::resetPlotCurveHighlighting()
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::resetPlotShapeItemHighlighting()
 {
-    const auto& plotItemList = m_plot->itemList();
+    // NB: Make a copy, not reference to avoid iterator invalidation
+    const QwtPlotItemList plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
         auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
@@ -1312,6 +1318,7 @@ void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
 {
     std::vector<RimPlotCurve*> curves;
 
+    // NB: Make a copy, not reference to avoid iterator invalidation
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {

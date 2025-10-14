@@ -710,6 +710,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         // Get or create the two grids used in the plot
         {
+            // Ok to access reference to list, no add/remove of item during iteration
             QwtPlotItemList gridList = plot->itemList( QwtPlotItem::Rtti_PlotGrid );
             for ( QwtPlotItem* plItem : gridList )
             {

@@ -146,6 +146,7 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint& cursorPosition
     double        distMin                 = DBL_MAX;
     int           closestPointSampleIndex = -1;
 
+    // Ok to access reference to list, no add/remove of item during iteration
     const QwtPlotItemList& itmList = m_plot->itemList();
     for ( QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++ )
     {

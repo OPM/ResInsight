@@ -424,6 +424,7 @@ const QwtPlotCurve* RiuPvtPlotWidget::closestCurveSample( const QPoint& cursorPo
     double              distMin                 = HUGE_VAL;
     int                 closestPointSampleIndex = -1;
 
+    // Ok to access reference to list, no add/remove of item during iteration
     const QwtPlotItemList& itemList = m_qwtPlot->itemList();
     for ( QwtPlotItemIterator it = itemList.begin(); it != itemList.end(); it++ )
     {

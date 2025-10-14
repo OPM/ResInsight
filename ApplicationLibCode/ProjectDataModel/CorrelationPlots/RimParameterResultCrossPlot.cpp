@@ -569,6 +569,7 @@ protected:
         double  minDistance = std::numeric_limits<double>::max();
         QString closestCurveLabel;
 
+        // Ok to access reference to list, no add/remove of item during iteration
         for ( QwtPlotItem* item : plot()->itemList() )
         {
             if ( item->rtti() == QwtPlotItem::Rtti_PlotCurve )
