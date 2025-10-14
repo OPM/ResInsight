@@ -832,9 +832,11 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace( size_t reservoir
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& inputBB ) const
 {
-    CVF_ASSERT( m_cellSearchTree.notNull() );
     std::vector<size_t> cellIndices;
-    m_cellSearchTree->findIntersections( inputBB, &cellIndices );
+    if ( m_cellSearchTree.notNull() )
+    {
+        m_cellSearchTree->findIntersections( inputBB, &cellIndices );
+    }
     return cellIndices;
 }
 
