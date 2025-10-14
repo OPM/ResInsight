@@ -34,6 +34,8 @@ public:
     QStringList stdOut() const;
     QStringList stdErr() const;
 
+    void setProcessId( int processId );
+
 signals:
 
 public slots:

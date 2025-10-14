@@ -95,6 +95,7 @@ void caf::AppEnum<RimOpmFlowJob::DateAppendType>::setUp()
 RimOpmFlowJob::RimOpmFlowJob()
     : m_fileDeckHasDates( false )
     , m_fileDeckIsRestart( false )
+    , m_startStepForProgress( -1 )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/opm.png" );
 
@@ -181,6 +182,43 @@ void RimOpmFlowJob::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::decodeProgress( const QString& logLine )
+{
+    // Example log lines:
+    // Report step 757/773 at day 9466/10958, date = 01-Dec-2025
+    // Report step 758/773 at day 9497/10958, date = 01-Jan-2026
+    if ( logLine.startsWith( "Report step" ) )
+    {
+        auto parts = logLine.split( ' ' );
+        if ( parts.size() >= 4 )
+        {
+            auto stepPart  = parts[2]; // 756/773
+            auto stepParts = stepPart.split( '/' );
+            if ( stepParts.size() == 2 )
+            {
+                bool ok1         = false;
+                bool ok2         = false;
+                int  currentStep = stepParts[0].toInt( &ok1 );
+                if ( m_startStepForProgress < 0 )
+                {
+                    m_startStepForProgress = currentStep;
+                }
+
+                int totalSteps = stepParts[1].toInt( &ok2 );
+                if ( ok1 && ok2 && totalSteps > 0 )
+                {
+                    double perc = ( (double)( currentStep - m_startStepForProgress ) / (double)( totalSteps - m_startStepForProgress ) ) * 100.0;
+                    perc = std::max( 0.0, perc );
+                    onProgress( perc );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_workDir )
@@ -238,6 +276,13 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     genGrp->add( &m_deckFileName );
     genGrp->add( &m_workDir );
     genGrp->add( &m_eclipseCase );
+
+    if ( isRunning() )
+    {
+        genGrp->setUiReadOnly( true );
+        uiOrdering.skipRemainingFields();
+        return;
+    }
 
     if ( m_eclipseCase() == nullptr )
     {
@@ -903,6 +948,7 @@ bool RimOpmFlowJob::onRun()
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::onProgress( double percentageDone )
 {
+    m_percentageDone = percentageDone;
     updateConnectedEditors();
 }
 

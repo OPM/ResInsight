@@ -18,10 +18,37 @@
 
 #include "RimJobMonitor.h"
 
+#include "RimGenericJob.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimJobMonitor::RimJobMonitor( int processId, bool logStdOutErr /*true*/ )
-    : RimProcessMonitor( processId, logStdOutErr )
+RimJobMonitor::RimJobMonitor( RimGenericJob* job )
+    : RimProcessMonitor( 0, true )
+    , m_job( job )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimJobMonitor::~RimJobMonitor()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimJobMonitor::readyReadStandardOutput()
+{
+    QProcess* p = (QProcess*)sender();
+    p->setReadChannel( QProcess::StandardOutput );
+    while ( p->canReadLine() )
+    {
+        QString line = p->readLine();
+        line         = line.trimmed();
+        if ( line.size() == 0 ) continue;
+
+        m_job->decodeProgress( line );
+    }
 }

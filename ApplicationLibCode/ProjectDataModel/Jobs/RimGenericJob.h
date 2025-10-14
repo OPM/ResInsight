@@ -24,6 +24,10 @@
 #include <QStringList>
 
 #include <map>
+#include <memory>
+
+class RimJobMonitor;
+class RimProcess;
 
 //==================================================================================================
 ///
@@ -39,7 +43,12 @@ public:
 
     bool execute();
 
-    double percentageDone() const;
+    bool isRunning() const;
+
+    double             percentageDone() const;
+    const QStringList& jobLog() const;
+
+    virtual void decodeProgress( const QString& logLine );
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
@@ -54,8 +63,12 @@ protected:
     virtual void                       onCompleted( bool success )         = 0;
     virtual void                       onProgress( double percentageDone ) = 0;
 
-private:
+protected:
     double m_percentageDone;
-    bool   m_lastRunFailed;
-    bool   m_isRunning;
+
+private:
+    bool                           m_lastRunFailed;
+    bool                           m_isRunning;
+    std::unique_ptr<RimJobMonitor> m_monitor;
+    std::unique_ptr<RimProcess>    m_process;
 };

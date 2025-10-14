@@ -20,10 +20,19 @@
 
 #include "RimProcessMonitor.h"
 
+class RimGenericJob;
+
 class RimJobMonitor : public RimProcessMonitor
 {
     Q_OBJECT
 
 public:
-    RimJobMonitor( int processId, bool logStdOutErr = true );
+    RimJobMonitor( RimGenericJob* job );
+    ~RimJobMonitor();
+
+protected:
+    void readyReadStandardOutput() override;
+
+private:
+    RimGenericJob* m_job;
 };

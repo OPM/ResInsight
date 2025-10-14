@@ -167,3 +167,11 @@ QStringList RimProcessMonitor::stdErr() const
 {
     return m_stdErr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcessMonitor::setProcessId( int processId )
+{
+    m_processId = processId;
+}

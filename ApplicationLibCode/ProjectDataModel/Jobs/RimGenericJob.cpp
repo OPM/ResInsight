@@ -20,6 +20,7 @@
 
 #include "RiaColorTools.h"
 
+#include "RimJobMonitor.h"
 #include "RimProcess.h"
 
 #include "RiuGuiTheme.h"
@@ -78,6 +79,14 @@ QString RimGenericJob::workingDirectory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGenericJob::isRunning() const
+{
+    return m_isRunning;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimGenericJob::execute()
 {
     m_percentageDone = 0.0;
@@ -102,30 +111,27 @@ bool RimGenericJob::execute()
     QStringList cmdLine = command();
     if ( cmdLine.isEmpty() ) return false;
 
+    m_monitor = std::make_unique<RimJobMonitor>( this );
+    m_process = std::make_unique<RimProcess>( true, m_monitor.get() );
+
     m_isRunning     = true;
     m_lastRunFailed = false;
+
     onProgress( m_percentageDone );
 
     // run job
-    bool runOk = false;
+    bool    runOk = false;
+    QString cmd   = cmdLine.takeFirst();
+
+    m_process->setCommand( cmd );
+    if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
+    m_process->setWorkingDirectory( workingDirectory() );
+    for ( const auto& [name, value] : environment() )
     {
-        caf::ProgressInfo runProgress( 1, title() );
-
-        auto taskRun = runProgress.task( "Running job, please wait..." );
-
-        QString cmd = cmdLine.takeFirst();
-
-        RimProcess process;
-        process.setCommand( cmd );
-        if ( !cmdLine.isEmpty() ) process.addParameters( cmdLine );
-        process.setWorkingDirectory( workingDirectory() );
-        for ( const auto& [name, value] : environment() )
-        {
-            process.addEnvironmentVariable( name, value );
-        }
-
-        runOk = process.execute();
+        m_process->addEnvironmentVariable( name, value );
     }
+
+    runOk = m_process->execute();
 
     m_isRunning = false;
 
@@ -159,13 +165,13 @@ void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
         }
         else
         {
-            if ( m_percentageDone == 0.0 ) return;
+            if ( ( m_percentageDone == 0.0 ) && ( !m_isRunning ) ) return;
 
             auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
 
             if ( m_isRunning )
             {
-                tag->text = QString( "%1 %" ).arg( m_percentageDone );
+                tag->text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
             }
             else
             {
@@ -182,4 +188,19 @@ void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::decodeProgress( const QString& logLine )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QStringList& RimGenericJob::jobLog() const
+{
+    return {};
 }

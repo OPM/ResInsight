@@ -71,6 +71,8 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
 
+    void decodeProgress( const QString& logLine ) override;
+
     QString                    title() override;
     QStringList                command() override;
     std::map<QString, QString> environment() override;
@@ -143,4 +145,5 @@ private:
     std::unique_ptr<RifOpmFlowDeckFile> m_deckFile;
     bool                                m_fileDeckHasDates;
     bool                                m_fileDeckIsRestart;
+    int                                 m_startStepForProgress;
 };
