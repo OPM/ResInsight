@@ -83,7 +83,7 @@ std::expected<void, QString> RifCsvUserDataParser::parse( const RifAsciiDataPars
                                                           const std::map<QString, QString>&                    nameMapping,
                                                           const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
-    if ( determineCsvLayout() == LineBased )
+    if ( determineCsvLayout( parseOptions.cellSeparator ) == LineBased )
         return parseLineBasedData( parseOptions );
     else
         return parseColumnBasedData( parseOptions, nameMapping, unitMapping );
@@ -273,7 +273,7 @@ QStringList RifCsvUserDataParser::timeColumnPreviewData( int lineCount, const Ri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
+RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout( const QString& cellSeparator )
 {
     auto streamResult = openDataStream();
     if ( !streamResult ) return LineBased;
@@ -286,7 +286,7 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
         QString firstLine = dataStream->readLine();
         if ( firstLine.isEmpty() ) continue;
 
-        headers = RifFileParseTools::splitLineAndTrim( firstLine, ";" );
+        headers = RifFileParseTools::splitLineAndTrim( firstLine, cellSeparator );
 
         if ( headers.size() < 3 || headers.size() > 5 ) continue;
         break;
@@ -610,7 +610,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseLineBasedData( const Rif
         QString line = dataStream->readLine();
         if ( line.trimmed().isEmpty() ) continue;
 
-        QStringList dataItems = RifFileParseTools::splitLineAndTrim( line, ";" );
+        QStringList dataItems = RifFileParseTools::splitLineAndTrim( line, parseOptions.cellSeparator );
         if ( dataItems.size() < 3 || dataItems.size() > 5 ) continue;
 
         if ( !headerFound )

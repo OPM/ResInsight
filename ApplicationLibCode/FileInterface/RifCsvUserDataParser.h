@@ -62,7 +62,7 @@ public:
     QString     previewText( int lineCount, const RifAsciiDataParseOptions& parseOptions );
     QStringList timeColumnPreviewData( int lineCount, const RifAsciiDataParseOptions& parseOptions );
 
-    CsvLayout determineCsvLayout();
+    CsvLayout determineCsvLayout( const QString& cellSeparator );
 
     QString tryDetermineCellSeparator();
     QString tryDetermineDecimalSeparator( const QString& cellSeparator );

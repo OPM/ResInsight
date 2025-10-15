@@ -200,7 +200,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModeImport( const QString& fi
 {
     m_parser = std::unique_ptr<RifCsvUserDataParser>( new RifCsvUserDataFileParser( fileName ) );
 
-    if ( m_parser->determineCsvLayout() != RifCsvUserDataParser::LineBased )
+    if ( m_parser->determineCsvLayout( mapCellSeparator( m_cellSeparator() ) ) != RifCsvUserDataParser::LineBased )
     {
         m_uiMode = UI_MODE_IMPORT;
         initialize( m_parser.get() );

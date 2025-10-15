@@ -38,6 +38,7 @@ public:
         , assumeNumericDataColumns( false )
         , curveSymbolSkipDistance( 0.0f )
         , defaultCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+        , cellSeparator( ";" )
     {
     }
 
