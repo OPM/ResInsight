@@ -560,24 +560,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
                 }
                 else if ( col.dataType == Column::DATETIME )
                 {
-                    QDateTime dt = tryParseDateTime( colData.toStdString(), parseOptions.dateTimeFormat );
-
-                    // Try to match date format only
-                    if ( !dt.isValid() && parseOptions.dateFormat != parseOptions.dateTimeFormat )
-                    {
-                        dt = tryParseDateTime( colData.toStdString(), parseOptions.dateFormat );
-                    }
-                    if ( !dt.isValid() && !parseOptions.fallbackDateTimeFormat.isEmpty() )
-                    {
-                        dt = tryParseDateTime( colData.toStdString(), parseOptions.fallbackDateTimeFormat );
-                    }
-
-                    if ( !dt.isValid() && parseOptions.startDateTime.isValid() )
-                    {
-                        double minutes = colData.toDouble();
-                        dt             = parseOptions.startDateTime.addSecs( minutes * 60 );
-                    }
-
+                    QDateTime dt = parseDateTime( colData, parseOptions );
                     if ( !dt.isValid() )
                     {
                         QString errorMsg = "CSV import: Failed to parse date time value";
@@ -665,7 +648,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseLineBasedData( const Rif
             // DATE
             QDateTime dateTime;
             {
-                auto dateText = dataItems[colIndexes[(size_t)CsvLineBasedColumnType::DATE]].toStdString();
+                auto dateText = dataItems[colIndexes[(size_t)CsvLineBasedColumnType::DATE]];
 
                 const auto formats = { parseOptions.dateFormat, QString( ISO_DATE_FORMAT ), QString( ISO_DATE_FORMAT ) + " " + TIME_FORMAT };
                 for ( const auto& format : formats )
@@ -741,9 +724,36 @@ std::expected<void, QString> RifCsvUserDataParser::parseLineBasedData( const Rif
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RifCsvUserDataParser::tryParseDateTime( const std::string& colData, const QString& format )
+QDateTime RifCsvUserDataParser::tryParseDateTime( const QString& colData, const QString& format )
 {
-    return RiaQDateTimeTools::fromString( QString::fromStdString( colData ), format );
+    return RiaQDateTimeTools::fromString( colData, format );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RifCsvUserDataParser::parseDateTime( const QString& colData, const RifAsciiDataParseOptions& parseOptions )
+{
+    QDateTime dt = tryParseDateTime( colData, parseOptions.dateTimeFormat );
+
+    // Try to match date format only
+    if ( !dt.isValid() && parseOptions.dateFormat != parseOptions.dateTimeFormat )
+    {
+        dt = tryParseDateTime( colData, parseOptions.dateFormat );
+    }
+
+    if ( !dt.isValid() && !parseOptions.fallbackDateTimeFormat.isEmpty() )
+    {
+        dt = tryParseDateTime( colData, parseOptions.fallbackDateTimeFormat );
+    }
+
+    if ( !dt.isValid() && parseOptions.startDateTime.isValid() )
+    {
+        double minutes = colData.toDouble();
+        dt             = parseOptions.startDateTime.addSecs( minutes * 60 );
+    }
+
+    return dt;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -85,7 +85,8 @@ private:
                                                        const std::map<QString, QString>&                    nameMapping = {},
                                                        const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
     std::expected<void, QString> parseLineBasedData( const RifAsciiDataParseOptions& parseOptions );
-    static QDateTime             tryParseDateTime( const std::string& colData, const QString& format );
+    static QDateTime             tryParseDateTime( const QString& colData, const QString& format );
+    static QDateTime             parseDateTime( const QString& colData, const RifAsciiDataParseOptions& parseOptions );
 
 private:
     TableData m_tableData;
