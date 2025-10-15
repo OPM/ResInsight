@@ -154,9 +154,11 @@ std::vector<int> RifCsvUserDataParser::parseLineBasedHeader( QStringList headerC
 //--------------------------------------------------------------------------------------------------
 bool RifCsvUserDataParser::parseColumnInfo( const RifAsciiDataParseOptions& parseOptions )
 {
-    auto                dataStream = openDataStream();
+    auto dataStream = openDataStream();
+    if ( !dataStream ) return false;
+
     std::vector<Column> columnInfoList;
-    auto                result = parseColumnInfo( dataStream.get(), parseOptions, &columnInfoList );
+    auto                result = parseColumnInfo( *dataStream.get(), parseOptions, columnInfoList );
 
     if ( result )
     {
@@ -301,23 +303,21 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream*                                         dataStream,
+std::expected<void, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream&                                         dataStream,
                                                                     const RifAsciiDataParseOptions&                      parseOptions,
-                                                                    std::vector<Column>*                                 columnInfoList,
+                                                                    std::vector<Column>&                                 columnInfoList,
                                                                     const std::map<QString, QString>&                    nameMapping,
                                                                     const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool headerFound = false;
 
-    if ( !columnInfoList ) return std::unexpected( QString( "Column info list is null" ) );
-
-    columnInfoList->clear();
-    while ( !headerFound && dataStream->status() == QTextStream::Status::Ok )
+    columnInfoList.clear();
+    while ( !headerFound && dataStream.status() == QTextStream::Status::Ok )
     {
-        QString line = dataStream->readLine();
+        QString line = dataStream.readLine();
         if ( line.trimmed().isEmpty() )
         {
-            if ( !headerFound && dataStream->atEnd() )
+            if ( !headerFound && dataStream.atEnd() )
             {
                 // Handle empty stream
                 return std::unexpected( QString( "Empty data stream" ) );
@@ -335,12 +335,12 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream*
         QStringList unitTexts;
         QStringList names;
 
-        auto    startOfLineWithDataValues = dataStream->pos();
+        auto    startOfLineWithDataValues = dataStream.pos();
         bool    hasDataValues             = false;
         QString nameFromData;
-        while ( !hasDataValues && !dataStream->atEnd() )
+        while ( !hasDataValues && !dataStream.atEnd() )
         {
-            QString candidateLine = dataStream->readLine();
+            QString candidateLine = dataStream.readLine();
 
             QStringList candidateColumnHeaders = RifFileParseTools::splitLineAndTrim( candidateLine, parseOptions.cellSeparator );
             for ( const auto& text : candidateColumnHeaders )
@@ -367,13 +367,13 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream*
                     names = candidateColumnHeaders;
                 }
 
-                startOfLineWithDataValues = dataStream->pos();
+                startOfLineWithDataValues = dataStream.pos();
             }
         }
 
         if ( !hasDataValues ) break;
 
-        dataStream->seek( startOfLineWithDataValues );
+        dataStream.seek( startOfLineWithDataValues );
 
         int colCount = columnHeaders.size();
 
@@ -450,7 +450,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream*
 
             Column col      = Column::createColumnInfoFromCsvData( addr, unit.toStdString() );
             col.scaleFactor = scaleFactor;
-            columnInfoList->push_back( col );
+            columnInfoList.push_back( col );
         }
 
         headerFound = true;
@@ -471,13 +471,13 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
         FIRST_DATA_ROW,
         DATA_ROW
     } parseState = FIRST_DATA_ROW;
-    int                 colCount;
-    std::vector<Column> columnInfoList;
+    int colCount;
 
     auto dataStream = openDataStream();
 
     // Parse header
-    auto headerResult = parseColumnInfo( dataStream.get(), parseOptions, &columnInfoList, nameMapping, unitMapping );
+    std::vector<Column> columnInfoList;
+    auto                headerResult = parseColumnInfo( *dataStream.get(), parseOptions, columnInfoList, nameMapping, unitMapping );
     if ( !headerResult )
     {
         return std::unexpected( QString( "CSV import: Failed to parse header columns - " ) + headerResult.error() );

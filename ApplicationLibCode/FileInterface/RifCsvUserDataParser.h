@@ -76,9 +76,9 @@ protected:
 private:
     std::vector<int> parseLineBasedHeader( QStringList headerCols );
 
-    std::expected<void, QString> parseColumnInfo( QTextStream*                                         dataStream,
+    std::expected<void, QString> parseColumnInfo( QTextStream&                                         dataStream,
                                                   const RifAsciiDataParseOptions&                      parseOptions,
-                                                  std::vector<Column>*                                 columnInfoList,
+                                                  std::vector<Column>&                                 columnInfoList,
                                                   const std::map<QString, QString>&                    nameMapping = {},
                                                   const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
     std::expected<void, QString> parseColumnBasedData( const RifAsciiDataParseOptions&                      parseOptions,
