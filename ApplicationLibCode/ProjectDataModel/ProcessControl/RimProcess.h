@@ -74,7 +74,7 @@ private:
 
     std::vector<std::pair<QString, QString>> m_environmentVariables;
 
-    static int                         m_nextProcessId;
-    std::unique_ptr<RimProcessMonitor> m_monitor;
-    bool                               m_enableLogging;
+    static int         m_nextProcessId;
+    RimProcessMonitor* m_monitor;
+    bool               m_enableLogging;
 };

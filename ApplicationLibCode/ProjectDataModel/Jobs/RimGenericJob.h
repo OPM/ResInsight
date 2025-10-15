@@ -26,7 +26,6 @@
 #include <map>
 #include <memory>
 
-class RimJobMonitor;
 class RimProcess;
 
 //==================================================================================================
@@ -45,8 +44,8 @@ public:
 
     bool isRunning() const;
 
-    double             percentageDone() const;
-    const QStringList& jobLog() const;
+    double            percentageDone() const;
+    const QStringList jobLog() const;
 
     virtual void decodeProgress( const QString& logLine );
 
@@ -67,8 +66,7 @@ protected:
     double m_percentageDone;
 
 private:
-    bool                           m_lastRunFailed;
-    bool                           m_isRunning;
-    std::unique_ptr<RimJobMonitor> m_monitor;
-    std::unique_ptr<RimProcess>    m_process;
+    bool        m_lastRunFailed;
+    bool        m_isRunning;
+    RimProcess* m_process;
 };

@@ -40,6 +40,7 @@ RimGenericJob::RimGenericJob()
     : m_percentageDone( 0.0 )
     , m_lastRunFailed( false )
     , m_isRunning( false )
+    , m_process( nullptr )
 {
     CAF_PDM_InitObject( "Generic Job" );
 }
@@ -111,8 +112,8 @@ bool RimGenericJob::execute()
     QStringList cmdLine = command();
     if ( cmdLine.isEmpty() ) return false;
 
-    m_monitor = std::make_unique<RimJobMonitor>( this );
-    m_process = std::make_unique<RimProcess>( true, m_monitor.get() );
+    if ( m_process != nullptr ) delete m_process;
+    m_process = new RimProcess( true, new RimJobMonitor( this ) );
 
     m_isRunning     = true;
     m_lastRunFailed = false;
@@ -200,7 +201,11 @@ void RimGenericJob::decodeProgress( const QString& logLine )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QStringList& RimGenericJob::jobLog() const
+const QStringList RimGenericJob::jobLog() const
 {
-    return {};
+    if ( m_process != nullptr )
+    {
+        return m_process->stdOut();
+    }
+    return QStringList();
 }

@@ -45,7 +45,7 @@ public slots:
     virtual void readyReadStandardOutput();
     virtual void started();
 
-private:
+protected:
     QString     addPrefix( QString message );
     int         m_processId;
     bool        m_logStdOutErr;
