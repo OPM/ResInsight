@@ -23,7 +23,6 @@
 #include <QDateTime>
 #include <QFile>
 #include <QLocale>
-#include <QPointer>
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
@@ -71,7 +70,7 @@ public:
     static QLocale localeFromDecimalSeparator( const QString& decimalSeparator );
 
 protected:
-    virtual std::unique_ptr<QTextStream> openDataStream() = 0;
+    virtual std::expected<std::unique_ptr<QTextStream>, QString> openDataStream() = 0;
 
 private:
     std::vector<int> parseLineBasedHeader( QStringList headerCols );
@@ -102,7 +101,7 @@ public:
     ~RifCsvUserDataFileParser() override = default;
 
 protected:
-    std::unique_ptr<QTextStream> openDataStream() override;
+    std::expected<std::unique_ptr<QTextStream>, QString> openDataStream() override;
 
 private:
     QString                m_fileName;
@@ -120,7 +119,7 @@ public:
     ~RifCsvUserDataPastedTextParser() override = default;
 
 protected:
-    std::unique_ptr<QTextStream> openDataStream() override;
+    std::expected<std::unique_ptr<QTextStream>, QString> openDataStream() override;
 
 private:
     QString m_text;
