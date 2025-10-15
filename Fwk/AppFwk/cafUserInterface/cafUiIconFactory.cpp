@@ -221,6 +221,18 @@ static const char* unlinked_white_svg_data = R"(
 
 )";
 
+static const char* information_svg_data = R"(
+
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Circle background -->
+  <circle cx="12" cy="12" r="10" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+  
+  <!-- Letter "i" for information/optional -->
+  <circle cx="12" cy="8" r="1.5" fill="#9CA3AF"/>
+  <rect x="11" y="11" width="2" height="7" rx="1" fill="#9CA3AF"/>
+</svg>
+)";
+
 // clang-format on
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +258,7 @@ const QIcon UiIconFactory::stepDownIcon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QIcon UiIconFactory::createTwoStateChainIcon()
+const QIcon UiIconFactory::twoStateChainIcon()
 {
     static QIcon icon( UiIconFactory::createTwoStateIcon( linked_svg_data,
                                                           unlinked_svg_data,
@@ -259,12 +271,23 @@ const QIcon UiIconFactory::createTwoStateChainIcon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QIcon UiIconFactory::createTwoStateWhiteChainIcon()
+const QIcon UiIconFactory::twoStateWhiteChainIcon()
 {
     static QIcon icon( UiIconFactory::createTwoStateIcon( linked_white_svg_data,
                                                           unlinked_white_svg_data,
                                                           UiIconFactory::iconWidth(),
                                                           UiIconFactory::iconHeight() ) );
+
+    return icon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QIcon UiIconFactory::informationIcon()
+{
+    static QIcon icon(
+        UiIconFactory::createSvgIcon( information_svg_data, UiIconFactory::iconWidth(), UiIconFactory::iconHeight() ) );
 
     return icon;
 }

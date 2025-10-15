@@ -45,8 +45,10 @@ public:
     static const QIcon stepDownIcon();
     static const QIcon stepUpIcon();
 
-    static const QIcon createTwoStateChainIcon();
-    static const QIcon createTwoStateWhiteChainIcon();
+    static const QIcon twoStateChainIcon();
+    static const QIcon twoStateWhiteChainIcon();
+
+    static const QIcon informationIcon();
 
 private:
     static int iconWidth();

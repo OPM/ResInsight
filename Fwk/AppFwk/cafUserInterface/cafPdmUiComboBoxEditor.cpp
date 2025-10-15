@@ -276,7 +276,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( uiField()->isAutoValueSupported() )
     {
-        auto icon = UiIconFactory::createTwoStateChainIcon();
+        auto icon = UiIconFactory::twoStateChainIcon();
         m_autoValueToolButton->setIcon( icon );
 
         m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
