@@ -465,12 +465,11 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
                                                                          const std::map<QString, QString>&                    nameMapping,
                                                                          const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
-    enum
+    enum class ParseState
     {
         FIRST_DATA_ROW,
         DATA_ROW
-    } parseState = FIRST_DATA_ROW;
-    int colCount;
+    };
 
     auto streamResult = openDataStream();
     if ( !streamResult )
@@ -488,7 +487,8 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
         return std::unexpected( QString( "CSV import: Failed to parse header columns - " ) + headerResult.error() );
     }
 
-    colCount = (int)columnInfoList.size();
+    ParseState parseState = ParseState::FIRST_DATA_ROW;
+    int        colCount   = (int)columnInfoList.size();
     while ( !dataStream->atEnd() )
     {
         QString line = dataStream->readLine();
@@ -500,7 +500,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
         {
             return std::unexpected( QString( "CSV import: Varying number of columns" ) );
         }
-        else if ( parseState == FIRST_DATA_ROW )
+        else if ( parseState == ParseState::FIRST_DATA_ROW )
         {
             for ( int iCol = 0; iCol < colCount; iCol++ )
             {
@@ -529,10 +529,10 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
                 }
             }
 
-            parseState = DATA_ROW;
+            parseState = ParseState::DATA_ROW;
         }
 
-        if ( parseState == DATA_ROW )
+        if ( parseState == ParseState::DATA_ROW )
         {
             for ( int iCol = 0; iCol < colCount; iCol++ )
             {
