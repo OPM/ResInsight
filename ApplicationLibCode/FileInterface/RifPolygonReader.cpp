@@ -131,7 +131,7 @@ std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseText( const QString&
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<int, std::vector<cvf::Vec3d>>> RifPolygonReader::parseTextCsv( const QString& content, QString* errorMessage )
 {
-    RifCsvUserDataPastedTextParser parser( content, errorMessage );
+    RifCsvUserDataPastedTextParser parser( content );
 
     RifAsciiDataParseOptions parseOptions;
     parseOptions.cellSeparator    = ",";
@@ -139,7 +139,8 @@ std::vector<std::pair<int, std::vector<cvf::Vec3d>>> RifPolygonReader::parseText
 
     std::vector<std::pair<QString, std::vector<double>>> readValues;
 
-    if ( parser.parse( parseOptions ) )
+    auto parseResult = parser.parse( parseOptions );
+    if ( parseResult )
     {
         for ( auto s : parser.tableData().columnInfos() )
         {

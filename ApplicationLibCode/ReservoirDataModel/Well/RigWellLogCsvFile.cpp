@@ -61,7 +61,7 @@ bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QS
     double                 samplingInterval  = 0.1;
     cvf::cref<RigWellPath> resampledWellPath = resampleWellPath( *wellPath, samplingInterval );
 
-    RifCsvUserDataFileParser parser( fileName, errorMessage );
+    RifCsvUserDataFileParser parser( fileName );
 
     RifAsciiDataParseOptions parseOptions;
     parseOptions.useCustomDateTimeFormat = true;

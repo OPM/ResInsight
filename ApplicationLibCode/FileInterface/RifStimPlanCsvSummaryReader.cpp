@@ -77,11 +77,14 @@ std::pair<bool, QString> RifStimPlanCsvSummaryReader::parse( const QString& file
     parseOptions.timeSeriesColumnName    = "Time";
     parseOptions.startDateTime           = startDateTime;
 
-    m_parser = std::make_unique<RifCsvUserDataPastedTextParser>( fileContents, errorText );
+    m_parser = std::make_unique<RifCsvUserDataPastedTextParser>( fileContents );
 
-    if ( !m_parser->parse( parseOptions ) )
+    auto parseResult = m_parser->parse( parseOptions );
+    if ( !parseResult )
     {
-        RiaLogging::error( QString( "Failed to parse file" ) );
+        QString errorMsg = QString( "Failed to parse file: " ) + parseResult.error();
+        RiaLogging::error( errorMsg );
+        if ( errorText ) *errorText = parseResult.error();
         return std::make_pair( false, "" );
     }
 

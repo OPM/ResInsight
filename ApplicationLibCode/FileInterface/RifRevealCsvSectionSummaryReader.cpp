@@ -69,7 +69,7 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString&                    
     parseOptions.timeSeriesColumnName    = "Date";
     parseOptions.defaultCategory         = defaultCategory;
 
-    m_parser                                                  = std::make_unique<RifCsvUserDataPastedTextParser>( text, errorText );
+    m_parser                                                  = std::make_unique<RifCsvUserDataPastedTextParser>( text );
     std::map<QString, std::pair<QString, double>> unitMapping = { { "Sm3", { "SM3", 1.0 } },
                                                                   { "Sm3/day", { "SM3/DAY", 1.0 } },
                                                                   { "Sm3/day/bar", { "SM3/DAY/BAR", 1.0 } },
@@ -97,9 +97,10 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString&                    
                                                { "OilInjected", prefix + "OIR" },        { "WaterGasRatio", prefix + "WGR" },
                                                { "GasLiftRate", prefix + "GLIR" } };
 
-    if ( !m_parser->parse( parseOptions, nameMapping, unitMapping ) )
+    auto parseResult = m_parser->parse( parseOptions, nameMapping, unitMapping );
+    if ( !parseResult )
     {
-        RiaLogging::error( QString( "Failed to parse file" ) );
+        RiaLogging::error( QString( "Failed to parse file: " ) + parseResult.error() );
         return false;
     }
 

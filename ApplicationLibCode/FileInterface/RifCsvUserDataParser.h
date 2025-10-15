@@ -28,6 +28,7 @@
 #include <QStringList>
 #include <QTextStream>
 
+#include <expected>
 #include <vector>
 
 class Column;
@@ -46,13 +47,13 @@ public:
     };
 
 public:
-    RifCsvUserDataParser( QString* errorText = nullptr );
+    RifCsvUserDataParser();
     virtual ~RifCsvUserDataParser();
 
-    bool             parse( const RifAsciiDataParseOptions&                      parseOptions,
-                            const std::map<QString, QString>&                    nameMapping = {},
-                            const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
-    const TableData& tableData() const;
+    std::expected<void, QString> parse( const RifAsciiDataParseOptions&                      parseOptions,
+                                        const std::map<QString, QString>&                    nameMapping = {},
+                                        const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
+    const TableData&             tableData() const;
 
     const Column* columnInfo( size_t columnIndex ) const;
     const Column* dateTimeColumn() const;
@@ -75,20 +76,19 @@ protected:
 private:
     std::vector<int> parseLineBasedHeader( QStringList headerCols );
 
-    bool             parseColumnInfo( QTextStream*                                         dataStream,
-                                      const RifAsciiDataParseOptions&                      parseOptions,
-                                      std::vector<Column>*                                 columnInfoList,
-                                      const std::map<QString, QString>&                    nameMapping = {},
-                                      const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
-    bool             parseColumnBasedData( const RifAsciiDataParseOptions&                      parseOptions,
-                                           const std::map<QString, QString>&                    nameMapping = {},
-                                           const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
-    bool             parseLineBasedData( const RifAsciiDataParseOptions& parseOptions );
-    static QDateTime tryParseDateTime( const std::string& colData, const QString& format );
+    std::expected<void, QString> parseColumnInfo( QTextStream*                                         dataStream,
+                                                  const RifAsciiDataParseOptions&                      parseOptions,
+                                                  std::vector<Column>*                                 columnInfoList,
+                                                  const std::map<QString, QString>&                    nameMapping = {},
+                                                  const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
+    std::expected<void, QString> parseColumnBasedData( const RifAsciiDataParseOptions&                      parseOptions,
+                                                       const std::map<QString, QString>&                    nameMapping = {},
+                                                       const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
+    std::expected<void, QString> parseLineBasedData( const RifAsciiDataParseOptions& parseOptions );
+    static QDateTime             tryParseDateTime( const std::string& colData, const QString& format );
 
 private:
     TableData m_tableData;
-    QString*  m_errorText;
 };
 
 //==================================================================================================
@@ -97,7 +97,7 @@ private:
 class RifCsvUserDataFileParser : public RifCsvUserDataParser
 {
 public:
-    RifCsvUserDataFileParser( const QString& fileName, QString* errorText = nullptr );
+    RifCsvUserDataFileParser( const QString& fileName );
     ~RifCsvUserDataFileParser() override;
 
 protected:
@@ -121,7 +121,7 @@ private:
 class RifCsvUserDataPastedTextParser : public RifCsvUserDataParser
 {
 public:
-    RifCsvUserDataPastedTextParser( const QString& text, QString* errorText = nullptr );
+    RifCsvUserDataPastedTextParser( const QString& text );
     ~RifCsvUserDataPastedTextParser() override;
 
 protected:

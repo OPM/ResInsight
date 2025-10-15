@@ -156,8 +156,10 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
     const RifAsciiDataParseOptions& parseOptions = settings.parseOptions();
     RifCsvUserDataPastedTextParser  parser       = RifCsvUserDataPastedTextParser( data );
 
-    if ( !parser.parse( parseOptions ) )
+    auto parseResult = parser.parse( parseOptions );
+    if ( !parseResult )
     {
+        RiaLogging::error( QString( "Failed to parse pasted data: " ) + parseResult.error() );
         return curves;
     }
 

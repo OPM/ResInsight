@@ -49,7 +49,7 @@
 std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::parseCsv( const QString& content )
 {
     QString                        errorMessage;
-    RifCsvUserDataPastedTextParser parser( content, &errorMessage );
+    RifCsvUserDataPastedTextParser parser( content );
 
     RifAsciiDataParseOptions parseOptions;
     parseOptions.cellSeparator    = ",";
@@ -57,7 +57,8 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::parseCsv( const
 
     std::vector<std::pair<QString, std::vector<double>>> readValues;
 
-    if ( parser.parse( parseOptions ) )
+    auto parseResult = parser.parse( parseOptions );
+    if ( parseResult )
     {
         for ( auto s : parser.tableData().columnInfos() )
         {
