@@ -29,6 +29,7 @@
 #include <QTextStream>
 
 #include <expected>
+#include <memory>
 #include <vector>
 
 class Column;
@@ -70,8 +71,7 @@ public:
     static QLocale localeFromDecimalSeparator( const QString& decimalSeparator );
 
 protected:
-    virtual QTextStream* openDataStream()  = 0;
-    virtual void         closeDataStream() = 0;
+    virtual std::unique_ptr<QTextStream> openDataStream() = 0;
 
 private:
     std::vector<int> parseLineBasedHeader( QStringList headerCols );
@@ -98,20 +98,14 @@ class RifCsvUserDataFileParser : public RifCsvUserDataParser
 {
 public:
     RifCsvUserDataFileParser( const QString& fileName );
-    ~RifCsvUserDataFileParser() override;
+    ~RifCsvUserDataFileParser() override = default;
 
 protected:
-    QTextStream* openDataStream() override;
-    void         closeDataStream() override;
+    std::unique_ptr<QTextStream> openDataStream() override;
 
 private:
-    bool openFile();
-    void closeFile();
-
-private:
-    QString      m_fileName;
-    QFile*       m_file;
-    QTextStream* m_textStream;
+    QString                m_fileName;
+    std::unique_ptr<QFile> m_file;
 };
 
 //==================================================================================================
@@ -122,13 +116,11 @@ class RifCsvUserDataPastedTextParser : public RifCsvUserDataParser
 {
 public:
     RifCsvUserDataPastedTextParser( const QString& text );
-    ~RifCsvUserDataPastedTextParser() override;
+    ~RifCsvUserDataPastedTextParser() override = default;
 
 protected:
-    QTextStream* openDataStream() override;
-    void         closeDataStream() override;
+    std::unique_ptr<QTextStream> openDataStream() override;
 
 private:
-    QString      m_text;
-    QTextStream* m_textStream;
+    QString m_text;
 };
