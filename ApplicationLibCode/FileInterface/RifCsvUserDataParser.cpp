@@ -302,24 +302,27 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream&                                         dataStream,
-                                                                    const RifAsciiDataParseOptions&                      parseOptions,
-                                                                    std::vector<Column>&                                 columnInfoList,
-                                                                    const std::map<QString, QString>&                    nameMapping,
-                                                                    const std::map<QString, std::pair<QString, double>>& unitMapping )
+std::expected<int, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream&                                         dataStream,
+                                                                   const RifAsciiDataParseOptions&                      parseOptions,
+                                                                   std::vector<Column>&                                 columnInfoList,
+                                                                   const std::map<QString, QString>&                    nameMapping,
+                                                                   const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool headerFound = false;
+    int  lineNumber  = 0;
 
     columnInfoList.clear();
     while ( !headerFound && dataStream.status() == QTextStream::Status::Ok )
     {
         QString line = dataStream.readLine();
+        lineNumber++;
+
         if ( line.trimmed().isEmpty() )
         {
             if ( !headerFound && dataStream.atEnd() )
             {
                 // Handle empty stream
-                return std::unexpected( QString( "Empty data stream" ) );
+                return std::unexpected( formatParseError( QString( "Empty data stream" ), lineNumber ) );
             }
             else
             {
@@ -455,7 +458,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream&
         headerFound = true;
     }
 
-    return {};
+    return lineNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -489,16 +492,22 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
 
     ParseState parseState = ParseState::FIRST_DATA_ROW;
     int        colCount   = static_cast<int>( columnInfoList.size() );
+    int        lineNumber = headerResult.value(); // Start from line number returned by parseColumnInfo
+
     while ( !dataStream->atEnd() )
     {
         QString line = dataStream->readLine();
+        lineNumber++;
+
         if ( line.trimmed().isEmpty() ) continue;
 
         QStringList lineColumns = RifFileParseTools::splitLineAndTrim( line, parseOptions.cellSeparator );
 
         if ( lineColumns.size() != colCount )
         {
-            return std::unexpected( QString( "CSV import: Varying number of columns" ) );
+            return std::unexpected(
+                formatParseError( QString( "CSV import: Expected %1 columns but found %2" ).arg( colCount ).arg( lineColumns.size() ),
+                                  lineNumber ) );
         }
         else if ( parseState == ParseState::FIRST_DATA_ROW )
         {
@@ -550,8 +559,9 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
                         if ( RiaStdStringTools::isNumber( colData.toStdString(), '.' ) ||
                              RiaStdStringTools::isNumber( colData.toStdString(), ',' ) )
                         {
-                            QString errorMsg = QString( "CSV import: Failed to parse numeric value in column %1" ).arg( iCol + 1 );
-                            return std::unexpected( errorMsg );
+                            return std::unexpected(
+                                formatParseError( QString( "CSV import: Failed to parse numeric value '%1' in column %2" ).arg( colData ).arg( iCol + 1 ),
+                                                  lineNumber ) );
                         }
 
                         // Add nullptr value
@@ -568,8 +578,8 @@ std::expected<void, QString> RifCsvUserDataParser::parseColumnBasedData( const R
                     QDateTime dt = parseDateTime( colData, parseOptions );
                     if ( !dt.isValid() )
                     {
-                        QString errorMsg = "CSV import: Failed to parse date time value";
-                        return std::unexpected( errorMsg );
+                        return std::unexpected(
+                            formatParseError( QString( "CSV import: Failed to parse date time value '%1'" ).arg( colData ), lineNumber ) );
                     }
                     col.dateTimeValues.push_back( dt.toSecsSinceEpoch() );
                 }
@@ -666,8 +676,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseLineBasedData( const Rif
 
                 if ( !dateTime.isValid() )
                 {
-                    QString errorMsg = QString( "CSV import: Failed to parse date time value in line %1" ).arg( QString::number( lineCount ) );
-                    return std::unexpected( errorMsg );
+                    return std::unexpected( formatParseError( QString( "CSV import: Failed to parse date time value" ), lineCount ) );
                 }
             }
 
@@ -678,8 +687,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseLineBasedData( const Rif
 
                 if ( !parseOk )
                 {
-                    QString errorMsg = QString( "CSV import: Failed to parse numeric value in line %1" ).arg( QString::number( lineCount ) );
-                    return std::unexpected( errorMsg );
+                    return std::unexpected( formatParseError( QString( "CSV import: Failed to parse numeric value" ), lineCount ) );
                 }
 
                 auto& samples = addressesAndData[addr];
@@ -762,6 +770,18 @@ QDateTime RifCsvUserDataParser::parseDateTime( const QString& colData, const Rif
     }
 
     return dt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifCsvUserDataParser::formatParseError( const QString& message, int lineNumber )
+{
+    if ( lineNumber > 0 )
+    {
+        return QString( "%1 (line %2)" ).arg( message ).arg( lineNumber );
+    }
+    return message;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -75,7 +75,7 @@ protected:
 private:
     std::vector<int> parseLineBasedHeader( QStringList headerCols );
 
-    std::expected<void, QString> parseColumnInfo( QTextStream&                                         dataStream,
+    std::expected<int, QString>  parseColumnInfo( QTextStream&                                         dataStream,
                                                   const RifAsciiDataParseOptions&                      parseOptions,
                                                   std::vector<Column>&                                 columnInfoList,
                                                   const std::map<QString, QString>&                    nameMapping = {},
@@ -86,6 +86,7 @@ private:
     std::expected<void, QString> parseLineBasedData( const RifAsciiDataParseOptions& parseOptions );
     static QDateTime             tryParseDateTime( const QString& colData, const QString& format );
     static QDateTime             parseDateTime( const QString& colData, const RifAsciiDataParseOptions& parseOptions );
+    static QString               formatParseError( const QString& message, int lineNumber );
 
 private:
     TableData m_tableData;
