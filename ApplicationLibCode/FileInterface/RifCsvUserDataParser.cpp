@@ -810,18 +810,19 @@ QString RifCsvUserDataParser::tryDetermineDecimalSeparator( const QString& cellS
         QString line = dataStream->readLine();
         if ( line.isEmpty() ) continue;
 
+        auto parseWithLocalDecimalSeparator = []( const QString& cellData, const QString& decimalSeparator )
+        {
+            QLocale locale = localeFromDecimalSeparator( decimalSeparator );
+
+            bool parseOk;
+            locale.toDouble( cellData, &parseOk );
+            return parseOk;
+        };
+
         for ( const QString& cellData : RifFileParseTools::splitLineAndTrim( line, cellSeparator ) )
         {
-            bool    parseOk;
-            QLocale locale;
-
-            locale = localeFromDecimalSeparator( "." );
-            locale.toDouble( cellData, &parseOk );
-            if ( parseOk ) successfulParsesDot++;
-
-            locale = localeFromDecimalSeparator( "," );
-            locale.toDouble( cellData, &parseOk );
-            if ( parseOk ) successfulParsesComma++;
+            if ( parseWithLocalDecimalSeparator( cellData, "." ) ) successfulParsesDot++;
+            if ( parseWithLocalDecimalSeparator( cellData, "," ) ) successfulParsesComma++;
         }
 
         iLine++;
