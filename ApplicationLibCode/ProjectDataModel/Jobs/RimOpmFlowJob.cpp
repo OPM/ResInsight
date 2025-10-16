@@ -145,6 +145,10 @@ RimOpmFlowJob::RimOpmFlowJob()
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
     m_runButton.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_stopButton, "stopButton", false, "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_stopButton );
+    m_stopButton.xmlCapability()->disableIO();
+
     CAF_PDM_InitField( &m_resetRunIdButton, "resetRunIdButton", false, " " );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_resetRunIdButton );
     m_resetRunIdButton.xmlCapability()->disableIO();
@@ -189,7 +193,7 @@ void RimOpmFlowJob::decodeProgress( const QString& logLine )
     // Report step 758/773 at day 9497/10958, date = 01-Jan-2026
     if ( logLine.startsWith( "Report step" ) )
     {
-        auto parts = logLine.split( ' ' );
+        auto parts = logLine.split( ' ', Qt::SkipEmptyParts );
         if ( parts.size() >= 4 )
         {
             auto stepPart  = parts[2]; // 756/773
@@ -199,17 +203,22 @@ void RimOpmFlowJob::decodeProgress( const QString& logLine )
                 bool ok1         = false;
                 bool ok2         = false;
                 int  currentStep = stepParts[0].toInt( &ok1 );
-                if ( m_startStepForProgress < 0 )
+                if ( ok1 && ( m_startStepForProgress < 0 ) )
                 {
                     m_startStepForProgress = currentStep;
                 }
 
                 int totalSteps = stepParts[1].toInt( &ok2 );
-                if ( ok1 && ok2 && totalSteps > 0 )
+                if ( ok1 && ok2 )
                 {
-                    double perc = ( (double)( currentStep - m_startStepForProgress ) / (double)( totalSteps - m_startStepForProgress ) ) * 100.0;
-                    perc = std::max( 0.0, perc );
-                    onProgress( perc );
+                    auto noSteps = totalSteps - m_startStepForProgress;
+                    if ( noSteps > 0 )
+                    {
+                        double perc = ( (double)( currentStep - m_startStepForProgress ) / (double)( noSteps ) ) * 100.0;
+                        perc        = std::max( 0.0, perc );
+                        perc        = std::min( perc, 100.0 );
+                        onProgress( perc );
+                    }
                 }
             }
         }
@@ -234,7 +243,16 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
         if ( pbAttribute )
         {
             pbAttribute->m_buttonText = "Run Simulation";
-            pbAttribute->m_buttonIcon = QIcon( ":/opm.png" );
+            pbAttribute->m_buttonIcon = QIcon( ":/Play.svg" );
+        }
+    }
+    else if ( field == &m_stopButton )
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
+        {
+            pbAttribute->m_buttonText = "Stop";
+            pbAttribute->m_buttonIcon = QIcon( ":/stop.svg" );
         }
     }
     else if ( field == &m_openSelectButton )
@@ -271,18 +289,22 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    if ( isRunning() )
+    {
+        auto runGrp = uiOrdering.addNewGroup( "Running" );
+        m_workDir.uiCapability()->setUiReadOnly( true );
+        runGrp->add( &m_workDir );
+        runGrp->add( &m_stopButton );
+        uiOrdering.skipRemainingFields();
+        return;
+    }
+    m_workDir.uiCapability()->setUiReadOnly( false );
+
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( nameField() );
     genGrp->add( &m_deckFileName );
     genGrp->add( &m_workDir );
     genGrp->add( &m_eclipseCase );
-
-    if ( isRunning() )
-    {
-        genGrp->setUiReadOnly( true );
-        uiOrdering.skipRemainingFields();
-        return;
-    }
 
     if ( m_eclipseCase() == nullptr )
     {
@@ -487,6 +509,11 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
     {
         m_runButton = false;
         RicRunJobFeature::runJob( this );
+    }
+    else if ( changedField == &m_stopButton )
+    {
+        m_stopButton = false;
+        if ( isRunning() ) stopRunningJob();
     }
     else if ( changedField == &m_resetRunIdButton )
     {

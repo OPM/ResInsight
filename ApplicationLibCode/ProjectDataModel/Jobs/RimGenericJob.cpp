@@ -67,6 +67,7 @@ void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) c
 {
     menuBuilder << "RicRunJobFeature";
     menuBuilder << "RicDuplicateJobFeature";
+    menuBuilder << "RicViewJobLogFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,9 +89,24 @@ bool RimGenericJob::isRunning() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGenericJob::stopRunningJob()
+{
+    if ( m_process == nullptr ) return;
+
+    if ( QMessageBox::question( nullptr, title(), "Do you want to stop the running job?", QMessageBox::Yes | QMessageBox::No ) ==
+         QMessageBox::Yes )
+    {
+        m_process->terminate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimGenericJob::execute()
 {
     m_percentageDone = 0.0;
+    setDeletable( false );
 
     // job preparations
     {
@@ -121,8 +137,7 @@ bool RimGenericJob::execute()
     onProgress( m_percentageDone );
 
     // run job
-    bool    runOk = false;
-    QString cmd   = cmdLine.takeFirst();
+    QString cmd = cmdLine.takeFirst();
 
     m_process->setCommand( cmd );
     if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
@@ -132,20 +147,33 @@ bool RimGenericJob::execute()
         m_process->addEnvironmentVariable( name, value );
     }
 
-    runOk = m_process->execute();
+    bool startOk = m_process->start();
+    if ( !startOk )
+    {
+        onCompleted( false );
+        m_lastRunFailed = true;
+        m_isRunning     = false;
+        setDeletable( true );
+        QMessageBox::critical( nullptr, title(), "Failed to start job. Check log window for additional information." );
+    }
 
+    return startOk;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGenericJob::finished( bool runOk )
+{
     m_isRunning = false;
 
-    onCompleted( runOk );
-
-    if ( !runOk )
-    {
-        m_lastRunFailed = true;
-        QMessageBox::critical( nullptr, title(), "Failed to run job. Check log window for additional information." );
-    }
+    m_lastRunFailed = !runOk;
 
     m_percentageDone = 100.0;
     onProgress( m_percentageDone );
+    setDeletable( true );
+
+    onCompleted( runOk );
 
     return runOk;
 }

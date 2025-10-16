@@ -41,8 +41,10 @@ public:
     ~RimGenericJob() override;
 
     bool execute();
+    bool finished( bool runOk );
 
     bool isRunning() const;
+    void stopRunningJob();
 
     double            percentageDone() const;
     const QStringList jobLog() const;

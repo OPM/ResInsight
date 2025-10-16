@@ -302,7 +302,8 @@
         <file>Select.svg</file>
         <file>NavigationProperty.svg</file>
         <file>user-defined-view.svg</file>
-        <file>gear.svg</file>
+		<file>stop.svg</file>
+		<file>gear.svg</file>
 		<file>Parameter.svg</file>
     </qresource>
     <qresource prefix="/Shader">

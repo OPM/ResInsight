@@ -110,6 +110,7 @@ private:
     caf::PdmField<caf::FilePath> m_deckFileName;
     caf::PdmField<caf::FilePath> m_workDir;
     caf::PdmField<bool>          m_runButton;
+    caf::PdmField<bool>          m_stopButton;
     caf::PdmField<bool>          m_openSelectButton;
     caf::PdmField<int>           m_openWellDeckPosition;
 

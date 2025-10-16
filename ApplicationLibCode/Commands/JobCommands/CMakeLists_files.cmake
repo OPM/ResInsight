@@ -2,12 +2,14 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRunJobFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewOpmFlowJobFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateJobFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicViewJobLogFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRunJobFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewOpmFlowJobFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateJobFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicViewJobLogFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
