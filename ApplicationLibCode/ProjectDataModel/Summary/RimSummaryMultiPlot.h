@@ -173,7 +173,7 @@ private:
     caf::PdmField<bool> m_allow3DSelectionLink;
 
     caf::PdmChildField<RimSummaryPlotReadOut*> m_readOutSettings;
-    caf::PdmField<bool>                        m_editGlobalSettings;
+    caf::PdmField<bool>                        m_goToCommonSettings;
 
     caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
     caf::PdmField<double> m_plotFilterYAxisThreshold;

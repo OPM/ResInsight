@@ -155,9 +155,9 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_readOutSettings = new RimSummaryPlotReadOut;
     m_readOutSettings.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_editGlobalSettings, "EditGlobalSettings", false, "Edit Global Settings" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_editGlobalSettings );
-    m_editGlobalSettings.xmlCapability()->disableIO();
+    CAF_PDM_InitField( &m_goToCommonSettings, "GoToCommonSettings", false, "Go to Common Settings" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_goToCommonSettings );
+    m_goToCommonSettings.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
 
@@ -407,7 +407,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     }
     else
     {
-        readOutGroup->add( &m_editGlobalSettings );
+        readOutGroup->add( &m_goToCommonSettings );
     }
 
     auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
@@ -528,9 +528,9 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         m_autoPlotTitle = false;
     }
-    else if ( changedField == &m_editGlobalSettings )
+    else if ( changedField == &m_goToCommonSettings )
     {
-        m_editGlobalSettings = false;
+        m_goToCommonSettings = false;
 
         if ( auto plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection() )
         {
@@ -564,7 +564,7 @@ void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* fiel
             attrib->m_buttonText = "Apply Filter";
         }
     }
-    else if ( field == &m_editGlobalSettings )
+    else if ( field == &m_goToCommonSettings )
     {
         if ( auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
@@ -1575,9 +1575,9 @@ RimSummaryPlotReadOut* RimSummaryMultiPlot::activeReadoutSettings() const
 {
     if ( auto plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection() )
     {
-        if ( plotCollection->globalReadOutSettings().has_value() )
+        if ( plotCollection->commonReadOutSettings().has_value() )
         {
-            return plotCollection->globalReadOutSettings().value();
+            return plotCollection->commonReadOutSettings().value();
         }
     }
 
