@@ -24,7 +24,6 @@
 #include <QStringList>
 
 #include <map>
-#include <memory>
 
 class RimProcess;
 
@@ -41,7 +40,7 @@ public:
     ~RimGenericJob() override;
 
     bool execute();
-    bool finished( bool runOk );
+    bool setFinished( bool runOk );
 
     bool isRunning() const;
     void stopRunningJob();
@@ -49,7 +48,7 @@ public:
     double            percentageDone() const;
     const QStringList jobLog() const;
 
-    virtual void decodeProgress( const QString& logLine );
+    virtual void decodeProgress( const QString& logLine ) = 0;
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;

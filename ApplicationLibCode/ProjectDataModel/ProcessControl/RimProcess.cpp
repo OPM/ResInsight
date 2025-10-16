@@ -185,8 +185,6 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     if ( enableStdErr ) QObject::connect( m_qProcess, SIGNAL( readyReadStandardError() ), m_monitor, SLOT( readyReadStandardError() ) );
     QObject::connect( m_qProcess, SIGNAL( started() ), m_monitor, SLOT( started() ) );
 
-    bool retval = false;
-
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     for ( auto& [key, val] : m_environmentVariables )
     {

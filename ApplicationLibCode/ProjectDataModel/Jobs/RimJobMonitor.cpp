@@ -61,7 +61,7 @@ void RimJobMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus )
 {
     if ( m_job != nullptr )
     {
-        m_job->finished( exitStatus == QProcess::NormalExit && exitCode == 0 );
+        m_job->setFinished( exitStatus == QProcess::NormalExit && exitCode == 0 );
     }
 
     RimProcessMonitor::finished( exitCode, exitStatus );

@@ -106,7 +106,6 @@ void RimGenericJob::stopRunningJob()
 bool RimGenericJob::execute()
 {
     m_percentageDone = 0.0;
-    setDeletable( false );
 
     // job preparations
     {
@@ -128,6 +127,9 @@ bool RimGenericJob::execute()
     QStringList cmdLine = command();
     if ( cmdLine.isEmpty() ) return false;
 
+    // cannot delete job while running
+    setDeletable( false );
+
     if ( m_process != nullptr ) delete m_process;
     m_process = new RimProcess( true, new RimJobMonitor( this ) );
 
@@ -136,9 +138,8 @@ bool RimGenericJob::execute()
 
     onProgress( m_percentageDone );
 
-    // run job
+    // build process to run
     QString cmd = cmdLine.takeFirst();
-
     m_process->setCommand( cmd );
     if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
     m_process->setWorkingDirectory( workingDirectory() );
@@ -147,6 +148,7 @@ bool RimGenericJob::execute()
         m_process->addEnvironmentVariable( name, value );
     }
 
+    // run process
     bool startOk = m_process->start();
     if ( !startOk )
     {
@@ -163,7 +165,7 @@ bool RimGenericJob::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGenericJob::finished( bool runOk )
+bool RimGenericJob::setFinished( bool runOk )
 {
     m_isRunning = false;
 
@@ -217,13 +219,6 @@ void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGenericJob::decodeProgress( const QString& logLine )
-{
 }
 
 //--------------------------------------------------------------------------------------------------
