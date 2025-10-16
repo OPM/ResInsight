@@ -66,7 +66,31 @@ void PdmUiLabelEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    PdmUiLabelEditorAttribute attributes;
+    if ( auto uiObject = uiObj( uiField()->fieldHandle()->ownerObject() ) )
+    {
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+    }
+
+    if ( !attributes.m_linkText.isEmpty() )
+    {
+        // Configure rich text and hyper link support
+        m_label->setTextFormat( Qt::RichText );
+        m_label->setTextInteractionFlags( Qt::TextBrowserInteraction );
+
+        caf::setLabelText( m_label, attributes.m_linkText );
+    }
+    else
+    {
+        PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+    }
+
+    if ( attributes.m_linkActivatedCallback )
+    {
+        connect( m_label,
+                 &QLabel::linkActivated,
+                 [attributes]( const QString& link ) { attributes.m_linkActivatedCallback( link ); } );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,8 +98,7 @@ void PdmUiLabelEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLabelEditor::createCombinedWidget( QWidget* parent )
 {
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
+    if ( auto uiObject = uiObj( uiField()->fieldHandle()->ownerObject() ) )
     {
         const QString             uiConfigName;
         PdmUiLabelEditorAttribute attributes;
@@ -106,8 +129,7 @@ QWidget* PdmUiLabelEditor::createLabelWidget( QWidget* parent )
     if ( m_label.isNull() )
     {
         PdmUiLabelEditorAttribute attributes;
-        caf::PdmUiObjectHandle*   uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-        if ( uiObject )
+        if ( auto uiObject = uiObj( uiField()->fieldHandle()->ownerObject() ) )
         {
             const QString uiConfigName;
             uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );

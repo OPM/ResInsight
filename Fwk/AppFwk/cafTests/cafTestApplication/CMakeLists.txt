@@ -42,6 +42,8 @@ set(PROJECT_FILES
     TamComboBox.cpp
     LineEditAndPushButtons.h
     LineEditAndPushButtons.cpp
+    LabelsAndHyperlinks.h
+    LabelsAndHyperlinks.cpp
     ApplicationEnum.h
     ApplicationEnum.cpp
     OptionalFields.h

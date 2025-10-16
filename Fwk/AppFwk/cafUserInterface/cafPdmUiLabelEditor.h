@@ -43,6 +43,8 @@
 #include <QString>
 #include <QWidget>
 
+#include <functional>
+
 class QGridLayout;
 
 namespace caf
@@ -60,8 +62,10 @@ public:
     }
 
 public:
-    bool m_useWordWrap;
-    bool m_useSingleWidgetInsteadOfLabelAndEditorWidget;
+    bool                                  m_useWordWrap;
+    bool                                  m_useSingleWidgetInsteadOfLabelAndEditorWidget;
+    QString                               m_linkText;
+    std::function<void( const QString& )> m_linkActivatedCallback;
 };
 
 //==================================================================================================

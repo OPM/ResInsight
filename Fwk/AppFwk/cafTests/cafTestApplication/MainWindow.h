@@ -32,6 +32,10 @@ public:
     static MainWindow* instance();
     void               setPdmRoot( caf::PdmObjectHandle* pdmRoot );
 
+    void setTreeViewSelection( caf::PdmObjectHandle* obj );
+
+    caf::PdmObjectHandle* root() const;
+
 private:
     void createActions();
     void createDockPanels();

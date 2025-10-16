@@ -40,7 +40,26 @@
 #include <QMenu>
 #include <QResizeEvent>
 
-using namespace caf;
+namespace caf
+{
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void setLabelText( QLabel* label, const QString& text )
+{
+    if ( !label ) return;
+
+    if ( auto shortLabel = dynamic_cast<QShortenedLabel*>( label ) )
+    {
+        // It is required to do a dynamic cast here, as the setText() function is not virtual
+        shortLabel->setText( text );
+    }
+    else
+    {
+        label->setText( text );
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -213,3 +232,4 @@ void QShortenedLabel::setDisplayText( const QString& displayText )
 {
     QLabel::setText( displayText );
 }
+} //namespace caf

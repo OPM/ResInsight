@@ -226,16 +226,9 @@ void PdmUiFieldEditorHandle::updateLabelFromField( QLabel* label, const QString&
         }
         else
         {
-            QString uiName = fieldHandle->uiName( uiConfigName );
-            if ( auto shortLabel = dynamic_cast<QShortenedLabel*>( label ) )
-            {
-                // It is required to do a dynamic cast here, as the setText() function is not virtual
-                shortLabel->setText( uiName );
-            }
-            else
-            {
-                label->setText( uiName );
-            }
+            QString text = fieldHandle->uiName( uiConfigName );
+
+            caf::setLabelText( label, text );
         }
 
         label->setEnabled( !fieldHandle->isUiReadOnly( uiConfigName ) );

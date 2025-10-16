@@ -39,6 +39,8 @@
 
 namespace caf
 {
+void setLabelText( QLabel* label, const QString& text );
+
 class QShortenedLabel : public QLabel
 {
     Q_OBJECT

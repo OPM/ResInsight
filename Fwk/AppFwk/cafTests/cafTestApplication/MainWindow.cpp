@@ -5,6 +5,7 @@
 
 #include "ApplicationEnum.h"
 #include "CustomObjectEditor.h"
+#include "LabelsAndHyperlinks.h"
 #include "LineEditAndPushButtons.h"
 #include "ManyGroups.h"
 #include "MenuItemProducer.h"
@@ -1319,6 +1320,7 @@ void MainWindow::buildTestModel()
     m_testRoot->objects.push_back( singleEditorObj );
 
     m_testRoot->objects.push_back( new LineEditAndPushButtons );
+    m_testRoot->objects.push_back( new LabelsAndHyperlinks );
     m_testRoot->objects.push_back( new OptionalFields );
 
     auto tamComboBox = new TamComboBox;
@@ -1408,6 +1410,25 @@ void MainWindow::setPdmRoot( caf::PdmObjectHandle* pdmRoot )
     }
 
     m_customObjectEditor->updateUi();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void MainWindow::setTreeViewSelection( caf::PdmObjectHandle* obj )
+{
+    if ( auto uiObj = caf::uiObj( obj ) )
+    {
+        m_pdmUiTreeView->selectAsCurrentItem( uiObj );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* MainWindow::root() const
+{
+    return m_testRoot;
 }
 
 //--------------------------------------------------------------------------------------------------
