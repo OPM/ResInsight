@@ -24,6 +24,7 @@
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
@@ -72,8 +73,9 @@ public:
     };
     using DefaultSummaryPlotEnum = caf::AppEnum<DefaultSummaryPlotType>;
 
-    using ColumnCountEnum = caf::AppEnum<RiaDefines::ColumnCount>;
-    using RowCountEnum    = caf::AppEnum<RiaDefines::RowCount>;
+    using ColumnCountEnum    = caf::AppEnum<RiaDefines::ColumnCount>;
+    using RowCountEnum       = caf::AppEnum<RiaDefines::RowCount>;
+    using SummaryReadoutMode = caf::AppEnum<RiaDefines::ReadOutType>;
 
 public:
     RiaPreferencesSummary();
@@ -117,6 +119,8 @@ public:
     RiaDefines::ColumnCount defaultMultiPlotColumnCount() const;
     RiaDefines::RowCount    defaultMultiPlotRowCount() const;
 
+    RiaDefines::ReadOutType defaultSummaryReadoutMode() const;
+
     cvf::Color3f historyCurveContrastColor() const;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
@@ -141,6 +145,7 @@ private:
     caf::PdmField<SummaryHistoryCurveStyleModeType> m_defaultSummaryHistoryCurveStyle;
     caf::PdmField<bool>                             m_curveColorByPhase;
     caf::PdmField<bool>                             m_appendHistoryVectors;
+    caf::PdmField<SummaryReadoutMode>               m_summaryReadoutMode;
 
     caf::PdmField<bool> m_showSummaryTimeAsLongString;
     caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryCases;

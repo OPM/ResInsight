@@ -88,6 +88,14 @@ enum class TextAlignment
     CENTER
 };
 
+enum class ReadOutType
+{
+    NONE,
+    SNAP_TO_POINT,
+    TIME_TRACKING,
+    TIME_VALUE_TRACKING
+};
+
 // Defines relate to curve and plot template names
 QString namingVariableCase();
 QString namingVariableWell();

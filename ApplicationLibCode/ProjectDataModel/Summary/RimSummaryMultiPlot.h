@@ -114,6 +114,7 @@ public:
 
     void selectWell( QString wellName );
 
+    void updateReadOutSettings();
     void updateReadOutLines( double qwtTimeValue, double yValue );
 
 protected:
@@ -157,9 +158,9 @@ private:
 
     void updateReadOnlyState();
 
-    void updateReadOutSettings();
-
     std::pair<double, double> adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const;
+
+    RimSummaryPlotReadOut* activeReadoutSettings() const;
 
 private:
     caf::PdmField<bool> m_autoPlotTitle;
@@ -172,6 +173,7 @@ private:
     caf::PdmField<bool> m_allow3DSelectionLink;
 
     caf::PdmChildField<RimSummaryPlotReadOut*> m_readOutSettings;
+    caf::PdmField<bool>                        m_editGlobalSettings;
 
     caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
     caf::PdmField<double> m_plotFilterYAxisThreshold;

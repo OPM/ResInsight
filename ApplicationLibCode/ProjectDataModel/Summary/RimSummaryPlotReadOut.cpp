@@ -18,22 +18,13 @@
 
 #include "RimSummaryPlotReadOut.h"
 
+#include "RiaPreferencesSummary.h"
+
 #include "RimAnnotationLineAppearance.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotReadOut, "RimSummaryPlotReadOut" );
-
-template <>
-void caf::AppEnum<RimSummaryPlotReadOut::ReadOutType>::setUp()
-{
-    addItem( RimSummaryPlotReadOut::ReadOutType::NONE, "NONE", "None" );
-    addItem( RimSummaryPlotReadOut::ReadOutType::SNAP_TO_POINT, "SNAP_TO_POINT", "Snap to Closest Curve Point" );
-    addItem( RimSummaryPlotReadOut::ReadOutType::TIME_TRACKING, "TIME_TRACKING", "Time Tracking" );
-    addItem( RimSummaryPlotReadOut::ReadOutType::TIME_VALUE_TRACKING, "TIME_VALUE_TRACKING", "Time and Value Tracking" );
-
-    setDefault( RimSummaryPlotReadOut::ReadOutType::SNAP_TO_POINT );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,7 +34,7 @@ RimSummaryPlotReadOut::RimSummaryPlotReadOut()
     CAF_PDM_InitObject( "Summary Plot Read Out", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_readOutType, "ReadOutType", "Readout Mode" );
-    m_readOutType = ReadOutType::TIME_VALUE_TRACKING;
+    m_readOutType = RiaPreferencesSummary::current()->defaultSummaryReadoutMode();
 
     CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "" );
     m_lineAppearance = new RimAnnotationLineAppearance;
@@ -62,7 +53,7 @@ RimSummaryPlotReadOut::RimSummaryPlotReadOut()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotReadOut::enableCurvePointTracking() const
 {
-    return m_readOutType() == ReadOutType::SNAP_TO_POINT;
+    return m_readOutType() == RiaDefines::ReadOutType::SNAP_TO_POINT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +61,7 @@ bool RimSummaryPlotReadOut::enableCurvePointTracking() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotReadOut::enableHorizontalLine() const
 {
-    return m_readOutType() == ReadOutType::TIME_VALUE_TRACKING;
+    return m_readOutType() == RiaDefines::ReadOutType::TIME_VALUE_TRACKING;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +69,8 @@ bool RimSummaryPlotReadOut::enableHorizontalLine() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotReadOut::enableVerticalLine() const
 {
-    return ( ( m_readOutType() == ReadOutType::TIME_TRACKING ) || ( m_readOutType() == ReadOutType::TIME_VALUE_TRACKING ) );
+    return ( ( m_readOutType() == RiaDefines::ReadOutType::TIME_TRACKING ) ||
+             ( m_readOutType() == RiaDefines::ReadOutType::TIME_VALUE_TRACKING ) );
 }
 
 //--------------------------------------------------------------------------------------------------

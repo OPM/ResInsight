@@ -23,9 +23,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
 
-#include <QList>
-
 class RimSummaryMultiPlot;
+class RimSummaryPlotReadOut;
 
 //==================================================================================================
 ///
@@ -52,14 +51,24 @@ public:
 
     void updateSummaryNameHasChanged();
 
+    std::optional<RimSummaryPlotReadOut*> globalReadOutSettings() const;
+
 private:
     void initAfterRead() override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate );
     void onRefreshTree( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotRequesting );
 
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+
+    void updateReadOutSettingsInSubPlots();
+
 private:
     caf::PdmChildArrayField<RimSummaryMultiPlot*> m_summaryMultiPlots;
+    caf::PdmField<bool>                           m_useGlobalReadoutSettings;
+    caf::PdmChildField<RimSummaryPlotReadOut*>    m_readoutSettings;
 };

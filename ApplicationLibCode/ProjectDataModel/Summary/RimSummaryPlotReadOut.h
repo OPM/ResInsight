@@ -35,15 +35,6 @@ class RimSummaryPlotReadOut : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class ReadOutType
-    {
-        NONE,
-        SNAP_TO_POINT,
-        TIME_TRACKING,
-        TIME_VALUE_TRACKING
-    };
-
-public:
     RimSummaryPlotReadOut();
 
     bool                         enableCurvePointTracking() const;
@@ -57,7 +48,7 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmField<caf::AppEnum<ReadOutType>> m_readOutType;
+    caf::PdmField<caf::AppEnum<RiaDefines::ReadOutType>> m_readOutType;
 
     caf::PdmChildField<RimAnnotationLineAppearance*> m_lineAppearance;
 

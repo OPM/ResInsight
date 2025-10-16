@@ -96,6 +96,17 @@ void caf::AppEnum<RiaDefines::WindowTileMode>::setUp()
     setDefault( RiaDefines::WindowTileMode::UNDEFINED );
 }
 
+template <>
+void caf::AppEnum<RiaDefines::ReadOutType>::setUp()
+{
+    addItem( RiaDefines::ReadOutType::NONE, "NONE", "None" );
+    addItem( RiaDefines::ReadOutType::SNAP_TO_POINT, "SNAP_TO_POINT", "Snap to Closest Curve Point" );
+    addItem( RiaDefines::ReadOutType::TIME_TRACKING, "TIME_TRACKING", "Time Tracking" );
+    addItem( RiaDefines::ReadOutType::TIME_VALUE_TRACKING, "TIME_VALUE_TRACKING", "Time and Value Tracking" );
+
+    setDefault( RiaDefines::ReadOutType::SNAP_TO_POINT );
+}
+
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
