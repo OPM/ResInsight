@@ -63,6 +63,7 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -155,8 +156,8 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_readOutSettings = new RimSummaryPlotReadOut;
     m_readOutSettings.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_goToCommonSettings, "GoToCommonSettings", false, "Go to Common Settings" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_goToCommonSettings );
+    CAF_PDM_InitFieldNoDefault( &m_goToCommonSettings, "GoToCommonSettings", "" );
+    m_goToCommonSettings.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_goToCommonSettings.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
@@ -412,7 +413,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
     plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
-    plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
+    plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow, { .newRow = false } );
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
     dataSourceGroup->setCollapsedByDefault();
@@ -528,15 +529,6 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         m_autoPlotTitle = false;
     }
-    else if ( changedField == &m_goToCommonSettings )
-    {
-        m_goToCommonSettings = false;
-
-        if ( auto plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection() )
-        {
-            RiuPlotMainWindowTools::selectAsCurrentItem( plotCollection );
-        }
-    }
 
     RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
 }
@@ -566,9 +558,17 @@ void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* fiel
     }
     else if ( field == &m_goToCommonSettings )
     {
-        if ( auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        if ( auto labelEditorAttribute = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute ) )
         {
-            pbAttribute->m_buttonText = "Edit";
+            labelEditorAttribute->m_useWordWrap           = true;
+            labelEditorAttribute->m_linkText              = "Select <a href=\"dummy\">Summary Plots</a> to edit Common Readout Settings.";
+            labelEditorAttribute->m_linkActivatedCallback = []( const QString& link )
+            {
+                if ( auto plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection() )
+                {
+                    RiuPlotMainWindowTools::selectAsCurrentItem( plotCollection );
+                }
+            };
         }
     }
 }
