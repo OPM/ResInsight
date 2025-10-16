@@ -172,7 +172,7 @@ jobs:
           dir: "${{ github.workspace }}/Qt/"
           cache: true
           setup-python: false
-          modules: "qtnetworkauth qtcharts"
+          modules: "qtnetworkauth"
 
       - name: vcpkg bootstrap
         run: |
