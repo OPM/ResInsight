@@ -92,9 +92,9 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
     {
         if ( !uiFieldHandle ) return false;
 
-        if ( uiFieldHandle->fieldHandle() )
+        if ( auto fieldHandle = uiFieldHandle->fieldHandle())
         {
-            const std::type_info& typeInfo = typeid( *uiFieldHandle->fieldHandle() );
+            const std::type_info& typeInfo = typeid( *fieldHandle );
             QString               typeName = QString( typeInfo.name() );
 
             return typeName.contains( "optional", Qt::CaseInsensitive );
