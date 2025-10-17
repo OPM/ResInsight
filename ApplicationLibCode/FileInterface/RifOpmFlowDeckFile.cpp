@@ -496,7 +496,7 @@ bool RifOpmFlowDeckFile::openWellAtDeckPosition( int deckPosition, Opm::DeckKeyw
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifOpmFlowDeckFile::keywords()
+std::vector<std::string> RifOpmFlowDeckFile::keywords( bool includeDates )
 {
     std::vector<std::string> values;
 
@@ -505,7 +505,7 @@ std::vector<std::string> RifOpmFlowDeckFile::keywords()
     for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
     {
         auto& kw = m_fileDeck->operator[]( it );
-        if ( kw.name() == Opm::ParserKeywords::DATES::keywordName )
+        if ( kw.name() == Opm::ParserKeywords::DATES::keywordName && includeDates )
         {
             std::string dateStr = kw.name() + " " + internal::datesKeywordToString( kw );
             values.push_back( dateStr );
@@ -1110,4 +1110,67 @@ bool RifOpmFlowDeckFile::stopAtTimeStep( int timeStep )
         m_fileDeck->insert( dateIdx.value(), newKw );
     }
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::replaceKeywordData( const std::string& keyword, const std::vector<double>& data )
+{
+    try
+    {
+        if ( m_fileDeck.get() == nullptr ) return false;
+
+        // Find the keyword in the deck
+        auto keywordIdx = m_fileDeck->find( keyword );
+        if ( !keywordIdx.has_value() ) return false;
+
+        // Get the existing keyword to preserve location
+        const auto& existingKw = m_fileDeck->operator[]( keywordIdx.value() );
+
+        // Create a new keyword with the same name and location
+        Opm::DeckKeyword newKw( existingKw.location(), keyword );
+        newKw.setDataKeyword( true );
+
+        // Keywords ending with "NUM" should be integers (e.g., SATNUM, PVTNUM, EQLNUM)
+        bool isIntType = keyword.size() >= 3 && keyword.substr( keyword.size() - 3 ) == "NUM";
+
+        // Create a record with the new data
+        Opm::DeckRecord record;
+        if ( isIntType )
+        {
+            // Create integer item
+            Opm::DeckItem item( keyword, int() );
+            for ( const auto& value : data )
+            {
+                item.push_back( static_cast<int>( std::round( value ) ) );
+            }
+            record.addItem( std::move( item ) );
+        }
+        else
+        {
+            // Create double item
+            std::vector<Opm::Dimension> active_dimensions;
+            std::vector<Opm::Dimension> default_dimensions;
+            Opm::DeckItem               item( keyword, double(), active_dimensions, default_dimensions );
+            for ( const auto& value : data )
+            {
+                item.push_back( value );
+            }
+            record.addItem( std::move( item ) );
+        }
+
+        newKw.addRecord( std::move( record ) );
+
+        // Replace the keyword in the deck
+        m_fileDeck->erase( keywordIdx.value() );
+        m_fileDeck->insert( keywordIdx.value(), newKw );
+
+        return true;
+    }
+    catch ( std::exception& )
+    {
+        printf( "Expcetion: %s => %s\n", keyword.c_str(), e.what() );
+        return false;
+    }
 }
