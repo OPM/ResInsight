@@ -272,8 +272,11 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         if ( !deckFile.loadDeck( dataFileName.toStdString() ) )
         {
             RiaLogging::error( QString( "Unable to load deck file '%1'" ).arg( dataFileName ) );
+            return;
         }
-        else
+
+        // Only change values when exporting to modified box: original values should just work (tm) for full grid box
+        if ( exportSettings.exportGridBox() != RicExportEclipseSectorModelUi::GridBoxSelection::FULL_GRID_BOX )
         {
             // Generate border cell faces
             auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( view->eclipseCase() );
@@ -308,18 +311,19 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
             {
                 RiaLogging::warning( "No border cells found - skipping BCCON/BCPROP keyword generation" );
             }
+        }
 
-            // Save the modified deck file
-            QString outputFolder = fi.absolutePath();
-            QString outputFile   = fi.completeBaseName() + "_sector.DATA";
-            if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )
-            {
-                RiaLogging::error( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
-            }
-            else
-            {
-                RiaLogging::info( QString( "Saved modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
-            }
+        // Save the modified deck file to the export directory
+        QFileInfo exportGridInfo( exportSettings.exportGridFilename() );
+        QString   outputFolder = exportGridInfo.absolutePath();
+        QString   outputFile   = exportGridInfo.completeBaseName() + ".DATA";
+        if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )
+        {
+            RiaLogging::error( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+        }
+        else
+        {
+            RiaLogging::info( QString( "Saved modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
         }
     }
 }
