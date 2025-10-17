@@ -63,7 +63,7 @@ public:
     bool restartAtTimeStep( int timeStep, std::string deckName );
     bool stopAtTimeStep( int timeStep );
 
-    std::vector<std::string> keywords();
+    std::vector<std::string> keywords( bool includeDates = true );
     bool                     hasDatesKeyword();
     bool                     isRestartFile();
     std::vector<std::string> dateStrings();
@@ -92,6 +92,8 @@ public:
     bool addBcpropKeyword( std::string                                               section,
                            const std::vector<RigEclipseResultTools::BorderCellFace>& boundaryConditions,
                            const std::vector<Opm::DeckRecord>&                       boundaryConditionProperties );
+
+    bool replaceKeywordData( const std::string& keyword, const std::vector<double>& data );
 
 private:
     void splitDatesIfNecessary();

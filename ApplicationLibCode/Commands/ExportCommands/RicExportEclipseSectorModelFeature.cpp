@@ -278,6 +278,51 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         // Only change values when exporting to modified box: original values should just work (tm) for full grid box
         if ( exportSettings.exportGridBox() != RicExportEclipseSectorModelUi::GridBoxSelection::FULL_GRID_BOX )
         {
+            // Get grid bounds for extraction
+            cvf::Vec3st min( exportSettings.min() );
+            cvf::Vec3st max( exportSettings.max() );
+            cvf::Vec3st refinement( exportSettings.refinementCountI(), exportSettings.refinementCountJ(), exportSettings.refinementCountK() );
+
+            // Extract and replace keyword data for all keywords in the deck
+            auto keywords = deckFile.keywords( false );
+            RiaLogging::info( QString( "Processing %1 keywords from deck file" ).arg( keywords.size() ) );
+
+            for ( const auto& keywordStdStr : keywords )
+            {
+                QString keyword = QString::fromStdString( keywordStdStr );
+
+                // Skip special keywords that aren't cell properties
+                if ( keyword.startsWith( "DATES" ) || keyword == "SCHEDULE" || keyword == "GRID" || keyword == "PROPS" ||
+                     keyword == "SOLUTION" || keyword == "RUNSPEC" || keyword == "SUMMARY" )
+                {
+                    continue;
+                }
+
+                // Try to extract keyword data
+                auto result =
+                    RifEclipseInputFileTools::extractKeywordData( view->eclipseCase()->eclipseCaseData(), keyword, min, max, refinement );
+
+                if ( result )
+                {
+                    // Replace keyword values in deck with extracted data
+                    if ( deckFile.replaceKeywordData( keywordStdStr, result.value() ) )
+                    {
+                        RiaLogging::info(
+                            QString( "Successfully replaced data for keyword '%1' (%2 values)" ).arg( keyword ).arg( result.value().size() ) );
+                    }
+                    else
+                    {
+                        RiaLogging::warning( QString( "Failed to replace keyword '%1' in deck" ).arg( keyword ) );
+                    }
+                }
+                else
+                {
+                    // Not all keywords will have data - this is expected
+                    RiaLogging::debug(
+                        QString( "Could not extract data for keyword '%1': %2" ).arg( keyword ).arg( QString::fromStdString( result.error() ) ) );
+                }
+            }
+
             // Generate border cell faces
             auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( view->eclipseCase() );
 
