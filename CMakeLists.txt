@@ -559,7 +559,11 @@ list(APPEND THIRD_PARTY_LIBRARIES NRLib)
 # ##############################################################################
 
 add_definitions(-DOPENZGY_STATIC)
+
+# Suppress CMake deprecation warnings from openzgy/zfp's old CMakeLists.txt
+set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 add_subdirectory(ThirdParty/openzgy)
+set(CMAKE_WARN_DEPRECATED ON CACHE BOOL "" FORCE)
 
 list(APPEND THIRD_PARTY_LIBRARIES openzgy)
 set_property(TARGET zfp PROPERTY FOLDER "Thirdparty")
@@ -706,8 +710,12 @@ list(APPEND THIRD_PARTY_LIBRARIES FastFloat::fast_float spdlog::spdlog)
 find_package(Arrow CONFIG REQUIRED)
 if(MSVC)
   list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_shared)
+  # Treat Arrow headers as system headers to suppress warnings from third-party code
+  set_target_properties(Arrow::arrow_shared PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES $<TARGET_PROPERTY:Arrow::arrow_shared,INTERFACE_INCLUDE_DIRECTORIES>)
 else()
   list(APPEND THIRD_PARTY_LIBRARIES Arrow::arrow_static)
+  # Treat Arrow headers as system headers to suppress warnings from third-party code
+  set_target_properties(Arrow::arrow_static PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES $<TARGET_PROPERTY:Arrow::arrow_static,INTERFACE_INCLUDE_DIRECTORIES>)
 endif()
 
 # ##############################################################################
@@ -716,8 +724,12 @@ endif()
 find_package(Parquet CONFIG REQUIRED)
 if(MSVC)
   list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_shared)
+  # Treat Parquet headers as system headers to suppress warnings from third-party code
+  set_target_properties(Parquet::parquet_shared PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES $<TARGET_PROPERTY:Parquet::parquet_shared,INTERFACE_INCLUDE_DIRECTORIES>)
 else()
   list(APPEND THIRD_PARTY_LIBRARIES Parquet::parquet_static)
+  # Treat Parquet headers as system headers to suppress warnings from third-party code
+  set_target_properties(Parquet::parquet_static PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES $<TARGET_PROPERTY:Parquet::parquet_static,INTERFACE_INCLUDE_DIRECTORIES>)
 endif()
 
 # ##############################################################################
