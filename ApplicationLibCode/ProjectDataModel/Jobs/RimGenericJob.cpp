@@ -19,6 +19,7 @@
 #include "RimGenericJob.h"
 
 #include "RiaColorTools.h"
+#include "RiaLogging.h"
 
 #include "RimJobMonitor.h"
 #include "RimProcess.h"
@@ -65,7 +66,14 @@ double RimGenericJob::percentageDone() const
 //--------------------------------------------------------------------------------------------------
 void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicRunJobFeature";
+    if ( isRunning() )
+    {
+        menuBuilder << "RicStopJobFeature";
+    }
+    else
+    {
+        menuBuilder << "RicRunJobFeature";
+    }
     menuBuilder << "RicDuplicateJobFeature";
     menuBuilder << "RicViewJobLogFeature";
 }
@@ -89,15 +97,15 @@ bool RimGenericJob::isRunning() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericJob::stopRunningJob()
+bool RimGenericJob::stop()
 {
-    if ( m_process == nullptr ) return;
-
-    if ( QMessageBox::question( nullptr, title(), "Do you want to stop the running job?", QMessageBox::Yes | QMessageBox::No ) ==
-         QMessageBox::Yes )
+    if ( m_process != nullptr )
     {
         m_process->terminate();
+        RiaLogging::info( "Job \"" + name() + "\" stopped by user." );
+        return true;
     }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,11 +113,13 @@ void RimGenericJob::stopRunningJob()
 //--------------------------------------------------------------------------------------------------
 bool RimGenericJob::execute()
 {
+    if ( isRunning() ) return false;
+
     m_percentageDone = 0.0;
 
     // job preparations
     {
-        caf::ProgressInfo prepProgress( 1, title(), false );
+        caf::ProgressInfo prepProgress( 1, name(), false );
 
         auto prepRun = prepProgress.task( "Preparing for run, please wait..." );
 
@@ -156,7 +166,7 @@ bool RimGenericJob::execute()
         m_lastRunFailed = true;
         m_isRunning     = false;
         setDeletable( true );
-        QMessageBox::critical( nullptr, title(), "Failed to start job. Check log window for additional information." );
+        QMessageBox::critical( nullptr, name(), "Failed to start job. Check log window for additional information." );
     }
 
     return startOk;

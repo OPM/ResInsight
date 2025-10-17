@@ -286,7 +286,7 @@ void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
     RiaGuiApplication* app = RiaGuiApplication::instance();
     if ( !app->isMain3dWindowVisible() )
     {
-        if ( !app->askUserToSaveModifiedProject() )
+        if ( !app->checkWithUserBeforeClose() )
         {
             event->ignore();
             return;

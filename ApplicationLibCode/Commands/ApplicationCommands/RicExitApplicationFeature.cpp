@@ -35,7 +35,8 @@ void RicExitApplicationFeature::onActionTriggered( bool isChecked )
     disableModelChangeContribution();
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
-    if ( !app->askUserToSaveModifiedProject() ) return;
+
+    if ( !app->checkWithUserBeforeClose() ) return;
 
     if ( app->mainPlotWindow() )
     {

@@ -73,7 +73,6 @@ protected:
 
     void decodeProgress( const QString& logLine ) override;
 
-    QString                    title() override;
     QStringList                command() override;
     std::map<QString, QString> environment() override;
     QString                    workingDirectory() const override;

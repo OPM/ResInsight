@@ -88,8 +88,9 @@ public:
 
     bool    saveProject();
     QString promptForProjectSaveAsFileName() const;
-    bool    askUserToSaveModifiedProject();
     bool    saveProjectAs( const QString& fileName );
+
+    bool checkWithUserBeforeClose();
 
     void runMultiCaseSnapshots( const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName );
     bool useShaders() const;
@@ -126,6 +127,10 @@ public:
 
 protected:
     bool notify( QObject* receiver, QEvent* event ) override;
+
+    // use the checkWithUserBeforeClose function, to get all checks in one go
+    bool notifyUserAboutRunningJobs();
+    bool askUserToSaveModifiedProject();
 
     // Protected RiaApplication overrides
     void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) override;

@@ -43,7 +43,7 @@ public:
     bool setFinished( bool runOk );
 
     bool isRunning() const;
-    void stopRunningJob();
+    bool stop();
 
     double            percentageDone() const;
     const QStringList jobLog() const;
@@ -54,7 +54,6 @@ protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    virtual QString                    title()       = 0;
     virtual QStringList                command()     = 0;
     virtual std::map<QString, QString> environment() = 0;
     virtual QString                    workingDirectory() const;

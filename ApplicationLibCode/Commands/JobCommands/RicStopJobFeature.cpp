@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016 Statoil ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,38 +16,45 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicOpenLastUsedFileFeature.h"
+#include "RicStopJobFeature.h"
 
-#include "RiaGuiApplication.h"
-#include "RiaPreferences.h"
+#include "Jobs/RimGenericJob.h"
 
-#include "RiuMainWindow.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT( RicOpenLastUsedFileFeature, "RicOpenLastUsedFileFeature" );
+CAF_CMD_SOURCE_INIT( RicStopJobFeature, "RicStopJobFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicOpenLastUsedFileFeature::onActionTriggered( bool isChecked )
+void RicStopJobFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    if ( !app->checkWithUserBeforeClose() ) return;
-
-    QString fileName = RiaPreferences::current()->lastUsedProjectFileName;
-
-    if ( app->loadProject( fileName ) )
-    {
-        app->addToRecentFiles( fileName );
-    }
+    stopJob( dynamic_cast<RimGenericJob*>( caf::SelectionManager::instance()->selectedItem() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicOpenLastUsedFileFeature::setupActionLook( QAction* actionToSetup )
+void RicStopJobFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Open &Last Used Project" );
+    actionToSetup->setIcon( QIcon( ":/stop.svg" ) );
+    actionToSetup->setText( "Stop..." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicStopJobFeature::stopJob( RimGenericJob* job )
+{
+    if ( job == nullptr ) return false;
+
+    if ( QMessageBox::question( nullptr, job->name(), "Do you want to stop this job?", QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )
+    {
+        return job->stop();
+    }
+
+    return false;
 }

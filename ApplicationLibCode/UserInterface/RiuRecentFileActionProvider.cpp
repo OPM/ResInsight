@@ -128,7 +128,7 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
         RiaGuiApplication* app = RiaGuiApplication::instance();
         if ( RiaApplication::hasValidProjectFileExtension( fileName ) )
         {
-            if ( !app->askUserToSaveModifiedProject() ) return;
+            if ( !app->checkWithUserBeforeClose() ) return;
         }
 
         bool loadingSucceded = RiaApplication::instance()->openFile( fileName );

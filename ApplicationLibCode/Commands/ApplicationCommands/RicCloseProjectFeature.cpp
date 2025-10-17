@@ -31,10 +31,12 @@ void RicCloseProjectFeature::onActionTriggered( bool isChecked )
 {
     disableModelChangeContribution();
 
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-    if ( !app || !app->askUserToSaveModifiedProject() ) return;
+    if ( RiaGuiApplication* app = RiaGuiApplication::instance() )
+    {
+        if ( !app->checkWithUserBeforeClose() ) return;
 
-    app->closeProject();
+        app->closeProject();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

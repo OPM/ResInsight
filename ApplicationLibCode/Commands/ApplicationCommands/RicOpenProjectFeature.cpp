@@ -36,7 +36,7 @@ void RicOpenProjectFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
-    if ( !app->askUserToSaveModifiedProject() ) return;
+    if ( !app->checkWithUserBeforeClose() ) return;
 
     QString defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
     QString fileName =

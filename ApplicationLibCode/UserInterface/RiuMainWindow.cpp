@@ -351,7 +351,7 @@ void RiuMainWindow::closeEvent( QCloseEvent* event )
 
     if ( !app->isMainPlotWindowVisible() )
     {
-        if ( !app->askUserToSaveModifiedProject() )
+        if ( !app->checkWithUserBeforeClose() )
         {
             event->ignore();
             return;

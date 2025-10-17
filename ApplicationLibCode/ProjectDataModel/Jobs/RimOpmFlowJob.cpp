@@ -27,6 +27,8 @@
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 #include "EclipseCommands/RicCreateGridCaseEnsemblesFromFilesFeature.h"
 #include "JobCommands/RicRunJobFeature.h"
+#include "JobCommands/RicStopJobFeature.h"
+
 #include "RifOpmFlowDeckFile.h"
 
 #include "Ensemble/RimSummaryFileSetEnsemble.h"
@@ -513,7 +515,7 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
     else if ( changedField == &m_stopButton )
     {
         m_stopButton = false;
-        if ( isRunning() ) stopRunningJob();
+        RicStopJobFeature::stopJob( this );
     }
     else if ( changedField == &m_resetRunIdButton )
     {
@@ -654,14 +656,6 @@ bool RimOpmFlowJob::copyUnrstFileToWorkDir()
     }
 
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::title()
-{
-    return name();
 }
 
 //--------------------------------------------------------------------------------------------------

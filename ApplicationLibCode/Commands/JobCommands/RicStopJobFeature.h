@@ -15,38 +15,24 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmField.h"
-
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
-
-#include <QString>
+#include "cafCmdFeature.h"
 
 class RimGenericJob;
 
-class RimJobCollection : public caf::PdmObject
+//==================================================================================================
+///
+//==================================================================================================
+class RicStopJobFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
 public:
-    RimJobCollection();
-    ~RimJobCollection() override;
-
-    void addNewJob( RimGenericJob* newJob );
-
-    bool isEmpty();
-
-    int numberOfRunningJobs() const;
-
-    void deleteAllJobs();
-
-    std::vector<RimGenericJob*> jobs() const;
+    static bool stopJob( RimGenericJob* job );
 
 protected:
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-
-private:
-    caf::PdmChildArrayField<RimGenericJob*> m_jobs;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

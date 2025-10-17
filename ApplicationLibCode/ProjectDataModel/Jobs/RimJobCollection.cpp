@@ -77,8 +77,30 @@ void RimJobCollection::addNewJob( RimGenericJob* newJob )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimJobCollection::numberOfRunningJobs() const
+{
+    int nRunning = 0;
+    for ( auto job : jobs() )
+    {
+        if ( job->isRunning() ) nRunning++;
+    }
+
+    return nRunning;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimJobCollection::deleteAllJobs()
 {
+    for ( auto job : jobs() )
+    {
+        if ( job->isRunning() )
+        {
+            job->stop();
+            RiaLogging::info( "Stopped running job '" + job->name() );
+        }
+    }
     m_jobs.deleteChildren();
 }
 
