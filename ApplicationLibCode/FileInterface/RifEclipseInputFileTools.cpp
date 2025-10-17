@@ -237,6 +237,107 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extractKeywordData( RigEclipseCaseData* eclipseCase,
+                                                                                              const QString&      keyword,
+                                                                                              const cvf::Vec3st&  min,
+                                                                                              const cvf::Vec3st&  maxIn,
+                                                                                              const cvf::Vec3st&  refinement )
+{
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
+    RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
+
+    cvf::Vec3st max = maxIn;
+    if ( max.isUndefined() )
+    {
+        max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
+    }
+
+    auto allResultAddresses = cellResultsData->existingResults();
+
+    auto findResultAddress = [&allResultAddresses]( const QString& keyword ) -> RigEclipseResultAddress
+    {
+        for ( const auto& adr : allResultAddresses )
+        {
+            if ( adr.resultName() == keyword )
+            {
+                return adr;
+            }
+        }
+        return {};
+    };
+
+    RigEclipseResultAddress resAddr = findResultAddress( keyword );
+    if ( !cellResultsData->hasResultEntry( resAddr ) )
+    {
+        return std::unexpected( "Keyword '" + keyword.toStdString() + "' not found in results" );
+    }
+
+    if ( !cellResultsData->ensureKnownResultLoaded( resAddr ) )
+    {
+        return std::unexpected( "Keyword '" + keyword.toStdString() + "' result not loaded." );
+    }
+
+    if ( cellResultsData->cellScalarResults( resAddr ).empty() )
+    {
+        return std::unexpected( "Keyword '" + keyword.toStdString() + "' result empty." );
+    }
+
+    std::vector<double> resultValues = cellResultsData->cellScalarResults( resAddr )[0];
+    if ( resultValues.empty() )
+    {
+        return std::unexpected( "Keyword '" + keyword.toStdString() + "' has no data" );
+    }
+
+    double defaultExportValue = 0.0;
+    if ( RiaResultNames::isCategoryResult( keyword ) )
+    {
+        defaultExportValue = 1.0;
+    }
+
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+
+    // Create result accessor object for main grid at time step zero (static result data is always at first time step)
+    auto resultAcc = RigResultAccessorFactory::createFromResultAddress( eclipseCase, 0, porosityModel, 0, resAddr );
+
+    std::vector<double> filteredResults;
+    filteredResults.reserve( resultValues.size() );
+
+    cvf::Vec3st refinedMin( min.x() * refinement.x(), min.y() * refinement.y(), min.z() * refinement.z() );
+    cvf::Vec3st refinedMax( ( max.x() + 1 ) * refinement.x(), ( max.y() + 1 ) * refinement.y(), ( max.z() + 1 ) * refinement.z() );
+
+    for ( size_t k = refinedMin.z(); k < refinedMax.z(); ++k )
+    {
+        size_t mainK = k / refinement.z();
+        for ( size_t j = refinedMin.y(); j < refinedMax.y(); ++j )
+        {
+            size_t mainJ = j / refinement.y();
+            for ( size_t i = refinedMin.x(); i < refinedMax.x(); ++i )
+            {
+                size_t mainI = i / refinement.x();
+
+                size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
+
+                size_t resIndex = activeCells->cellResultIndex( reservoirCellIndex );
+                if ( resIndex != cvf::UNDEFINED_SIZE_T )
+                {
+                    auto value = resultAcc->cellScalarGlobIdx( reservoirCellIndex );
+                    filteredResults.push_back( value );
+                }
+                else
+                {
+                    filteredResults.push_back( defaultExportValue );
+                }
+            }
+        }
+    }
+
+    return filteredResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::exportKeywords( const QString&              resultFileName,
                                                RigEclipseCaseData*         eclipseCase,
                                                const std::vector<QString>& keywords,
@@ -257,91 +358,21 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         stream << "NOECHO\n";
     }
 
-    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
-    RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
-
-    cvf::Vec3st max = maxIn;
-    if ( max.isUndefined() )
-    {
-        max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
-    }
-
     caf::ProgressInfo progress( keywords.size(), "Saving Keywords" );
-
-    auto allResultAddresses = cellResultsData->existingResults();
-
-    auto findResultAddress = [&allResultAddresses]( const QString& keyword ) -> RigEclipseResultAddress
-    {
-        for ( const auto& adr : allResultAddresses )
-        {
-            if ( adr.resultName() == keyword )
-            {
-                return adr;
-            }
-        }
-
-        return {};
-    };
 
     for ( const QString& keyword : keywords )
     {
-        RigEclipseResultAddress resAddr = findResultAddress( keyword );
-        if ( !cellResultsData->hasResultEntry( resAddr ) ) continue;
-
-        cellResultsData->ensureKnownResultLoaded( resAddr );
-        CVF_ASSERT( !cellResultsData->cellScalarResults( resAddr ).empty() );
-
-        std::vector<double> resultValues = cellResultsData->cellScalarResults( resAddr )[0];
-        if ( resultValues.empty() ) continue;
-
-        double defaultExportValue = 0.0;
-        if ( RiaResultNames::isCategoryResult( keyword ) )
+        auto result = extractKeywordData( eclipseCase, keyword, min, maxIn, refinement );
+        if ( !result )
         {
-            defaultExportValue = 1.0;
-        }
-
-        RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
-
-        // Create result accessor object for main grid at time step zero (static result date is always at first time step
-        auto resultAcc = RigResultAccessorFactory::createFromResultAddress( eclipseCase, 0, porosityModel, 0, resAddr );
-
-        std::vector<double> filteredResults;
-        filteredResults.reserve( resultValues.size() );
-
-        cvf::Vec3st refinedMin( min.x() * refinement.x(), min.y() * refinement.y(), min.z() * refinement.z() );
-        cvf::Vec3st refinedMax( ( max.x() + 1 ) * refinement.x(), ( max.y() + 1 ) * refinement.y(), ( max.z() + 1 ) * refinement.z() );
-
-        for ( size_t k = refinedMin.z(); k < refinedMax.z(); ++k )
-        {
-            size_t mainK = k / refinement.z();
-            for ( size_t j = refinedMin.y(); j < refinedMax.y(); ++j )
-            {
-                size_t mainJ = j / refinement.y();
-                for ( size_t i = refinedMin.x(); i < refinedMax.x(); ++i )
-                {
-                    size_t mainI = i / refinement.x();
-
-                    size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
-
-                    size_t resIndex = activeCells->cellResultIndex( reservoirCellIndex );
-                    if ( resIndex != cvf::UNDEFINED_SIZE_T )
-                    {
-                        auto value = resultAcc->cellScalarGlobIdx( reservoirCellIndex );
-                        filteredResults.push_back( value );
-                    }
-                    else
-                    {
-                        filteredResults.push_back( defaultExportValue );
-                    }
-                }
-            }
+            RiaLogging::warning( QString::fromStdString( result.error() ) );
+            continue;
         }
 
         // Multiple keywords can be exported to same file, so write ECHO keywords outside the loop
         bool writeEchoKeywordsInExporterObject = false;
         int  valuePerRow                       = 5;
-        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, filteredResults, valuePerRow );
+        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, result.value(), valuePerRow );
 
         progress.incrementProgress();
     }
