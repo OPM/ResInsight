@@ -1,0 +1,39 @@
+# ASan Leak Suppression File for ResInsight
+# This file suppresses known leaks in third-party libraries that are not part of ResInsight
+#
+# System Information:
+#   OS: Ubuntu 24.04.2 LTS
+#   Kernel: Linux 6.6.87.2-microsoft-standard-WSL2
+#   Compiler: Ubuntu clang version 19.1.1 (1ubuntu1~24.04.2)
+#   Generated: 2025-10-17
+#
+# Usage:
+# Set the LSAN_OPTIONS environment variable before running tests or the application:
+#   export LSAN_OPTIONS=suppressions=/home/builder/gitroot/ResInsight/tooling/sanitizers/asan_suppressions.txt
+#
+# Or run directly with:
+#   LSAN_OPTIONS=suppressions=/home/builder/gitroot/ResInsight/tooling/sanitizers/asan_suppressions.txt ./build/clang/ResInsight
+#
+# For CMake/CTest:
+#   LSAN_OPTIONS=suppressions=/home/builder/gitroot/ResInsight/tooling/sanitizers/asan_suppressions.txt ctest
+
+# Qt Wayland platform plugin - known leak in wp_viewporter initialization
+leak:libwayland-client.so
+leak:libQt6WaylandClient.so
+
+# Wayland proxy marshalling functions
+leak:wl_proxy_marshal_array_flags
+leak:wl_proxy_marshal_constructor_versioned
+
+# Dynamic library loading leaks during initialization
+leak:call_init
+leak:_dl_init
+leak:dl_open_worker
+leak:_dl_open
+leak:dlopen
+
+# Aligned memory allocation leaks from unknown modules (likely third-party libraries)
+leak:aligned_alloc
+
+# pthread condition variable leaks from system libraries
+leak:pthread_cond_broadcast
