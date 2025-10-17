@@ -100,17 +100,19 @@ void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus 
 //--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::readyReadStandardError()
 {
-    QProcess* p = (QProcess*)sender();
-    p->setReadChannel( QProcess::StandardError );
-    while ( p->canReadLine() )
+    if ( QProcess* p = qobject_cast<QProcess*>( sender() ) )
     {
-        QString line = p->readLine();
-        line         = line.trimmed();
-        if ( line.size() == 0 ) continue;
-        m_stdErr.append( line );
-        if ( m_logStdOutErr )
+        p->setReadChannel( QProcess::StandardError );
+        while ( p->canReadLine() )
         {
-            RiaLogging::error( addPrefix( line ) );
+            QString line = p->readLine();
+            line         = line.trimmed();
+            if ( line.size() == 0 ) continue;
+            m_stdErr.append( line );
+            if ( m_logStdOutErr )
+            {
+                RiaLogging::error( addPrefix( line ) );
+            }
         }
     }
 }
@@ -120,17 +122,19 @@ void RimProcessMonitor::readyReadStandardError()
 //--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::readyReadStandardOutput()
 {
-    QProcess* p = (QProcess*)sender();
-    p->setReadChannel( QProcess::StandardOutput );
-    while ( p->canReadLine() )
+    if ( QProcess* p = qobject_cast<QProcess*>( sender() ) )
     {
-        QString line = p->readLine();
-        line         = line.trimmed();
-        if ( line.size() == 0 ) continue;
-        m_stdOut.append( line );
-        if ( m_logStdOutErr )
+        p->setReadChannel( QProcess::StandardOutput );
+        while ( p->canReadLine() )
         {
-            RiaLogging::info( addPrefix( line ) );
+            QString line = p->readLine();
+            line         = line.trimmed();
+            if ( line.size() == 0 ) continue;
+            m_stdOut.append( line );
+            if ( m_logStdOutErr )
+            {
+                RiaLogging::info( addPrefix( line ) );
+            }
         }
     }
 }

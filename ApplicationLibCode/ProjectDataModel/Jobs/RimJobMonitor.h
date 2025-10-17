@@ -20,6 +20,8 @@
 
 #include "RimProcessMonitor.h"
 
+#include "cafPdmPointer.h"
+
 class RimGenericJob;
 
 class RimJobMonitor : public RimProcessMonitor
@@ -35,5 +37,5 @@ protected:
     void finished( int exitCode, QProcess::ExitStatus exitStatus ) override;
 
 private:
-    RimGenericJob* m_job;
+    caf::PdmPointer<RimGenericJob> m_job;
 };

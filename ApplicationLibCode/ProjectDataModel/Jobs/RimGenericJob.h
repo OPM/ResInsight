@@ -20,6 +20,8 @@
 
 #include "RimNamedObject.h"
 
+#include "cafPdmPointer.h"
+
 #include <QString>
 #include <QStringList>
 
@@ -66,7 +68,7 @@ protected:
     double m_percentageDone;
 
 private:
-    bool        m_lastRunFailed;
-    bool        m_isRunning;
-    RimProcess* m_process;
+    bool                        m_lastRunFailed;
+    bool                        m_isRunning;
+    caf::PdmPointer<RimProcess> m_process;
 };

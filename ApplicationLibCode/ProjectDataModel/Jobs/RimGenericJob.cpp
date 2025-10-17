@@ -99,7 +99,7 @@ bool RimGenericJob::isRunning() const
 //--------------------------------------------------------------------------------------------------
 bool RimGenericJob::stop()
 {
-    if ( m_process != nullptr )
+    if ( !m_process.isNull() )
     {
         m_process->terminate();
         RiaLogging::info( "Job \"" + name() + "\" stopped by user." );
@@ -115,6 +115,7 @@ bool RimGenericJob::execute()
 {
     if ( isRunning() ) return false;
 
+    m_process        = nullptr;
     m_percentageDone = 0.0;
 
     // job preparations
@@ -140,7 +141,6 @@ bool RimGenericJob::execute()
     // cannot delete job while running
     setDeletable( false );
 
-    if ( m_process != nullptr ) delete m_process;
     m_process = new RimProcess( true, new RimJobMonitor( this ) );
 
     m_isRunning     = true;
@@ -236,9 +236,7 @@ void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 const QStringList RimGenericJob::jobLog() const
 {
-    if ( m_process != nullptr )
-    {
-        return m_process->stdOut();
-    }
-    return QStringList();
+    if ( m_process.isNull() ) return QStringList();
+
+    return m_process->stdOut();
 }

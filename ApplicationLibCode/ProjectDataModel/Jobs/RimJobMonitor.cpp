@@ -41,16 +41,18 @@ RimJobMonitor::~RimJobMonitor()
 //--------------------------------------------------------------------------------------------------
 void RimJobMonitor::readyReadStandardOutput()
 {
-    QProcess* p = (QProcess*)sender();
-    p->setReadChannel( QProcess::StandardOutput );
-    while ( p->canReadLine() )
+    if ( QProcess* p = qobject_cast<QProcess*>( sender() ) )
     {
-        QString line = p->readLine();
-        line         = line.trimmed();
-        if ( line.size() == 0 ) continue;
+        p->setReadChannel( QProcess::StandardOutput );
+        while ( p->canReadLine() )
+        {
+            QString line = p->readLine();
+            line         = line.trimmed();
+            if ( line.size() == 0 ) continue;
 
-        m_job->decodeProgress( line );
-        m_stdOut.append( line );
+            m_job->decodeProgress( line );
+            m_stdOut.append( line );
+        }
     }
 }
 
@@ -59,7 +61,7 @@ void RimJobMonitor::readyReadStandardOutput()
 //--------------------------------------------------------------------------------------------------
 void RimJobMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus )
 {
-    if ( m_job != nullptr )
+    if ( m_job.notNull() )
     {
         m_job->setFinished( exitStatus == QProcess::NormalExit && exitCode == 0 );
     }
