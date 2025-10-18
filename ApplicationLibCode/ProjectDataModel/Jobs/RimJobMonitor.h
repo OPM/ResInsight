@@ -30,7 +30,7 @@ class RimJobMonitor : public RimProcessMonitor
 
 public:
     RimJobMonitor( RimGenericJob* job );
-    ~RimJobMonitor();
+    ~RimJobMonitor() override;
 
 protected:
     void readyReadStandardOutput() override;
