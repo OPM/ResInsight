@@ -1170,7 +1170,50 @@ bool RifOpmFlowDeckFile::replaceKeywordData( const std::string& keyword, const s
     }
     catch ( std::exception& )
     {
-        printf( "Expcetion: %s => %s\n", keyword.c_str(), e.what() );
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::replaceKeywordData( const std::string& keyword, const std::vector<int>& data )
+{
+    try
+    {
+        if ( m_fileDeck.get() == nullptr ) return false;
+
+        // Find the keyword in the deck
+        auto keywordIdx = m_fileDeck->find( keyword );
+        if ( !keywordIdx.has_value() ) return false;
+
+        // Get the existing keyword to preserve location
+        const auto& existingKw = m_fileDeck->operator[]( keywordIdx.value() );
+
+        // Create a new keyword with the same name and location
+        Opm::DeckKeyword newKw( existingKw.location(), keyword );
+        newKw.setDataKeyword( true );
+
+        // Create a record with the new data
+        Opm::DeckRecord record;
+        // Create integer item
+        Opm::DeckItem item( keyword, int() );
+        for ( const auto& value : data )
+        {
+            item.push_back( value );
+        }
+        record.addItem( std::move( item ) );
+
+        newKw.addRecord( std::move( record ) );
+
+        // Replace the keyword in the deck
+        m_fileDeck->erase( keywordIdx.value() );
+        m_fileDeck->insert( keywordIdx.value(), newKw );
+
+        return true;
+    }
+    catch ( std::exception& )
+    {
         return false;
     }
 }

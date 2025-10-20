@@ -94,6 +94,7 @@ public:
                            const std::vector<Opm::DeckRecord>&                       boundaryConditionProperties );
 
     bool replaceKeywordData( const std::string& keyword, const std::vector<double>& data );
+    bool replaceKeywordData( const std::string& keyword, const std::vector<int>& data );
 
 private:
     void splitDatesIfNecessary();
