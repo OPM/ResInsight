@@ -380,9 +380,7 @@ QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox( QWidget*
     QMinimizePanel* groupBox    = nullptr;
 
     // Find or create groupBox
-    std::map<QString, QPointer<QMinimizePanel>>::iterator it;
-    it = m_groupBoxes.find( groupBoxKey );
-
+    auto it = m_groupBoxes.find( groupBoxKey );
     if ( it == m_groupBoxes.end() )
     {
         auto newBoxIt = m_newGroupBoxes.find( groupBoxKey );
@@ -441,9 +439,7 @@ QLabel* caf::PdmUiFormLayoutObjectEditor::findOrCreateLabel( QWidget* parent, Pd
     QLabel* qLabel   = nullptr;
 
     // Find or create label
-    std::map<QString, QPointer<QLabel>>::iterator it;
-    it = m_labels.find( labelKey );
-
+    auto it = m_labels.find( labelKey );
     if ( it == m_labels.end() )
     {
         auto newLabelIt = m_newLabels.find( labelKey );
@@ -485,9 +481,7 @@ QPushButton* caf::PdmUiFormLayoutObjectEditor::findOrCreateButton( QWidget*     
     QPushButton* qButton   = nullptr;
 
     // Find or create button
-    std::map<QString, QPointer<QPushButton>>::iterator it;
-    it = m_buttons.find( buttonKey );
-
+    auto it = m_buttons.find( buttonKey );
     if ( it == m_buttons.end() )
     {
         auto newButtonIt = m_newButtons.find( buttonKey );
