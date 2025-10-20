@@ -54,6 +54,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -143,14 +144,6 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_numberOfNewDates, "NumberOfNewDates", 12, "Number of Dates to Append" );
     CAF_PDM_InitField( &m_dateAppendType, "DateAppendType", caf::AppEnum<DateAppendType>( DateAppendType::ADD_MONTHS ), " " );
 
-    CAF_PDM_InitField( &m_runButton, "runButton", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_runButton );
-    m_runButton.xmlCapability()->disableIO();
-
-    CAF_PDM_InitField( &m_stopButton, "stopButton", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_stopButton );
-    m_stopButton.xmlCapability()->disableIO();
-
     CAF_PDM_InitField( &m_resetRunIdButton, "resetRunIdButton", false, " " );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_resetRunIdButton );
     m_resetRunIdButton.xmlCapability()->disableIO();
@@ -239,24 +232,6 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
             myAttr->m_selectDirectory = true;
         }
     }
-    else if ( field == &m_runButton )
-    {
-        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( pbAttribute )
-        {
-            pbAttribute->m_buttonText = "Run Simulation";
-            pbAttribute->m_buttonIcon = QIcon( ":/Play.svg" );
-        }
-    }
-    else if ( field == &m_stopButton )
-    {
-        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( pbAttribute )
-        {
-            pbAttribute->m_buttonText = "Stop";
-            pbAttribute->m_buttonIcon = QIcon( ":/stop.svg" );
-        }
-    }
     else if ( field == &m_openSelectButton )
     {
         auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
@@ -296,7 +271,8 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         auto runGrp = uiOrdering.addNewGroup( "Running" );
         m_workDir.uiCapability()->setUiReadOnly( true );
         runGrp->add( &m_workDir );
-        runGrp->add( &m_stopButton );
+        auto stopButton = runGrp->addNewButton( "Stop", [this]() { RicStopJobFeature::stopJob( this ); } );
+        stopButton->setUiIconFromResourceString( ":/stop.svg" );
         uiOrdering.skipRemainingFields();
         return;
     }
@@ -381,7 +357,10 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     }
 
     auto opmGrp = uiOrdering.addNewGroup( "OPM Flow" );
-    opmGrp->add( &m_runButton );
+
+    auto runButton = opmGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
+    runButton->setUiIconFromResourceString( ":/Play.svg" );
+
     opmGrp->add( &m_pauseBeforeRun );
     if ( m_fileDeckHasDates )
     {
@@ -506,16 +485,6 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
     if ( ( changedField == &m_deckFileName ) || ( changedField == &m_addToEnsemble ) )
     {
         m_deckName = "";
-    }
-    else if ( changedField == &m_runButton )
-    {
-        m_runButton = false;
-        RicRunJobFeature::runJob( this );
-    }
-    else if ( changedField == &m_stopButton )
-    {
-        m_stopButton = false;
-        RicStopJobFeature::stopJob( this );
     }
     else if ( changedField == &m_resetRunIdButton )
     {
