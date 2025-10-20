@@ -231,6 +231,11 @@ QString RicImportGeneralDataFeature::getFilePattern( RiaDefines::ImportFileType 
             .arg( eclipseSummaryFilePattern );
     }
 
+    if ( fileType == ImportFileType::ECLIPSE_RESULT_GRID )
+    {
+        return QString( "Eclipse Result Grid File (%1 %2)" ).arg( eclipseGridFilePattern ).arg( eclipseEGridFilePattern );
+    }
+
     if ( fileType == ImportFileType::ECLIPSE_EGRID_FILE )
     {
         return QString( "Eclipse EGrid Files (%1)" ).arg( eclipseEGridFilePattern );
@@ -283,7 +288,10 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
     {
         filePatternTexts += getFilePattern( ImportFileType::ANY_ECLIPSE_FILE );
     }
-
+    if ( fileType == ImportFileType::ECLIPSE_RESULT_GRID )
+    {
+        filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_RESULT_GRID );
+    }
     if ( fileType == ImportFileType::ECLIPSE_EGRID_FILE )
     {
         filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_EGRID_FILE );
