@@ -54,9 +54,6 @@ public:
     PdmUiButton();
     PdmUiButton( const QString& buttonText, const ClickCallback& callback );
 
-    void    setText( const QString& text );
-    QString text() const;
-
     void setIcon( const IconProvider& iconProvider );
     void setIconFromResourceString( const QString& iconResourceName );
 
@@ -69,7 +66,6 @@ public:
     bool isUiGroup() const override;
 
 private:
-    QString       m_text;
     Qt::Alignment m_alignment;
     ClickCallback m_clickCallback;
 };

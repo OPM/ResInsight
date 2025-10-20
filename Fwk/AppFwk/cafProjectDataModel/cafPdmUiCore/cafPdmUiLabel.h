@@ -50,13 +50,7 @@ public:
     PdmUiLabel();
     explicit PdmUiLabel( const QString& labelText );
 
-    void    setText( const QString& text );
-    QString text() const;
-
     bool isUiGroup() const override;
-
-private:
-    QString m_text;
 };
 
 } // End of namespace caf

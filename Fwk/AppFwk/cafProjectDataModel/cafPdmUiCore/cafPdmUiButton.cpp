@@ -51,28 +51,10 @@ PdmUiButton::PdmUiButton()
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiButton::PdmUiButton( const QString& buttonText, const ClickCallback& callback )
-    : m_text( buttonText )
-    , m_alignment( Qt::AlignLeft | Qt::AlignTop )
+    : m_alignment( Qt::AlignLeft | Qt::AlignTop )
     , m_clickCallback( callback )
 {
     setUiName( buttonText );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmUiButton::setText( const QString& text )
-{
-    m_text = text;
-    setUiName( text );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString PdmUiButton::text() const
-{
-    return m_text;
 }
 
 //--------------------------------------------------------------------------------------------------
