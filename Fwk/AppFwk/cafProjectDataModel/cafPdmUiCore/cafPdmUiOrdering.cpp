@@ -37,7 +37,9 @@
 #include "cafPdmUiOrdering.h"
 
 #include "cafPdmObjectHandle.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiLabel.h"
 #include "cafPdmUiObjectHandle.h"
 
 namespace caf
@@ -47,11 +49,14 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmUiOrdering::~PdmUiOrdering()
 {
-    for ( auto& createdGroup : m_createdGroups )
-    {
-        delete createdGroup;
-        createdGroup = nullptr;
-    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiOrdering::PdmUiOrdering()
+    : m_skipRemainingFields( false )
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,13 +64,40 @@ PdmUiOrdering::~PdmUiOrdering()
 //--------------------------------------------------------------------------------------------------
 PdmUiGroup* PdmUiOrdering::addNewGroup( const QString& displayName, LayoutOptions layout )
 {
-    auto* group = new PdmUiGroup;
+    auto group = std::make_unique<PdmUiGroup>();
     group->setUiName( displayName );
 
-    m_createdGroups.push_back( group );
-    m_ordering.emplace_back( group, layout );
+    m_ordering.emplace_back( group.get(), layout );
+    m_createdGroups.push_back( std::move( group ) );
 
-    return group;
+    return m_createdGroups.back().get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiLabel* PdmUiOrdering::addNewLabel( const QString& labelText, LayoutOptions layout )
+{
+    auto label = std::make_unique<PdmUiLabel>( labelText );
+
+    m_ordering.emplace_back( label.get(), layout );
+    m_createdLabels.push_back( std::move( label ) );
+
+    return m_createdLabels.back().get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiButton*
+    PdmUiOrdering::addNewButton( const QString& buttonText, const std::function<void()>& callback, LayoutOptions layout )
+{
+    auto button = std::make_unique<PdmUiButton>( buttonText, callback );
+
+    m_ordering.emplace_back( button.get(), layout );
+    m_createdButtons.push_back( std::move( button ) );
+
+    return m_createdButtons.back().get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,16 +211,14 @@ caf::PdmUiGroup* PdmUiOrdering::insertNewGroupWithKeyword( size_t         index,
                                                            const QString& groupKeyword,
                                                            LayoutOptions  layout )
 {
-    auto* group = new PdmUiGroup;
+    auto group = std::make_unique<PdmUiGroup>();
     group->setUiName( displayName );
-
-    m_createdGroups.push_back( group );
-
-    m_ordering.insert( m_ordering.begin() + index, std::make_pair( group, layout ) );
-
     group->setKeyword( groupKeyword );
 
-    return group;
+    m_ordering.insert( m_ordering.begin() + index, std::make_pair( group.get(), layout ) );
+    m_createdGroups.push_back( std::move( group ) );
+
+    return m_createdGroups.back().get();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,11 +39,16 @@
 #include "cafPdmUiItem.h"
 
 #include <QString>
+
+#include <functional>
+#include <memory>
 #include <vector>
 
 namespace caf
 {
 class PdmUiGroup;
+class PdmUiLabel;
+class PdmUiButton;
 class PdmFieldHandle;
 class PdmObjectHandle;
 
@@ -71,8 +76,7 @@ public:
     using RowLayout      = std::vector<FieldAndLayout>;
     using TableLayout    = std::vector<RowLayout>;
 
-    PdmUiOrdering()
-        : m_skipRemainingFields( false ) {};
+    PdmUiOrdering();
     virtual ~PdmUiOrdering();
 
     PdmUiOrdering( const PdmUiOrdering& )            = delete;
@@ -91,10 +95,16 @@ public:
                            const PdmFieldHandle* fieldToInsert,
                            LayoutOptions         layout = defaultLayoutOptions() );
 
-    PdmUiGroup* addNewGroup( const QString& displayName, LayoutOptions layout = defaultLayoutOptions() );
+    PdmUiGroup*  addNewGroup( const QString& displayName, LayoutOptions layout = defaultLayoutOptions() );
+    PdmUiLabel*  addNewLabel( const QString& labelText, LayoutOptions layout = defaultLayoutOptions() );
+    PdmUiButton* addNewButton( const QString&               buttonText,
+                               const std::function<void()>& callback,
+                               LayoutOptions                layout = defaultLayoutOptions() );
+
     PdmUiGroup* createGroupBeforeGroup( const QString& groupId,
                                         const QString& displayName,
                                         LayoutOptions  layout = defaultLayoutOptions() );
+
     PdmUiGroup* createGroupBeforeItem( const PdmUiItem* item,
                                        const QString&   displayName,
                                        LayoutOptions    layout = defaultLayoutOptions() );
@@ -102,10 +112,12 @@ public:
     PdmUiGroup* addNewGroupWithKeyword( const QString& displayName,
                                         const QString& groupKeyword,
                                         LayoutOptions  layout = defaultLayoutOptions() );
+
     PdmUiGroup* createGroupWithIdBeforeGroup( const QString& groupId,
                                               const QString& displayName,
                                               const QString& newGroupId,
                                               LayoutOptions  layout = defaultLayoutOptions() );
+
     PdmUiGroup* createGroupWithIdBeforeItem( const PdmUiItem* item,
                                              const QString&   displayName,
                                              const QString&   newGroupId,
@@ -150,11 +162,14 @@ private:
                                            const QString& groupKeyword,
                                            LayoutOptions  layout = defaultLayoutOptions() );
 
-    std::vector<FieldAndLayout> m_ordering; ///< The order of groups and fields
-    std::vector<PdmUiGroup*>    m_createdGroups; ///< Owned PdmUiGroups, for memory management only
-    bool                        m_skipRemainingFields;
+    std::vector<FieldAndLayout>               m_ordering;
+    std::vector<std::unique_ptr<PdmUiGroup>>  m_createdGroups;
+    std::vector<std::unique_ptr<PdmUiLabel>>  m_createdLabels;
+    std::vector<std::unique_ptr<PdmUiButton>> m_createdButtons;
+    bool                                      m_skipRemainingFields;
 };
 
 } // End of namespace caf
 
+// Included after PdmUiOrdering, as the group derives from PdmUiOrdering
 #include "cafPdmUiGroup.h"

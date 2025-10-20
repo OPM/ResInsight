@@ -47,11 +47,15 @@ class QMinimizePanel;
 class QGridLayout;
 class QWidget;
 class QVBoxLayout;
+class QLabel;
+class QPushButton;
 
 namespace caf
 {
 class PdmUiFieldEditorHandle;
 class PdmUiGroup;
+class PdmUiLabel;
+class PdmUiButton;
 class PdmUiOrdering;
 
 //==================================================================================================
@@ -86,6 +90,8 @@ protected:
                                          int            itemColumnSpan );
 
     QMinimizePanel* findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
+    QLabel*         findOrCreateLabel( QWidget* parent, PdmUiLabel* label, const QString& uiConfigName );
+    QPushButton*    findOrCreateButton( QWidget* parent, PdmUiButton* button, const QString& uiConfigName );
     PdmUiFieldEditorHandle* findOrCreateFieldEditor( QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName );
 
     static void ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins = QMargins() );
@@ -109,6 +115,10 @@ private:
     std::map<QString, QPointer<QMinimizePanel>> m_groupBoxes;
     std::map<QString, QPointer<QMinimizePanel>> m_newGroupBoxes; ///< used temporarily to store the new(complete) set of
                                                                  ///< group boxes
+    std::map<QString, QPointer<QLabel>>      m_labels;
+    std::map<QString, QPointer<QLabel>>      m_newLabels; ///< used temporarily to store the new(complete) set of labels
+    std::map<QString, QPointer<QPushButton>> m_buttons;
+    std::map<QString, QPointer<QPushButton>> m_newButtons; ///< used temporarily to store the new(complete) set of buttons
     std::map<QString, std::map<QString, bool>> m_objectKeywordGroupUiNameExpandedState;
 };
 

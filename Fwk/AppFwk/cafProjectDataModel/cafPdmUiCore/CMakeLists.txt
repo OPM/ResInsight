@@ -47,6 +47,10 @@ set(PROJECT_FILES
     cafUiTreeItem.h
     cafPdmUiGroup.cpp
     cafPdmUiGroup.h
+    cafPdmUiLabel.cpp
+    cafPdmUiLabel.h
+    cafPdmUiButton.cpp
+    cafPdmUiButton.h
     cafSelectionManager.cpp
     cafSelectionManager.h
     cafSelectionChangedReceiver.h
