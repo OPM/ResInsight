@@ -43,15 +43,15 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCaseDataTools.h"
 #include "RigEclipseResultTools.h"
+#include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
+#include "RigResdataGridConverter.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuPropertyViewTabWidget.h"
 #include "RiuViewer.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafPdmSettings.h"
-#include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
@@ -283,6 +283,37 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
             cvf::Vec3st max( exportSettings.max() );
             cvf::Vec3st refinement( exportSettings.refinementCountI(), exportSettings.refinementCountJ(), exportSettings.refinementCountK() );
 
+            RigGridExportAdapter gridAdapter( view->eclipseCase()->eclipseCaseData(), min, max, refinement );
+            // Grid dimensions (after refinement)
+            std::vector<float> coordArray;
+            std::vector<float> zcornArray;
+            std::vector<int>   actnumArray;
+
+            RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
+
+            std::vector<int> dimens = { static_cast<int>( gridAdapter.cellCountI() ),
+                                        static_cast<int>( gridAdapter.cellCountJ() ),
+                                        static_cast<int>( gridAdapter.cellCountK() ) };
+
+            deckFile.replaceKeywordData( "DIMENS", dimens );
+
+            auto convertToDoubleVector = []( const std::vector<float>& vec )
+            {
+                std::vector<double> outVec;
+                outVec.reserve( vec.size() );
+                for ( float f : vec )
+                    outVec.push_back( f );
+                return outVec;
+            };
+            std::vector<double> coords = convertToDoubleVector( coordArray );
+            std::vector<double> zcorn  = convertToDoubleVector( zcornArray );
+
+            deckFile.replaceKeywordData( "COORD", coords );
+            deckFile.replaceKeywordData( "ZCORN", zcorn );
+            deckFile.replaceKeywordData( "ACTNUM", actnumArray );
+
+            // TODO: deal with map axis
+
             // Extract and replace keyword data for all keywords in the deck
             auto keywords = deckFile.keywords( false );
             RiaLogging::info( QString( "Processing %1 keywords from deck file" ).arg( keywords.size() ) );
@@ -301,7 +332,6 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
                 // Try to extract keyword data
                 auto result =
                     RifEclipseInputFileTools::extractKeywordData( view->eclipseCase()->eclipseCaseData(), keyword, min, max, refinement );
-
                 if ( result )
                 {
                     // Replace keyword values in deck with extracted data
