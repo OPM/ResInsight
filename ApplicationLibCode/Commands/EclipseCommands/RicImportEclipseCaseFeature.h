@@ -21,6 +21,9 @@
 
 #include "RicImportGeneralDataFeature.h"
 
+class RimEclipseView;
+class RimProject;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -31,4 +34,7 @@ class RicImportEclipseCaseFeature : public RicImportGeneralDataFeature
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static std::vector<RimEclipseView*> allEclipseViews( RimProject* project );
+    static QStringList                  findPvdFilesToImport( const QStringList& fileNames );
 };

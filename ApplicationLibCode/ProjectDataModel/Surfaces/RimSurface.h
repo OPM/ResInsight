@@ -62,7 +62,7 @@ public:
     QString     userDescription();
     void        setUserDescription( const QString& description );
 
-    virtual void   loadSurfaceDataForTimeStep( int timeStep );
+    virtual bool   loadSurfaceDataForTimeStep( int timeStep );
     virtual size_t timeStepCount() const;
 
     virtual QString     fullName() const;

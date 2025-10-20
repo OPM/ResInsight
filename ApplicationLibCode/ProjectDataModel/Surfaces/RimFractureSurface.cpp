@@ -96,11 +96,11 @@ RimSurface* RimFractureSurface::createCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
+bool RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
 {
     if ( m_surfacePerTimeStep.empty() )
     {
-        loadDataFromFile();
+        if ( !loadDataFromFile() ) return false;
     }
 
     if ( timeStep >= static_cast<int>( m_surfacePerTimeStep.size() ) )
@@ -109,7 +109,7 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
             QString( "Failed to load surface data for time step: %1. Available time steps: %2" ).arg( timeStep ).arg( m_surfacePerTimeStep.size() );
         RiaLogging::warning( message );
         setSurfaceData( nullptr );
-        return;
+        return false;
     }
 
     auto surface = new RigSurface;
@@ -125,6 +125,8 @@ void RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
         surface->addVertexResult( name, values );
     }
     setSurfaceData( surface );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,9 +182,7 @@ void RimFractureSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 bool RimFractureSurface::updateSurfaceData()
 {
-    loadSurfaceDataForTimeStep( 0 );
-
-    return true;
+    return loadSurfaceDataForTimeStep( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,7 +211,7 @@ bool RimFractureSurface::loadDataFromFile()
         }
     }
 
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
