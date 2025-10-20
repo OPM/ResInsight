@@ -29,10 +29,10 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include "ProjectDataModel/Jobs/RimKeywordBcprop.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimEclipseCase.h"
-#include "ProjectDataModel/Jobs/RimKeywordBcprop.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 
@@ -302,7 +302,7 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
         auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
         if ( tvAttr )
         {
-            tvAttr->resizePolicy            = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
             tvAttr->alwaysEnforceResizePolicy = true;
         }
     }
