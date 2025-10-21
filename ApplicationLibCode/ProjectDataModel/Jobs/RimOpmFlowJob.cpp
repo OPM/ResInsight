@@ -1037,29 +1037,7 @@ void RimOpmFlowJob::exportBasicWellSettings()
 
     exportSettings.folder = workingDirectory();
 
-    std::vector<RimWellPathFracture*>    wellPathFractures;
-    std::vector<RimFishbones*>           wellPathFishbones;
-    std::vector<RimPerforationInterval*> wellPathPerforations;
-
     auto topLevelWell = m_wellPath->topLevelWellPath();
-
-    std::set<RimWellPath*> uniquePaths;
-    for ( auto w : topLevelWell->allWellPathLaterals() )
-    {
-        uniquePaths.insert( w );
-    }
-
-    for ( auto w : uniquePaths )
-    {
-        auto fractures = w->descendantsIncludingThisOfType<RimWellPathFracture>();
-        wellPathFractures.insert( wellPathFractures.end(), fractures.begin(), fractures.end() );
-
-        auto fishbones = w->descendantsIncludingThisOfType<RimFishbones>();
-        wellPathFishbones.insert( wellPathFishbones.end(), fishbones.begin(), fishbones.end() );
-
-        auto perforations = w->descendantsIncludingThisOfType<RimPerforationInterval>();
-        wellPathPerforations.insert( wellPathPerforations.end(), perforations.begin(), perforations.end() );
-    }
 
     RicWellPathExportCompletionDataFeatureImpl::exportCompletions( { topLevelWell }, exportSettings );
 }
@@ -1086,29 +1064,7 @@ std::string RimOpmFlowJob::exportMswWellSettings( int timeStep )
 
     exportSettings.folder = workingDirectory();
 
-    std::vector<RimWellPathFracture*>    wellPathFractures;
-    std::vector<RimFishbones*>           wellPathFishbones;
-    std::vector<RimPerforationInterval*> wellPathPerforations;
-
     auto topLevelWell = m_wellPath->topLevelWellPath();
-
-    std::set<RimWellPath*> uniquePaths;
-    for ( auto w : topLevelWell->allWellPathLaterals() )
-    {
-        uniquePaths.insert( w );
-    }
-
-    for ( auto w : uniquePaths )
-    {
-        auto fractures = w->descendantsIncludingThisOfType<RimWellPathFracture>();
-        wellPathFractures.insert( wellPathFractures.end(), fractures.begin(), fractures.end() );
-
-        auto fishbones = w->descendantsIncludingThisOfType<RimFishbones>();
-        wellPathFishbones.insert( wellPathFishbones.end(), fishbones.begin(), fishbones.end() );
-
-        auto perforations = w->descendantsIncludingThisOfType<RimPerforationInterval>();
-        wellPathPerforations.insert( wellPathPerforations.end(), perforations.begin(), perforations.end() );
-    }
 
     RicWellPathExportCompletionDataFeatureImpl::exportCompletions( { topLevelWell }, exportSettings );
 
