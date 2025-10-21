@@ -104,17 +104,16 @@ private:
     void        exportBasicWellSettings();
     std::string exportMswWellSettings( int timeStep );
     void        selectOpenWellPosition();
+    void        resetEnsembleRunId();
 
 private:
     caf::PdmField<caf::FilePath> m_deckFileName;
     caf::PdmField<caf::FilePath> m_workDir;
-    caf::PdmField<bool>          m_openSelectButton;
     caf::PdmField<int>           m_openWellDeckPosition;
 
     caf::PdmField<bool> m_pauseBeforeRun;
     caf::PdmField<bool> m_addToEnsemble;
     caf::PdmField<int>  m_currentRunId;
-    caf::PdmField<bool> m_resetRunIdButton;
     caf::PdmField<bool> m_useRestart;
 
     caf::PdmPtrField<RimWellPath*>            m_wellPath;

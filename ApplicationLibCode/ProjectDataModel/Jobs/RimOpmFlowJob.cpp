@@ -144,14 +144,6 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_numberOfNewDates, "NumberOfNewDates", 12, "Number of Dates to Append" );
     CAF_PDM_InitField( &m_dateAppendType, "DateAppendType", caf::AppEnum<DateAppendType>( DateAppendType::ADD_MONTHS ), " " );
 
-    CAF_PDM_InitField( &m_resetRunIdButton, "resetRunIdButton", false, " " );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_resetRunIdButton );
-    m_resetRunIdButton.xmlCapability()->disableIO();
-
-    CAF_PDM_InitField( &m_openSelectButton, "openSelectButton", false, " " );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_openSelectButton );
-    m_openSelectButton.xmlCapability()->disableIO();
-
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useRestart );
@@ -232,22 +224,6 @@ void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QSt
             myAttr->m_selectDirectory = true;
         }
     }
-    else if ( field == &m_openSelectButton )
-    {
-        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( pbAttribute )
-        {
-            pbAttribute->m_buttonText = "Select Open Keyword Position";
-        }
-    }
-    else if ( field == &m_resetRunIdButton )
-    {
-        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( pbAttribute )
-        {
-            pbAttribute->m_buttonText = "Reset Ensemble Run Id";
-        }
-    }
     else if ( field == &m_wellGroupName )
     {
         auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
@@ -273,6 +249,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         runGrp->add( &m_workDir );
         auto stopButton = runGrp->addNewButton( "Stop", [this]() { RicStopJobFeature::stopJob( this ); } );
         stopButton->setUiIconFromResourceString( ":/stop.svg" );
+        stopButton->setAlignment( Qt::AlignCenter );
         uiOrdering.skipRemainingFields();
         return;
     }
@@ -313,6 +290,8 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
             wellGrp->add( &m_wellOpenType );
 
+            bool createOpenPostionButton = false;
+
             if ( m_fileDeckHasDates )
             {
                 if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
@@ -330,15 +309,22 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
                 }
                 else if ( m_wellOpenType == WellOpenType::OPEN_BY_POSITION )
                 {
-                    wellGrp->add( &m_openSelectButton );
+                    createOpenPostionButton = true;
                 }
                 m_wellOpenType.uiCapability()->setUiReadOnly( false );
             }
             else
             {
-                wellGrp->add( &m_openSelectButton );
+                createOpenPostionButton = true;
+
                 m_wellOpenType = WellOpenType::OPEN_BY_POSITION;
                 m_wellOpenType.uiCapability()->setUiReadOnly( true );
+            }
+
+            if ( createOpenPostionButton )
+            {
+                auto openSelectButton = wellGrp->addNewButton( "Select Open Keyword Position", [this]() { selectOpenWellPosition(); } );
+                openSelectButton->setAlignment( Qt::AlignRight );
             }
         }
     }
@@ -360,6 +346,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
     auto runButton = opmGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
     runButton->setUiIconFromResourceString( ":/Play.svg" );
+    runButton->setAlignment( Qt::AlignCenter );
 
     opmGrp->add( &m_pauseBeforeRun );
     if ( m_fileDeckHasDates )
@@ -375,7 +362,9 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     {
         auto advOpmGrp = opmGrp->addNewGroup( "Advanced" );
         advOpmGrp->setCollapsedByDefault();
-        advOpmGrp->add( &m_resetRunIdButton );
+
+        auto resetRunIdButton = advOpmGrp->addNewButton( "Reset Ensemble Run Id", [this]() { resetEnsembleRunId(); } );
+        resetRunIdButton->setAlignment( Qt::AlignRight );
     }
 
     uiOrdering.skipRemainingFields();
@@ -485,23 +474,6 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
     if ( ( changedField == &m_deckFileName ) || ( changedField == &m_addToEnsemble ) )
     {
         m_deckName = "";
-    }
-    else if ( changedField == &m_resetRunIdButton )
-    {
-        m_resetRunIdButton = false;
-        auto reply         = QMessageBox::information( nullptr,
-                                               "Opm Flow Job",
-                                               "Do you want to reset the ensemble run ID to 0?",
-                                               QMessageBox::Yes | QMessageBox::No );
-        if ( reply == QMessageBox::Yes )
-        {
-            m_currentRunId = 0;
-        }
-    }
-    else if ( changedField == &m_openSelectButton )
-    {
-        m_openSelectButton = false;
-        selectOpenWellPosition();
     }
     else if ( changedField == &m_wellPath )
     {
@@ -1167,6 +1139,18 @@ void RimOpmFlowJob::selectOpenWellPosition()
     }
 
     m_openWellDeckPosition = RimDeckPositionDlg::askForPosition( nullptr, kwVec, "--- Open New Well HERE ---", m_openWellDeckPosition );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::resetEnsembleRunId()
+{
+    if ( QMessageBox::information( nullptr, "Opm Flow Job", "Do you want to reset the ensemble run ID to 0?", QMessageBox::Yes | QMessageBox::No ) ==
+         QMessageBox::Yes )
+    {
+        m_currentRunId = 0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
