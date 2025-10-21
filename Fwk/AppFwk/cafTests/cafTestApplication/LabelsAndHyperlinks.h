@@ -22,4 +22,5 @@ protected:
 private:
     caf::PdmField<QString> m_labelTextField;
     caf::PdmField<QString> m_hyperlinkTextField;
+    caf::PdmField<bool>    m_showButton;
 };

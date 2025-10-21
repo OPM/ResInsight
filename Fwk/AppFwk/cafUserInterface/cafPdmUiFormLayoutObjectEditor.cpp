@@ -735,6 +735,8 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
 
     // Set all group Boxes to be unvisited
     m_newGroupBoxes.clear();
+    m_newLabels.clear();
+    m_newButtons.clear();
 
     recursivelyConfigureAndUpdateTopLevelUiOrdering( config, uiConfigName );
 

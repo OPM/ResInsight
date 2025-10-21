@@ -22,6 +22,8 @@ LabelsAndHyperlinks::LabelsAndHyperlinks()
 
     CAF_PDM_InitFieldNoDefault( &m_hyperlinkTextField, "HyperlinkTextField", "" );
     m_hyperlinkTextField.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_showButton, "ShowButton", true, "Show Fieldless Button" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -32,29 +34,47 @@ void LabelsAndHyperlinks::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.addNewLabel( "This is a standalone label without PDM field connection" );
     uiOrdering.addNewLabel( "Labels can display informational text in the GUI" );
 
-    // Button with text and lambda callback
-    uiOrdering.addNewButton( "Click Me!",
-                             []()
-                             {
-                                 // This lambda will be executed when the button is clicked
-                                 auto msgBox = new QMessageBox();
-                                 msgBox->setWindowTitle( "Button Clicked" );
-                                 msgBox->setText( "Hello from the button callback!" );
-                                 msgBox->setAttribute( Qt::WA_DeleteOnClose );
-                                 msgBox->show();
-                             } );
+    if ( m_showButton )
+    {
+        // Button with text and lambda callback
+        uiOrdering.addNewButton( "Click Me!",
+                                 []()
+                                 {
+                                     // This lambda will be executed when the button is clicked
+                                     auto msgBox = new QMessageBox();
+                                     msgBox->setWindowTitle( "Button Clicked" );
+                                     msgBox->setText( "Hello from the button callback!" );
+                                     msgBox->setAttribute( Qt::WA_DeleteOnClose );
+                                     msgBox->show();
+                                 } );
 
-    // Button with icon and callback
-    auto* iconButton = uiOrdering.addNewButton( "Icon Button",
-                                                []()
-                                                {
-                                                    auto msgBox = new QMessageBox();
-                                                    msgBox->setWindowTitle( "Icon Button" );
-                                                    msgBox->setText( "This button has an icon!" );
-                                                    msgBox->setAttribute( Qt::WA_DeleteOnClose );
-                                                    msgBox->show();
-                                                } );
-    iconButton->setIconFromResourceString( ":/cafCommandFeatures/Delete.svg" );
+        // Button with icon and callback
+        auto* iconButton = uiOrdering.addNewButton( "Icon Button",
+                                                    []()
+                                                    {
+                                                        auto msgBox = new QMessageBox();
+                                                        msgBox->setWindowTitle( "Icon Button" );
+                                                        msgBox->setText( "This button has an icon!" );
+                                                        msgBox->setAttribute( Qt::WA_DeleteOnClose );
+                                                        msgBox->show();
+                                                    } );
+        iconButton->setIconFromResourceString( ":/cafCommandFeatures/Delete.svg" );
+        iconButton->setAlignment( Qt::AlignRight );
+    }
+    else
+    {
+        // Button with text and lambda callback
+        uiOrdering.addNewButton( "Click Me too!",
+                                 []()
+                                 {
+                                     // This lambda will be executed when the button is clicked
+                                     auto msgBox = new QMessageBox();
+                                     msgBox->setWindowTitle( "Button Clicked" );
+                                     msgBox->setText( "Hello from the button callback!" );
+                                     msgBox->setAttribute( Qt::WA_DeleteOnClose );
+                                     msgBox->show();
+                                 } );
+    }
 
     uiOrdering.add( &m_labelTextField );
     uiOrdering.add( &m_hyperlinkTextField );
