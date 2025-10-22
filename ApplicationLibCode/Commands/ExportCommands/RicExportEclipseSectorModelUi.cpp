@@ -176,8 +176,8 @@ const QStringList& RicExportEclipseSectorModelUi::tabNames() const
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*= nullptr*/,
                                                  RimEclipseView*     eclipseView /*= nullptr*/,
-                                                 const cvf::Vec3i&   visibleMin /*= cvf::Vec3i::ZERO*/,
-                                                 const cvf::Vec3i&   visibleMax /*= cvf::Vec3i::ZERO*/ )
+                                                 const cvf::Vec3st&  visibleMin /*= cvf::Vec3st::ZERO*/,
+                                                 const cvf::Vec3st&  visibleMax /*= cvf::Vec3st::ZERO*/ )
 {
     m_caseData    = caseData;
     m_eclipseView = eclipseView;
@@ -196,13 +196,13 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
         }
     }
 
-    if ( minI == std::numeric_limits<int>::max() ) minI = m_visibleMin.x() + 1;
-    if ( minJ == std::numeric_limits<int>::max() ) minJ = m_visibleMin.y() + 1;
-    if ( minK == std::numeric_limits<int>::max() ) minK = m_visibleMin.z() + 1;
+    if ( minI == std::numeric_limits<int>::max() ) minI = static_cast<int>( m_visibleMin.x() ) + 1;
+    if ( minJ == std::numeric_limits<int>::max() ) minJ = static_cast<int>( m_visibleMin.y() ) + 1;
+    if ( minK == std::numeric_limits<int>::max() ) minK = static_cast<int>( m_visibleMin.z() ) + 1;
 
-    if ( maxI == std::numeric_limits<int>::max() ) maxI = m_visibleMax.x() + 1;
-    if ( maxJ == std::numeric_limits<int>::max() ) maxJ = m_visibleMax.y() + 1;
-    if ( maxK == std::numeric_limits<int>::max() ) maxK = m_visibleMax.z() + 1;
+    if ( maxI == std::numeric_limits<int>::max() ) maxI = static_cast<int>( m_visibleMax.x() ) + 1;
+    if ( maxJ == std::numeric_limits<int>::max() ) maxJ = static_cast<int>( m_visibleMax.y() ) + 1;
+    if ( maxK == std::numeric_limits<int>::max() ) maxK = static_cast<int>( m_visibleMax.z() ) + 1;
 
     if ( selectedKeywords.v().empty() )
     {
@@ -233,37 +233,42 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3i RicExportEclipseSectorModelUi::min() const
+cvf::Vec3st RicExportEclipseSectorModelUi::min() const
 {
-    return cvf::Vec3i( minI() - 1, minJ() - 1, minK() - 1 );
+    return cvf::Vec3st( minI() - 1, minJ() - 1, minK() - 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3i RicExportEclipseSectorModelUi::max() const
+cvf::Vec3st RicExportEclipseSectorModelUi::max() const
 {
-    return cvf::Vec3i( maxI() - 1, maxJ() - 1, maxK() - 1 );
+    return cvf::Vec3st( maxI() - 1, maxJ() - 1, maxK() - 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::setMin( const cvf::Vec3i& min )
+void RicExportEclipseSectorModelUi::setMin( const cvf::Vec3st& min )
 {
-    minI = min.x() + 1;
-    minJ = min.y() + 1;
-    minK = min.z() + 1;
+    minI = static_cast<int>( min.x() ) + 1;
+    minJ = static_cast<int>( min.y() ) + 1;
+    minK = static_cast<int>( min.z() ) + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::setMax( const cvf::Vec3i& max )
+void RicExportEclipseSectorModelUi::setMax( const cvf::Vec3st& max )
 {
-    maxI = max.x() + 1;
-    maxJ = max.y() + 1;
-    maxK = max.z() + 1;
+    maxI = static_cast<int>( max.x() ) + 1;
+    maxJ = static_cast<int>( max.y() ) + 1;
+    maxK = static_cast<int>( max.z() ) + 1;
+}
+
+cvf::Vec3st RicExportEclipseSectorModelUi::refinement() const
+{
+    return cvf::Vec3st( refinementCountI(), refinementCountJ(), refinementCountK() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,8 +280,8 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
 {
     if ( !m_caseData ) return;
 
-    const RigMainGrid* mainGrid = m_caseData->mainGrid();
-    cvf::Vec3i         gridDimensions( int( mainGrid->cellCountI() ), int( mainGrid->cellCountJ() ), int( mainGrid->cellCountK() ) );
+    const RigMainGrid* mainGrid       = m_caseData->mainGrid();
+    const cvf::Vec3st  gridDimensions = mainGrid->cellCounts();
 
     auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
 
@@ -582,14 +587,11 @@ QString RicExportEclipseSectorModelUi::defaultFaultsFileName() const
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
 {
-    auto toVec3i = []( const cvf::Vec3st& v )
-    { return cvf::Vec3i( static_cast<int>( v.x() ), static_cast<int>( v.y() ), static_cast<int>( v.z() ) ); };
-
     if ( exportGridBox == ACTIVE_CELLS_BOX )
     {
         auto [minActive, maxActive] = m_caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->ijkBoundingBox();
-        setMin( toVec3i( minActive ) );
-        setMax( toVec3i( maxActive ) );
+        setMin( minActive );
+        setMax( maxActive );
     }
     else if ( exportGridBox == VISIBLE_CELLS_BOX )
     {
@@ -599,14 +601,14 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
     else if ( exportGridBox == VISIBLE_WELLS_BOX )
     {
         auto [minWellCells, maxWellCells] = computeVisibleWellCells( m_eclipseView, m_caseData, m_visibleWellsPadding() );
-        setMin( toVec3i( minWellCells ) );
-        setMax( toVec3i( maxWellCells ) );
+        setMin( minWellCells );
+        setMax( maxWellCells );
     }
     else if ( exportGridBox == FULL_GRID_BOX )
     {
         const RigMainGrid* mainGrid = m_caseData->mainGrid();
-        setMin( cvf::Vec3i::ZERO );
-        setMax( toVec3i( mainGrid->cellCounts() - cvf::Vec3st( 1, 1, 1 ) ) );
+        setMin( cvf::Vec3st::ZERO );
+        setMax( mainGrid->cellCounts() - cvf::Vec3st( 1, 1, 1 ) );
     }
     else
     {

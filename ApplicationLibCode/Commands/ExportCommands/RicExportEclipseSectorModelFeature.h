@@ -37,7 +37,7 @@ public:
     static void openDialogAndExecuteCommand( RimEclipseView* view );
     static void executeCommand( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings, const QString& logPrefix );
 
-    static std::pair<cvf::Vec3i, cvf::Vec3i> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
+    static std::pair<cvf::Vec3st, cvf::Vec3st> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
 
 protected:
     bool isCommandEnabled() const override;
@@ -48,4 +48,8 @@ private:
     RimEclipseView*                  selectedView() const;
     static cvf::ref<cvf::UByteArray> createVisibilityBasedOnBoxSelection( RimEclipseView*                      view,
                                                                           const RicExportEclipseSectorModelUi& exportSettings );
+    static void                      exportSimulationInput( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
+    static void                      exportGrid( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
+    static void                      exportFaults( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
+    static void                      exportParameters( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
 };

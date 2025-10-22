@@ -69,15 +69,16 @@ public:
 
     void setCaseData( RigEclipseCaseData* caseData    = nullptr,
                       RimEclipseView*     eclipseView = nullptr,
-                      const cvf::Vec3i&   visibleMin  = cvf::Vec3i::ZERO,
-                      const cvf::Vec3i&   visibleMax  = cvf::Vec3i::ZERO );
+                      const cvf::Vec3st&  visibleMin  = cvf::Vec3st::ZERO,
+                      const cvf::Vec3st&  visibleMax  = cvf::Vec3st::ZERO );
 
-    cvf::Vec3i min() const;
-    cvf::Vec3i max() const;
-    void       setMin( const cvf::Vec3i& min );
-    void       setMax( const cvf::Vec3i& max );
-    void       applyBoundaryDefaults();
-    void       removeInvalidKeywords();
+    cvf::Vec3st min() const;
+    cvf::Vec3st max() const;
+    void        setMin( const cvf::Vec3st& min );
+    void        setMax( const cvf::Vec3st& max );
+    void        applyBoundaryDefaults();
+    void        removeInvalidKeywords();
+    cvf::Vec3st refinement() const;
 
     QString exportFaultsFilename() const;
     QString exportGridFilename() const;
@@ -138,7 +139,7 @@ private:
 
     RigEclipseCaseData* m_caseData;
     RimEclipseView*     m_eclipseView;
-    cvf::Vec3i          m_visibleMin;
-    cvf::Vec3i          m_visibleMax;
+    cvf::Vec3st         m_visibleMin;
+    cvf::Vec3st         m_visibleMax;
     QStringList         m_tabNames;
 };

@@ -76,8 +76,7 @@ void RicExportEclipseSectorModelFeature::openDialogAndExecuteCommand( RimEclipse
     cvf::UByteArray cellVisibility;
     view->calculateCurrentTotalCellVisibility( &cellVisibility, view->currentTimeStep() );
 
-    cvf::Vec3i min, max;
-    std::tie( min, max ) = getVisibleCellRange( view, cellVisibility );
+    const auto& [min, max] = getVisibleCellRange( view, cellVisibility );
 
     RicExportEclipseSectorModelUi* exportSettings = RimProject::current()->dialogData()->exportSectorModelUi();
     exportSettings->setCaseData( caseData, view, min, max );
@@ -112,44 +111,12 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
     int gridProgressPercentage = 100 - resultProgressPercentage - faultsProgressPercentage;
     caf::ProgressInfo progress( gridProgressPercentage + resultProgressPercentage + faultsProgressPercentage, "Export Eclipse Sector Model" );
 
-    cvf::Vec3st refinement( exportSettings.refinementCountI(), exportSettings.refinementCountJ(), exportSettings.refinementCountK() );
-
-    CVF_ASSERT( refinement.x() > 0u && refinement.y() > 0u && refinement.z() > 0u );
-
-    cvf::UByteArray cellVisibility;
-    view->calculateCurrentTotalCellVisibility( &cellVisibility, view->currentTimeStep() );
-    getVisibleCellRange( view, cellVisibility );
-
-    cvf::Vec3st min( exportSettings.min() );
-    cvf::Vec3st max( exportSettings.max() );
+    CVF_ASSERT( exportSettings.refinement().x() > 0u && exportSettings.refinement().y() > 0u && exportSettings.refinement().z() > 0u );
 
     if ( exportSettings.exportGrid() )
     {
-        const cvf::UByteArray* cellVisibilityForActnum = exportSettings.makeInvisibleCellsInactive() ? &cellVisibility : nullptr;
-        auto                   task                    = progress.task( "Export Grid", gridProgressPercentage );
-
-        bool worked = RifEclipseInputFileTools::exportGrid( exportSettings.exportGridFilename(),
-                                                            view->eclipseCase()->eclipseCaseData(),
-                                                            exportSettings.exportInLocalCoordinates(),
-                                                            cellVisibilityForActnum,
-                                                            min,
-                                                            max,
-                                                            refinement );
-
-        if ( !worked )
-        {
-            RiaLogging::error( QString( "Unable to write grid to '%1'" ).arg( exportSettings.exportGridFilename() ) );
-        }
-        else
-        {
-            if ( view->eclipseCase()->eclipseCaseData()->gridCount() > 1u )
-            {
-                RiaLogging::warning( "Grid has LGRs but ResInsight only supports exporting the Main Grid" );
-            }
-
-            QFileInfo info( exportSettings.exportGridFilename() );
-            RiaApplication::instance()->setLastUsedDialogDirectory( "EXPORT_INPUT_GRID", info.absolutePath() );
-        }
+        auto task = progress.task( "Export Grid", gridProgressPercentage );
+        exportGrid( view, exportSettings );
     }
 
     // Generate BORDNUM result based on the selected grid box
@@ -164,241 +131,116 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
 
     if ( exportSettings.exportParameters() != RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS )
     {
-        auto                 task     = progress.task( "Export Properties", resultProgressPercentage );
-        std::vector<QString> keywords = exportSettings.selectedKeywords;
+        auto task = progress.task( "Export Properties", resultProgressPercentage );
+        exportParameters( view, exportSettings );
+    }
 
-        // Automatically add BORDNUM to the keywords list if not already present
-        if ( std::find( keywords.begin(), keywords.end(), RiaResultNames::bordnum() ) == keywords.end() )
+    if ( exportSettings.exportFaults() != RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS )
+    {
+        auto task = progress.task( "Export Faults", faultsProgressPercentage );
+        exportFaults( view, exportSettings );
+    }
+
+    // Export simulation input if enabled
+    if ( exportSettings.m_exportSimulationInput() )
+    {
+        exportSimulationInput( view, exportSettings );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportEclipseSectorModelFeature::exportGrid( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings )
+{
+    cvf::UByteArray cellVisibility;
+    view->calculateCurrentTotalCellVisibility( &cellVisibility, view->currentTimeStep() );
+    getVisibleCellRange( view, cellVisibility );
+
+    const cvf::UByteArray* cellVisibilityForActnum = exportSettings.makeInvisibleCellsInactive() ? &cellVisibility : nullptr;
+
+    bool worked = RifEclipseInputFileTools::exportGrid( exportSettings.exportGridFilename(),
+                                                        view->eclipseCase()->eclipseCaseData(),
+                                                        exportSettings.exportInLocalCoordinates(),
+                                                        cellVisibilityForActnum,
+                                                        exportSettings.min(),
+                                                        exportSettings.max(),
+                                                        exportSettings.refinement() );
+
+    if ( !worked )
+    {
+        RiaLogging::error( QString( "Unable to write grid to '%1'" ).arg( exportSettings.exportGridFilename() ) );
+    }
+    else
+    {
+        if ( view->eclipseCase()->eclipseCaseData()->gridCount() > 1u )
         {
-            keywords.push_back( RiaResultNames::bordnum() );
+            RiaLogging::warning( "Grid has LGRs but ResInsight only supports exporting the Main Grid" );
         }
 
-        // Automatically add OPERNUM to the keywords list if not already present
-        if ( std::find( keywords.begin(), keywords.end(), RiaResultNames::opernum() ) == keywords.end() )
-        {
-            keywords.push_back( RiaResultNames::opernum() );
-        }
+        QFileInfo info( exportSettings.exportGridFilename() );
+        RiaApplication::instance()->setLastUsedDialogDirectory( "EXPORT_INPUT_GRID", info.absolutePath() );
+    }
+}
 
-        if ( exportSettings.exportParameters == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
-        {
-            QFileInfo info( exportSettings.exportGridFilename() );
-            QDir      dirPath = info.absoluteDir();
-            for ( const QString& keyword : keywords )
-            {
-                QString fileName = dirPath.absoluteFilePath( keyword + ".GRDECL" );
-                bool    worked   = RifEclipseInputFileTools::exportKeywords( fileName,
-                                                                        view->eclipseCase()->eclipseCaseData(),
-                                                                             { keyword },
-                                                                        exportSettings.writeEchoKeywords(),
-                                                                        min,
-                                                                        max,
-                                                                        refinement );
-                if ( !worked )
-                {
-                    RiaLogging::error( QString( "Unable to write results to '%1'" ).arg( fileName ) );
-                }
-            }
-        }
-        else
-        {
-            QString fileName = exportSettings.exportParametersFilename();
-            if ( exportSettings.exportParameters() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE )
-            {
-                fileName = exportSettings.exportGridFilename();
-            }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportEclipseSectorModelFeature::exportParameters( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings )
+{
+    std::vector<QString> keywords = exportSettings.selectedKeywords;
 
-            bool worked = RifEclipseInputFileTools::exportKeywords( fileName,
+    // Automatically add BORDNUM to the keywords list if not already present
+    if ( std::find( keywords.begin(), keywords.end(), RiaResultNames::bordnum() ) == keywords.end() )
+    {
+        keywords.push_back( RiaResultNames::bordnum() );
+    }
+
+    // Automatically add OPERNUM to the keywords list if not already present
+    if ( std::find( keywords.begin(), keywords.end(), RiaResultNames::opernum() ) == keywords.end() )
+    {
+        keywords.push_back( RiaResultNames::opernum() );
+    }
+
+    if ( exportSettings.exportParameters == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
+    {
+        QFileInfo info( exportSettings.exportGridFilename() );
+        QDir      dirPath = info.absoluteDir();
+        for ( const QString& keyword : keywords )
+        {
+            QString fileName = dirPath.absoluteFilePath( keyword + ".GRDECL" );
+            bool    worked   = RifEclipseInputFileTools::exportKeywords( fileName,
                                                                     view->eclipseCase()->eclipseCaseData(),
-                                                                    keywords,
+                                                                         { keyword },
                                                                     exportSettings.writeEchoKeywords(),
-                                                                    min,
-                                                                    max,
-                                                                    refinement );
-
+                                                                    exportSettings.min(),
+                                                                    exportSettings.max(),
+                                                                    exportSettings.refinement() );
             if ( !worked )
             {
                 RiaLogging::error( QString( "Unable to write results to '%1'" ).arg( fileName ) );
             }
         }
     }
-
-    if ( exportSettings.exportFaults() != RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS )
+    else
     {
-        auto task = progress.task( "Export Faults", faultsProgressPercentage );
-        if ( exportSettings.exportFaults == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
+        QString fileName = exportSettings.exportParametersFilename();
+        if ( exportSettings.exportParameters() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE )
         {
-            for ( const auto& faultInView : view->faultCollection()->faults() )
-            {
-                auto    rigFault = faultInView->faultGeometry();
-                QString fileName = QString( "%1.GRDECL" ).arg( rigFault->name() );
-                RifEclipseInputFileTools::saveFault( fileName,
-                                                     view->eclipseCase()->mainGrid(),
-                                                     rigFault->faultFaces(),
-                                                     rigFault->name(),
-                                                     min,
-                                                     max,
-                                                     refinement );
-            }
-        }
-        else
-        {
-            QString             fileName = exportSettings.exportFaultsFilename();
-            QIODevice::OpenMode openFlag = QIODevice::Truncate;
-            if ( exportSettings.exportParameters() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE )
-            {
-                openFlag = QIODevice::Append;
-                fileName = exportSettings.exportGridFilename();
-            }
-            QFile exportFile( fileName );
-
-            if ( !exportFile.open( QIODevice::Text | QIODevice::WriteOnly | openFlag ) )
-            {
-                RiaLogging::error( "Could not open the file : " + fileName );
-            }
-
-            QTextStream stream( &exportFile );
-            RifEclipseInputFileTools::saveFaults( stream, view->eclipseCase()->mainGrid(), min, max, refinement );
-        }
-    }
-
-    // Export simulation input if enabled
-    if ( exportSettings.m_exportSimulationInput() )
-    {
-        // Load the deck file
-        QFileInfo fi( view->eclipseCase()->gridFileName() );
-        QString   dataFileName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
-
-        RifOpmFlowDeckFile deckFile;
-        if ( !deckFile.loadDeck( dataFileName.toStdString() ) )
-        {
-            RiaLogging::error( QString( "Unable to load deck file '%1'" ).arg( dataFileName ) );
-            return;
+            fileName = exportSettings.exportGridFilename();
         }
 
-        // Only change values when exporting to modified box: original values should just work (tm) for full grid box
-        if ( exportSettings.exportGridBox() != RicExportEclipseSectorModelUi::GridBoxSelection::FULL_GRID_BOX )
+        bool worked = RifEclipseInputFileTools::exportKeywords( fileName,
+                                                                view->eclipseCase()->eclipseCaseData(),
+                                                                keywords,
+                                                                exportSettings.writeEchoKeywords(),
+                                                                exportSettings.min(),
+                                                                exportSettings.max(),
+                                                                exportSettings.refinement() );
+
+        if ( !worked )
         {
-            // Get grid bounds for extraction
-            cvf::Vec3st min( exportSettings.min() );
-            cvf::Vec3st max( exportSettings.max() );
-            cvf::Vec3st refinement( exportSettings.refinementCountI(), exportSettings.refinementCountJ(), exportSettings.refinementCountK() );
-
-            RigGridExportAdapter gridAdapter( view->eclipseCase()->eclipseCaseData(), min, max, refinement );
-            // Grid dimensions (after refinement)
-            std::vector<float> coordArray;
-            std::vector<float> zcornArray;
-            std::vector<int>   actnumArray;
-
-            RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
-
-            std::vector<int> dimens = { static_cast<int>( gridAdapter.cellCountI() ),
-                                        static_cast<int>( gridAdapter.cellCountJ() ),
-                                        static_cast<int>( gridAdapter.cellCountK() ) };
-
-            deckFile.replaceKeywordData( "DIMENS", dimens );
-
-            auto convertToDoubleVector = []( const std::vector<float>& vec )
-            {
-                std::vector<double> outVec;
-                outVec.reserve( vec.size() );
-                for ( float f : vec )
-                    outVec.push_back( f );
-                return outVec;
-            };
-            std::vector<double> coords = convertToDoubleVector( coordArray );
-            std::vector<double> zcorn  = convertToDoubleVector( zcornArray );
-
-            deckFile.replaceKeywordData( "COORD", coords );
-            deckFile.replaceKeywordData( "ZCORN", zcorn );
-            deckFile.replaceKeywordData( "ACTNUM", actnumArray );
-
-            // TODO: deal with map axis
-
-            // Extract and replace keyword data for all keywords in the deck
-            auto keywords = deckFile.keywords( false );
-            RiaLogging::info( QString( "Processing %1 keywords from deck file" ).arg( keywords.size() ) );
-
-            for ( const auto& keywordStdStr : keywords )
-            {
-                QString keyword = QString::fromStdString( keywordStdStr );
-
-                // Skip special keywords that aren't cell properties
-                if ( keyword.startsWith( "DATES" ) || keyword == "SCHEDULE" || keyword == "GRID" || keyword == "PROPS" ||
-                     keyword == "SOLUTION" || keyword == "RUNSPEC" || keyword == "SUMMARY" )
-                {
-                    continue;
-                }
-
-                // Try to extract keyword data
-                auto result =
-                    RifEclipseInputFileTools::extractKeywordData( view->eclipseCase()->eclipseCaseData(), keyword, min, max, refinement );
-                if ( result )
-                {
-                    // Replace keyword values in deck with extracted data
-                    if ( deckFile.replaceKeywordData( keywordStdStr, result.value() ) )
-                    {
-                        RiaLogging::info(
-                            QString( "Successfully replaced data for keyword '%1' (%2 values)" ).arg( keyword ).arg( result.value().size() ) );
-                    }
-                    else
-                    {
-                        RiaLogging::warning( QString( "Failed to replace keyword '%1' in deck" ).arg( keyword ) );
-                    }
-                }
-                else
-                {
-                    // Not all keywords will have data - this is expected
-                    RiaLogging::debug(
-                        QString( "Could not extract data for keyword '%1': %2" ).arg( keyword ).arg( QString::fromStdString( result.error() ) ) );
-                }
-            }
-
-            // Generate border cell faces
-            auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( view->eclipseCase() );
-
-            if ( !borderCellFaces.empty() )
-            {
-                // Add BCCON keyword
-                if ( !deckFile.addBcconKeyword( "GRID", borderCellFaces ) )
-                {
-                    RiaLogging::error( "Failed to add BCCON keyword to deck file" );
-                }
-
-                // Build BCPROP records from the UI configuration
-                std::vector<Opm::DeckRecord> bcpropRecords;
-                for ( const auto& bcprop : exportSettings.m_bcpropKeywords )
-                {
-                    if ( bcprop != nullptr )
-                    {
-                        Opm::DeckKeyword kw     = bcprop->keyword();
-                        const auto&      record = kw.getRecord( 0 );
-                        bcpropRecords.push_back( record );
-                    }
-                }
-
-                // Add BCPROP keyword
-                if ( !deckFile.addBcpropKeyword( "GRID", borderCellFaces, bcpropRecords ) )
-                {
-                    RiaLogging::error( "Failed to add BCPROP keyword to deck file" );
-                }
-            }
-            else
-            {
-                RiaLogging::warning( "No border cells found - skipping BCCON/BCPROP keyword generation" );
-            }
-        }
-
-        // Save the modified deck file to the export directory
-        QFileInfo exportGridInfo( exportSettings.exportGridFilename() );
-        QString   outputFolder = exportGridInfo.absolutePath();
-        QString   outputFile   = exportGridInfo.completeBaseName() + ".DATA";
-        if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )
-        {
-            RiaLogging::error( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
-        }
-        else
-        {
-            RiaLogging::info( QString( "Saved modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+            RiaLogging::error( QString( "Unable to write results to '%1'" ).arg( fileName ) );
         }
     }
 }
@@ -406,12 +248,202 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3i, cvf::Vec3i> RicExportEclipseSectorModelFeature::getVisibleCellRange( RimEclipseView*        view,
-                                                                                           const cvf::UByteArray& cellVisibillity )
+void RicExportEclipseSectorModelFeature::exportFaults( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings )
+{
+    if ( exportSettings.exportFaults == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
+    {
+        for ( const auto& faultInView : view->faultCollection()->faults() )
+        {
+            auto    rigFault = faultInView->faultGeometry();
+            QString fileName = QString( "%1.GRDECL" ).arg( rigFault->name() );
+            RifEclipseInputFileTools::saveFault( fileName,
+                                                 view->eclipseCase()->mainGrid(),
+                                                 rigFault->faultFaces(),
+                                                 rigFault->name(),
+                                                 exportSettings.min(),
+                                                 exportSettings.max(),
+                                                 exportSettings.refinement() );
+        }
+    }
+    else
+    {
+        QString             fileName = exportSettings.exportFaultsFilename();
+        QIODevice::OpenMode openFlag = QIODevice::Truncate;
+        if ( exportSettings.exportParameters() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE )
+        {
+            openFlag = QIODevice::Append;
+            fileName = exportSettings.exportGridFilename();
+        }
+        QFile exportFile( fileName );
+
+        if ( !exportFile.open( QIODevice::Text | QIODevice::WriteOnly | openFlag ) )
+        {
+            RiaLogging::error( "Could not open the file : " + fileName );
+        }
+
+        QTextStream stream( &exportFile );
+        RifEclipseInputFileTools::saveFaults( stream,
+                                              view->eclipseCase()->mainGrid(),
+                                              exportSettings.min(),
+                                              exportSettings.max(),
+                                              exportSettings.refinement() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportEclipseSectorModelFeature::exportSimulationInput( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings )
+{
+    // Load the deck file
+    QFileInfo fi( view->eclipseCase()->gridFileName() );
+    QString   dataFileName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    if ( !deckFile.loadDeck( dataFileName.toStdString() ) )
+    {
+        RiaLogging::error( QString( "Unable to load deck file '%1'" ).arg( dataFileName ) );
+        return;
+    }
+
+    // Only change values when exporting to modified box: original values should just work (tm) for full grid box
+    if ( exportSettings.exportGridBox() != RicExportEclipseSectorModelUi::GridBoxSelection::FULL_GRID_BOX )
+    {
+        // Get grid bounds for extraction
+        RigGridExportAdapter gridAdapter( view->eclipseCase()->eclipseCaseData(),
+                                          exportSettings.min(),
+                                          exportSettings.max(),
+                                          exportSettings.refinement() );
+        // Grid dimensions (after refinement)
+        std::vector<float> coordArray;
+        std::vector<float> zcornArray;
+        std::vector<int>   actnumArray;
+
+        RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
+
+        std::vector<int> dimens = { static_cast<int>( gridAdapter.cellCountI() ),
+                                    static_cast<int>( gridAdapter.cellCountJ() ),
+                                    static_cast<int>( gridAdapter.cellCountK() ) };
+
+        deckFile.replaceKeywordData( "DIMENS", dimens );
+
+        auto convertToDoubleVector = []( const std::vector<float>& vec )
+        {
+            std::vector<double> outVec;
+            outVec.reserve( vec.size() );
+            for ( float f : vec )
+                outVec.push_back( f );
+            return outVec;
+        };
+        std::vector<double> coords = convertToDoubleVector( coordArray );
+        std::vector<double> zcorn  = convertToDoubleVector( zcornArray );
+
+        deckFile.replaceKeywordData( "COORD", coords );
+        deckFile.replaceKeywordData( "ZCORN", zcorn );
+        deckFile.replaceKeywordData( "ACTNUM", actnumArray );
+
+        // TODO: deal with map axis
+
+        // Extract and replace keyword data for all keywords in the deck
+        auto keywords = deckFile.keywords( false );
+        RiaLogging::info( QString( "Processing %1 keywords from deck file" ).arg( keywords.size() ) );
+
+        for ( const auto& keywordStdStr : keywords )
+        {
+            QString keyword = QString::fromStdString( keywordStdStr );
+
+            // Skip special keywords that aren't cell properties
+            if ( keyword.startsWith( "DATES" ) || keyword == "SCHEDULE" || keyword == "GRID" || keyword == "PROPS" ||
+                 keyword == "SOLUTION" || keyword == "RUNSPEC" || keyword == "SUMMARY" )
+            {
+                continue;
+            }
+
+            // Try to extract keyword data
+            auto result = RifEclipseInputFileTools::extractKeywordData( view->eclipseCase()->eclipseCaseData(),
+                                                                        keyword,
+                                                                        exportSettings.min(),
+                                                                        exportSettings.max(),
+                                                                        exportSettings.refinement() );
+            if ( result )
+            {
+                // Replace keyword values in deck with extracted data
+                if ( deckFile.replaceKeywordData( keywordStdStr, result.value() ) )
+                {
+                    RiaLogging::info(
+                        QString( "Successfully replaced data for keyword '%1' (%2 values)" ).arg( keyword ).arg( result.value().size() ) );
+                }
+                else
+                {
+                    RiaLogging::warning( QString( "Failed to replace keyword '%1' in deck" ).arg( keyword ) );
+                }
+            }
+            else
+            {
+                // Not all keywords will have data - this is expected
+                RiaLogging::debug(
+                    QString( "Could not extract data for keyword '%1': %2" ).arg( keyword ).arg( QString::fromStdString( result.error() ) ) );
+            }
+        }
+
+        // Generate border cell faces
+        auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( view->eclipseCase() );
+
+        if ( !borderCellFaces.empty() )
+        {
+            // Add BCCON keyword
+            if ( !deckFile.addBcconKeyword( "GRID", borderCellFaces ) )
+            {
+                RiaLogging::error( "Failed to add BCCON keyword to deck file" );
+            }
+
+            // Build BCPROP records from the UI configuration
+            std::vector<Opm::DeckRecord> bcpropRecords;
+            for ( const auto& bcprop : exportSettings.m_bcpropKeywords )
+            {
+                if ( bcprop != nullptr )
+                {
+                    Opm::DeckKeyword kw     = bcprop->keyword();
+                    const auto&      record = kw.getRecord( 0 );
+                    bcpropRecords.push_back( record );
+                }
+            }
+
+            // Add BCPROP keyword
+            if ( !deckFile.addBcpropKeyword( "GRID", borderCellFaces, bcpropRecords ) )
+            {
+                RiaLogging::error( "Failed to add BCPROP keyword to deck file" );
+            }
+        }
+        else
+        {
+            RiaLogging::warning( "No border cells found - skipping BCCON/BCPROP keyword generation" );
+        }
+    }
+
+    // Save the modified deck file to the export directory
+    QFileInfo exportGridInfo( exportSettings.exportGridFilename() );
+    QString   outputFolder = exportGridInfo.absolutePath();
+    QString   outputFile   = exportGridInfo.completeBaseName() + ".DATA";
+    if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )
+    {
+        RiaLogging::error( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+    }
+    else
+    {
+        RiaLogging::info( QString( "Saved modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3st, cvf::Vec3st> RicExportEclipseSectorModelFeature::getVisibleCellRange( RimEclipseView*        view,
+                                                                                             const cvf::UByteArray& cellVisibillity )
 {
     const RigMainGrid* mainGrid = view->eclipseCase()->mainGrid();
-    cvf::Vec3i         max      = cvf::Vec3i::ZERO;
-    cvf::Vec3i min = cvf::Vec3i( int( mainGrid->cellCountI() - 1 ), int( mainGrid->cellCountJ() - 1 ), int( mainGrid->cellCountK() - 1 ) );
+    cvf::Vec3st        max      = cvf::Vec3st::ZERO;
+    cvf::Vec3st        min      = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
 
     size_t cellCount = mainGrid->cellCount();
     for ( size_t index = 0; index < cellCount; ++index )
@@ -422,8 +454,8 @@ std::pair<cvf::Vec3i, cvf::Vec3i> RicExportEclipseSectorModelFeature::getVisible
             mainGrid->ijkFromCellIndex( index, &ijk[0], &ijk[1], &ijk[2] );
             for ( int n = 0; n < 3; ++n )
             {
-                min[n] = std::min( min[n], (int)ijk[n] );
-                max[n] = std::max( max[n], (int)ijk[n] );
+                min[n] = std::min( min[n], ijk[n] );
+                max[n] = std::max( max[n], ijk[n] );
             }
         }
     }
@@ -482,9 +514,6 @@ cvf::ref<cvf::UByteArray>
 {
     RigEclipseCaseData* caseData = view->eclipseCase()->eclipseCaseData();
 
-    auto toVec3st = []( const cvf::Vec3i& v )
-    { return cvf::Vec3st( static_cast<size_t>( v.x() ), static_cast<size_t>( v.y() ), static_cast<size_t>( v.z() ) ); };
-
     switch ( exportSettings.exportGridBox() )
     {
         case RicExportEclipseSectorModelUi::VISIBLE_WELLS_BOX:
@@ -518,16 +547,14 @@ cvf::ref<cvf::UByteArray>
         }
         case RicExportEclipseSectorModelUi::MANUAL_SELECTION:
         {
-            cvf::Vec3st minIjk = toVec3st( exportSettings.min() );
-            cvf::Vec3st maxIjk = toVec3st( exportSettings.max() );
-            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minIjk, maxIjk );
+            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, exportSettings.min(), exportSettings.max() );
         }
         case RicExportEclipseSectorModelUi::FULL_GRID_BOX:
         {
             // For full grid, create visibility for all cells
             const RigMainGrid* mainGrid = caseData->mainGrid();
-            cvf::Vec3st        minIjk( 0, 0, 0 );
-            cvf::Vec3st        maxIjk( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
+            const cvf::Vec3st  minIjk   = cvf::Vec3st::ZERO;
+            const cvf::Vec3st  maxIjk   = mainGrid->cellCounts();
             return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minIjk, maxIjk );
         }
         default:
