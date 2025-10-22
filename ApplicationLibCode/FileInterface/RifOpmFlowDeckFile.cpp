@@ -448,6 +448,19 @@ std::vector<std::string> RifOpmFlowDeckFile::keywords( bool includeDates )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<Opm::DeckKeyword> RifOpmFlowDeckFile::findKeyword( const std::string& keyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return std::nullopt;
+
+    auto keywordIdx = m_fileDeck->find( keyword );
+    if ( !keywordIdx.has_value() ) return std::nullopt;
+
+    return m_fileDeck->operator[]( keywordIdx.value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::hasDatesKeyword()
 {
     if ( m_fileDeck.get() == nullptr ) return false;
@@ -731,6 +744,8 @@ bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string key
 
     // Create the INCLUDE keyword
     Opm::DeckKeyword includeKw( ( Opm::ParserKeywords::INCLUDE() ) );
+    m_fileDeck->erase( insertIdx.value() );
+
     includeKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( Opm::ParserKeywords::INCLUDE::IncludeFile::itemName, filePath ) } } );
 
     m_fileDeck->insert( insertIdx.value(), includeKw );
@@ -917,6 +932,35 @@ bool RifOpmFlowDeckFile::addBcpropKeyword( std::string                          
     }
 
     m_fileDeck->insert( insertPos.value(), bcpropKw );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::replaceKeyword( const std::string& section, const Opm::DeckKeyword& keyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Find and replace keyword in deck
+    auto keywordIdx = m_fileDeck->find( keyword.name() );
+    if ( keywordIdx.has_value() )
+    {
+        // Replace existing keyword
+        m_fileDeck->erase( keywordIdx.value() );
+        m_fileDeck->insert( keywordIdx.value(), keyword );
+    }
+    else
+    {
+        // Add keyword to specified section if it doesn't exist
+        auto insertPos = internal::findSectionInsertionPoint( m_fileDeck, section );
+        if ( !insertPos.has_value() )
+        {
+            return false; // Section not found
+        }
+        m_fileDeck->insert( insertPos.value(), keyword );
+    }
+
     return true;
 }
 

@@ -20,17 +20,26 @@
 
 #include "Commands/CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
+#include "RiaResultNames.h"
+
+#include "RifEclipseInputFileTools.h"
 #include "RifOpmDeckTools.h"
+
+#include "RigFault.h"
+#include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
+
+#include "cvfStructGrid.h"
 
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/F.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
 //==================================================================================================
@@ -141,6 +150,140 @@ Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath )
         items.push_back( RifOpmDeckTools::item( C::DIR::itemName, cd.directionStringXYZ().toStdString() ) );
 
         kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid, const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refinement )
+{
+    if ( mainGrid == nullptr )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    // Helper lambda to convert FaceType to Eclipse face string
+    auto faceTypeToString = []( cvf::StructGridInterface::FaceType faceType ) -> std::string
+    {
+        switch ( faceType )
+        {
+            case cvf::StructGridInterface::POS_I:
+                return "I";
+            case cvf::StructGridInterface::NEG_I:
+                return "I-";
+            case cvf::StructGridInterface::POS_J:
+                return "J";
+            case cvf::StructGridInterface::NEG_J:
+                return "J-";
+            case cvf::StructGridInterface::POS_K:
+                return "K";
+            case cvf::StructGridInterface::NEG_K:
+                return "K-";
+            default:
+                return "";
+        }
+    };
+
+    using F = Opm::ParserKeywords::FAULTS;
+
+    Opm::DeckKeyword kw{ Opm::ParserKeywords::FAULTS() };
+
+    // Process all faults in the grid
+    const cvf::Collection<RigFault>& faults = mainGrid->faults();
+    for ( const auto& fault : faults )
+    {
+        // Skip undefined faults
+        if ( fault->name() == RiaResultNames::undefinedGridFaultName() || fault->name() == RiaResultNames::undefinedGridFaultWithInactiveName() )
+        {
+            continue;
+        }
+
+        // Extract fault cell and face data for this fault
+        std::vector<RigFault::CellAndFace> faultCellAndFaces =
+            RifEclipseInputFileTools::extractFaults( mainGrid, fault->faultFaces(), min, max, refinement );
+
+        // Group consecutive cells in K direction and create fault records
+        size_t                             lastI        = std::numeric_limits<size_t>::max();
+        size_t                             lastJ        = std::numeric_limits<size_t>::max();
+        size_t                             lastK        = std::numeric_limits<size_t>::max();
+        size_t                             startK       = std::numeric_limits<size_t>::max();
+        cvf::StructGridInterface::FaceType lastFaceType = cvf::StructGridInterface::FaceType::NO_FACE;
+
+        for ( const RigFault::CellAndFace& faultCellAndFace : faultCellAndFaces )
+        {
+            size_t                             i, j, k;
+            cvf::StructGridInterface::FaceType faceType;
+            std::tie( i, j, k, faceType ) = faultCellAndFace;
+
+            // Check if we need to write out the previous range
+            if ( i != lastI || j != lastJ || lastFaceType != faceType || k != lastK + 1 )
+            {
+                // Write out previous fault line if valid
+                if ( lastFaceType != cvf::StructGridInterface::FaceType::NO_FACE )
+                {
+                    // Convert from 0-based to 1-based Eclipse indexing
+                    int i1 = static_cast<int>( lastI ) + 1;
+                    int j1 = static_cast<int>( lastJ ) + 1;
+                    int k1 = static_cast<int>( startK ) + 1;
+                    int k2 = static_cast<int>( lastK ) + 1;
+
+                    std::string faceStr = faceTypeToString( lastFaceType );
+
+                    // Create a record for this fault line
+                    std::vector<Opm::DeckItem> items;
+                    items.push_back( RifOpmDeckTools::item( F::NAME::itemName, fault->name().toStdString() ) );
+                    items.push_back( RifOpmDeckTools::item( F::IX1::itemName, i1 ) );
+                    items.push_back( RifOpmDeckTools::item( F::IX2::itemName, i1 ) );
+                    items.push_back( RifOpmDeckTools::item( F::IY1::itemName, j1 ) );
+                    items.push_back( RifOpmDeckTools::item( F::IY2::itemName, j1 ) );
+                    items.push_back( RifOpmDeckTools::item( F::IZ1::itemName, k1 ) );
+                    items.push_back( RifOpmDeckTools::item( F::IZ2::itemName, k2 ) );
+                    items.push_back( RifOpmDeckTools::item( F::FACE::itemName, faceStr ) );
+
+                    kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+                }
+
+                // Start new range
+                lastI        = i;
+                lastJ        = j;
+                lastK        = k;
+                lastFaceType = faceType;
+                startK       = k;
+            }
+            else
+            {
+                // Continue current range
+                lastK = k;
+            }
+        }
+
+        // Write out final fault line for this fault if valid
+        if ( lastFaceType != cvf::StructGridInterface::FaceType::NO_FACE )
+        {
+            // Convert from 0-based to 1-based Eclipse indexing
+            int i1 = static_cast<int>( lastI ) + 1;
+            int j1 = static_cast<int>( lastJ ) + 1;
+            int k1 = static_cast<int>( startK ) + 1;
+            int k2 = static_cast<int>( lastK ) + 1;
+
+            std::string faceStr = faceTypeToString( lastFaceType );
+
+            // Create a record for this fault line
+            std::vector<Opm::DeckItem> items;
+            items.push_back( RifOpmDeckTools::item( F::NAME::itemName, fault->name().toStdString() ) );
+            items.push_back( RifOpmDeckTools::item( F::IX1::itemName, i1 ) );
+            items.push_back( RifOpmDeckTools::item( F::IX2::itemName, i1 ) );
+            items.push_back( RifOpmDeckTools::item( F::IY1::itemName, j1 ) );
+            items.push_back( RifOpmDeckTools::item( F::IY2::itemName, j1 ) );
+            items.push_back( RifOpmDeckTools::item( F::IZ1::itemName, k1 ) );
+            items.push_back( RifOpmDeckTools::item( F::IZ2::itemName, k2 ) );
+            items.push_back( RifOpmDeckTools::item( F::FACE::itemName, faceStr ) );
+
+            kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+        }
     }
 
     return kw;
