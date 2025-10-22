@@ -444,12 +444,12 @@ if(RESINSIGHT_ENABLE_OPENVDS)
   if(MSVC)
     FetchContent_Declare(
       openvds
-      URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-win.zip
+      URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.8-win.zip
     )
   else()
     FetchContent_Declare(
       openvds
-      URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.6-manylinux_2014.tar.gz
+      URL https://downloads.bluware.com/artifactory/Releases-OpenVDSPlus/3.4/openvds+-3.4.8-manylinux_2014.tar.gz
     )
   endif()
 
@@ -839,10 +839,10 @@ else()
         libopenvds.so
         libopenvds.so.3
         libopenvds.so.3.4.6
-        libopenvds-e6a44892.so.3.4.6
+        libopenvds-6909d279.so.3.4.8
         libsegyutils.so
         libsegyutils.so.3
-        libsegyutils.so.3.4.6
+        libsegyutils.so.3.4.8
     )
     foreach(OPENVDS_LIB_NAME ${OPENVDS_LIB_NAMES})
       list(APPEND RI_FILENAMES
@@ -1094,11 +1094,11 @@ if(RESINSIGHT_ENABLE_OPENVDS)
     set(OPENVDS_SHARED_LIB_FILES
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
-        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.4.6
-        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-e6a44892.so.3.4.6
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.4.8
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-6909d279.so.3.4.8
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
-        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.4.6
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.4.8
     )
     install(FILES ${OPENVDS_SHARED_LIB_FILES}
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
