@@ -838,7 +838,7 @@ else()
     set(OPENVDS_LIB_NAMES
         libopenvds.so
         libopenvds.so.3
-        libopenvds.so.3.4.6
+        libopenvds.so.3.4.8
         libopenvds-6909d279.so.3.4.8
         libsegyutils.so
         libsegyutils.so.3
