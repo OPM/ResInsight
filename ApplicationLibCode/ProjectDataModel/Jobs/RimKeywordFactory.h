@@ -18,8 +18,11 @@
 
 #pragma once
 
+#include "cvfVector3.h"
+
 #include <string>
 
+class RigMainGrid;
 class RimEclipseCase;
 class RimWellPath;
 
@@ -37,5 +40,9 @@ namespace RimKeywordFactory
 
 Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath );
 Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath );
+Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid,
+                                const cvf::Vec3st& min        = cvf::Vec3st::ZERO,
+                                const cvf::Vec3st& max        = cvf::Vec3st::UNDEFINED,
+                                const cvf::Vec3st& refinement = cvf::Vec3st( 1, 1, 1 ) );
 
 } // namespace RimKeywordFactory

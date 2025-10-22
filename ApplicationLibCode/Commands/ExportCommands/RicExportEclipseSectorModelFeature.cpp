@@ -30,6 +30,7 @@
 #include "RifReaderEclipseOutput.h"
 
 #include "ProjectDataModel/Jobs/RimKeywordBcprop.h"
+#include "ProjectDataModel/Jobs/RimKeywordFactory.h"
 #include "Rim3dView.h"
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
@@ -144,7 +145,10 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
     // Export simulation input if enabled
     if ( exportSettings.m_exportSimulationInput() )
     {
-        exportSimulationInput( view, exportSettings );
+        if ( auto result = exportSimulationInput( *view->eclipseCase(), exportSettings ); !result )
+        {
+            RiaLogging::error( QString( "Failed to export simulation input: %1" ).arg( result.error() ) );
+        }
     }
 }
 
@@ -293,146 +297,231 @@ void RicExportEclipseSectorModelFeature::exportFaults( RimEclipseView* view, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelFeature::exportSimulationInput( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings )
+std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulationInput( RimEclipseCase& eclipseCase,
+                                                                                        const RicExportEclipseSectorModelUi& exportSettings )
 {
     // Load the deck file
-    QFileInfo fi( view->eclipseCase()->gridFileName() );
+    QFileInfo fi( eclipseCase.gridFileName() );
     QString   dataFileName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
 
     RifOpmFlowDeckFile deckFile;
     if ( !deckFile.loadDeck( dataFileName.toStdString() ) )
     {
-        RiaLogging::error( QString( "Unable to load deck file '%1'" ).arg( dataFileName ) );
-        return;
+        return std::unexpected( QString( "Unable to load deck file '%1'" ).arg( dataFileName ) );
     }
+
+    QFileInfo exportGridInfo( exportSettings.exportGridFilename() );
+    QString   outputFolder = exportGridInfo.absolutePath();
+    QString   outputFile   = exportGridInfo.completeBaseName() + ".DATA";
 
     // Only change values when exporting to modified box: original values should just work (tm) for full grid box
     if ( exportSettings.exportGridBox() != RicExportEclipseSectorModelUi::GridBoxSelection::FULL_GRID_BOX )
     {
-        // Get grid bounds for extraction
-        RigGridExportAdapter gridAdapter( view->eclipseCase()->eclipseCaseData(),
-                                          exportSettings.min(),
-                                          exportSettings.max(),
-                                          exportSettings.refinement() );
-        // Grid dimensions (after refinement)
-        std::vector<float> coordArray;
-        std::vector<float> zcornArray;
-        std::vector<int>   actnumArray;
-
-        RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
-
-        std::vector<int> dimens = { static_cast<int>( gridAdapter.cellCountI() ),
-                                    static_cast<int>( gridAdapter.cellCountJ() ),
-                                    static_cast<int>( gridAdapter.cellCountK() ) };
-
-        deckFile.replaceKeywordData( "DIMENS", dimens );
-
-        auto convertToDoubleVector = []( const std::vector<float>& vec )
+        if ( auto result = updateCornerPointGridInDeckFile( &eclipseCase, exportSettings, deckFile ); !result )
         {
-            std::vector<double> outVec;
-            outVec.reserve( vec.size() );
-            for ( float f : vec )
-                outVec.push_back( f );
-            return outVec;
-        };
-        std::vector<double> coords = convertToDoubleVector( coordArray );
-        std::vector<double> zcorn  = convertToDoubleVector( zcornArray );
-
-        deckFile.replaceKeywordData( "COORD", coords );
-        deckFile.replaceKeywordData( "ZCORN", zcorn );
-        deckFile.replaceKeywordData( "ACTNUM", actnumArray );
-
-        // TODO: deal with map axis
-
-        // Extract and replace keyword data for all keywords in the deck
-        auto keywords = deckFile.keywords( false );
-        RiaLogging::info( QString( "Processing %1 keywords from deck file" ).arg( keywords.size() ) );
-
-        for ( const auto& keywordStdStr : keywords )
-        {
-            QString keyword = QString::fromStdString( keywordStdStr );
-
-            // Skip special keywords that aren't cell properties
-            if ( keyword.startsWith( "DATES" ) || keyword == "SCHEDULE" || keyword == "GRID" || keyword == "PROPS" ||
-                 keyword == "SOLUTION" || keyword == "RUNSPEC" || keyword == "SUMMARY" )
-            {
-                continue;
-            }
-
-            // Try to extract keyword data
-            auto result = RifEclipseInputFileTools::extractKeywordData( view->eclipseCase()->eclipseCaseData(),
-                                                                        keyword,
-                                                                        exportSettings.min(),
-                                                                        exportSettings.max(),
-                                                                        exportSettings.refinement() );
-            if ( result )
-            {
-                // Replace keyword values in deck with extracted data
-                if ( deckFile.replaceKeywordData( keywordStdStr, result.value() ) )
-                {
-                    RiaLogging::info(
-                        QString( "Successfully replaced data for keyword '%1' (%2 values)" ).arg( keyword ).arg( result.value().size() ) );
-                }
-                else
-                {
-                    RiaLogging::warning( QString( "Failed to replace keyword '%1' in deck" ).arg( keyword ) );
-                }
-            }
-            else
-            {
-                // Not all keywords will have data - this is expected
-                RiaLogging::debug(
-                    QString( "Could not extract data for keyword '%1': %2" ).arg( keyword ).arg( QString::fromStdString( result.error() ) ) );
-            }
+            return result;
         }
 
-        // Generate border cell faces
-        auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( view->eclipseCase() );
-
-        if ( !borderCellFaces.empty() )
+        if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, exportSettings, deckFile ); !result )
         {
-            // Add BCCON keyword
-            if ( !deckFile.addBcconKeyword( "GRID", borderCellFaces ) )
-            {
-                RiaLogging::error( "Failed to add BCCON keyword to deck file" );
-            }
-
-            // Build BCPROP records from the UI configuration
-            std::vector<Opm::DeckRecord> bcpropRecords;
-            for ( const auto& bcprop : exportSettings.m_bcpropKeywords )
-            {
-                if ( bcprop != nullptr )
-                {
-                    Opm::DeckKeyword kw     = bcprop->keyword();
-                    const auto&      record = kw.getRecord( 0 );
-                    bcpropRecords.push_back( record );
-                }
-            }
-
-            // Add BCPROP keyword
-            if ( !deckFile.addBcpropKeyword( "GRID", borderCellFaces, bcpropRecords ) )
-            {
-                RiaLogging::error( "Failed to add BCPROP keyword to deck file" );
-            }
+            return result;
         }
-        else
+
+        if ( auto result = addBorderBoundaryConditions( &eclipseCase, exportSettings, deckFile ); !result )
         {
-            RiaLogging::warning( "No border cells found - skipping BCCON/BCPROP keyword generation" );
+            return result;
+        }
+
+        if ( auto result = addFaultsToDeckFile( &eclipseCase, exportSettings, deckFile ); !result )
+        {
+            return result;
         }
     }
 
     // Save the modified deck file to the export directory
-    QFileInfo exportGridInfo( exportSettings.exportGridFilename() );
-    QString   outputFolder = exportGridInfo.absolutePath();
-    QString   outputFile   = exportGridInfo.completeBaseName() + ".DATA";
     if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )
     {
-        RiaLogging::error( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+        return std::unexpected( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+    }
+
+    RiaLogging::info( QString( "Saved modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString>
+    RicExportEclipseSectorModelFeature::updateCornerPointGridInDeckFile( RimEclipseCase*                      eclipseCase,
+                                                                         const RicExportEclipseSectorModelUi& exportSettings,
+                                                                         RifOpmFlowDeckFile&                  deckFile )
+{
+    // Get grid bounds for extraction
+
+    RigGridExportAdapter gridAdapter( eclipseCase->eclipseCaseData(), exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+
+    std::vector<float> coordArray;
+    std::vector<float> zcornArray;
+    std::vector<int>   actnumArray;
+
+    RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
+
+    // Sector dimensions (after refinement)
+    std::vector<int> dimens = { static_cast<int>( gridAdapter.cellCountI() ),
+                                static_cast<int>( gridAdapter.cellCountJ() ),
+                                static_cast<int>( gridAdapter.cellCountK() ) };
+
+    if ( !deckFile.replaceKeywordData( "DIMENS", dimens ) )
+    {
+        return std::unexpected( "Failed to replace DIMENS keyword in deck file" );
+    }
+
+    auto convertToDoubleVector = []( const std::vector<float>& vec )
+    {
+        std::vector<double> outVec;
+        outVec.reserve( vec.size() );
+        for ( float f : vec )
+            outVec.push_back( f );
+        return outVec;
+    };
+    std::vector<double> coords = convertToDoubleVector( coordArray );
+    std::vector<double> zcorn  = convertToDoubleVector( zcornArray );
+
+    if ( !deckFile.replaceKeywordData( "COORD", coords ) )
+    {
+        return std::unexpected( "Failed to replace COORD keyword in deck file" );
+    }
+
+    if ( !deckFile.replaceKeywordData( "ZCORN", zcorn ) )
+    {
+        return std::unexpected( "Failed to replace ZCORN keyword in deck file" );
+    }
+
+    if ( !deckFile.replaceKeywordData( "ACTNUM", actnumArray ) )
+    {
+        return std::unexpected( "Failed to replace ACTNUM keyword in deck file" );
+    }
+
+    // TODO: deal with map axis
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString>
+    RicExportEclipseSectorModelFeature::replaceKeywordValuesInDeckFile( RimEclipseCase*                      eclipseCase,
+                                                                        const RicExportEclipseSectorModelUi& exportSettings,
+                                                                        RifOpmFlowDeckFile&                  deckFile )
+{
+    // Extract and replace keyword data for all keywords in the deck
+    auto keywords = deckFile.keywords( false );
+    RiaLogging::info( QString( "Processing %1 keywords from deck file" ).arg( keywords.size() ) );
+
+    for ( const auto& keywordStdStr : keywords )
+    {
+        QString keyword = QString::fromStdString( keywordStdStr );
+
+        // Skip special keywords that aren't cell properties
+        if ( keyword.startsWith( "DATES" ) || keyword == "SCHEDULE" || keyword == "GRID" || keyword == "PROPS" || keyword == "SOLUTION" ||
+             keyword == "RUNSPEC" || keyword == "SUMMARY" )
+        {
+            continue;
+        }
+
+        // Try to extract keyword data
+        auto result = RifEclipseInputFileTools::extractKeywordData( eclipseCase->eclipseCaseData(),
+                                                                    keyword,
+                                                                    exportSettings.min(),
+                                                                    exportSettings.max(),
+                                                                    exportSettings.refinement() );
+        if ( result )
+        {
+            // Replace keyword values in deck with extracted data
+            if ( deckFile.replaceKeywordData( keywordStdStr, result.value() ) )
+            {
+                RiaLogging::info(
+                    QString( "Successfully replaced data for keyword '%1' (%2 values)" ).arg( keyword ).arg( result.value().size() ) );
+            }
+            else
+            {
+                RiaLogging::warning( QString( "Failed to replace keyword '%1' in deck" ).arg( keyword ) );
+            }
+        }
+        else
+        {
+            // Not all keywords will have data - this is expected
+            RiaLogging::debug(
+                QString( "Could not extract data for keyword '%1': %2" ).arg( keyword ).arg( QString::fromStdString( result.error() ) ) );
+        }
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBoundaryConditions( RimEclipseCase* eclipseCase,
+                                                                                              const RicExportEclipseSectorModelUi& exportSettings,
+                                                                                              RifOpmFlowDeckFile& deckFile )
+{
+    // Generate border cell faces
+    auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( eclipseCase );
+
+    if ( !borderCellFaces.empty() )
+    {
+        // Add BCCON keyword
+        if ( !deckFile.addBcconKeyword( "GRID", borderCellFaces ) )
+        {
+            return std::unexpected( "Failed to add BCCON keyword to deck file" );
+        }
+
+        // Build BCPROP records from the UI configuration
+        std::vector<Opm::DeckRecord> bcpropRecords;
+        for ( const auto& bcprop : exportSettings.m_bcpropKeywords )
+        {
+            if ( bcprop != nullptr )
+            {
+                Opm::DeckKeyword kw     = bcprop->keyword();
+                const auto&      record = kw.getRecord( 0 );
+                bcpropRecords.push_back( record );
+            }
+        }
+
+        // Add BCPROP keyword
+        if ( !deckFile.addBcpropKeyword( "GRID", borderCellFaces, bcpropRecords ) )
+        {
+            return std::unexpected( "Failed to add BCPROP keyword to deck file" );
+        }
     }
     else
     {
-        RiaLogging::info( QString( "Saved modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+        RiaLogging::warning( "No border cells found - skipping BCCON/BCPROP keyword generation" );
     }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RicExportEclipseSectorModelFeature::addFaultsToDeckFile( RimEclipseCase*                      eclipseCase,
+                                                                                      const RicExportEclipseSectorModelUi& exportSettings,
+                                                                                      RifOpmFlowDeckFile&                  deckFile )
+{
+    // Create FAULTS keyword using the factory
+    Opm::DeckKeyword faultsKw =
+        RimKeywordFactory::faultsKeyword( eclipseCase->mainGrid(), exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+
+    // Replace FAULTS keyword in GRID section
+    if ( !deckFile.replaceKeyword( "GRID", faultsKw ) )
+    {
+        return std::unexpected( "Failed to replace FAULTS keyword in deck file" );
+    }
+
+    RiaLogging::info( "Successfully replaced FAULTS keyword in deck file" );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -524,7 +613,8 @@ cvf::ref<cvf::UByteArray>
         }
         case RicExportEclipseSectorModelUi::ACTIVE_CELLS_BOX:
         {
-            // For active cells, we need to create a visibility array based on active cells
+            // For active cells, we need to create a
+            // visibility array based on active cells
             auto   activeCellInfo       = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
             auto   activeReservoirCells = activeCellInfo->activeReservoirCellIndices();
             size_t totalCellCount       = caseData->mainGrid()->cellCount();
@@ -540,7 +630,8 @@ cvf::ref<cvf::UByteArray>
         }
         case RicExportEclipseSectorModelUi::VISIBLE_CELLS_BOX:
         {
-            // Use the current total cell visibility from the view
+            // Use the current total cell visibility
+            // from the view
             cvf::ref<cvf::UByteArray> cellVisibility = new cvf::UByteArray();
             view->calculateCurrentTotalCellVisibility( cellVisibility.p(), view->currentTimeStep() );
             return cellVisibility;
@@ -551,7 +642,8 @@ cvf::ref<cvf::UByteArray>
         }
         case RicExportEclipseSectorModelUi::FULL_GRID_BOX:
         {
-            // For full grid, create visibility for all cells
+            // For full grid, create visibility for
+            // all cells
             const RigMainGrid* mainGrid = caseData->mainGrid();
             const cvf::Vec3st  minIjk   = cvf::Vec3st::ZERO;
             const cvf::Vec3st  maxIjk   = mainGrid->cellCounts();
