@@ -1807,5 +1807,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
         completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
     }
 
+    std::sort( completions.begin(), completions.end() );
+
     return completions;
 }
