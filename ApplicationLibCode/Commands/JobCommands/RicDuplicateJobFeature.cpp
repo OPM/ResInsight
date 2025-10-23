@@ -52,6 +52,7 @@ void RicDuplicateJobFeature::onActionTriggered( bool isChecked )
         {
             copiedJob->setWorkingDirectory( workDir );
             copiedJob->setName( job->name() + " (copy)" );
+            copiedJob->initAfterCopy();
 
             auto jobColl = RimTools::jobCollection();
             jobColl->addNewJob( copiedJob );

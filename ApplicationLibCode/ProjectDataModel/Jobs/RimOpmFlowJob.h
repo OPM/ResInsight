@@ -60,6 +60,7 @@ public:
     void setWorkingDirectory( QString workDir );
     void setEclipseCase( RimEclipseCase* eCase );
     void setInputDataFile( QString filename );
+    void initAfterCopy();
 
     QString deckName();
     QString mainWorkingDirectory() const;
@@ -101,7 +102,7 @@ private:
 
     static QString readFileContent( QString filename );
 
-    void        exportBasicWellSettings();
+    bool        mergeBasicWellSettings();
     std::string exportMswWellSettings( int timeStep );
     void        selectOpenWellPosition();
     void        resetEnsembleRunId();
@@ -120,6 +121,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;
     caf::PdmPtrField<RimEclipseCaseEnsemble*> m_gridEnsemble;
     caf::PdmPtrField<RimSummaryEnsemble*>     m_summaryEnsemble;
+
     caf::PdmField<int>                        m_openTimeStep;
     caf::PdmField<bool>                       m_endTimeStepEnabled;
     caf::PdmField<int>                        m_endTimeStep;

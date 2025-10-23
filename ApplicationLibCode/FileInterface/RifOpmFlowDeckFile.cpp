@@ -311,158 +311,85 @@ bool RifOpmFlowDeckFile::saveDeck( std::string folder, std::string filename )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::mergeWellDeckAtTimeStep( int timeStep, std::string filename )
-{
-    Opm::ErrorGuard errors{};
-
-    auto deckToMerge = Opm::Parser{}.parseFile( filename, internal::defaultParseContext(), errors );
-
-    const auto welspecsIndexes = deckToMerge.index( Opm::ParserKeywords::WELSPECS::keywordName );
-    if ( welspecsIndexes.empty() ) return false;
-    auto&           mergeWelspecsKw = deckToMerge[welspecsIndexes[0]];
-    Opm::DeckRecord newWelspecRecToAdd( mergeWelspecsKw.getRecord( 0 ) );
-
-    const auto compdatIndexes = deckToMerge.index( Opm::ParserKeywords::COMPDAT::keywordName );
-    if ( compdatIndexes.empty() ) return false;
-    auto& mergeCompdatKw = deckToMerge[compdatIndexes[0]];
-
-    auto additionalConnections = mergeCompdatKw.size();
-    auto welldims              = this->welldims();
-
-    auto dateIdx = internal::locateTimeStep( m_fileDeck, timeStep );
-    if ( dateIdx.has_value() )
-    {
-        auto insertIdx = dateIdx.value();
-        // Insert new well into WELSPECS in the selected date section
-        auto existingKwFound = internal::locateKeywordAtTimeStep( m_fileDeck, timeStep, Opm::ParserKeywords::WELSPECS::keywordName );
-        if ( existingKwFound.has_value() )
-        {
-            auto& welspecs_kw = m_fileDeck->operator[]( existingKwFound.value() );
-
-            Opm::DeckKeyword newWelspecsKw( welspecs_kw );
-            newWelspecsKw.addRecord( std::move( newWelspecRecToAdd ) );
-
-            m_fileDeck->erase( existingKwFound.value() );
-            m_fileDeck->insert( existingKwFound.value(), newWelspecsKw );
-        }
-        else
-        {
-            // existing kw not found, insert a new one
-            m_fileDeck->insert( insertIdx, mergeWelspecsKw );
-            insertIdx++;
-        }
-
-        // Insert new well data into COMPDAT in the selected date section
-        existingKwFound = internal::locateKeywordAtTimeStep( m_fileDeck, timeStep, Opm::ParserKeywords::COMPDAT::keywordName );
-        if ( existingKwFound.has_value() )
-        {
-            auto& compdat_kw = m_fileDeck->operator[]( existingKwFound.value() );
-
-            Opm::DeckKeyword newCompdatKw( compdat_kw );
-            for ( size_t i = 0; i < mergeCompdatKw.size(); i++ )
-            {
-                Opm::DeckRecord newRecToAdd( mergeCompdatKw.getRecord( i ) );
-                newCompdatKw.addRecord( std::move( newRecToAdd ) );
-            }
-
-            m_fileDeck->erase( existingKwFound.value() );
-            m_fileDeck->insert( existingKwFound.value(), newCompdatKw );
-        }
-        else
-        {
-            // existing kw not found, insert a new one
-            m_fileDeck->insert( insertIdx, mergeCompdatKw );
-        }
-
-        // increase wells and connections in welldims to make sure they are big enough
-        return setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2] + 1, (int)welldims[3] + 1 );
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///  Returns updated position due to new inserts if successful, < 0 if failure
 //--------------------------------------------------------------------------------------------------
-int RifOpmFlowDeckFile::mergeWellDeckAtPosition( int position, std::string filename )
+int RifOpmFlowDeckFile::mergeKeywordAtPosition( int position, const Opm::DeckKeyword& keyword )
 {
-    Opm::ErrorGuard errors{};
+    if ( m_fileDeck.get() == nullptr ) return -1;
 
-    auto deckToMerge = Opm::Parser{}.parseFile( filename, internal::defaultParseContext(), errors );
-
-    const auto welspecsIndexes = deckToMerge.index( Opm::ParserKeywords::WELSPECS::keywordName );
-    if ( welspecsIndexes.empty() ) return -1;
-    auto&           mergeWelspecsKw = deckToMerge[welspecsIndexes[0]];
-    Opm::DeckRecord newWelspecRecToAdd( mergeWelspecsKw.getRecord( 0 ) );
-
-    const auto compdatIndexes = deckToMerge.index( Opm::ParserKeywords::COMPDAT::keywordName );
-    if ( compdatIndexes.empty() ) return -1;
-    auto& mergeCompdatKw = deckToMerge[compdatIndexes[0]];
-
-    auto additionalConnections = mergeCompdatKw.size();
-    auto welldims              = this->welldims();
-
+    // locate position
     auto insertIdx = internal::positionToIndex( position, m_fileDeck );
     if ( !insertIdx.has_value() )
     {
         return -1;
     }
 
-    // Insert new well into main WELSPECS
-    const auto foundWelspecs = m_fileDeck->find( Opm::ParserKeywords::WELSPECS::keywordName );
-    if ( foundWelspecs.has_value() )
+    // Check if we should merge, or create a new one
+    const auto foundKw = m_fileDeck->find( keyword.name() );
+    if ( foundKw.has_value() )
     {
-        auto& existing_idx = foundWelspecs.value();
-        auto& welspecs_kw  = m_fileDeck->operator[]( existing_idx );
+        auto& existing_idx = foundKw.value();
+        auto& existing_kw  = m_fileDeck->operator[]( existing_idx );
 
-        Opm::DeckKeyword newWelspecsKw( welspecs_kw );
-        newWelspecsKw.addRecord( std::move( newWelspecRecToAdd ) );
+        Opm::DeckKeyword updatedKw( existing_kw );
 
-        m_fileDeck->erase( existing_idx );
-        m_fileDeck->insert( existing_idx, newWelspecsKw );
-    }
-    else
-    {
-        // existing kw not found, insert a new one
-        m_fileDeck->insert( insertIdx.value(), mergeCompdatKw );
-        // update index to keep keyword order
-        insertIdx.value() = insertIdx.value() + 1;
-        position++;
-    }
-
-    // Insert new well data into main COMPDAT
-    const auto foundCompdat = m_fileDeck->find( Opm::ParserKeywords::COMPDAT::keywordName );
-    if ( foundCompdat.has_value() )
-    {
-        auto& existing_idx = foundCompdat.value();
-        auto& compdat_kw   = m_fileDeck->operator[]( existing_idx );
-
-        Opm::DeckKeyword newCompdatKw( compdat_kw );
-
-        for ( size_t i = 0; i < mergeCompdatKw.size(); i++ )
+        for ( size_t i = 0; i < keyword.size(); i++ )
         {
-            Opm::DeckRecord newRecToAdd( mergeCompdatKw.getRecord( i ) );
-            newCompdatKw.addRecord( std::move( newRecToAdd ) );
+            Opm::DeckRecord newRecToAdd( keyword.getRecord( i ) );
+            updatedKw.addRecord( std::move( newRecToAdd ) );
         }
 
         m_fileDeck->erase( existing_idx );
-        m_fileDeck->insert( existing_idx, newCompdatKw );
+        m_fileDeck->insert( existing_idx, updatedKw );
     }
     else
     {
         // existing kw not found, insert a new one
-        m_fileDeck->insert( insertIdx.value(), mergeCompdatKw );
+        m_fileDeck->insert( insertIdx.value(), keyword );
+        // update position to keep keyword order
         position++;
     }
 
-    // increase wells and connections in welldims to make sure they are big enough
-    if ( setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2] + 1, (int)welldims[3] + 1 ) )
+    return position;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::mergeKeywordAtTimeStep( int timeStep, const Opm::DeckKeyword& keyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    auto dateIdx = internal::locateTimeStep( m_fileDeck, timeStep );
+    if ( dateIdx.has_value() )
     {
-        return position;
+        auto insertIdx = dateIdx.value();
+        // look for keyword in the selected date section
+        auto existingKwFound = internal::locateKeywordAtTimeStep( m_fileDeck, timeStep, keyword.name() );
+        if ( existingKwFound.has_value() )
+        {
+            auto& existingIdx = existingKwFound.value();
+            auto& existingKw  = m_fileDeck->operator[]( existingIdx );
+
+            Opm::DeckKeyword updatedKw( existingKw );
+            for ( size_t i = 0; i < keyword.size(); i++ )
+            {
+                Opm::DeckRecord newRecToAdd( keyword.getRecord( i ) );
+                updatedKw.addRecord( std::move( newRecToAdd ) );
+            }
+
+            m_fileDeck->erase( existingIdx );
+            m_fileDeck->insert( existingIdx, updatedKw );
+        }
+        else
+        {
+            // existing kw not found, insert a new one
+            m_fileDeck->insert( insertIdx, keyword );
+        }
+        return true;
     }
-    return -1;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

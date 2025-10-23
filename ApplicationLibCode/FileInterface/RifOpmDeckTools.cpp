@@ -19,6 +19,7 @@
 #include "RifOpmDeckTools.h"
 
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
+#include "opm/input/eclipse/Units/Dimension.hpp"
 
 namespace RifOpmDeckTools
 {
@@ -46,10 +47,31 @@ Opm::DeckItem item( std::string name, int value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Opm::DeckItem item( std::string name, size_t value )
+{
+    return item( name, (int)value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 Opm::DeckItem defaultItem( std::string name, int columns /*=1*/ )
 {
     Opm::DeckItem item1( name, 0 );
     item1.push_backDummyDefault<int>( columns );
+    return item1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem item( std::string name, double value )
+{
+    std::vector<Opm::Dimension> active_dimensions;
+    std::vector<Opm::Dimension> default_dimensions;
+
+    Opm::DeckItem item1( name, double(), active_dimensions, default_dimensions );
+    item1.push_back( value );
     return item1;
 }
 

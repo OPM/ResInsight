@@ -29,6 +29,8 @@ namespace RifOpmDeckTools
 {
 Opm::DeckItem item( std::string name, std::string value );
 Opm::DeckItem item( std::string name, int value );
+Opm::DeckItem item( std::string name, size_t value );
+Opm::DeckItem item( std::string name, double value );
 Opm::DeckItem defaultItem( std::string name, int columns = 1 );
 
 } // namespace RifOpmDeckTools

@@ -40,6 +40,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimFishbones.h"
+#include "RimKeywordFactory.h"
 #include "RimKeywordWconinje.h"
 #include "RimKeywordWconprod.h"
 #include "RimOilField.h"
@@ -800,39 +801,15 @@ bool RimOpmFlowJob::onPrepare()
         }
         else
         {
-            // export new well settings from resinsight
-            exportBasicWellSettings();
-            if ( !QFile::exists( wellTempFile() ) )
+            if ( !mergeBasicWellSettings() )
             {
-                RiaLogging::error( "Could not find exported well data from ResInsight: " + wellTempFile() );
+                RiaLogging::error( "Unable to merge new well data into DATA file. Please check file format." );
                 return false;
             }
-
-            if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
-            {
-                if ( !m_deckFile->mergeWellDeckAtTimeStep( m_openTimeStep(), wellTempFile().toStdString() ) )
-                {
-                    RiaLogging::error( "Unable to merge new well data into DATA file at selected time step due to parse errors." );
-                    return false;
-                }
-            }
-            else
-            {
-                mergePosition = m_deckFile->mergeWellDeckAtPosition( mergePosition, wellTempFile().toStdString() );
-                if ( mergePosition < m_openWellDeckPosition() )
-                {
-                    RiaLogging::error( "Unable to merge new well data into DATA file due to parse errors." );
-                    return false;
-                }
-            }
-            QFile::remove( wellTempFile() );
         }
 
-        Opm::DeckKeyword openKeyword = m_wconinjeKeyword->keyword( wellNameInDeck );
-        if ( m_wellOpenKeyword() == "WCONPROD" )
-        {
-            openKeyword = m_wconprodKeyword->keyword( wellNameInDeck );
-        }
+        Opm::DeckKeyword openKeyword = ( m_wellOpenKeyword() == "WCONPROD" ) ? m_wconprodKeyword->keyword( wellNameInDeck )
+                                                                             : m_wconinjeKeyword->keyword( wellNameInDeck );
 
         // open new well at selected timestep
         if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
@@ -1025,21 +1002,33 @@ RimEclipseCase* RimOpmFlowJob::findExistingCase( QString filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::exportBasicWellSettings()
+bool RimOpmFlowJob::mergeBasicWellSettings()
 {
-    RicExportCompletionDataSettingsUi exportSettings;
+    auto compdatKw  = RimKeywordFactory::compdatKeyword( m_eclipseCase(), m_wellPath() );
+    auto welspecsKw = RimKeywordFactory::welspecsKeyword( m_wellGroupName().toStdString(), m_eclipseCase(), m_wellPath() );
 
-    exportSettings.fileSplit   = RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE;
-    exportSettings.caseToApply = m_eclipseCase();
-    exportSettings.setCustomFileName( wellTempFile() );
-    exportSettings.includeMsw = false;
-    exportSettings.setExportDataSourceAsComment( false );
+    if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+    {
+        // reverse order for correct insertion order
+        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compdatKw ) ) return false;
+        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welspecsKw ) ) return false;
+    }
+    else
+    {
+        auto position = m_openWellDeckPosition();
+        position      = m_deckFile->mergeKeywordAtPosition( position, welspecsKw );
+        if ( position < 0 ) return false;
+        position = m_deckFile->mergeKeywordAtPosition( position, compdatKw );
+        if ( position < 0 ) return false;
+    }
 
-    exportSettings.folder = workingDirectory();
-
-    auto topLevelWell = m_wellPath->topLevelWellPath();
-
-    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( { topLevelWell }, exportSettings );
+    // increase wells and connections in welldims to make sure they are big enough
+    auto additionalConnections = (int)compdatKw.size();
+    auto welldims              = m_deckFile->welldims();
+    return m_deckFile->setWelldims( (int)welldims[0] + 1,
+                                    (int)( welldims[1] + additionalConnections ),
+                                    (int)welldims[2] + 1,
+                                    (int)welldims[3] + 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1107,6 +1096,16 @@ void RimOpmFlowJob::resetEnsembleRunId()
     {
         m_currentRunId = 0;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::initAfterCopy()
+{
+    m_currentRunId    = 0;
+    m_gridEnsemble    = nullptr;
+    m_summaryEnsemble = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

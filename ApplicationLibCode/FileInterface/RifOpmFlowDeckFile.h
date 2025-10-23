@@ -52,8 +52,8 @@ public:
     bool loadDeck( std::string filename );
     bool saveDeck( std::string folder, std::string filename );
 
-    bool mergeWellDeckAtTimeStep( int timeStep, std::string filename );
-    int  mergeWellDeckAtPosition( int position, std::string filename );
+    int  mergeKeywordAtPosition( int deckPosition, const Opm::DeckKeyword& keyword );
+    bool mergeKeywordAtTimeStep( int timeStep, const Opm::DeckKeyword& keyword );
 
     bool mergeMswData( std::vector<std::string>& mswFileData );
 

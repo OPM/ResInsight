@@ -18,10 +18,7 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-
-#include <QString>
+#include <string>
 
 class RimEclipseCase;
 class RimWellPath;
@@ -35,20 +32,10 @@ class DeckKeyword;
 ///
 ///
 //==================================================================================================
-class RimKeywordWelspecs : public caf::PdmObject
+namespace RimKeywordFactory
 {
-    CAF_PDM_HEADER_INIT;
 
-public:
-    RimKeywordWelspecs();
-    ~RimKeywordWelspecs() override;
+Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath );
+Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath );
 
-    void setEclipseCase( RimEclipseCase* eclipseCase );
-    void setWellPath( RimWellPath* wellPath );
-
-    Opm::DeckKeyword keyword( const QString& grpName );
-
-private:
-    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
-    caf::PdmPtrField<RimWellPath*>    m_wellPath;
-};
+} // namespace RimKeywordFactory
