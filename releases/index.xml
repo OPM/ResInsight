@@ -12,7 +12,7 @@
       <link>https://resinsight.org/releases/linux-installation/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/releases/linux-installation/index.html</guid>
-      <description>Install From Binary Packages on Linux Info&#xD;Please not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.&#xA;Ubuntu On the command line do:&#xA;sudo apt-get update&#xD;sudo apt-get install software-properties-common&#xD;sudo apt-add-repository ppa:opm/ppa&#xD;sudo apt-get update&#xD;sudo apt-get install resinsight&#xD;sudo apt-get install octave-resinsight&#xD;Launch the application using the command ResInsight</description>
+      <description>Install From Binary Packages on Linux Info&#xD;Please not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.&#xA;Ubuntu (no Python support) The apt-get package does not contain Python support due to build server issues.&#xA;sudo apt-get update&#xD;sudo apt-get install software-properties-common&#xD;sudo apt-add-repository ppa:opm/ppa&#xD;sudo apt-get update&#xD;sudo apt-get install resinsight&#xD;sudo apt-get install octave-resinsight&#xD;Launch the application using the command ResInsight</description>
     </item>
     <item>
       <title>Windows Installation</title>
