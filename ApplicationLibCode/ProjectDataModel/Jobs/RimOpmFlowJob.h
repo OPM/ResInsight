@@ -102,7 +102,7 @@ private:
 
     static QString readFileContent( QString filename );
 
-    bool        mergeBasicWellSettings();
+    int         mergeBasicWellSettings();
     std::string exportMswWellSettings( int timeStep );
     void        selectOpenWellPosition();
     void        resetEnsembleRunId();

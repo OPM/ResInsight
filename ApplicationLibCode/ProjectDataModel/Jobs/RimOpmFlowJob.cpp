@@ -801,7 +801,8 @@ bool RimOpmFlowJob::onPrepare()
         }
         else
         {
-            if ( !mergeBasicWellSettings() )
+            mergePosition = mergeBasicWellSettings();
+            if ( mergePosition < 0 )
             {
                 RiaLogging::error( "Unable to merge new well data into DATA file. Please check file format." );
                 return false;
@@ -1002,33 +1003,38 @@ RimEclipseCase* RimOpmFlowJob::findExistingCase( QString filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimOpmFlowJob::mergeBasicWellSettings()
+int RimOpmFlowJob::mergeBasicWellSettings()
 {
+    const int failure = -1;
+
+    int mergePosition = m_openWellDeckPosition();
+
     auto compdatKw  = RimKeywordFactory::compdatKeyword( m_eclipseCase(), m_wellPath() );
     auto welspecsKw = RimKeywordFactory::welspecsKeyword( m_wellGroupName().toStdString(), m_eclipseCase(), m_wellPath() );
 
     if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
     {
         // reverse order for correct insertion order
-        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compdatKw ) ) return false;
-        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welspecsKw ) ) return false;
+        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compdatKw ) ) return failure;
+        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welspecsKw ) ) return failure;
+        return mergePosition;
     }
     else
     {
-        auto position = m_openWellDeckPosition();
-        position      = m_deckFile->mergeKeywordAtPosition( position, welspecsKw );
-        if ( position < 0 ) return false;
-        position = m_deckFile->mergeKeywordAtPosition( position, compdatKw );
-        if ( position < 0 ) return false;
+        mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, welspecsKw );
+        if ( mergePosition < 0 ) return failure;
+        mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, compdatKw );
+        if ( mergePosition < 0 ) return failure;
     }
 
     // increase wells and connections in welldims to make sure they are big enough
     auto additionalConnections = (int)compdatKw.size();
     auto welldims              = m_deckFile->welldims();
-    return m_deckFile->setWelldims( (int)welldims[0] + 1,
-                                    (int)( welldims[1] + additionalConnections ),
-                                    (int)welldims[2] + 1,
-                                    (int)welldims[3] + 1 );
+    if ( !m_deckFile->setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2] + 1, (int)welldims[3] + 1 ) )
+    {
+        return failure;
+    }
+    return mergePosition;
 }
 
 //--------------------------------------------------------------------------------------------------
