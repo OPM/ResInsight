@@ -126,26 +126,26 @@ Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath )
         items.push_back( RifOpmDeckTools::item( C::STATE::itemName, "OPEN" ) );
 
         auto satTable = cd.saturation();
-        items.push_back( satTable != cd.defaultValue() ? RifOpmDeckTools::item( C::SAT_TABLE::itemName, satTable )
-                                                       : RifOpmDeckTools::defaultItem( C::SAT_TABLE::itemName ) );
+        items.push_back( satTable != RigCompletionData::defaultValue() ? RifOpmDeckTools::item( C::SAT_TABLE::itemName, satTable )
+                                                                       : RifOpmDeckTools::defaultItem( C::SAT_TABLE::itemName ) );
 
         auto transmissibility = cd.transmissibility();
-        items.push_back( transmissibility != cd.defaultValue()
+        items.push_back( transmissibility != RigCompletionData::defaultValue()
                              ? RifOpmDeckTools::item( C::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName, transmissibility )
                              : RifOpmDeckTools::defaultItem( C::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName ) );
 
         auto diameter = cd.diameter();
-        items.push_back( diameter != cd.defaultValue() ? RifOpmDeckTools::item( C::DIAMETER::itemName, diameter )
-                                                       : RifOpmDeckTools::defaultItem( C::DIAMETER::itemName ) );
+        items.push_back( diameter != RigCompletionData::defaultValue() ? RifOpmDeckTools::item( C::DIAMETER::itemName, diameter )
+                                                                       : RifOpmDeckTools::defaultItem( C::DIAMETER::itemName ) );
         auto kh = cd.kh();
-        items.push_back( kh != cd.defaultValue() ? RifOpmDeckTools::item( C::Kh::itemName, kh )
-                                                 : RifOpmDeckTools::defaultItem( C::Kh::itemName ) );
+        items.push_back( kh != RigCompletionData::defaultValue() ? RifOpmDeckTools::item( C::Kh::itemName, kh )
+                                                                 : RifOpmDeckTools::defaultItem( C::Kh::itemName ) );
         auto skinFactor = cd.skinFactor();
-        items.push_back( skinFactor != cd.defaultValue() ? RifOpmDeckTools::item( C::SKIN::itemName, skinFactor )
-                                                         : RifOpmDeckTools::defaultItem( C::SKIN::itemName ) );
+        items.push_back( skinFactor != RigCompletionData::defaultValue() ? RifOpmDeckTools::item( C::SKIN::itemName, skinFactor )
+                                                                         : RifOpmDeckTools::defaultItem( C::SKIN::itemName ) );
         auto dFactor = cd.dFactor();
-        items.push_back( dFactor != cd.defaultValue() ? RifOpmDeckTools::item( C::D_FACTOR::itemName, dFactor )
-                                                      : RifOpmDeckTools::defaultItem( C::D_FACTOR::itemName ) );
+        items.push_back( dFactor != RigCompletionData::defaultValue() ? RifOpmDeckTools::item( C::D_FACTOR::itemName, dFactor )
+                                                                      : RifOpmDeckTools::defaultItem( C::D_FACTOR::itemName ) );
 
         items.push_back( RifOpmDeckTools::item( C::DIR::itemName, cd.directionStringXYZ().toStdString() ) );
 
