@@ -7,9 +7,12 @@
 
 #include "RigEclipseResultTools.h"
 
+#include "ProjectDataModel/Jobs/RimKeywordFactory.h"
+
 #include "cvfStructGrid.h"
 
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
+#include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 
@@ -268,11 +271,12 @@ TEST( RifOpmFlowDeckFileTest, AddOperaterKeyword )
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Add OPERATER statement to GRID section: PORV 9 MULTX PORV 1.0e6 1* 1*
-    bool addSuccess = deckFile.addOperaterKeyword( "GRID", "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt );
+    bool addSuccess = deckFile.replaceKeyword( "GRID", RimKeywordFactory::operaterKeyword( "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt ) );
     EXPECT_TRUE( addSuccess ) << "Should successfully add OPERATER statement in GRID section";
 
     // Test adding to non-existent section
-    bool addFailure = deckFile.addOperaterKeyword( "NONEXISTENT", "PORV", 1, "MULTX", "PORV", std::nullopt, std::nullopt );
+    bool addFailure = deckFile.replaceKeyword( "NONEXISTENT",
+                                               RimKeywordFactory::operaterKeyword( "PORV", 1, "MULTX", "PORV", std::nullopt, std::nullopt ) );
     EXPECT_FALSE( addFailure ) << "Should fail when adding to non-existent section";
 
     // Verify the keywords list contains our OPERATER statement
@@ -304,7 +308,7 @@ TEST( RifOpmFlowDeckFileTest, AddOperaterSaveAndReload )
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Add OPERATER statement: PORV 9 MULTX PORV 1.0e6 1* 1*
-    bool addSuccess = deckFile.addOperaterKeyword( "GRID", "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt );
+    bool addSuccess = deckFile.replaceKeyword( "GRID", RimKeywordFactory::operaterKeyword( "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt ) );
     EXPECT_TRUE( addSuccess ) << "Should successfully add OPERATER statement";
 
     // Save the deck to a temporary location
@@ -406,9 +410,10 @@ TEST( RifOpmFlowDeckFileTest, BcpropKeyword )
         bcProperties.push_back( Opm::DeckRecord{ std::move( items ) } );
     }
 
-    // Add BCPROP keyword
-    bool bcpropAdded = deckFile.addBcpropKeyword( "GRID", boundaryConditions, bcProperties );
-    ASSERT_TRUE( bcpropAdded ) << "Failed to add BCPROP keyword";
+    // Create BCPROP keyword using factory and replace in deck
+    Opm::DeckKeyword bcpropKw    = RimKeywordFactory::bcpropKeyword( boundaryConditions, bcProperties );
+    bool             bcpropAdded = deckFile.replaceKeyword( "GRID", bcpropKw );
+    ASSERT_TRUE( bcpropAdded ) << "Failed to replace BCPROP keyword";
 
     // Save deck and verify format
     QString outputDeckPath = tempDir.filePath( "output_bcprop.DATA" );

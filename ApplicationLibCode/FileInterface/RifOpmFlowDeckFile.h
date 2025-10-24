@@ -34,11 +34,6 @@ class DeckRecord;
 class ParseContext;
 } // namespace Opm
 
-namespace RigEclipseResultTools
-{
-struct BorderCellFace;
-}
-
 //==================================================================================================
 ///
 ///
@@ -81,18 +76,6 @@ public:
     bool             ensureRegdimsKeyword();
 
     bool addIncludeKeyword( std::string section, std::string keyword, std::string filePath );
-    bool addOperaterKeyword( std::string          section,
-                             std::string          targetProperty,
-                             int                  regionId,
-                             std::string          equation,
-                             std::string          inputProperty,
-                             std::optional<float> alpha,
-                             std::optional<float> beta );
-
-    bool addBcconKeyword( std::string section, const std::vector<RigEclipseResultTools::BorderCellFace>& borderCellFaces );
-    bool addBcpropKeyword( std::string                                               section,
-                           const std::vector<RigEclipseResultTools::BorderCellFace>& boundaryConditions,
-                           const std::vector<Opm::DeckRecord>&                       boundaryConditionProperties );
 
     bool replaceKeywordData( const std::string& keyword, const std::vector<double>& data );
     bool replaceKeywordData( const std::string& keyword, const std::vector<int>& data );

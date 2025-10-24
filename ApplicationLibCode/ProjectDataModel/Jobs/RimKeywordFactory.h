@@ -20,7 +20,9 @@
 
 #include "cvfVector3.h"
 
+#include <optional>
 #include <string>
+#include <vector>
 
 class RigMainGrid;
 class RimEclipseCase;
@@ -29,12 +31,18 @@ class RimWellPath;
 namespace Opm
 {
 class DeckKeyword;
+class DeckRecord;
 } // namespace Opm
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
+namespace RigEclipseResultTools
+{
+struct BorderCellFace;
+}
+
 namespace RimKeywordFactory
 {
 
@@ -44,5 +52,14 @@ Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid,
                                 const cvf::Vec3st& min        = cvf::Vec3st::ZERO,
                                 const cvf::Vec3st& max        = cvf::Vec3st::UNDEFINED,
                                 const cvf::Vec3st& refinement = cvf::Vec3st( 1, 1, 1 ) );
+Opm::DeckKeyword bcconKeyword( const std::vector<RigEclipseResultTools::BorderCellFace>& borderCellFaces );
+Opm::DeckKeyword bcpropKeyword( const std::vector<RigEclipseResultTools::BorderCellFace>& boundaryConditions,
+                                const std::vector<Opm::DeckRecord>&                       boundaryConditionProperties );
+Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
+                                  int                  regionId,
+                                  std::string          equation,
+                                  std::string          inputProperty,
+                                  std::optional<float> alpha = std::nullopt,
+                                  std::optional<float> beta  = std::nullopt );
 
 } // namespace RimKeywordFactory

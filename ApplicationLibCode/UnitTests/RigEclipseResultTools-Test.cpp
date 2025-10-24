@@ -25,12 +25,16 @@
 #include "RifReaderEclipseOutput.h"
 #include "RigEclipseResultTools.h"
 
+#include "ProjectDataModel/Jobs/RimKeywordFactory.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 #include "RimEclipseResultCase.h"
+
+#include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 
 #include <QDir>
 #include <QFile>
@@ -175,9 +179,10 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
     bool               deckLoaded = deckFile.loadDeck( deckFilePath.toStdString() );
     ASSERT_TRUE( deckLoaded ) << "Failed to load deck file";
 
-    // Add BCCON keyword
-    bool bcconAdded = deckFile.addBcconKeyword( "GRID", borderCellFaces );
-    ASSERT_TRUE( bcconAdded ) << "Failed to add BCCON keyword";
+    // Create BCCON keyword using factory and replace in deck
+    Opm::DeckKeyword bcconKw    = RimKeywordFactory::bcconKeyword( borderCellFaces );
+    bool             bcconAdded = deckFile.replaceKeyword( "GRID", bcconKw );
+    ASSERT_TRUE( bcconAdded ) << "Failed to replace BCCON keyword";
 
     // Step 7: Save deck and verify format
     QString outputDeckPath = tempDir.filePath( "output_bccon.DATA" );

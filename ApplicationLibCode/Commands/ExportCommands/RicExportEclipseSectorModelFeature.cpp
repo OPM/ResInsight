@@ -471,10 +471,13 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBounda
 
     if ( !borderCellFaces.empty() )
     {
-        // Add BCCON keyword
-        if ( !deckFile.addBcconKeyword( "GRID", borderCellFaces ) )
+        // Create BCCON keyword using the factory
+        Opm::DeckKeyword bcconKw = RimKeywordFactory::bcconKeyword( borderCellFaces );
+
+        // Replace BCCON keyword in GRID section
+        if ( !deckFile.replaceKeyword( "GRID", bcconKw ) )
         {
-            return std::unexpected( "Failed to add BCCON keyword to deck file" );
+            return std::unexpected( "Failed to replace BCCON keyword in deck file" );
         }
 
         // Build BCPROP records from the UI configuration
@@ -489,10 +492,13 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBounda
             }
         }
 
-        // Add BCPROP keyword
-        if ( !deckFile.addBcpropKeyword( "GRID", borderCellFaces, bcpropRecords ) )
+        // Create BCPROP keyword using the factory
+        Opm::DeckKeyword bcpropKw = RimKeywordFactory::bcpropKeyword( borderCellFaces, bcpropRecords );
+
+        // Replace BCPROP keyword in GRID section
+        if ( !deckFile.replaceKeyword( "GRID", bcpropKw ) )
         {
-            return std::unexpected( "Failed to add BCPROP keyword to deck file" );
+            return std::unexpected( "Failed to replace BCPROP keyword in deck file" );
         }
     }
     else
