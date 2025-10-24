@@ -432,6 +432,56 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
         return;
     }
 
+    // Extract fault data using the common method
+    std::vector<RigFault::CellAndFace> faultCellAndFaces = extractFaults( mainGrid, faultFaces, min, maxIn, refinement );
+
+    size_t                             lastI        = std::numeric_limits<size_t>::max();
+    size_t                             lastJ        = std::numeric_limits<size_t>::max();
+    size_t                             lastK        = std::numeric_limits<size_t>::max();
+    size_t                             startK       = std::numeric_limits<size_t>::max();
+    cvf::StructGridInterface::FaceType lastFaceType = cvf::StructGridInterface::FaceType::NO_FACE;
+
+    for ( const RigFault::CellAndFace& faultCellAndFace : faultCellAndFaces )
+    {
+        size_t                             i, j, k;
+        cvf::StructGridInterface::FaceType faceType;
+        std::tie( i, j, k, faceType ) = faultCellAndFace;
+
+        if ( i != lastI || j != lastJ || lastFaceType != faceType || k != lastK + 1 )
+        {
+            // No fault should have no face
+            if ( lastFaceType != cvf::StructGridInterface::FaceType::NO_FACE )
+            {
+                writeFaultLine( stream, faultName, lastI, lastJ, startK, lastK, lastFaceType );
+            }
+            lastI        = i;
+            lastJ        = j;
+            lastK        = k;
+            lastFaceType = faceType;
+            startK       = k;
+        }
+        else
+        {
+            lastK = k;
+        }
+    }
+
+    // No fault should have no face
+    if ( lastFaceType != cvf::StructGridInterface::FaceType::NO_FACE )
+    {
+        writeFaultLine( stream, faultName, lastI, lastJ, startK, lastK, lastFaceType );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( const RigMainGrid*                      mainGrid,
+                                                                            const std::vector<RigFault::FaultFace>& faultFaces,
+                                                                            const cvf::Vec3st& min /*= cvf::Vec3st::ZERO*/,
+                                                                            const cvf::Vec3st& maxIn /*= cvf::Vec3st::UNDEFINED*/,
+                                                                            const cvf::Vec3st& refinement /*= cvf::Vec3st( 1, 1, 1 )*/ )
+{
     std::vector<RigFault::CellAndFace> faultCellAndFaces;
 
     cvf::Vec3st max = maxIn;
@@ -451,21 +501,6 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
         size_t shifted_i = ( i - min.x() ) * refinement.x();
         size_t shifted_j = ( j - min.y() ) * refinement.y();
         size_t shifted_k = ( k - min.z() ) * refinement.z();
-
-        //  2x2 Refinement of Original Cell 0, 0
-        // Y/J  POS_J boundary
-        // ^  _______________
-        // | |       |       |
-        // | |  0,1  |  1,1  |
-        // | |_______|_______|   POS_I boundary
-        // | |       |       |
-        // | |  0,0  |  1,0  |
-        // | |_______|_______|
-        // ---------------------> X/I
-        //       NEG_J boundary
-        //
-        //  POS_J gets shifted 1 index in J direction, NEG_J stays the same in J but spans two I.
-        //  POS_I gets shifted 1 index in I direction, NEG_I stays the same in I but spans two J.
 
         if ( refinement != cvf::Vec3st( 1, 1, 1 ) )
         {
@@ -528,42 +563,7 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
     // Sort order: i, j, face then k.
     std::sort( faultCellAndFaces.begin(), faultCellAndFaces.end(), RigFault::ordering );
 
-    size_t                             lastI        = std::numeric_limits<size_t>::max();
-    size_t                             lastJ        = std::numeric_limits<size_t>::max();
-    size_t                             lastK        = std::numeric_limits<size_t>::max();
-    size_t                             startK       = std::numeric_limits<size_t>::max();
-    cvf::StructGridInterface::FaceType lastFaceType = cvf::StructGridInterface::FaceType::NO_FACE;
-
-    for ( const RigFault::CellAndFace& faultCellAndFace : faultCellAndFaces )
-    {
-        size_t                             i, j, k;
-        cvf::StructGridInterface::FaceType faceType;
-        std::tie( i, j, k, faceType ) = faultCellAndFace;
-
-        if ( i != lastI || j != lastJ || lastFaceType != faceType || k != lastK + 1 )
-        {
-            // No fault should have no face
-            if ( lastFaceType != cvf::StructGridInterface::FaceType::NO_FACE )
-            {
-                writeFaultLine( stream, faultName, lastI, lastJ, startK, lastK, lastFaceType );
-            }
-            lastI        = i;
-            lastJ        = j;
-            lastK        = k;
-            lastFaceType = faceType;
-            startK       = k;
-        }
-        else
-        {
-            lastK = k;
-        }
-    }
-
-    // No fault should have no face
-    if ( lastFaceType != cvf::StructGridInterface::FaceType::NO_FACE )
-    {
-        writeFaultLine( stream, faultName, lastI, lastJ, startK, lastK, lastFaceType );
-    }
+    return faultCellAndFaces;
 }
 
 //--------------------------------------------------------------------------------------------------
