@@ -25,6 +25,7 @@
 #include "RifEclipseInputFileTools.h"
 #include "RifOpmDeckTools.h"
 
+#include "RigEclipseResultTools.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
@@ -38,8 +39,10 @@
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/F.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
 //==================================================================================================
@@ -287,6 +290,163 @@ Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid, const cvf::Vec3st& 
     }
 
     return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword bcconKeyword( const std::vector<RigEclipseResultTools::BorderCellFace>& borderCellFaces )
+{
+    if ( borderCellFaces.empty() )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    // Helper lambda to convert FaceType to Eclipse face string
+    auto faceTypeToString = []( cvf::StructGridInterface::FaceType faceType ) -> std::string
+    {
+        switch ( faceType )
+        {
+            case cvf::StructGridInterface::POS_I:
+                return "X";
+            case cvf::StructGridInterface::NEG_I:
+                return "X-";
+            case cvf::StructGridInterface::POS_J:
+                return "Y";
+            case cvf::StructGridInterface::NEG_J:
+                return "Y-";
+            case cvf::StructGridInterface::POS_K:
+                return "Z";
+            case cvf::StructGridInterface::NEG_K:
+                return "Z-";
+            default:
+                return "";
+        }
+    };
+
+    using B = Opm::ParserKeywords::BCCON;
+
+    Opm::DeckKeyword kw{ Opm::ParserKeywords::BCCON() };
+
+    for ( const auto& borderFace : borderCellFaces )
+    {
+        // Convert from 0-based to 1-based Eclipse indexing
+        int i1 = static_cast<int>( borderFace.ijk[0] ) + 1;
+        int j1 = static_cast<int>( borderFace.ijk[1] ) + 1;
+        int k1 = static_cast<int>( borderFace.ijk[2] ) + 1;
+
+        std::string faceStr = faceTypeToString( borderFace.faceType );
+
+        // Create items for the record
+        std::vector<Opm::DeckItem> items;
+
+        items.push_back( RifOpmDeckTools::item( B::INDEX::itemName, borderFace.boundaryCondition ) );
+        items.push_back( RifOpmDeckTools::item( B::I1::itemName, i1 ) );
+        items.push_back( RifOpmDeckTools::item( B::I2::itemName, i1 ) );
+        items.push_back( RifOpmDeckTools::item( B::J1::itemName, j1 ) );
+        items.push_back( RifOpmDeckTools::item( B::J2::itemName, j1 ) );
+        items.push_back( RifOpmDeckTools::item( B::K1::itemName, k1 ) );
+        items.push_back( RifOpmDeckTools::item( B::K2::itemName, k1 ) );
+        items.push_back( RifOpmDeckTools::item( B::DIRECTION::itemName, faceStr ) );
+
+        kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword bcpropKeyword( const std::vector<RigEclipseResultTools::BorderCellFace>& boundaryConditions,
+                                const std::vector<Opm::DeckRecord>&                       boundaryConditionProperties )
+{
+    if ( boundaryConditions.empty() )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    using B = Opm::ParserKeywords::BCPROP;
+
+    Opm::DeckKeyword kw{ Opm::ParserKeywords::BCPROP() };
+
+    // Add one entry per boundary condition
+    for ( const auto& bc : boundaryConditions )
+    {
+        if ( bc.boundaryCondition <= 0 ) continue; // Skip entries without a valid boundary condition
+
+        // Find the corresponding property record
+        // The properties vector should be indexed by boundaryCondition - 1
+        size_t propIndex = static_cast<size_t>( bc.boundaryCondition - 1 );
+        if ( propIndex < boundaryConditionProperties.size() )
+        {
+            const auto& propRecord = boundaryConditionProperties[propIndex];
+
+            // Create a new record with the boundary condition INDEX
+            std::vector<Opm::DeckItem> items;
+
+            // Add INDEX field
+            items.push_back( RifOpmDeckTools::item( B::INDEX::itemName, bc.boundaryCondition ) );
+
+            // Copy all items from the property record (which doesn't include INDEX)
+            for ( size_t i = 0; i < propRecord.size(); ++i )
+            {
+                items.push_back( propRecord.getItem( i ) );
+            }
+
+            kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+        }
+    }
+
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
+                                  int                  regionId,
+                                  std::string          equation,
+                                  std::string          inputProperty,
+                                  std::optional<float> alpha,
+                                  std::optional<float> beta )
+{
+    using O = Opm::ParserKeywords::OPERATER;
+
+    // Create the OPERATER keyword
+    Opm::DeckKeyword operaterKw( ( Opm::ParserKeywords::OPERATER() ) );
+
+    std::vector<Opm::DeckItem> recordItems;
+    recordItems.push_back( RifOpmDeckTools::item( O::TARGET_ARRAY::itemName, targetProperty ) );
+    recordItems.push_back( RifOpmDeckTools::item( O::REGION_NUMBER::itemName, regionId ) );
+    recordItems.push_back( RifOpmDeckTools::item( O::OPERATION::itemName, equation ) );
+    recordItems.push_back( RifOpmDeckTools::item( O::ARRAY_PARAMETER::itemName, inputProperty ) );
+
+    // Add alpha parameter
+    if ( alpha.has_value() )
+    {
+        recordItems.push_back( RifOpmDeckTools::item( O::PARAM1::itemName, std::to_string( alpha.value() ) ) );
+    }
+    else
+    {
+        recordItems.push_back( RifOpmDeckTools::defaultItem( O::PARAM1::itemName ) );
+    }
+
+    // Add beta parameter
+    if ( beta.has_value() )
+    {
+        recordItems.push_back( RifOpmDeckTools::item( O::PARAM2::itemName, std::to_string( beta.value() ) ) );
+    }
+    else
+    {
+        recordItems.push_back( RifOpmDeckTools::defaultItem( O::PARAM2::itemName ) );
+    }
+
+    // Add final default item
+    recordItems.push_back( RifOpmDeckTools::defaultItem( O::REGION_NAME::itemName ) ); // 1* for the last field
+
+    operaterKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
+    return operaterKw;
 }
 
 } // namespace RimKeywordFactory
