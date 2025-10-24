@@ -1008,12 +1008,17 @@ void RicMswTableFormatterTools::writeCompletionsForSegment( gsl::not_null<const 
             writeValveWelsegsSegment( segment, segmentValve, formatter, exportInfo, maxSegmentLength, segmentNumber );
             *outletValve = segmentValve;
         }
-        else
+        else if ( dynamic_cast<RicMswTieInICV*>( completion ) )
         {
-            // If we have a valve, the outlet segment is the valve's segment
+            // Special handling for Tie-in ICVs
             RicMswSegment* outletSegment = *outletValve && ( *outletValve )->segmentCount() > 0 ? ( *outletValve )->segments().front()
                                                                                                 : segment.get();
             writeCompletionWelsegsSegments( outletSegment, completion, formatter, exportInfo, maxSegmentLength, segmentNumber );
+        }
+        else
+        {
+            // This is the default case for completions that are not valves
+            writeCompletionWelsegsSegments( segment, completion, formatter, exportInfo, maxSegmentLength, segmentNumber );
         }
     }
 }
