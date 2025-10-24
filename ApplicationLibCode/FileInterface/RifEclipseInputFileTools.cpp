@@ -477,10 +477,10 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( const RigMainGrid*                      mainGrid,
-                                                                             const std::vector<RigFault::FaultFace>& faultFaces,
-                                                                             const cvf::Vec3st&                      min /*= cvf::Vec3st::ZERO*/,
-                                                                             const cvf::Vec3st&                      maxIn /*= cvf::Vec3st::UNDEFINED*/,
-                                                                             const cvf::Vec3st& refinement /*= cvf::Vec3st( 1, 1, 1 )*/ )
+                                                                            const std::vector<RigFault::FaultFace>& faultFaces,
+                                                                            const cvf::Vec3st& min /*= cvf::Vec3st::ZERO*/,
+                                                                            const cvf::Vec3st& maxIn /*= cvf::Vec3st::UNDEFINED*/,
+                                                                            const cvf::Vec3st& refinement /*= cvf::Vec3st( 1, 1, 1 )*/ )
 {
     std::vector<RigFault::CellAndFace> faultCellAndFaces;
 

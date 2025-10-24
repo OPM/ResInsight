@@ -180,7 +180,7 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
     ASSERT_TRUE( deckLoaded ) << "Failed to load deck file";
 
     // Create BCCON keyword using factory and replace in deck
-    Opm::DeckKeyword bcconKw  = RimKeywordFactory::bcconKeyword( borderCellFaces );
+    Opm::DeckKeyword bcconKw    = RimKeywordFactory::bcconKeyword( borderCellFaces );
     bool             bcconAdded = deckFile.replaceKeyword( "GRID", bcconKw );
     ASSERT_TRUE( bcconAdded ) << "Failed to replace BCCON keyword";
 
