@@ -97,28 +97,8 @@ jobs:
       - name: Use MSVC (Windows)
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Download buildcache
-        id: buildcache-download
-        shell: cmake -P {0}
-        run: |
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(buildcache_suffix "windows.zip")
-          elseif ("${{ runner.os }}" STREQUAL "macOS")
-            set(buildcache_suffix "macos.zip")
-          elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(buildcache_suffix "linux-amd64.tar.gz")
-          endif()
-
-          set(buildcache_url "https://gitlab.com/bits-n-bites/buildcache/-/releases/v0.31.4/downloads/buildcache-${buildcache_suffix}")
-
-          file(DOWNLOAD "${buildcache_url}" ./buildcache.zip)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./buildcache.zip)
-
-          if (NOT "${{ runner.os }}" STREQUAL "Windows")
-            execute_process(
-              COMMAND chmod +x buildcache/bin/buildcache
-            )
-          endif()
+      - name: Setup buildcache
+        uses: CeetronSolutions/setup-buildcache-action@v1
 
       - name: Get current time
         uses: josStorer/get-current-time@v2
@@ -137,9 +117,6 @@ jobs:
           key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-cache-v03-${{ steps.current-time.outputs.formattedTime }}
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force
-        shell: pwsh
-      - name: Add buildcache to system path
-        run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
 
       - name: Set apt mirror
@@ -225,7 +202,7 @@ jobs:
           cmake --build cmakebuild --target install
 
       - name: Stats for buildcache
-        run: ${{ github.workspace }}/buildcache/bin/buildcache -s
+        run: buildcache -s
 
       - name: Run Unit Tests
         if: matrix.config.execute-unit-tests
