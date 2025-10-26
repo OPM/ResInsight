@@ -98,7 +98,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup buildcache
-        uses: CeetronSolutions/setup-buildcache-action@v1
+        uses: CeetronSolutions/setup-buildcache-action@v1.0
 
       - name: Get current time
         uses: josStorer/get-current-time@v2
