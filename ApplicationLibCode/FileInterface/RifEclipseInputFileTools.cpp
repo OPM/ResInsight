@@ -654,7 +654,7 @@ void RifEclipseInputFileTools::parseAndReadPathAliasKeyword( const QString&     
     char buf[1024];
 
     QFile data( fileName );
-    data.open( QFile::ReadOnly );
+    if ( !data.open( QFile::ReadOnly ) ) return;
 
     QString line;
 
