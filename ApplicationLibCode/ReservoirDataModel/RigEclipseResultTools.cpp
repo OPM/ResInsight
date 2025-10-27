@@ -19,6 +19,7 @@
 #include "RigEclipseResultTools.h"
 
 #include "RiaDefines.h"
+#include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 
 #include "RiaResultNames.h"
@@ -115,7 +116,8 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
     // Auto-determine border cell value if not specified
     if ( borderCellValue == -1 )
     {
-        int maxOperNum  = findMaxOperNumValue( eclipseCase );
+        int maxOperNum = findMaxOperNumValue( eclipseCase );
+        RiaLogging::info( QString( "Found max OPERNUM: %1" ).arg( maxOperNum ) );
         borderCellValue = maxOperNum + 1;
     }
 
@@ -167,7 +169,8 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
         auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
         if ( !bordNumValues.empty() )
         {
-            if ( result.empty() ) result.resize( bordNumValues.size(), 0 );
+            result.resize( bordNumValues.size(), 0 );
+
             for ( auto activeCellIdx : activeReservoirCellIdxs )
             {
                 // If BORDNUM = 1 (BORDER_CELL), assign the border cell value
