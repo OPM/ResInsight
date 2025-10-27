@@ -469,6 +469,28 @@ std::optional<Opm::DeckKeyword> RifOpmFlowDeckFile::findKeyword( const std::stri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<Opm::DeckKeyword> RifOpmFlowDeckFile::findAllKeywords( const std::string& keyword )
+{
+    std::vector<Opm::DeckKeyword> results;
+
+    if ( m_fileDeck.get() == nullptr ) return results;
+
+    // Iterate through all keywords in the deck
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        const auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == keyword )
+        {
+            results.push_back( kw );
+        }
+    }
+
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::hasDatesKeyword()
 {
     if ( m_fileDeck.get() == nullptr ) return false;
@@ -786,6 +808,105 @@ bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
 
     m_fileDeck->insert( insertIdx, regdimsKw );
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::replaceAllKeywords( const std::string& keywordName, const std::vector<Opm::DeckKeyword>& keywords )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Find all indices where this keyword appears
+    std::vector<Opm::FileDeck::Index> indices;
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        const auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == keywordName )
+        {
+            indices.push_back( it );
+        }
+    }
+
+    if ( indices.empty() ) return true; // No keywords to replace
+
+    // Save the position of the first occurrence - we'll insert new keywords here
+    Opm::FileDeck::Index firstPosition = indices[0];
+
+    // Remove ALL occurrences in reverse order to maintain valid indices
+    for ( auto it = indices.rbegin(); it != indices.rend(); ++it )
+    {
+        m_fileDeck->erase( *it );
+    }
+
+    // Insert all new keywords at the position where the first occurrence was
+    // Insert in reverse order so they end up in correct order
+    for ( auto kwIt = keywords.rbegin(); kwIt != keywords.rend(); ++kwIt )
+    {
+        m_fileDeck->insert( firstPosition, *kwIt );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<Opm::FileDeck::Index, Opm::DeckKeyword>> RifOpmFlowDeckFile::findAllKeywordsWithIndices( const std::string& keyword )
+{
+    std::vector<std::pair<Opm::FileDeck::Index, Opm::DeckKeyword>> results;
+    if ( m_fileDeck.get() == nullptr ) return results;
+
+    // Iterate through all keywords in the deck
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        const auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == keyword )
+        {
+            results.push_back( std::make_pair( it, kw ) );
+        }
+    }
+
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::replaceKeywordAtIndex( const Opm::FileDeck::Index& index, const Opm::DeckKeyword& keyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Erase the keyword at the given index and insert the new one
+    m_fileDeck->erase( index );
+    m_fileDeck->insert( index, keyword );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOpmFlowDeckFile::removeSkipKeywords()
+{
+    if ( m_fileDeck.get() == nullptr ) return;
+
+    // Find all SKIP keywords
+    std::vector<Opm::FileDeck::Index> skipIndices;
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        const auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == "SKIP" )
+        {
+            skipIndices.push_back( it );
+        }
+    }
+
+    // Remove in reverse order to maintain valid indices
+    for ( auto it = skipIndices.rbegin(); it != skipIndices.rend(); ++it )
+    {
+        m_fileDeck->erase( *it );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

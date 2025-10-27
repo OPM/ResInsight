@@ -26,6 +26,7 @@
 #include "RicExportFeatureImpl.h"
 
 #include "RifEclipseInputFileTools.h"
+#include "RifOpmDeckTools.h"
 #include "RifOpmFlowDeckFile.h"
 #include "RifReaderEclipseOutput.h"
 
@@ -47,6 +48,9 @@
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
 #include "RigResdataGridConverter.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuPropertyViewTabWidget.h"
@@ -56,12 +60,20 @@
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
+#include "opm/common/OpmLog/KeywordLocation.hpp"
+#include "opm/input/eclipse/Deck/DeckItem.hpp"
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+#include "opm/input/eclipse/Utility/Typetools.hpp"
 
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
+
+#include <set>
+#include <string>
 
 CAF_CMD_SOURCE_INIT( RicExportEclipseSectorModelFeature, "RicExportEclipseInputGridFeature" );
 
@@ -336,7 +348,15 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
         {
             return result;
         }
+
+        if ( auto result = filterAndUpdateWellKeywords( &eclipseCase, exportSettings, deckFile ); !result )
+        {
+            return result;
+        }
     }
+
+    // Remove SKIP keywords that were used as placeholders for filtered-out keywords
+    deckFile.removeSkipKeywords();
 
     // Save the modified deck file to the export directory
     if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )
@@ -658,4 +678,470 @@ cvf::ref<cvf::UByteArray>
         default:
             return nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimWellData*>
+    RicExportEclipseSectorModelFeature::findIntersectingWells( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max )
+{
+    std::vector<RigSimWellData*> intersectingWells;
+
+    if ( !eclipseCase || !eclipseCase->eclipseCaseData() ) return intersectingWells;
+
+    const auto& wellResults = eclipseCase->eclipseCaseData()->wellResults();
+
+    for ( size_t wellIdx = 0; wellIdx < wellResults.size(); ++wellIdx )
+    {
+        const RigSimWellData* wellData = wellResults[wellIdx].p();
+        if ( !wellData ) continue;
+
+        bool intersects = false;
+
+        // Check all time steps for this well
+        for ( const auto& wellFrame : wellData->m_wellCellsTimeSteps )
+        {
+            // Check all result points in this frame
+            auto resultPoints = wellFrame.allResultPoints();
+            for ( const auto& point : resultPoints )
+            {
+                // Get IJK if available
+                auto ijkOpt = point.cellIjk();
+                if ( !ijkOpt.has_value() ) continue;
+
+                const auto& ijk = ijkOpt.value();
+
+                // Check if point is within bounding box (inclusive)
+                if ( static_cast<size_t>( ijk.i() ) >= min.x() && static_cast<size_t>( ijk.i() ) <= max.x() &&
+                     static_cast<size_t>( ijk.j() ) >= min.y() && static_cast<size_t>( ijk.j() ) <= max.y() &&
+                     static_cast<size_t>( ijk.k() ) >= min.z() && static_cast<size_t>( ijk.k() ) <= max.z() )
+                {
+                    intersects = true;
+                    break;
+                }
+            }
+            if ( intersects ) break;
+        }
+
+        if ( intersects )
+        {
+            // const_cast is safe here - we only need write access to collect well pointers
+            intersectingWells.push_back( const_cast<RigSimWellData*>( wellData ) );
+        }
+    }
+
+    return intersectingWells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<cvf::Vec3st, QString> RicExportEclipseSectorModelFeature::transformIjkToSectorCoordinates( const cvf::Vec3st& originalIjk,
+                                                                                                         const cvf::Vec3st& min,
+                                                                                                         const cvf::Vec3st& max,
+                                                                                                         const cvf::Vec3st& refinement )
+{
+    // Check if original IJK is within the sector bounds
+    if ( originalIjk.x() < min.x() || originalIjk.x() > max.x() || originalIjk.y() < min.y() || originalIjk.y() > max.y() ||
+         originalIjk.z() < min.z() || originalIjk.z() > max.z() )
+    {
+        return std::unexpected( QString( "IJK coordinates (%1, %2, %3) are outside sector bounds [(%4, %5, %6), (%7, %8, %9)]" )
+                                    .arg( originalIjk.x() )
+                                    .arg( originalIjk.y() )
+                                    .arg( originalIjk.z() )
+                                    .arg( min.x() )
+                                    .arg( min.y() )
+                                    .arg( min.z() )
+                                    .arg( max.x() )
+                                    .arg( max.y() )
+                                    .arg( max.z() ) );
+    }
+
+    // Transform to sector-relative coordinates with refinement
+    // Eclipse uses 1-based indexing, so we'll return 1-based coordinates
+    cvf::Vec3st sectorIjk;
+    sectorIjk.x() = ( originalIjk.x() - min.x() ) * refinement.x() + 1;
+    sectorIjk.y() = ( originalIjk.y() - min.y() ) * refinement.y() + 1;
+    sectorIjk.z() = ( originalIjk.z() - min.z() ) * refinement.z() + 1;
+
+    return sectorIjk;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<Opm::DeckRecord, QString>
+    RicExportEclipseSectorModelFeature::processWelspecsRecord( const Opm::DeckRecord&               record,
+                                                               const std::string&                   wellName,
+                                                               const RicExportEclipseSectorModelUi& exportSettings )
+{
+    // WELSPECS format: WELL GROUP HEAD_I HEAD_J REF_DEPTH ...
+    // Items: 0=WELL, 1=GROUP, 2=HEAD_I, 3=HEAD_J
+    if ( record.size() < 4 )
+    {
+        return std::unexpected( QString( "WELSPECS record for well %1 has insufficient items (expected at least 4, got %2)" )
+                                    .arg( wellName.c_str() )
+                                    .arg( record.size() ) );
+    }
+
+    std::vector<Opm::DeckItem> items;
+
+    // Copy well name and group
+    items.push_back( record.getItem( 0 ) );
+    items.push_back( record.getItem( 1 ) );
+
+    // Transform HEAD_I and HEAD_J
+    // Note: HEAD coordinates might be outside sector even if well has completions inside
+    // Clamp to sector bounds before transformation
+    int origI = record.getItem( 2 ).get<int>( 0 ) - 1; // Convert to 0-based
+    int origJ = record.getItem( 3 ).get<int>( 0 ) - 1;
+
+    // Clamp to sector bounds
+    size_t clampedI = std::max( exportSettings.min().x(), std::min( exportSettings.max().x(), static_cast<size_t>( origI ) ) );
+    size_t clampedJ = std::max( exportSettings.min().y(), std::min( exportSettings.max().y(), static_cast<size_t>( origJ ) ) );
+
+    // Transform with clamped coordinates (this will always succeed)
+    size_t sectorI = ( clampedI - exportSettings.min().x() ) * exportSettings.refinement().x() + 1;
+    size_t sectorJ = ( clampedJ - exportSettings.min().y() ) * exportSettings.refinement().y() + 1;
+
+    if ( origI < static_cast<int>( exportSettings.min().x() ) || origI > static_cast<int>( exportSettings.max().x() ) ||
+         origJ < static_cast<int>( exportSettings.min().y() ) || origJ > static_cast<int>( exportSettings.max().y() ) )
+    {
+        RiaLogging::info( QString( "Well %1 HEAD position (%2, %3) outside sector, clamped to (%4, %5)" )
+                              .arg( wellName.c_str() )
+                              .arg( origI + 1 )
+                              .arg( origJ + 1 )
+                              .arg( sectorI )
+                              .arg( sectorJ ) );
+    }
+
+    using W = Opm::ParserKeywords::WELSPECS;
+    items.push_back( RifOpmDeckTools::item( W::HEAD_I::itemName, static_cast<int>( sectorI ) ) );
+    items.push_back( RifOpmDeckTools::item( W::HEAD_J::itemName, static_cast<int>( sectorJ ) ) );
+
+    // Copy remaining items
+    for ( size_t i = 4; i < record.size(); ++i )
+    {
+        items.push_back( record.getItem( i ) );
+    }
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<Opm::DeckRecord, QString>
+    RicExportEclipseSectorModelFeature::processCompdatRecord( const Opm::DeckRecord&               record,
+                                                              const std::string&                   wellName,
+                                                              const RicExportEclipseSectorModelUi& exportSettings )
+{
+    // COMPDAT format: WELL I J K1 K2 STATE ...
+    // Items: 0=WELL, 1=I, 2=J, 3=K1, 4=K2
+    if ( record.size() < 5 )
+    {
+        return std::unexpected( QString( "COMPDAT record for well %1 has insufficient items (expected at least 5, got %2)" )
+                                    .arg( wellName.c_str() )
+                                    .arg( record.size() ) );
+    }
+
+    std::vector<Opm::DeckItem> items;
+
+    // Copy well name
+    items.push_back( record.getItem( 0 ) );
+
+    // Transform I, J, K1, K2
+    int origI  = record.getItem( 1 ).get<int>( 0 ) - 1; // Convert to 0-based
+    int origJ  = record.getItem( 2 ).get<int>( 0 ) - 1;
+    int origK1 = record.getItem( 3 ).get<int>( 0 ) - 1;
+    int origK2 = record.getItem( 4 ).get<int>( 0 ) - 1;
+
+    // Transform K1
+    cvf::Vec3st origIjkK1( origI, origJ, origK1 );
+    auto        transformResultK1 =
+        transformIjkToSectorCoordinates( origIjkK1, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+
+    // Transform K2
+    cvf::Vec3st origIjkK2( origI, origJ, origK2 );
+    auto        transformResultK2 =
+        transformIjkToSectorCoordinates( origIjkK2, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+
+    if ( !transformResultK1 )
+    {
+        return std::unexpected(
+            QString( "COMPDAT K1 coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResultK1.error() ) );
+    }
+
+    if ( !transformResultK2 )
+    {
+        return std::unexpected(
+            QString( "COMPDAT K2 coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResultK2.error() ) );
+    }
+
+    using C = Opm::ParserKeywords::COMPDAT;
+    items.push_back( RifOpmDeckTools::item( C::I::itemName, static_cast<int>( transformResultK1->x() ) ) );
+    items.push_back( RifOpmDeckTools::item( C::J::itemName, static_cast<int>( transformResultK1->y() ) ) );
+    items.push_back( RifOpmDeckTools::item( C::K1::itemName, static_cast<int>( transformResultK1->z() ) ) );
+    items.push_back( RifOpmDeckTools::item( C::K2::itemName, static_cast<int>( transformResultK2->z() ) ) );
+
+    // Copy remaining items
+    for ( size_t i = 5; i < record.size(); ++i )
+    {
+        items.push_back( record.getItem( i ) );
+    }
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<Opm::DeckRecord, QString>
+    RicExportEclipseSectorModelFeature::processCompsegsRecord( const Opm::DeckRecord&               record,
+                                                               const std::string&                   wellName,
+                                                               bool                                 isWellNameRecord,
+                                                               const RicExportEclipseSectorModelUi& exportSettings )
+{
+    // COMPSEGS format: first record is well name, subsequent records are segment data
+    // Well name record: just copy as-is
+    if ( isWellNameRecord )
+    {
+        return Opm::DeckRecord( record );
+    }
+
+    // Segment record format: I J K BRANCH START_MD END_MD ...
+    // Items: 0=I, 1=J, 2=K
+    if ( record.size() < 3 )
+    {
+        return std::unexpected( QString( "COMPSEGS segment record for well %1 has insufficient items (expected at least 3, got %2)" )
+                                    .arg( wellName.c_str() )
+                                    .arg( record.size() ) );
+    }
+
+    std::vector<Opm::DeckItem> items;
+
+    // Transform I, J, K (first three items)
+    int origI = record.getItem( 0 ).get<int>( 0 ) - 1; // Convert to 0-based
+    int origJ = record.getItem( 1 ).get<int>( 0 ) - 1;
+    int origK = record.getItem( 2 ).get<int>( 0 ) - 1;
+
+    cvf::Vec3st origIjk( origI, origJ, origK );
+    auto transformResult = transformIjkToSectorCoordinates( origIjk, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+
+    if ( !transformResult )
+    {
+        return std::unexpected(
+            QString( "COMPSEGS segment coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResult.error() ) );
+    }
+
+    // Add transformed I, J, K
+    items.push_back( RifOpmDeckTools::item( "I", static_cast<int>( transformResult->x() ) ) );
+    items.push_back( RifOpmDeckTools::item( "J", static_cast<int>( transformResult->y() ) ) );
+    items.push_back( RifOpmDeckTools::item( "K", static_cast<int>( transformResult->z() ) ) );
+
+    // Copy remaining items
+    for ( size_t i = 3; i < record.size(); ++i )
+    {
+        items.push_back( record.getItem( i ) );
+    }
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RicExportEclipseSectorModelFeature::filterAndUpdateWellKeywords( RimEclipseCase* eclipseCase,
+                                                                                              const RicExportEclipseSectorModelUi& exportSettings,
+                                                                                              RifOpmFlowDeckFile& deckFile )
+{
+    // Find wells that intersect with the sector
+    auto intersectingWells = findIntersectingWells( eclipseCase, exportSettings.min(), exportSettings.max() );
+
+    if ( intersectingWells.empty() )
+    {
+        RiaLogging::info( "No wells intersect with the selected sector - no well filtering needed" );
+        return {};
+    }
+
+    // Create set of valid well names for fast lookup
+    std::set<std::string> validWellNames;
+    for ( const auto& wellData : intersectingWells )
+    {
+        if ( wellData )
+        {
+            validWellNames.insert( wellData->m_wellName.toStdString() );
+        }
+    }
+
+    RiaLogging::info( QString( "Found %1 wells intersecting with sector: %2" )
+                          .arg( validWellNames.size() )
+                          .arg( QString::fromStdString(
+                              [&validWellNames]()
+                              {
+                                  std::string names;
+                                  for ( const auto& name : validWellNames )
+                                  {
+                                      if ( !names.empty() ) names += ", ";
+                                      names += name;
+                                  }
+                                  return names;
+                              }() ) ) );
+
+    // List of well-related keywords to filter (keywords that reference well names)
+    std::vector<std::string> wellKeywords = { "COMPDAT",
+                                              "COMPLUMP",
+                                              "COMPORD",
+                                              "COMPSEGS",
+                                              "WCONHIST",
+                                              "WCONINJH",
+                                              "WCONPROD",
+                                              "WELSEGS",
+                                              "WELSPECS",
+                                              "WELTARG",
+                                              "WPAVEDEP",
+                                              "WRFTPLT",
+                                              "WTRACER" };
+
+    // Process each type of well keyword
+    // Use findAllKeywordsWithIndices to get all occurrences with their positions
+    for ( const auto& keywordName : wellKeywords )
+    {
+        auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( keywordName );
+        if ( keywordsWithIndices.empty() ) continue;
+
+        RiaLogging::info(
+            QString( "Processing %1 occurrence(s) of keyword '%2'" ).arg( keywordsWithIndices.size() ).arg( keywordName.c_str() ) );
+
+        int replacedCount = 0;
+        int removedCount  = 0;
+
+        // Process in reverse order so indices remain valid after modifications
+        for ( auto it = keywordsWithIndices.rbegin(); it != keywordsWithIndices.rend(); ++it )
+        {
+            const Opm::FileDeck::Index& index   = it->first;
+            const Opm::DeckKeyword&     keyword = it->second;
+
+            // Create new empty keyword with same name and location
+            Opm::DeckKeyword filteredKeyword( keyword.location(), keyword.name() );
+
+            // Track current well for COMPSEGS/WELSEGS (where only first record has well name)
+            std::string currentSegmentWell;
+            bool        keepSegmentRecords = false;
+
+            try
+            {
+                for ( size_t recordIdx = 0; recordIdx < keyword.size(); ++recordIdx )
+                {
+                    const auto& record = keyword.getRecord( recordIdx );
+
+                    // First item in well keywords is typically the well name
+                    if ( record.size() == 0 ) continue;
+
+                    const auto& wellNameItem = record.getItem( 0 );
+
+                    // Check if first item is a string (well name) or other type (segment data)
+                    bool isWellNameRecord = wellNameItem.hasValue( 0 ) && ( wellNameItem.getType() == Opm::type_tag::string );
+
+                    std::string wellName;
+                    if ( isWellNameRecord )
+                    {
+                        wellName = wellNameItem.get<std::string>( 0 );
+
+                        // For COMPSEGS/WELSEGS, update the current well context
+                        if ( keywordName == "COMPSEGS" || keywordName == "WELSEGS" )
+                        {
+                            currentSegmentWell = wellName;
+                            keepSegmentRecords = ( validWellNames.find( wellName ) != validWellNames.end() );
+                        }
+                    }
+                    else if ( keywordName == "COMPSEGS" || keywordName == "WELSEGS" )
+                    {
+                        // Segment data record - use the current well context
+                        wellName = currentSegmentWell;
+                    }
+
+                    // Check if this well is in our valid set
+                    if ( ( isWellNameRecord && validWellNames.find( wellName ) != validWellNames.end() ) ||
+                         ( !isWellNameRecord && ( keywordName == "COMPSEGS" || keywordName == "WELSEGS" ) && keepSegmentRecords ) )
+                    {
+                        // For keywords with IJK coordinates, we need to transform them
+                        if ( keywordName == "WELSPECS" )
+                        {
+                            auto result = processWelspecsRecord( record, wellName, exportSettings );
+                            if ( result )
+                            {
+                                filteredKeyword.addRecord( std::move( result.value() ) );
+                            }
+                            else
+                            {
+                                RiaLogging::warning(
+                                    QString( "Failed to process WELSPECS for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                            }
+                        }
+                        else if ( keywordName == "COMPDAT" )
+                        {
+                            auto result = processCompdatRecord( record, wellName, exportSettings );
+                            if ( result )
+                            {
+                                filteredKeyword.addRecord( std::move( result.value() ) );
+                            }
+                            else
+                            {
+                                RiaLogging::warning(
+                                    QString( "Failed to process COMPDAT for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                            }
+                        }
+                        else if ( keywordName == "COMPSEGS" )
+                        {
+                            auto result = processCompsegsRecord( record, wellName, isWellNameRecord, exportSettings );
+                            if ( result )
+                            {
+                                filteredKeyword.addRecord( std::move( result.value() ) );
+                            }
+                            else
+                            {
+                                RiaLogging::warning(
+                                    QString( "Failed to process COMPSEGS for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                            }
+                        }
+                        else if ( keywordName == "WELSEGS" )
+                        {
+                            // WELSEGS: just copy all records for now
+                            filteredKeyword.addRecord( Opm::DeckRecord( record ) );
+                        }
+                        else
+                        {
+                            // For other keywords (WCONHIST, WELTARG, etc.), just copy if well name matches
+                            filteredKeyword.addRecord( Opm::DeckRecord( record ) );
+                        }
+                    }
+                }
+            }
+            catch ( std::exception& e )
+            {
+                RiaLogging::warning( QString( "EXCEPTION for keyword '%1': %2" ).arg( keyword.name().c_str() ).arg( e.what() ) );
+            }
+
+            // Replace or remove this keyword occurrence in place
+            if ( filteredKeyword.size() == 0 )
+            {
+                // Keyword is empty after filtering - remove it
+                deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( keyword.location(), "SKIP" ) );
+                removedCount++;
+            }
+            else
+            {
+                // Replace with filtered version
+                deckFile.replaceKeywordAtIndex( index, filteredKeyword );
+                replacedCount++;
+            }
+        }
+
+        RiaLogging::info(
+            QString( "Processed keyword '%1': %2 replaced, %3 removed" ).arg( keywordName.c_str() ).arg( replacedCount ).arg( removedCount ) );
+    }
+
+    return {};
 }
