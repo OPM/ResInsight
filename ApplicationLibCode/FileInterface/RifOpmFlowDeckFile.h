@@ -59,15 +59,15 @@ public:
     bool restartAtTimeStep( int timeStep, std::string deckName );
     bool stopAtTimeStep( int timeStep );
 
-    std::vector<std::string>        keywords( bool includeDates = true );
-    std::optional<Opm::DeckKeyword> findKeyword( const std::string& keyword );
-    std::vector<Opm::DeckKeyword>   findAllKeywords( const std::string& keyword );
+    std::vector<std::string>                                       keywords( bool includeDates = true );
+    std::optional<Opm::DeckKeyword>                                findKeyword( const std::string& keyword );
+    std::vector<Opm::DeckKeyword>                                  findAllKeywords( const std::string& keyword );
     std::vector<std::pair<Opm::FileDeck::Index, Opm::DeckKeyword>> findAllKeywordsWithIndices( const std::string& keyword );
-    bool                            hasDatesKeyword();
-    bool                            isRestartFile();
-    std::vector<std::string>        dateStrings();
-    std::vector<std::time_t>        dates();
-    bool                            appendDateKeywords( const std::vector<std::time_t>& dates );
+    bool                                                           hasDatesKeyword();
+    bool                                                           isRestartFile();
+    std::vector<std::string>                                       dateStrings();
+    std::vector<std::time_t>                                       dates();
+    bool                                                           appendDateKeywords( const std::vector<std::time_t>& dates );
 
     std::set<std::string> wellGroupsInFile();
 

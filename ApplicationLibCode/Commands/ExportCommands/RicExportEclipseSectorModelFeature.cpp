@@ -905,15 +905,19 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::filterAndUpdate
                                 int origJ = record.getItem( 3 ).get<int>( 0 ) - 1;
 
                                 // Clamp to sector bounds
-                                size_t clampedI = std::max( exportSettings.min().x(), std::min( exportSettings.max().x(), static_cast<size_t>( origI ) ) );
-                                size_t clampedJ = std::max( exportSettings.min().y(), std::min( exportSettings.max().y(), static_cast<size_t>( origJ ) ) );
+                                size_t clampedI =
+                                    std::max( exportSettings.min().x(), std::min( exportSettings.max().x(), static_cast<size_t>( origI ) ) );
+                                size_t clampedJ =
+                                    std::max( exportSettings.min().y(), std::min( exportSettings.max().y(), static_cast<size_t>( origJ ) ) );
 
                                 // Transform with clamped coordinates (this will always succeed)
                                 size_t sectorI = ( clampedI - exportSettings.min().x() ) * exportSettings.refinement().x() + 1;
                                 size_t sectorJ = ( clampedJ - exportSettings.min().y() ) * exportSettings.refinement().y() + 1;
 
-                                if ( origI < static_cast<int>( exportSettings.min().x() ) || origI > static_cast<int>( exportSettings.max().x() ) ||
-                                     origJ < static_cast<int>( exportSettings.min().y() ) || origJ > static_cast<int>( exportSettings.max().y() ) )
+                                if ( origI < static_cast<int>( exportSettings.min().x() ) ||
+                                     origI > static_cast<int>( exportSettings.max().x() ) ||
+                                     origJ < static_cast<int>( exportSettings.min().y() ) ||
+                                     origJ > static_cast<int>( exportSettings.max().y() ) )
                                 {
                                     RiaLogging::info( QString( "Well %1 HEAD position (%2, %3) outside sector, clamped to (%4, %5)" )
                                                           .arg( wellName.c_str() )
