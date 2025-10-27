@@ -1906,6 +1906,7 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
 
         size_t resultIndex = activeCellInfo()->cellResultIndex( cellIdx );
         if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
+        if ( resultIndex >= actCellCount ) continue;
 
         bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
 
