@@ -25,9 +25,10 @@
 #include <string>
 #include <vector>
 
+#include "opm/input/eclipse/Deck/FileDeck.hpp"
+
 namespace Opm
 {
-class FileDeck;
 class DeckKeyword;
 class DeckItem;
 class DeckRecord;
@@ -60,6 +61,8 @@ public:
 
     std::vector<std::string>        keywords( bool includeDates = true );
     std::optional<Opm::DeckKeyword> findKeyword( const std::string& keyword );
+    std::vector<Opm::DeckKeyword>   findAllKeywords( const std::string& keyword );
+    std::vector<std::pair<Opm::FileDeck::Index, Opm::DeckKeyword>> findAllKeywordsWithIndices( const std::string& keyword );
     bool                            hasDatesKeyword();
     bool                            isRestartFile();
     std::vector<std::string>        dateStrings();
@@ -81,6 +84,10 @@ public:
     bool replaceKeywordData( const std::string& keyword, const std::vector<int>& data );
 
     bool replaceKeyword( const std::string& section, const Opm::DeckKeyword& keyword );
+    bool replaceAllKeywords( const std::string& keywordName, const std::vector<Opm::DeckKeyword>& keywords );
+    bool replaceKeywordAtIndex( const Opm::FileDeck::Index& index, const Opm::DeckKeyword& keyword );
+
+    void removeSkipKeywords();
 
 private:
     void splitDatesIfNecessary();
