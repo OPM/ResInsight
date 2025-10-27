@@ -238,14 +238,14 @@ jobs:
 
       - name: Upload python distribution folder
         if: matrix.config.publish-to-pypi
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: python-distribution
           path: GrpcInterface/Python/dist
           retention-days: 5
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
