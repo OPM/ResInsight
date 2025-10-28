@@ -783,29 +783,19 @@ bool RimOpmFlowJob::onPrepare()
         }
         m_wellPath->completionSettings()->setGroupName( m_wellGroupName() );
 
-        int mergePosition = m_openWellDeckPosition();
+        int mergePosition = mergeBasicWellSettings();
+        if ( mergePosition < 0 )
+        {
+            RiaLogging::error( "Unable to merge new well data into DATA file. Please check file format." );
+            return false;
+        }
 
         if ( ( m_includeMSWData ) && ( m_wellOpenType == WellOpenType::OPEN_AT_DATE ) )
         {
-            std::vector<std::string> mswData;
-            int                      nDates = (int)m_eclipseCase()->timeStepDates().size();
-            for ( int timeStep = 0; timeStep < nDates; timeStep++ )
-            {
-                mswData.push_back( exportMswWellSettings( timeStep ) );
-            }
-
-            if ( !m_deckFile->mergeMswData( mswData ) )
-            {
-                RiaLogging::error( "Failed to merge MSW data into file deck." );
-                return false;
-            }
-        }
-        else
-        {
-            mergePosition = mergeBasicWellSettings();
+            mergePosition = mergeMswData( mergePosition );
             if ( mergePosition < 0 )
             {
-                RiaLogging::error( "Unable to merge new well data into DATA file. Please check file format." );
+                RiaLogging::error( "Failed to merge MSW data into file deck." );
                 return false;
             }
         }
@@ -1031,8 +1021,10 @@ int RimOpmFlowJob::mergeBasicWellSettings()
     // increase wells and connections in welldims to make sure they are big enough
     auto additionalConnections = (int)compdatKw.size();
     auto welldims              = m_deckFile->welldims();
-    if ( !m_deckFile->setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2] + 1, (int)welldims[3] + 1 ) )
+    if ( ( welldims.size() < 4 ) ||
+         !m_deckFile->setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2] + 1, (int)welldims[3] + 1 ) )
     {
+        RiaLogging::error( "Failed to update WELLDIMS keyword in DATA file, is it missing?" );
         return failure;
     }
     return mergePosition;
@@ -1072,6 +1064,55 @@ std::string RimOpmFlowJob::exportMswWellSettings( int timeStep )
     QFile::remove( customMswLgrName );
 
     return fileContent.toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimOpmFlowJob::mergeMswData( int mergePosition )
+{
+    const int failure = -1;
+
+    auto mswData = exportMswWellSettings( 0 );
+
+    auto welsegsKw  = RimKeywordFactory::welsegsKeyword( m_eclipseCase(), m_wellPath(), mswData );
+    auto compsegsKw = RimKeywordFactory::compsegsKeyword( m_eclipseCase(), m_wellPath(), mswData );
+
+    if ( welsegsKw.size() < 1 || compsegsKw.size() < 1 )
+    {
+        RiaLogging::error( "Failed to create WELSEGS or COMPSEGS keyword from MSW data." );
+        return failure;
+    }
+
+    // TODO - only use merge position here, to make sure these keywords come after basic well keywords
+    if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+    {
+        // reverse order for correct insertion order
+        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compsegsKw ) ) return failure;
+        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welsegsKw ) ) return failure;
+        return 0;
+    }
+    else
+    {
+        mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, welsegsKw );
+        if ( mergePosition < 0 ) return failure;
+        mergePosition++;
+        mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, compsegsKw );
+        if ( mergePosition < 0 ) return failure;
+    }
+
+    int branches = (int)m_wellPath->allWellPathLaterals().size();
+
+    // increase wells and connections in welldims to make sure they are big enough
+    auto additionalSegments = (int)welsegsKw.size() - 1;
+    auto wsegdims           = m_deckFile->wsegdims();
+    auto maxBranches        = std::max( branches, wsegdims[2] );
+    if ( ( wsegdims.size() < 3 ) || !m_deckFile->setWsegdims( wsegdims[0] + 1, wsegdims[1] + additionalSegments, maxBranches ) )
+    {
+        RiaLogging::error( "Failed to update WSEGDIMS keyword in DATA file." );
+        return failure;
+    }
+    return mergePosition;
 }
 
 //--------------------------------------------------------------------------------------------------

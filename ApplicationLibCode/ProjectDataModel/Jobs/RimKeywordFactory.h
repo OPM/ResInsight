@@ -48,6 +48,10 @@ namespace RimKeywordFactory
 
 Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath );
 Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath );
+
+Opm::DeckKeyword welsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText );
+Opm::DeckKeyword compsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText );
+
 Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid,
                                 const cvf::Vec3st& min        = cvf::Vec3st::ZERO,
                                 const cvf::Vec3st& max        = cvf::Vec3st::UNDEFINED,

@@ -35,15 +35,39 @@
 
 #include "cvfStructGrid.h"
 
+#include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
-#include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/F.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+
+#include "opm/input/eclipse/Parser/ErrorGuard.hpp"
+#include "opm/input/eclipse/Parser/InputErrorAction.hpp"
+#include "opm/input/eclipse/Parser/ParseContext.hpp"
+#include "opm/input/eclipse/Parser/Parser.hpp"
+
+namespace internal
+{
+//--------------------------------------------------------------------------------------------------
+/// Temporary methods for MSW data while waiting for MSW export rewrite
+//--------------------------------------------------------------------------------------------------
+static Opm::ParseContext defaultParseContext()
+{
+    // Use the same default ParseContext as flow.
+    Opm::ParseContext pc( Opm::InputErrorAction::WARN );
+    pc.update( Opm::ParseContext::PARSE_RANDOM_SLASH, Opm::InputErrorAction::IGNORE );
+    pc.update( Opm::ParseContext::PARSE_MISSING_DIMS_KEYWORD, Opm::InputErrorAction::WARN );
+    pc.update( Opm::ParseContext::SUMMARY_UNKNOWN_WELL, Opm::InputErrorAction::WARN );
+    pc.update( Opm::ParseContext::SUMMARY_UNKNOWN_GROUP, Opm::InputErrorAction::WARN );
+
+    return pc;
+}
+
+} // namespace internal
 
 //==================================================================================================
 ///
@@ -156,6 +180,68 @@ Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath )
     }
 
     return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword welsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText )
+{
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    Opm::ErrorGuard errors{};
+
+    Opm::DeckKeyword newKw( ( Opm::ParserKeywords::WELSEGS() ) );
+
+    auto deck = Opm::Parser{}.parseString( completionText, internal::defaultParseContext(), errors );
+    for ( auto kwit = deck.begin(); kwit != deck.end(); kwit++ )
+    {
+        auto& existingKw = *kwit;
+
+        if ( existingKw.name() != Opm::ParserKeywords::WELSEGS::keywordName ) continue;
+
+        for ( size_t i = 0; i < existingKw.size(); i++ )
+        {
+            Opm::DeckRecord newRec( existingKw.getRecord( i ) );
+            newKw.addRecord( std::move( newRec ) );
+        }
+    }
+
+    return newKw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword compsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText )
+{
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    Opm::ErrorGuard errors{};
+
+    Opm::DeckKeyword newKw( ( Opm::ParserKeywords::COMPSEGS() ) );
+
+    auto deck = Opm::Parser{}.parseString( completionText, internal::defaultParseContext(), errors );
+    for ( auto kwit = deck.begin(); kwit != deck.end(); kwit++ )
+    {
+        auto& existingKw = *kwit;
+
+        if ( existingKw.name() != Opm::ParserKeywords::COMPSEGS::keywordName ) continue;
+
+        for ( size_t i = 0; i < existingKw.size(); i++ )
+        {
+            Opm::DeckRecord newRec( existingKw.getRecord( i ) );
+            newKw.addRecord( std::move( newRec ) );
+        }
+    }
+
+    return newKw;
 }
 
 //--------------------------------------------------------------------------------------------------

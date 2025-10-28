@@ -104,6 +104,7 @@ private:
 
     int         mergeBasicWellSettings();
     std::string exportMswWellSettings( int timeStep );
+    int         mergeMswData( int mergePosition );
     void        selectOpenWellPosition();
     void        resetEnsembleRunId();
 
