@@ -43,6 +43,8 @@
 
 #include <QHBoxLayout>
 
+#include <functional>
+
 //==================================================================================================
 //
 //
@@ -67,22 +69,22 @@ public:
 class RiuPvtQwtPicker : public QwtPicker
 {
 public:
-    RiuPvtQwtPicker( QwtPlot* plot, RiuPvtTrackerTextProvider* trackerTextProvider )
+    RiuPvtQwtPicker( QwtPlot* plot, std::function<QString()> textProvider )
         : QwtPicker( QwtPicker::NoRubberBand, QwtPicker::AlwaysOn, plot->canvas() )
-        , m_trackerTextProvider( trackerTextProvider )
+        , m_textProvider( textProvider )
     {
         setStateMachine( new QwtPickerTrackerMachine );
     }
 
     QwtText trackerText( const QPoint& ) const override
     {
-        QwtText text( m_trackerTextProvider->trackerText() );
+        QwtText text( m_textProvider() );
         text.setRenderFlags( Qt::AlignLeft );
         return text;
     }
 
 private:
-    const RiuPvtTrackerTextProvider* m_trackerTextProvider;
+    std::function<QString()> m_textProvider;
 };
 
 //==================================================================================================
@@ -112,7 +114,7 @@ RiuPvtPlotWidget::RiuPvtPlotWidget( RiuPvtPlotPanel* parent )
 
     setLayout( layout );
 
-    m_qwtPicker = new RiuPvtQwtPicker( m_qwtPlot, this );
+    m_qwtPicker = new RiuPvtQwtPicker( m_qwtPlot, [this]() { return m_trackerLabel; } );
     RiuGuiTheme::styleQwtItem( m_qwtPicker );
     connect( m_qwtPicker, SIGNAL( activated( bool ) ), this, SLOT( slotPickerActivated( bool ) ) );
     connect( m_qwtPicker, SIGNAL( moved( const QPoint& ) ), this, SLOT( slotPickerPointChanged( const QPoint& ) ) );
@@ -470,14 +472,6 @@ size_t RiuPvtPlotWidget::indexOfQwtCurve( const QwtPlotCurve* qwtCurve ) const
     }
 
     return cvf::UNDEFINED_SIZE_T;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Implements the RiuPvtTrackerTextProvider interface
-//--------------------------------------------------------------------------------------------------
-QString RiuPvtPlotWidget::trackerText() const
-{
-    return m_trackerLabel;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,19 +39,12 @@ class QwtPlot;
 class QwtPlotMarker;
 class QwtPlotCurve;
 
-// Interface for providing our custom picker with a tracker text
-class RiuPvtTrackerTextProvider
-{
-public:
-    virtual QString trackerText() const = 0;
-};
-
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RiuPvtPlotWidget : public QWidget, public RiuPvtTrackerTextProvider
+class RiuPvtPlotWidget : public QWidget
 {
     Q_OBJECT
 
@@ -72,7 +65,6 @@ private:
     const QwtPlotCurve* closestCurveSample( const QPoint& cursorPosition, int* closestSampleIndex ) const;
     size_t              indexOfQwtCurve( const QwtPlotCurve* qwtCurve ) const;
     void                updateTrackerPlotMarkerAndLabelFromPicker();
-    QString             trackerText() const override;
 
 private slots:
     void slotPickerActivated( bool );
