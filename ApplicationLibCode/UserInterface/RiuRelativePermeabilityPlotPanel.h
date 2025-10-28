@@ -29,6 +29,7 @@
 
 class RiuDockedQwtPlot;
 class RiuRelativePermeabilityPlotUpdater;
+class RiuRelPermQwtPicker;
 class QButtonGroup;
 class QCheckBox;
 class QwtPlot;
@@ -107,6 +108,9 @@ private:
     std::vector<RigFlowDiagDefines::RelPermCurve> gatherUiSelectedCurves() const;
     QString                                       asciiDataForUiSelectedCurves() const;
 
+    const QwtPlotCurve* closestCurveSample( const QPoint& cursorPosition, int* closestSampleIndex ) const;
+    void                updateTrackerPlotMarkerAndLabelFromPicker();
+
     void contextMenuEvent( QContextMenuEvent* event ) override;
 
 private slots:
@@ -114,6 +118,8 @@ private slots:
     void slotSomeCheckBoxStateChanged( int );
     void slotCurrentPlotDataInTextDialog();
     void slotShowCurveSelectionWidgets( int state );
+    void slotPickerActivated( bool );
+    void slotPickerPointChanged( const QPoint& pt );
     void showEvent( QShowEvent* event ) override;
 
 private:
@@ -125,6 +131,14 @@ private:
     QString                                       m_cellReferenceText;
     QPointer<RiuDockedQwtPlot>                    m_qwtPlot;
     std::vector<QwtPlotMarker*>                   m_myPlotMarkers;
+
+    QPointer<RiuRelPermQwtPicker> m_qwtPicker;
+    QString                       m_trackerLabel;
+    QwtPlotMarker*                m_trackerPlotMarker;
+
+    QGroupBox* m_curveSetGroupBox;
+    QCheckBox* m_showDrainageCheckBox;
+    QCheckBox* m_showImbibitionCheckBox;
 
     QGroupBox*    m_groupBox;
     QButtonGroup* m_selectedCurvesButtonGroup;

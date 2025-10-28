@@ -98,6 +98,37 @@ QwtPlot["RelPermPlot"]::curve["PCOG"] {
     symbol-color: $senaryColor;
 }
 
+/* Imbibition curves - using similar colors but slightly differentiated */
+QwtPlot["RelPermPlot"]::curve["IKRW"] {
+    line-color: $curveColorWater2;
+    symbol-color: $curveColorWater2;
+}
+
+QwtPlot["RelPermPlot"]::curve["IKROW"] {
+    line-color: $curveColorWater2;
+    symbol-color: $curveColorWater2;
+}
+
+QwtPlot["RelPermPlot"]::curve["IPCOW"] {
+    line-color: $tertiaryColor;
+    symbol-color: $tertiaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["IKRG"] {
+    line-color: $curveColorGas2;
+    symbol-color: $curveColorGas2;
+}
+
+QwtPlot["RelPermPlot"]::curve["IKROG"] {
+    line-color: $curveColorGas2;
+    symbol-color: $curveColorGas2;
+}
+
+QwtPlot["RelPermPlot"]::curve["IPCOG"] {
+    line-color: $senaryColor;
+    symbol-color: $senaryColor;
+}
+
 QwtPlot["PvtPlot"]::lineMarker["*"] {
     color: $textColor;
 }
