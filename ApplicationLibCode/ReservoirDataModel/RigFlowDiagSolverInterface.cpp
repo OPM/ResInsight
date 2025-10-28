@@ -663,6 +663,8 @@ RigFlowDiagDefines::FlowCharacteristicsResultFrame
 //--------------------------------------------------------------------------------------------------
 std::vector<RigFlowDiagDefines::RelPermCurve> RigFlowDiagSolverInterface::calculateRelPermCurves( size_t activeCellIndex, int satnum )
 {
+    using RawCurve = Opm::ECLSaturationFunc::RawCurve;
+
     std::vector<RigFlowDiagDefines::RelPermCurve> retCurveArr;
 
     if ( !ensureStaticDataObjectInstanceCreated() )
@@ -676,41 +678,60 @@ std::vector<RigFlowDiagDefines::RelPermCurve> RigFlowDiagSolverInterface::calcul
         return retCurveArr;
     }
 
-    const Opm::ECLSaturationFunc::RawCurve krw{ Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
-                                                Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
-                                                Opm::ECLPhaseIndex::Aqua }; // water rel-perm in oil-water system
-    const Opm::ECLSaturationFunc::RawCurve krg{ Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
-                                                Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
-                                                Opm::ECLPhaseIndex::Vapour }; // gas rel-perm in oil-gas system
-    const Opm::ECLSaturationFunc::RawCurve krow{ Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
-                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
-                                                 Opm::ECLPhaseIndex::Liquid }; // oil rel-perm in oil-water system
-    const Opm::ECLSaturationFunc::RawCurve krog{ Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
-                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
-                                                 Opm::ECLPhaseIndex::Liquid }; // oil rel-perm in oil-gas system
-    const Opm::ECLSaturationFunc::RawCurve pcgo{ Opm::ECLSaturationFunc::RawCurve::Function::CapPress,
-                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
-                                                 Opm::ECLPhaseIndex::Vapour }; // gas/oil capillary pressure (Pg-Po) in
-                                                                               // G/O system
-    const Opm::ECLSaturationFunc::RawCurve pcow{ Opm::ECLSaturationFunc::RawCurve::Function::CapPress,
-                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
-                                                 Opm::ECLPhaseIndex::Aqua }; // oil/water capillary pressure (Po-Pw) in
-                                                                             // O/W system
+    // Define curve sets to request (Drainage and Imbibition)
+    const std::array<RawCurve::CurveSet, 2> curveSets = { RawCurve::CurveSet::Drainage, RawCurve::CurveSet::Imbibition };
 
-    std::vector<std::pair<RigFlowDiagDefines::RelPermCurve::Ident, std::string>> curveIdentNameArr;
-    std::vector<Opm::ECLSaturationFunc::RawCurve>                                satFuncRequests;
-    curveIdentNameArr.push_back( std::make_pair( RigFlowDiagDefines::RelPermCurve::KRW, "KRW" ) );
-    satFuncRequests.push_back( krw );
-    curveIdentNameArr.push_back( std::make_pair( RigFlowDiagDefines::RelPermCurve::KRG, "KRG" ) );
-    satFuncRequests.push_back( krg );
-    curveIdentNameArr.push_back( std::make_pair( RigFlowDiagDefines::RelPermCurve::KROW, "KROW" ) );
-    satFuncRequests.push_back( krow );
-    curveIdentNameArr.push_back( std::make_pair( RigFlowDiagDefines::RelPermCurve::KROG, "KROG" ) );
-    satFuncRequests.push_back( krog );
-    curveIdentNameArr.push_back( std::make_pair( RigFlowDiagDefines::RelPermCurve::PCOG, "PCOG" ) );
-    satFuncRequests.push_back( pcgo );
-    curveIdentNameArr.push_back( std::make_pair( RigFlowDiagDefines::RelPermCurve::PCOW, "PCOW" ) );
-    satFuncRequests.push_back( pcow );
+    // Base curve definitions - will be created for each curve set
+    struct CurveDefinition
+    {
+        RawCurve::Function                      function;
+        RawCurve::SubSystem                     subsystem;
+        Opm::ECLPhaseIndex                      phase;
+        RigFlowDiagDefines::RelPermCurve::Ident ident;
+        std::string                             baseName;
+    };
+
+    const std::vector<CurveDefinition> baseCurves =
+        { { RawCurve::Function::RelPerm, RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Aqua, RigFlowDiagDefines::RelPermCurve::KRW, "KRW" },
+          { RawCurve::Function::RelPerm, RawCurve::SubSystem::OilGas, Opm::ECLPhaseIndex::Vapour, RigFlowDiagDefines::RelPermCurve::KRG, "KRG" },
+          { RawCurve::Function::RelPerm, RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Liquid, RigFlowDiagDefines::RelPermCurve::KROW, "KROW" },
+          { RawCurve::Function::RelPerm, RawCurve::SubSystem::OilGas, Opm::ECLPhaseIndex::Liquid, RigFlowDiagDefines::RelPermCurve::KROG, "KROG" },
+          { RawCurve::Function::CapPress, RawCurve::SubSystem::OilGas, Opm::ECLPhaseIndex::Vapour, RigFlowDiagDefines::RelPermCurve::PCOG, "PCOG" },
+          { RawCurve::Function::CapPress, RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Aqua, RigFlowDiagDefines::RelPermCurve::PCOW, "PCOW" } };
+
+    struct CurveRequest
+    {
+        RigFlowDiagDefines::RelPermCurve::Ident    ident;
+        std::string                                name;
+        RigFlowDiagDefines::RelPermCurve::CurveSet curveSet;
+    };
+
+    std::vector<CurveRequest> curveRequests;
+    std::vector<RawCurve>     satFuncRequests;
+
+    // Build requests for both drainage and imbibition curves
+    for ( const auto& curveSet : curveSets )
+    {
+        for ( const auto& baseCurve : baseCurves )
+        {
+            const RawCurve curve{ baseCurve.function, baseCurve.subsystem, baseCurve.phase, curveSet };
+
+            // Create appropriate name for the curve (prefix "I" for imbibition curves)
+            std::string curveName = baseCurve.baseName;
+            if ( curveSet == RawCurve::CurveSet::Imbibition )
+            {
+                curveName = "I" + curveName;
+            }
+
+            // Map OPM CurveSet to RigFlowDiagDefines CurveSet
+            RigFlowDiagDefines::RelPermCurve::CurveSet rigCurveSet = ( curveSet == RawCurve::CurveSet::Drainage )
+                                                                         ? RigFlowDiagDefines::RelPermCurve::DRAINAGE
+                                                                         : RigFlowDiagDefines::RelPermCurve::IMBIBITION;
+
+            curveRequests.push_back( { baseCurve.ident, curveName, rigCurveSet } );
+            satFuncRequests.push_back( curve );
+        }
+    }
 
     try
     {
@@ -736,16 +757,24 @@ std::vector<RigFlowDiagDefines::RelPermCurve> RigFlowDiagSolverInterface::calcul
                                                                                static_cast<int>( activeCellIndex ),
                                                                                scaling );
 
+            // Process results - now includes both drainage and imbibition curves
+            if ( graphArr.size() != satFuncRequests.size() )
+            {
+                reportRelPermCurveError( "Mismatch between number of requested and received rel-perm curves." );
+                continue;
+            }
+
             for ( size_t i = 0; i < graphArr.size(); i++ )
             {
-                const RigFlowDiagDefines::RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;
-                const std::string                             curveName  = curveIdentNameArr[i].second;
-                const Opm::FlowDiagnostics::Graph&            srcGraph   = graphArr[i];
+                const RigFlowDiagDefines::RelPermCurve::Ident    curveIdent = curveRequests[i].ident;
+                const std::string&                               curveName  = curveRequests[i].name;
+                const RigFlowDiagDefines::RelPermCurve::CurveSet curveSet   = curveRequests[i].curveSet;
+                const Opm::FlowDiagnostics::Graph&               srcGraph   = graphArr[i];
                 if ( !srcGraph.first.empty() )
                 {
                     const std::vector<double>& xVals = srcGraph.first;
                     const std::vector<double>& yVals = srcGraph.second;
-                    retCurveArr.push_back( { curveIdent, curveName, epsMode, xVals, yVals } );
+                    retCurveArr.push_back( { curveIdent, curveName, epsMode, curveSet, xVals, yVals } );
                 }
             }
         }

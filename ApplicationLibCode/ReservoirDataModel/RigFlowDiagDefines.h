@@ -40,10 +40,16 @@ struct RelPermCurve
         EPS_ON,
         EPS_OFF
     };
+    enum CurveSet
+    {
+        DRAINAGE,
+        IMBIBITION
+    };
 
     Ident               ident;
     std::string         name;
     EpsMode             epsMode;
+    CurveSet            curveSet;
     std::vector<double> saturationVals;
     std::vector<double> yVals;
 };
