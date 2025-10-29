@@ -674,36 +674,23 @@ bool RifOpmFlowDeckFile::setWsegdims( int maxMSWells, int maxSegmentsPerWell, in
 {
     using W = Opm::ParserKeywords::WSEGDIMS;
     if ( m_fileDeck.get() == nullptr ) return false;
+
     auto idx = m_fileDeck->find( W::keywordName );
-    if ( idx.has_value() )
+    if ( !idx.has_value() )
     {
-        auto& oldkw = m_fileDeck->operator[]( idx.value() );
-
-        Opm::DeckKeyword newKw( Opm::ParserKeyword( oldkw.name() ) );
-
-        newKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( W::NSWLMX::itemName, maxMSWells ),
-                                            RifOpmDeckTools::item( W::NSEGMX::itemName, maxSegmentsPerWell ),
-                                            RifOpmDeckTools::item( W::NLBRMX::itemName, maxBranchesPerWell ) } } );
-
-        m_fileDeck->erase( idx.value() );
-        m_fileDeck->insert( idx.value(), newKw );
-        return true;
+        idx = m_fileDeck->find( Opm::ParserKeywords::WELLDIMS::keywordName );
+        if ( !idx.has_value() ) return false;
+        idx = idx.value() + 1;
     }
-    else
-    {
-        // welldims should always be there, insert after welldims
-        auto newidx = m_fileDeck->find( Opm::ParserKeywords::WELLDIMS::keywordName );
-        if ( newidx.has_value() )
-        {
-            Opm::DeckKeyword newKw( ( Opm::ParserKeywords::WSEGDIMS() ) );
-            newKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( W::NSWLMX::itemName, maxMSWells ),
-                                                RifOpmDeckTools::item( W::NSEGMX::itemName, maxSegmentsPerWell ),
-                                                RifOpmDeckTools::item( W::NLBRMX::itemName, maxBranchesPerWell ) } } );
-            m_fileDeck->insert( newidx.value() + 1, newKw );
-            return true;
-        }
-    }
-    return false;
+
+    Opm::DeckKeyword newKw( ( Opm::ParserKeywords::WSEGDIMS() ) );
+    newKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( W::NSWLMX::itemName, maxMSWells ),
+                                        RifOpmDeckTools::item( W::NSEGMX::itemName, maxSegmentsPerWell ),
+                                        RifOpmDeckTools::item( W::NLBRMX::itemName, maxBranchesPerWell ) } } );
+
+    m_fileDeck->erase( idx.value() );
+    m_fileDeck->insert( idx.value(), newKw );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
