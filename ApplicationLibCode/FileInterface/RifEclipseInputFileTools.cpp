@@ -257,11 +257,11 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
 
     auto findResultAddress = [&allResultAddresses]( const QString& keyword ) -> RigEclipseResultAddress
     {
-        for ( const auto& adr : allResultAddresses )
+        for ( auto it = allResultAddresses.rbegin(); it != allResultAddresses.rend(); ++it )
         {
-            if ( adr.resultName() == keyword )
+            if ( it->resultName() == keyword )
             {
-                return adr;
+                return *it;
             }
         }
         return {};
