@@ -582,7 +582,7 @@ Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
     // Add alpha parameter
     if ( alpha.has_value() )
     {
-        recordItems.push_back( RifOpmDeckTools::item( O::PARAM1::itemName, std::to_string( alpha.value() ) ) );
+        recordItems.push_back( RifOpmDeckTools::item( O::PARAM1::itemName, alpha.value() ) );
     }
     else
     {
@@ -592,7 +592,7 @@ Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
     // Add beta parameter
     if ( beta.has_value() )
     {
-        recordItems.push_back( RifOpmDeckTools::item( O::PARAM2::itemName, std::to_string( beta.value() ) ) );
+        recordItems.push_back( RifOpmDeckTools::item( O::PARAM2::itemName, beta.value() ) );
     }
     else
     {
