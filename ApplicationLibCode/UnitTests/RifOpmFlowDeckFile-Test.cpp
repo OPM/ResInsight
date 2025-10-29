@@ -36,9 +36,9 @@ TEST( RifOpmFlowDeckFileTest, RegdimsExistingKeyword )
     // Test reading existing REGDIMS
     auto regdimsValues = deckFile.regdims();
     EXPECT_FALSE( regdimsValues.empty() ) << "REGDIMS should exist in NORNE file";
-    EXPECT_EQ( 4, regdimsValues.size() ) << "REGDIMS should have 4 values";
+    EXPECT_EQ( 7, regdimsValues.size() ) << "REGDIMS should have 7 values";
 
-    // Values from the NORNE file: 22 3 1* 20
+    // Values from the NORNE file: 22 3 1* 20 (rest are defaults)
     EXPECT_EQ( 22, regdimsValues[0] ) << "NTFIP should be 22";
     EXPECT_EQ( 3, regdimsValues[1] ) << "NMFIPR should be 3";
     // Third value is 1* (default), but OPM should handle this
@@ -68,10 +68,10 @@ TEST( RifOpmFlowDeckFileTest, RegdimsAddKeyword )
     // Verify REGDIMS now exists
     auto regdimsValues = deckFile.regdims();
     EXPECT_FALSE( regdimsValues.empty() ) << "REGDIMS should exist after adding";
-    EXPECT_EQ( 4, regdimsValues.size() ) << "REGDIMS should have 4 values";
+    EXPECT_EQ( 7, regdimsValues.size() ) << "REGDIMS should have 7 values";
 
-    // Verify default values (6* 1 /) - OPM should interpret 6* as default values followed by 1
-    EXPECT_EQ( 1, regdimsValues[3] ) << "NTFREG should be 1 (the explicit value)";
+    // Verify default values (6* 1 /) - items 1-6 are defaults, item 7 (MAX_OPERNUM) is 1
+    EXPECT_EQ( 1, regdimsValues[6] ) << "MAX_OPERNUM should be 1 (the explicit value)";
 
     // Test that calling ensureRegdimsKeyword again doesn't fail
     bool addAgainSuccess = deckFile.ensureRegdimsKeyword();
@@ -94,19 +94,22 @@ TEST( RifOpmFlowDeckFileTest, RegdimsSetValues )
     bool addSuccess = deckFile.ensureRegdimsKeyword();
     EXPECT_TRUE( addSuccess ) << "Should successfully add REGDIMS keyword";
 
-    // Set custom REGDIMS values
-    bool setSuccess = deckFile.setRegdims( 10, 5, 3, 8 );
+    // Set custom REGDIMS values (NTFIP NMFIPR NRFREG NTFREG MAX_ETRACK NTCREG MAX_OPERNUM)
+    bool setSuccess = deckFile.setRegdims( 10, 5, 3, 8, 0, 2, 4 );
     EXPECT_TRUE( setSuccess ) << "Should successfully set REGDIMS values";
 
     // Verify the values were set correctly
     auto regdimsValues = deckFile.regdims();
     EXPECT_FALSE( regdimsValues.empty() ) << "REGDIMS should exist";
-    EXPECT_EQ( 4, regdimsValues.size() ) << "REGDIMS should have 4 values";
+    EXPECT_EQ( 7, regdimsValues.size() ) << "REGDIMS should have 7 values";
 
     EXPECT_EQ( 10, regdimsValues[0] ) << "NTFIP should be 10";
     EXPECT_EQ( 5, regdimsValues[1] ) << "NMFIPR should be 5";
     EXPECT_EQ( 3, regdimsValues[2] ) << "NRFREG should be 3";
     EXPECT_EQ( 8, regdimsValues[3] ) << "NTFREG should be 8";
+    EXPECT_EQ( 0, regdimsValues[4] ) << "MAX_ETRACK should be 0";
+    EXPECT_EQ( 2, regdimsValues[5] ) << "NTCREG should be 2";
+    EXPECT_EQ( 4, regdimsValues[6] ) << "MAX_OPERNUM should be 4";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,7 +144,7 @@ TEST( RifOpmFlowDeckFileTest, RegdimsSaveAndReload )
     // Verify REGDIMS exists in reloaded deck
     auto reloadedRegdimsValues = reloadedDeckFile.regdims();
     EXPECT_FALSE( reloadedRegdimsValues.empty() ) << "REGDIMS should exist in reloaded deck";
-    EXPECT_EQ( 4, reloadedRegdimsValues.size() ) << "REGDIMS should have 4 values in reloaded deck";
+    EXPECT_EQ( 7, reloadedRegdimsValues.size() ) << "REGDIMS should have 7 values in reloaded deck";
 }
 
 //--------------------------------------------------------------------------------------------------

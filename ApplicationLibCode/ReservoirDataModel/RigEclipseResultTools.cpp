@@ -109,9 +109,9 @@ void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
+int generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
 {
-    if ( eclipseCase == nullptr ) return;
+    if ( eclipseCase == nullptr ) return 0;
 
     // Auto-determine border cell value if not specified
     if ( borderCellValue == -1 )
@@ -185,6 +185,8 @@ void generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
     RigEclipseResultTools::createResultVector( *eclipseCase, RiaResultNames::opernum(), result );
 
     eclipseCase->updateConnectedEditors();
+
+    return borderCellValue;
 }
 
 //--------------------------------------------------------------------------------------------------

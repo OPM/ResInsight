@@ -76,7 +76,13 @@ public:
     bool             setWsegdims( int maxMSWells, int maxSegmentsPerWell, int maxBranchesPerWell );
 
     std::vector<int> regdims();
-    bool             setRegdims( int maxRegions, int maxRegionDefinitions, int maxRegionFlowConnections, int maxFIPRegions );
+    bool             setRegdims( int maxRegions,
+                                 int maxRegionDefinitions,
+                                 int maxRegionFlowConnections,
+                                 int maxFIPRegions,
+                                 int maxEtrack,
+                                 int maxCompRegions,
+                                 int maxOperNum );
     bool             ensureRegdimsKeyword();
 
     bool addIncludeKeyword( std::string section, std::string keyword, std::string filePath );

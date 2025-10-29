@@ -353,6 +353,76 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
         {
             return result;
         }
+
+        // Update REGDIMS and add OPERATER keyword for OPERNUM regions
+        // Get the OPERNUM region number that was assigned to border cells
+        int maxOperNum    = RigEclipseResultTools::findMaxOperNumValue( &eclipseCase );
+        int operNumRegion = maxOperNum; // Border cells use this region number
+
+        RiaLogging::info( QString( "Using OPERNUM region %1 for border cells" ).arg( operNumRegion ) );
+
+        // Ensure REGDIMS keyword exists
+        if ( !deckFile.ensureRegdimsKeyword() )
+        {
+            return std::unexpected( "Failed to ensure REGDIMS keyword exists in RUNSPEC section" );
+        }
+
+        // Read current REGDIMS values
+        auto regdimsValues = deckFile.regdims();
+        if ( regdimsValues.empty() )
+        {
+            // Use defaults if reading failed
+            regdimsValues = { 1, 1, 0, 0, 0, 1, 0 }; // NTFIP NMFIPR NRFREG NTFREG MAX_ETRACK NTCREG MAX_OPERNUM
+        }
+
+        // Update MAX_OPERNUM (item 7) to the new region number
+        if ( regdimsValues.size() < 7 )
+        {
+            regdimsValues.resize( 7, 0 );
+        }
+        regdimsValues[6] = operNumRegion; // Index 6 is item 7 (MAX_OPERNUM)
+
+        // Update REGDIMS in deck
+        if ( !deckFile.setRegdims( regdimsValues[0],
+                                   regdimsValues[1],
+                                   regdimsValues[2],
+                                   regdimsValues[3],
+                                   regdimsValues[4],
+                                   regdimsValues[5],
+                                   regdimsValues[6] ) )
+        {
+            return std::unexpected( "Failed to update REGDIMS keyword in deck file" );
+        }
+
+        // Check if OPERNUM keyword already exists in deck
+        auto opernumKeyword = deckFile.findKeyword( "OPERNUM" );
+        if ( !opernumKeyword.has_value() )
+        {
+            // Add INCLUDE for OPERNUM.GRDECL in REGIONS section
+            if ( !deckFile.addIncludeKeyword( "REGIONS", "OPERNUM", "OPERNUM.GRDECL" ) )
+            {
+                return std::unexpected( "Failed to add INCLUDE for OPERNUM in REGIONS section" );
+            }
+            RiaLogging::info( "Added INCLUDE 'OPERNUM.GRDECL' to REGIONS section" );
+        }
+        else
+        {
+            RiaLogging::info( "OPERNUM keyword already exists in deck, skipping INCLUDE" );
+        }
+
+        // Create OPERATER keyword to multiply pore volume in border region
+        // OPERATER format: TARGET_ARRAY REGION_NUMBER OPERATION ARRAY_PARAMETER PARAM1 PARAM2 REGION_NAME
+        // Example: OPERATER / PORV 1 MULTX PORV 1.0e6 1* 1* /
+        float            porvMultiplier = 1.0e6f; // TODO: Make this user-configurable
+        Opm::DeckKeyword operaterKw     = RimKeywordFactory::operaterKeyword( "PORV", operNumRegion, "MULTX", "PORV", porvMultiplier );
+
+        // Add OPERATER keyword to EDIT section
+        if ( !deckFile.replaceKeyword( "EDIT", operaterKw ) )
+        {
+            return std::unexpected( "Failed to add OPERATER keyword to EDIT section" );
+        }
+
+        RiaLogging::info( QString( "Added OPERATER keyword to multiply PORV in region %1 by %2" ).arg( operNumRegion ).arg( porvMultiplier ) );
     }
 
     // Remove SKIP keywords that were used as placeholders for filtered-out keywords

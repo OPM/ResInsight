@@ -733,6 +733,9 @@ std::vector<int> RifOpmFlowDeckFile::regdims()
         dims.push_back( rec.getItem( R::NMFIPR::itemName ).get<int>( 0 ) );
         dims.push_back( rec.getItem( R::NRFREG::itemName ).get<int>( 0 ) );
         dims.push_back( rec.getItem( R::NTFREG::itemName ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( R::MAX_ETRACK::itemName ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( R::NTCREG::itemName ).get<int>( 0 ) );
+        dims.push_back( rec.getItem( R::MAX_OPERNUM::itemName ).get<int>( 0 ) );
 
         return dims;
     }
@@ -742,7 +745,13 @@ std::vector<int> RifOpmFlowDeckFile::regdims()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::setRegdims( int maxRegions, int maxRegionDefinitions, int maxRegionFlowConnections, int maxFIPRegions )
+bool RifOpmFlowDeckFile::setRegdims( int maxRegions,
+                                     int maxRegionDefinitions,
+                                     int maxRegionFlowConnections,
+                                     int maxFIPRegions,
+                                     int maxEtrack,
+                                     int maxCompRegions,
+                                     int maxOperNum )
 {
     using R = Opm::ParserKeywords::REGDIMS;
     if ( m_fileDeck.get() == nullptr ) return false;
@@ -755,7 +764,10 @@ bool RifOpmFlowDeckFile::setRegdims( int maxRegions, int maxRegionDefinitions, i
         newKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( R::NTFIP::itemName, maxRegions ),
                                             RifOpmDeckTools::item( R::NMFIPR::itemName, maxRegionDefinitions ),
                                             RifOpmDeckTools::item( R::NRFREG::itemName, maxRegionFlowConnections ),
-                                            RifOpmDeckTools::item( R::NTFREG::itemName, maxFIPRegions ) } } );
+                                            RifOpmDeckTools::item( R::NTFREG::itemName, maxFIPRegions ),
+                                            RifOpmDeckTools::item( R::MAX_ETRACK::itemName, maxEtrack ),
+                                            RifOpmDeckTools::item( R::NTCREG::itemName, maxCompRegions ),
+                                            RifOpmDeckTools::item( R::MAX_OPERNUM::itemName, maxOperNum ) } } );
 
         m_fileDeck->erase( idx.value() );
         m_fileDeck->insert( idx.value(), newKw );
@@ -800,11 +812,17 @@ bool RifOpmFlowDeckFile::ensureRegdimsKeyword()
     }
 
     // Create REGDIMS keyword with default values: "6* 1 /"
+    // Items: NTFIP NMFIPR NRFREG NTFREG MAX_ETRACK NTCREG MAX_OPERNUM
+    // Default values from REGDIMS schema: 1, 1, 0, 0, 0, 1, 0
+    // But we want to set MAX_OPERNUM to 1 to reserve one region
     Opm::DeckKeyword regdimsKw( ( Opm::ParserKeyword( R::keywordName ) ) );
     regdimsKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( R::NTFIP::itemName, 1 ),
                                             RifOpmDeckTools::item( R::NMFIPR::itemName, 1 ),
-                                            RifOpmDeckTools::item( R::NRFREG::itemName, 1 ),
-                                            RifOpmDeckTools::item( R::NTFREG::itemName, 1 ) } } );
+                                            RifOpmDeckTools::item( R::NRFREG::itemName, 0 ),
+                                            RifOpmDeckTools::item( R::NTFREG::itemName, 0 ),
+                                            RifOpmDeckTools::item( R::MAX_ETRACK::itemName, 0 ),
+                                            RifOpmDeckTools::item( R::NTCREG::itemName, 1 ),
+                                            RifOpmDeckTools::item( R::MAX_OPERNUM::itemName, 1 ) } } );
 
     m_fileDeck->insert( insertIdx, regdimsKw );
     return true;
