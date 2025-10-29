@@ -350,7 +350,10 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
     }
 
     // Remove SKIP keywords that were used as placeholders for filtered-out keywords
-    deckFile.removeSkipKeywords();
+    deckFile.removeKeywords( "SKIP" );
+
+    // TODO: fix this..
+    deckFile.removeKeywords( "MAPAXES" );
 
     // Save the modified deck file to the export directory
     if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )

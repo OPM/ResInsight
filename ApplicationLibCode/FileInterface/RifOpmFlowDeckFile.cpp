@@ -905,16 +905,16 @@ bool RifOpmFlowDeckFile::replaceKeywordAtIndex( const Opm::FileDeck::Index& inde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmFlowDeckFile::removeSkipKeywords()
+void RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
 {
     if ( m_fileDeck.get() == nullptr ) return;
 
-    // Find all SKIP keywords
+    // Find all the matching keywords
     std::vector<Opm::FileDeck::Index> skipIndices;
     for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
     {
         const auto& kw = m_fileDeck->operator[]( it );
-        if ( kw.name() == "SKIP" )
+        if ( kw.name() == keywordName )
         {
             skipIndices.push_back( it );
         }

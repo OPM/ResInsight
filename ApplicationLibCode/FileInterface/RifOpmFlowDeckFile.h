@@ -94,7 +94,7 @@ public:
     bool replaceAllKeywords( const std::string& keywordName, const std::vector<Opm::DeckKeyword>& keywords );
     bool replaceKeywordAtIndex( const Opm::FileDeck::Index& index, const Opm::DeckKeyword& keyword );
 
-    void removeSkipKeywords();
+    void removeKeywords( const std::string& keywordName );
 
 private:
     void splitDatesIfNecessary();
