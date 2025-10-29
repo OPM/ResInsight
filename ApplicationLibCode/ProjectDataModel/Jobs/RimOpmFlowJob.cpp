@@ -1077,6 +1077,8 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
 
     auto welsegsKw  = RimKeywordFactory::welsegsKeyword( m_eclipseCase(), m_wellPath(), mswData );
     auto compsegsKw = RimKeywordFactory::compsegsKeyword( m_eclipseCase(), m_wellPath(), mswData );
+    auto wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( m_eclipseCase(), m_wellPath(), mswData );
+    auto wsegaicdKw = RimKeywordFactory::wsegaicdKeyword( m_eclipseCase(), m_wellPath(), mswData );
 
     if ( welsegsKw.size() < 1 || compsegsKw.size() < 1 )
     {
@@ -1089,6 +1091,15 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         // make sure we insert after COMPDAT kw
         if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welsegsKw, "COMPDAT" ) ) return failure;
         if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compsegsKw, welsegsKw.name() ) ) return failure;
+        if ( wsegvalvKw.size() >= 1 )
+        {
+            if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegvalvKw, compsegsKw.name() ) ) return failure;
+        }
+        if ( wsegaicdKw.size() >= 1 )
+        {
+            if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegaicdKw, compsegsKw.name() ) ) return failure;
+        }
+
         mergePosition = 0;
     }
     else
@@ -1098,6 +1109,19 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         mergePosition++;
         mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, compsegsKw );
         if ( mergePosition < 0 ) return failure;
+        mergePosition++;
+        if ( wsegvalvKw.size() >= 1 )
+        {
+            mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegvalvKw );
+            if ( mergePosition < 0 ) return failure;
+            mergePosition++;
+        }
+        if ( wsegaicdKw.size() >= 1 )
+        {
+            mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegaicdKw );
+            if ( mergePosition < 0 ) return failure;
+            mergePosition++;
+        }
     }
 
     int branches = (int)m_wellPath->allWellPathLaterals().size();

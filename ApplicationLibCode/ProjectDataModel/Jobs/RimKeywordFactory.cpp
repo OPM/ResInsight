@@ -256,6 +256,68 @@ Opm::DeckKeyword compsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword wsegvalvKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText )
+{
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    Opm::ErrorGuard errors{};
+
+    Opm::DeckKeyword newKw( ( Opm::ParserKeywords::WSEGVALV() ) );
+
+    auto deck = Opm::Parser{}.parseString( completionText, internal::defaultParseContext(), errors );
+    for ( auto kwit = deck.begin(); kwit != deck.end(); kwit++ )
+    {
+        auto& existingKw = *kwit;
+
+        if ( existingKw.name() != Opm::ParserKeywords::WSEGVALV::keywordName ) continue;
+
+        for ( size_t i = 0; i < existingKw.size(); i++ )
+        {
+            Opm::DeckRecord newRec( existingKw.getRecord( i ) );
+            newKw.addRecord( std::move( newRec ) );
+        }
+    }
+
+    return newKw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword wsegaicdKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText )
+{
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    Opm::ErrorGuard errors{};
+
+    Opm::DeckKeyword newKw( ( Opm::ParserKeywords::WSEGAICD() ) );
+
+    auto deck = Opm::Parser{}.parseString( completionText, internal::defaultParseContext(), errors );
+    for ( auto kwit = deck.begin(); kwit != deck.end(); kwit++ )
+    {
+        auto& existingKw = *kwit;
+
+        if ( existingKw.name() != Opm::ParserKeywords::WSEGAICD::keywordName ) continue;
+
+        for ( size_t i = 0; i < existingKw.size(); i++ )
+        {
+            Opm::DeckRecord newRec( existingKw.getRecord( i ) );
+            newKw.addRecord( std::move( newRec ) );
+        }
+    }
+
+    return newKw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid, const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refinement )
 {
     if ( mainGrid == nullptr )
