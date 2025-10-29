@@ -193,6 +193,7 @@ Opm::DeckKeyword welsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, c
     }
 
     Opm::ErrorGuard errors{};
+    bool            headerDone = false;
 
     Opm::DeckKeyword newKw( ( Opm::ParserKeywords::WELSEGS() ) );
 
@@ -206,7 +207,10 @@ Opm::DeckKeyword welsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, c
         for ( size_t i = 0; i < existingKw.size(); i++ )
         {
             Opm::DeckRecord newRec( existingKw.getRecord( i ) );
+            if ( newRec.getItem( 0 ).is_string() && headerDone ) continue;
+
             newKw.addRecord( std::move( newRec ) );
+            headerDone = true;
         }
     }
 
@@ -224,6 +228,7 @@ Opm::DeckKeyword compsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, 
     }
 
     Opm::ErrorGuard errors{};
+    bool            headerDone = false;
 
     Opm::DeckKeyword newKw( ( Opm::ParserKeywords::COMPSEGS() ) );
 
@@ -237,7 +242,11 @@ Opm::DeckKeyword compsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, 
         for ( size_t i = 0; i < existingKw.size(); i++ )
         {
             Opm::DeckRecord newRec( existingKw.getRecord( i ) );
+
+            if ( newRec.size() == 1 && headerDone ) continue;
+
             newKw.addRecord( std::move( newRec ) );
+            headerDone = true;
         }
     }
 

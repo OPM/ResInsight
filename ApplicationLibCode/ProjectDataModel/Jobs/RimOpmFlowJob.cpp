@@ -1008,7 +1008,7 @@ int RimOpmFlowJob::mergeBasicWellSettings()
         // reverse order for correct insertion order
         if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compdatKw ) ) return failure;
         if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welspecsKw ) ) return failure;
-        return 0;
+        mergePosition = 0;
     }
     else
     {
@@ -1084,13 +1084,12 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         return failure;
     }
 
-    // TODO - only use merge position here, to make sure these keywords come after basic well keywords
     if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
     {
-        // reverse order for correct insertion order
-        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compsegsKw ) ) return failure;
-        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welsegsKw ) ) return failure;
-        return 0;
+        // make sure we insert after COMPDAT kw
+        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welsegsKw, "COMPDAT" ) ) return failure;
+        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compsegsKw, welsegsKw.name() ) ) return failure;
+        mergePosition = 0;
     }
     else
     {
@@ -1107,7 +1106,7 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
     auto additionalSegments = (int)welsegsKw.size() - 1;
     auto wsegdims           = m_deckFile->wsegdims();
     auto maxBranches        = std::max( branches, wsegdims[2] );
-    if ( ( wsegdims.size() < 3 ) || !m_deckFile->setWsegdims( wsegdims[0] + 1, wsegdims[1] + additionalSegments, maxBranches ) )
+    if ( ( wsegdims.size() < 3 ) || !m_deckFile->setWsegdims( wsegdims[0] + 1, wsegdims[1] + additionalSegments, maxBranches + 1 ) )
     {
         RiaLogging::error( "Failed to update WSEGDIMS keyword in DATA file." );
         return failure;
