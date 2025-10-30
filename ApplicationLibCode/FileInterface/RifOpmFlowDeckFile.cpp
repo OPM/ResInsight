@@ -190,9 +190,9 @@ static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::uniqu
 
         // Stop if we hit another major section
         if ( kw.name() == Opm::ParserKeywords::RUNSPEC::keywordName || kw.name() == Opm::ParserKeywords::GRID::keywordName ||
-             kw.name() == Opm::ParserKeywords::EDIT::keywordName || kw.name() == Opm::ParserKeywords::REGIONS::keywordName ||
-             kw.name() == Opm::ParserKeywords::SOLUTION::keywordName || kw.name() == Opm::ParserKeywords::SUMMARY::keywordName ||
-             kw.name() == Opm::ParserKeywords::SCHEDULE::keywordName )
+             kw.name() == Opm::ParserKeywords::EDIT::keywordName || kw.name() == "PROPS" ||
+             kw.name() == Opm::ParserKeywords::REGIONS::keywordName || kw.name() == Opm::ParserKeywords::SOLUTION::keywordName ||
+             kw.name() == Opm::ParserKeywords::SUMMARY::keywordName || kw.name() == Opm::ParserKeywords::SCHEDULE::keywordName )
         {
             insertIdx = it;
             break;

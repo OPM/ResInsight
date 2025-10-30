@@ -273,9 +273,9 @@ TEST( RifOpmFlowDeckFileTest, AddOperaterKeyword )
     bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
-    // Add OPERATER statement to GRID section: PORV 9 MULTX PORV 1.0e6 1* 1*
-    bool addSuccess = deckFile.replaceKeyword( "GRID", RimKeywordFactory::operaterKeyword( "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt ) );
-    EXPECT_TRUE( addSuccess ) << "Should successfully add OPERATER statement in GRID section";
+    // Add OPERATER statement to EDIT section: PORV 9 MULTX PORV 1.0e6 1* 1*
+    bool addSuccess = deckFile.replaceKeyword( "EDIT", RimKeywordFactory::operaterKeyword( "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt ) );
+    EXPECT_TRUE( addSuccess ) << "Should successfully add OPERATER statement in EDIT section";
 
     // Test adding to non-existent section
     bool addFailure = deckFile.replaceKeyword( "NONEXISTENT",
@@ -310,9 +310,9 @@ TEST( RifOpmFlowDeckFileTest, AddOperaterSaveAndReload )
     bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
-    // Add OPERATER statement: PORV 9 MULTX PORV 1.0e6 1* 1*
-    bool addSuccess = deckFile.replaceKeyword( "GRID", RimKeywordFactory::operaterKeyword( "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt ) );
-    EXPECT_TRUE( addSuccess ) << "Should successfully add OPERATER statement";
+    // Add OPERATER statement to EDIT section: PORV 9 MULTX PORV 1.0e6 1* 1*
+    bool addSuccess = deckFile.replaceKeyword( "EDIT", RimKeywordFactory::operaterKeyword( "PORV", 9, "MULTX", "PORV", 1.0e6f, std::nullopt ) );
+    EXPECT_TRUE( addSuccess ) << "Should successfully add OPERATER statement to EDIT section";
 
     // Save the deck to a temporary location
     QTemporaryDir tempDir;
@@ -327,10 +327,23 @@ TEST( RifOpmFlowDeckFileTest, AddOperaterSaveAndReload )
     ASSERT_TRUE( savedFile.open( QIODevice::ReadOnly | QIODevice::Text ) );
 
     QString content = savedFile.readAll();
+
     EXPECT_TRUE( content.contains( "OPERATER" ) ) << "Saved file should contain OPERATER keyword";
     EXPECT_TRUE( content.contains( "PORV" ) ) << "Saved file should contain PORV";
     EXPECT_TRUE( content.contains( "MULTX" ) ) << "Saved file should contain MULTX equation";
     EXPECT_TRUE( content.contains( "1e+06" ) || content.contains( "1000000" ) ) << "Saved file should contain the alpha value 1.0e6";
+
+    // Verify OPERATER is in the EDIT section (between EDIT and PROPS keywords)
+    int editPos     = content.indexOf( "EDIT" );
+    int propsPos    = content.indexOf( "PROPS" );
+    int operaterPos = content.indexOf( "OPERATER" );
+
+    EXPECT_NE( editPos, -1 ) << "File should contain EDIT section";
+    EXPECT_NE( propsPos, -1 ) << "File should contain PROPS section";
+    EXPECT_NE( operaterPos, -1 ) << "File should contain OPERATER keyword";
+
+    EXPECT_GT( operaterPos, editPos ) << "OPERATER should be after EDIT keyword";
+    EXPECT_LT( operaterPos, propsPos ) << "OPERATER should be before PROPS keyword (i.e., in EDIT section)";
 
     savedFile.close();
 

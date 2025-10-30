@@ -47,7 +47,9 @@ COPY
    PERMX PERMY /
    PERMX PERMZ /
 /
-
+PINCH
+ /
+EDIT
 PROPS
 
 SWOF
