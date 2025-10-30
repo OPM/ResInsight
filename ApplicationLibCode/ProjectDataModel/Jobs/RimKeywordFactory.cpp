@@ -81,7 +81,7 @@ namespace RimKeywordFactory
 //--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath )
 {
-    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr || eCase->eclipseCaseData() == nullptr )
     {
         return Opm::DeckKeyword();
     }
@@ -128,7 +128,7 @@ Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase*
 //--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath )
 {
-    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr || eCase->eclipseCaseData() == nullptr )
     {
         return Opm::DeckKeyword();
     }
@@ -187,7 +187,7 @@ Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword welsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText )
 {
-    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr || eCase->eclipseCaseData() == nullptr )
     {
         return Opm::DeckKeyword();
     }
@@ -222,7 +222,7 @@ Opm::DeckKeyword welsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, c
 //--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword compsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText )
 {
-    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr || eCase->eclipseCaseData() == nullptr )
     {
         return Opm::DeckKeyword();
     }
@@ -258,7 +258,7 @@ Opm::DeckKeyword compsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, 
 //--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword wsegvalvKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText )
 {
-    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr || eCase->eclipseCaseData() == nullptr )
     {
         return Opm::DeckKeyword();
     }
@@ -289,7 +289,7 @@ Opm::DeckKeyword wsegvalvKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, 
 //--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword wsegaicdKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText )
 {
-    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr )
+    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr || eCase->eclipseCaseData() == nullptr )
     {
         return Opm::DeckKeyword();
     }

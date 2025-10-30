@@ -1003,6 +1003,12 @@ int RimOpmFlowJob::mergeBasicWellSettings()
     auto compdatKw  = RimKeywordFactory::compdatKeyword( m_eclipseCase(), m_wellPath() );
     auto welspecsKw = RimKeywordFactory::welspecsKeyword( m_wellGroupName().toStdString(), m_eclipseCase(), m_wellPath() );
 
+    if ( welspecsKw.size() < 1 || compdatKw.size() < 1 )
+    {
+        RiaLogging::error( "Failed to create WELSPECS and COMPDAT keywords for selected well path. Do you have a valid case selected?" );
+        return failure;
+    }
+
     if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
     {
         // reverse order for correct insertion order
