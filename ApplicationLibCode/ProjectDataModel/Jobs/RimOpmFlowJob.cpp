@@ -1003,7 +1003,7 @@ int RimOpmFlowJob::mergeBasicWellSettings()
     auto compdatKw  = RimKeywordFactory::compdatKeyword( m_eclipseCase(), m_wellPath() );
     auto welspecsKw = RimKeywordFactory::welspecsKeyword( m_wellGroupName().toStdString(), m_eclipseCase(), m_wellPath() );
 
-    if ( welspecsKw.size() < 1 || compdatKw.size() < 1 )
+    if ( welspecsKw.empty() || compdatKw.empty() )
     {
         RiaLogging::error( "Failed to create WELSPECS and COMPDAT keywords for selected well path. Do you have a valid case selected?" );
         return failure;
@@ -1086,7 +1086,7 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
     auto wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( m_eclipseCase(), m_wellPath(), mswData );
     auto wsegaicdKw = RimKeywordFactory::wsegaicdKeyword( m_eclipseCase(), m_wellPath(), mswData );
 
-    if ( welsegsKw.size() < 1 || compsegsKw.size() < 1 )
+    if ( welsegsKw.empty() || compsegsKw.empty() )
     {
         RiaLogging::error( "Failed to create WELSEGS or COMPSEGS keyword from MSW data." );
         return failure;
@@ -1097,11 +1097,11 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         // make sure we insert after COMPDAT kw
         if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welsegsKw, "COMPDAT" ) ) return failure;
         if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compsegsKw, welsegsKw.name() ) ) return failure;
-        if ( wsegvalvKw.size() >= 1 )
+        if ( !wsegvalvKw.empty() )
         {
             if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegvalvKw, compsegsKw.name() ) ) return failure;
         }
-        if ( wsegaicdKw.size() >= 1 )
+        if ( !wsegaicdKw.empty() )
         {
             if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegaicdKw, compsegsKw.name() ) ) return failure;
         }
@@ -1116,13 +1116,13 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, compsegsKw );
         if ( mergePosition < 0 ) return failure;
         mergePosition++;
-        if ( wsegvalvKw.size() >= 1 )
+        if ( !wsegvalvKw.empty() )
         {
             mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegvalvKw );
             if ( mergePosition < 0 ) return failure;
             mergePosition++;
         }
-        if ( wsegaicdKw.size() >= 1 )
+        if ( !wsegaicdKw.empty() )
         {
             mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegaicdKw );
             if ( mergePosition < 0 ) return failure;
