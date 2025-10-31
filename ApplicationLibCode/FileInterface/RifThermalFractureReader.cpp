@@ -184,6 +184,19 @@ QDateTime RifThermalFractureReader::parseDateTime( const QString& dateString )
         dateTime           = QDateTime::fromString( dateString, dateFormat );
     }
 
+    // Sometimes the datetime field has different year definition
+    if ( !dateTime.isValid() )
+    {
+        QString dateFormat = "dd-MM-yyyy hh:mm:ss";
+        dateTime           = QDateTime::fromString( dateString, dateFormat );
+    }
+
+    if ( !dateTime.isValid() )
+    {
+        QString dateFormat = "dd-MM-yyyy";
+        dateTime           = QDateTime::fromString( dateString, dateFormat );
+    }
+
     return dateTime;
 }
 
