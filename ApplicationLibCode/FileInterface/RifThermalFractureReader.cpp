@@ -166,6 +166,11 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString> RifThermalFrac
         lineNumber++;
     }
 
+    if ( definition->numTimeSteps() == 0 )
+    {
+        return std::make_pair( nullptr, QString( "No time steps found: %1" ).arg( filePath ) );
+    }
+
     return std::make_pair( definition, "" );
 }
 
