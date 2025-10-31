@@ -19,7 +19,7 @@
 
 class RifTextDataTableFormatter;
 class RigMswTableData;
-class RicMswUnifiedDataWIP;
+class RigMswUnifiedDataWIP;
 
 //==================================================================================================
 /// Formatter functions that convert MSW data structures to file output using RifTextDataTableFormatter
@@ -29,13 +29,13 @@ namespace RigMswDataFormatter
 // Consolidated data formatting - works with any compatible data source
 void formatCompsegsTable( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData, bool isLgrData = false );
 void formatWsegvalvTable( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData );
-void formatWsegvalvTable( RifTextDataTableFormatter& formatter, const RicMswUnifiedDataWIP& unifiedData );
+void formatWsegvalvTable( RifTextDataTableFormatter& formatter, const RigMswUnifiedDataWIP& unifiedData );
 void formatWsegaicdTable( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData );
-void formatWsegaicdTable( RifTextDataTableFormatter& formatter, const RicMswUnifiedDataWIP& unifiedData );
+void formatWsegaicdTable( RifTextDataTableFormatter& formatter, const RigMswUnifiedDataWIP& unifiedData );
 void formatWelsegsTable( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData );
-void formatWelsegsTable( RifTextDataTableFormatter& formatter, const RicMswUnifiedDataWIP& unifiedData );
+void formatWelsegsTable( RifTextDataTableFormatter& formatter, const RigMswUnifiedDataWIP& unifiedData );
 
 // Complete MSW export
 void formatMswTables( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData );
-void formatMswTables( RifTextDataTableFormatter& formatter, const RicMswUnifiedDataWIP& unifiedData );
+void formatMswTables( RifTextDataTableFormatter& formatter, const RigMswUnifiedDataWIP& unifiedData );
 } // namespace RigMswDataFormatter

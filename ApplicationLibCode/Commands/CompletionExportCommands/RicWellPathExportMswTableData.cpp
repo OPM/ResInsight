@@ -25,14 +25,14 @@
 #include "RicMswExportInfo.h"
 #include "RicMswTableDataTools.h"
 #include "RicMswTableFormatterTools.h"
-#include "RicMswUnifiedData.h"
 #include "RicMswValveAccumulators.h"
 #include "RicWellPathExportCompletionsFileTools.h"
 
 #include "RifTextDataTableFormatter.h"
 
+#include "CompletionsMsw/RigMswDataFormatter.h"
 #include "CompletionsMsw/RigMswTableData.h"
-#include "RigMswDataFormatter.h"
+#include "CompletionsMsw/RigMswUnifiedData.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -305,7 +305,7 @@ void RicWellPathExportMswTableData::exportUnifiedMswData( const RicExportComplet
                                                           const std::vector<RimWellPath*>&         wellPaths )
 {
     // Extract all MSW data using new approach
-    RicMswUnifiedDataWIP unifiedData = extractUnifiedMswData( exportSettings, wellPaths );
+    RigMswUnifiedDataWIP unifiedData = extractUnifiedMswData( exportSettings, wellPaths );
 
     if ( unifiedData.isEmpty() )
     {
@@ -2279,10 +2279,10 @@ std::pair<double, double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswUnifiedDataWIP RicWellPathExportMswTableData::extractUnifiedMswData( const RicExportCompletionDataSettingsUi& exportSettings,
+RigMswUnifiedDataWIP RicWellPathExportMswTableData::extractUnifiedMswData( const RicExportCompletionDataSettingsUi& exportSettings,
                                                                            const std::vector<RimWellPath*>&         wellPaths )
 {
-    RicMswUnifiedDataWIP unifiedData;
+    RigMswUnifiedDataWIP unifiedData;
 
     for ( RimWellPath* wellPath : wellPaths )
     {
