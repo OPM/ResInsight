@@ -1,5 +1,5 @@
 ---
-Checks:            '-*,modernize-use-override,modernize-deprecated-headers,modernize-use-using,modernize-make-unique,modernize-make-shared,bugprone-bool-pointer-implicit-conversion,bugprone-parent-virtual-call,bugprone-redundant-branch-condition,bugprone-suspicious-semicolon,bugprone-suspicious-string-compare,modernize-redundant-void-arg,readability-static-accessed-through-instance,readability-simplify-boolean-expr,readability-container-size-empty'
+Checks:            '-*,modernize-use-override,modernize-deprecated-headers,modernize-use-using,modernize-make-unique,modernize-make-shared,bugprone-bool-pointer-implicit-conversion,bugprone-parent-virtual-call,bugprone-redundant-branch-condition,bugprone-suspicious-semicolon,bugprone-suspicious-string-compare,modernize-redundant-void-arg,readability-static-accessed-through-instance,readability-simplify-boolean-expr'
 WarningsAsErrors:  ''
 HeaderFilterRegex: 'ApplicationLibCode/*.*$'
 FormatStyle:       'file'
