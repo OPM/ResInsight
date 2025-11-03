@@ -44,7 +44,9 @@
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 #include "RimWellRftPlot.h"
+#include "Tools/RimAutomationSettings.h"
 
+#include "RicReloadSummaryCaseFeature.h"
 #include "SummaryPlotCommands/RicSummaryCurveCalculatorDialog.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorDialog.h"
 
@@ -79,6 +81,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSettings>
+#include <QTimer>
 #include <QToolBar>
 #include <QTreeView>
 #include <QUndoStack>
@@ -91,6 +94,9 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     : m_activePlotViewWindow( nullptr )
     , m_selection3DLinkEnabled( false )
     , m_toggleSelectionLinkAction( nullptr )
+    , m_toggleAutoUpdateAction( nullptr )
+    , m_autoUpdateEnabled( false )
+    , m_autoUpdateTimerId( -1 )
 {
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
@@ -111,6 +117,17 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     m_toggleSelectionLinkAction->setCheckable( true );
     m_toggleSelectionLinkAction->setChecked( m_selection3DLinkEnabled );
     connect( m_toggleSelectionLinkAction, SIGNAL( triggered() ), SLOT( slotToggleSelectionLink() ) );
+
+    m_toggleAutoUpdateAction = new QAction( QIcon( ":/TimedRefresh.png" ), tr( "Auto-update plots." ), this );
+    m_toggleAutoUpdateAction->setToolTip( "Reload cases at interval specified in Automation Settings." );
+    m_toggleAutoUpdateAction->setCheckable( true );
+    m_toggleAutoUpdateAction->setChecked( m_autoUpdateEnabled );
+    connect( m_toggleAutoUpdateAction, SIGNAL( triggered() ), SLOT( slotToggleAutoUpdate() ) );
+
+    m_reloadSelectedCasesAction = new QAction( QIcon( ":/Refresh.svg" ), tr( "Reload Selected Cases" ), this );
+    m_reloadSelectedCasesAction->setToolTip( "Reload selected summary and/or ensemble cases." );
+    m_reloadSelectedCasesAction->setCheckable( false );
+    connect( m_reloadSelectedCasesAction, SIGNAL( triggered() ), SLOT( slotReloadSelectedCases() ) );
 
     createMenus();
     createToolBars();
@@ -430,6 +447,8 @@ void RiuPlotMainWindow::createToolBars()
         if ( toolbarName == "View" )
         {
             toolbar->addAction( m_toggleSelectionLinkAction );
+            toolbar->addAction( m_reloadSelectedCasesAction );
+            toolbar->addAction( m_toggleAutoUpdateAction );
         }
     }
 
@@ -1112,4 +1131,45 @@ bool RiuPlotMainWindow::selection3DLinkEnabled()
 void RiuPlotMainWindow::slotToggleSelectionLink()
 {
     m_selection3DLinkEnabled = !m_selection3DLinkEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::slotToggleAutoUpdate()
+{
+    m_autoUpdateEnabled = !m_autoUpdateEnabled;
+
+    if ( ( m_autoUpdateEnabled ) && ( m_autoUpdateTimerId == -1 ) )
+    {
+        auto intervalMs     = RimProject::current()->automationSettings()->caseReloadIntervalMs();
+        m_autoUpdateTimerId = startTimer( intervalMs );
+    }
+    else
+    {
+        if ( m_autoUpdateTimerId != -1 )
+        {
+            killTimer( m_autoUpdateTimerId );
+            m_autoUpdateTimerId = -1;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::slotReloadSelectedCases()
+{
+    RicReloadSummaryCaseFeature::reloadSelectedCasesAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::timerEvent( QTimerEvent* event )
+{
+    if ( event->timerId() == m_autoUpdateTimerId )
+    {
+        RicReloadSummaryCaseFeature::reloadTaggedSummaryCasesAndUpdate();
+    }
 }

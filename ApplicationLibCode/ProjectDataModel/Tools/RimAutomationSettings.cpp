@@ -42,6 +42,12 @@ RimAutomationSettings::RimAutomationSettings()
                                 "Cell Selection Destination",
                                 "",
                                 "Add curves to the selected Summary Plot when clicking on cells in a 3D view." );
+
+    CAF_PDM_InitField( &m_caseReloadIntervalSeconds,
+                       "CaseReloadIntervalSeconds",
+                       15,
+                       "Case Reload Interval (seconds)",
+                       "Interval in seconds for automatic reload of cases when enabled." );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +85,9 @@ void RimAutomationSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     group->add( &m_cellSelectionDestination );
     m_cellSelectionDestination.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    auto refreshGrp = uiOrdering.addNewGroup( "Plot Update" );
+    refreshGrp->add( &m_caseReloadIntervalSeconds );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,4 +120,12 @@ QList<caf::PdmOptionItemInfo> RimAutomationSettings::calculateValueOptions( cons
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimAutomationSettings::caseReloadIntervalMs() const
+{
+    return m_caseReloadIntervalSeconds() * 1000;
 }

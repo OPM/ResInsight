@@ -99,6 +99,7 @@ protected:
     void keyPressEvent( QKeyEvent* ) override;
     void dragEnterEvent( QDragEnterEvent* event ) override;
     void dropEvent( QDropEvent* event ) override;
+    void timerEvent( QTimerEvent* event ) override;
 
     QStringList defaultDockStateNames() override;
     QStringList windowsMenuFeatureNames() override;
@@ -118,6 +119,8 @@ private:
 
 private slots:
     void slotToggleSelectionLink();
+    void slotToggleAutoUpdate();
+    void slotReloadSelectedCases();
 
     friend class RiuMdiSubWindow;
 
@@ -146,4 +149,8 @@ private:
 
     QAction* m_toggleSelectionLinkAction;
     bool     m_selection3DLinkEnabled;
+    QAction* m_toggleAutoUpdateAction;
+    bool     m_autoUpdateEnabled;
+    int      m_autoUpdateTimerId;
+    QAction* m_reloadSelectedCasesAction;
 };
