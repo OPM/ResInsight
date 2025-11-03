@@ -23,6 +23,9 @@
 #include "cvfArrayWrapperConst.h"
 #include "cvfMatrix3.h"
 #include "cvfMatrix4.h"
+
+#include "cafPdmLogging.h"
+
 #include <list>
 #include <map>
 
@@ -93,7 +96,7 @@ public:
                                  std::vector<cvf::Vec3d>*               createdVertexes );
 
     template <typename VerticeArrayType, typename IndexType>
-    static bool insertVertexInPolygon( std::vector<IndexType>*                         polygon,
+    static bool insertVertexInPolygon( std::vector<IndexType>&                         polygon,
                                        ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodeCoords,
                                        IndexType                                       vertexIndex,
                                        double                                          tolerance );
@@ -103,9 +106,9 @@ public:
                                                       const cvf::Vec3d& p2,
                                                       const cvf::Vec3d& p3,
                                                       const cvf::Vec3d& p4,
-                                                      cvf::Vec3d*       intersectionPoint,
-                                                      double*           fractionAlongLine1,
-                                                      double*           fractionAlongLine2,
+                                                      cvf::Vec3d&       intersectionPoint,
+                                                      double&           fractionAlongLine1,
+                                                      double&           fractionAlongLine2,
                                                       double            tolerance = 1e-6 );
 
     template <typename VerticeArrayType, typename PolygonArrayType, typename IndexType>
@@ -113,12 +116,12 @@ public:
                                                ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> vertices,
                                                ArrayWrapperConst<PolygonArrayType, IndexType>  indices,
                                                const cvf::Vec3d&                               point,
-                                               int*                                            touchedEdgeIndex,
+                                               int&                                            touchedEdgeIndex,
                                                double                                          tolerance = 1e-6 );
 
     template <typename VerticeArrayType, typename IndexType>
-    static bool calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*                         polygon,
-                                                   std::vector<cvf::Vec3d>*                        createdVertexes,
+    static bool calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>&                         polygon,
+                                                   std::vector<cvf::Vec3d>&                        createdVertexes,
                                                    EdgeIntersectStorage<IndexType>*                edgeIntersectionStorage,
                                                    ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodes,
                                                    const IndexType                                 cv1CubeFaceIndices[4],
@@ -148,8 +151,8 @@ public:
                            IndexType                          e2P2,
                            IndexType*                         vxIndexIntersectionPoint,
                            GeometryTools::IntersectionStatus* intersectionStatus,
-                           double*                            fractionAlongEdge1,
-                           double*                            fractionAlongEdge2 );
+                           double&                            fractionAlongEdge1,
+                           double&                            fractionAlongEdge2 );
     void addIntersection( IndexType                         e1P1,
                           IndexType                         e1P2,
                           IndexType                         e2P1,

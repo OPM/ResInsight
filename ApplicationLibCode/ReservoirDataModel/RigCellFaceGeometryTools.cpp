@@ -94,8 +94,8 @@ cvf::StructGridInterface::FaceType RigCellFaceGeometryTools::calculateCellFaceOv
         c1.faceIndices( ( cvf::StructGridInterface::FaceType )( fIdx ), &face1 );
         c2.faceIndices( cvf::StructGridInterface::oppositeFace( ( cvf::StructGridInterface::FaceType )( fIdx ) ), &face2 );
 
-        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
-                                                                                   &intersections,
+        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
+                                                                                   intersections,
                                                                                    (cvf::EdgeIntersectStorage<size_t>*)nullptr,
                                                                                    cvf::wrapArrayConst( &mainGrid.nodes() ),
                                                                                    face1.data(),
@@ -335,8 +335,8 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         std::array<size_t, 4> candidateFaceIndices;
         mainGrid->cell( candidateCellIndex ).faceIndices( candidateFace, &candidateFaceIndices );
 
-        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
-                                                                                   &intersections,
+        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
+                                                                                   intersections,
                                                                                    (cvf::EdgeIntersectStorage<size_t>*)nullptr,
                                                                                    cvf::wrapArrayConst( &mainGridNodes ),
                                                                                    sourceFaceIndices.data(),

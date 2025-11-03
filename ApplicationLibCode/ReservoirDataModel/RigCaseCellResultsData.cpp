@@ -1994,8 +1994,8 @@ void calculateConnectionGeometry( const RigCell&                     c1,
     c1.faceIndices( faceId, &face1 );
     c2.faceIndices( cvf::StructGridInterface::oppositeFace( faceId ), &face2 );
 
-    bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
-                                                                               &intersections,
+    bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
+                                                                               intersections,
                                                                                (cvf::EdgeIntersectStorage<size_t>*)nullptr,
                                                                                cvf::wrapArrayConst( &nodes ),
                                                                                face1.data(),
