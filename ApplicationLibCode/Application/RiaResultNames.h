@@ -120,6 +120,9 @@ QString           formationBinaryAllanResultName();
 QString           formationAllanResultName();
 std::set<QString> nncResultNames();
 
+QString satnumResult();
+QString imbnumResult();
+
 // List of well path derived results
 std::vector<QString> wbsAngleResultNames();
 std::vector<QString> wbsDerivedResultNames();

@@ -112,7 +112,10 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
                 RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ) );
             cellResultsData->ensureKnownResultLoaded(
                 RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
-            cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "SATNUM" ) );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::satnumResult() ) );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::imbnumResult() ) );
 
             // Fetch SWAT and SGAS cell values for the selected cell
             cvf::ref<RigResultAccessor> swatAccessor =
@@ -135,26 +138,40 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
                                                                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                            "SATNUM" ) );
+                                                                                            RiaResultNames::satnumResult() ) );
 
-            if ( satnumAccessor.isNull() )
-            {
-                QString text = QString( "Could not read SATNUM value, not able to create relative permeability curves." );
-                RiaLogging::error( text );
+            cvf::ref<RigResultAccessor> imbnumAccessor =
+                RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                   gridIndex,
+                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                   timeStepIndex,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                            RiaResultNames::imbnumResult() ) );
 
-                return false;
-            }
-
-            const double cellSWAT   = swatAccessor.notNull() ? swatAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
-            const double cellSGAS   = sgasAccessor.notNull() ? sgasAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
-            const int    cellSATNUM = satnumAccessor->cellScalar( gridLocalCellIndex );
+            const double cellSWAT = swatAccessor.notNull() ? swatAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
+            const double cellSGAS = sgasAccessor.notNull() ? sgasAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
 
             std::vector<RigFlowDiagDefines::RelPermCurve> relPermCurveArr =
-                eclipseResultCase->flowDiagSolverInterface()->calculateRelPermCurves( activeCellIndex, cellSATNUM );
+                eclipseResultCase->flowDiagSolverInterface()->calculateRelPermCurves( activeCellIndex );
 
-            QString cellRefText = constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex, "SATNUM", cellSATNUM );
-            QString caseName    = eclipseResultCase->caseUserDescription();
+            QString cellRefText = constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex );
 
+            if ( satnumAccessor.notNull() )
+            {
+                const int cellSATNUM = satnumAccessor->cellScalar( gridLocalCellIndex );
+                cellRefText += QString( ", SATNUM: %1" ).arg( cellSATNUM );
+            }
+
+            if ( imbnumAccessor.notNull() )
+            {
+                const int cellIMBNUM = imbnumAccessor->cellScalar( gridLocalCellIndex );
+                cellRefText += QString( ", IMBNUM: %1" ).arg( cellIMBNUM );
+            }
+
+            QString caseName = eclipseResultCase->caseUserDescription();
+
+            const bool enableImbibitionCurveSelection = ( imbnumAccessor.notNull() && imbnumAccessor->cellScalar( gridLocalCellIndex ) > 0 );
+            m_targetPlotPanel->enableImbibitionCurveSelection( enableImbibitionCurveSelection );
             m_targetPlotPanel->setPlotData( eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, caseName, cellRefText );
 
             return true;
@@ -169,9 +186,7 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
 //--------------------------------------------------------------------------------------------------
 QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
                                                                         size_t                    gridIndex,
-                                                                        size_t                    gridLocalCellIndex,
-                                                                        const QString&            valueName,
-                                                                        double                    cellValue )
+                                                                        size_t                    gridLocalCellIndex )
 {
     const size_t       gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
     const RigGridBase* grid      = gridIndex < gridCount ? eclipseCaseData->grid( gridIndex ) : nullptr;
@@ -195,10 +210,6 @@ QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const Ri
             else
             {
                 retText = QString( "LGR %1, Cell: [%2, %3, %4]" ).arg( gridIndex ).arg( i ).arg( j ).arg( k );
-            }
-            if ( cellValue != HUGE_VAL )
-            {
-                retText += QString( " (%1=%2)" ).arg( valueName ).arg( cellValue );
             }
 
             return retText;

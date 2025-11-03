@@ -34,11 +34,7 @@ class RiuRelativePermeabilityPlotUpdater : public RiuPlotUpdater
 public:
     RiuRelativePermeabilityPlotUpdater( RiuRelativePermeabilityPlotPanel* targetPlotPanel );
 
-    static QString constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
-                                               size_t                    gridIndex,
-                                               size_t                    gridLocalCellIndex,
-                                               const QString&            valueName,
-                                               double                    cellValue );
+    static QString constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex );
 
 protected:
     void     clearPlot() override;

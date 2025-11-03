@@ -163,7 +163,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
     m_showDrainageCheckBox   = new QCheckBox( "Drainage" );
     m_showImbibitionCheckBox = new QCheckBox( "Imbibition" );
     m_showDrainageCheckBox->setChecked( true );
-    m_showImbibitionCheckBox->setChecked( true );
+    m_showImbibitionCheckBox->setChecked( false );
 
     curveSetLayout->addWidget( m_showDrainageCheckBox );
     curveSetLayout->addWidget( m_showImbibitionCheckBox );
@@ -276,6 +276,22 @@ void RiuRelativePermeabilityPlotPanel::setPlotData( RiaDefines::EclipseUnitSyste
     m_cellReferenceText = cellReferenceText;
 
     plotUiSelectedCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuRelativePermeabilityPlotPanel::enableImbibitionCurveSelection( bool enable )
+{
+    if ( !enable )
+    {
+        m_showImbibitionCheckBox->setChecked( false );
+        m_showImbibitionCheckBox->setDisabled( true );
+    }
+    else
+    {
+        m_showImbibitionCheckBox->setDisabled( false );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

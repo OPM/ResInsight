@@ -79,7 +79,7 @@ public:
                                                                                      const std::vector<size_t>& selected_cell_indices,
                                                                                      double                     max_pv_fraction );
 
-    std::vector<RigFlowDiagDefines::RelPermCurve> calculateRelPermCurves( size_t activeCellIndex, int satnum );
+    std::vector<RigFlowDiagDefines::RelPermCurve> calculateRelPermCurves( size_t activeCellIndex );
 
     std::vector<RigFlowDiagDefines::PvtCurve> calculatePvtCurves( RigFlowDiagDefines::PvtCurveType pvtCurveType, int pvtNum );
     bool calculatePvtDynamicPropertiesFvf( int pvtNum, double pressure, double rs, double rv, double* bo, double* bg );

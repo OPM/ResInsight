@@ -149,11 +149,8 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
                                                                                               &viscosityDynProps.mu_o,
                                                                                               &viscosityDynProps.mu_g );
 
-        QString cellRefText = RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( eclipseCaseData,
-                                                                                              gridIndex,
-                                                                                              gridLocalCellIndex,
-                                                                                              "PVTNUM",
-                                                                                              cellPvtNumDouble );
+        QString cellRefText = RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex );
+        cellRefText += QString( ", PVTNUM: %1" ).arg( cellPvtNum );
 
         m_targetPlotPanel->setPlotData( eclipseCaseData->unitsType(),
                                         fvfCurveArr,

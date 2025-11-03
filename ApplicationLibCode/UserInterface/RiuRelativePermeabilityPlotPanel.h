@@ -51,12 +51,15 @@ public:
     RiuRelativePermeabilityPlotPanel( QWidget* parent );
     ~RiuRelativePermeabilityPlotPanel() override;
 
-    void                                setPlotData( RiaDefines::EclipseUnitSystem                        unitSystem,
-                                                     const std::vector<RigFlowDiagDefines::RelPermCurve>& relPermCurves,
-                                                     double                                               swat,
-                                                     double                                               sgas,
-                                                     const QString&                                       caseName,
-                                                     const QString&                                       cellReferenceText );
+    void setPlotData( RiaDefines::EclipseUnitSystem                        unitSystem,
+                      const std::vector<RigFlowDiagDefines::RelPermCurve>& relPermCurves,
+                      double                                               swat,
+                      double                                               sgas,
+                      const QString&                                       caseName,
+                      const QString&                                       cellReferenceText );
+
+    void enableImbibitionCurveSelection( bool enable );
+
     void                                clearPlot();
     RiuRelativePermeabilityPlotUpdater* plotUpdater();
     void                                applyFontSizes( bool replot );
