@@ -320,8 +320,14 @@ void RimSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.add( &m_displayNameOption );
     uiOrdering.add( &m_summaryHeaderFilename );
     uiOrdering.add( &m_caseId );
-    uiOrdering.add( &m_includeInAutoReload );
-    if ( ensemble() ) uiOrdering.add( &m_showSubNodesInTree );
+    if ( ensemble() )
+    {
+        uiOrdering.add( &m_showSubNodesInTree );
+    }
+    else
+    {
+        uiOrdering.add( &m_includeInAutoReload );
+    }
 
     uiOrdering.skipRemainingFields( true );
 }
