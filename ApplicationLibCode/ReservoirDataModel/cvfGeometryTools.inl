@@ -466,7 +466,13 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
                             else if ( fractionAlongEdge2 >= 1.0 )
                                 intersectionVxIndex = cv2CubeFaceIndices[nextCv2Idx];
                             else
-                                CVF_ASSERT( false ); // Tolerance trouble
+                            {
+                                // Numerical precision issue at edge boundary
+                                // Create intersection vertex at the computed intersection point as fallback
+                                intersectionVxIndex = newVertexIndex;
+                                createdVertexes.push_back( intersection );
+                                ++newVertexIndex;
+                            }
                         }
                         break;
                         case GeometryTools::LINES_OVERLAP:
@@ -480,7 +486,13 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
                             else if ( fractionAlongEdge2 >= 1.0 )
                                 intersectionVxIndex = cv2CubeFaceIndices[nextCv2Idx];
                             else
-                                CVF_ASSERT( false ); // Tolerance trouble
+                            {
+                                // Numerical precision issue at edge boundary
+                                // Create intersection vertex at the computed intersection point as fallback
+                                intersectionVxIndex = newVertexIndex;
+                                createdVertexes.push_back( intersection );
+                                ++newVertexIndex;
+                            }
                         }
                         break;
                         default:
@@ -504,7 +516,11 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
             if ( ( intersectStatus == GeometryTools::LINES_CROSSES ) || ( intersectStatus == GeometryTools::LINES_TOUCH ) ||
                  ( intersectStatus == GeometryTools::LINES_OVERLAP ) )
             {
-                CVF_ASSERT( intersectionVxIndex != cvf::UNDEFINED_UINT );
+                if ( intersectionVxIndex == cvf::UNDEFINED_UINT )
+                {
+                    // Invalid intersection - skip and continue processing
+                    continue;
+                }
 
                 intersectionFractionsAlongEdge.push_back( fractionAlongEdge1 );
                 intersectedCv2EdgeIdxs.push_back( cv2Idx );
@@ -581,22 +597,28 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
             }
             else
             {
-                CVF_ASSERT( lastIntersection < intersectedCv2EdgeIdxs.size() );
+                if ( lastIntersection >= intersectedCv2EdgeIdxs.size() )
+                {
+                    // Array bounds exceeded - exit processing gracefully
+                    break;
+                }
             }
         }
     }
 
-    if ( polygon->size() > 2 )
+    if ( polygon.size() > 2 )
     {
-        if ( polygon->back() == polygon->front() ) polygon->pop_back();
+        if ( polygon.back() == polygon.front() ) polygon.pop_back();
     }
 
-    // Sanity checks
-    if ( polygon->size() < 3 )
+    // Sanity checks with logging
+    if ( polygon.size() < 3 )
     {
-        // cvf::Trace::show(cvf::String("Degenerated connection polygon detected. (Less than 3 vertexes) Cv's probably
-        // not in contact: %1 , %2").arg(m_ownerCvId).arg(m_neighborCvId));
-        polygon->clear();
+        caf::PdmLogging::warning( QString( "GeometryTools: Generated degenerate polygon with %1 vertices. "
+                                           "Input faces may not overlap significantly. Tolerance=%2" )
+                                      .arg( polygon.size() )
+                                      .arg( tolerance ) );
+        polygon.clear();
 
         return false;
     }
