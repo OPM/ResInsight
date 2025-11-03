@@ -671,13 +671,11 @@ QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection
 
     QString title = "";
     if ( sawWater && sawGas )
-        title = "Water/Gas ";
+        title = "SWAT/SGAS";
     else if ( sawWater )
-        title = "Water ";
+        title = "SWAT";
     else if ( sawGas )
-        title = "Gas ";
-
-    title += "Saturation";
+        title = "SGAS";
 
     return title;
 }
