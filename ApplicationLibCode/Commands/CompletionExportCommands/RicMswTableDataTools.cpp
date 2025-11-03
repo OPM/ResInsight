@@ -45,10 +45,14 @@ void RicMswTableDataTools::collectWelsegsData( RigMswTableData&  tableData,
 {
     // Set up WELSEGS header
     WelsegsHeader header;
-    header.wellName           = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport().toStdString();
-    header.topMD              = exportInfo.mainBoreBranch()->startMD();
-    header.topTVD             = exportInfo.mainBoreBranch()->startTVD();
-    header.volume             = exportInfo.topWellBoreVolume();
+    header.wellName = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport().toStdString();
+    header.topMD    = exportInfo.mainBoreBranch()->startMD();
+    header.topTVD   = exportInfo.mainBoreBranch()->startTVD();
+
+    if ( exportInfo.topWellBoreVolume() != RicMswExportInfo::defaultDoubleValue() )
+    {
+        header.volume = exportInfo.topWellBoreVolume();
+    }
     header.lengthAndDepthText = exportInfo.lengthAndDepthText().toStdString();
     header.pressureDropText   = exportInfo.pressureDropText().toStdString();
 

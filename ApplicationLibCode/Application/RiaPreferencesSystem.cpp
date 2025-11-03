@@ -92,6 +92,11 @@ RiaPreferencesSystem::RiaPreferencesSystem()
                        QString(),
                        "Keywords to enable debug logging, separated by semicolon.\nType 'enable-all' to enable logging for all objects." );
 
+    CAF_PDM_InitField( &m_featureKeywords,
+                       "FeatureKeywords",
+                       QString(),
+                       "Keywords to enable experimental features separated by semicolon.\nType 'enable-all' for all." );
+
     CAF_PDM_InitField( &m_maximumNumberOfThreads, "maximumNumberOfThreads", std::make_pair( false, QString( "4" ) ), "Maximum Number of Threads" );
     m_maximumNumberOfThreads.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 }
@@ -274,6 +279,20 @@ bool RiaPreferencesSystem::isLoggingActivatedForKeyword( const QString& keyword 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::isFeatureEnabled( const QString& keyword ) const
+{
+    if ( keyword.isEmpty() ) return false;
+
+    const QStringList keywords = m_featureKeywords().split( ";", Qt::SkipEmptyParts );
+
+    if ( keywords.contains( "enable-all" ) ) return true;
+
+    return keywords.contains( keyword );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
@@ -307,6 +326,7 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Developer Settings" );
         group->add( &m_keywordsForLogging );
+        group->add( &m_featureKeywords );
         group->add( &m_gtestFilter );
     }
 

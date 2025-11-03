@@ -64,6 +64,7 @@ public:
     EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
 
     bool isLoggingActivatedForKeyword( const QString& keyword ) const;
+    bool isFeatureEnabled( const QString& keyword ) const;
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -95,6 +96,7 @@ private:
     caf::PdmField<EclipseTextFileReaderModeType> m_eclipseReaderMode;
 
     caf::PdmField<QString> m_keywordsForLogging;
+    caf::PdmField<QString> m_featureKeywords;
 
     caf::PdmField<std::pair<bool, QString>> m_maximumNumberOfThreads;
 };

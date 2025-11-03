@@ -43,7 +43,10 @@ void formatWelsegsRows( RifTextDataTableFormatter& formatter, const RowContainer
         formatter.addOptionalValue( row.diameter );
         formatter.addOptionalValue( row.roughness );
 
-        formatter.addOptionalComment( QString::fromStdString( row.description ) );
+        if ( !row.description.empty() )
+        {
+            formatter.addOptionalComment( QString::fromStdString( row.description ) );
+        }
         formatter.rowCompleted();
     }
 }

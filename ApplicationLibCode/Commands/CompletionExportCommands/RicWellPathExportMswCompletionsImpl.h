@@ -32,6 +32,8 @@ class RimEclipseCase;
 class RimFishbones;
 class RimPerforationInterval;
 class RimWellPath;
+class RigMswTableData;
+class RigMswUnifiedDataWIP;
 class RimWellPathFracture;
 class RimMswCompletionParameters;
 class RigWellPath;
@@ -43,7 +45,6 @@ class QFile;
 
 class RicWellPathExportMswCompletionsImpl
 {
-private:
 public:
     static void exportWellSegmentsForAllCompletions( const RicExportCompletionDataSettingsUi& exportSettings,
                                                      const std::vector<RimWellPath*>&         wellPaths );
@@ -194,4 +195,20 @@ private:
     static std::unique_ptr<RicMswBranch> createChildMswBranch( const RimWellPath* childWellPath );
 
     static std::vector<RimWellPath*> wellPathsWithTieIn( const RimWellPath* wellPath );
+
+    //--------------------------------------------------------------------------------------------------
+    // New data extraction functions
+    //--------------------------------------------------------------------------------------------------
+
+    static void exportExperimentalMswToSeparateFolder( const RicExportCompletionDataSettingsUi& exportSettings,
+                                                       const std::vector<RimWellPath*>&         wellPaths );
+
+    static void exportUnifiedMswData( const RicExportCompletionDataSettingsUi& exportSettings,
+                                      const QString&                           exportFolder,
+                                      const std::vector<RimWellPath*>&         wellPaths );
+    static void exportSplitMswData( const RicExportCompletionDataSettingsUi& exportSettings,
+                                    const QString&                           exportFolder,
+                                    const std::vector<RimWellPath*>&         wellPaths );
+
+    static RigMswUnifiedDataWIP extractUnifiedMswData( RimEclipseCase* eclipseCase, int timeStep, const std::vector<RimWellPath*>& wellPaths );
 };
