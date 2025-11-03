@@ -70,6 +70,7 @@
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
+#include "../Commands/RicEclRunnerDialog.h"
 
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
@@ -377,6 +378,8 @@ void RiuMainWindow::createActions()
 
     m_showRegressionTestDialog         = new QAction( "Regression Test Dialog", this );
     m_executePaintEventPerformanceTest = new QAction( "&Paint Event Performance Test", this );
+    m_eclRunnerAction = new QAction( "Eclipse Runner...", this );
+    m_eclRunnerAction->setCheckable(true);
 
     connect( m_mockModelAction, SIGNAL( triggered() ), SLOT( slotMockModel() ) );
     connect( m_mockResultsModelAction, SIGNAL( triggered() ), SLOT( slotMockResultsModel() ) );
@@ -388,6 +391,7 @@ void RiuMainWindow::createActions()
 
     connect( m_showRegressionTestDialog, SIGNAL( triggered() ), SLOT( slotShowRegressionTestDialog() ) );
     connect( m_executePaintEventPerformanceTest, SIGNAL( triggered() ), SLOT( slotExecutePaintEventPerformanceTest() ) );
+    connect( m_eclRunnerAction, &QAction::triggered, this, &RiuMainWindow::slotShowEclRunnerDialog );
 
     // View actions
     m_viewFullScreen = new QAction( QIcon( ":/Fullscreen.png" ), "Full Screen", this );
@@ -556,6 +560,9 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectNoGlobalPathsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicExecuteLastUsedScriptFeature" ) );
+
+    testMenu->addSeparator();
+    testMenu->addAction( m_eclRunnerAction );
 
     testMenu->addSeparator();
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensExportToFolderFeature" ) );
@@ -732,6 +739,51 @@ void RiuMainWindow::createToolBars()
 
     refreshAnimationActions();
     refreshDrawStyleActions();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotShowEclRunnerDialog()
+{
+    ads::CDockWidget* runnerDock = RiuDockWidgetTools::findDockWidget( dockManager(), "MainWindow.EclRunner" );
+    
+    if (!runnerDock)
+    {
+        // First time - create the dock widget and its content
+        runnerDock = RiuDockWidgetTools::createDockWidget( "Ecl Runner", "MainWindow.EclRunner", dockManager() );
+        RicEclRunnerDialog* runner = new RicEclRunnerDialog( this );
+        runnerDock->setWidget( runner );
+        
+        // Try to tabify next to Quick Access if available
+        ads::CDockWidget* quickAccess = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::mainWindowQuickAccessName() );
+        if (quickAccess && quickAccess->dockAreaWidget())
+        {
+            dockManager()->addDockWidgetTabToArea( runnerDock, quickAccess->dockAreaWidget() );
+        }
+        else
+        {
+            dockManager()->addDockWidget( ads::DockWidgetArea::RightDockWidgetArea, runnerDock );
+        }
+
+        m_eclRunnerDock = runner;
+        runnerDock->show();
+    }
+    else
+    {
+        if (runnerDock->isVisible())
+        {
+            runnerDock->toggleView();
+            m_eclRunnerAction->setChecked(false);
+        }
+        else
+        {
+            runnerDock->show();
+            runnerDock->raise();
+            m_eclRunnerAction->setChecked(true);
+        }
+    }
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1495,6 +1547,7 @@ void RiuMainWindow::slotBuildWindowActions()
     addDefaultEntriesToWindowsMenu();
 
     m_windowMenu->addSeparator();
+    m_windowMenu->addAction( m_eclRunnerAction );
     m_windowMenu->addAction( m_newPropertyView );
 }
 
@@ -2085,6 +2138,8 @@ void RiuMainWindow::dragEnterEvent( QDragEnterEvent* event )
 {
     if ( event->mimeData()->hasUrls() ) event->acceptProposedAction();
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 ///

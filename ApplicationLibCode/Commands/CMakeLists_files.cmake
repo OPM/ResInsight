@@ -79,6 +79,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicEclRunnerDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRenameSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportPressureDepthDataFeature.h
@@ -210,6 +211,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicHistogramPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicEclRunnerDialog.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

@@ -56,6 +56,7 @@ class RiuMohrsCirclePlot;
 class RiuMdiArea;
 class RiuSeismicHistogramPanel;
 class RiuCellSelectionTool;
+class RicEclRunnerDialog;
 
 class RicGridCalculatorDialog;
 
@@ -176,6 +177,7 @@ private:
 
     QAction* m_showRegressionTestDialog;
     QAction* m_executePaintEventPerformanceTest;
+    QAction* m_eclRunnerAction;
 
     caf::AnimationToolBar* m_animationToolBar;
 
@@ -192,6 +194,7 @@ private:
     RiuCellSelectionTool*             m_cellSelectionTool;
 
     std::unique_ptr<RicGridCalculatorDialog> m_gridCalculatorDialog;
+    QPointer<RicEclRunnerDialog> m_eclRunnerDock;
 
     QLabel*      m_memoryCriticalWarning;
     QToolButton* m_memoryUsedButton;
@@ -238,6 +241,7 @@ private slots:
     void slotSnapshotAllViewsToFile();
 
     void slotShowRegressionTestDialog();
+    void slotShowEclRunnerDialog();
     void slotExecutePaintEventPerformanceTest();
 
     // Mock models
