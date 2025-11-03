@@ -122,6 +122,8 @@ public:
 
     virtual void cleanupBeforeDelete();
 
+    bool includeInAutoReload() const;
+
 protected:
     virtual void onLoadDataAndUpdate();
 
@@ -139,6 +141,7 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QString nameAndItemCount() const;
     void    updateIcon();
@@ -154,6 +157,7 @@ private:
 protected:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
     caf::PdmField<QString>                   m_name;
+    caf::PdmField<bool>                      m_includeInAutoReload;
 
 private:
     caf::PdmField<QString>           m_nameTemplateString;

@@ -91,6 +91,8 @@ public:
     void                                          copyFrom( const RimSummaryCase& rhs );
     bool                                          operator<( const RimSummaryCase& rhs ) const;
 
+    bool includeInAutoReload() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -116,6 +118,7 @@ protected:
     caf::PdmField<caf::FilePath>   m_summaryHeaderFilename;
 
     caf::PdmField<bool> m_showSubNodesInTree;
+    caf::PdmField<bool> m_includeInAutoReload;
 
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
 

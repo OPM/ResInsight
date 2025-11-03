@@ -213,6 +213,7 @@ void RimSummaryFileSetEnsemble::defineUiOrdering( QString uiConfigName, caf::Pdm
         auto group = uiOrdering.addNewGroup( "Ensemble Definition" );
         m_ensembleFileSet()->uiOrdering( uiConfigName, *group );
     }
+    uiOrdering.add( &m_includeInAutoReload );
 
     auto developersGroup = uiOrdering.addNewGroup( " -- Developers --" );
     developersGroup->setCollapsedByDefault();

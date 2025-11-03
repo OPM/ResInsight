@@ -49,6 +49,9 @@ RimSummaryCase::RimSummaryCase()
     CAF_PDM_InitScriptableField( &m_showSubNodesInTree, "ShowSubNodesInTree", true, "Show Summary Data Sub-Tree" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showSubNodesInTree );
 
+    CAF_PDM_InitScriptableField( &m_includeInAutoReload, "IncludeInAutoReload", false, "Include in Automatic Case Reloads" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeInAutoReload );
+
     CAF_PDM_InitScriptableField( &m_useAutoShortName_OBSOLETE, "AutoShortyName", false, "Use Auto Display Name" );
     m_useAutoShortName_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_useAutoShortName_OBSOLETE.uiCapability()->setUiHidden( true );
@@ -299,6 +302,12 @@ void RimSummaryCase::defineObjectEditorAttribute( QString uiConfigName, caf::Pdm
 
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
+        if ( m_includeInAutoReload() )
+        {
+            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+            tag->icon = caf::IconProvider( ":/TimedRefresh.png" );
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
     }
 }
 
@@ -311,7 +320,7 @@ void RimSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.add( &m_displayNameOption );
     uiOrdering.add( &m_summaryHeaderFilename );
     uiOrdering.add( &m_caseId );
-
+    uiOrdering.add( &m_includeInAutoReload );
     if ( ensemble() ) uiOrdering.add( &m_showSubNodesInTree );
 
     uiOrdering.skipRemainingFields( true );
@@ -423,6 +432,14 @@ void RimSummaryCase::updateAutoShortName()
         }
     }
     updateTreeItemName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::includeInAutoReload() const
+{
+    return m_includeInAutoReload;
 }
 
 //--------------------------------------------------------------------------------------------------

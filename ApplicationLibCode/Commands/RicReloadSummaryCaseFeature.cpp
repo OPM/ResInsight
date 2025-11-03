@@ -97,12 +97,12 @@ void RicReloadSummaryCaseFeature::reloadTaggedSummaryCasesAndUpdate()
     auto proj = RimProject::current();
     for ( auto summaryCase : proj->allSummaryCases() )
     {
-        RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
+        if ( summaryCase->includeInAutoReload() ) RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
     }
 
     for ( RimSummaryEnsemble* ensemble : proj->summaryEnsembles() )
     {
-        ensemble->reloadCases();
+        if ( ensemble->includeInAutoReload() ) ensemble->reloadCases();
     }
 }
 
