@@ -25,6 +25,7 @@
 #include <vector>
 
 class RigMainGrid;
+class RigMswTableData;
 class RimEclipseCase;
 class RimWellPath;
 
@@ -49,10 +50,10 @@ namespace RimKeywordFactory
 Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath );
 Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath );
 
-Opm::DeckKeyword welsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText );
-Opm::DeckKeyword compsegsKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText );
-Opm::DeckKeyword wsegvalvKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText );
-Opm::DeckKeyword wsegaicdKeyword( RimEclipseCase* eCase, RimWellPath* wellPath, const std::string completionText );
+Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData );
+Opm::DeckKeyword compsegsKeyword( const RigMswTableData& mswData );
+Opm::DeckKeyword wsegvalvKeyword( const RigMswTableData& mswData );
+Opm::DeckKeyword wsegaicdKeyword( const RigMswTableData& mswData );
 
 Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid,
                                 const cvf::Vec3st& min        = cvf::Vec3st::ZERO,

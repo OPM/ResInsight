@@ -89,7 +89,6 @@ protected:
 private:
     RimEclipseCase* findExistingCase( QString filename );
     QString         deckExtension() const;
-    QString         wellTempFile( int timeStep = -1, bool includeMSW = false, bool includeLGR = false ) const;
     QString         baseDeckName() const;
     QString         restartDeckName() const;
 
@@ -100,13 +99,10 @@ private:
     std::vector<QDateTime> dateTimes();
     std::vector<QDateTime> addedDateTimes();
 
-    static QString readFileContent( QString filename );
-
-    int         mergeBasicWellSettings();
-    std::string exportMswWellSettings( int timeStep );
-    int         mergeMswData( int mergePosition );
-    void        selectOpenWellPosition();
-    void        resetEnsembleRunId();
+    int  mergeBasicWellSettings();
+    int  mergeMswData( int mergePosition );
+    void selectOpenWellPosition();
+    void resetEnsembleRunId();
 
 private:
     caf::PdmField<caf::FilePath> m_deckFileName;

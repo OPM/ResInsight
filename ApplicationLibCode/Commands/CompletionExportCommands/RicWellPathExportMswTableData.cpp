@@ -2305,7 +2305,7 @@ RigMswUnifiedDataWIP RicWellPathExportMswTableData::extractUnifiedMswData( const
 std::expected<RigMswTableData, std::string>
     RicWellPathExportMswTableData::extractSingleWellMswData( RimEclipseCase* eclipseCase, RimWellPath* wellPath, int timeStep )
 {
-    if ( !eclipseCase || !wellPath )
+    if ( !eclipseCase || !wellPath || eclipseCase->eclipseCaseData() == nullptr )
     {
         return std::unexpected( "Invalid eclipse case or well path provided for MSW data extraction" );
     }

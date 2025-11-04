@@ -25,11 +25,14 @@
 
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
+#include "CompletionExportCommands/RicWellPathExportMswTableData.h"
 #include "EclipseCommands/RicCreateGridCaseEnsemblesFromFilesFeature.h"
 #include "JobCommands/RicRunJobFeature.h"
 #include "JobCommands/RicStopJobFeature.h"
 
 #include "RifOpmFlowDeckFile.h"
+
+#include "CompletionsMsw/RigMswTableData.h"
 
 #include "Ensemble/RimSummaryFileSetEnsemble.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
@@ -660,28 +663,6 @@ QString RimOpmFlowJob::deckExtension() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::wellTempFile( int timeStep, bool includeMSW, bool includeLGR ) const
-{
-    QString postfix = "";
-    if ( timeStep >= 0 )
-    {
-        postfix = QString( "_%1" ).arg( timeStep );
-    }
-    if ( includeLGR )
-    {
-        postfix = postfix + "_LGR";
-    }
-    if ( includeMSW )
-    {
-        postfix = postfix + "_MSW";
-    }
-
-    return workingDirectory() + "/ri_new_well" + postfix + deckExtension();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QStringList RimOpmFlowJob::command()
 {
     QStringList cmd;
@@ -1039,52 +1020,21 @@ int RimOpmFlowJob::mergeBasicWellSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimOpmFlowJob::exportMswWellSettings( int timeStep )
-{
-    RicExportCompletionDataSettingsUi exportSettings;
-
-    QString customName    = wellTempFile( timeStep );
-    QString customMswName = wellTempFile( timeStep, true /*include msw*/ );
-
-    // this file is not used, but the export generates the file anyways, so we need to remove it
-    QString customMswLgrName = wellTempFile( timeStep, true /*include msw*/, true /*include LGR*/ );
-
-    exportSettings.fileSplit   = RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE;
-    exportSettings.caseToApply = m_eclipseCase();
-    exportSettings.setCustomFileName( customName );
-    exportSettings.includeMsw = true;
-    exportSettings.setExportDataSourceAsComment( false );
-    exportSettings.timeStep = timeStep;
-
-    exportSettings.folder = workingDirectory();
-
-    auto topLevelWell = m_wellPath->topLevelWellPath();
-
-    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( { topLevelWell }, exportSettings );
-
-    QString fileContent = readFileContent( customName );
-    fileContent += readFileContent( customMswName );
-
-    QFile::remove( customName );
-    QFile::remove( customMswName );
-    QFile::remove( customMswLgrName );
-
-    return fileContent.toStdString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RimOpmFlowJob::mergeMswData( int mergePosition )
 {
     const int failure = -1;
 
-    auto mswData = exportMswWellSettings( 0 );
+    auto mswDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( m_eclipseCase(), m_wellPath(), 0 );
+    if ( !mswDataResult.has_value() )
+    {
+        RiaLogging::error( QString::fromStdString( mswDataResult.error() ) );
+        return failure;
+    }
 
-    auto welsegsKw  = RimKeywordFactory::welsegsKeyword( m_eclipseCase(), m_wellPath(), mswData );
-    auto compsegsKw = RimKeywordFactory::compsegsKeyword( m_eclipseCase(), m_wellPath(), mswData );
-    auto wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( m_eclipseCase(), m_wellPath(), mswData );
-    auto wsegaicdKw = RimKeywordFactory::wsegaicdKeyword( m_eclipseCase(), m_wellPath(), mswData );
+    auto welsegsKw  = RimKeywordFactory::welsegsKeyword( mswDataResult.value() );
+    auto compsegsKw = RimKeywordFactory::compsegsKeyword( mswDataResult.value() );
+    auto wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( mswDataResult.value() );
+    auto wsegaicdKw = RimKeywordFactory::wsegaicdKeyword( mswDataResult.value() );
 
     if ( welsegsKw.empty() || compsegsKw.empty() )
     {
@@ -1183,22 +1133,6 @@ void RimOpmFlowJob::initAfterCopy()
     m_currentRunId    = 0;
     m_gridEnsemble    = nullptr;
     m_summaryEnsemble = nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::readFileContent( QString filename )
-{
-    QFile file( filename );
-    if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
-    {
-        QTextStream in( &file );
-        QString     fileContent = in.readAll();
-        file.close();
-        return fileContent;
-    }
-    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
