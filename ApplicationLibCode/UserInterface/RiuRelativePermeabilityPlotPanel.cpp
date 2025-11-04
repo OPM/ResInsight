@@ -643,30 +643,10 @@ QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection
     bool sawWater = false;
     bool sawGas   = false;
 
-    for ( RigFlowDiagDefines::RelPermCurve curve : curveArr )
+    for ( const RigFlowDiagDefines::RelPermCurve& curve : curveArr )
     {
-        switch ( curve.ident )
-        {
-            case RigFlowDiagDefines::RelPermCurve::KRW:
-                sawWater = true;
-                break;
-            case RigFlowDiagDefines::RelPermCurve::KROW:
-                sawWater = true;
-                break;
-            case RigFlowDiagDefines::RelPermCurve::PCOW:
-                sawWater = true;
-                break;
-
-            case RigFlowDiagDefines::RelPermCurve::KRG:
-                sawGas = true;
-                break;
-            case RigFlowDiagDefines::RelPermCurve::KROG:
-                sawGas = true;
-                break;
-            case RigFlowDiagDefines::RelPermCurve::PCOG:
-                sawGas = true;
-                break;
-        }
+        if ( curve.isWaterCurve() ) sawWater = true;
+        if ( curve.isGasCurve() ) sawGas = true;
     }
 
     QString title = "";
@@ -792,7 +772,13 @@ QString RiuRelativePermeabilityPlotPanel::asciiDataForUiSelectedCurves() const
         if ( icurve > 0 ) outTxt += "\t";
 
         const RigFlowDiagDefines::RelPermCurve& curve = selectedCurves[icurve];
-        outTxt += "Saturation";
+
+        if ( curve.isWaterCurve() )
+            outTxt += "SWAT";
+        else if ( curve.isGasCurve() )
+            outTxt += "SGAS";
+        else
+            outTxt += "Saturation";
         outTxt += "\t";
         outTxt += curve.name.c_str();
     }

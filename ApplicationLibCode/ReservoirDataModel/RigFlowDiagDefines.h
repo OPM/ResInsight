@@ -46,6 +46,9 @@ struct RelPermCurve
         IMBIBITION
     };
 
+    bool isWaterCurve() const { return ( ident == KRW || ident == KROW || ident == PCOW ); }
+    bool isGasCurve() const { return ( ident == KRG || ident == KROG || ident == PCOG ); }
+
     Ident               ident;
     std::string         name;
     EpsMode             epsMode;
