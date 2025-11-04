@@ -111,6 +111,8 @@
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
+#include <QDesktopServices>
+#include <QUrl>
 
 #include <QDebug>
 
@@ -167,6 +169,9 @@ RiuMainWindow::RiuMainWindow()
     m_memoryTotalStatus     = new QLabel( "" );
 
     m_memoryUsedButton->setDefaultAction( caf::CmdFeatureManager::instance()->action( "RicShowMemoryCleanupDialogFeature" ) );
+
+    // 自动显示 Ecl Runner 窗口
+    slotShowEclRunnerDialog();
 
     statusBar()->addPermanentWidget( m_versionInfo );
     statusBar()->addPermanentWidget( m_memoryCriticalWarning );
@@ -754,6 +759,10 @@ void RiuMainWindow::slotShowEclRunnerDialog()
         runnerDock = RiuDockWidgetTools::createDockWidget( "Ecl Runner", "MainWindow.EclRunner", dockManager() );
         RicEclRunnerDialog* runner = new RicEclRunnerDialog( this );
         runnerDock->setWidget( runner );
+        // 连接文件打开信号，使用 ResInsight 自己的打开方法
+        connect(runner, &RicEclRunnerDialog::fileOpenRequested, this, [](const QString& filePath) {
+            RiaGuiApplication::instance()->openFile(filePath);
+        });
         
         // Try to tabify next to Quick Access if available
         ads::CDockWidget* quickAccess = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::mainWindowQuickAccessName() );
