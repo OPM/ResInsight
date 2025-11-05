@@ -177,14 +177,15 @@ void RimContourMapProjection::generateGeometryIfNecessary()
 {
     caf::ProgressInfo progress( 100, "Generate Geometry", true );
 
-    if ( geometryNeedsUpdating() )
+    if ( geometryNeedsUpdating() && m_contourMapProjection != nullptr )
     {
         m_contourMapProjection->setValueFilter( valueFilterMinMax() );
 
         std::vector<double> contourLevels;
 
         bool discrete = false;
-        if ( legendConfig()->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
+        if ( ( legendConfig() != nullptr ) && ( legendConfig()->scalarMapper() != nullptr ) &&
+             ( legendConfig()->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER ) )
         {
             legendConfig()->scalarMapper()->majorTickValues( &contourLevels );
 
