@@ -378,11 +378,33 @@ TEST( RifOpmFlowDeckFileTest, BcpropKeyword )
     boundaryConditions.push_back( { cvf::Vec3st( 7, 5, 2 ), cvf::StructGridInterface::POS_K, 2 } );
 
     // Create boundary condition properties
+    // BC 0: Unused.
     // BC 1: Free flow boundary with specified pressure
     // BC 2: Fixed pressure boundary with temperature
     std::vector<Opm::DeckRecord> bcProperties;
 
     using B = Opm::ParserKeywords::BCPROP;
+
+    // Property for BC 0 (index will be added by addBcpropKeyword)
+    {
+        std::vector<Opm::DeckItem> items;
+        items.push_back( RifOpmDeckTools::item( B::TYPE::itemName, std::string( "RATE" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::COMPONENT::itemName, std::string( "NONE" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::RATE::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::PRESSURE::itemName, 200.0 ) ); // 200 bar
+        items.push_back( RifOpmDeckTools::item( B::TEMPERATURE::itemName, 80.0 ) ); // 80 C
+        items.push_back( RifOpmDeckTools::item( B::MECHTYPE::itemName, std::string( "NONE" ) ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDX::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDY::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::FIXEDZ::itemName, 1 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSXX::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSYY::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::STRESSZZ::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPX::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPY::itemName, 0.0 ) );
+        items.push_back( RifOpmDeckTools::item( B::DISPZ::itemName, 0.0 ) );
+        bcProperties.push_back( Opm::DeckRecord{ std::move( items ) } );
+    }
 
     // Property for BC 1 (index will be added by addBcpropKeyword)
     {

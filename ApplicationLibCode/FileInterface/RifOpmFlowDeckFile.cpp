@@ -204,6 +204,19 @@ static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::uniqu
         insertIdx++;
     }
 
+    // If insertIdx is at stop() (end of deck), we can't insert there as it's beyond valid blocks
+    // We need to insert at the end of the last block instead
+    if ( insertIdx == fileDeck->stop() )
+    {
+        // Decrement to get the last valid keyword
+        auto lastKeyword = fileDeck->stop();
+        --lastKeyword;
+
+        // We want to insert after the last keyword, so increment the keyword_index
+        insertIdx.file_index    = lastKeyword.file_index;
+        insertIdx.keyword_index = lastKeyword.keyword_index + 1;
+    }
+
     return insertIdx;
 }
 

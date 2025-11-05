@@ -240,6 +240,86 @@ int findMaxOperNumValue( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void generateBcconResult( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max )
+{
+    if ( eclipseCase == nullptr ) return;
+
+    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !resultsData ) return;
+
+    auto grid = eclipseCase->eclipseCaseData()->mainGrid();
+    if ( !grid ) return;
+
+    // Check if BORDNUM result exists
+    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, RiaResultNames::bordnum() );
+    if ( !resultsData->hasResultEntry( bordNumAddr ) )
+    {
+        RiaLogging::warning( "BORDNUM result not found - cannot generate BCCON result" );
+        return;
+    }
+
+    resultsData->ensureKnownResultLoaded( bordNumAddr );
+    auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
+    if ( bordNumValues.empty() ) return;
+
+    auto activeReservoirCellIdxs =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
+
+    size_t reservoirCellCount =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirCellCount();
+    std::vector<int> result( reservoirCellCount, 0 );
+
+    // Iterate through all active cells
+    for ( auto activeCellIdx : activeReservoirCellIdxs )
+    {
+        // Check if this cell is a border cell
+        int borderValue = static_cast<int>( bordNumValues[activeCellIdx.value()] );
+        if ( borderValue != BorderType::BORDER_CELL ) continue;
+
+        // Get IJK indices for this cell
+        size_t i, j, k;
+        if ( !grid->ijkFromCellIndex( activeCellIdx.value(), &i, &j, &k ) ) continue;
+
+        // Determine which face of the box this cell is on
+        // Priority: I faces, then J faces, then K faces (for corner/edge cells)
+        int bcconValue = 0;
+
+        if ( i == min.x() )
+        {
+            bcconValue = 1; // I- face
+        }
+        else if ( i == max.x() )
+        {
+            bcconValue = 2; // I+ face
+        }
+        else if ( j == min.y() )
+        {
+            bcconValue = 3; // J- face
+        }
+        else if ( j == max.y() )
+        {
+            bcconValue = 4; // J+ face
+        }
+        else if ( k == min.z() )
+        {
+            bcconValue = 5; // K- face
+        }
+        else if ( k == max.z() )
+        {
+            bcconValue = 6; // K+ face
+        }
+
+        result[activeCellIdx.value()] = bcconValue;
+    }
+
+    RigEclipseResultTools::createResultVector( *eclipseCase, "BCCON", result );
+
+    eclipseCase->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase )
 {
     if ( eclipseCase == nullptr ) return {};
