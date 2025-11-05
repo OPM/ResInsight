@@ -270,7 +270,6 @@ RimSummaryMultiPlot* createAndAppendDefaultSummaryMultiPlot( const std::vector<R
     plotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
     RimSummaryPlot* plot = new RimSummaryPlot();
-    plot->setAsPlotMdiWindow();
     plot->enableAutoPlotTitle( true );
 
     for ( auto sumCase : cases )
