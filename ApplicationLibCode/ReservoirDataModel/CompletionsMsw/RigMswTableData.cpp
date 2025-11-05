@@ -140,7 +140,7 @@ std::vector<QString> RigMswTableData::validationErrors() const
     std::vector<int> segmentNumbers;
     for ( const auto& row : m_welsegsData )
     {
-        segmentNumbers.push_back( row.segmentNumber );
+        segmentNumbers.push_back( row.segment1 );
     }
     std::sort( segmentNumbers.begin(), segmentNumbers.end() );
     auto it = std::adjacent_find( segmentNumbers.begin(), segmentNumbers.end() );

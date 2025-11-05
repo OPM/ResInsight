@@ -45,16 +45,16 @@ void RicMswTableDataTools::collectWelsegsData( RigMswTableData&  tableData,
 {
     // Set up WELSEGS header
     WelsegsHeader header;
-    header.wellName = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport().toStdString();
-    header.topMD    = exportInfo.mainBoreBranch()->startMD();
-    header.topTVD   = exportInfo.mainBoreBranch()->startTVD();
+    header.well      = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport().toStdString();
+    header.topLength = exportInfo.mainBoreBranch()->startMD();
+    header.topDepth  = exportInfo.mainBoreBranch()->startTVD();
 
     if ( exportInfo.topWellBoreVolume() != RicMswExportInfo::defaultDoubleValue() )
     {
-        header.volume = exportInfo.topWellBoreVolume();
+        header.wellboreVolume = exportInfo.topWellBoreVolume();
     }
-    header.lengthAndDepthText = exportInfo.lengthAndDepthText().toStdString();
-    header.pressureDropText   = exportInfo.pressureDropText().toStdString();
+    header.flowModel          = exportInfo.lengthAndDepthText().toStdString();
+    header.pressureComponents = exportInfo.pressureDropText().toStdString();
 
     tableData.setWelsegsHeader( header );
 
@@ -211,13 +211,14 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&             t
         const auto roughnessFactor = branch->wellPath()->mswCompletionParameters()->getRoughnessAtMD( midPointMD, exportInfo.unitSystem() );
 
         WelsegsRow row;
-        row.segmentNumber       = segment->segmentNumber();
-        row.outletSegmentNumber = outletSegment ? outletSegment->segmentNumber() : 1;
-        row.branchNumber        = branch->branchNumber();
-        row.length              = length;
-        row.depth               = depth;
-        row.diameter            = linerDiameter;
-        row.roughness           = roughnessFactor;
+        row.segment1    = segment->segmentNumber();
+        row.segment2    = segment->segmentNumber();
+        row.joinSegment = outletSegment ? outletSegment->segmentNumber() : 1;
+        row.branch      = branch->branchNumber();
+        row.length      = length;
+        row.depth       = depth;
+        row.diameter    = linerDiameter;
+        row.roughness   = roughnessFactor;
         if ( setDescription )
         {
             row.description = branchDescription.toStdString();
@@ -262,13 +263,14 @@ void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&     tabl
         valveSegment->setSegmentNumber( *segmentNumber );
 
         WelsegsRow row;
-        row.segmentNumber       = valveSegment->segmentNumber();
-        row.outletSegmentNumber = outletSegment ? outletSegment->segmentNumber() : 1;
-        row.branchNumber        = valve->branchNumber();
-        row.length              = valveSegment->startMD();
-        row.depth               = valveSegment->startTVD();
-        row.diameter            = valveSegment->equivalentDiameter();
-        row.roughness           = valveSegment->openHoleRoughnessFactor();
+        row.segment1    = valveSegment->segmentNumber();
+        row.segment2    = valveSegment->segmentNumber();
+        row.joinSegment = outletSegment ? outletSegment->segmentNumber() : 1;
+        row.branch      = valve->branchNumber();
+        row.length      = valveSegment->startMD();
+        row.depth       = valveSegment->startTVD();
+        row.diameter    = valveSegment->equivalentDiameter();
+        row.roughness   = valveSegment->openHoleRoughnessFactor();
         // row.description         = QString( "Valve %1" ).arg( valve->label() );
 
         tableData.addWelsegsRow( row );
@@ -337,13 +339,14 @@ void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&   
         completionSegment->setSegmentNumber( *segmentNumber );
 
         WelsegsRow row;
-        row.segmentNumber       = completionSegment->segmentNumber();
-        row.outletSegmentNumber = outletNumber;
-        row.branchNumber        = completion->branchNumber();
-        row.length              = completionSegment->startMD();
-        row.depth               = completionSegment->startTVD();
-        row.diameter            = completionSegment->equivalentDiameter();
-        row.roughness           = completionSegment->openHoleRoughnessFactor();
+        row.segment1    = completionSegment->segmentNumber();
+        row.segment2    = completionSegment->segmentNumber();
+        row.joinSegment = outletNumber;
+        row.branch      = completion->branchNumber();
+        row.length      = completionSegment->startMD();
+        row.depth       = completionSegment->startTVD();
+        row.diameter    = completionSegment->equivalentDiameter();
+        row.roughness   = completionSegment->openHoleRoughnessFactor();
 
         if ( !isDescriptionAdded )
         {
@@ -431,17 +434,17 @@ void RicMswTableDataTools::collectCompsegDataByType( RigMswTableData&           
                 CompsegsRow row;
 
                 cvf::Vec3st ijk = intersection->gridLocalCellIJK();
-                row.cellI       = ijk.x() + 1; // Convert to 1-based
-                row.cellJ       = ijk.y() + 1;
-                row.cellK       = ijk.z() + 1;
+                row.i           = ijk.x() + 1; // Convert to 1-based
+                row.j           = ijk.y() + 1;
+                row.k           = ijk.z() + 1;
 
                 int branchNumber = -1;
                 if ( completion ) branchNumber = completion->branchNumber();
-                row.branchNumber = branchNumber;
+                row.branch = branchNumber;
 
-                row.startLength = startLength;
-                row.endLength   = endLength;
-                row.gridName    = exportSubGridIntersections ? intersection->gridName().toStdString() : "";
+                row.distanceStart = startLength;
+                row.distanceEnd   = endLength;
+                row.gridName      = exportSubGridIntersections ? intersection->gridName().toStdString() : "";
 
                 tableData.addCompsegsRow( row );
                 intersectedCells->insert( globalCellIndex );
@@ -490,10 +493,10 @@ void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&     
             auto flowCoefficient = tieInValve->flowCoefficient();
 
             WsegvalvRow row;
-            row.wellName        = wellNameForExport;
-            row.segmentNumber   = firstSubSegment->segmentNumber();
-            row.flowCoefficient = flowCoefficient;
-            row.area            = tieInValve->area();
+            row.well          = wellNameForExport;
+            row.segmentNumber = firstSubSegment->segmentNumber();
+            row.cv            = flowCoefficient;
+            row.area          = tieInValve->area();
 
             tableData.addWsegvalvRow( row );
         }
@@ -522,10 +525,10 @@ void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&     
                     }
 
                     WsegvalvRow row;
-                    row.wellName        = wellNameForExport;
-                    row.segmentNumber   = segmentNumber;
-                    row.flowCoefficient = wsegValve->flowCoefficient();
-                    row.area            = wsegValve->area();
+                    row.well          = wellNameForExport;
+                    row.segmentNumber = segmentNumber;
+                    row.cv            = wsegValve->flowCoefficient();
+                    row.area          = wsegValve->area();
 
                     tableData.addWsegvalvRow( row );
                 }
@@ -574,19 +577,14 @@ void RicMswTableDataTools::collectWsegAicdDataRecursively( RigMswTableData&     
                         auto comment  = aicd->label();
 
                         WsegaicdRow row;
-                        row.wellName        = wellName.toStdString();
-                        row.segmentNumber   = segmentNumber;
-                        row.flowCoefficient = aicd->flowScalingFactor();
-                        row.deviceType      = comment.toStdString();
+                        row.well     = wellName.toStdString();
+                        row.segment1 = segmentNumber;
+                        row.segment2 = segmentNumber;
+                        row.strength = aicd->flowScalingFactor();
+                        row.length   = aicd->length();
 
                         // Extract AICD-specific parameters from the values array
-                        auto values = aicd->values();
-                        if ( values.size() >= 3 )
-                        {
-                            row.oilViscosityParameter   = values[0];
-                            row.waterViscosityParameter = values[1];
-                            row.gasViscosityParameter   = values[2];
-                        }
+                        // auto values = aicd->values();
 
                         tableData.addWsegaicdRow( row );
                     }
