@@ -32,6 +32,7 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/G.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/R.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
@@ -190,7 +191,7 @@ static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::uniqu
 
         // Stop if we hit another major section
         if ( kw.name() == Opm::ParserKeywords::RUNSPEC::keywordName || kw.name() == Opm::ParserKeywords::GRID::keywordName ||
-             kw.name() == Opm::ParserKeywords::EDIT::keywordName || kw.name() == "PROPS" ||
+             kw.name() == Opm::ParserKeywords::EDIT::keywordName || kw.name() == Opm::ParserKeywords::PROPS::keywordName ||
              kw.name() == Opm::ParserKeywords::REGIONS::keywordName || kw.name() == Opm::ParserKeywords::SOLUTION::keywordName ||
              kw.name() == Opm::ParserKeywords::SUMMARY::keywordName || kw.name() == Opm::ParserKeywords::SCHEDULE::keywordName )
         {
