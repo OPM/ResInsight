@@ -952,17 +952,17 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox ) con
                             aggregatedCellIndices.push_back( static_cast<int>( cellIdx ) );
 
                             // Add all cells in sub grid contained in this main grid cell
-                            if ( auto subGrid = rigCell.subGrid() )
-                            {
-                                for ( size_t localIdx = 0; localIdx < subGrid->cellCount(); localIdx++ )
-                                {
-                                    const auto& localCell = subGrid->cell( localIdx );
-                                    if ( localCell.mainGridCellIndex() == cellIdx )
-                                    {
-                                        aggregatedCellIndices.push_back( static_cast<int>( subGrid->reservoirCellIndex( localIdx ) ) );
-                                    }
-                                }
-                            }
+                            // if ( auto subGrid = rigCell.subGrid() )
+                            //{
+                            //    for ( size_t localIdx = 0; localIdx < subGrid->cellCount(); localIdx++ )
+                            //    {
+                            //        const auto& localCell = subGrid->cell( localIdx );
+                            //        if ( localCell.mainGridCellIndex() == cellIdx )
+                            //        {
+                            //            aggregatedCellIndices.push_back( static_cast<int>( subGrid->reservoirCellIndex( localIdx ) ) );
+                            //        }
+                            //    }
+                            //}
 
                             const std::array<size_t, 8>& cellIndices = rigCell.cornerIndices();
 
