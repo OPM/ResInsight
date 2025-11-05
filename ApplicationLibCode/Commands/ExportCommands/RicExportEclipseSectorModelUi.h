@@ -62,6 +62,13 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
     };
     using GridBoxSelectionEnum = caf::AppEnum<GridBoxSelection>;
 
+    enum BoundaryCondition
+    {
+        OPERNUM_OPERATER,
+        BCCON_BCPROP
+    };
+    using BoundaryConditionEnum = caf::AppEnum<BoundaryCondition>;
+
 public:
     RicExportEclipseSectorModelUi();
     ~RicExportEclipseSectorModelUi() override;
@@ -104,6 +111,10 @@ public:
     caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
 
     caf::PdmField<bool> m_exportSimulationInput;
+
+    caf::PdmField<BoundaryConditionEnum> m_boundaryCondition;
+
+    caf::PdmField<double> m_porvMultiplier;
 
     caf::PdmField<int> m_visibleWellsPadding;
 

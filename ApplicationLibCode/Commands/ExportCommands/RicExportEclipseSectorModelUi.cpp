@@ -77,6 +77,15 @@ void RicExportEclipseSectorModelUi::GridBoxSelectionEnum::setUp()
     setDefault( RicExportEclipseSectorModelUi::VISIBLE_CELLS_BOX );
 }
 
+template <>
+void RicExportEclipseSectorModelUi::BoundaryConditionEnum::setUp()
+{
+    addItem( RicExportEclipseSectorModelUi::OPERNUM_OPERATER, "OPERNUM_OPERATER", "OPERNUM + OPERATER" );
+    addItem( RicExportEclipseSectorModelUi::BCCON_BCPROP, "BCCON_BCPROP", "BCCON + BCPROP" );
+
+    setDefault( RicExportEclipseSectorModelUi::OPERNUM_OPERATER );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -140,6 +149,10 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
 
     CAF_PDM_InitField( &m_exportSimulationInput, "ExportSimulationInput", false, "Export Simulation Input" );
+
+    CAF_PDM_InitFieldNoDefault( &m_boundaryCondition, "BoundaryCondition", "Boundary Condition Type" );
+
+    CAF_PDM_InitField( &m_porvMultiplier, "PorvMultiplier", 1.0e6, "PORV Multiplier" );
 
     m_exportGridFilename       = defaultGridFileName();
     m_exportParametersFilename = defaultResultsFileName();
@@ -440,8 +453,18 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
     }
     else if ( uiConfigName == m_tabNames[2] )
     {
-        m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-        uiOrdering.add( &m_bcpropKeywords );
+        caf::PdmUiGroup* bcGroup = uiOrdering.addNewGroup( "Boundary Conditions" );
+        bcGroup->add( &m_boundaryCondition );
+
+        if ( m_boundaryCondition() == OPERNUM_OPERATER )
+        {
+            bcGroup->add( &m_porvMultiplier );
+        }
+        else if ( m_boundaryCondition() == BCCON_BCPROP )
+        {
+            m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+            bcGroup->add( &m_bcpropKeywords );
+        }
     }
     uiOrdering.skipRemainingFields( true );
 }
@@ -469,6 +492,10 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle*
     else if ( changedField == &exportGridBox || changedField == &m_visibleWellsPadding )
     {
         applyBoundaryDefaults();
+        updateConnectedEditors();
+    }
+    else if ( changedField == &m_boundaryCondition )
+    {
         updateConnectedEditors();
     }
 }
