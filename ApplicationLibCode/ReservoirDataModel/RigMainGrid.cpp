@@ -920,6 +920,27 @@ void RigMainGrid::buildCellSearchTree() const
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox ) const
 {
+    // map from main grid cell index to list of LGR cells with main grid cell as parent cell
+    // used to speed up cell children lookup during search tree building
+    std::map<size_t, std::vector<int>> subCellIndicesForMainGridCells;
+
+    for ( auto& subGrid : m_localGrids )
+    {
+        if ( subGrid->parentGrid() == this )
+        {
+            for ( size_t localIdx = 0; localIdx < subGrid->cellCount(); localIdx++ )
+            {
+                const auto& localCell = subGrid->cell( localIdx );
+                if ( localCell.isInvalid() ) continue;
+                if ( !subCellIndicesForMainGridCells.contains( localCell.mainGridCellIndex() ) )
+                {
+                    subCellIndicesForMainGridCells[localCell.mainGridCellIndex()] = {};
+                }
+                subCellIndicesForMainGridCells[localCell.mainGridCellIndex()].push_back( (int)subGrid->reservoirCellIndex( localIdx ) );
+            }
+        }
+    }
+
     int threadCount = RiaOpenMPTools::availableThreadCount();
 
     std::vector<std::vector<std::vector<int>>> threadCellIndicesForBoundingBoxes( threadCount );
@@ -951,18 +972,11 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox ) con
                         {
                             aggregatedCellIndices.push_back( static_cast<int>( cellIdx ) );
 
-                            // Add all cells in sub grid contained in this main grid cell
-                            // if ( auto subGrid = rigCell.subGrid() )
-                            //{
-                            //    for ( size_t localIdx = 0; localIdx < subGrid->cellCount(); localIdx++ )
-                            //    {
-                            //        const auto& localCell = subGrid->cell( localIdx );
-                            //        if ( localCell.mainGridCellIndex() == cellIdx )
-                            //        {
-                            //            aggregatedCellIndices.push_back( static_cast<int>( subGrid->reservoirCellIndex( localIdx ) ) );
-                            //        }
-                            //    }
-                            //}
+                            if ( subCellIndicesForMainGridCells.contains( cellIdx ) )
+                            {
+                                const auto& subCellIndices = subCellIndicesForMainGridCells[cellIdx];
+                                aggregatedCellIndices.insert( aggregatedCellIndices.end(), subCellIndices.begin(), subCellIndices.end() );
+                            }
 
                             const std::array<size_t, 8>& cellIndices = rigCell.cornerIndices();
 
