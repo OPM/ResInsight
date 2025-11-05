@@ -573,6 +573,7 @@ Opm::DeckKeyword bcconKeyword( const std::vector<RigEclipseResultTools::BorderCe
 
     Opm::DeckKeyword kw{ Opm::ParserKeywords::BCCON() };
 
+    int bcconIndex = 1;
     for ( const auto& borderFace : borderCellFaces )
     {
         // Convert from 0-based to 1-based Eclipse indexing
@@ -585,7 +586,7 @@ Opm::DeckKeyword bcconKeyword( const std::vector<RigEclipseResultTools::BorderCe
         // Create items for the record
         std::vector<Opm::DeckItem> items;
 
-        items.push_back( RifOpmDeckTools::item( B::INDEX::itemName, borderFace.boundaryCondition ) );
+        items.push_back( RifOpmDeckTools::item( B::INDEX::itemName, bcconIndex ) );
         items.push_back( RifOpmDeckTools::item( B::I1::itemName, i1 ) );
         items.push_back( RifOpmDeckTools::item( B::I2::itemName, i1 ) );
         items.push_back( RifOpmDeckTools::item( B::J1::itemName, j1 ) );
@@ -595,6 +596,7 @@ Opm::DeckKeyword bcconKeyword( const std::vector<RigEclipseResultTools::BorderCe
         items.push_back( RifOpmDeckTools::item( B::DIRECTION::itemName, faceStr ) );
 
         kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+        bcconIndex++;
     }
 
     return kw;
@@ -615,6 +617,7 @@ Opm::DeckKeyword bcpropKeyword( const std::vector<RigEclipseResultTools::BorderC
 
     Opm::DeckKeyword kw{ Opm::ParserKeywords::BCPROP() };
 
+    int bcIndex = 1;
     // Add one entry per boundary condition
     for ( const auto& bc : boundaryConditions )
     {
@@ -622,7 +625,7 @@ Opm::DeckKeyword bcpropKeyword( const std::vector<RigEclipseResultTools::BorderC
 
         // Find the corresponding property record
         // The properties vector should be indexed by boundaryCondition - 1
-        size_t propIndex = static_cast<size_t>( bc.boundaryCondition - 1 );
+        size_t propIndex = static_cast<size_t>( bc.boundaryCondition );
         if ( propIndex < boundaryConditionProperties.size() )
         {
             const auto& propRecord = boundaryConditionProperties[propIndex];
@@ -631,16 +634,20 @@ Opm::DeckKeyword bcpropKeyword( const std::vector<RigEclipseResultTools::BorderC
             std::vector<Opm::DeckItem> items;
 
             // Add INDEX field
-            items.push_back( RifOpmDeckTools::item( B::INDEX::itemName, bc.boundaryCondition ) );
+            items.push_back( RifOpmDeckTools::item( B::INDEX::itemName, bcIndex ) );
 
             // Copy all items from the property record (which doesn't include INDEX)
             for ( size_t i = 0; i < propRecord.size(); ++i )
             {
-                items.push_back( propRecord.getItem( i ) );
+                if ( propRecord.getItem( i ).name() != B::INDEX::itemName )
+                {
+                    items.push_back( propRecord.getItem( i ) );
+                }
             }
 
             kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
         }
+        bcIndex++;
     }
 
     return kw;

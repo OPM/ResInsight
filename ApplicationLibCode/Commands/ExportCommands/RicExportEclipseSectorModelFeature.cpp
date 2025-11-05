@@ -64,7 +64,9 @@
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
+#include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 #include "opm/input/eclipse/Utility/Typetools.hpp"
 
@@ -319,6 +321,9 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
         {
             RigEclipseResultTools::generateBorderResult( &eclipseCase, bordnumVisibility, RiaResultNames::bordnum() );
 
+            // Generate BCCON result to assign values 1-6 based on which face of the box the border cells are on
+            RigEclipseResultTools::generateBcconResult( &eclipseCase, exportSettings.min(), exportSettings.max() );
+
             // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
             RigEclipseResultTools::generateOperNumResult( &eclipseCase );
         }
@@ -488,6 +493,28 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBounda
 
     if ( !borderCellFaces.empty() )
     {
+        // Transform border cell face coordinates to sector-relative coordinates
+        for ( auto& face : borderCellFaces )
+        {
+            auto transformResult =
+                transformIjkToSectorCoordinates( face.ijk, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+
+            if ( !transformResult )
+            {
+                RiaLogging::warning( QString( "Failed to transform border cell face at (%1, %2, %3): %4" )
+                                         .arg( face.ijk.x() )
+                                         .arg( face.ijk.y() )
+                                         .arg( face.ijk.z() )
+                                         .arg( transformResult.error() ) );
+                continue;
+            }
+
+            // Update the IJK coordinates to sector-relative (1-based Eclipse coordinates)
+            // Note: transformIjkToSectorCoordinates returns 1-based coordinates, but we need to convert back to 0-based
+            // for the BorderCellFace struct
+            face.ijk = cvf::Vec3st( transformResult->x() - 1, transformResult->y() - 1, transformResult->z() - 1 );
+        }
+
         // Create BCCON keyword using the factory
         Opm::DeckKeyword bcconKw = RimKeywordFactory::bcconKeyword( borderCellFaces );
 
@@ -513,7 +540,7 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBounda
         Opm::DeckKeyword bcpropKw = RimKeywordFactory::bcpropKeyword( borderCellFaces, bcpropRecords );
 
         // Replace BCPROP keyword in GRID section
-        if ( !deckFile.replaceKeyword( "GRID", bcpropKw ) )
+        if ( !deckFile.replaceKeyword( Opm::ParserKeywords::SCHEDULE::keywordName, bcpropKw ) )
         {
             return std::unexpected( "Failed to replace BCPROP keyword in deck file" );
         }

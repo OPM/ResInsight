@@ -206,3 +206,172 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
                             content.contains( " Y " ) || content.contains( " Z " );
     EXPECT_TRUE( hasFaceDirection ) << "BCCON entries don't contain face directions";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Test BCCON result generation with face numbering 1-6
+///
+/// This test verifies that:
+/// 1. We can generate BORDNUM result identifying border and interior cells
+/// 2. generateBcconResult() assigns values 1-6 to border cells based on which face of the box they're on
+/// 3. Values are assigned correctly: 1=I-, 2=I+, 3=J-, 4=J+, 5=K-, 6=K+
+///
+/// Test process:
+/// 1. Load test model
+/// 2. Create custom visibility for a box region
+/// 3. Generate BORDNUM result
+/// 4. Generate BCCON result with box bounds
+/// 5. Verify border cells have correct BCCON values (1-6) based on their position
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseResultToolsTest, BcconResultWithFaceNumbering )
+{
+    // Setup test data directory
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "Case_with_10_timesteps/Real0" );
+    ASSERT_TRUE( subFolderExists ) << "Test model directory not found";
+
+    QString inputFilename( "BRUGGE_0000.EGRID" );
+    QString inputFilePath = baseFolder.absoluteFilePath( inputFilename );
+    ASSERT_TRUE( QFile::exists( inputFilePath ) ) << "Test model file not found: " << inputFilePath.toStdString();
+
+    // Step 1: Load grid
+    std::unique_ptr<RimEclipseResultCase> testCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( testCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    bool                             success            = readerInterfaceEcl->open( inputFilePath, caseData.p() );
+    ASSERT_TRUE( success ) << "Failed to load grid";
+
+    testCase->setReservoirData( caseData.p() );
+
+    const RigMainGrid* grid = caseData->mainGrid();
+    ASSERT_NE( grid, nullptr ) << "Grid is null";
+
+    // Step 2: Create custom visibility for a box region
+    size_t cellCount = grid->cellCount();
+
+    cvf::ref<cvf::UByteArray> customVisibility = new cvf::UByteArray( cellCount );
+    customVisibility->setAll( 0 ); // Start with all invisible
+
+    // Define a box in the middle of the grid
+    size_t startI = grid->cellCountI() / 4;
+    size_t endI   = 3 * grid->cellCountI() / 4;
+    size_t startJ = grid->cellCountJ() / 4;
+    size_t endJ   = 3 * grid->cellCountJ() / 4;
+    size_t startK = grid->cellCountK() / 4;
+    size_t endK   = 3 * grid->cellCountK() / 4;
+
+    cvf::Vec3st min( startI, startJ, startK );
+    cvf::Vec3st max( endI - 1, endJ - 1, endK - 1 );
+
+    // Make the box visible
+    for ( size_t i = startI; i < endI; ++i )
+    {
+        for ( size_t j = startJ; j < endJ; ++j )
+        {
+            for ( size_t k = startK; k < endK; ++k )
+            {
+                size_t cellIndex                 = grid->cellIndexFromIJK( i, j, k );
+                ( *customVisibility )[cellIndex] = 1;
+            }
+        }
+    }
+
+    // Step 3: Generate BORDNUM result
+    RigEclipseResultTools::generateBorderResult( testCase.get(), customVisibility, "BORDNUM" );
+
+    // Verify BORDNUM was created
+    auto resultsData = testCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    ASSERT_NE( resultsData, nullptr );
+
+    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BORDNUM" );
+    ASSERT_TRUE( resultsData->hasResultEntry( bordNumAddr ) ) << "BORDNUM result not created";
+
+    // Step 4: Generate BCCON result
+    RigEclipseResultTools::generateBcconResult( testCase.get(), min, max );
+
+    // Verify BCCON was created
+    RigEclipseResultAddress bcconAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BCCON" );
+    ASSERT_TRUE( resultsData->hasResultEntry( bcconAddr ) ) << "BCCON result not created";
+
+    // Get BCCON and BORDNUM values
+    resultsData->ensureKnownResultLoaded( bcconAddr );
+    resultsData->ensureKnownResultLoaded( bordNumAddr );
+
+    auto bcconValues   = resultsData->cellScalarResults( bcconAddr, 0 );
+    auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
+
+    ASSERT_FALSE( bcconValues.empty() ) << "BCCON values are empty";
+    ASSERT_FALSE( bordNumValues.empty() ) << "BORDNUM values are empty";
+
+    // Step 5: Verify BCCON values are correct
+    int countI_minus = 0, countI_plus = 0;
+    int countJ_minus = 0, countJ_plus = 0;
+    int countK_minus = 0, countK_plus = 0;
+
+    for ( size_t i = startI; i < endI; ++i )
+    {
+        for ( size_t j = startJ; j < endJ; ++j )
+        {
+            for ( size_t k = startK; k < endK; ++k )
+            {
+                size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
+
+                int borderValue = static_cast<int>( bordNumValues[cellIndex] );
+                int bcconValue  = static_cast<int>( bcconValues[cellIndex] );
+
+                // Only check border cells
+                if ( borderValue == RigEclipseResultTools::BorderType::BORDER_CELL )
+                {
+                    // Verify BCCON value is in valid range 1-6
+                    EXPECT_GE( bcconValue, 1 ) << "BCCON value out of range at (" << i << "," << j << "," << k << ")";
+                    EXPECT_LE( bcconValue, 6 ) << "BCCON value out of range at (" << i << "," << j << "," << k << ")";
+
+                    // Check specific face values
+                    if ( i == min.x() )
+                    {
+                        EXPECT_EQ( bcconValue, 1 ) << "I- face should have BCCON=1 at (" << i << "," << j << "," << k << ")";
+                        countI_minus++;
+                    }
+                    else if ( i == max.x() )
+                    {
+                        EXPECT_EQ( bcconValue, 2 ) << "I+ face should have BCCON=2 at (" << i << "," << j << "," << k << ")";
+                        countI_plus++;
+                    }
+                    else if ( j == min.y() )
+                    {
+                        EXPECT_EQ( bcconValue, 3 ) << "J- face should have BCCON=3 at (" << i << "," << j << "," << k << ")";
+                        countJ_minus++;
+                    }
+                    else if ( j == max.y() )
+                    {
+                        EXPECT_EQ( bcconValue, 4 ) << "J+ face should have BCCON=4 at (" << i << "," << j << "," << k << ")";
+                        countJ_plus++;
+                    }
+                    else if ( k == min.z() )
+                    {
+                        EXPECT_EQ( bcconValue, 5 ) << "K- face should have BCCON=5 at (" << i << "," << j << "," << k << ")";
+                        countK_minus++;
+                    }
+                    else if ( k == max.z() )
+                    {
+                        EXPECT_EQ( bcconValue, 6 ) << "K+ face should have BCCON=6 at (" << i << "," << j << "," << k << ")";
+                        countK_plus++;
+                    }
+                }
+                else
+                {
+                    // Interior cells should have BCCON=0
+                    EXPECT_EQ( bcconValue, 0 ) << "Interior cell should have BCCON=0 at (" << i << "," << j << "," << k << ")";
+                }
+            }
+        }
+    }
+
+    // Verify we found border cells on all 6 faces
+    EXPECT_GT( countI_minus, 0 ) << "No border cells found on I- face";
+    EXPECT_GT( countI_plus, 0 ) << "No border cells found on I+ face";
+    EXPECT_GT( countJ_minus, 0 ) << "No border cells found on J- face";
+    EXPECT_GT( countJ_plus, 0 ) << "No border cells found on J+ face";
+    EXPECT_GT( countK_minus, 0 ) << "No border cells found on K- face";
+    EXPECT_GT( countK_plus, 0 ) << "No border cells found on K+ face";
+}
