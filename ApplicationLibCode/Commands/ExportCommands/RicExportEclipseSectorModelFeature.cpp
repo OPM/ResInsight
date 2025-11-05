@@ -320,17 +320,21 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
         if ( !bordnumVisibility.isNull() )
         {
             RigEclipseResultTools::generateBorderResult( &eclipseCase, bordnumVisibility, RiaResultNames::bordnum() );
+            if ( exportSettings.m_boundaryCondition() == RicExportEclipseSectorModelUi::BoundaryCondition::BCCON_BCPROP )
+            {
+                // Generate BCCON result to assign values 1-6 based on which face of the box the border cells are on
+                RigEclipseResultTools::generateBcconResult( &eclipseCase, exportSettings.min(), exportSettings.max() );
+            }
+            else if ( exportSettings.m_boundaryCondition() == RicExportEclipseSectorModelUi::BoundaryCondition::OPERNUM_OPERATER )
+            {
+                // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
+                RigEclipseResultTools::generateOperNumResult( &eclipseCase );
 
-            // Generate BCCON result to assign values 1-6 based on which face of the box the border cells are on
-            RigEclipseResultTools::generateBcconResult( &eclipseCase, exportSettings.min(), exportSettings.max() );
-
-            // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
-            RigEclipseResultTools::generateOperNumResult( &eclipseCase );
-        }
-
-        if ( auto result = addOperNumRegionAndOperater( &eclipseCase, exportSettings, deckFile ); !result )
-        {
-            return result;
+                if ( auto result = addOperNumRegionAndOperater( &eclipseCase, exportSettings, deckFile ); !result )
+                {
+                    return result;
+                }
+            }
         }
 
         if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, exportSettings, deckFile ); !result )
@@ -1237,7 +1241,7 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addOperNumRegio
     // Create OPERATER keyword to multiply pore volume in border region
     // OPERATER format: TARGET_ARRAY REGION_NUMBER OPERATION ARRAY_PARAMETER PARAM1 PARAM2 REGION_NAME
     // Example: OPERATER / PORV 1 MULTX PORV 1.0e6 1* 1* /
-    float            porvMultiplier = 1.0e6f; // TODO: Make this user-configurable
+    float            porvMultiplier = static_cast<float>( exportSettings.m_porvMultiplier() );
     Opm::DeckKeyword operaterKw     = RimKeywordFactory::operaterKeyword( "PORV", operNumRegion, "MULTX", "PORV", porvMultiplier );
 
     // Add OPERATER keyword to EDIT section
