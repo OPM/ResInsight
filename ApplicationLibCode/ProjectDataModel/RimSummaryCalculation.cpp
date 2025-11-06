@@ -77,18 +77,18 @@ std::optional<std::vector<SummaryCalculationVariable>> RimSummaryCalculation::ge
     for ( size_t i = 0; i < m_variables.size(); i++ )
     {
         RimSummaryCalculationVariable* v = dynamic_cast<RimSummaryCalculationVariable*>( m_variables[i] );
-        CAF_ASSERT( v != nullptr );
+        if ( !v ) continue;
 
-        if ( !v->summaryCase() )
-        {
-            return {};
-        }
+        // A null pointer to a summary case is allowed. This can happen during load of a project file before all data structures are in
+        // place. If we skip in this situation, no calculated vectors will be displayed for ensembles.
+        // https://github.com/OPM/ResInsight/issues/13101
 
         if ( !v->summaryAddress() )
         {
             return {};
         }
 
+        // Skip variables that reference self
         if ( v->summaryAddress()->address().id() == id() )
         {
             return {};

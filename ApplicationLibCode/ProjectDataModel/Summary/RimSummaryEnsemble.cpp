@@ -1241,6 +1241,17 @@ void RimSummaryEnsemble::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::onCalculationUpdated()
 {
+    if ( auto caseWithMostKeywords = RimSummaryEnsembleTools::caseWithMostDataObjects( m_cases.childrenByType() ) )
+    {
+        if ( auto reader = caseWithMostKeywords->summaryReader() )
+        {
+            // https://github.com/OPM/ResInsight/issues/13101
+            // Call createAndSetAddresses to ensure that addresses are recreated based on an update to the calculation objects.
+
+            reader->createAndSetAddresses();
+        }
+    }
+
     m_dataVectorFolders->deleteCalculatedAddresses();
     m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
 
