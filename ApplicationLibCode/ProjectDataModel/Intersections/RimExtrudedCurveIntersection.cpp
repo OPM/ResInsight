@@ -1067,7 +1067,7 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
         {
             RimEclipseView* eclView = eclipseView();
 
-            if ( eclView )
+            if ( eclView && eclView->mainGrid() )
             {
                 const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
 
