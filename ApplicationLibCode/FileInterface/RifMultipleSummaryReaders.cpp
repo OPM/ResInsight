@@ -34,18 +34,19 @@ void RifMultipleSummaryReaders::addReader( std::unique_ptr<RifSummaryReaderInter
 
     m_readers.push_back( std::move( reader ) );
 
-    // Reorder readers so the calculated reader is at the front of the vector. This ensures that calculated data is used before other data.
     // https://github.com/OPM/ResInsight/issues/12989
-    std::sort( m_readers.begin(),
-               m_readers.end(),
-               []( const auto& first, const auto& second )
-               {
-                   bool isFirstCalc  = dynamic_cast<RifCalculatedSummaryCurveReader*>( first.get() ) != nullptr;
-                   bool isSecondCalc = dynamic_cast<RifCalculatedSummaryCurveReader*>( second.get() ) != nullptr;
-                   if ( isFirstCalc && !isSecondCalc ) return true;
-                   if ( !isFirstCalc && isSecondCalc ) return false;
-                   return first->serialNumber() < second->serialNumber();
-               } );
+    // Reorder readers so the calculated reader is at the front of the vector. This ensures that RifMultipleSummaryReaders::values()
+    // evaluates calculated reader first.
+    auto calculatedReaderFirst = []( const auto& first, const auto& second )
+    {
+        bool isFirstCalc  = dynamic_cast<RifCalculatedSummaryCurveReader*>( first.get() ) != nullptr;
+        bool isSecondCalc = dynamic_cast<RifCalculatedSummaryCurveReader*>( second.get() ) != nullptr;
+        if ( isFirstCalc && !isSecondCalc ) return true;
+        if ( !isFirstCalc && isSecondCalc ) return false;
+        return first->serialNumber() < second->serialNumber();
+    };
+
+    std::sort( m_readers.begin(), m_readers.end(), calculatedReaderFirst );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,7 +141,28 @@ void RifMultipleSummaryReaders::createAndSetAddresses()
     m_allErrorAddresses.clear();
     m_allResultAddresses.clear();
 
-    for ( auto& reader : m_readers )
+    // Loop over readers in inverted order to ensure calculated readers are processed after native file readers. Creation of summary
+    // addresses for calculated readers depend on native readers.
+    // https://github.com/OPM/ResInsight/issues/13137
+
+    std::vector<RifSummaryReaderInterface*> readers;
+    for ( auto& r : m_readers )
+    {
+        readers.push_back( r.get() );
+    }
+
+    auto nativeReaderFirst = []( const auto& first, const auto& second )
+    {
+        bool isFirstCalc  = dynamic_cast<RifCalculatedSummaryCurveReader*>( first ) != nullptr;
+        bool isSecondCalc = dynamic_cast<RifCalculatedSummaryCurveReader*>( second ) != nullptr;
+        if ( isFirstCalc && !isSecondCalc ) return false;
+        if ( !isFirstCalc && isSecondCalc ) return true;
+        return first->serialNumber() < second->serialNumber();
+    };
+
+    std::sort( readers.begin(), readers.end(), nativeReaderFirst );
+
+    for ( auto reader : readers )
     {
         reader->createAndSetAddresses();
 
