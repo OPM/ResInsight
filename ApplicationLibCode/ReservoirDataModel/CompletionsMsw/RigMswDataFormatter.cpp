@@ -256,7 +256,8 @@ void RigMswDataFormatter::formatWelsegsTable( RifTextDataTableFormatter& formatt
     formatter.add( welsegsHeader.topLength );
     formatter.addOptionalValue( welsegsHeader.wellboreVolume );
     formatter.addStdString( welsegsHeader.infoType );
-    formatter.addStdString( welsegsHeader.pressureComponents );
+    formatter.addOptionalStdString( welsegsHeader.pressureComponents );
+    formatter.addOptionalStdString( welsegsHeader.flowModel );
     formatter.rowCompleted();
 
     // Column headers for segment data

@@ -561,6 +561,18 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::addOptionalValue( const st
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Add optional value or default marker if the optional is empty
+//--------------------------------------------------------------------------------------------------
+RifTextDataTableFormatter& RifTextDataTableFormatter::addOptionalStdString( const std::optional<std::string>& value )
+{
+    if ( value.has_value() )
+    {
+        return addStdString( value.value() );
+    }
+    return add( m_defaultMarker );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifTextDataTableFormatter::rowCompleted()

@@ -42,7 +42,7 @@ struct WelsegsHeader
     double                      topLength;          // TOPLEN
     std::optional<double>       wellboreVolume;     // WBORVOL
     std::string                 infoType;           // TUBOPT
-    std::string                 pressureComponents; // PRESOPT
+    std::optional<std::string>  pressureComponents; // PRESOPT
     std::optional<std::string>  flowModel;          // FLOWOPT
 };
 

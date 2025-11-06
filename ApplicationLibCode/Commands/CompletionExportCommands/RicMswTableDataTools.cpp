@@ -53,7 +53,7 @@ void RicMswTableDataTools::collectWelsegsData( RigMswTableData&  tableData,
     {
         header.wellboreVolume = exportInfo.topWellBoreVolume();
     }
-    header.flowModel          = exportInfo.lengthAndDepthText().toStdString();
+    header.infoType           = exportInfo.lengthAndDepthText().toStdString();
     header.pressureComponents = exportInfo.pressureDropText().toStdString();
 
     tableData.setWelsegsHeader( header );

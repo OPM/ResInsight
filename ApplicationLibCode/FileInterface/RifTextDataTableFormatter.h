@@ -176,6 +176,7 @@ public:
     RifTextDataTableFormatter& addOneBasedCellIndex( size_t zeroBasedIndex );
     RifTextDataTableFormatter& addValueOrDefaultMarker( double value, double defaultValue );
     RifTextDataTableFormatter& addOptionalValue( const std::optional<double>& value );
+    RifTextDataTableFormatter& addOptionalStdString( const std::optional<std::string>& value );
     RifTextDataTableFormatter& comment( const QString& str );
     RifTextDataTableFormatter& addOptionalComment( const QString& str );
     RifTextDataTableFormatter& addHorizontalLine( const QChar& str );
