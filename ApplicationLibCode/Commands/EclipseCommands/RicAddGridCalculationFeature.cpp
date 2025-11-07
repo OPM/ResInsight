@@ -45,5 +45,5 @@ void RicAddGridCalculationFeature::onActionTriggered( bool isChecked )
 void RicAddGridCalculationFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Add Grid Calculation" );
-    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Calculator.svg" ) );
 }

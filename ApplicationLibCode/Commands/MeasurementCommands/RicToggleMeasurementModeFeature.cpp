@@ -77,7 +77,7 @@ void RicToggleMeasurementModeFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Measurement" );
     actionToSetup->setToolTip( "Single Line Measurement (Ctrl+M)" );
-    actionToSetup->setIcon( QIcon( ":/Ruler.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Ruler.svg" ) );
     actionToSetup->setCheckable( true );
 
     auto* meas = measurement();
@@ -163,7 +163,7 @@ void RicTogglePolyMeasurementModeFeature::setupActionLook( QAction* actionToSetu
 {
     actionToSetup->setText( "Poly Line Measurement" );
     actionToSetup->setToolTip( "Poly Line Measurement (Ctrl+Shift+M)" );
-    actionToSetup->setIcon( QIcon( ":/RulerPoly.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/RulerPoly.svg" ) );
     actionToSetup->setCheckable( true );
 
     auto* meas = measurement();

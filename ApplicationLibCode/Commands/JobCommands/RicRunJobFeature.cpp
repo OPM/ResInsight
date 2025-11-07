@@ -39,7 +39,7 @@ void RicRunJobFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicRunJobFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Play.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Play.svg" ) );
     actionToSetup->setText( "Run..." );
 }
 

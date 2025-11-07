@@ -58,7 +58,7 @@ CAF_PDM_SOURCE_INIT( RimFaultInViewCollection, "Faults" );
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection::RimFaultInViewCollection()
 {
-    CAF_PDM_InitObject( "Faults", ":/draw_style_faults_24x24.png" );
+    CAF_PDM_InitObject( "Faults", ":/svg/draw_style_faults_24x24.svg" );
 
     CAF_PDM_InitField( &m_showFaultCollection, "Active", true, "Active" );
     m_showFaultCollection.uiCapability()->setUiHidden( true );

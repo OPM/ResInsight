@@ -84,7 +84,7 @@ void RicTileWindowsFeature::onActionTriggered( bool isChecked )
 void RicTileWindowsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Tile Windows" );
-    actionToSetup->setIcon( QIcon( ":/TileWindows.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/TileWindows.svg" ) );
     actionToSetup->setCheckable( true );
 }
 
@@ -152,7 +152,7 @@ void RicTilePlotWindowsFeature::onActionTriggered( bool isChecked )
 void RicTilePlotWindowsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Tile Windows" );
-    actionToSetup->setIcon( QIcon( ":/TileWindows.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/TileWindows.svg" ) );
     actionToSetup->setCheckable( true );
 }
 
@@ -199,7 +199,7 @@ void RicTileWindowsVerticallyFeature::onActionTriggered( bool isChecked )
 void RicTileWindowsVerticallyFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Tile Windows Vertically" );
-    actionToSetup->setIcon( QIcon( ":/TileWindows.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/TileWindows.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,7 +245,7 @@ void RicTileWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
 void RicTileWindowsHorizontallyFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Tile Windows Horizontally" );
-    actionToSetup->setIcon( QIcon( ":/TileWindows.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/TileWindows.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -297,7 +297,7 @@ void RicTilePlotWindowsVerticallyFeature::onActionTriggered( bool isChecked )
 void RicTilePlotWindowsVerticallyFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Tile Windows Vertically" );
-    actionToSetup->setIcon( QIcon( ":/TileWindows.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/TileWindows.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,7 +343,7 @@ void RicTilePlotWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
 void RicTilePlotWindowsHorizontallyFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Tile Windows Horizontally" );
-    actionToSetup->setIcon( QIcon( ":/TileWindows.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/TileWindows.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

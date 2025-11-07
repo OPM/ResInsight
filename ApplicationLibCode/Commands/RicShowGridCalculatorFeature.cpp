@@ -108,5 +108,5 @@ void RicShowGridCalculatorFeature::onActionTriggered( bool isChecked )
 void RicShowGridCalculatorFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Grid Property Calculator" );
-    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Calculator.svg" ) );
 }

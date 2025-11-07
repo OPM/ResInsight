@@ -90,5 +90,5 @@ void RicEclipseShowOnlyFaultFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicEclipseShowOnlyFaultFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/draw_style_faults_24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/draw_style_faults_24x24.svg" ) );
 }

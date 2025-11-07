@@ -81,5 +81,5 @@ void RicShowSummaryCurveCalculatorFeature::onActionTriggered( bool isChecked )
 void RicShowSummaryCurveCalculatorFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Summary Curve Calculator" );
-    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Calculator.svg" ) );
 }

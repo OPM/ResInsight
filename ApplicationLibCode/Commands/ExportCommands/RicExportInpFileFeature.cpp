@@ -66,5 +66,5 @@ void RicExportInpFileFeature::onActionTriggered( bool isChecked )
 void RicExportInpFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export INP..." );
-    actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Save.svg" ) );
 }

@@ -73,7 +73,7 @@ void RicApplyUserDefinedCameraFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "User Defined View" );
     actionToSetup->setToolTip( "User Defined View (Ctrl+Alt+U)" );
-    actionToSetup->setIcon( QIcon( ":/user-defined-view.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/user-defined-view.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Alt+U" ) ) );
 }
 

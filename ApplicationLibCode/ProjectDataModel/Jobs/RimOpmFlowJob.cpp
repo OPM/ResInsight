@@ -346,7 +346,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     auto opmGrp = uiOrdering.addNewGroup( "OPM Flow" );
 
     auto runButton = opmGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
-    runButton->setUiIconFromResourceString( ":/Play.svg" );
+    runButton->setUiIconFromResourceString( ":/svg/Play.svg" );
     runButton->setAlignment( Qt::AlignCenter );
 
     opmGrp->add( &m_pauseBeforeRun );

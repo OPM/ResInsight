@@ -77,5 +77,5 @@ void RicExportPolygonPolFeature::onActionTriggered( bool isChecked )
 void RicExportPolygonPolFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export Polygon POL" );
-    actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Save.svg" ) );
 }

@@ -143,6 +143,7 @@ void caf::AppEnum<RiaDefines::ThemeEnum>::setUp()
 {
     addItem( RiaDefines::ThemeEnum::DEFAULT, "DEFAULT", "Default theme" );
     addItem( RiaDefines::ThemeEnum::DARK, "DARK", "Dark theme" );
+    addItem( RiaDefines::ThemeEnum::LIGHT, "LIGHT", "Light theme" );  //new
     setDefault( RiaDefines::ThemeEnum::DEFAULT );
 }
 

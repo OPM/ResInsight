@@ -92,7 +92,7 @@ void RicSaveProjectFeature::onActionTriggered( bool isChecked )
 void RicSaveProjectFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Save Project" );
-    actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Save.svg" ) );
 
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Save );
 }

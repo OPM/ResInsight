@@ -185,6 +185,7 @@ enum class ThemeEnum
 {
     DEFAULT,
     DARK,
+    LIGHT,
     UNDEFINED
 };
 

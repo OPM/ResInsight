@@ -112,5 +112,5 @@ void RicImportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
 void RicImportSummaryCalculationExpressionsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import Grid Calculation Expressions" );
-    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Calculator.svg" ) );
 }

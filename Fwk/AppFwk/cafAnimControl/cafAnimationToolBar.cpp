@@ -76,24 +76,24 @@ void AnimationToolBar::init()
     m_fastFrameRate          = 20;
 
     // Create actions and widgets
-    m_animSkipToStartAction  = new QAction( QIcon( ":/cafAnimControl/SkipToStart.svg" ), tr( "Skip to Start" ), this );
-    m_animStepBackwardAction = new QAction( QIcon( ":/cafAnimControl/StepBwd.svg" ), tr( "Step Backward" ), this );
-    m_animPauseAction        = new QAction( QIcon( ":/cafAnimControl/Pause.svg" ), tr( "Pause" ), this );
-    m_animPlayAction         = new QAction( QIcon( ":/cafAnimControl/Play.svg" ), tr( "Play" ), this );
+    m_animSkipToStartAction  = new QAction( QIcon( ":/svg/SkipToStart.svg" ), tr( "Skip to Start" ), this );
+    m_animStepBackwardAction = new QAction( QIcon( ":/svg/StepBwd.svg" ), tr( "Step Backward" ), this );
+    m_animPauseAction        = new QAction( QIcon( ":/svg/Pause.svg" ), tr( "Pause" ), this );
+    m_animPlayAction         = new QAction( QIcon( ":/svg/Play.svg" ), tr( "Play" ), this );
     m_animPlayPauseButton    = new QToolButton( this );
     m_animPlayPauseButton->setIcon( m_animPlayAction->icon() );
     m_animPlayPauseButton->setToolTip( m_animPlayAction->toolTip() );
     QObject::connect( m_animPlayPauseButton, SIGNAL( clicked() ), this, SLOT( playPauseChanged() ) );
 
-    m_animStepForwardAction = new QAction( QIcon( ":/cafAnimControl/StepFwd.svg" ), tr( "Step Forward" ), this );
-    m_animSkipToEndAction   = new QAction( QIcon( ":/cafAnimControl/SkipToEnd.svg" ), tr( "Skip to End" ), this );
+    m_animStepForwardAction = new QAction( QIcon( ":/svg/StepFwd.svg" ), tr( "Step Forward" ), this );
+    m_animSkipToEndAction   = new QAction( QIcon( ":/svg/SkipToEnd.svg" ), tr( "Skip to End" ), this );
 
     m_animRepeatFromStartAction =
-        new QAction( QIcon( ":/cafAnimControl/RepeatFromStart.svg" ), tr( "Repeat From start" ), this );
+        new QAction( QIcon( ":/svg/RepeatFromStart.svg" ), tr( "Repeat From start" ), this );
     m_animRepeatFromStartAction->setCheckable( true );
 
     m_animSpeedButton = new PopupMenuButton( this );
-    m_animSpeedButton->setIcon( QIcon( ":/cafAnimControl/Speed.svg" ) );
+    m_animSpeedButton->setIcon( QIcon( ":/svg/Speed.svg" ) );
     m_animSpeedButton->setToolTip( "Adjust Animation Speed" );
 
     m_frameRateSlowLabel = new QLabel( this );

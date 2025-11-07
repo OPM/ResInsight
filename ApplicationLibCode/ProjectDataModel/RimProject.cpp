@@ -147,7 +147,7 @@ RimProject::RimProject()
     CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
     CAF_PDM_InitFieldNoDefault( &m_pinnedFieldCollection, "PinnedFieldCollection", "PinnedFieldCollection" );
 
-    CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
+    CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/svg/LinkView.svg" );
     viewLinkerCollection = new RimViewLinkerCollection;
 
     CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection" );

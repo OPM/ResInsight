@@ -84,5 +84,5 @@ void RicEclipseHideFaultFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicEclipseHideFaultFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/draw_style_faults_24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/draw_style_faults_24x24.svg" ) );
 }

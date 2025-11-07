@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi
 //--------------------------------------------------------------------------------------------------
 RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi()
 {
-    CAF_PDM_InitObject( "Link Visible Views Feature UI", ":/LinkView.svg" );
+    CAF_PDM_InitObject( "Link Visible Views Feature UI", ":/svg/LinkView.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_masterView, "MasterView", "Primary View" );
 }

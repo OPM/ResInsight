@@ -111,5 +111,5 @@ void RicExportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
 void RicExportGridCalculationExpressionsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export Grid Calculation Expressions" );
-    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Calculator.svg" ) );
 }

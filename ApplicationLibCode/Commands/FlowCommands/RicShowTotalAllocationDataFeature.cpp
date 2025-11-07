@@ -71,7 +71,7 @@ void RicShowTotalAllocationDataFeature::onActionTriggered( bool isChecked )
 void RicShowTotalAllocationDataFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Show Total Allocation Data" );
-    // actionToSetup->setIcon(QIcon(":/PlotWindow.svg"));
+    // actionToSetup->setIcon(QIcon(":/svg/PlotWindow.svg"));
 }
 
 //--------------------------------------------------------------------------------------------------

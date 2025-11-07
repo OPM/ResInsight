@@ -61,5 +61,5 @@ void RicExportStimPlanModelToFileFeature::onActionTriggered( bool isChecked )
 void RicExportStimPlanModelToFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export StimPlan Model to File" );
-    actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/Save.svg" ) );
 }

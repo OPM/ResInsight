@@ -311,7 +311,7 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
 void RicShowPlotDataFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Show Plot Data" );
-    actionToSetup->setIcon( QIcon( ":/PlotWindow.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/svg/PlotWindow.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
