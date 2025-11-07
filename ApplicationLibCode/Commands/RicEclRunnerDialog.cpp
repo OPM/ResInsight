@@ -27,6 +27,8 @@
 #include <QMutexLocker>
 #include <QIcon>
 #include <algorithm>
+#include <QTimer>
+#include <QPointer>
 
 RicEclRunnerDialog::RicEclRunnerDialog( QWidget* parent )
     : QWidget( parent )
@@ -93,22 +95,22 @@ void RicEclRunnerDialog::setupUi()
         "    margin-top: 10px;"
         "}"
         "QComboBox {"
-        "    padding: 5px;"
+        "    padding: 4px;"
         "    border: 1px solid #c0c0c0;"
         "    border-radius: 3px;"
         "}"
     );
 
-    QLabel* topTitle = new QLabel(tr("添加DATA文件"), this);
-    topTitle->setStyleSheet("font-size: 11pt; margin: 5px 0;");
+    QLabel* topTitle = new QLabel(tr("Add DATA Files"), this);
+    topTitle->setStyleSheet("font-size: 7pt; margin: 5px 0;");
     mainLayout->addWidget(topTitle);
 
     QHBoxLayout* topLayout = new QHBoxLayout();
-    m_importButton = new QPushButton(tr("Import Data"), this);
+    m_importButton = new QPushButton(tr("Select File"), this);
     m_importButton->setIcon(QIcon::fromTheme("document-open"));
     topLayout->addWidget(m_importButton);
 
-    m_triggerLabel = new QLabel( tr("选择处理程序"), this );
+    m_triggerLabel = new QLabel( tr("Select Process"), this );
     topLayout->addWidget( m_triggerLabel );
 
     m_triggerCombo = new QComboBox(this);
@@ -117,27 +119,27 @@ void RicEclRunnerDialog::setupUi()
     m_triggerCombo->setCurrentText("e300");  // 设置默认值为e300
     topLayout->addWidget(m_triggerCombo);
 
-    m_addButton = new QPushButton(tr("添加文件"), this);
+    m_addButton = new QPushButton(tr("Add Files"), this);
     topLayout->addWidget(m_addButton);
 
     mainLayout->addLayout(topLayout);
 
     // Middle: 任务列表
-    QLabel* middleTitle = new QLabel(tr("任务列表"), this);
+    QLabel* middleTitle = new QLabel(tr("Mission List"), this);
     mainLayout->addWidget(middleTitle);
 
     QHBoxLayout* taskHeader = new QHBoxLayout();
     taskHeader->addStretch();
-    m_deleteButton = new QPushButton(tr("删除"), this);
+    m_deleteButton = new QPushButton(tr("Delete"), this);
     m_deleteButton->setEnabled(false);
     taskHeader->addWidget(m_deleteButton);
-    m_openButton = new QPushButton(tr("打开"), this);
+    m_openButton = new QPushButton(tr("Open"), this);
     m_openButton->setEnabled(false);
     taskHeader->addWidget(m_openButton);
-    m_stopButton = new QPushButton(tr("停止"), this);
+    m_stopButton = new QPushButton(tr("Stop"), this);
     m_stopButton->setEnabled(false);
     taskHeader->addWidget(m_stopButton);
-    m_runButton = new QPushButton(tr("演算"), this);
+    m_runButton = new QPushButton(tr("Caulculate"), this);
     m_runButton->setEnabled(false);
     taskHeader->addWidget(m_runButton);
 
@@ -150,7 +152,7 @@ void RicEclRunnerDialog::setupUi()
     m_taskTable = new QTableWidget(this);
     m_taskTable->setColumnCount(4);
     QStringList headers;
-    headers << tr("文件名") << tr("模型") << tr("状态") << tr("结果");
+    headers << tr("File Name") << tr("Model") << tr("Status") << tr("Output");
     m_taskTable->setHorizontalHeaderLabels(headers);
     m_taskTable->horizontalHeader()->setStretchLastSection(true);
     m_taskTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -179,7 +181,7 @@ void RicEclRunnerDialog::setupUi()
     mainLayout->addWidget(m_taskTable);
 
     // Bottom: 任务日志
-    QLabel* bottomTitle = new QLabel(tr("任务日志"), this);
+    QLabel* bottomTitle = new QLabel(tr("Log"), this);
     mainLayout->addWidget(bottomTitle);
 
     m_logOutput = new QTextEdit(this);
@@ -385,17 +387,14 @@ void RicEclRunnerDialog::startNextProcess()
     updateRunningLabel();
 
     m_runButton->setEnabled(false);
-    m_runButton->setText(tr("正在运行..."));
+    m_runButton->setText(tr("Running..."));
+
+    // start asynchronously; rely on signals for started/finished/error
+    connect(proc, &QProcess::started, this, [this, row, exePath, workingDir, args]() {
+        m_taskLogs[row] += QString("Process started successfully in %1 : %2 %3\n").arg(workingDir).arg(exePath).arg(args.join(' '));
+    });
 
     proc->start(exePath, args);
-    if (!proc->waitForStarted(3000)) {
-        qDebug() << "Failed to start process" << exePath;
-        // simulate error handling
-        slotProcessError(QProcess::FailedToStart);
-        return;
-    }
-
-    m_taskLogs[row] += "Process started successfully, running asynchronously...\n";
 }
 
 void RicEclRunnerDialog::slotProcessFinished(int exitCode, QProcess::ExitStatus status)
@@ -486,7 +485,7 @@ void RicEclRunnerDialog::slotProcessFinished(int exitCode, QProcess::ExitStatus 
     // If nothing is running and nothing queued, restore run button state
     if (m_runningProcesses.isEmpty() && m_runQueue.isEmpty()) {
         m_runButton->setEnabled(true);
-        m_runButton->setText(tr("演算"));
+        m_runButton->setText(tr("Caulculate"));
     }
 }
 
@@ -525,7 +524,7 @@ void RicEclRunnerDialog::slotProcessError(QProcess::ProcessError error)
     // If nothing is running and nothing queued, restore run button state
     if (m_runningProcesses.isEmpty() && m_runQueue.isEmpty()) {
         m_runButton->setEnabled(true);
-        m_runButton->setText(tr("演算"));
+        m_runButton->setText(tr("Caulculate"));
     }
 }
 
@@ -578,21 +577,19 @@ void RicEclRunnerDialog::slotStopSelected()
         if ( m_runningProcesses.contains(r) ) {
             QProcess* p = m_runningProcesses.value(r, nullptr);
             if ( p ) {
-                // try graceful terminate first
+                // try graceful terminate first (non-blocking)
                 p->terminate();
-                if (!p->waitForFinished(2000)) {
-                    p->kill();
-                }
+                // schedule a forced kill if it hasn't exited after 2s
+                QPointer<QProcess> pp(p);
+                QTimer::singleShot(2000, this, [pp]() {
+                    if ( pp && pp->state() != QProcess::NotRunning ) {
+                        pp->kill();
+                    }
+                });
             }
+            // mark as cancelled; leave mapping in place so finished() handler can clean up
             m_taskStatus[r] = "Cancelled";
             if ( m_taskTable->item(r,2) ) m_taskTable->item(r,2)->setText("Cancelled");
-            // processFinished will clean up mapping when it emits finished; ensure removal if needed
-            QMutexLocker locker(&m_processMutex);
-            if ( m_runningProcesses.contains(r) ) {
-                QProcess* rp = m_runningProcesses.value(r);
-                m_runningProcesses.remove(r);
-                if (rp) rp->deleteLater();
-            }
         } else {
             // If queued, remove from queue
             if ( m_runQueue.contains(r) ) {
@@ -610,7 +607,7 @@ void RicEclRunnerDialog::slotStopSelected()
     // If nothing running, restore run button
     if (m_runningProcesses.isEmpty() && m_runQueue.isEmpty()) {
         m_runButton->setEnabled(true);
-        m_runButton->setText(tr("演算"));
+        m_runButton->setText(tr("Caulculate"));
     }
 }
 
