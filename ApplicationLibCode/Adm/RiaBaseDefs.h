@@ -21,4 +21,4 @@
 // Company and Application name
 // These two together will become the registry key
 const char RI_COMPANY_NAME[]     = "Ceetron";
-const char RI_APPLICATION_NAME[] = "ResInsight";
+const char RI_APPLICATION_NAME[] = "Y-Sim";
