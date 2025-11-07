@@ -107,7 +107,6 @@ public:
 
     SummaryRestartFilesImportMode summaryImportMode() const;
     SummaryRestartFilesImportMode gridImportMode() const;
-    SummaryRestartFilesImportMode summaryEnsembleImportMode() const;
     QString                       defaultSummaryCurvesTextFilter() const;
     bool                          colorCurvesByPhase() const;
     bool                          appendHistoryVectors() const;
@@ -138,7 +137,6 @@ private:
     caf::PdmField<bool>                              m_summaryRestartFilesShowImportDialog;
     caf::PdmField<SummaryRestartFilesImportModeType> m_summaryImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType> m_gridImportMode;
-    caf::PdmField<SummaryRestartFilesImportModeType> m_summaryEnsembleImportMode;
 
     caf::PdmField<QString>                          m_defaultSummaryCurvesTextFilter;
     caf::PdmField<QString>                          m_crossPlotAddressCombinations;
