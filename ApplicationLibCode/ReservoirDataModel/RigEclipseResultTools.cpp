@@ -38,48 +38,46 @@ namespace RigEclipseResultTools
 {
 namespace
 {
-//--------------------------------------------------------------------------------------------------
-/// Helper function to find maximum value in a result
-//--------------------------------------------------------------------------------------------------
-int findMaxResultValue( RimEclipseCase*                             eclipseCase,
-                        const QString&                              resultName,
-                        const std::vector<RiaDefines::ResultCatType>& categories )
-{
-    if ( eclipseCase == nullptr ) return 0;
-
-    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    if ( !resultsData ) return 0;
-
-    // Try to find result in the provided categories
-    RigEclipseResultAddress resultAddr;
-    bool                    hasResult = false;
-
-    for ( const auto& category : categories )
+    //--------------------------------------------------------------------------------------------------
+    /// Helper function to find maximum value in a result
+    //--------------------------------------------------------------------------------------------------
+    int findMaxResultValue( RimEclipseCase* eclipseCase, const QString& resultName, const std::vector<RiaDefines::ResultCatType>& categories )
     {
-        RigEclipseResultAddress addr( category, RiaDefines::ResultDataType::INTEGER, resultName );
-        if ( resultsData->hasResultEntry( addr ) )
+        if ( eclipseCase == nullptr ) return 0;
+
+        auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        if ( !resultsData ) return 0;
+
+        // Try to find result in the provided categories
+        RigEclipseResultAddress resultAddr;
+        bool                    hasResult = false;
+
+        for ( const auto& category : categories )
         {
-            resultAddr = addr;
-            hasResult  = true;
-            break;
+            RigEclipseResultAddress addr( category, RiaDefines::ResultDataType::INTEGER, resultName );
+            if ( resultsData->hasResultEntry( addr ) )
+            {
+                resultAddr = addr;
+                hasResult  = true;
+                break;
+            }
         }
+
+        if ( !hasResult ) return 0;
+
+        resultsData->ensureKnownResultLoaded( resultAddr );
+        auto resultValues = resultsData->cellScalarResults( resultAddr, 0 );
+        if ( resultValues.empty() ) return 0;
+
+        // Find maximum value
+        int maxValue = 0;
+        for ( double value : resultValues )
+        {
+            maxValue = std::max( maxValue, static_cast<int>( value ) );
+        }
+
+        return maxValue;
     }
-
-    if ( !hasResult ) return 0;
-
-    resultsData->ensureKnownResultLoaded( resultAddr );
-    auto resultValues = resultsData->cellScalarResults( resultAddr, 0 );
-    if ( resultValues.empty() ) return 0;
-
-    // Find maximum value
-    int maxValue = 0;
-    for ( double value : resultValues )
-    {
-        maxValue = std::max( maxValue, static_cast<int>( value ) );
-    }
-
-    return maxValue;
-}
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
