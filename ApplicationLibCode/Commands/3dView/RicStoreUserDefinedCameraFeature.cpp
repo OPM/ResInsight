@@ -123,5 +123,5 @@ void RicStoreUserDefinedCameraFeature::onActionTriggered( bool isChecked )
 void RicStoreUserDefinedCameraFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Store User Defined View" );
-    actionToSetup->setIcon( QIcon( ":/svg/user-defined-view.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/user-defined-view.svg" ) );
 }

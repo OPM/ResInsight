@@ -393,7 +393,7 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
     else if ( dockWidgetName == mainWindowProjectTreeName() )
         return QIcon( ":/standard.svg" );
     else if ( dockWidgetName == mainWindowDataSourceTreeName() )
-        return QIcon( ":/svg/Calculator.svg" );
+        return QIcon( ":/Calculator.svg" );
     else if ( dockWidgetName == mainWindowScriptsTreeName() )
         return QIcon( ":/scripts.svg" );
     else if ( dockWidgetName == mainPlotWindowName() )
@@ -507,7 +507,6 @@ QByteArray RiuDockWidgetTools::defaultEclipseDockState()
           '\x2d', '\x7f', '\xf4', '\xdf', '\x77', '\xfb', '\x04', '\xef', '\x76', '\xb2', '\x0b', '\x11', '\x1f', '\x93', '\x38', '\x3e',
           '\xe9', '\x78', '\x21', '\x8d', '\xf2', '\xcd', '\xc0', '\x71', '\xc5', '\x5b', '\xd5', '\xdf', '\xfb', '\x02', '\xeb', '\x9f',
           '\x5f', '\xdf' };
-
 
     // end paste
 

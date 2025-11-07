@@ -50,6 +50,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
 
+#include "../Commands/RicEclRunnerDialog.h"
 #include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
@@ -70,7 +71,6 @@
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
-#include "../Commands/RicEclRunnerDialog.h"
 
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
@@ -97,6 +97,7 @@
 #include <QActionGroup>
 #include <QCloseEvent>
 #include <QComboBox>
+#include <QDesktopServices>
 #include <QDir>
 #include <QLabel>
 #include <QLayout>
@@ -111,7 +112,6 @@
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
-#include <QDesktopServices>
 #include <QUrl>
 
 #include <QDebug>
@@ -383,8 +383,8 @@ void RiuMainWindow::createActions()
 
     m_showRegressionTestDialog         = new QAction( "Regression Test Dialog", this );
     m_executePaintEventPerformanceTest = new QAction( "&Paint Event Performance Test", this );
-    m_eclRunnerAction = new QAction( "Eclipse Runner...", this );
-    m_eclRunnerAction->setCheckable(true);
+    m_eclRunnerAction                  = new QAction( "Eclipse Runner...", this );
+    m_eclRunnerAction->setCheckable( true );
 
     connect( m_mockModelAction, SIGNAL( triggered() ), SLOT( slotMockModel() ) );
     connect( m_mockResultsModelAction, SIGNAL( triggered() ), SLOT( slotMockResultsModel() ) );
@@ -399,32 +399,32 @@ void RiuMainWindow::createActions()
     connect( m_eclRunnerAction, &QAction::triggered, this, &RiuMainWindow::slotShowEclRunnerDialog );
 
     // View actions
-    m_viewFullScreen = new QAction( QIcon( ":/svg/Fullscreen.svg" ), "Full Screen", this );
+    m_viewFullScreen = new QAction( QIcon( ":/Fullscreen.svg" ), "Full Screen", this );
     m_viewFullScreen->setToolTip( "Full Screen (Ctrl+Alt+F)" );
     m_viewFullScreen->setCheckable( true );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFullScreen, QKeySequence( tr( "Ctrl+Alt+F" ) ) );
 
-    m_viewFromNorth = new QAction( QIcon( ":/svg/SouthView.svg" ), "Look South", this );
+    m_viewFromNorth = new QAction( QIcon( ":/SouthView.svg" ), "Look South", this );
     m_viewFromNorth->setToolTip( "Look South (Ctrl+Alt+S)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromNorth, QKeySequence( tr( "Ctrl+Alt+S" ) ) );
 
-    m_viewFromSouth = new QAction( QIcon( ":/svg/NorthView.svg" ), "Look North", this );
+    m_viewFromSouth = new QAction( QIcon( ":/NorthView.svg" ), "Look North", this );
     m_viewFromSouth->setToolTip( "Look North (Ctrl+Alt+N)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromSouth, QKeySequence( tr( "Ctrl+Alt+N" ) ) );
 
-    m_viewFromEast = new QAction( QIcon( ":/svg/WestView.svg" ), "Look West", this );
+    m_viewFromEast = new QAction( QIcon( ":/WestView.svg" ), "Look West", this );
     m_viewFromEast->setToolTip( "Look West (Ctrl+Alt+W)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromEast, QKeySequence( tr( "Ctrl+Alt+W" ) ) );
 
-    m_viewFromWest = new QAction( QIcon( ":/svg/EastView.svg" ), "Look East", this );
+    m_viewFromWest = new QAction( QIcon( ":/EastView.svg" ), "Look East", this );
     m_viewFromWest->setToolTip( "Look East (Ctrl+Alt+E)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromWest, QKeySequence( tr( "Ctrl+Alt+E" ) ) );
 
-    m_viewFromAbove = new QAction( QIcon( ":/svg/DownView.svg" ), "Top View", this );
+    m_viewFromAbove = new QAction( QIcon( ":/DownView.svg" ), "Top View", this );
     m_viewFromAbove->setToolTip( "Top View (Ctrl+Alt+T)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromAbove, QKeySequence( tr( "Ctrl+Alt+T" ) ) );
 
-    m_viewFromBelow = new QAction( QIcon( ":/svg/UpView.svg" ), "Bottom View", this );
+    m_viewFromBelow = new QAction( QIcon( ":/UpView.svg" ), "Bottom View", this );
     m_viewFromBelow->setToolTip( "Bottom View (Ctrl+Alt+B)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromBelow, QKeySequence( tr( "Ctrl+Alt+B" ) ) );
 
@@ -443,13 +443,13 @@ void RiuMainWindow::createActions()
     // Draw style actions
     m_dsActionGroup = new QActionGroup( this );
 
-    m_drawStyleLinesAction = new QAction( QIcon( ":/svg/DrawStyleLines.svg" ), "&Mesh Only", this );
+    m_drawStyleLinesAction = new QAction( QIcon( ":/DrawStyleLines.svg" ), "&Mesh Only", this );
     m_dsActionGroup->addAction( m_drawStyleLinesAction );
 
-    m_drawStyleLinesSolidAction = new QAction( QIcon( ":/svg/DrawStyleMeshLines.svg" ), "Mesh And Surfaces", this );
+    m_drawStyleLinesSolidAction = new QAction( QIcon( ":/DrawStyleMeshLines.svg" ), "Mesh And Surfaces", this );
     m_dsActionGroup->addAction( m_drawStyleLinesSolidAction );
 
-    m_drawStyleSurfOnlyAction = new QAction( QIcon( ":/svg/DrawStyleSurface.svg" ), "&Surface Only", this );
+    m_drawStyleSurfOnlyAction = new QAction( QIcon( ":/DrawStyleSurface.svg" ), "&Surface Only", this );
     m_dsActionGroup->addAction( m_drawStyleSurfOnlyAction );
 
     m_drawStyleDeformationsAction = new QAction( QIcon( ":/draw_style_deformation_24x24.png" ), "Show &Displacements", this );
@@ -458,23 +458,23 @@ void RiuMainWindow::createActions()
 
     connect( m_dsActionGroup, SIGNAL( triggered( QAction* ) ), SLOT( slotDrawStyleChanged( QAction* ) ) );
 
-    m_drawStyleFaultLinesSolidAction = new QAction( QIcon( ":/svg/draw_style_surface_w_fault_mesh_24x24.svg" ), "Fault Mesh And Surfaces", this );
+    m_drawStyleFaultLinesSolidAction = new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.svg" ), "Fault Mesh And Surfaces", this );
     m_dsActionGroup->addAction( m_drawStyleFaultLinesSolidAction );
 
-    m_drawStyleHideGridCellsAction = new QAction( QIcon( ":/svg/draw_style_faults_24x24.svg" ), "&Hide Grid Cells", this );
+    m_drawStyleHideGridCellsAction = new QAction( QIcon( ":/draw_style_faults_24x24.svg" ), "&Hide Grid Cells", this );
     m_drawStyleHideGridCellsAction->setCheckable( true );
     connect( m_drawStyleHideGridCellsAction, SIGNAL( toggled( bool ) ), SLOT( slotToggleHideGridCellsAction( bool ) ) );
 
-    m_toggleFaultsLabelAction = new QAction( QIcon( ":/svg/draw_style_faults_label_24x24.svg" ), "&Show Fault Labels", this );
+    m_toggleFaultsLabelAction = new QAction( QIcon( ":/draw_style_faults_label_24x24.svg" ), "&Show Fault Labels", this );
     m_toggleFaultsLabelAction->setCheckable( true );
     connect( m_toggleFaultsLabelAction, SIGNAL( toggled( bool ) ), SLOT( slotToggleFaultLabelsAction( bool ) ) );
 
-    m_showWellCellsAction = new QAction( QIcon( ":/svg/draw_style_WellCellsToRangeFilter_24x24.svg" ), "&Show Well Cells", this );
+    m_showWellCellsAction = new QAction( QIcon( ":/draw_style_WellCellsToRangeFilter_24x24.svg" ), "&Show Well Cells", this );
     m_showWellCellsAction->setCheckable( true );
     m_showWellCellsAction->setToolTip( "Show Well Cells" );
     connect( m_showWellCellsAction, SIGNAL( toggled( bool ) ), SLOT( slotShowWellCellsAction( bool ) ) );
 
-    m_enableLightingAction = new QAction( QIcon( ":/svg/DrawLightingEnabled.svg" ), "&Enable Results Lighting", this );
+    m_enableLightingAction = new QAction( QIcon( ":/DrawLightingEnabled.svg" ), "&Enable Results Lighting", this );
     m_enableLightingAction->setCheckable( true );
     connect( m_enableLightingAction, SIGNAL( toggled( bool ) ), SLOT( slotToggleLightingAction( bool ) ) );
     // m_dsActionGroup->addAction( m_enableLightingAction );
@@ -752,21 +752,22 @@ void RiuMainWindow::createToolBars()
 void RiuMainWindow::slotShowEclRunnerDialog()
 {
     ads::CDockWidget* runnerDock = RiuDockWidgetTools::findDockWidget( dockManager(), "MainWindow.EclRunner" );
-    
-    if (!runnerDock)
+
+    if ( !runnerDock )
     {
         // First time - create the dock widget and its content
-        runnerDock = RiuDockWidgetTools::createDockWidget( "Ecl Runner", "MainWindow.EclRunner", dockManager() );
+        runnerDock                 = RiuDockWidgetTools::createDockWidget( "Ecl Runner", "MainWindow.EclRunner", dockManager() );
         RicEclRunnerDialog* runner = new RicEclRunnerDialog( this );
         runnerDock->setWidget( runner );
         // 连接文件打开信号，使用 ResInsight 自己的打开方法
-        connect(runner, &RicEclRunnerDialog::fileOpenRequested, this, [](const QString& filePath) {
-            RiaGuiApplication::instance()->openFile(filePath);
-        });
-        
+        connect( runner,
+                 &RicEclRunnerDialog::fileOpenRequested,
+                 this,
+                 []( const QString& filePath ) { RiaGuiApplication::instance()->openFile( filePath ); } );
+
         // Try to tabify next to Quick Access if available
         ads::CDockWidget* quickAccess = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::mainWindowQuickAccessName() );
-        if (quickAccess && quickAccess->dockAreaWidget())
+        if ( quickAccess && quickAccess->dockAreaWidget() )
         {
             dockManager()->addDockWidgetTabToArea( runnerDock, quickAccess->dockAreaWidget() );
         }
@@ -780,19 +781,18 @@ void RiuMainWindow::slotShowEclRunnerDialog()
     }
     else
     {
-        if (runnerDock->isVisible())
+        if ( runnerDock->isVisible() )
         {
             runnerDock->toggleView();
-            m_eclRunnerAction->setChecked(false);
+            m_eclRunnerAction->setChecked( false );
         }
         else
         {
             runnerDock->show();
             runnerDock->raise();
-            m_eclRunnerAction->setChecked(true);
+            m_eclRunnerAction->setChecked( true );
         }
     }
-    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1766,11 +1766,11 @@ void RiuMainWindow::refreshDrawStyleActions()
 
     if ( lightingEnabled )
     {
-        m_enableLightingAction->setIcon( QIcon( ":/svg/DrawLightingEnabled.svg" ) );
+        m_enableLightingAction->setIcon( QIcon( ":/DrawLightingEnabled.svg" ) );
     }
     else
     {
-        m_enableLightingAction->setIcon( QIcon( ":/svg/DrawLightingDisabled.svg" ) );
+        m_enableLightingAction->setIcon( QIcon( ":/DrawLightingDisabled.svg" ) );
     }
 
     m_enableLightingAction->blockSignals( false );
@@ -2147,8 +2147,6 @@ void RiuMainWindow::dragEnterEvent( QDragEnterEvent* event )
 {
     if ( event->mimeData()->hasUrls() ) event->acceptProposedAction();
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 ///

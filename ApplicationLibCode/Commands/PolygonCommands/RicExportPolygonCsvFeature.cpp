@@ -77,5 +77,5 @@ void RicExportPolygonCsvFeature::onActionTriggered( bool isChecked )
 void RicExportPolygonCsvFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export Polygon CSV" );
-    actionToSetup->setIcon( QIcon( ":/svg/Save.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
 }
