@@ -57,7 +57,7 @@ public:
         GAS,
         OIL,
         WATER,
-        SOLVET,
+        SOLVENT,
         POLYMER,
         MICR,
         OXYG,
@@ -67,6 +67,8 @@ public:
 
     RimKeywordBcprop();
     ~RimKeywordBcprop() override;
+
+    void setIndex( int index );
 
     void uiOrdering( caf::PdmUiGroup* uiGroup );
 

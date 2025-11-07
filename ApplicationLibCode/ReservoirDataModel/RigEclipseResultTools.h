@@ -51,6 +51,8 @@ int generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue = -1
 
 int findMaxOperNumValue( RimEclipseCase* eclipseCase );
 
+int findMaxBcconValue( RimEclipseCase* eclipseCase );
+
 void generateBcconResult( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max );
 
 std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase );

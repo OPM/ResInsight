@@ -621,12 +621,10 @@ Opm::DeckKeyword bcpropKeyword( const std::vector<RigEclipseResultTools::BorderC
     // Add one entry per boundary condition
     for ( const auto& bc : boundaryConditions )
     {
-        if ( bc.boundaryCondition <= 0 ) continue; // Skip entries without a valid boundary condition
-
         // Find the corresponding property record
         // The properties vector should be indexed by boundaryCondition - 1
-        size_t propIndex = static_cast<size_t>( bc.boundaryCondition );
-        if ( propIndex < boundaryConditionProperties.size() )
+        int propIndex = bc.boundaryCondition - 1;
+        if ( propIndex >= 0 && propIndex < static_cast<int>( boundaryConditionProperties.size() ) )
         {
             const auto& propRecord = boundaryConditionProperties[propIndex];
 
