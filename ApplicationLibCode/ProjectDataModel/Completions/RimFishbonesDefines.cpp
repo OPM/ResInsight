@@ -64,7 +64,7 @@ void caf::AppEnum<RimFishbonesDefines::ValueSource>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimFishbonesDefines::RicFishbonesSystemParameters RimFishbonesDefines::drillingStandardParameters()
 {
-    return { .lateralsPerSub = 3, .lateralLength = 11.0, .holeDiameter = 12.5, .buildAngle = 6.0, .icdsPerSub = 3 };
+    return { .lateralsPerSub = 3, .lateralLength = 11.0, .holeDiameter = 12.5, .buildAngle = 6.0, .icdsPerSub = 3, .spacing = 12.5 };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ RimFishbonesDefines::RicFishbonesSystemParameters RimFishbonesDefines::drillingS
 //--------------------------------------------------------------------------------------------------
 RimFishbonesDefines::RicFishbonesSystemParameters RimFishbonesDefines::drillingExtendedParameters()
 {
-    return { .lateralsPerSub = 3, .lateralLength = 18.0, .holeDiameter = 12.5, .buildAngle = 4.0, .icdsPerSub = 3 };
+    return { .lateralsPerSub = 3, .lateralLength = 18.0, .holeDiameter = 12.5, .buildAngle = 4.0, .icdsPerSub = 3, .spacing = 18.5 };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,5 +80,5 @@ RimFishbonesDefines::RicFishbonesSystemParameters RimFishbonesDefines::drillingE
 //--------------------------------------------------------------------------------------------------
 RimFishbonesDefines::RicFishbonesSystemParameters RimFishbonesDefines::acidJettingParameters()
 {
-    return { .lateralsPerSub = 4, .lateralLength = 12.0, .holeDiameter = 15.0, .buildAngle = 6.0, .icdsPerSub = 4 };
+    return { .lateralsPerSub = 4, .lateralLength = 12.0, .holeDiameter = 15.0, .buildAngle = 6.0, .icdsPerSub = 4, .spacing = 12.5 };
 }

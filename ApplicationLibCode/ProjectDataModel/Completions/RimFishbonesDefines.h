@@ -54,6 +54,7 @@ struct RicFishbonesSystemParameters
     double holeDiameter;
     double buildAngle;
     int    icdsPerSub;
+    double spacing;
 };
 
 RicFishbonesSystemParameters drillingStandardParameters();

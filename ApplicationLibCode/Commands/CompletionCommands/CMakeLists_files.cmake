@@ -1,6 +1,7 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEditPerforationCollectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportFishbonesLateralsFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicFishbonesCreateHelper.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewFishbonesSubsAtMeasuredDepthFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewFishbonesSubsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalFeature.h
@@ -20,6 +21,7 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEditPerforationCollectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportFishbonesLateralsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicFishbonesCreateHelper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewFishbonesSubsAtMeasuredDepthFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewFishbonesSubsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalFeature.cpp

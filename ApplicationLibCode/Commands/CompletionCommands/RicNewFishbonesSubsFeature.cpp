@@ -18,6 +18,7 @@
 
 #include "RicNewFishbonesSubsFeature.h"
 
+#include "RicFishbonesCreateHelper.h"
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
 #include "RiaApplication.h"
@@ -87,38 +88,17 @@ void RicNewFishbonesSubsFeature::createFishbones( const RimFishbonesDefines::Ric
     CVF_ASSERT( fishbonesCollection );
 
     RimWellPath* wellPath = fishbonesCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
-    if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
-    auto* obj = new RimFishbones;
-    fishbonesCollection->appendFishbonesSubs( obj );
-
-    obj->setSystemParameters( customParameters.lateralsPerSub,
-                              customParameters.lateralLength,
-                              customParameters.holeDiameter,
-                              customParameters.buildAngle,
-                              customParameters.icdsPerSub );
-
+    double measuredDepth = 100;
     double wellPathTipMd = wellPath->uniqueEndMD();
     if ( wellPathTipMd != HUGE_VAL )
     {
         double startMd = wellPathTipMd - 150 - 100;
         if ( startMd < 100 ) startMd = 100;
-
-        obj->setMeasuredDepthAndCount( startMd, 12.5, 13 );
+        measuredDepth = startMd;
     }
 
-    RicNewFishbonesSubsFeature::adjustWellPathScaling( fishbonesCollection );
-
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-    if ( wellPathCollection )
-    {
-        wellPathCollection->uiCapability()->updateConnectedEditors();
-    }
-
-    RiuMainWindow::instance()->selectAsCurrentItem( obj );
-
-    RimProject* proj = RimProject::current();
-    proj->reloadCompletionTypeResultsInAllViews();
+    RicFishbonesCreateHelper::createAndConfigureFishbones( fishbonesCollection, customParameters, measuredDepth );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,30 +141,19 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::setupActionLook( QAction* actionToSetup )
 {
-    auto icon = QIcon( ":/FishBoneGroup16x16.png" );
-    actionToSetup->setIcon( icon );
-    actionToSetup->setText( "Create Fishbones" );
+    RicFishbonesCreateHelper::setupFishbonesSubMenu( actionToSetup, "Create Fishbones" );
 
-    auto subMenu = new QMenu;
-
+    QMenu* subMenu = actionToSetup->menu();
+    auto   actions = subMenu->actions();
+    if ( actions.size() < 3 )
     {
-        auto action = subMenu->addAction( "Drilling Standard" );
-        action->setIcon( icon );
-        connect( action, &QAction::triggered, this, &RicNewFishbonesSubsFeature::onDrillingStandard );
+        RiaLogging::error( "RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook: Unexpected number of actions in submenu." );
+        return;
     }
 
-    {
-        auto action = subMenu->addAction( "Drilling Extended" );
-        action->setIcon( icon );
-        connect( action, &QAction::triggered, this, &RicNewFishbonesSubsFeature::onDrillingExtended );
-    }
-    {
-        auto action = subMenu->addAction( "Acid Jetting" );
-        action->setIcon( icon );
-        connect( action, &QAction::triggered, this, &RicNewFishbonesSubsFeature::onAcidJetting );
-    }
-
-    actionToSetup->setMenu( subMenu );
+    connect( actions[0], &QAction::triggered, this, &RicNewFishbonesSubsFeature::onDrillingStandard );
+    connect( actions[1], &QAction::triggered, this, &RicNewFishbonesSubsFeature::onDrillingExtended );
+    connect( actions[2], &QAction::triggered, this, &RicNewFishbonesSubsFeature::onAcidJetting );
 }
 
 //--------------------------------------------------------------------------------------------------
