@@ -85,7 +85,8 @@ int main( int argc, char* argv[] )
     // belonging to different top-level windows through re-parenting.
     // See test application QtTestBenchOpenGLWidget
     QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
-
+    QApplication::setAttribute( Qt::AA_EnableHighDpiScaling ); // 自动缩放界面
+    QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps ); // 优先加载高分辨率图标
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();
     RiaQuantityInfoTools::initializeSummaryKeywords();
