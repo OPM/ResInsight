@@ -171,19 +171,9 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const st
     m_gridFiles.clear();
     m_summaryFileErrors.clear();
 
-    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
-
-    RicSummaryCaseRestartDialog::ImportOptions defaultSummaryImportMode;
-    if ( m_ensembleOrGroupMode )
-    {
-        defaultSummaryImportMode = mapReadOption( prefs->summaryEnsembleImportMode() );
-    }
-    else
-    {
-        defaultSummaryImportMode = mapReadOption( prefs->summaryImportMode() );
-    }
-
-    RicSummaryCaseRestartDialog::ImportOptions defaultGridImportMode = mapReadOption( prefs->gridImportMode() );
+    RiaPreferencesSummary*                     prefs                    = RiaPreferencesSummary::current();
+    RicSummaryCaseRestartDialog::ImportOptions defaultSummaryImportMode = mapReadOption( prefs->summaryImportMode() );
+    RicSummaryCaseRestartDialog::ImportOptions defaultGridImportMode    = mapReadOption( prefs->gridImportMode() );
 
     for ( const RifSummaryCaseFileImportInfo& initialFile : initialFiles )
     {
@@ -252,15 +242,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
 
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
-    RicSummaryCaseRestartDialog::ImportOptions defaultSummaryImportMode;
-    if ( m_ensembleOrGroupMode )
-    {
-        defaultSummaryImportMode = mapReadOption( prefs->summaryEnsembleImportMode() );
-    }
-    else
-    {
-        defaultSummaryImportMode = mapReadOption( prefs->summaryImportMode() );
-    }
+    RicSummaryCaseRestartDialog::ImportOptions defaultSummaryImportMode = mapReadOption( prefs->summaryImportMode() );
 
     caf::ProgressInfo progress( initialFiles.size(), QString( "Importing files" ) );
     for ( const RifSummaryCaseFileImportInfo& initialFile : initialFiles )

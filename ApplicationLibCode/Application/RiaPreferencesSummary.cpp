@@ -82,22 +82,18 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesSummary, "RiaPreferencesSummary" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesSummary::RiaPreferencesSummary()
 {
-    CAF_PDM_InitFieldNoDefault( &m_summaryRestartFilesShowImportDialog, "summaryRestartFilesShowImportDialog", "Show Import Dialog" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryRestartFilesShowImportDialog, "summaryRestartFilesShowImportDialog", "Show Summary Import Dialog" );
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_summaryRestartFilesShowImportDialog );
 
     CAF_PDM_InitField( &m_summaryImportMode,
                        "summaryImportMode",
                        SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ),
-                       "Default Summary Import Option" );
+                       "Summary Origin Import Option" );
     CAF_PDM_InitField( &m_gridImportMode,
                        "gridImportMode",
                        SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ),
-                       "Default Grid Import Option" );
-    CAF_PDM_InitField( &m_summaryEnsembleImportMode,
-                       "summaryEnsembleImportMode",
-                       SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ),
-                       "Default Ensemble Summary Import Option" );
+                       "Grid Origin Import Option" );
 
     CAF_PDM_InitField( &m_defaultSummaryHistoryCurveStyle,
                        "defaultSummaryHistoryCurveStyle",
@@ -272,21 +268,7 @@ void RiaPreferencesSummary::appendRestartFileGroup( caf::PdmUiOrdering& uiOrderi
 {
     caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup( "Origin Files" );
     restartBehaviourGroup->add( &m_summaryRestartFilesShowImportDialog );
-
-    {
-        caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Summary Files" );
-        group->add( &m_summaryImportMode );
-    }
-
-    {
-        caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Grid Files" );
-        group->add( &m_gridImportMode );
-    }
-
-    {
-        caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Ensemble Summary Files" );
-        group->add( &m_summaryEnsembleImportMode );
-    }
+    restartBehaviourGroup->add( &m_summaryImportMode );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -388,14 +370,6 @@ RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::summ
 RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::gridImportMode() const
 {
     return m_gridImportMode();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::summaryEnsembleImportMode() const
-{
-    return m_summaryEnsembleImportMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -536,14 +510,16 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSummary::calculateValueOptions( cons
         options.push_back( caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
         options.push_back( caf::PdmOptionItemInfo( separate.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES ) );
     }
-    else if ( fieldNeedingOptions == &m_summaryEnsembleImportMode )
+    else if ( fieldNeedingOptions == &m_summaryImportMode )
     {
-        // Manual option handling in order to one only a subset of the enum values
-        SummaryRestartFilesImportModeType skip( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT );
-        SummaryRestartFilesImportModeType allowImport( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT );
+        // Only support skip or unified, as "SEPARATE_CASES" does not work for ensemble import. If separated cases is required for a single
+        // summary case, this can be activated by using the import dialog.
+        // https://github.com/OPM/ResInsight/issues/13147
+        SummaryRestartFilesImportModeType skipImport( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT );
+        SummaryRestartFilesImportModeType unifiedImport( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT );
 
-        options.push_back( caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
-        options.push_back( caf::PdmOptionItemInfo( allowImport.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( skipImport.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( unifiedImport.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ) );
     }
     else if ( fieldNeedingOptions == &m_defaultColumnCount )
     {
@@ -685,4 +661,24 @@ void RiaPreferencesSummary::removeFromDefaultPlotTemplates( QString filename )
     m_selectedDefaultTemplates = newlist;
 
     RiaPreferences::current()->writePreferencesToApplicationStore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSummary::initAfterRead()
+{
+    if ( m_summaryImportMode == SummaryRestartFilesImportMode::SEPARATE_CASES )
+    {
+        // SEPARATE_CASES does not work for ensemble import. Change to NOT_IMPORT
+        m_summaryImportMode = SummaryRestartFilesImportMode::NOT_IMPORT;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSummary::appendGridFields( caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_gridImportMode );
 }

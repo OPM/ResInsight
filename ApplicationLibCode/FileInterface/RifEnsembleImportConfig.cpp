@@ -78,7 +78,7 @@ void RifEnsembleImportConfig::computeRestartPatternsFromTwoRealizations( const s
 {
     m_restartFileNamePatterns.clear();
 
-    if ( restartFilesFirstCase.empty() ) return;
+    if ( restartFilesFirstCase.empty() || restartFilesSecondCase.empty() ) return;
 
     if ( restartFilesFirstCase.size() != restartFilesSecondCase.size() )
     {

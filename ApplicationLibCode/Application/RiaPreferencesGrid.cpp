@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSystem.h"
 
 #include "RifReaderSettings.h"
@@ -118,6 +119,11 @@ void RiaPreferencesGrid::appendItems( caf::PdmUiOrdering& uiOrdering )
     newCBGroup->add( &m_autoComputeDepthRelatedProperties );
     newCBGroup->add( &m_loadAndShowSoil );
     newCBGroup->add( &m_invalidateLongThinCells );
+
+    if ( auto prefSummary = RiaPreferencesSummary::current() )
+    {
+        prefSummary->appendGridFields( *newCBGroup );
+    }
 
     auto faultGrp = uiOrdering.addNewGroup( "Fault Import" );
 
