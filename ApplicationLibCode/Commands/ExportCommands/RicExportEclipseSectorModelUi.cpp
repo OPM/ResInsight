@@ -83,7 +83,7 @@ void RicExportEclipseSectorModelUi::BoundaryConditionEnum::setUp()
     addItem( RicExportEclipseSectorModelUi::OPERNUM_OPERATER, "OPERNUM_OPERATER", "OPERNUM + OPERATER" );
     addItem( RicExportEclipseSectorModelUi::BCCON_BCPROP, "BCCON_BCPROP", "BCCON + BCPROP" );
 
-    setDefault( RicExportEclipseSectorModelUi::BCCON_BCPROP );
+    setDefault( RicExportEclipseSectorModelUi::OPERNUM_OPERATER );
 }
 
 } // namespace caf
