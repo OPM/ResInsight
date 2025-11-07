@@ -40,7 +40,7 @@ void caf::AppEnum<RimKeywordBcprop::Type>::setUp()
     addItem( RimKeywordBcprop::Type::RATE, "RATE", "RATE" );
     addItem( RimKeywordBcprop::Type::THERMAL, "THERMAL", "THERMAL" );
     addItem( RimKeywordBcprop::Type::NONE, "NONE", "NONE" );
-    setDefault( RimKeywordBcprop::Type::NONE );
+    setDefault( RimKeywordBcprop::Type::FREE );
 }
 
 template <>
@@ -49,7 +49,7 @@ void caf::AppEnum<RimKeywordBcprop::Component>::setUp()
     addItem( RimKeywordBcprop::Component::GAS, "GAS", "GAS" );
     addItem( RimKeywordBcprop::Component::OIL, "OIL", "OIL" );
     addItem( RimKeywordBcprop::Component::WATER, "WATER", "WATER" );
-    addItem( RimKeywordBcprop::Component::SOLVET, "SOLVET", "SOLVET" );
+    addItem( RimKeywordBcprop::Component::SOLVENT, "SOLVENT", "SOLVENT" );
     addItem( RimKeywordBcprop::Component::POLYMER, "POLYMER", "POLYMER" );
     addItem( RimKeywordBcprop::Component::MICR, "MICR", "MICR" );
     addItem( RimKeywordBcprop::Component::OXYG, "OXYG", "OXYG" );
@@ -66,7 +66,7 @@ RimKeywordBcprop::RimKeywordBcprop()
 {
     CAF_PDM_InitObject( "BCPROP Keyword" );
     CAF_PDM_InitField( &m_index, "index", 0, "Index" );
-    CAF_PDM_InitField( &m_type, "type", caf::AppEnum<Type>( Type::NONE ), "Type" );
+    CAF_PDM_InitField( &m_type, "type", caf::AppEnum<Type>( Type::FREE ), "Type" );
     CAF_PDM_InitField( &m_component, "component", caf::AppEnum<Component>( Component::NONE ), "Component" );
     CAF_PDM_InitField( &m_rate, "rate", 0.0, "Rate" );
     CAF_PDM_InitFieldNoDefault( &m_press, "press", "Pressure" );
@@ -78,6 +78,14 @@ RimKeywordBcprop::RimKeywordBcprop()
 //--------------------------------------------------------------------------------------------------
 RimKeywordBcprop::~RimKeywordBcprop()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimKeywordBcprop::setIndex( int index )
+{
+    m_index = index;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,12 +112,15 @@ Opm::DeckKeyword RimKeywordBcprop::keyword()
 
     items.push_back( RifOpmDeckTools::item( B::INDEX::itemName, m_index() ) );
     items.push_back( RifOpmDeckTools::item( B::TYPE::itemName, m_type().text().toStdString() ) );
-    items.push_back( RifOpmDeckTools::item( B::COMPONENT::itemName, m_component().text().toStdString() ) );
-    items.push_back( RifOpmDeckTools::item( B::RATE::itemName, m_rate() ) );
-    items.push_back( m_press().has_value() ? RifOpmDeckTools::item( B::PRESSURE::itemName, m_press().value() )
-                                           : RifOpmDeckTools::defaultItem( B::PRESSURE::itemName ) );
-    items.push_back( m_temp().has_value() ? RifOpmDeckTools::item( B::TEMPERATURE::itemName, m_temp().value() )
-                                          : RifOpmDeckTools::defaultItem( B::TEMPERATURE::itemName ) );
+    if ( m_type() != RimKeywordBcprop::Type::FREE )
+    {
+        items.push_back( RifOpmDeckTools::item( B::COMPONENT::itemName, m_component().text().toStdString() ) );
+        items.push_back( RifOpmDeckTools::item( B::RATE::itemName, m_rate() ) );
+        items.push_back( m_press().has_value() ? RifOpmDeckTools::item( B::PRESSURE::itemName, m_press().value() )
+                                               : RifOpmDeckTools::defaultItem( B::PRESSURE::itemName ) );
+        items.push_back( m_temp().has_value() ? RifOpmDeckTools::item( B::TEMPERATURE::itemName, m_temp().value() )
+                                              : RifOpmDeckTools::defaultItem( B::TEMPERATURE::itemName ) );
+    }
 
     Opm::DeckKeyword kw( ( Opm::ParserKeywords::BCPROP() ) );
     kw.addRecord( Opm::DeckRecord{ std::move( items ) } );

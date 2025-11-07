@@ -27,6 +27,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCaseDataTools.h"
 #include "RigEclipseResultAddress.h"
+#include "RigEclipseResultTools.h"
 #include "RigMainGrid.h"
 
 #include "ProjectDataModel/Jobs/RimKeywordBcprop.h"
@@ -147,6 +148,8 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     m_exportFolder = defaultFolder();
 
     CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
+    m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_bcpropKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_exportSimulationInput, "ExportSimulationInput", false, "Export Simulation Input" );
 
@@ -157,12 +160,6 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     m_exportGridFilename       = defaultGridFileName();
     m_exportParametersFilename = defaultResultsFileName();
     m_exportFaultsFilename     = defaultFaultsFileName();
-
-    // Add 10 default BCPROP keywords
-    for ( int i = 0; i < 10; ++i )
-    {
-        m_bcpropKeywords.push_back( new RimKeywordBcprop() );
-    }
 
     m_tabNames << "Grid Data";
     m_tabNames << "Parameters";
@@ -207,6 +204,21 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
         {
             m_exportSimulationInput = true;
         }
+    }
+
+    // Initialize BCPROP keywords based on max BCCON value in the grid
+    int maxBccon = RigEclipseResultTools::findMaxBcconValue( eclipseView ? eclipseView->eclipseCase() : nullptr );
+
+    // Clear existing keywords
+    m_bcpropKeywords.deleteChildren();
+
+    // Add appropriate number of BCPROP keywords (max BCCON value or default to 6 for the 6 faces)
+    int numKeywords = ( maxBccon > 0 ) ? maxBccon : 6;
+    for ( int i = 0; i < numKeywords; ++i )
+    {
+        auto* keyword = new RimKeywordBcprop();
+        keyword->setIndex( i + 1 ); // BCCON values start from 1, not 0
+        m_bcpropKeywords.push_back( keyword );
     }
 
     if ( minI == std::numeric_limits<int>::max() ) minI = static_cast<int>( m_visibleMin.x() ) + 1;
