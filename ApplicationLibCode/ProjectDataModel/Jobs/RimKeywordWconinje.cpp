@@ -114,18 +114,13 @@ Opm::DeckKeyword RimKeywordWconinje::keyword( const QString& wellName )
     items.push_back( RifOpmDeckTools::item( W::TYPE::itemName, m_type().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::STATUS::itemName, m_status().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::CMODE::itemName, m_target().toStdString() ) );
-    items.push_back( m_resv().has_value() ? RifOpmDeckTools::item( W::RESV::itemName, m_resv().value() )
-                                          : RifOpmDeckTools::defaultItem( W::RESV::itemName ) );
-    items.push_back( m_bhp().has_value() ? RifOpmDeckTools::item( W::BHP::itemName, m_bhp().value() )
-                                         : RifOpmDeckTools::defaultItem( W::BHP::itemName ) );
-    items.push_back( m_thp().has_value() ? RifOpmDeckTools::item( W::THP::itemName, m_thp().value() )
-                                         : RifOpmDeckTools::defaultItem( W::THP::itemName ) );
-    items.push_back( m_vfptab().has_value() ? RifOpmDeckTools::item( W::VFP_TABLE::itemName, m_vfptab().value() )
-                                            : RifOpmDeckTools::defaultItem( W::VFP_TABLE::itemName ) );
-    items.push_back( m_rsrvinj().has_value() ? RifOpmDeckTools::item( W::VAPOIL_C::itemName, m_rsrvinj().value() )
-                                             : RifOpmDeckTools::defaultItem( W::VAPOIL_C::itemName ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::RESV::itemName, m_resv() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::BHP::itemName, m_bhp() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::THP::itemName, m_thp() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::VFP_TABLE::itemName, m_vfptab() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::VAPOIL_C::itemName, m_rsrvinj() ) );
 
-    Opm::DeckKeyword kw( ( Opm::ParserKeywords::WCONINJE() ) );
+    Opm::DeckKeyword kw( ( W() ) );
     kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
 
     return kw;

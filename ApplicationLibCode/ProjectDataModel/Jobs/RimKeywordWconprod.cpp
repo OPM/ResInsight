@@ -115,26 +115,17 @@ Opm::DeckKeyword RimKeywordWconprod::keyword( const QString& wellName )
     items.push_back( RifOpmDeckTools::item( W::WELL::itemName, wellName.toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::STATUS::itemName, m_status().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::CMODE::itemName, m_target().toStdString() ) );
-    items.push_back( m_orat().has_value() ? RifOpmDeckTools::item( W::ORAT::itemName, m_orat().value() )
-                                          : RifOpmDeckTools::defaultItem( W::ORAT::itemName ) );
-    items.push_back( m_wrat().has_value() ? RifOpmDeckTools::item( W::WRAT::itemName, m_wrat().value() )
-                                          : RifOpmDeckTools::defaultItem( W::WRAT::itemName ) );
-    items.push_back( m_grat().has_value() ? RifOpmDeckTools::item( W::GRAT::itemName, m_grat().value() )
-                                          : RifOpmDeckTools::defaultItem( W::GRAT::itemName ) );
-    items.push_back( m_lrat().has_value() ? RifOpmDeckTools::item( W::LRAT::itemName, m_lrat().value() )
-                                          : RifOpmDeckTools::defaultItem( W::LRAT::itemName ) );
-    items.push_back( m_resv().has_value() ? RifOpmDeckTools::item( W::RESV::itemName, m_resv().value() )
-                                          : RifOpmDeckTools::defaultItem( W::RESV::itemName ) );
-    items.push_back( m_bhp().has_value() ? RifOpmDeckTools::item( W::BHP::itemName, m_bhp().value() )
-                                         : RifOpmDeckTools::defaultItem( W::BHP::itemName ) );
-    items.push_back( m_thp().has_value() ? RifOpmDeckTools::item( W::THP::itemName, m_thp().value() )
-                                         : RifOpmDeckTools::defaultItem( W::THP::itemName ) );
-    items.push_back( m_vfptab().has_value() ? RifOpmDeckTools::item( W::VFP_TABLE::itemName, m_vfptab().value() )
-                                            : RifOpmDeckTools::defaultItem( W::VFP_TABLE::itemName ) );
-    items.push_back( m_alqWell().has_value() ? RifOpmDeckTools::item( W::ALQ::itemName, m_alqWell().value() )
-                                             : RifOpmDeckTools::defaultItem( W::ALQ::itemName ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::ORAT::itemName, m_orat() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::WRAT::itemName, m_wrat() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::GRAT::itemName, m_grat() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::LRAT::itemName, m_lrat() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::RESV::itemName, m_resv() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::BHP::itemName, m_bhp() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::THP::itemName, m_thp() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::VFP_TABLE::itemName, m_vfptab() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::ALQ::itemName, m_alqWell() ) );
 
-    Opm::DeckKeyword kw( ( Opm::ParserKeywords::WCONPROD() ) );
+    Opm::DeckKeyword kw( ( W() ) );
     kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
 
     return kw;

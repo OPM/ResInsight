@@ -37,11 +37,35 @@ Opm::DeckItem item( std::string name, std::string value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Opm::DeckItem optionalItem( std::string name, std::optional<std::string> value )
+{
+    if ( value.has_value() )
+    {
+        return item( name, value.value() );
+    }
+    return defaultItem( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 Opm::DeckItem item( std::string name, int value )
 {
     Opm::DeckItem item1( name, value );
     item1.push_back( value );
     return item1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem optionalItem( std::string name, std::optional<int> value )
+{
+    if ( value.has_value() )
+    {
+        return item( name, value.value() );
+    }
+    return defaultItem( name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,10 +79,22 @@ Opm::DeckItem item( std::string name, size_t value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckItem defaultItem( std::string name, int columns /*=1*/ )
+Opm::DeckItem optionalItem( std::string name, std::optional<size_t> value )
+{
+    if ( value.has_value() )
+    {
+        return item( name, value.value() );
+    }
+    return defaultItem( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem defaultItem( std::string name )
 {
     Opm::DeckItem item1( name, 0 );
-    item1.push_backDummyDefault<int>( columns );
+    item1.push_backDummyDefault<int>( 1 );
     return item1;
 }
 
@@ -73,6 +109,30 @@ Opm::DeckItem item( std::string name, double value )
     Opm::DeckItem item1( name, double(), active_dimensions, default_dimensions );
     item1.push_back( value );
     return item1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem optionalItem( std::string name, std::optional<double> value )
+{
+    if ( value.has_value() )
+    {
+        return item( name, value.value() );
+    }
+    return defaultItem( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem optionalItem( std::string name, std::optional<float> value )
+{
+    if ( value.has_value() )
+    {
+        return item( name, (double)value.value() );
+    }
+    return defaultItem( name );
 }
 
 } // namespace RifOpmDeckTools

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace Opm
@@ -28,9 +29,14 @@ class DeckItem;
 namespace RifOpmDeckTools
 {
 Opm::DeckItem item( std::string name, std::string value );
+Opm::DeckItem optionalItem( std::string name, std::optional<std::string> value );
 Opm::DeckItem item( std::string name, int value );
+Opm::DeckItem optionalItem( std::string name, std::optional<int> value );
 Opm::DeckItem item( std::string name, size_t value );
+Opm::DeckItem optionalItem( std::string name, std::optional<size_t> value );
 Opm::DeckItem item( std::string name, double value );
-Opm::DeckItem defaultItem( std::string name, int columns = 1 );
+Opm::DeckItem optionalItem( std::string name, std::optional<float> value );
+Opm::DeckItem optionalItem( std::string name, std::optional<double> value );
+Opm::DeckItem defaultItem( std::string name );
 
 } // namespace RifOpmDeckTools
