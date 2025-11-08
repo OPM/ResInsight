@@ -271,10 +271,9 @@ void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool 
     if ( tv )
     {
         tv->selectAsCurrentItem( object );
-        ads::CDockWidget* dw = dynamic_cast<ads::CDockWidget*>( tv->parentWidget() );
-        if ( dw )
+        if ( auto dw = m_dockManager->findDockWidget( tv->objectName() ) )
         {
-            dw->show();
+            dw->setAsCurrentTab();
         }
     }
 

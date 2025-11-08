@@ -762,6 +762,7 @@ void RiuMainWindow::createDockPanels()
 
         caf::PdmUiTreeView* projectTree = projectTreeView( i );
         projectTree->enableSelectionManagerUpdating( true );
+        projectTree->setObjectName( treeViewDockNames[i] );
         projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
 
         dockWidget->setWidget( projectTree );
