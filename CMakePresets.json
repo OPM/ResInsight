@@ -6,6 +6,9 @@
             "hidden": true,
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build",
+            "environment": {
+                "RESINSIGHT_DEVEL": "1"
+            },
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "VCPKG_INSTALL_OPTIONS": "--disable-metrics;--clean-after-build",

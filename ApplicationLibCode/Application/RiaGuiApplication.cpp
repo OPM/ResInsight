@@ -997,7 +997,8 @@ void RiaGuiApplication::createMainWindow()
 
     m_mainWindow     = new RiuMainWindow;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
-    m_mainWindow->setWindowTitle( "ResInsight " + platform );
+    // Use central application name constant so renaming is localised to RiaBaseDefs.h
+    m_mainWindow->setWindowTitle( QString(RI_APPLICATION_NAME) + " " + platform );
     m_mainWindow->setDefaultWindowSize();
     m_mainWindow->setDefaultToolbarVisibility();
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
@@ -1029,7 +1030,8 @@ void RiaGuiApplication::createMainPlotWindow()
     caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
 
     m_mainPlotWindow = std::make_unique<RiuPlotMainWindow>();
-    m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );
+    // Use central application name constant so renaming is localised to RiaBaseDefs.h
+    m_mainPlotWindow->setWindowTitle( QString( "Plots - " ) + RI_APPLICATION_NAME );
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
 }
