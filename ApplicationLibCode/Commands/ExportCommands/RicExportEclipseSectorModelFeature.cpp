@@ -64,6 +64,7 @@
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/A.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
@@ -364,6 +365,8 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
     // TODO: fix this..
     deckFile.removeKeywords( "MAPAXES" );
 
+    deckFile.removeKeywords( "SPECGRID" );
+
     // Save the modified deck file to the export directory
     if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )
     {
@@ -412,6 +415,13 @@ std::expected<void, QString>
     };
     std::vector<double> coords = convertToDoubleVector( coordArray );
     std::vector<double> zcorn  = convertToDoubleVector( zcornArray );
+
+    auto keywords = deckFile.keywords( false );
+    if ( std::find( keywords.begin(), keywords.end(), "ACTNUM" ) == keywords.end() )
+    {
+        Opm::DeckKeyword newKw( ( Opm::ParserKeywords::ACTNUM() ) );
+        deckFile.addKeyword( "GRID", newKw );
+    }
 
     if ( !deckFile.replaceKeywordData( "COORD", coords ) )
     {
@@ -1024,9 +1034,11 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::filterAndUpdate
                                               "COMPSEGS",
                                               "WCONHIST",
                                               "WCONINJH",
+                                              "WCONINJE",
                                               "WCONPROD",
                                               "WELSEGS",
                                               "WELSPECS",
+                                              "WELOPEN",
                                               "WELTARG",
                                               "WPAVEDEP",
                                               "WRFTPLT",
