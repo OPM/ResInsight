@@ -965,6 +965,24 @@ bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string key
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::addKeyword( const std::string& section, const Opm::DeckKeyword& keyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Add keyword to specified section if it doesn't exist
+    auto insertPos = internal::findSectionInsertionPoint( m_fileDeck, section );
+    if ( !insertPos.has_value() )
+    {
+        return false; // Section not found
+    }
+
+    m_fileDeck->insert( insertPos.value(), keyword );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::replaceKeyword( const std::string& section, const Opm::DeckKeyword& keyword )
 {
     if ( m_fileDeck.get() == nullptr ) return false;

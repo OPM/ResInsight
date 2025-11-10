@@ -204,6 +204,10 @@ int generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
             result[i] = static_cast<int>( existingValues[i] );
         }
     }
+    else
+    {
+        borderCellValue = 2;
+    }
 
     // Check if BORDNUM exists to modify border cells
     RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, RiaResultNames::bordnum() );
@@ -213,7 +217,7 @@ int generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
         auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
         if ( !bordNumValues.empty() )
         {
-            result.resize( bordNumValues.size(), 0 );
+            result.resize( bordNumValues.size(), 1 );
 
             for ( auto activeCellIdx : activeReservoirCellIdxs )
             {

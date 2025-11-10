@@ -86,7 +86,8 @@ private:
 
     static std::expected<void, QString> addOperNumRegionAndOperater( RimEclipseCase*                      eclipseCase,
                                                                      const RicExportEclipseSectorModelUi& exportSettings,
-                                                                     RifOpmFlowDeckFile&                  deckFile );
+                                                                     RifOpmFlowDeckFile&                  deckFile,
+                                                                     int                                  operNumRegion );
 
     static std::vector<RigSimWellData*> findIntersectingWells( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max );
 
