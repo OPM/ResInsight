@@ -367,7 +367,7 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
     deckFile.removeKeywords( "SPECGRID" );
 
     // Save the modified deck file to the export directory
-    if ( !deckFile.saveDeck( outputFolder.toStdString(), outputFile.toStdString() ) )
+    if ( !deckFile.saveDeckInline( outputFolder.toStdString(), outputFile.toStdString() ) )
     {
         return std::unexpected( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
     }

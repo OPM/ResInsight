@@ -318,6 +318,19 @@ bool RifOpmFlowDeckFile::saveDeck( std::string folder, std::string filename )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::saveDeckInline( std::string folder, std::string filename )
+{
+    if ( m_fileDeck.get() != nullptr )
+    {
+        m_fileDeck->dump( folder, filename, Opm::FileDeck::OutputMode::INLINE );
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///  Returns updated position due to new inserts if successful, < 0 if failure
 //--------------------------------------------------------------------------------------------------
 int RifOpmFlowDeckFile::mergeKeywordAtPosition( int position, const Opm::DeckKeyword& keyword )
