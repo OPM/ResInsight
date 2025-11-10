@@ -42,6 +42,7 @@
 #include "RimProject.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigBoundingBoxIjk.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCaseDataTools.h"
 #include "RigEclipseResultTools.h"
@@ -65,6 +66,7 @@
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
@@ -342,6 +344,11 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
             return result;
         }
 
+        if ( auto result = replaceEqualsKeywordIndices( &eclipseCase, exportSettings, deckFile ); !result )
+        {
+            return result;
+        }
+
         if ( auto result = addBorderBoundaryConditions( &eclipseCase, exportSettings, deckFile ); !result )
         {
             return result;
@@ -561,6 +568,72 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBounda
     else
     {
         RiaLogging::warning( "No border cells found - skipping BCCON/BCPROP keyword generation" );
+    }
+
+    return {};
+}
+
+std::expected<void, QString> RicExportEclipseSectorModelFeature::replaceEqualsKeywordIndices( RimEclipseCase* eclipseCase,
+                                                                                              const RicExportEclipseSectorModelUi& exportSettings,
+                                                                                              RifOpmFlowDeckFile& deckFile )
+{
+    auto keywords = deckFile.keywords( false );
+
+    for ( const auto& keyword : keywords )
+    {
+        // Handle EQUALS keyword specially - it has IJK coordinates that need transformation
+        if ( keyword == "EQUALS" )
+        {
+            auto equalsKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( keyword );
+            if ( !equalsKeywordsWithIndices.empty() )
+            {
+                RiaLogging::info( QString( "Processing %1 occurrence(s) of EQUALS keyword" ).arg( equalsKeywordsWithIndices.size() ) );
+
+                // Process in reverse order so indices remain valid after modifications
+                for ( auto it = equalsKeywordsWithIndices.rbegin(); it != equalsKeywordsWithIndices.rend(); ++it )
+                {
+                    const Opm::FileDeck::Index& index = it->first;
+                    const Opm::DeckKeyword&     kw    = it->second;
+
+                    // Create new keyword with transformed coordinates
+                    Opm::DeckKeyword transformedKeyword( kw.location(), kw.name() );
+
+                    try
+                    {
+                        for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
+                        {
+                            const auto& record = kw.getRecord( recordIdx );
+                            auto        result = processEqualsRecord( record, exportSettings );
+
+                            if ( result )
+                            {
+                                transformedKeyword.addRecord( std::move( result.value() ) );
+                            }
+                            else
+                            {
+                                RiaLogging::warning( QString( "Failed to process EQUALS record: %1" ).arg( result.error() ) );
+                            }
+                        }
+
+                        // Replace with transformed keyword
+                        if ( transformedKeyword.size() > 0 )
+                        {
+                            RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
+                            deckFile.replaceKeywordAtIndex( index, transformedKeyword );
+                        }
+                        else
+                        {
+                            // If all records failed, remove the keyword
+                            deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
+                        }
+                    }
+                    catch ( std::exception& e )
+                    {
+                        return std::unexpected( QString( "Exception processing EQUALS keyword: %1" ).arg( e.what() ) );
+                    }
+                }
+            }
+        }
     }
 
     return {};
@@ -983,6 +1056,106 @@ std::expected<Opm::DeckRecord, QString>
     {
         items.push_back( record.getItem( i ) );
     }
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<Opm::DeckRecord, QString>
+    RicExportEclipseSectorModelFeature::processEqualsRecord( const Opm::DeckRecord& record, const RicExportEclipseSectorModelUi& exportSettings )
+{
+    // EQUALS format: FIELD VALUE I1 I2 J1 J2 K1 K2
+    // Items: 0=FIELD, 1=VALUE, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
+    if ( record.size() < 8 )
+    {
+        return std::unexpected( QString( "EQUALS record has insufficient items (expected at least 8, got %1)" ).arg( record.size() ) );
+    }
+
+    std::vector<Opm::DeckItem> items;
+
+    // Copy field name and value (first two items)
+    items.push_back( record.getItem( 0 ) );
+    items.push_back( record.getItem( 1 ) );
+
+    // Transform IJK box coordinates (items 2-7: I1, I2, J1, J2, K1, K2)
+    // Note: EQUALS uses 1-based Eclipse coordinates
+    int origI1 = record.getItem( 2 ).get<int>( 0 ) - 1; // Convert to 0-based
+    int origI2 = record.getItem( 3 ).get<int>( 0 ) - 1;
+    int origJ1 = record.getItem( 4 ).get<int>( 0 ) - 1;
+    int origJ2 = record.getItem( 5 ).get<int>( 0 ) - 1;
+    int origK1 = record.getItem( 6 ).get<int>( 0 ) - 1;
+    int origK2 = record.getItem( 7 ).get<int>( 0 ) - 1;
+
+    // Create bounding boxes
+    RigBoundingBoxIjk equalsBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
+    RigBoundingBoxIjk sectorBox( exportSettings.min(), exportSettings.max() - cvf::Vec3st( 1, 1, 1 ) );
+
+    // Check if boxes overlap and get intersection
+    auto intersection = equalsBox.intersection( sectorBox );
+    if ( !intersection )
+    {
+        // No overlap with sector - skip this record
+        QString fieldName = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
+        RiaLogging::info( QString( "EQUALS record for field '%1' [%2-%3, %4-%5, %6-%7] does not overlap with sector - skipping" )
+                              .arg( fieldName )
+                              .arg( origI1 + 1 )
+                              .arg( origI2 + 1 )
+                              .arg( origJ1 + 1 )
+                              .arg( origJ2 + 1 )
+                              .arg( origK1 + 1 )
+                              .arg( origK2 + 1 ) );
+        return std::unexpected( "EQUALS record does not overlap with sector" );
+    }
+
+    // Get the clamped coordinates from the intersection
+    cvf::Vec3st corner1 = intersection->min();
+    cvf::Vec3st corner2 = intersection->max();
+
+    // Log if clamping occurred (partial overlap)
+    if ( origI1 != static_cast<int>( corner1.x() ) || origI2 != static_cast<int>( corner2.x() ) || origJ1 != static_cast<int>( corner1.y() ) ||
+         origJ2 != static_cast<int>( corner2.y() ) || origK1 != static_cast<int>( corner1.z() ) || origK2 != static_cast<int>( corner2.z() ) )
+    {
+        QString fieldName = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
+        RiaLogging::info(
+            QString( "EQUALS record for field '%1' partially overlaps sector, clamped from [%2-%3, %4-%5, %6-%7] to [%8-%9, %10-%11, "
+                     "%12-%13]" )
+                .arg( fieldName )
+                .arg( origI1 + 1 )
+                .arg( origI2 + 1 )
+                .arg( origJ1 + 1 )
+                .arg( origJ2 + 1 )
+                .arg( origK1 + 1 )
+                .arg( origK2 + 1 )
+                .arg( corner1.x() + 1 )
+                .arg( corner2.x() + 1 )
+                .arg( corner1.y() + 1 )
+                .arg( corner2.y() + 1 )
+                .arg( corner1.z() + 1 )
+                .arg( corner2.z() + 1 ) );
+    }
+
+    auto transformResult1 = transformIjkToSectorCoordinates( corner1, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+    auto transformResult2 = transformIjkToSectorCoordinates( corner2, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+
+    if ( !transformResult1 )
+    {
+        return std::unexpected( QString( "EQUALS I1,J1,K1 coordinate is out of sector bounds: %1" ).arg( transformResult1.error() ) );
+    }
+
+    if ( !transformResult2 )
+    {
+        return std::unexpected( QString( "EQUALS I2,J2,K2 coordinate is out of sector bounds: %1" ).arg( transformResult2.error() ) );
+    }
+
+    using E = Opm::ParserKeywords::EQUALS;
+    items.push_back( RifOpmDeckTools::item( E::I1::itemName, static_cast<int>( transformResult1->x() ) ) );
+    items.push_back( RifOpmDeckTools::item( E::I2::itemName, static_cast<int>( transformResult2->x() ) ) );
+    items.push_back( RifOpmDeckTools::item( E::J1::itemName, static_cast<int>( transformResult1->y() ) ) );
+    items.push_back( RifOpmDeckTools::item( E::J2::itemName, static_cast<int>( transformResult2->y() ) ) );
+    items.push_back( RifOpmDeckTools::item( E::K1::itemName, static_cast<int>( transformResult1->z() ) ) );
+    items.push_back( RifOpmDeckTools::item( E::K2::itemName, static_cast<int>( transformResult2->z() ) ) );
 
     return Opm::DeckRecord{ std::move( items ) };
 }

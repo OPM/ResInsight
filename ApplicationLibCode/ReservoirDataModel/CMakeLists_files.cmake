@@ -7,6 +7,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigTypeSafeIndex.h
     ${CMAKE_CURRENT_LIST_DIR}/RigAllanDiagramData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigBasicPlane.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigBoundingBoxIjk.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultsData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.h
@@ -93,6 +94,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellLocalGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigAllanDiagramData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigBoundingBoxIjk.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigBasicPlane.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultsData.cpp

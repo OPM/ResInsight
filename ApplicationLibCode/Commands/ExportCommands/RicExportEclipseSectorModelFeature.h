@@ -89,6 +89,10 @@ private:
                                                                      RifOpmFlowDeckFile&                  deckFile,
                                                                      int                                  operNumRegion );
 
+    static std::expected<void, QString> replaceEqualsKeywordIndices( RimEclipseCase*                      eclipseCase,
+                                                                     const RicExportEclipseSectorModelUi& exportSettings,
+                                                                     RifOpmFlowDeckFile&                  deckFile );
+
     static std::vector<RigSimWellData*> findIntersectingWells( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max );
 
     static std::expected<cvf::Vec3st, QString> transformIjkToSectorCoordinates( const cvf::Vec3st& originalIjk,
@@ -108,4 +112,7 @@ private:
                                                                           const std::string&                   wellName,
                                                                           bool                                 isWellNameRecord,
                                                                           const RicExportEclipseSectorModelUi& exportSettings );
+
+    static std::expected<Opm::DeckRecord, QString> processEqualsRecord( const Opm::DeckRecord&               record,
+                                                                        const RicExportEclipseSectorModelUi& exportSettings );
 };
