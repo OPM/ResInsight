@@ -60,12 +60,12 @@
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
-#include "opm/common/OpmLog/KeywordLocation.hpp"
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 #include "opm/input/eclipse/Utility/Typetools.hpp"
@@ -328,9 +328,9 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::exportSimulatio
             else if ( exportSettings.m_boundaryCondition() == RicExportEclipseSectorModelUi::BoundaryCondition::OPERNUM_OPERATER )
             {
                 // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
-                RigEclipseResultTools::generateOperNumResult( &eclipseCase );
+                int operNumRegion = RigEclipseResultTools::generateOperNumResult( &eclipseCase );
 
-                if ( auto result = addOperNumRegionAndOperater( &eclipseCase, exportSettings, deckFile ); !result )
+                if ( auto result = addOperNumRegionAndOperater( &eclipseCase, exportSettings, deckFile, operNumRegion ); !result )
                 {
                     return result;
                 }
@@ -1180,12 +1180,11 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::filterAndUpdate
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RicExportEclipseSectorModelFeature::addOperNumRegionAndOperater( RimEclipseCase* eclipseCase,
                                                                                               const RicExportEclipseSectorModelUi& exportSettings,
-                                                                                              RifOpmFlowDeckFile& deckFile )
+                                                                                              RifOpmFlowDeckFile& deckFile,
+                                                                                              int                 operNumRegion )
 {
     // Update REGDIMS and add OPERATER keyword for OPERNUM regions
     // Get the OPERNUM region number that was assigned to border cells
-    int maxOperNum    = RigEclipseResultTools::findMaxOperNumValue( eclipseCase );
-    int operNumRegion = maxOperNum + 1; // Border cells use this region number
 
     RiaLogging::info( QString( "Using OPERNUM region %1 for border cells" ).arg( operNumRegion ) );
 
@@ -1227,12 +1226,35 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addOperNumRegio
     auto opernumKeyword = deckFile.findKeyword( "OPERNUM" );
     if ( !opernumKeyword.has_value() )
     {
-        // Add INCLUDE for OPERNUM.GRDECL in REGIONS section
-        if ( !deckFile.addIncludeKeyword( "REGIONS", "OPERNUM", "OPERNUM.GRDECL" ) )
+        auto keywords = deckFile.keywords( false );
+        if ( std::find( keywords.begin(), keywords.end(), "OPERNUM" ) == keywords.end() )
         {
-            return std::unexpected( "Failed to add INCLUDE for OPERNUM in REGIONS section" );
+            Opm::DeckKeyword newKw( ( Opm::ParserKeywords::OPERNUM() ) );
+            deckFile.addKeyword( "GRID", newKw );
         }
-        RiaLogging::info( "Added INCLUDE 'OPERNUM.GRDECL' to REGIONS section" );
+
+        // Try to extract keyword data
+        auto result = RifEclipseInputFileTools::extractKeywordData( eclipseCase->eclipseCaseData(),
+                                                                    "OPERNUM",
+                                                                    exportSettings.min(),
+                                                                    exportSettings.max(),
+                                                                    exportSettings.refinement() );
+        if ( result )
+        {
+            // Replace keyword values in deck with extracted data
+            if ( deckFile.replaceKeywordData( "OPERNUM", result.value() ) )
+            {
+                RiaLogging::info( "Added replaced opernum value in exising position." );
+            }
+            else
+            {
+                return std::unexpected( "Unable to replace OPERNUM values" );
+            }
+        }
+        else
+        {
+            return std::unexpected( "No OPERNUM result found." );
+        }
     }
     else
     {

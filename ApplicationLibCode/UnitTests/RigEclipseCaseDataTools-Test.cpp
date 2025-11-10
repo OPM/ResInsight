@@ -572,20 +572,20 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
         if ( bordnumValue == RigEclipseResultTools::BorderType::BORDER_CELL )
         {
             borderCellsTotal++;
-            ASSERT_EQ( opernumValue, 1 ) << "Border cells (BORDNUM=1) should have OPERNUM=1 at index " << i;
+            ASSERT_EQ( opernumValue, 2 ) << "Border cells (BORDNUM=1) should have OPERNUM=2 at index " << i;
             borderCellsWithOperValue++;
         }
         else
         {
-            ASSERT_EQ( opernumValue, 0 ) << "Non-border cells should have OPERNUM=0 at index " << i;
+            ASSERT_EQ( opernumValue, 1 ) << "Non-border cells should have OPERNUM=1 at index " << i;
             defaultOperCells++;
         }
     }
 
     // Verify we have the expected distribution
     ASSERT_GT( borderCellsTotal, 0 ) << "Should have border cells (BORDNUM=1)";
-    ASSERT_EQ( borderCellsWithOperValue, borderCellsTotal ) << "All border cells should get OPERNUM=1";
-    ASSERT_GT( defaultOperCells, 0 ) << "Should have non-border cells with OPERNUM=0";
+    ASSERT_EQ( borderCellsWithOperValue, borderCellsTotal ) << "All border cells should get OPERNUM=2";
+    ASSERT_GT( defaultOperCells, 0 ) << "Should have non-border cells with OPERNUM=1";
 
     // Test case 2: Test automatic max value detection with existing OPERNUM
     // First create a custom OPERNUM result with some predefined values
