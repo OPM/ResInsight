@@ -642,6 +642,9 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                 {
                     for ( auto& gridName : m_gridNames )
                     {
+                        // Do not try to read data that is not present in the file
+                        if ( !m_restartFile->hasArray( resultName, stepNumber ) ) continue;
+
                         if ( gridName == "global" ) // main grid, need to use separate method due to inner workings in opm_common
                         {
                             if ( kwType == EclIO::eclArrType::DOUB )
