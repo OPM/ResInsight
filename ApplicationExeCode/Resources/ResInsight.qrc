@@ -310,6 +310,11 @@
         <file>draw_style_faults_24x24.svg</file>
         <file>draw_style_WellCellsToRangeFilter_24x24.svg</file>
         <file>Fullscreen.svg</file>
+        <file>EastView.png</file>
+        <file>NorthView.png</file>
+        <file>SouthView.png</file>
+        <file>WestView.png</file>
+        <file>themes/custom.qss</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
