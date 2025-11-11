@@ -74,7 +74,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
 void RicLinkVisibleViewsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Link Visible Views" );
-    actionToSetup->setIcon( QIcon( ":/svg/LinkView.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/LinkView.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

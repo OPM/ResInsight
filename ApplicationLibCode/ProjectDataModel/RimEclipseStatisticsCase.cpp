@@ -589,7 +589,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
                                                        iconProvider ) );
         }
         {
-            caf::IconProvider iconProvider( ":/svg/Calculator.svg" );
+            caf::IconProvider iconProvider( ":/Calculator.svg" );
             options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<DataSourceType>::uiText( DataSourceType::GRID_CALCULATION ),
                                                        DataSourceType::GRID_CALCULATION,
                                                        false,

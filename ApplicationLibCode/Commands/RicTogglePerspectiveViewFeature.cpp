@@ -74,5 +74,5 @@ void RicTogglePerspectiveViewFeature::setupActionLook( QAction* actionToSetup )
     }
 
     actionToSetup->setText( "Perspective View" );
-    actionToSetup->setIcon( QIcon( ":/svg/Perspective.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Perspective.svg" ) );
 }

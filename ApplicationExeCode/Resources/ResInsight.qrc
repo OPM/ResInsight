@@ -305,42 +305,16 @@
         <file>stop.svg</file>
         <file>gear.svg</file>
         <file>Parameter.svg</file>
-        <file>svg/Calculator.svg</file>
-        <file>svg/Case.svg</file>
-        <file>svg/DownView.svg</file>
-        <file>svg/draw_style_faults_24x24.svg</file>
-        <file>svg/draw_style_faults_label_24x24.svg</file>
-        <file>svg/draw_style_surface_w_fault_mesh_24x24.svg</file>
-        <file>svg/draw_style_WellCellsToRangeFilter_24x24.svg</file>
-        <file>svg/DrawLightingEnabled.svg</file>
-        <file>svg/DrawStyleLines.svg</file>
-        <file>svg/DrawStyleMeshLines.svg</file>
-        <file>svg/DrawStyleSurface.svg</file>
-        <file>svg/EastView.svg</file>
-        <file>svg/Fullscreen.svg</file>
-        <file>svg/LinkView.svg</file>
-        <file>svg/NorthView.svg</file>
-        <file>svg/OpenFolder.svg</file>
-        <file>svg/Perspective.svg</file>
-        <file>svg/Play.svg</file>
-        <file>svg/PlotWindow.svg</file>
-        <file>svg/RepeatFromStart.svg</file>
-        <file>svg/Ruler.svg</file>
-        <file>svg/RulerPoly.svg</file>
-        <file>svg/Save.svg</file>
-        <file>svg/SkipToEnd.svg</file>
-        <file>svg/SkipToStart.svg</file>
-        <file>svg/SouthView.svg</file>
-        <file>svg/Speed.svg</file>
-        <file>svg/StepBwd.svg</file>
-        <file>svg/StepFwd.svg</file>
-        <file>svg/TileWindows.svg</file>
-        <file>svg/UpView.svg</file>
-        <file>svg/user-defined-view.svg</file>
-        <file>svg/WestView.svg</file>
-        <file>svg/ZoomAll.svg</file>
-        <file>svg/Pause.svg</file>
-        <file>svg/DrawLightingDisabled.svg</file>
+        <file>draw_style_surface_w_fault_mesh_24x24.svg</file>
+        <file>draw_style_faults_label_24x24.svg</file>
+        <file>draw_style_faults_24x24.svg</file>
+        <file>draw_style_WellCellsToRangeFilter_24x24.svg</file>
+        <file>Fullscreen.svg</file>
+        <file>EastView.png</file>
+        <file>NorthView.png</file>
+        <file>SouthView.png</file>
+        <file>WestView.png</file>
+        <file>themes/custom.qss</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
