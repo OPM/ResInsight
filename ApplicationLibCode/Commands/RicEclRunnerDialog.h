@@ -12,6 +12,8 @@
 #include <QMap>
 #include <QVector>
 #include <QMutex>
+#include <QLabel>
+#include <QTimer>
 
 class QListWidget;
 class QPushButton;
@@ -41,6 +43,9 @@ private slots:
     void slotProcessError(QProcess::ProcessError error);
     void slotTableCellDoubleClicked(int row, int column);
     void slotStopSelected();
+
+    // flush buffered logs to the QTextEdit periodically
+    void flushLogs();
 
 signals:
     void fileOpenRequested(const QString& filePath);
@@ -76,6 +81,10 @@ private:
     QVector<QString> m_taskStatus;
     QVector<QStringList> m_taskOutputs;
     QVector<QString> m_taskLogs;
+
+    // Track how many characters of each task's log have already been shown
+    QVector<int> m_logShownLen;
+    QTimer* m_logFlushTimer;
 
     // Multi-process management
     static const int MAX_CONCURRENT_TASKS = 8;
