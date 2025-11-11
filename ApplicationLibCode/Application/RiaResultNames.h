@@ -84,6 +84,7 @@ QString faultDistanceName();
 QString facies();
 
 QString porv();
+QString rockv();
 QString soil();
 QString sgas();
 QString swat();
