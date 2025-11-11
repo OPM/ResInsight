@@ -1101,7 +1101,7 @@ std::vector<std::vector<int>> RifReaderOpmCommon::readActiveCellInfoFromPorv( Ri
 
     std::vector<std::vector<int>> activeCellsAllGrids;
 
-    bool hasThermalData = m_initFile->hasArray( "ROCKV" );
+    bool hasThermalData = m_initFile->hasArray( RiaResultNames::rockv().toStdString() );
 
     bool divideCellCountByTwo = isDualPorosity;
 
