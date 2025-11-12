@@ -605,7 +605,8 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::replaceEqualsKe
                         for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
                         {
                             const auto& record = kw.getRecord( recordIdx );
-                            auto        result = processEqualsRecord( record, exportSettings );
+                            auto        result =
+                                processEqualsRecord( record, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
 
                             if ( result )
                             {
@@ -1040,8 +1041,10 @@ std::expected<Opm::DeckRecord, QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString>
-    RicExportEclipseSectorModelFeature::processEqualsRecord( const Opm::DeckRecord& record, const RicExportEclipseSectorModelUi& exportSettings )
+std::expected<Opm::DeckRecord, QString> RicExportEclipseSectorModelFeature::processEqualsRecord( const Opm::DeckRecord& record,
+                                                                                                 const cvf::Vec3st&     min,
+                                                                                                 const cvf::Vec3st&     max,
+                                                                                                 const cvf::Vec3st&     refinement )
 {
     // EQUALS format: FIELD VALUE I1 I2 J1 J2 K1 K2
     // Items: 0=FIELD, 1=VALUE, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
@@ -1065,9 +1068,9 @@ std::expected<Opm::DeckRecord, QString>
     int origK1 = record.getItem( 6 ).get<int>( 0 ) - 1;
     int origK2 = record.getItem( 7 ).get<int>( 0 ) - 1;
 
-    // Create bounding boxes
+    // Create bounding boxes (both use inclusive min/max coordinates)
     RigBoundingBoxIjk equalsBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
-    RigBoundingBoxIjk sectorBox( exportSettings.min(), exportSettings.max() - cvf::Vec3st( 1, 1, 1 ) );
+    RigBoundingBoxIjk sectorBox( min, max );
 
     // Check if boxes overlap and get intersection
     auto intersection = equalsBox.intersection( sectorBox );
@@ -1113,10 +1116,8 @@ std::expected<Opm::DeckRecord, QString>
                 .arg( corner2.z() + 1 ) );
     }
 
-    auto transformResult1 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( corner1, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
-    auto transformResult2 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( corner2, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+    auto transformResult1 = RigGridExportAdapter::transformIjkToSectorCoordinates( corner1, min, max, refinement );
+    auto transformResult2 = RigGridExportAdapter::transformIjkToSectorCoordinates( corner2, min, max, refinement );
 
     if ( !transformResult1 )
     {

@@ -50,6 +50,9 @@ public:
 
     static std::pair<cvf::Vec3st, cvf::Vec3st> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
 
+    static std::expected<Opm::DeckRecord, QString>
+        processEqualsRecord( const Opm::DeckRecord& record, const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refinement );
+
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
@@ -107,7 +110,4 @@ private:
                                                                           const std::string&                   wellName,
                                                                           bool                                 isWellNameRecord,
                                                                           const RicExportEclipseSectorModelUi& exportSettings );
-
-    static std::expected<Opm::DeckRecord, QString> processEqualsRecord( const Opm::DeckRecord&               record,
-                                                                        const RicExportEclipseSectorModelUi& exportSettings );
 };
