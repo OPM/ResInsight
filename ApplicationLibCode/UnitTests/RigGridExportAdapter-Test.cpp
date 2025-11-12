@@ -663,3 +663,158 @@ TEST( RigGridExportAdapterTest, RefinedCellsContainOriginalCorners )
         EXPECT_TRUE( cornerFound[i] ) << "Original corner " << i << " was not found in any refined cell";
     }
 }
+//--------------------------------------------------------------------------------------------------
+/// Test coordinate transformation without refinement (refinement = 1,1,1)
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapter, TransformIjkToSectorCoordinates_NoRefinement )
+{
+    cvf::Vec3st min( 3, 3, 1 );
+    cvf::Vec3st max( 10, 10, 5 );
+    cvf::Vec3st refinement( 1, 1, 1 );
+
+    // Point at sector min should transform to (1,1,1)
+    auto result1 = RigGridExportAdapter::transformIjkToSectorCoordinates( min, min, max, refinement );
+    EXPECT_TRUE( result1.has_value() );
+    EXPECT_EQ( cvf::Vec3st( 1, 1, 1 ), result1.value() );
+
+    // Point at sector max should transform correctly
+    auto result2 = RigGridExportAdapter::transformIjkToSectorCoordinates( max, min, max, refinement );
+    EXPECT_TRUE( result2.has_value() );
+    EXPECT_EQ( cvf::Vec3st( 8, 8, 5 ), result2.value() ); // (10-3)*1+1 = 8
+
+    // Point in middle of sector
+    cvf::Vec3st middle( 5, 5, 3 );
+    auto        result3 = RigGridExportAdapter::transformIjkToSectorCoordinates( middle, min, max, refinement );
+    EXPECT_TRUE( result3.has_value() );
+    EXPECT_EQ( cvf::Vec3st( 3, 3, 3 ), result3.value() ); // (5-3)*1+1 = 3
+
+    // Test different point
+    cvf::Vec3st point( 7, 6, 2 );
+    auto        result4 = RigGridExportAdapter::transformIjkToSectorCoordinates( point, min, max, refinement );
+    EXPECT_TRUE( result4.has_value() );
+    EXPECT_EQ( cvf::Vec3st( 5, 4, 2 ), result4.value() ); // (7-3)*1+1=5, (6-3)*1+1=4, (2-1)*1+1=2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test coordinate transformation with out-of-bounds detection
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapter, TransformIjkToSectorCoordinates_OutOfBounds )
+{
+    cvf::Vec3st min( 3, 3, 1 );
+    cvf::Vec3st max( 10, 10, 5 );
+    cvf::Vec3st refinement( 1, 1, 1 );
+
+    // Point before sector min (X too small)
+    cvf::Vec3st point1( 2, 5, 3 );
+    auto        result1 = RigGridExportAdapter::transformIjkToSectorCoordinates( point1, min, max, refinement );
+    EXPECT_FALSE( result1.has_value() );
+    EXPECT_TRUE( result1.error().contains( "outside sector bounds" ) );
+
+    // Point after sector max (X too large)
+    cvf::Vec3st point2( 11, 5, 3 );
+    auto        result2 = RigGridExportAdapter::transformIjkToSectorCoordinates( point2, min, max, refinement );
+    EXPECT_FALSE( result2.has_value() );
+
+    // Point after sector max (Y too large)
+    cvf::Vec3st point3( 5, 11, 3 );
+    auto        result3 = RigGridExportAdapter::transformIjkToSectorCoordinates( point3, min, max, refinement );
+    EXPECT_FALSE( result3.has_value() );
+
+    // Point after sector max (Z too large)
+    cvf::Vec3st point4( 5, 5, 6 );
+    auto        result4 = RigGridExportAdapter::transformIjkToSectorCoordinates( point4, min, max, refinement );
+    EXPECT_FALSE( result4.has_value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test box transformation with refinement = (1,1,1)
+/// For refinement = 1, box start and end should transform identically
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapter, BoxTransformation_NoRefinement )
+{
+    cvf::Vec3st sectorMin( 3, 3, 1 );
+    cvf::Vec3st sectorMax( 10, 10, 5 );
+    cvf::Vec3st refinement( 1, 1, 1 );
+
+    // Test box from (5,5,2) to (7,7,3) in global coordinates
+    // Expected in sector coordinates: (3,3,2) to (5,5,3)
+    cvf::Vec3st boxStart( 5, 5, 2 );
+    cvf::Vec3st boxEnd( 7, 7, 3 );
+
+    auto startResult = RigGridExportAdapter::transformIjkToSectorCoordinates( boxStart, sectorMin, sectorMax, refinement );
+    auto endResult   = RigGridExportAdapter::transformIjkToSectorCoordinates( boxEnd, sectorMin, sectorMax, refinement );
+
+    EXPECT_TRUE( startResult.has_value() );
+    EXPECT_TRUE( endResult.has_value() );
+
+    // Start: (5-3)*1+1 = 3 for each dimension
+    EXPECT_EQ( cvf::Vec3st( 3, 3, 2 ), startResult.value() );
+
+    // End: (7-3)*1+1 = 5 for each dimension
+    EXPECT_EQ( cvf::Vec3st( 5, 5, 3 ), endResult.value() );
+
+    // Verify box contains expected number of cells
+    // In X: 5-3+1 = 3 cells (sector cells 3,4,5)
+    // In Y: 5-3+1 = 3 cells
+    // In Z: 3-2+1 = 2 cells
+    size_t cellsX = endResult->x() - startResult->x() + 1;
+    size_t cellsY = endResult->y() - startResult->y() + 1;
+    size_t cellsZ = endResult->z() - startResult->z() + 1;
+
+    EXPECT_EQ( 3u, cellsX );
+    EXPECT_EQ( 3u, cellsY );
+    EXPECT_EQ( 2u, cellsZ );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test single-cell box transformation with refinement = (1,1,1)
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapter, SingleCellBox_NoRefinement )
+{
+    cvf::Vec3st sectorMin( 3, 3, 1 );
+    cvf::Vec3st sectorMax( 10, 10, 5 );
+    cvf::Vec3st refinement( 1, 1, 1 );
+
+    // Single cell box at global position (5,5,2)
+    cvf::Vec3st singleCell( 5, 5, 2 );
+
+    auto result = RigGridExportAdapter::transformIjkToSectorCoordinates( singleCell, sectorMin, sectorMax, refinement );
+
+    EXPECT_TRUE( result.has_value() );
+    EXPECT_EQ( cvf::Vec3st( 3, 3, 2 ), result.value() );
+
+    // For a single-cell box, start and end are the same
+    auto startResult = RigGridExportAdapter::transformIjkToSectorCoordinates( singleCell, sectorMin, sectorMax, refinement );
+    auto endResult   = RigGridExportAdapter::transformIjkToSectorCoordinates( singleCell, sectorMin, sectorMax, refinement );
+
+    EXPECT_EQ( startResult.value(), endResult.value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test box at sector boundaries
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridExportAdapter, BoxAtSectorBoundaries_NoRefinement )
+{
+    cvf::Vec3st sectorMin( 3, 3, 1 );
+    cvf::Vec3st sectorMax( 10, 10, 5 );
+    cvf::Vec3st refinement( 1, 1, 1 );
+
+    // Box spanning entire sector
+    auto minResult = RigGridExportAdapter::transformIjkToSectorCoordinates( sectorMin, sectorMin, sectorMax, refinement );
+    auto maxResult = RigGridExportAdapter::transformIjkToSectorCoordinates( sectorMax, sectorMin, sectorMax, refinement );
+
+    EXPECT_TRUE( minResult.has_value() );
+    EXPECT_TRUE( maxResult.has_value() );
+
+    EXPECT_EQ( cvf::Vec3st( 1, 1, 1 ), minResult.value() );
+    EXPECT_EQ( cvf::Vec3st( 8, 8, 5 ), maxResult.value() ); // (10-3)*1+1 = 8
+
+    // Verify sector dimensions
+    size_t sectorSizeX = sectorMax.x() - sectorMin.x() + 1; // 10-3+1 = 8
+    size_t sectorSizeY = sectorMax.y() - sectorMin.y() + 1; // 10-3+1 = 8
+    size_t sectorSizeZ = sectorMax.z() - sectorMin.z() + 1; // 5-1+1 = 5
+
+    EXPECT_EQ( sectorSizeX, maxResult->x() );
+    EXPECT_EQ( sectorSizeY, maxResult->y() );
+    EXPECT_EQ( sectorSizeZ, maxResult->z() );
+}

@@ -24,10 +24,12 @@
 #include "cvfVector3.h"
 
 #include <array>
+#include <expected>
 
 class RigEclipseCaseData;
 class RigMainGrid;
 class RigActiveCellInfo;
+class QString;
 
 //==================================================================================================
 //
@@ -83,6 +85,12 @@ public:
     cvf::Vec3st originalMax() const;
     cvf::Vec3st refinement() const;
     bool        hasRefinement() const;
+
+    // Coordinate transformation utilities
+    static std::expected<cvf::Vec3st, QString> transformIjkToSectorCoordinates( const cvf::Vec3st& originalIjk,
+                                                                                const cvf::Vec3st& min,
+                                                                                const cvf::Vec3st& max,
+                                                                                const cvf::Vec3st& refinement );
 
 private:
     // Internal methods to handle original vs refined cell access
