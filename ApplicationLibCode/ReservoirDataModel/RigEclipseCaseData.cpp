@@ -401,7 +401,7 @@ class CellRangeBB
 public:
     CellRangeBB()
         : m_min( cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T )
-        , m_max( cvf::Vec3st::ZERO )
+        , m_max( 0, 0, 0 )
     {
     }
 
@@ -417,8 +417,8 @@ public:
     }
 
 public:
-    cvf::Vec3st m_min;
-    cvf::Vec3st m_max;
+    caf::VecIjk0 m_min;
+    caf::VecIjk0 m_max;
 };
 
 //--------------------------------------------------------------------------------------------------

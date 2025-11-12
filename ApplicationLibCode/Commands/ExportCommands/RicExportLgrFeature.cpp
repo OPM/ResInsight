@@ -142,7 +142,7 @@ public:
         , m_max( other.m_max )
     {
     }
-    IjkBoundingBox( const caf::VecIjk& minCell, const caf::VecIjk& maxCell )
+    IjkBoundingBox( const caf::VecIjk0& minCell, const caf::VecIjk0& maxCell )
     {
         m_min[I] = minCell.i();
         m_min[J] = minCell.j();
@@ -196,8 +196,8 @@ public:
         return true;
     }
 
-    caf::VecIjk min() const { return caf::VecIjk( m_min[I], m_min[J], m_min[K] ); }
-    caf::VecIjk max() const { return caf::VecIjk( m_max[I], m_max[J], m_max[K] ); }
+    caf::VecIjk0 min() const { return caf::VecIjk0( m_min[I], m_min[J], m_min[K] ); }
+    caf::VecIjk0 max() const { return caf::VecIjk0( m_max[I], m_max[J], m_max[K] ); }
 
 private:
     std::array<size_t, 3> m_min;
@@ -392,7 +392,7 @@ void RicExportLgrFeature::exportLgrsForWellPaths( const QString&                
                                                   std::vector<RimWellPath*>                          wellPaths,
                                                   RimEclipseCase*                                    eclipseCase,
                                                   size_t                                             timeStep,
-                                                  caf::VecIjk                                        refinement,
+                                                  const cvf::Vec3st&                                 refinement,
                                                   Lgr::SplitType                                     splitType,
                                                   const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                   QStringList*                                       wellsIntersectingOtherLgrs )
@@ -441,7 +441,7 @@ void RicExportLgrFeature::exportLgrs( const QString& exportFolder, const QString
 std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPaths( std::vector<RimWellPath*>                          wellPaths,
                                                                  RimEclipseCase*                                    eclipseCase,
                                                                  size_t                                             timeStep,
-                                                                 caf::VecIjk                                        refinement,
+                                                                 const cvf::Vec3st&                                 refinement,
                                                                  Lgr::SplitType                                     splitType,
                                                                  const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                                  QStringList* wellsIntersectingOtherLgrs )
@@ -518,7 +518,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell( int             
                                                                 RimEclipseCase*                               eclipseCase,
                                                                 RimWellPath*                                  wellPath,
                                                                 const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                                                const caf::VecIjk&                            refinement,
+                                                                const cvf::Vec3st&                            refinement,
                                                                 LgrNameFactory&                               lgrNameFactory )
 {
     std::vector<LgrInfo> lgrs;
@@ -538,7 +538,7 @@ std::vector<LgrInfo>
     RicExportLgrFeature::buildLgrsPerCompletion( int                                                                     firstLgrId,
                                                  RimEclipseCase*                                                         eclipseCase,
                                                  const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& completionInfo,
-                                                 const caf::VecIjk&                                                      refinement,
+                                                 const cvf::Vec3st&                                                      refinement,
                                                  LgrNameFactory&                                                         lgrNameFactory )
 {
     std::vector<LgrInfo> lgrs;
@@ -604,7 +604,7 @@ LgrInfo RicExportLgrFeature::buildLgr( int                                      
                                        const QString&                                lgrName,
                                        const QString&                                wellPathName,
                                        const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                       const caf::VecIjk&                            refinement )
+                                       const cvf::Vec3st&                            refinement )
 {
     IjkBoundingBox boundingBox;
     for ( const auto& cell : intersectingCells )
@@ -622,7 +622,7 @@ LgrInfo RicExportLgrFeature::buildLgr( int                   lgrId,
                                        const QString&        lgrName,
                                        const QString&        wellPathName,
                                        const IjkBoundingBox& boundingBox,
-                                       const caf::VecIjk&    refinement )
+                                       const cvf::Vec3st&    refinement )
 {
     return LgrInfo( lgrId, lgrName, wellPathName, refinement, boundingBox.min(), boundingBox.max() );
 }
@@ -823,7 +823,7 @@ std::vector<RimWellPath*> RicExportLgrFeature::selectedWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<caf::VecIjk, caf::VecIjk> mainGridCellBoundingBoxFromLgr( const RigGridBase* lgr )
+std::pair<caf::VecIjk0, caf::VecIjk0> mainGridCellBoundingBoxFromLgr( const RigGridBase* lgr )
 {
     auto mainGrid = lgr->mainGrid();
 
@@ -848,8 +848,8 @@ std::pair<caf::VecIjk, caf::VecIjk> mainGridCellBoundingBoxFromLgr( const RigGri
         kRange.second = std::max( k, kRange.second );
     }
 
-    caf::VecIjk mainGridStartCell( iRange.first, jRange.first, kRange.first );
-    caf::VecIjk mainGridEndCell( iRange.second, jRange.second, kRange.second );
+    caf::VecIjk0 mainGridStartCell( iRange.first, jRange.first, kRange.first );
+    caf::VecIjk0 mainGridEndCell( iRange.second, jRange.second, kRange.second );
     return std::make_pair( mainGridStartCell, mainGridEndCell );
 }
 
@@ -865,7 +865,7 @@ std::map<QString, std::vector<LgrInfo>> RicExportLgrFeature::createLgrInfoListFo
         const auto grid = mainGrid->gridByIndex( i );
         if ( !grid->isTempGrid() ) continue;
 
-        std::pair<caf::VecIjk, caf::VecIjk> mainGridBoundingBox = mainGridCellBoundingBoxFromLgr( grid );
+        std::pair<caf::VecIjk0, caf::VecIjk0> mainGridBoundingBox = mainGridCellBoundingBoxFromLgr( grid );
 
         size_t mainGridCellCountI = mainGridBoundingBox.second.i() - mainGridBoundingBox.first.i() + 1;
         size_t mainGridCellCountJ = mainGridBoundingBox.second.j() - mainGridBoundingBox.first.j() + 1;
@@ -875,7 +875,7 @@ std::map<QString, std::vector<LgrInfo>> RicExportLgrFeature::createLgrInfoListFo
         auto refinementJ = mainGridCellCountJ > 0 ? std::max( size_t( 1 ), grid->cellCountJ() / mainGridCellCountJ ) : 1;
         auto refinementK = mainGridCellCountK > 0 ? std::max( size_t( 1 ), grid->cellCountK() / mainGridCellCountK ) : 1;
 
-        caf::VecIjk refinement( refinementI, refinementJ, refinementK );
+        cvf::Vec3st refinement( refinementI, refinementJ, refinementK );
 
         QString wellName = QString::fromStdString( grid->associatedWellPathName() );
         auto&   item     = lgrInfosPerWell[wellName];

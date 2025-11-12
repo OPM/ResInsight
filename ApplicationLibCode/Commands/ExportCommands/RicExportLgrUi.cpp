@@ -104,9 +104,9 @@ void RicExportLgrUi::setTimeStep( int timeStep )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::VecIjk RicExportLgrUi::refinement() const
+cvf::Vec3st RicExportLgrUi::refinement() const
 {
-    return caf::VecIjk( m_refinementI, m_refinementJ, m_refinementK );
+    return cvf::Vec3st( m_refinementI, m_refinementJ, m_refinementK );
 }
 
 //--------------------------------------------------------------------------------------------------

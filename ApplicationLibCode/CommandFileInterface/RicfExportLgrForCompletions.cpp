@@ -97,7 +97,7 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    caf::VecIjk lgrCellCounts( m_refinementI, m_refinementJ, m_refinementK );
+    cvf::Vec3st lgrCellCounts( m_refinementI, m_refinementJ, m_refinementK );
     QStringList wellsIntersectingOtherLgrs;
 
     RicExportLgrFeature::exportLgrsForWellPaths( exportFolder,

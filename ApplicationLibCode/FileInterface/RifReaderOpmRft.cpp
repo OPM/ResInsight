@@ -357,7 +357,7 @@ std::set<QString> RifReaderOpmRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::VecIjk> RifReaderOpmRft::cellIndices( const QString& wellName, const QDateTime& timeStep )
+std::vector<caf::VecIjk0> RifReaderOpmRft::cellIndices( const QString& wellName, const QDateTime& timeStep )
 {
     if ( !openFiles() ) return {};
 
@@ -368,7 +368,7 @@ std::vector<caf::VecIjk> RifReaderOpmRft::cellIndices( const QString& wellName, 
     int  m    = date.month();
     int  d    = date.day();
 
-    std::vector<caf::VecIjk> indices;
+    std::vector<caf::VecIjk0> indices;
 
     try
     {
@@ -381,7 +381,8 @@ std::vector<caf::VecIjk> RifReaderOpmRft::cellIndices( const QString& wellName, 
             for ( size_t n = 0; n < dataI.size(); n++ )
             {
                 // NB: Transform to zero-based cell indices
-                indices.push_back( caf::VecIjk( dataI[n] - 1, dataJ[n] - 1, dataK[n] - 1 ) );
+                caf::VecIjk1 ijk( dataI[n], dataJ[n], dataK[n] );
+                indices.push_back( ijk.toZeroBased() );
             }
         }
     }

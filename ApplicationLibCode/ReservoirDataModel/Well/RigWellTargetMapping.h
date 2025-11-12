@@ -159,16 +159,16 @@ public:
     };
 
 private:
-    static std::optional<caf::VecIjk> findStartCell( RimEclipseCase*            eclipseCase,
-                                                     size_t                     timeStepIdx,
-                                                     const VolumeType           volumeType,
-                                                     const ClusteringLimits&    limits,
-                                                     const DataContainer&       data,
-                                                     const std::vector<double>& filterVector,
-                                                     const std::vector<int>&    clusters );
+    static std::optional<caf::VecIjk0> findStartCell( RimEclipseCase*            eclipseCase,
+                                                      size_t                     timeStepIdx,
+                                                      const VolumeType           volumeType,
+                                                      const ClusteringLimits&    limits,
+                                                      const DataContainer&       data,
+                                                      const std::vector<double>& filterVector,
+                                                      const std::vector<int>&    clusters );
 
     static void growCluster( RimEclipseCase*            eclipseCase,
-                             const caf::VecIjk&         startCell,
+                             const caf::VecIjk0&        startCell,
                              const VolumeType           volumeType,
                              const ClusteringLimits&    limits,
                              const DataContainer&       data,

@@ -67,7 +67,7 @@ std::vector<double>
     std::vector<double> tvdValuesToEstimate;
 
     auto cellIjk = cellIndices( wellName, timeStep );
-    for ( const caf::VecIjk& ijk : cellIjk )
+    for ( const caf::VecIjk0& ijk : cellIjk )
     {
         auto globalCellIndex = mainGrid->cellIndexFromIJK( ijk.i(), ijk.j(), ijk.k() );
 
@@ -145,7 +145,7 @@ std::vector<double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::VecIjk> RifReaderRftInterface::cellIndices( const QString& wellName, const QDateTime& timeStep )
+std::vector<caf::VecIjk0> RifReaderRftInterface::cellIndices( const QString& wellName, const QDateTime& timeStep )
 {
     return {};
 }

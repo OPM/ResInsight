@@ -245,7 +245,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::VecIjk> RifReaderEclipseRft::cellIndices( const QString& wellName, const QDateTime& timeStep )
+std::vector<caf::VecIjk0> RifReaderEclipseRft::cellIndices( const QString& wellName, const QDateTime& timeStep )
 {
     if ( !m_ecl_rft_file )
     {
@@ -255,7 +255,7 @@ std::vector<caf::VecIjk> RifReaderEclipseRft::cellIndices( const QString& wellNa
     int index = indexFromAddress( wellName, timeStep );
     if ( index < 0 ) return {};
 
-    std::vector<caf::VecIjk> indices;
+    std::vector<caf::VecIjk0> indices;
 
     ecl_rft_node_type* node = ecl_rft_file_iget_node( m_ecl_rft_file, index );
 
@@ -264,7 +264,7 @@ std::vector<caf::VecIjk> RifReaderEclipseRft::cellIndices( const QString& wellNa
         int i, j, k;
         ecl_rft_node_iget_ijk( node, cellIdx, &i, &j, &k );
 
-        caf::VecIjk ijk( (size_t)i, (size_t)j, (size_t)k );
+        caf::VecIjk0 ijk( (size_t)i, (size_t)j, (size_t)k );
         indices.push_back( ijk );
     }
 

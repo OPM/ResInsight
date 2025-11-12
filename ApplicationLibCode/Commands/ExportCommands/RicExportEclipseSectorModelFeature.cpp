@@ -735,6 +735,7 @@ std::vector<RigSimWellData*>
             for ( const auto& point : resultPoints )
             {
                 // Get IJK if available
+                // TODO: bug? min/max is zero-indexed?
                 auto ijkOpt = point.cellIjk();
                 if ( !ijkOpt.has_value() ) continue;
 

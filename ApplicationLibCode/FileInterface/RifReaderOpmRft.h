@@ -49,7 +49,7 @@ public:
     std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) override;
     std::set<QString>                                     wellNames() override;
 
-    std::vector<caf::VecIjk> cellIndices( const QString& wellName, const QDateTime& timeStep ) override;
+    std::vector<caf::VecIjk0> cellIndices( const QString& wellName, const QDateTime& timeStep ) override;
 
     std::map<int, int> branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep, RiaDefines::RftBranchType branchType );
 

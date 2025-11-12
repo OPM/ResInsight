@@ -110,7 +110,7 @@ caf::PdmScriptResponse RicfCreateLgrForCompletions::execute()
 
     RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs( eclipseCase );
 
-    caf::VecIjk lgrCellCounts( m_refinementI, m_refinementJ, m_refinementK );
+    cvf::Vec3st lgrCellCounts( m_refinementI, m_refinementJ, m_refinementK );
     QStringList wellsIntersectingOtherLgrs;
 
     feature->createLgrsForWellPaths( wellPaths,

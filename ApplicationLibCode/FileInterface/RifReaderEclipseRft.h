@@ -26,11 +26,6 @@
 
 #include <QDateTime>
 
-namespace caf
-{
-class VecIjk;
-}
-
 //==================================================================================================
 //
 //
@@ -43,7 +38,7 @@ public:
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
-    std::vector<caf::VecIjk>       cellIndices( const QString& wellName, const QDateTime& timeStep ) override;
+    std::vector<caf::VecIjk0>      cellIndices( const QString& wellName, const QDateTime& timeStep ) override;
 
     std::set<QDateTime> availableTimeSteps( const QString& wellName ) override;
     std::set<QDateTime> availableTimeSteps( const QString&                                               wellName,

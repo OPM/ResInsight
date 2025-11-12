@@ -247,10 +247,11 @@ RiuEclipseSelectionItem* RiuCellSelectionTool::createSelectionItemFromInput()
             return nullptr;
         }
 
-        if ( auto ijk = mainGrid->ijkFromCellIndex( cellIndex ) )
+        if ( auto ijk0 = mainGrid->ijkFromCellIndex( cellIndex ) )
         {
             // 1-based for user input
-            m_cellEdit->setText( QString( "%1 %2 %3" ).arg( ijk->i() + 1 ).arg( ijk->j() + 1 ).arg( ijk->k() + 1 ) );
+            auto ijk1 = ijk0->toOneBased();
+            m_cellEdit->setText( QString( "%1 %2 %3" ).arg( ijk1.i() ).arg( ijk1.j() ).arg( ijk1.k() ) );
         }
     }
     else

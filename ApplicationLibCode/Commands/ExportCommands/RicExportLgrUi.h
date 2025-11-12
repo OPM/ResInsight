@@ -22,11 +22,11 @@
 
 #include "RicLgrSplitType.h"
 
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
+
+#include "cvfVector3.h"
 
 #include <QStringList>
 
@@ -34,11 +34,6 @@
 
 class RimEclipseCase;
 class RicCellRangeUi;
-
-namespace caf
-{
-class VecIjk;
-}
 
 //==================================================================================================
 ///
@@ -53,7 +48,7 @@ public:
     void setCase( RimEclipseCase* rimCase );
     void setTimeStep( int timeStep );
 
-    caf::VecIjk                                 refinement() const;
+    cvf::Vec3st                                 refinement() const;
     QString                                     exportFolder() const;
     RimEclipseCase*                             caseToApply() const;
     int                                         timeStep() const;

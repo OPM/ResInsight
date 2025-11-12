@@ -59,7 +59,7 @@ CAF_CMD_SOURCE_INIT( RicCreateTemporaryLgrFeature, "RicCreateTemporaryLgrFeature
 void RicCreateTemporaryLgrFeature::createLgrsForWellPaths( std::vector<RimWellPath*>                          wellPaths,
                                                            RimEclipseCase*                                    eclipseCase,
                                                            size_t                                             timeStep,
-                                                           caf::VecIjk                                        refinement,
+                                                           const cvf::Vec3st&                                 refinement,
                                                            Lgr::SplitType                                     splitType,
                                                            const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                            QStringList*                                       wellsIntersectingOtherLgrs )
@@ -155,7 +155,7 @@ RigGridBase* RicCreateTemporaryLgrFeature::createLgrForGrid( const LgrInfo& lgrI
     localGrid->setGridId( lgrId );
     localGrid->setIndexToStartOfCells( totalCellCount );
     localGrid->setGridName( lgrInfo.name.toStdString() );
-    localGrid->setCellCounts( cvf::Vec3st( lgrInfo.lgrCellCounts().i(), lgrInfo.lgrCellCounts().j(), lgrInfo.lgrCellCounts().k() ) );
+    localGrid->setCellCounts( lgrInfo.lgrCellCounts() );
     mainGrid->addLocalGrid( localGrid );
 
     size_t cellStartIndex = mainGrid->totalCellCount();

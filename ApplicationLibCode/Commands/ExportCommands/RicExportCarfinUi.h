@@ -23,13 +23,10 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfVector3.h"
+
 class RimEclipseCase;
 class RicCellRangeUi;
-
-namespace caf
-{
-class VecIjk;
-}
 
 //==================================================================================================
 ///
@@ -44,7 +41,7 @@ public:
     void setCase( RimEclipseCase* rimCase );
 
     int                   maxWellCount() const;
-    caf::VecIjk           lgrCellCount() const;
+    cvf::Vec3st           lgrCellCount() const;
     const RicCellRangeUi* cellRange() const;
     QString               exportFileName() const;
     RimEclipseCase*       caseToApply() const;

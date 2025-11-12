@@ -249,12 +249,12 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<caf::VecIjk> RigGridBase::ijkFromCellIndex( size_t cellIndex ) const
+std::optional<caf::VecIjk0> RigGridBase::ijkFromCellIndex( size_t cellIndex ) const
 {
     size_t i, j, k;
     if ( ijkFromCellIndex( cellIndex, &i, &j, &k ) )
     {
-        return caf::VecIjk( i, j, k );
+        return caf::VecIjk0( i, j, k );
     }
 
     return std::nullopt;

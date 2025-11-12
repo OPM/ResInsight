@@ -38,9 +38,9 @@ public:
 
     void setCase( RimCase* rimCase );
 
-    caf::VecIjk start() const;
-    caf::VecIjk count() const;
-    QString     gridName() const;
+    caf::VecIjk1 start() const;
+    cvf::Vec3st  count() const;
+    QString      gridName() const;
 
 private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;

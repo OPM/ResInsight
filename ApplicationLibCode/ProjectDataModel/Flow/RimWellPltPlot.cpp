@@ -304,7 +304,7 @@ public:
         RifEclipseRftAddress watRateAddress =
             RifEclipseRftAddress::createAddress( wellNameForRft, m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::WRAT );
 
-        std::vector<caf::VecIjk> rftIndices = eclCase->rftReader()->cellIndices( wellNameForRft, m_timeStep );
+        std::vector<caf::VecIjk0> rftIndices = eclCase->rftReader()->cellIndices( wellNameForRft, m_timeStep );
         if ( rftIndices.empty() ) return;
 
         std::vector<double> gasRates;
@@ -320,8 +320,8 @@ public:
 
         for ( size_t rftCellIdx = 0; rftCellIdx < rftIndices.size(); rftCellIdx++ )
         {
-            caf::VecIjk ijkIndex                       = rftIndices[rftCellIdx];
-            size_t      globalCellIndex                = mainGrid->cellIndexFromIJK( ijkIndex.i(), ijkIndex.j(), ijkIndex.k() );
+            caf::VecIjk0 ijkIndex                      = rftIndices[rftCellIdx];
+            size_t       globalCellIndex               = mainGrid->cellIndexFromIJK( ijkIndex.i(), ijkIndex.j(), ijkIndex.k() );
             globCellIdxToIdxInRftFile[globalCellIndex] = rftCellIdx;
         }
 

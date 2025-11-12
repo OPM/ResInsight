@@ -412,9 +412,9 @@ bool RifOpmRadialGridTools::createAngularGridRefinement( RigEclipseCaseData* cas
     const int nRadial = 1;
     const int nK      = 1;
 
-    const caf::VecIjk mainGridStart( 0, 0, 0 );
-    const caf::VecIjk mainGridEnd( riMainGrid->cellCountI() - 1, riMainGrid->cellCountJ() - 1, riMainGrid->cellCountK() - 1 );
-    const caf::VecIjk refinement( nRadial, angularRefinement, nK );
+    const caf::VecIjk0 mainGridStart( 0, 0, 0 );
+    const caf::VecIjk0 mainGridEnd( riMainGrid->cellCountI() - 1, riMainGrid->cellCountJ() - 1, riMainGrid->cellCountK() - 1 );
+    const cvf::Vec3st  refinement( nRadial, angularRefinement, nK );
 
     LgrInfo lgrInfo{ id, "Radial LGR", "", refinement, mainGridStart, mainGridEnd };
 

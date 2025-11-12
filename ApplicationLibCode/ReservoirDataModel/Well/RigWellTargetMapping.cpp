@@ -167,7 +167,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     int              numClustersFound = 0;
     for ( int clusterId = 1; clusterId <= numClusters; clusterId++ )
     {
-        std::optional<caf::VecIjk> startCell = findStartCell( eclipseCase, timeStepIdx, volumeType, limits, data, filterVector, clusters );
+        std::optional<caf::VecIjk0> startCell = findStartCell( eclipseCase, timeStepIdx, volumeType, limits, data, filterVector, clusters );
 
         if ( startCell.has_value() )
         {
@@ -296,13 +296,13 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<caf::VecIjk> RigWellTargetMapping::findStartCell( RimEclipseCase*            eclipseCase,
-                                                                size_t                     timeStepIdx,
-                                                                const VolumeType           volumeType,
-                                                                const ClusteringLimits&    limits,
-                                                                const DataContainer&       data,
-                                                                const std::vector<double>& filterVector,
-                                                                const std::vector<int>&    clusters )
+std::optional<caf::VecIjk0> RigWellTargetMapping::findStartCell( RimEclipseCase*            eclipseCase,
+                                                                 size_t                     timeStepIdx,
+                                                                 const VolumeType           volumeType,
+                                                                 const ClusteringLimits&    limits,
+                                                                 const DataContainer&       data,
+                                                                 const std::vector<double>& filterVector,
+                                                                 const std::vector<int>&    clusters )
 {
     auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !resultsData )
@@ -346,7 +346,7 @@ std::optional<caf::VecIjk> RigWellTargetMapping::findStartCell( RimEclipseCase* 
 ///
 //--------------------------------------------------------------------------------------------------
 void RigWellTargetMapping::growCluster( RimEclipseCase*            eclipseCase,
-                                        const caf::VecIjk&         startCell,
+                                        const caf::VecIjk0&        startCell,
                                         const VolumeType           volumeType,
                                         const ClusteringLimits&    limits,
                                         const DataContainer&       data,

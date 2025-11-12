@@ -22,9 +22,9 @@
 
 #include "RigTypeSafeIndex.h"
 
+#include "cafVecIjk.h"
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
-#include "cvfVector3.h"
 
 #include <vector>
 
@@ -47,8 +47,8 @@ public:
     size_t gridActiveCellCounts( size_t gridIndex ) const;
     void   computeDerivedData();
 
-    void                                setIjkBoundingBox( const cvf::Vec3st& min, const cvf::Vec3st& max );
-    std::pair<cvf::Vec3st, cvf::Vec3st> ijkBoundingBox() const;
+    void                                  setIjkBoundingBox( const caf::VecIjk0& min, const caf::VecIjk0& max );
+    std::pair<caf::VecIjk0, caf::VecIjk0> ijkBoundingBox() const;
 
     cvf::BoundingBox geometryBoundingBox() const;
     void             setGeometryBoundingBox( cvf::BoundingBox bb );
@@ -78,8 +78,8 @@ private:
 
     size_t m_reservoirActiveCellCount;
 
-    cvf::Vec3st m_activeCellPositionMin;
-    cvf::Vec3st m_activeCellPositionMax;
+    caf::VecIjk0 m_activeCellPositionMin;
+    caf::VecIjk0 m_activeCellPositionMax;
 
     cvf::BoundingBox m_activeCellsBoundingBox;
 };

@@ -73,8 +73,8 @@ struct RigWellResultPoint
 
     cvf::Vec3d bottomPosition() const;
 
-    std::optional<caf::VecIjk> cellIjk() const;
-    void                       setIjk( caf::VecIjk cellIJK );
+    std::optional<caf::VecIjk1> cellIjk() const;
+    void                        setIjk( caf::VecIjk1 cellIJK );
 
 private:
     size_t m_gridIndex;
@@ -96,5 +96,5 @@ private:
     double m_connectionFactor;
     bool   m_isConnectedToValve;
 
-    std::optional<caf::VecIjk> m_cellIjk;
+    std::optional<caf::VecIjk1> m_cellIjk;
 };

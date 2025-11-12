@@ -28,7 +28,7 @@
 
 namespace caf
 {
-class VecIjk;
+class VecIjk0;
 };
 
 class RigEclipseWellLogExtractor;
@@ -54,5 +54,5 @@ public:
     std::vector<double> computeMeasuredDepth( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor );
 
     // TODO: Move to protected or private
-    virtual std::vector<caf::VecIjk> cellIndices( const QString& wellName, const QDateTime& timeStep );
+    virtual std::vector<caf::VecIjk0> cellIndices( const QString& wellName, const QDateTime& timeStep );
 };
