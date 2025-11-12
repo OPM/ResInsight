@@ -50,10 +50,8 @@ public:
 
     static std::pair<cvf::Vec3st, cvf::Vec3st> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
 
-    static std::expected<Opm::DeckRecord, QString> processEqualsRecord( const Opm::DeckRecord& record,
-                                                                        const cvf::Vec3st&     min,
-                                                                        const cvf::Vec3st&     max,
-                                                                        const cvf::Vec3st&     refinement );
+    static std::expected<Opm::DeckRecord, QString>
+        processEqualsRecord( const Opm::DeckRecord& record, const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refinement );
 
 protected:
     bool isCommandEnabled() const override;
