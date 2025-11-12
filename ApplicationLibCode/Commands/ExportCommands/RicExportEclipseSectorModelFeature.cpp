@@ -516,8 +516,10 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBounda
         // Transform border cell face coordinates to sector-relative coordinates
         for ( auto& face : borderCellFaces )
         {
-            auto transformResult =
-                transformIjkToSectorCoordinates( face.ijk, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+            auto transformResult = RigGridExportAdapter::transformIjkToSectorCoordinates( face.ijk,
+                                                                                          exportSettings.min(),
+                                                                                          exportSettings.max(),
+                                                                                          exportSettings.refinement() );
 
             if ( !transformResult )
             {
@@ -530,8 +532,8 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBounda
             }
 
             // Update the IJK coordinates to sector-relative (1-based Eclipse coordinates)
-            // Note: transformIjkToSectorCoordinates returns 1-based coordinates, but we need to convert back to 0-based
-            // for the BorderCellFace struct
+            // Note: RigGridExportAdapter::transformIjkToSectorCoordinates returns 1-based coordinates, but we need to convert back to
+            // 0-based for the BorderCellFace struct
             face.ijk = cvf::Vec3st( transformResult->x() - 1, transformResult->y() - 1, transformResult->z() - 1 );
         }
 
@@ -848,36 +850,6 @@ std::vector<RigSimWellData*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<cvf::Vec3st, QString> RicExportEclipseSectorModelFeature::transformIjkToSectorCoordinates( const cvf::Vec3st& originalIjk,
-                                                                                                         const cvf::Vec3st& min,
-                                                                                                         const cvf::Vec3st& max,
-                                                                                                         const cvf::Vec3st& refinement )
-{
-    // Check if original IJK is within the sector bounds
-    if ( originalIjk.x() < min.x() || originalIjk.x() > max.x() || originalIjk.y() < min.y() || originalIjk.y() > max.y() ||
-         originalIjk.z() < min.z() || originalIjk.z() > max.z() )
-    {
-        return std::unexpected( QString( "IJK coordinates (%1, %2, %3) are outside sector bounds [(%4, %5, %6), (%7, %8, %9)]" )
-                                    .arg( originalIjk.x() )
-                                    .arg( originalIjk.y() )
-                                    .arg( originalIjk.z() )
-                                    .arg( min.x() )
-                                    .arg( min.y() )
-                                    .arg( min.z() )
-                                    .arg( max.x() )
-                                    .arg( max.y() )
-                                    .arg( max.z() ) );
-    }
-
-    // Transform to sector-relative coordinates with refinement
-    // Eclipse uses 1-based indexing, so we'll return 1-based coordinates
-    cvf::Vec3st sectorIjk;
-    sectorIjk.x() = ( originalIjk.x() - min.x() ) * refinement.x() + 1;
-    sectorIjk.y() = ( originalIjk.y() - min.y() ) * refinement.y() + 1;
-    sectorIjk.z() = ( originalIjk.z() - min.z() ) * refinement.z() + 1;
-
-    return sectorIjk;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -970,13 +942,17 @@ std::expected<Opm::DeckRecord, QString>
 
     // Transform K1
     cvf::Vec3st origIjkK1( origI, origJ, origK1 );
-    auto        transformResultK1 =
-        transformIjkToSectorCoordinates( origIjkK1, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+    auto        transformResultK1 = RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1,
+                                                                                    exportSettings.min(),
+                                                                                    exportSettings.max(),
+                                                                                    exportSettings.refinement() );
 
     // Transform K2
     cvf::Vec3st origIjkK2( origI, origJ, origK2 );
-    auto        transformResultK2 =
-        transformIjkToSectorCoordinates( origIjkK2, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+    auto        transformResultK2 = RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2,
+                                                                                    exportSettings.min(),
+                                                                                    exportSettings.max(),
+                                                                                    exportSettings.refinement() );
 
     if ( !transformResultK1 )
     {
@@ -1038,7 +1014,8 @@ std::expected<Opm::DeckRecord, QString>
     int origK = record.getItem( 2 ).get<int>( 0 ) - 1;
 
     cvf::Vec3st origIjk( origI, origJ, origK );
-    auto transformResult = transformIjkToSectorCoordinates( origIjk, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+    auto        transformResult =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
 
     if ( !transformResult )
     {
@@ -1136,8 +1113,10 @@ std::expected<Opm::DeckRecord, QString>
                 .arg( corner2.z() + 1 ) );
     }
 
-    auto transformResult1 = transformIjkToSectorCoordinates( corner1, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
-    auto transformResult2 = transformIjkToSectorCoordinates( corner2, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+    auto transformResult1 =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( corner1, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
+    auto transformResult2 =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( corner2, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
 
     if ( !transformResult1 )
     {

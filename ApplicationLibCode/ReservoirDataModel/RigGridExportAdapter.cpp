@@ -29,6 +29,8 @@
 #include "cvfAssert.h"
 #include "cvfStructGrid.h"
 
+#include <QString>
+
 //--------------------------------------------------------------------------------------------------
 /// Generate refined cell corners using trilinear interpolation within the original cell
 /// This ensures refined cells are strictly contained within the original cell bounds
@@ -414,4 +416,39 @@ size_t RigGridExportAdapter::cellCountK() const
 size_t RigGridExportAdapter::totalCells() const
 {
     return m_refinedNI * m_refinedNJ * m_refinedNK;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Transform IJK coordinates from global grid space to sector-relative space with refinement
+/// Returns 1-based Eclipse coordinates
+//--------------------------------------------------------------------------------------------------
+std::expected<cvf::Vec3st, QString> RigGridExportAdapter::transformIjkToSectorCoordinates( const cvf::Vec3st& originalIjk,
+                                                                                           const cvf::Vec3st& min,
+                                                                                           const cvf::Vec3st& max,
+                                                                                           const cvf::Vec3st& refinement )
+{
+    // Check if original IJK is within the sector bounds
+    if ( originalIjk.x() < min.x() || originalIjk.x() > max.x() || originalIjk.y() < min.y() || originalIjk.y() > max.y() ||
+         originalIjk.z() < min.z() || originalIjk.z() > max.z() )
+    {
+        return std::unexpected( QString( "IJK coordinates (%1, %2, %3) are outside sector bounds [(%4, %5, %6), (%7, %8, %9)]" )
+                                    .arg( originalIjk.x() )
+                                    .arg( originalIjk.y() )
+                                    .arg( originalIjk.z() )
+                                    .arg( min.x() )
+                                    .arg( min.y() )
+                                    .arg( min.z() )
+                                    .arg( max.x() )
+                                    .arg( max.y() )
+                                    .arg( max.z() ) );
+    }
+
+    // Transform to sector-relative coordinates with refinement
+    // Eclipse uses 1-based indexing, so we'll return 1-based coordinates
+    cvf::Vec3st sectorIjk;
+    sectorIjk.x() = ( originalIjk.x() - min.x() ) * refinement.x() + 1;
+    sectorIjk.y() = ( originalIjk.y() - min.y() ) * refinement.y() + 1;
+    sectorIjk.z() = ( originalIjk.z() - min.z() ) * refinement.z() + 1;
+
+    return sectorIjk;
 }

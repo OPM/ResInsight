@@ -95,11 +95,6 @@ private:
 
     static std::vector<RigSimWellData*> findIntersectingWells( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max );
 
-    static std::expected<cvf::Vec3st, QString> transformIjkToSectorCoordinates( const cvf::Vec3st& originalIjk,
-                                                                                const cvf::Vec3st& min,
-                                                                                const cvf::Vec3st& max,
-                                                                                const cvf::Vec3st& refinement );
-
     static std::expected<Opm::DeckRecord, QString> processWelspecsRecord( const Opm::DeckRecord&               record,
                                                                           const std::string&                   wellName,
                                                                           const RicExportEclipseSectorModelUi& exportSettings );
