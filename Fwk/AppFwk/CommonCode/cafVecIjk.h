@@ -36,28 +36,37 @@
 
 #pragma once
 
-#include <array>
+#include "cvfVector3.h"
+
 #include <cstddef>
 #include <string>
 
 namespace caf
 {
-class VecIjk
+class VecIjk0;
+class VecIjk1;
+
+class VecIjk : public cvf::Vec3st
 {
 public:
-    VecIjk( size_t i, size_t j, size_t k );
-
-    VecIjk toOneBased() const;
-    VecIjk toZeroBased() const;
-
-    size_t i() const;
-    size_t j() const;
-    size_t k() const;
-
     std::string toString() const;
 
-private:
-    std::array<size_t, 3> m_values;
+protected:
+    VecIjk( size_t i, size_t j, size_t k );
+};
+
+class VecIjk0 : public VecIjk
+{
+public:
+    VecIjk0( size_t i, size_t j, size_t k );
+    VecIjk1 toOneBased() const;
+};
+
+class VecIjk1 : public VecIjk
+{
+public:
+    VecIjk1( size_t i, size_t j, size_t k );
+    VecIjk0 toZeroBased() const;
 };
 
 } // namespace caf
