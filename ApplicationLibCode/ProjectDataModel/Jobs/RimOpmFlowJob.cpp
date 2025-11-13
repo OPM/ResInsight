@@ -375,7 +375,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     advGrp->add( &m_currentRunId );
     auto resetRunIdButton = advGrp->addNewButton( "Reset Ensemble Run Id", [this]() { resetEnsembleRunId(); } );
     resetRunIdButton->setAlignment( Qt::AlignRight );
-    
+
     uiOrdering.skipRemainingFields();
 }
 

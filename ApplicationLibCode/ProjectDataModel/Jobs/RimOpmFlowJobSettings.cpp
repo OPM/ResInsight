@@ -60,7 +60,6 @@ RimOpmFlowJobSettings::RimOpmFlowJobSettings()
                        "List of Eclipse keywords which should be ignored." );
     m_ignoreKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-
     CAF_PDM_InitField( &m_newtonMaxIterations,
                        "newtonMaxIterations",
                        std::make_pair( false, 20 ),
@@ -170,9 +169,9 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJobSettings::calculateValueOptions( cons
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_parsingStrictness)
+    if ( fieldNeedingOptions == &m_parsingStrictness )
     {
-        for ( QString name : { "Low", "Normal", "High" })
+        for ( QString name : { "Low", "Normal", "High" } )
         {
             options.push_back( caf::PdmOptionItemInfo( name, QVariant::fromValue( name.toLower() ) ) );
         }

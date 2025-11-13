@@ -133,8 +133,8 @@ private:
     caf::PdmField<int>                          m_numberOfNewDates;
     caf::PdmField<caf::AppEnum<DateAppendType>> m_dateAppendType;
 
-    caf::PdmChildField<RimKeywordWconprod*> m_wconprodKeyword;
-    caf::PdmChildField<RimKeywordWconinje*> m_wconinjeKeyword;
+    caf::PdmChildField<RimKeywordWconprod*>    m_wconprodKeyword;
+    caf::PdmChildField<RimKeywordWconinje*>    m_wconinjeKeyword;
     caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
 
     caf::PdmField<QString> m_wellOpenKeyword;
