@@ -95,14 +95,12 @@ void formatWsegvalvRows( RifTextDataTableFormatter& formatter, const std::vector
 //--------------------------------------------------------------------------------------------------
 void formatWsegaicdRows( RifTextDataTableFormatter& formatter, const std::vector<WsegaicdRow>& rows )
 {
-    constexpr auto defaultValue = std::numeric_limits<double>::infinity();
-
     for ( const auto& row : rows )
     {
         formatter.addStdString( row.well );
         formatter.add( row.segment1 );
         formatter.add( row.segment2 );
-        formatter.addValueOrDefaultMarker( row.strength, defaultValue );
+        formatter.add( row.strength );
         formatter.addOptionalValue( row.length );
         formatter.addOptionalValue( row.densityCali );
         formatter.addOptionalValue( row.viscosityCali );
@@ -119,9 +117,9 @@ void formatWsegaicdRows( RifTextDataTableFormatter& formatter, const std::vector
             formatter.add( formatter.defaultMarker() );
         }
 
-        formatter.addValueOrDefaultMarker( row.maxAbsRate, defaultValue );
-        formatter.addValueOrDefaultMarker( row.flowRateExponent, defaultValue );
-        formatter.addValueOrDefaultMarker( row.viscExponent, defaultValue );
+        formatter.add( row.maxAbsRate );
+        formatter.add( row.flowRateExponent );
+        formatter.add( row.viscExponent );
 
         if ( row.status.has_value() )
         {
