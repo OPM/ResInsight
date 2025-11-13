@@ -305,6 +305,7 @@
         <file>user-defined-view.svg</file>
 		<file>stop.svg</file>
 		<file>gear.svg</file>
+		<file>warning.png</file>
 		<file>Parameter.svg</file>
     </qresource>
     <qresource prefix="/Shader">

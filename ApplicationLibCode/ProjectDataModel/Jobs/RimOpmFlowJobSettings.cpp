@@ -60,7 +60,6 @@ RimOpmFlowJobSettings::RimOpmFlowJobSettings()
                        "List of Eclipse keywords which should be ignored." );
     m_ignoreKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-
     CAF_PDM_InitField( &m_newtonMaxIterations,
                        "newtonMaxIterations",
                        std::make_pair( false, 20 ),
@@ -136,15 +135,23 @@ RimOpmFlowJobSettings::~RimOpmFlowJobSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJobSettings::uiOrdering( caf::PdmUiGroup* uiGroup )
+RimOpmFlowJobSettings* RimOpmFlowJobSettings::clone()
+{
+    return copyObject<RimOpmFlowJobSettings>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJobSettings::uiOrdering( caf::PdmUiGroup* uiGroup, bool expandByDefault )
 {
     caf::PdmUiGroup* generalGroup = uiGroup->addNewGroup( "Process Control" );
-    generalGroup->setCollapsedByDefault();
+    if ( !expandByDefault ) generalGroup->setCollapsedByDefault();
     generalGroup->add( &m_mpiProcesses );
     generalGroup->add( &m_threadsPerProcess );
 
     caf::PdmUiGroup* optionsGroup = uiGroup->addNewGroup( "Simulator Options" );
-    optionsGroup->setCollapsedByDefault();
+    if ( !expandByDefault ) optionsGroup->setCollapsedByDefault();
     optionsGroup->add( &m_enableEsmry );
     optionsGroup->add( &m_enableTerminalOutput );
     optionsGroup->add( &m_enableTuning );
@@ -170,12 +177,87 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJobSettings::calculateValueOptions( cons
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_parsingStrictness)
+    if ( fieldNeedingOptions == &m_parsingStrictness )
     {
-        for ( QString name : { "Low", "Normal", "High" })
+        for ( QString name : { "Low", "Normal", "High" } )
         {
             options.push_back( caf::PdmOptionItemInfo( name, QVariant::fromValue( name.toLower() ) ) );
         }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimOpmFlowJobSettings::mpiProcesses() const
+{
+    return m_mpiProcesses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimOpmFlowJobSettings::commandLineOptions() const
+{
+    QStringList options;
+
+    options << QString( "--threads-per-process=%1" ).arg( m_threadsPerProcess );
+
+    QString trueOrFalse = m_enableEsmry ? "true" : "false";
+    options << "--enable-esmry=" + trueOrFalse;
+
+    trueOrFalse = m_enableTerminalOutput ? "true" : "false";
+    options << "--enable-terminal-output=" + trueOrFalse;
+
+    trueOrFalse = m_enableTuning ? "true" : "false";
+    options << "--enable-tuning=" + trueOrFalse;
+
+    if ( !m_ignoreKeywords().empty() )
+    {
+        QStringList kws;
+        for ( const QString& kw : m_ignoreKeywords() )
+        {
+            kws << kw;
+        }
+        options << QString( "--ignore-keywords=%1" ).arg( kws.join( ":" ) );
+    }
+
+    options << QString( "--parsing-strictness=%1" ).arg( m_parsingStrictness() );
+
+    if ( m_newtonMaxIterations().first )
+    {
+        options << QString( "--newton-max-iterations=%1" ).arg( m_newtonMaxIterations().second );
+    }
+    if ( m_relaxedMaxPvFraction().first )
+    {
+        options << QString( "--relaxed-max-pv-fraction=%1" ).arg( m_relaxedMaxPvFraction().second );
+    }
+    if ( m_solverMaxTimeStepInDays().first )
+    {
+        options << QString( "--solver-max-time-step=%1d" ).arg( m_solverMaxTimeStepInDays().second );
+    }
+    if ( m_solverMinTimeStepInDays().first )
+    {
+        options << QString( "--solver-min-time-step=%1d" ).arg( m_solverMinTimeStepInDays().second );
+    }
+    if ( m_minStrictCnvIter().first )
+    {
+        options << QString( "--min-strict-cnv-iter=%1" ).arg( m_minStrictCnvIter().second );
+    }
+    if ( m_minStrictMbIter().first )
+    {
+        options << QString( "--min-strict-mb-iter=%1" ).arg( m_minStrictMbIter().second );
+    }
+    if ( m_minTimeStepBasedOnNewtonIterations().first )
+    {
+        options << QString( "--min-time-step-based-on-newton-iterations=%1d" ).arg( m_minTimeStepBasedOnNewtonIterations().second );
+    }
+    if ( m_minTimeStepBeforeShuttingProblematicWellsInDays().first )
+    {
+        options
+            << QString( "--min-time-step-before-shutting-problematic-wells=%1d" ).arg( m_minTimeStepBeforeShuttingProblematicWellsInDays().second );
     }
 
     return options;

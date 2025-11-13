@@ -142,7 +142,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     m_wconinjeKeyword.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_jobSettings, "JobSettings", "Opm Flow Settings" );
-    m_jobSettings = new RimOpmFlowJobSettings();
+    m_jobSettings = RiaPreferencesOpm::current()->createDefaultJobSettings();
     m_jobSettings.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, " " );
@@ -183,8 +183,9 @@ void RimOpmFlowJob::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::decodeProgress( const QString& logLine )
+void RimOpmFlowJob::processLogOutput( const QString& logLine )
 {
+    // progress output parsing
     // Example log lines:
     // Report step 757/773 at day 9466/10958, date = 01-Dec-2025
     // Report step 758/773 at day 9497/10958, date = 01-Jan-2026
@@ -219,6 +220,18 @@ void RimOpmFlowJob::decodeProgress( const QString& logLine )
                 }
             }
         }
+    }
+    else if ( logLine.startsWith( "Warning" ) )
+    {
+        m_warningsDetected++;
+    }
+    else if ( logLine.startsWith( "Problem" ) )
+    {
+        m_warningsDetected++;
+    }
+    else if ( logLine.startsWith( "Error" ) )
+    {
+        m_errorsDetected++;
     }
 }
 
@@ -368,14 +381,14 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
     opmGrp->add( &m_pauseBeforeRun );
 
-    m_jobSettings->uiOrdering( opmGrp );
+    m_jobSettings->uiOrdering( opmGrp, false /* expand by default */ );
 
     auto advGrp = uiOrdering.addNewGroup( "Advanced" );
     advGrp->setCollapsedByDefault();
     advGrp->add( &m_currentRunId );
     auto resetRunIdButton = advGrp->addNewButton( "Reset Ensemble Run Id", [this]() { resetEnsembleRunId(); } );
     resetRunIdButton->setAlignment( Qt::AlignRight );
-    
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -692,13 +705,14 @@ QStringList RimOpmFlowJob::command()
     {
         cmd.append( opmPref->mpirunCommand() );
         cmd.append( QString( "-np" ) );
-        cmd.append( QString( "%1" ).arg( opmPref->mpiProcesses() ) );
+        cmd.append( QString( "%1" ).arg( m_jobSettings->mpiProcesses() ) );
     }
 
     cmd.append( opmPref->opmFlowCommand() );
     cmd.append( QString( "--output-dir=%1" ).arg( workDir ) );
     cmd.append( QString( "--ecl-deck-file-name=%1" ).arg( dataFile ) );
-    cmd.append( QString( "--enable-esmry=true" ) );
+
+    cmd.append( m_jobSettings->commandLineOptions() );
 
     return cmd;
 }

@@ -22,6 +22,9 @@
 #include "RiaPreferences.h"
 #include "RiaWslTools.h"
 
+#include "Jobs/RimOpmFlowJobSettings.h"
+
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 
@@ -32,20 +35,25 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesOpm, "RiaPreferencesOpm" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesOpm::RiaPreferencesOpm()
 {
-    CAF_PDM_InitFieldNoDefault( &m_opmFlowCommand, "opmFlowCommand", "Opm Flow Command to run" );
+    CAF_PDM_InitFieldNoDefault( &m_opmFlowCommand, "opmFlowCommand", "Path to OPM Flow executable" );
     m_opmFlowCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_opmFlowCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run Opm Flow" );
-    CAF_PDM_InitField( &m_useMpi, "useMpi", false, "Use MPI to run Opm Flow" );
-    CAF_PDM_InitField( &m_mpiProcesses, "mpiProcesses", 4, "Number of MPI processes to use" );
+    CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run OPM Flow" );
+    CAF_PDM_InitField( &m_useMpi, "useMpi", false, "Enable MPI" );
 
-    CAF_PDM_InitField( &m_mpirunCommand, "mpirunCommand", QString( "/usr/bin/mpirun" ), "Path to mpirun command" );
+    CAF_PDM_InitField( &m_mpirunCommand, "mpirunCommand", QString( "/usr/bin/mpirun" ), "Path to mpirun executable" );
     m_mpirunCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_mpirunCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_wslDistribution, "wslDistribution", "WSL Distribution to use:" );
     m_wslDistribution.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_jobSettings, "JobSettings", "OPM Flow Job Settings" );
+    m_jobSettings = new RimOpmFlowJobSettings();
+    m_jobSettings.uiCapability()->setUiTreeChildrenHidden( true );
+
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useWsl );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useMpi );
+
     m_availableWslDists = RiaWslTools::wslDistributionList();
     if ( !m_availableWslDists.isEmpty() ) m_wslDistribution = m_availableWslDists.at( 0 );
 }
@@ -63,7 +71,7 @@ RiaPreferencesOpm* RiaPreferencesOpm::current()
 //--------------------------------------------------------------------------------------------------
 void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* opmGrp = uiOrdering.addNewGroup( "Opm Flow Settings" );
+    caf::PdmUiGroup* opmGrp = uiOrdering.addNewGroup( "General Settings" );
     opmGrp->add( &m_opmFlowCommand );
     auto wslCmd = RiaWslTools::wslCommand();
     if ( !wslCmd.isEmpty() )
@@ -78,9 +86,11 @@ void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
     opmGrp->add( &m_useMpi );
     if ( m_useMpi() )
     {
-        opmGrp->add( &m_mpiProcesses );
         opmGrp->add( &m_mpirunCommand );
     }
+
+    auto cmdGrp = uiOrdering.addNewGroup( "Default Command Line Settings" );
+    m_jobSettings->uiOrdering( cmdGrp );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,7 +169,7 @@ bool RiaPreferencesOpm::useMpi() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaPreferencesOpm::mpiProcesses() const
+RimOpmFlowJobSettings* RiaPreferencesOpm::createDefaultJobSettings() const
 {
-    return std::max( 1, m_mpiProcesses() );
+    return m_jobSettings->clone();
 }

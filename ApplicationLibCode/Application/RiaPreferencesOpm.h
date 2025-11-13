@@ -21,6 +21,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+class RimOpmFlowJobSettings;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -41,19 +43,21 @@ public:
     QStringList wslOptions() const;
     bool        useWsl() const;
     bool        useMpi() const;
-    int         mpiProcesses() const;
     QString     mpirunCommand() const;
+
+    RimOpmFlowJobSettings* createDefaultJobSettings() const;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    caf::PdmField<QString> m_opmFlowCommand;
-    caf::PdmField<bool>    m_useWsl;
-    caf::PdmField<QString> m_wslDistribution;
-    caf::PdmField<bool>    m_useMpi;
-    caf::PdmField<int>     m_mpiProcesses;
-    caf::PdmField<QString> m_mpirunCommand;
+    caf::PdmField<QString>                     m_opmFlowCommand;
+    caf::PdmField<bool>                        m_useWsl;
+    caf::PdmField<QString>                     m_wslDistribution;
+    caf::PdmField<bool>                        m_useMpi;
+    caf::PdmField<int>                         m_mpiProcesses;
+    caf::PdmField<QString>                     m_mpirunCommand;
+    caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
 
     QStringList m_availableWslDists;
 };

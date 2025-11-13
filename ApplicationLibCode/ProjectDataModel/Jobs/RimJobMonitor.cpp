@@ -50,7 +50,7 @@ void RimJobMonitor::readyReadStandardOutput()
             line         = line.trimmed();
             if ( line.size() == 0 ) continue;
 
-            m_job->decodeProgress( line );
+            m_job->processLogOutput( line );
             m_stdOut.append( line );
         }
     }

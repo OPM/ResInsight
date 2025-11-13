@@ -172,6 +172,7 @@ private:
     static QString tabNameScripting();
     static QString tabNameSystem();
     static QString tabNameImportExport();
+    static QString tabNameOpmFlow();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 

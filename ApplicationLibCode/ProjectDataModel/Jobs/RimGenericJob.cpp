@@ -42,6 +42,8 @@ RimGenericJob::RimGenericJob()
     , m_lastRunFailed( false )
     , m_isRunning( false )
     , m_process( nullptr )
+    , m_errorsDetected( 0 )
+    , m_warningsDetected( 0 )
 {
     CAF_PDM_InitObject( "Generic Job" );
 }
@@ -115,8 +117,10 @@ bool RimGenericJob::execute()
 {
     if ( isRunning() ) return false;
 
-    m_process        = nullptr;
-    m_percentageDone = 0.0;
+    m_errorsDetected   = 0;
+    m_warningsDetected = 0;
+    m_process          = nullptr;
+    m_percentageDone   = 0.0;
 
     // job preparations
     {
@@ -195,13 +199,17 @@ bool RimGenericJob::setFinished( bool runOk )
 //--------------------------------------------------------------------------------------------------
 void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
+    static auto warnColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) );
+    static auto contrastWarnColor =
+        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) ) );
+
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
         if ( m_lastRunFailed )
         {
-            auto tag = caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::red ),
-                                                                   RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
-                                                                   "!!!" );
+            auto txt = m_errorsDetected > 0 ? QString( "[%1]" ).arg( m_errorsDetected ) : "!!!";
+            auto tag =
+                caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
         else
@@ -227,6 +235,16 @@ void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
             tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
             tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
             treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+        if ( m_warningsDetected > 0 )
+        {
+            auto warnTxt = QString( "[%1]" ).arg( m_warningsDetected );
+
+            auto warnTag = caf::PdmUiTreeViewItemAttribute::createTag( warnColor, contrastWarnColor, warnTxt );
+            treeItemAttribute->tags.push_back( std::move( warnTag ) );
+            auto iconTag  = caf::PdmUiTreeViewItemAttribute::createTag();
+            iconTag->icon = caf::IconProvider( ":/warning.png" );
+            treeItemAttribute->tags.push_back( std::move( iconTag ) );
         }
     }
 }

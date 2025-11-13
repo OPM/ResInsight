@@ -22,6 +22,7 @@
 #include "cafPdmObject.h"
 
 #include <QString>
+#include <QStringList>
 
 #include <optional>
 #include <string>
@@ -38,23 +39,28 @@ public:
     RimOpmFlowJobSettings();
     ~RimOpmFlowJobSettings() override;
 
-    void uiOrdering( caf::PdmUiGroup* uiGroup );
+    RimOpmFlowJobSettings* clone();
+
+    void uiOrdering( caf::PdmUiGroup* uiGroup, bool expandByDefault = true );
+
+    int mpiProcesses() const;
+
+    QStringList commandLineOptions() const;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    // QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-
 private:
     caf::PdmField<int> m_mpiProcesses;
+    caf::PdmField<int> m_threadsPerProcess;
 
-    caf::PdmField<bool> m_enableEsmry;
-    caf::PdmField<bool> m_enableTuning;
-    caf::PdmField<bool> m_enableTerminalOutput;
+    caf::PdmField<bool>                 m_enableEsmry;
+    caf::PdmField<bool>                 m_enableTuning;
+    caf::PdmField<bool>                 m_enableTerminalOutput;
+    caf::PdmField<std::vector<QString>> m_ignoreKeywords;
+    caf::PdmField<QString>              m_parsingStrictness;
 
-    caf::PdmField<std::vector<QString>>    m_ignoreKeywords;
     caf::PdmField<std::pair<bool, int>>    m_newtonMaxIterations;
-    caf::PdmField<QString>                 m_parsingStrictness;
     caf::PdmField<std::pair<bool, double>> m_relaxedMaxPvFraction;
     caf::PdmField<std::pair<bool, double>> m_solverMaxTimeStepInDays;
     caf::PdmField<std::pair<bool, double>> m_solverMinTimeStepInDays;
@@ -62,7 +68,6 @@ private:
     caf::PdmField<std::pair<bool, int>>    m_minStrictMbIter;
     caf::PdmField<std::pair<bool, double>> m_minTimeStepBasedOnNewtonIterations;
     caf::PdmField<std::pair<bool, double>> m_minTimeStepBeforeShuttingProblematicWellsInDays;
-    caf::PdmField<int>                     m_threadsPerProcess;
 
     // Future TODO:
     //    --tolerance-cnv=SCALAR                        Local convergence tolerance (Maximum of local saturation errors). Default: 0.01
