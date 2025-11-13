@@ -1024,9 +1024,7 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
 {
     const int failure = -1;
 
-    bool exportCompletionsAfterMainboreSegments = true;
-    auto mswDataResult =
-        RicWellPathExportMswTableData::extractSingleWellMswData( m_eclipseCase(), m_wellPath(), 0, exportCompletionsAfterMainboreSegments );
+    auto mswDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( m_eclipseCase(), m_wellPath(), 0 );
     if ( !mswDataResult.has_value() )
     {
         RiaLogging::error( QString::fromStdString( mswDataResult.error() ) );

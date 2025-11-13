@@ -54,8 +54,10 @@ class QFile;
 class RicWellPathExportMswTableData
 {
 public:
-    static std::expected<RigMswTableData, std::string>
-        extractSingleWellMswData( RimEclipseCase* eclipseCase, RimWellPath* wellPath, int timeStep, bool exportCompletionsAfterMainBoreSegments );
+    static std::expected<RigMswTableData, std::string> extractSingleWellMswData( RimEclipseCase* eclipseCase,
+                                                                                 RimWellPath*    wellPath,
+                                                                                 int             timeStep,
+                                                                                 bool exportCompletionsAfterMainBoreSegments = true );
 
 private:
     static void exportWellSegmentsForAllCompletions( const RicExportCompletionDataSettingsUi& exportSettings,
