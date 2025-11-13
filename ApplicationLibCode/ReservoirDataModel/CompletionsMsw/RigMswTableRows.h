@@ -27,6 +27,8 @@
 
 // The structures below represent data from various MSW tables
 // The variable names correspond to the table names in Opm::ParserKeywords
+// If a parameter has a default defined, std::optional is used
+// 
 // Example file path:
 // custom-opm-common/generated-opm-common/include/opm/input/eclipse/Parser/ParserKeywords/W.hpp
 
