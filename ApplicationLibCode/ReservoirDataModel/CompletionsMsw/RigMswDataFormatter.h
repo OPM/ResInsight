@@ -35,6 +35,8 @@ void formatWsegaicdTable( RifTextDataTableFormatter& formatter, const RigMswUnif
 void formatWelsegsTable( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData );
 void formatWelsegsTable( RifTextDataTableFormatter& formatter, const RigMswUnifiedDataWIP& unifiedData );
 
+void addWsegaicdHeader( RifTextDataTableFormatter& formatter );
+
 // Complete MSW export
 void formatMswTables( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData );
 void formatMswTables( RifTextDataTableFormatter& formatter, const RigMswUnifiedDataWIP& unifiedData );

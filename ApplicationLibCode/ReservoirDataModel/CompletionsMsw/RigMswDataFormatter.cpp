@@ -28,8 +28,7 @@ namespace
 //--------------------------------------------------------------------------------------------------
 /// Helper function to format WELSEGS segment data rows
 //--------------------------------------------------------------------------------------------------
-template <typename RowContainer>
-void formatWelsegsRows( RifTextDataTableFormatter& formatter, const RowContainer& rows )
+void formatWelsegsRows( RifTextDataTableFormatter& formatter, const std::vector<WelsegsRow>& rows )
 {
     for ( const auto& row : rows )
     {
@@ -54,8 +53,7 @@ void formatWelsegsRows( RifTextDataTableFormatter& formatter, const RowContainer
 //--------------------------------------------------------------------------------------------------
 /// Helper function to format COMPSEGS data rows
 //--------------------------------------------------------------------------------------------------
-template <typename RowContainer>
-void formatCompsegsRows( RifTextDataTableFormatter& formatter, const RowContainer& rows, bool isLgrData )
+void formatCompsegsRows( RifTextDataTableFormatter& formatter, const std::vector<CompsegsRow>& rows, bool isLgrData )
 {
     for ( const auto& row : rows )
     {
@@ -70,17 +68,16 @@ void formatCompsegsRows( RifTextDataTableFormatter& formatter, const RowContaine
         formatter.add( row.branch );
         formatter.add( row.distanceStart );
         formatter.add( row.distanceEnd );
-    }
 
-    formatter.rowCompleted();
+        formatter.rowCompleted();
+    }
 }
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
 /// Helper function to format WSEGVALV data rows
 //--------------------------------------------------------------------------------------------------
-template <typename RowContainer>
-void formatWsegvalvRows( RifTextDataTableFormatter& formatter, const RowContainer& rows )
+void formatWsegvalvRows( RifTextDataTableFormatter& formatter, const std::vector<WsegvalvRow>& rows )
 {
     for ( const auto& row : rows )
     {
@@ -88,20 +85,6 @@ void formatWsegvalvRows( RifTextDataTableFormatter& formatter, const RowContaine
         formatter.add( row.segmentNumber );
         formatter.add( row.cv );
         formatter.add( row.area );
-        formatter.addOptionalValue( row.extraLength );
-        formatter.addOptionalValue( row.pipeD );
-        formatter.addOptionalValue( row.roughness );
-        formatter.addOptionalValue( row.pipeA );
-
-        if ( row.status.has_value() )
-        {
-            formatter.addStdString( row.status.value() );
-        }
-        else
-        {
-            formatter.addStdString( "OPEN" );
-        }
-        formatter.addOptionalValue( row.maxA );
 
         formatter.rowCompleted();
     }
@@ -110,20 +93,22 @@ void formatWsegvalvRows( RifTextDataTableFormatter& formatter, const RowContaine
 //--------------------------------------------------------------------------------------------------
 /// Helper function to format WSEGAICD data rows
 //--------------------------------------------------------------------------------------------------
-template <typename RowContainer>
-void formatWsegaicdRows( RifTextDataTableFormatter& formatter, const RowContainer& rows )
+void formatWsegaicdRows( RifTextDataTableFormatter& formatter, const std::vector<WsegaicdRow>& rows )
 {
+    constexpr auto defaultValue = std::numeric_limits<double>::infinity();
+
     for ( const auto& row : rows )
     {
         formatter.addStdString( row.well );
         formatter.add( row.segment1 );
         formatter.add( row.segment2 );
-        formatter.add( row.strength );
+        formatter.addValueOrDefaultMarker( row.strength, defaultValue );
         formatter.addOptionalValue( row.length );
         formatter.addOptionalValue( row.densityCali );
         formatter.addOptionalValue( row.viscosityCali );
         formatter.addOptionalValue( row.criticalValue );
         formatter.addOptionalValue( row.widthTrans );
+        formatter.addOptionalValue( row.maxViscRatio );
 
         if ( row.methodScalingFactor.has_value() )
         {
@@ -134,9 +119,9 @@ void formatWsegaicdRows( RifTextDataTableFormatter& formatter, const RowContaine
             formatter.add( formatter.defaultMarker() );
         }
 
-        formatter.add( row.maxAbsRate );
-        formatter.add( row.flowRateExponent );
-        formatter.add( row.viscExponent );
+        formatter.addValueOrDefaultMarker( row.maxAbsRate, defaultValue );
+        formatter.addValueOrDefaultMarker( row.flowRateExponent, defaultValue );
+        formatter.addValueOrDefaultMarker( row.viscExponent, defaultValue );
 
         if ( row.status.has_value() )
         {
@@ -202,21 +187,6 @@ std::vector<RifTextDataTableColumn> createWsegvalvHeader()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Helper function to create WSEGAICD headers
-//--------------------------------------------------------------------------------------------------
-std::vector<RifTextDataTableColumn> createWsegaicdHeader()
-{
-    return { RifTextDataTableColumn( "Well" ),
-             RifTextDataTableColumn( "Seg No" ),
-             RifTextDataTableColumn( "Flow Coeff" ),
-             RifTextDataTableColumn( "Area" ),
-             RifTextDataTableColumn( "Oil Visc" ),
-             RifTextDataTableColumn( "Water Visc" ),
-             RifTextDataTableColumn( "Gas Visc" ),
-             RifTextDataTableColumn( "Device Type" ) };
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Helper function to create WELSEGS segment headers
 //--------------------------------------------------------------------------------------------------
 std::vector<RifTextDataTableColumn> createWelsegsSegmentHeader()
@@ -256,8 +226,16 @@ void RigMswDataFormatter::formatWelsegsTable( RifTextDataTableFormatter& formatt
     formatter.add( welsegsHeader.topLength );
     formatter.addOptionalValue( welsegsHeader.wellboreVolume );
     formatter.addStdString( welsegsHeader.infoType );
-    formatter.addOptionalStdString( welsegsHeader.pressureComponents );
-    formatter.addOptionalStdString( welsegsHeader.flowModel );
+
+    if ( welsegsHeader.pressureComponents.has_value() )
+    {
+        formatter.addStdString( "'" + welsegsHeader.pressureComponents.value() + "'" );
+    }
+    else
+    {
+        formatter.add( formatter.defaultMarker() );
+    }
+
     formatter.rowCompleted();
 
     // Column headers for segment data
@@ -267,6 +245,52 @@ void RigMswDataFormatter::formatWelsegsTable( RifTextDataTableFormatter& formatt
     // Write segment data using helper function
     formatWelsegsRows( formatter, tableData.welsegsData() );
     formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMswDataFormatter::addWsegaicdHeader( RifTextDataTableFormatter& formatter )
+{
+    // Write out header for AICD table
+
+    std::vector<QString> columnDescriptions = { "Well Name",
+                                                "Segment Number",
+                                                "Segment Number",
+                                                "Strength of AICD",
+                                                "Flow Scaling Factor for AICD",
+                                                "Density of Calibration Fluid",
+                                                "Viscosity of Calibration Fluid",
+                                                "Critical water in liquid fraction for emulsions viscosity model",
+                                                "Emulsion viscosity transition region",
+                                                "Max ratio of emulsion viscosity to continuous phase viscosity",
+                                                "Flow scaling factor method",
+                                                "Maximum flow rate for AICD device",
+                                                "Volume flow rate exponent, x",
+                                                "Viscosity function exponent, y",
+                                                "Device OPEN/SHUT",
+                                                "Exponent of the oil flowing fraction in the density mixture calculation",
+                                                "Exponent of the water flowing fraction in the density mixture calculation",
+                                                "Exponent of the gas flowing fraction in the density mixture calculation",
+                                                "Exponent of the oil flowing fraction in the density viscosity calculation",
+                                                "Exponent of the water flowing fraction in the density viscosity calculation",
+                                                "Exponent of the gas flowing fraction in the density viscosity calculation" };
+
+    formatter.keyword( "WSEGAICD" );
+    formatter.comment( "Column Overview:" );
+    for ( size_t i = 0; i < columnDescriptions.size(); ++i )
+    {
+        formatter.comment( QString( "%1: %2" ).arg( i + 1, 2, 10, QChar( '0' ) ).arg( columnDescriptions[i] ) );
+    }
+
+    std::vector<RifTextDataTableColumn> header;
+    for ( size_t i = 1; i <= 21; ++i )
+    {
+        QString                cName = QString( "%1" ).arg( i, 2, 10, QChar( '0' ) );
+        RifTextDataTableColumn col( cName, RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_CONSISE ), RIGHT );
+        header.push_back( col );
+    }
+    formatter.header( header );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,12 +349,14 @@ void RigMswDataFormatter::formatWsegaicdTable( RifTextDataTableFormatter& format
 {
     if ( !tableData.hasWsegaicdData() ) return;
 
-    formatter.keyword( "WSEGAICD" );
-    auto header = createWsegaicdHeader();
-    formatter.header( header );
+    RifTextDataTableFormatter tightFormatter( formatter );
+    tightFormatter.setColumnSpacing( 1 );
+    tightFormatter.setTableRowPrependText( "   " );
 
-    formatWsegaicdRows( formatter, tableData.wsegaicdData() );
-    formatter.tableCompleted();
+    addWsegaicdHeader( tightFormatter );
+
+    formatWsegaicdRows( tightFormatter, tableData.wsegaicdData() );
+    tightFormatter.tableCompleted();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -366,13 +392,14 @@ void RigMswDataFormatter::formatWsegaicdTable( RifTextDataTableFormatter& format
     auto rows = unifiedData.getAllWsegaicdRows();
     if ( rows.empty() ) return;
 
-    formatter.keyword( "WSEGAICD" );
-    auto header = createWsegaicdHeader();
-    formatter.header( header );
+    RifTextDataTableFormatter tightFormatter( formatter );
+    tightFormatter.setColumnSpacing( 1 );
+    tightFormatter.setTableRowPrependText( "   " );
 
-    formatWsegaicdRows( formatter, rows );
+    addWsegaicdHeader( tightFormatter );
 
-    formatter.tableCompleted();
+    formatWsegaicdRows( tightFormatter, unifiedData.getAllWsegaicdRows() );
+    tightFormatter.tableCompleted();
 }
 
 //--------------------------------------------------------------------------------------------------
