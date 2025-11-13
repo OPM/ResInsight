@@ -68,24 +68,4 @@ private:
     caf::PdmField<std::pair<bool, int>>    m_minStrictMbIter;
     caf::PdmField<std::pair<bool, double>> m_minTimeStepBasedOnNewtonIterations;
     caf::PdmField<std::pair<bool, double>> m_minTimeStepBeforeShuttingProblematicWellsInDays;
-
-    // Future TODO:
-    //    --tolerance-cnv=SCALAR                        Local convergence tolerance (Maximum of local saturation errors). Default: 0.01
-    //    --tolerance-cnv-energy=SCALAR                 Local energy convergence tolerance (Maximum of local energy errors). Default: 0.01
-    //    --tolerance-cnv-energy-relaxed=SCALAR         Relaxed local energy convergence tolerance that applies for iterations after the
-    //    iterations with the strict tolerance. Default: 1
-    //    --tolerance-cnv-relaxed=SCALAR                Relaxed local convergence tolerance that applies for iterations after the iterations
-    //    with the strict tolerance. Default: 1
-    //    --tolerance-energy-balance=SCALAR             Tolerated energy balance error relative to (scaled) total energy present. Default:
-    //    1e-07
-    //    --tolerance-energy-balance-relaxed=SCALAR     Relaxed tolerated energy balance error that applies for iterations after the
-    //    iterations with the strict tolerance. Default: 1e-06
-    //    --tolerance-mb=SCALAR                         Tolerated mass balance error relative to total mass present. Default: 1e-07
-    //    --tolerance-mb-relaxed=SCALAR                 Relaxed tolerated mass balance error that applies for iterations after the
-    //    iterations with the strict tolerance. Default: 1e-06
-    //    --tolerance-pressure-ms-wells=SCALAR          Tolerance for the pressure equations for multi-segment wells. Default: 1000
-    //    --tolerance-well-control=SCALAR               Tolerance for the well control equations. Default: 1e-07
-    //    --tolerance-wells=SCALAR                      Well convergence tolerance. Default: 0.0001
-    //    --well-group-constraints-max-iterations=INTEGER  Maximum number of iterations in the well/group switching algorithm. Default: 1
-    //
 };
