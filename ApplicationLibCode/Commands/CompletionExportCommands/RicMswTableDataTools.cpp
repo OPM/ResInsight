@@ -250,6 +250,7 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&             t
 
 //--------------------------------------------------------------------------------------------------
 /// Helper function to collect WELSEGS data for valve completions
+/// Ported from RicMswTableFormatterTools::writeValveWelsegsSegment()
 //--------------------------------------------------------------------------------------------------
 void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&     tableData,
                                                        const RicMswSegment* outletSegment,
@@ -258,25 +259,85 @@ void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&     tabl
                                                        double               maxSegmentLength,
                                                        int*                 segmentNumber )
 {
-    for ( auto valveSegment : valve->segments() )
-    {
-        valveSegment->setSegmentNumber( *segmentNumber );
+    if ( !valve ) return;
+    if ( !valve->isValid() ) return;
+    if ( !valve->wellPath() ) return;
 
+    auto segments = valve->segments();
+
+    double startMD = 0.0;
+    double endMD   = 0.0;
+
+    if ( valve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
+    {
+        CVF_ASSERT( segments.size() > 1 );
+
+        // The 0.1 valve segment is the first, the perforated segment is the second
+        auto subSegment = segments[0];
+        subSegment->setSegmentNumber( *segmentNumber );
+
+        double midPointMD = subSegment->outputMD();
+        startMD           = midPointMD;
+        endMD             = startMD + 0.1;
+    }
+    else
+    {
+        auto subSegment = segments.front();
+        subSegment->setSegmentNumber( *segmentNumber );
+
+        startMD = subSegment->startMD();
+        endMD   = subSegment->endMD();
+    }
+
+    auto splitSegments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
+
+    int        outletSegmentNumber = outletSegment ? outletSegment->segmentNumber() : 1;
+    const auto linerDiameter       = valve->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
+    const auto roughnessFactor     = valve->wellPath()->mswCompletionParameters()->roughnessFactor( exportInfo.unitSystem() );
+
+    bool isCommentAdded = false;
+    for ( const auto& [subStartMD, subEndMD] : splitSegments )
+    {
         WelsegsRow row;
-        row.segment1    = valveSegment->segmentNumber();
-        row.segment2    = valveSegment->segmentNumber();
-        row.joinSegment = outletSegment ? outletSegment->segmentNumber() : 1;
+
+        if ( !isCommentAdded )
+        {
+            row.description = valve->label().toStdString();
+            isCommentAdded  = true;
+        }
+
+        row.segment1    = *segmentNumber;
+        row.segment2    = *segmentNumber;
+        row.joinSegment = outletSegmentNumber;
         row.branch      = valve->branchNumber();
-        row.length      = valveSegment->startMD();
-        row.depth       = valveSegment->startTVD();
-        row.diameter    = valveSegment->equivalentDiameter();
-        row.roughness   = valveSegment->openHoleRoughnessFactor();
-        // row.description         = QString( "Valve %1" ).arg( valve->label() );
+
+        const double subStartTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( valve->wellPath(), subStartMD );
+        const double subEndTVD   = RicMswTableFormatterTools::tvdFromMeasuredDepth( valve->wellPath(), subEndMD );
+
+        double depth  = 0;
+        double length = 0;
+
+        if ( exportInfo.lengthAndDepthText() == QString( "INC" ) )
+        {
+            depth  = subEndTVD - subStartTVD;
+            length = subEndMD - subStartMD;
+        }
+        else
+        {
+            depth  = subEndTVD;
+            length = subEndMD;
+        }
+
+        row.length    = length;
+        row.depth     = depth;
+        row.diameter  = linerDiameter;
+        row.roughness = roughnessFactor;
 
         tableData.addWelsegsRow( row );
 
+        outletSegmentNumber = *segmentNumber;
         ( *segmentNumber )++;
-        outletSegment = valveSegment;
     }
 }
 
@@ -322,6 +383,7 @@ void RicMswTableDataTools::collectCompletionsForSegment( RigMswTableData&       
 
 //--------------------------------------------------------------------------------------------------
 /// Helper function to collect WELSEGS data for a completion's segments
+/// Porting of RicMswTableFormatterTools::writeCompletionWelsegsSegments()
 //--------------------------------------------------------------------------------------------------
 void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&                    tableData,
                                                              gsl::not_null<const RicMswSegment*> outletSegment,
@@ -334,35 +396,127 @@ void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&   
 
     auto outletNumber = outletSegment->segmentNumber();
 
-    for ( auto completionSegment : completion->segments() )
+    for ( auto segment : completion->segments() )
     {
-        completionSegment->setSegmentNumber( *segmentNumber );
+        segment->setSegmentNumber( *segmentNumber );
 
-        WelsegsRow row;
-        row.segment1    = completionSegment->segmentNumber();
-        row.segment2    = completionSegment->segmentNumber();
-        row.joinSegment = outletNumber;
-        row.branch      = completion->branchNumber();
-        row.length      = completionSegment->startMD();
-        row.depth       = completionSegment->startTVD();
-        row.diameter    = completionSegment->equivalentDiameter();
-        row.roughness   = completionSegment->openHoleRoughnessFactor();
+        double startMD  = segment->startMD();
+        double endMD    = segment->endMD();
+        double startTVD = segment->startTVD();
+        double endTVD   = segment->endTVD();
 
-        if ( !isDescriptionAdded )
+        auto splitSegments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
+        for ( const auto& [subStartMD, subEndMD] : splitSegments )
         {
-            row.description    = completion->label().toStdString();
-            isDescriptionAdded = true;
+            int subSegmentNumber = ( *segmentNumber )++;
+
+            // TODO: Verify this calculation for fractures
+            double subStartTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( completion->wellPath(), subStartMD );
+            double subEndTVD   = RicMswTableFormatterTools::tvdFromMeasuredDepth( completion->wellPath(), subEndMD );
+
+            if ( completion->completionType() == RigCompletionData::CompletionType::FISHBONES )
+            {
+                // Not possible to do interpolation based on well path geometry here
+                // Use linear interpolation based on start/end TVD for segment
+                {
+                    auto normalizedWeight = ( subStartMD - startMD ) / ( endMD - startMD );
+                    subStartTVD           = startTVD * ( 1.0 - normalizedWeight ) + endTVD * normalizedWeight;
+                }
+                {
+                    auto normalizedWeight = ( subEndMD - startMD ) / ( endMD - startMD );
+
+                    subEndTVD = startTVD * ( 1.0 - normalizedWeight ) + endTVD * normalizedWeight;
+                }
+            }
+
+            double depth  = 0;
+            double length = 0;
+
+            if ( exportInfo.lengthAndDepthText() == QString( "INC" ) )
+            {
+                depth  = subEndTVD - subStartTVD;
+                length = subEndMD - subStartMD;
+            }
+            else
+            {
+                depth  = subEndTVD;
+                length = subEndMD;
+            }
+
+            double diameter = segment->equivalentDiameter();
+            if ( segment->effectiveDiameter() > 0.0 ) diameter = segment->effectiveDiameter();
+
+            WelsegsRow row;
+            row.segment1    = subSegmentNumber;
+            row.segment2    = subSegmentNumber;
+            row.joinSegment = outletNumber;
+            row.branch      = completion->branchNumber();
+            row.length      = length;
+            row.depth       = depth;
+            row.diameter    = diameter;
+            row.roughness   = segment->openHoleRoughnessFactor();
+
+            if ( !isDescriptionAdded )
+            {
+                row.description    = completion->label().toStdString();
+                isDescriptionAdded = true;
+            }
+
+            tableData.addWelsegsRow( row );
+
+            outletNumber = subSegmentNumber;
         }
 
-        tableData.addWelsegsRow( row );
-
-        outletNumber = *segmentNumber;
-        ( *segmentNumber )++;
-
-        for ( auto comp : completionSegment->completions() )
+        for ( auto comp : segment->completions() )
         {
-            collectCompletionWelsegsSegments( tableData, completionSegment, comp, exportInfo, maxSegmentLength, segmentNumber );
+            collectCompletionWelsegsSegments( tableData, segment, comp, exportInfo, maxSegmentLength, segmentNumber );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswTableDataTools::generateWsegAicdTableRecursively( RicMswExportInfo&                                 exportInfo,
+                                                             gsl::not_null<const RicMswBranch*>                branch,
+                                                             std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData )
+{
+    for ( auto segment : branch->segments() )
+    {
+        for ( auto completion : segment->completions() )
+        {
+            if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
+            {
+                auto aicd = static_cast<const RicMswPerforationAICD*>( completion );
+                if ( aicd->isValid() )
+                {
+                    int segmentNumber = -1;
+                    for ( auto seg : aicd->segments() )
+                    {
+                        if ( seg->segmentNumber() > -1 ) segmentNumber = seg->segmentNumber();
+                        if ( seg->intersections().empty() ) continue;
+
+                        size_t cellIndex = seg->intersections().front()->globalCellIndex();
+
+                        auto wellName = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport();
+                        auto comment  = aicd->label();
+                        aicdValveData[cellIndex].push_back(
+                            AicdWsegvalveData( wellName, comment, segmentNumber, aicd->flowScalingFactor(), aicd->isOpen(), aicd->values() ) );
+                    }
+                }
+                else
+                {
+                    RiaLogging::error( QString( "Export AICD Valve (%1): Valve is invalid. At least one required "
+                                                "template parameter is not set." )
+                                           .arg( aicd->label() ) );
+                }
+            }
+        }
+    }
+
+    for ( auto childBranch : branch->branches() )
+    {
+        generateWsegAicdTableRecursively( exportInfo, childBranch, aicdValveData );
     }
 }
 
@@ -544,11 +698,78 @@ void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&     
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Based on RicMswTableFormatterTools::generateWsegAicdTable()
 //--------------------------------------------------------------------------------------------------
 void RicMswTableDataTools::collectWsegAicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo )
 {
-    collectWsegAicdDataRecursively( tableData, exportInfo, exportInfo.mainBoreBranch() );
+    std::map<size_t, std::vector<AicdWsegvalveData>> aicdValveData;
+    generateWsegAicdTableRecursively( exportInfo, exportInfo.mainBoreBranch(), aicdValveData );
+
+    // Export data for each cell with AICD valves
+
+    for ( auto [globalCellIndex, aicdDataForSameCell] : aicdValveData )
+    {
+        if ( aicdDataForSameCell.empty() ) continue;
+
+        double      accumulatedFlowScalingFactorDivisor = 0.0;
+        QStringList comments;
+
+        // See RicMswAICDAccumulator::accumulateValveParameters for similar accumulation for multiple valves in same
+        // segment
+
+        for ( const auto& aicdData : aicdDataForSameCell )
+        {
+            accumulatedFlowScalingFactorDivisor += 1.0 / aicdData.m_flowScalingFactor;
+            comments.push_back( aicdData.m_comment );
+        }
+
+        WsegaicdRow row;
+
+        auto commentsCombined = comments.join( "; " );
+        row.description       = commentsCombined.toStdString();
+
+        auto firstDataObject = aicdDataForSameCell.front();
+
+        row.well     = firstDataObject.m_wellName.toStdString(); // #1
+        row.segment1 = firstDataObject.m_segmentNumber; // #2
+        row.segment2 = firstDataObject.m_segmentNumber; // #3
+
+        std::array<double, AICD_NUM_PARAMS> values = firstDataObject.m_values;
+
+        row.strength = values[AICD_STRENGTH]; // #4 : AICD Strength
+
+        double flowScalingFactor = 1.0 / accumulatedFlowScalingFactorDivisor;
+        row.length               = flowScalingFactor; // #5 : AICD Length is used to store the flow scaling factor
+
+        auto setOptional = [&exportInfo]( double value ) -> std::optional<double>
+        {
+            if ( value == exportInfo.defaultDoubleValue() ) return std::nullopt;
+
+            return value;
+        };
+
+        row.densityCali   = setOptional( values[AICD_DENSITY_CALIB_FLUID] ); //           #6
+        row.viscosityCali = setOptional( values[AICD_VISCOSITY_CALIB_FLUID] ); //         #7
+        row.criticalValue = setOptional( values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC] ); // #8
+        row.widthTrans    = setOptional( values[AICD_EMULSION_VISC_TRANS_REGION] ); //    #9
+        row.maxViscRatio  = setOptional( values[AICD_MAX_RATIO_EMULSION_VISC] ); //      #10
+
+        row.methodScalingFactor = 1; // #11 : Always use method "b. Scale factor". The value of the
+                                     // scale factor is given in item #5
+
+        row.maxAbsRate        = values[AICD_MAX_FLOW_RATE]; //                           #12
+        row.flowRateExponent  = values[AICD_VOL_FLOW_EXP]; //                            #13
+        row.viscExponent      = values[AICD_VISOSITY_FUNC_EXP]; //                       #14
+        row.status            = firstDataObject.m_isOpen ? "OPEN" : "SHUT"; //           #15
+        row.oilFlowFraction   = setOptional( values[AICD_EXP_OIL_FRAC_DENSITY] ); //     #16
+        row.waterFlowFraction = setOptional( values[AICD_EXP_WATER_FRAC_DENSITY] ); //   #17
+        row.gasFlowFraction   = setOptional( values[AICD_EXP_GAS_FRAC_DENSITY] ); //     #18
+        row.oilViscFraction   = setOptional( values[AICD_EXP_OIL_FRAC_VISCOSITY] ); //   #19
+        row.waterViscFraction = setOptional( values[AICD_EXP_WATER_FRAC_VISCOSITY] ); // #20
+        row.gasViscFraction   = setOptional( values[AICD_EXP_GAS_FRAC_VISCOSITY] ); //   #21
+
+        tableData.addWsegaicdRow( row );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

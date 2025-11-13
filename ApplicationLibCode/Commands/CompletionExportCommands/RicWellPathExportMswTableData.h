@@ -55,7 +55,7 @@ class RicWellPathExportMswTableData
 {
 public:
     static std::expected<RigMswTableData, std::string>
-        extractSingleWellMswData( RimEclipseCase* eclipseCase, RimWellPath* wellPath, int timeStep );
+        extractSingleWellMswData( RimEclipseCase* eclipseCase, RimWellPath* wellPath, int timeStep, bool exportCompletionsAfterMainBoreSegments );
 
 private:
     static void exportWellSegmentsForAllCompletions( const RicExportCompletionDataSettingsUi& exportSettings,
@@ -216,9 +216,8 @@ private:
                                                 double                                overlapEnd,
                                                 bool*                                 foundSubGridIntersections );
 
-    static void assignBranchNumbersToPerforations( const RimEclipseCase*         eclipseCase,
-                                                   gsl::not_null<RicMswSegment*> segment,
-                                                   gsl::not_null<int*>           branchNumber );
+    static void assignBranchNumbersToPerforations( const RimEclipseCase* eclipseCase, gsl::not_null<RicMswSegment*> segment, int branchNumber );
+
     static void assignBranchNumbersToOtherCompletions( const RimEclipseCase*         eclipseCase,
                                                        gsl::not_null<RicMswSegment*> segment,
                                                        gsl::not_null<int*>           branchNumber );

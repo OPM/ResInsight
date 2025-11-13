@@ -1919,7 +1919,8 @@ RigMswUnifiedDataWIP RicWellPathExportMswCompletionsImpl::extractUnifiedMswData(
 
     for ( RimWellPath* wellPath : wellPaths )
     {
-        auto wellData = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, timeStep );
+        bool exportAfterMainbore = true;
+        auto wellData = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, timeStep, exportAfterMainbore );
         if ( wellData.has_value() )
         {
             unifiedData.addWellData( std::move( wellData.value() ) );
@@ -1940,14 +1941,14 @@ void RicWellPathExportMswCompletionsImpl::exportExperimentalMswToSeparateFolder(
 
     const auto exportFolder = exportSettings.folder() + "/prototype";
 
-    // Use new unified data extraction approach
-    if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
+    if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL )
     {
-        exportUnifiedMswData( exportSettings, exportFolder, wellPaths );
-    }
-    else if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL )
-    {
+        RiaLogging::info( "    Experimental MSW export to " + exportFolder );
         exportSplitMswData( exportSettings, exportFolder, wellPaths );
+    }
+    else
+    {
+        RiaLogging::warning( "'Unified' or 'Split on well and completion type' export not supported in experimental MSW export." );
     }
 }
 
@@ -2025,8 +2026,10 @@ void RicWellPathExportMswCompletionsImpl::exportSplitMswData( const RicExportCom
     for ( const auto& wellPath : wellPaths )
     {
         // Extract data for single well
-        auto wellDataResult =
-            RicWellPathExportMswTableData::extractSingleWellMswData( exportSettings.caseToApply, wellPath, exportSettings.timeStep );
+        auto wellDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( exportSettings.caseToApply,
+                                                                                       wellPath,
+                                                                                       exportSettings.timeStep,
+                                                                                       exportSettings.exportCompletionWelspecAfterMainBore() );
 
         if ( !wellDataResult.has_value() )
         {

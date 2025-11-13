@@ -22,9 +22,11 @@
 
 #include "RicMswCompletions.h"
 #include "RicMswExportInfo.h"
+#include "RicMswTableDataTools.h"
 
 #include "RifTextDataTableFormatter.h"
 
+#include "CompletionsMsw/RigMswDataFormatter.h"
 #include "Well/RigWellPath.h"
 
 #include "RimMswCompletionParameters.h"
@@ -53,36 +55,6 @@ public:
     int     m_segmentNumber;
     double  m_cv;
     double  m_ac;
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class RicMswTableFormatterTools::AicdWsegvalveData
-{
-public:
-    explicit AicdWsegvalveData( const QString&                             wellName,
-                                const QString&                             comment,
-                                int                                        segmentNumber,
-                                double                                     flowScalingFactor,
-                                bool                                       isOpen,
-                                const std::array<double, AICD_NUM_PARAMS>& values )
-        : m_wellName( wellName )
-        , m_comment( comment )
-        , m_segmentNumber( segmentNumber )
-        , m_flowScalingFactor( flowScalingFactor )
-        , m_isOpen( isOpen )
-        , m_values( values )
-
-    {
-    }
-
-    QString                             m_wellName;
-    QString                             m_comment;
-    int                                 m_segmentNumber;
-    double                              m_flowScalingFactor;
-    bool                                m_isOpen;
-    std::array<double, AICD_NUM_PARAMS> m_values;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -546,57 +518,17 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( gsl::not_null<
 //--------------------------------------------------------------------------------------------------
 void RicMswTableFormatterTools::generateWsegAicdTable( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo )
 {
-    std::map<size_t, std::vector<AicdWsegvalveData>> aicdValveData;
+    std::map<size_t, std::vector<RicMswTableDataTools::AicdWsegvalveData>> aicdValveData;
 
-    generateWsegAicdTableRecursively( exportInfo, exportInfo.mainBoreBranch(), aicdValveData );
+    RicMswTableDataTools::generateWsegAicdTableRecursively( exportInfo, exportInfo.mainBoreBranch(), aicdValveData );
 
     if ( !aicdValveData.empty() )
     {
-        RifTextDataTableFormatter tighterFormatter( formatter );
-        tighterFormatter.setColumnSpacing( 1 );
-        tighterFormatter.setTableRowPrependText( "   " );
+        RifTextDataTableFormatter tightFormatter( formatter );
+        tightFormatter.setColumnSpacing( 1 );
+        tightFormatter.setTableRowPrependText( "   " );
 
-        {
-            // Write out header for AICD table
-
-            std::vector<QString> columnDescriptions = { "Well Name",
-                                                        "Segment Number",
-                                                        "Segment Number",
-                                                        "Strength of AICD",
-                                                        "Flow Scaling Factor for AICD",
-                                                        "Density of Calibration Fluid",
-                                                        "Viscosity of Calibration Fluid",
-                                                        "Critical water in liquid fraction for emulsions viscosity model",
-                                                        "Emulsion viscosity transition region",
-                                                        "Max ratio of emulsion viscosity to continuous phase viscosity",
-                                                        "Flow scaling factor method",
-                                                        "Maximum flow rate for AICD device",
-                                                        "Volume flow rate exponent, x",
-                                                        "Viscosity function exponent, y",
-                                                        "Device OPEN/SHUT",
-                                                        "Exponent of the oil flowing fraction in the density mixture calculation",
-                                                        "Exponent of the water flowing fraction in the density mixture calculation",
-                                                        "Exponent of the gas flowing fraction in the density mixture calculation",
-                                                        "Exponent of the oil flowing fraction in the density viscosity calculation",
-                                                        "Exponent of the water flowing fraction in the density viscosity calculation",
-                                                        "Exponent of the gas flowing fraction in the density viscosity calculation" };
-
-            tighterFormatter.keyword( "WSEGAICD" );
-            tighterFormatter.comment( "Column Overview:" );
-            for ( size_t i = 0; i < columnDescriptions.size(); ++i )
-            {
-                tighterFormatter.comment( QString( "%1: %2" ).arg( i + 1, 2, 10, QChar( '0' ) ).arg( columnDescriptions[i] ) );
-            }
-
-            std::vector<RifTextDataTableColumn> header;
-            for ( size_t i = 1; i <= 21; ++i )
-            {
-                QString                cName = QString( "%1" ).arg( i, 2, 10, QChar( '0' ) );
-                RifTextDataTableColumn col( cName, RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_CONSISE ), RIGHT );
-                header.push_back( col );
-            }
-            tighterFormatter.header( header );
-        }
+        RigMswDataFormatter::addWsegaicdHeader( tightFormatter );
 
         // Export data for each cell with AICD valves
 
@@ -618,93 +550,47 @@ void RicMswTableFormatterTools::generateWsegAicdTable( RifTextDataTableFormatter
 
             for ( auto comment : comments )
             {
-                tighterFormatter.comment( comment );
+                tightFormatter.comment( comment );
             }
 
             auto firstDataObject = aicdDataForSameCell.front();
 
-            tighterFormatter.add( firstDataObject.m_wellName ); // #1
-            tighterFormatter.add( firstDataObject.m_segmentNumber );
-            tighterFormatter.add( firstDataObject.m_segmentNumber );
+            tightFormatter.add( firstDataObject.m_wellName ); // #1
+            tightFormatter.add( firstDataObject.m_segmentNumber );
+            tightFormatter.add( firstDataObject.m_segmentNumber );
 
             std::array<double, AICD_NUM_PARAMS> values = firstDataObject.m_values;
-            tighterFormatter.add( values[AICD_STRENGTH] );
+            tightFormatter.add( values[AICD_STRENGTH] );
 
             double flowScalingFactor = 1.0 / accumulatedFlowScalingFactorDivisor;
-            tighterFormatter.add( flowScalingFactor ); // #5 Eclipse Flow scaling factor used when
-                                                       // item #11 is set to '1'
+            tightFormatter.add( flowScalingFactor ); // #5 Eclipse Flow scaling factor used when
+                                                     // item #11 is set to '1'
 
-            tighterFormatter.add( values[AICD_DENSITY_CALIB_FLUID] );
-            tighterFormatter.add( values[AICD_VISCOSITY_CALIB_FLUID] );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC], RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EMULSION_VISC_TRANS_REGION], RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_RATIO_EMULSION_VISC],
-                                                      RicMswExportInfo::defaultDoubleValue() ); // #10
+            tightFormatter.add( values[AICD_DENSITY_CALIB_FLUID] );
+            tightFormatter.add( values[AICD_VISCOSITY_CALIB_FLUID] );
+            tightFormatter.addValueOrDefaultMarker( values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC], RicMswExportInfo::defaultDoubleValue() );
+            tightFormatter.addValueOrDefaultMarker( values[AICD_EMULSION_VISC_TRANS_REGION], RicMswExportInfo::defaultDoubleValue() );
+            tightFormatter.addValueOrDefaultMarker( values[AICD_MAX_RATIO_EMULSION_VISC],
+                                                    RicMswExportInfo::defaultDoubleValue() ); // #10
 
-            tighterFormatter.add( 1 ); // #11 : Always use method "b. Scale factor". The value of the
-                                       // scale factor is given in item #5
+            tightFormatter.add( 1 ); // #11 : Always use method "b. Scale factor". The value of the
+                                     // scale factor is given in item #5
 
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_FLOW_RATE], RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.add( values[AICD_VOL_FLOW_EXP] );
-            tighterFormatter.add( values[AICD_VISOSITY_FUNC_EXP] );
-            tighterFormatter.add( firstDataObject.m_isOpen ? "OPEN" : "SHUT" ); // #15
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_VISCOSITY],
-                                                      RicMswExportInfo::defaultDoubleValue() ); // #20
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.rowCompleted();
+            tightFormatter.addValueOrDefaultMarker( values[AICD_MAX_FLOW_RATE], RicMswExportInfo::defaultDoubleValue() );
+            tightFormatter.add( values[AICD_VOL_FLOW_EXP] );
+            tightFormatter.add( values[AICD_VISOSITY_FUNC_EXP] );
+            tightFormatter.add( firstDataObject.m_isOpen ? "OPEN" : "SHUT" ); // #15
+            tightFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
+            tightFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
+            tightFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
+            tightFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue() );
+            tightFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_VISCOSITY],
+                                                    RicMswExportInfo::defaultDoubleValue() ); // #20
+            tightFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue() );
+            tightFormatter.rowCompleted();
         }
 
-        tighterFormatter.tableCompleted();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswTableFormatterTools::generateWsegAicdTableRecursively( RicMswExportInfo&                                 exportInfo,
-                                                                  gsl::not_null<const RicMswBranch*>                branch,
-                                                                  std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData )
-{
-    for ( auto segment : branch->segments() )
-    {
-        for ( auto completion : segment->completions() )
-        {
-            if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
-            {
-                auto aicd = static_cast<const RicMswPerforationAICD*>( completion );
-                if ( aicd->isValid() )
-                {
-                    int segmentNumber = -1;
-                    for ( auto seg : aicd->segments() )
-                    {
-                        if ( seg->segmentNumber() > -1 ) segmentNumber = seg->segmentNumber();
-                        if ( seg->intersections().empty() ) continue;
-
-                        size_t cellIndex = seg->intersections().front()->globalCellIndex();
-
-                        auto wellName = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport();
-                        auto comment  = aicd->label();
-                        aicdValveData[cellIndex].push_back(
-                            AicdWsegvalveData( wellName, comment, segmentNumber, aicd->flowScalingFactor(), aicd->isOpen(), aicd->values() ) );
-                    }
-                }
-                else
-                {
-                    RiaLogging::error( QString( "Export AICD Valve (%1): Valve is invalid. At least one required "
-                                                "template parameter is not set." )
-                                           .arg( aicd->label() ) );
-                }
-            }
-        }
-    }
-
-    for ( auto childBranch : branch->branches() )
-    {
-        generateWsegAicdTableRecursively( exportInfo, childBranch, aicdValveData );
+        tightFormatter.tableCompleted();
     }
 }
 

@@ -132,4 +132,6 @@ struct WsegaicdRow
     std::optional<double>       oilViscFraction;    // 19 B1
     std::optional<double>       waterViscFraction;  // 20 B2
     std::optional<double>       gasViscFraction;    // 21 B3
+
+    std::string                 description;
 };

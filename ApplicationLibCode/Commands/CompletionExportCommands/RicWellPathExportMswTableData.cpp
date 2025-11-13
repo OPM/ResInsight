@@ -380,7 +380,10 @@ void RicWellPathExportMswTableData::exportSplitMswData( const RicExportCompletio
         try
         {
             // Extract data for single well
-            auto wellDataResult = extractSingleWellMswData( exportSettings.caseToApply, wellPath, exportSettings.timeStep );
+            auto wellDataResult = extractSingleWellMswData( exportSettings.caseToApply,
+                                                            wellPath,
+                                                            exportSettings.timeStep,
+                                                            exportSettings.exportCompletionWelspecAfterMainBore() );
             if ( !wellDataResult.has_value() )
             {
                 continue; // Skip wells with no MSW data
@@ -2130,13 +2133,13 @@ void RicWellPathExportMswTableData::assignPerforationIntersections( const std::v
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswTableData::assignBranchNumbersToPerforations( const RimEclipseCase*         eclipseCase,
                                                                        gsl::not_null<RicMswSegment*> segment,
-                                                                       gsl::not_null<int*>           branchNumber )
+                                                                       int                           branchNumber )
 {
     for ( auto completion : segment->completions() )
     {
         if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION )
         {
-            completion->setBranchNumber( *branchNumber );
+            completion->setBranchNumber( branchNumber );
         }
     }
 }
@@ -2170,7 +2173,8 @@ void RicWellPathExportMswTableData::assignBranchNumbersToBranch( const RimEclips
                                                                  gsl::not_null<RicMswBranch*> branch,
                                                                  gsl::not_null<int*>          branchNumber )
 {
-    branch->setBranchNumber( *branchNumber );
+    const auto currentBranchNumber = *branchNumber;
+    branch->setBranchNumber( currentBranchNumber );
 
     for ( auto childBranch : branch->branches() )
     {
@@ -2181,7 +2185,7 @@ void RicWellPathExportMswTableData::assignBranchNumbersToBranch( const RimEclips
     // Assign perforations first to ensure the same branch number as the segment
     for ( auto segment : branch->segments() )
     {
-        assignBranchNumbersToPerforations( eclipseCase, segment, branchNumber );
+        assignBranchNumbersToPerforations( eclipseCase, segment, currentBranchNumber );
     }
 
     // Assign other completions with an incremented branch number
@@ -2286,7 +2290,10 @@ RigMswUnifiedDataWIP RicWellPathExportMswTableData::extractUnifiedMswData( const
 
     for ( RimWellPath* wellPath : wellPaths )
     {
-        auto wellData = extractSingleWellMswData( exportSettings.caseToApply, wellPath, exportSettings.timeStep );
+        auto wellData = extractSingleWellMswData( exportSettings.caseToApply,
+                                                  wellPath,
+                                                  exportSettings.timeStep,
+                                                  exportSettings.exportCompletionWelspecAfterMainBore() );
         if ( !wellData.has_value() )
         {
             RiaLogging::error(
@@ -2302,8 +2309,10 @@ RigMswUnifiedDataWIP RicWellPathExportMswTableData::extractUnifiedMswData( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<RigMswTableData, std::string>
-    RicWellPathExportMswTableData::extractSingleWellMswData( RimEclipseCase* eclipseCase, RimWellPath* wellPath, int timeStep )
+std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extractSingleWellMswData( RimEclipseCase* eclipseCase,
+                                                                                                     RimWellPath*    wellPath,
+                                                                                                     int             timeStep,
+                                                                                                     bool exportCompletionsAfterMainBoreSegments )
 {
     if ( !eclipseCase || !wellPath || eclipseCase->eclipseCaseData() == nullptr )
     {
@@ -2339,6 +2348,8 @@ std::expected<RigMswTableData, std::string>
                                   exportInfo.mainBoreBranch() );
     appendFracturesMswExportInfo( eclipseCase, wellPath, initialMD, cellIntersections, &exportInfo, exportInfo.mainBoreBranch() );
 
+    updateDataForMultipleItemsInSameGridCell( exportInfo.mainBoreBranch() );
+
     // Assign branch numbers
     int branchNumber = 1;
     assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
@@ -2347,13 +2358,15 @@ std::expected<RigMswTableData, std::string>
     RigMswTableData tableData( wellPath->completionSettings()->wellNameForExport().toStdString(), unitSystem );
 
     // Use the new collection functions to populate the table data
-    RicMswTableDataTools::collectWelsegsData( tableData, exportInfo, mswParameters->maxSegmentLength(), false );
+    RicMswTableDataTools::collectWelsegsData( tableData, exportInfo, mswParameters->maxSegmentLength(), exportCompletionsAfterMainBoreSegments );
 
-    RicMswTableDataTools::collectCompsegData( tableData, exportInfo, false );
+    bool isLgr = false;
+    RicMswTableDataTools::collectCompsegData( tableData, exportInfo, isLgr );
 
     if ( exportInfo.hasSubGridIntersections() )
     {
-        RicMswTableDataTools::collectCompsegData( tableData, exportInfo, true );
+        isLgr = true;
+        RicMswTableDataTools::collectCompsegData( tableData, exportInfo, isLgr );
     }
 
     RicMswTableDataTools::collectWsegvalvData( tableData, exportInfo );

@@ -20,6 +20,8 @@
 
 #include "RigCompletionData.h"
 
+#include "RimWellPathAicdParameters.h"
+
 #include "cvfVector3.h"
 
 #include <gsl/gsl>
@@ -40,6 +42,36 @@ class RimWellPath;
 //--------------------------------------------------------------------------------------------------
 namespace RicMswTableDataTools
 {
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class AicdWsegvalveData
+{
+public:
+    explicit AicdWsegvalveData( const QString&                             wellName,
+                                const QString&                             comment,
+                                int                                        segmentNumber,
+                                double                                     flowScalingFactor,
+                                bool                                       isOpen,
+                                const std::array<double, AICD_NUM_PARAMS>& values )
+        : m_wellName( wellName )
+        , m_comment( comment )
+        , m_segmentNumber( segmentNumber )
+        , m_flowScalingFactor( flowScalingFactor )
+        , m_isOpen( isOpen )
+        , m_values( values )
+
+    {
+    }
+
+    QString                             m_wellName;
+    QString                             m_comment;
+    int                                 m_segmentNumber;
+    double                              m_flowScalingFactor;
+    bool                                m_isOpen;
+    std::array<double, AICD_NUM_PARAMS> m_values;
+};
 
 // New data collection functions (replace formatter versions)
 void collectWelsegsData( RigMswTableData&  tableData,
@@ -103,5 +135,9 @@ void collectCompletionWelsegsSegments( RigMswTableData&                    table
                                        RicMswExportInfo&                   exportInfo,
                                        double                              maxSegmentLength,
                                        int*                                segmentNumber );
+
+void generateWsegAicdTableRecursively( RicMswExportInfo&                                 exportInfo,
+                                       gsl::not_null<const RicMswBranch*>                branch,
+                                       std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData );
 
 } // namespace RicMswTableDataTools
