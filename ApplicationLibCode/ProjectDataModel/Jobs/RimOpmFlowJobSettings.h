@@ -41,6 +41,8 @@ public:
     void uiOrdering( caf::PdmUiGroup* uiGroup );
 
 protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
     // QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:

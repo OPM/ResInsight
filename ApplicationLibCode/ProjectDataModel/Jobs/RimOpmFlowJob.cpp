@@ -47,6 +47,7 @@
 #include "RimKeywordWconinje.h"
 #include "RimKeywordWconprod.h"
 #include "RimOilField.h"
+#include "RimOpmFlowJobSettings.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
@@ -111,7 +112,7 @@ RimOpmFlowJob::RimOpmFlowJob()
 
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
-    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case for Well Data", "", "Eclipse Case to use for Well Data" );
     CAF_PDM_InitFieldNoDefault( &m_gridEnsemble, "GridEnsemble", "Grid Ensemble" );
     CAF_PDM_InitFieldNoDefault( &m_summaryEnsemble, "SummaryEnsemble", "Summary Ensemble" );
 
@@ -121,7 +122,8 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_includeMSWData, "IncludeMswData", false, "Include MSW Data (experimental)" );
     CAF_PDM_InitField( &m_addToEnsemble, "AddToEnsemble", false, "Add Runs to Ensemble" );
     CAF_PDM_InitField( &m_useRestart, "UseRestart", false, "Restart Simulation at Well Open Date" );
-    CAF_PDM_InitField( &m_currentRunId, "CurrentRunID", 0, "Current Run ID" );
+    CAF_PDM_InitField( &m_currentRunId, "CurrentRunID", 0, "Current Ensemble Run ID" );
+    m_currentRunId.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "WellGroupName", "Well Group Name" );
     m_wellGroupName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -138,6 +140,10 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_wconinjeKeyword, "WconinjeKeyword", "WCONINJE Settings" );
     m_wconinjeKeyword = new RimKeywordWconinje();
     m_wconinjeKeyword.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_jobSettings, "JobSettings", "Opm Flow Settings" );
+    m_jobSettings = new RimOpmFlowJobSettings();
+    m_jobSettings.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_openTimeStep, "OpenTimeStep", 0, " " );
     CAF_PDM_InitField( &m_endTimeStep, "EndTimeStep", 0, " " );
@@ -263,7 +269,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     genGrp->add( nameField() );
     genGrp->add( &m_deckFileName );
     genGrp->add( &m_workDir );
-    genGrp->add( &m_eclipseCase );
+    genGrp->add( &m_addToEnsemble );
 
     if ( m_eclipseCase() == nullptr )
     {
@@ -273,6 +279,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     {
         auto wellGrp = uiOrdering.addNewGroup( "New Well Settings" );
         wellGrp->add( &m_addNewWell );
+        wellGrp->add( &m_eclipseCase );
 
         if ( m_addNewWell() )
         {
@@ -337,6 +344,13 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     {
         auto dateGrp = uiOrdering.addNewGroup( "Date Settings" );
         dateGrp->setCollapsedByDefault();
+
+        dateGrp->add( &m_endTimeStepEnabled );
+        if ( m_endTimeStepEnabled() )
+        {
+            dateGrp->add( &m_endTimeStep );
+        }
+
         dateGrp->add( &m_appendNewDates );
         if ( m_appendNewDates() )
         {
@@ -353,24 +367,15 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     runButton->setAlignment( Qt::AlignCenter );
 
     opmGrp->add( &m_pauseBeforeRun );
-    if ( m_fileDeckHasDates )
-    {
-        opmGrp->add( &m_endTimeStepEnabled );
-        if ( m_endTimeStepEnabled() )
-        {
-            opmGrp->add( &m_endTimeStep );
-        }
-    }
-    opmGrp->add( &m_addToEnsemble );
-    if ( m_addToEnsemble() )
-    {
-        auto advOpmGrp = opmGrp->addNewGroup( "Advanced" );
-        advOpmGrp->setCollapsedByDefault();
 
-        auto resetRunIdButton = advOpmGrp->addNewButton( "Reset Ensemble Run Id", [this]() { resetEnsembleRunId(); } );
-        resetRunIdButton->setAlignment( Qt::AlignRight );
-    }
+    m_jobSettings->uiOrdering( opmGrp );
 
+    auto advGrp = uiOrdering.addNewGroup( "Advanced" );
+    advGrp->setCollapsedByDefault();
+    advGrp->add( &m_currentRunId );
+    auto resetRunIdButton = advGrp->addNewButton( "Reset Ensemble Run Id", [this]() { resetEnsembleRunId(); } );
+    resetRunIdButton->setAlignment( Qt::AlignRight );
+    
     uiOrdering.skipRemainingFields();
 }
 

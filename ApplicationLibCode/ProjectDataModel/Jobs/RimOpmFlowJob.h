@@ -31,6 +31,7 @@ class RimEclipseCaseEnsemble;
 class RimSummaryEnsemble;
 class RimKeywordWconprod;
 class RimKeywordWconinje;
+class RimOpmFlowJobSettings;
 
 //==================================================================================================
 ///
@@ -134,6 +135,7 @@ private:
 
     caf::PdmChildField<RimKeywordWconprod*> m_wconprodKeyword;
     caf::PdmChildField<RimKeywordWconinje*> m_wconinjeKeyword;
+    caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
 
     caf::PdmField<QString> m_wellOpenKeyword;
 
