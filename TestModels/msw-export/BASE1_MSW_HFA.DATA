@@ -1,0 +1,385 @@
+-- This reservoir simulation deck is made available under the Open Database
+-- License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in
+-- individual contents of the database are licensed under the Database Contents
+-- License: http://opendatacommons.org/licenses/dbcl/1.0/
+
+-- Copyright (C) 2020 Equinor
+
+-- This model is based on model1/BASE_MODEL_1.DATA, and includes one multi-segment 
+-- production well with initial high oil rate. 
+-- Presure drop calculations for multi-segment well model icludes 
+-- all available components (HFA, hydrostatic, Friction and acceleration)
+
+-- Summary section includes keywords SOFR, SPRD, SPRDH, SPRDF and SPRDA
+
+
+-- ========================================================================
+-- Defines the key parameters for the simulator.
+RUNSPEC 
+-- ========================================================================
+
+TITLE
+   BASE1 MSW HFA
+ 
+-- Turns off echoing of all the input files to the print file.  
+NOECHO
+
+
+-- Grid dimensions
+DIMENS
+  6  8 7 /
+
+-- Start date
+START
+1 'JAN' 2000  /
+
+-- Phases present
+OIL
+WATER
+GAS
+DISGAS           
+VAPOIL
+
+
+-- Activates extrapolation warning message for
+-- when extrapolating the PVT and VFP tables.
+-- VFP=vertical flow performance 
+-- PVT=Pressure-Volume-Temperature
+EXTRAPMS
+ 4 /
+
+-- Units
+METRIC
+
+-- Activates the negative directional dependent transmissibility multipliers option.
+GRIDOPTS
+  YES  4  /
+
+--------------------------------------------------------------
+-- Dimensions
+--------------------------------------------------------------
+
+-- TABDIMS keyword
+-- Table dimensions
+-- ntsfun: max SATNUM
+-- ntpvt:  max PVTNUM
+-- nssfun: max saturation nodes in any saturation table
+-- nppvt:  max pressure nodes in any PVT table or Rock Compaction table
+-- ntfip:  max FIPNUM, = the fluid in-place region numbers for each grid block. 
+-- nrpvt:  max Rs nodes in a live oil PVT table
+-- ntendp: max saturation end-point versus depth tables, = ntendp in ENDSCALE
+TABDIMS
+-- ntsfun  ntpvt  nssfun  nppvt  ntfip  nrpvt  unused  ntendp
+      6     2       56      36     1*     36 /
+
+-- Dimension of equilibration tables
+-- ntequl: max EQLNUM. EQLNUM=Equilibration region numbers 
+-- ndprvd: max depth nodes in any table of pressure vs depth
+-- ndrxvd: max depth nodes in any RSVD, RVVD, PBVD or PDVD table
+-- nttrvd: max tables of initial tracer concentration vs depth
+-- nstrvd: max depth nodes in any table of initial tracer concentration vs depth
+EQLDIMS
+-- ntequl  ndprvd  ndrxvd  nttrvd  nstrvd  
+   1 /  
+
+-- Regions dimension data
+-- ntfip:  max FIPNUM
+-- nmfipr: max sets of fluid-in-place regions
+-- nrfreg: max independent reservoir regions
+-- ntfreg: max flux regions for the flux options
+REGDIMS
+-- ntfip  nmfipr  nrfreg  ntfreg
+   1    1 /
+
+-- Define maximum number of summary vectors to be written
+SMRYDIMS 
+   40000 /
+
+-- Dimensions for fault data
+-- mfsegs: max number of fault segments
+FAULTDIM
+-- mfsegs
+   23000 /
+
+-- Well dimension data
+-- nwmaxz: max wells in the model
+-- ncwmax: max connections per well
+-- ngmaxz: max groups in the model
+-- nwgmax: max wells in any one group
+WELLDIMS
+-- nwmaxz  ncwmax  ngmaxz  nwgmax
+    1       7       2       2 /
+
+-- Define multi-segment well dimensions
+WSEGDIMS
+-- nswlmx  nsegmx  nlbrmx
+     1       12      1 /
+
+
+-- Injection well VFP table dimensions
+-- mxsflo: max flow values per table
+-- mxsthp: max tubing head pressure values per table 
+-- nmsvft: max injection well VFP tables
+VFPIDIMS
+-- mxsflo  mxsthp  nmsvft
+   11       8       9 /
+
+-- Production well VFP table dimensions.
+-- mxmflo: max flow values per table
+-- mxmthp: max tubing head pressure values per table
+-- mxmwpr: max water fraction values per table
+-- mxmgrp: max gas friction values per table
+-- mxmalq: max artificial lift quantities per table
+-- nmmvft: max production well VFP tables
+VFPPDIMS
+-- mxmflo  mxmthp  mxmwpr  mxmgrp  mxmalq  nmmvft  
+   20      10       12       10      5       18 /
+
+
+--------------------------------------------------------------
+-- Run control settings
+--------------------------------------------------------------
+
+-- Activates the unified input file option 
+UNIFIN
+-- Activates the unified output file option  
+UNIFOUT
+
+-- Stack size for linear solver
+-- No point in nstack > litmax in TUNING
+NSTACK
+ 50 /
+
+
+-- ====================================================================
+-- This section defines the basic grid properties,
+-- including structure, faults and various static rock properties. 
+GRID 
+-- ====================================================================
+
+-- Define the data in the GRID section that is to be printed to the
+-- output print file. 
+RPTGRID
+ 'ROCKVOL' /
+
+-- Set the grid file output options 
+GRIDFILE
+ 0 1 / 
+
+INIT
+
+-- Transmissibilities calculated from cell corner positions
+NEWTRAN
+
+GRIDUNIT
+ METRES /
+
+-- Include simulation grid with sloping faults  
+INCLUDE
+ 'include/grid_basemod1.grdecl' /
+
+PERMX
+ 48*72 48*135 48*355 48*50 48*200 48*130 48*55 /  
+
+-- Include the porosity values for all the cells 
+INCLUDE
+ 'include/poro_basemod1.inc' /
+
+-- PERMX defines the permability in the x direction for all the cells.
+-- PERMY and PERMZ does the same in y and z direction. 
+COPY
+ 'PERMX' 'PERMY' /
+ 'PERMX' 'PERMZ' /
+/
+
+MULTIPLY
+ 'PERMZ' 0.1 /
+/
+  
+-- multz - Multiply cell transmissibility in the +z direction
+INCLUDE
+ 'include/multz_basemod1.inc' / 
+
+-- multnum - define the multiple transmissibility region 
+INCLUDE
+ 'include/multnum_basemod1.inc' /
+ 
+
+-- ===================================================================
+EDIT
+-- ===================================================================
+
+
+--  ===================================================================
+-- Section that contains the fluid property keywords used
+-- to define the PVT behavior of the fluids.
+PROPS
+--  ===================================================================
+
+-- Rel perm data - SWOF, SGOF
+-- SWOF: Water-oil saturation tables
+-- SGOF: Gas-oil saturation tables versus gas
+INCLUDE
+  'include/sattab_basemod1.sattab' /
+
+-- Activates stone's first three phase oil relative permeability model. 
+-- There is no data required for this keyword. 
+STONE1
+
+-- PVT data - PVTW, ROCK, DENSITY, PVTO, PVTG
+-- PVTW: Define water fluid properties for various regions 
+-- ROCK: Define the rock compressibility for various regions 
+-- Density: Define the surface oil, water gas densities for the fluids 
+-- PVTO: Oil PVT properties for live oil 
+-- PVTG: Gas PVT properties for wet gas
+
+INCLUDE
+ 'include/pvt_basemod1.pvt' /
+
+
+-- ====================================================================
+-- Defines how various properties in the PROPS and SOLUTION 
+-- sections are allocated to individual cells within the model. 
+
+REGIONS
+-- ====================================================================
+
+INCLUDE
+ 'include/satnum_basemod1.inc' /
+
+EQLNUM
+  336*1 /
+
+PVTNUM
+  336*1 /
+
+-- ====================================================================
+SOLUTION
+-- ====================================================================
+
+-- Defines the parameters used to initialize the model for
+-- when equilibration is calculated by OPM flow. 
+-- datum_depth   P_datum    OWC   Pcow    GOC    Pcog    Rsvd  Rvvd  N
+EQUIL
+  2730.00 300.000 2750.00 0.00  1650.000 0.00 1 1 0 / 
+
+-- Defines the dissolved gas-oil ratio versus depth tables. 
+RSVD
+ 2650.000 156.324    
+ 2750.000 138.134 /   
+
+-- Defines the vaporized oil-gas ratio versus depth tables.
+RVVD
+ 2600.00 0.00739697
+ 2750.00 0.00639697 /
+
+-- Defines the data in the solution section that is to be 
+-- printed to the output print file.
+
+RPTSOL
+  'THPRES' 'FIP=2' /
+
+RPTRST
+ 'BASIC=2' /
+
+-- ===================================================================
+SUMMARY
+-- ===================================================================
+
+-- STD: Standard inflow equation will be used. 
+INCLUDE
+  'include/std_summary.inc' /
+
+SOFR
+ 'P1' /
+/
+
+SPRD
+ 'P1' /
+/
+
+SPRDH
+ 'P1' /
+/
+
+SPRDF
+ 'P1' /
+/
+
+SPRDA
+ 'P1' /
+/
+
+-- ===================================================================
+SCHEDULE
+-- ===================================================================
+
+-- Defines the parameters used for controlling the commercial simulator's
+-- numerical convergence parameters. 
+
+GRUPTREE
+ 'TEST' 'FIELD' /
+/
+ 
+TUNING
+ 1  5  7*  1 /
+ /
+ 12  1  50  1  50  50   /
+
+
+WELSPECS
+-- Well  Grp   I  J  RefDepth  Type  DrainRad  GasInEq  AutoShut  XFlow  FluidPVT  HydSDens  FluidInPlReg
+   P1    TEST  1  2  1*        OIL   0.0       STD      STOP      YES    0         SEG       0            /
+/
+
+COMPDAT
+-- Well   I   J   K1   K2   Status   SAT   TR            DIAM      KH   S         Df   DIR
+   P1     2   3   2    2    OPEN     1*    5.208337E+1   0.21600   1*   0.00000   1*   'Z' /
+   P1     2   3   3    3    OPEN     1*    3.662544E+2   0.21600   1*   0.00000   1*   'Y' /
+   P1     2   4   3    3    OPEN     1*    3.884829E+2   0.21600   1*   0.00000   1*   'Y' /
+   P1     3   4   3    3    OPEN     1*    2.036268E+2   0.21600   1*   0.00000   1*   'Y' /
+   P1     3   5   3    3    OPEN     1*    5.717222E+2   0.21600   1*   0.00000   1*   'Y' /
+   P1     3   6   3    3    OPEN     1*    3.894535E+2   0.21600   1*   0.00000   1*   'Y' /
+/
+
+WELSEGS
+-- Name     Dep 1          Tlen 1      Vol 1     Len&Dep     PresDrop
+   P1       2620.17107     0.00000     1*        INC         'HFA'    /
+-- First Seg     Last Seg     Branch Num     Outlet Seg     Length        Depth Change     Diam        Rough    
+-- Main Stem Segments
+   2             2            1              1              38.17432      3.32249          0.10200     0.0000100 /
+   3             3            1              2              62.22322      5.41558          0.10200     0.0000100 /
+   4             4            1              3              54.33161      4.72874          0.10200     0.0000100 /
+   5             5            1              4              119.18735     10.34614         0.10200     0.0000100 /
+   6             6            1              5              263.64361     14.87775         0.10200     0.0000100 /
+   7             7            1              6              360.47928     11.28317         0.10200     0.0000100 /
+   8             8            1              7              282.92022     5.30723          0.10200     0.0000100 /
+   9             9            1              8              370.26595     5.85843          0.10200     0.0000100 /
+   10            10           1              9              458.85844     9.23286          0.10200     0.0000100 /
+   11            11           1              10             266.98559     6.56172          0.10200     0.0000100 /
+/
+
+COMPSEGS
+-- Name
+   P1   /
+-- I     J     K     Branch no     Start Length     End Length     Dir Pen     End Range     Connection Depth
+   2     3     2     1             233.61000        362.82114       /
+   2     3     3     1             362.82114        712.29909       /
+   2     4     3     1             712.29909        1083.77970      /
+   3     4     3     1             1083.77970       1278.13953      /
+   3     5     3     1             1278.13953       1824.31160      /
+   3     6     3     1             1824.31160       2195.85641      /
+/
+
+
+WCONPROD
+ 'P1' OPEN  ORAT  8000.0 4*  65.0 /
+/ 
+ 
+TSTEP
+ 1 2 3 5 10 10 10 /
+
+END
+
+
+  
