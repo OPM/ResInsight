@@ -55,7 +55,6 @@ private:
     caf::PdmField<bool>                        m_useWsl;
     caf::PdmField<QString>                     m_wslDistribution;
     caf::PdmField<bool>                        m_useMpi;
-    caf::PdmField<int>                         m_mpiProcesses;
     caf::PdmField<QString>                     m_mpirunCommand;
     caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
 
