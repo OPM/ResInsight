@@ -39,6 +39,8 @@
 
 #include "cvfVector2.h"
 
+#include <type_traits>
+
 namespace cvf {
 
 
@@ -107,6 +109,22 @@ public:
     inline S&               z()             { return m_v[2]; }      ///< Get a reference to the Z element of the vector. E.g. z() = 3;
     inline const S&         operator[](int index) const;            // Get component 0,1,2. E.g. x = v[0];
     inline S&               operator[](int index);                  // Set component 0,1,2. E.g. v[0] = x;
+
+    inline const S& i() const {
+        static_assert(std::is_integral_v<S>, "i() is only available for integral type vector.");
+        return m_v[0];
+    }
+
+    inline const S& j() const {
+        static_assert(std::is_integral_v<S>, "j() is only available for integral type vector.");
+        return m_v[1];
+    }
+
+    inline const S& k() const {
+        static_assert(std::is_integral_v<S>, "k() is only available for integral type vector.");
+        return m_v[2];
+    }
+
 
     inline S*               ptr()           { return m_v; }         ///< Get a raw pointer to the internal c array of type S.
     inline const S*         ptr() const     { return m_v; }         ///< Get a const raw pointer to the internal c array of type S.
