@@ -52,6 +52,6 @@ void RicCreateEnsembleFromFileSetFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleFromFileSetFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Cases16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Cases16x16.svg" ) );
     actionToSetup->setText( "Create Summary Ensemble" );
 }

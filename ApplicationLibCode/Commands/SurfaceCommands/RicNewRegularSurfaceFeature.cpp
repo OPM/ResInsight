@@ -61,6 +61,6 @@ void RicNewRegularSurfaceFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewRegularSurfaceFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.svg" ) );
     actionToSetup->setText( "Create Regular Surface" );
 }

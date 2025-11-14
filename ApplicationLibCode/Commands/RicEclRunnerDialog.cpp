@@ -79,30 +79,7 @@ void RicEclRunnerDialog::setupUi()
     QVBoxLayout* mainLayout = new QVBoxLayout( this );
 
     // Top: 添加DATA文件
-    // 设置整体样式 (avoid forcing global font size; apply specific font to selected widgets below)
-    setStyleSheet( "QPushButton {"
-                   " padding:5px15px;"
-                   " background-color: #f0f0f0;"
-                   " border:1px solid #c0c0c0;"
-                   " border-radius:3px;"
-                   "}"
-                   "QPushButton:hover {"
-                   " background-color: #e0e0e0;"
-                   "}"
-                   "QPushButton:pressed {"
-                   " background-color: #d0d0d0;"
-                   "}"
-                   /*"QLabel {"
-                   " font-weight: bold;"
-                   " color: #2c3e50;"
-                   " margin-top:10px;"
-                   "}"*/
-                   "QComboBox {"
-                   " padding:4px;"
-                   " border:1px solid #c0c0c0;"
-                   " border-radius:3px;"
-                   "}" );
-
+    // Remove inline dialog-wide stylesheet. Use styleRole properties per-widget so QSS controls appearance.
     // Determine default dialog font to match Cell Selection Tool (use QDialog default font)
     QFont defaultFont = QDialog().font();
 
@@ -116,6 +93,11 @@ void RicEclRunnerDialog::setupUi()
     m_importButton->setIcon( QIcon::fromTheme( "document-open" ) );
     m_importButton->setFont( defaultFont );
     if ( standardButtonHeight >0 ) m_importButton->setFixedHeight( standardButtonHeight );
+    // Use styleRole so QSS can style this button according to current theme
+    m_importButton->setProperty( "styleRole", "EclRunnerButton" );
+    // Ensure no per-widget inline stylesheet/palette overrides remain
+    m_importButton->setStyleSheet( QString() );
+    m_importButton->setPalette( QApplication::palette() );
     topLayout->addWidget( m_importButton );
 
     // Increase distance between Select File and the process controls
@@ -142,6 +124,9 @@ void RicEclRunnerDialog::setupUi()
     m_addButton = new QPushButton( tr( "Add Files" ), this );
     m_addButton->setFont( defaultFont );
     if ( standardButtonHeight >0 ) m_addButton->setFixedHeight( standardButtonHeight );
+    m_addButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_addButton->setStyleSheet( QString() );
+    m_addButton->setPalette( QApplication::palette() );
     topLayout->addWidget( m_addButton );
 
     // Make Select File and Add Files buttons match the combo box height (keeping widths/layout unchanged)
@@ -165,19 +150,34 @@ void RicEclRunnerDialog::setupUi()
     mainLayout->addWidget( middleTitle );
 
     QHBoxLayout* taskHeader = new QHBoxLayout();
-    // Create four evenly sized buttons and a running label that together fill the width
+    // Header buttons
     m_deleteButton = new QPushButton( tr( "Delete" ), this );
     m_deleteButton->setEnabled( false );
     m_deleteButton->setFont( defaultFont );
+    m_deleteButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_deleteButton->setStyleSheet( QString() );
+    m_deleteButton->setPalette( QApplication::palette() );
+
     m_openButton = new QPushButton( tr( "Open" ), this );
     m_openButton->setEnabled( false );
     m_openButton->setFont( defaultFont );
+    m_openButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_openButton->setStyleSheet( QString() );
+    m_openButton->setPalette( QApplication::palette() );
+
     m_stopButton = new QPushButton( tr( "Stop" ), this );
     m_stopButton->setEnabled( false );
     m_stopButton->setFont( defaultFont );
+    m_stopButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_stopButton->setStyleSheet( QString() );
+    m_stopButton->setPalette( QApplication::palette() );
+
     m_runButton = new QPushButton( tr( "Caulculate" ), this );
     m_runButton->setEnabled( false );
     m_runButton->setFont( defaultFont );
+    m_runButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_runButton->setStyleSheet( QString() );
+    m_runButton->setPalette( QApplication::palette() );
 
     // Running count label
     m_runningLabel = new QLabel( tr( "Running:0/%1" ).arg( RicEclRunnerDialog::MAX_CONCURRENT_TASKS ), this );
@@ -216,7 +216,6 @@ void RicEclRunnerDialog::setupUi()
     headers << tr( "File Name" ) << tr( "Model" ) << tr( "Status" ) << tr( "Output" );
     m_taskTable->setHorizontalHeaderLabels( headers );
     m_taskTable->horizontalHeader()->setStretchLastSection( true );
-    // Make all columns share the table width equally
     if ( m_taskTable->horizontalHeader() )
     {
         m_taskTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -226,38 +225,11 @@ void RicEclRunnerDialog::setupUi()
     m_taskTable->setEditTriggers( QAbstractItemView::NoEditTriggers );
     m_taskTable->setMinimumHeight( 160 );
     m_taskTable->setAlternatingRowColors( true );
-    m_taskTable->setStyleSheet( "QTableWidget {"
-                                // " gridline-color: #d0d0d0;"
-                                // " background-color: white;"
-                                // " alternate-background-color: #f8f8f8;"
-                                // "}"
-                                // "QTableWidget::item:selected {"
-                                // " background-color: #0078d7;"
-                                // " color: white;"
-                                // "}"
-                                // "QHeaderView::section {"
-                                // " background-color: #f0f0f0;"
-                                // " padding:5px;"
-                                // " border: none;"
-                                // " border-right:1px solid #d0d0d0;"
-                                // " border-bottom:1px solid #d0d0d0;"
-                                // "}" );
-                                " gridline-color: #d0d0d0;"
-                                " background-color: white;"
-                                " alternate-background-color: #f8f8f8;"
-                                "}"
-                                "QTableWidget::item:selected {"
-                                " background-color: #0078d7;"
-                                " color: white;"
-                                "}"
-                                "QHeaderView::section {"
-                                " background-color: #f0f0f0;"
-                                " padding:5px;"
-                                " border: none;"
-                                " border-right:1px solid #d0d0d0;"
-                                " border-bottom:1px solid #d0d0d0;"
-                                "}" );
-    // Ensure header labels use the default/dialog font to match Cell Selection Tool
+    // Use styleRole and clear local inline stylesheet/palette
+    m_taskTable->setProperty( "styleRole", "EclRunnerTable" );
+    m_taskTable->setStyleSheet( QString() );
+    m_taskTable->setPalette( QApplication::palette() );
+
     if ( m_taskTable->horizontalHeader() )
     {
         m_taskTable->horizontalHeader()->setFont( btnFont );
@@ -272,11 +244,10 @@ void RicEclRunnerDialog::setupUi()
 
     m_logOutput = new QTextEdit( this );
     m_logOutput->setReadOnly( true );
-    m_logOutput->setStyleSheet( "QTextEdit {"
-                                " background-color: #f8f8f8;"
-                                " border:1px solid #d0d0d0;"
-                                " font-family: Consolas, monospace;"
-                                "}" );
+    // Use styleRole and clear inline styles so theme controls appearance
+    m_logOutput->setProperty( "styleRole", "EclRunnerLog" );
+    m_logOutput->setStyleSheet( QString() );
+    m_logOutput->setPalette( QApplication::palette() );
     m_logOutput->setMaximumHeight( 220 );
     m_logOutput->setFont( QFontDatabase::systemFont( QFontDatabase::FixedFont ) );
     mainLayout->addWidget( m_logOutput );

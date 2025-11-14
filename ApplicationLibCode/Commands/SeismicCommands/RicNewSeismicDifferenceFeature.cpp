@@ -78,7 +78,7 @@ void RicNewSeismicDifferenceFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewSeismicDifferenceFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Seismic16x16.svg" ) );
     actionToSetup->setText( "Create Seismic Difference" );
 }
 

@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT( RimFractureTemplateCollection, "FractureTemplateCollection"
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection::RimFractureTemplateCollection()
 {
-    CAF_PDM_InitScriptableObject( "Fracture Templates", ":/FractureTemplates16x16.png" );
+    CAF_PDM_InitScriptableObject( "Fracture Templates", ":/FractureTemplates16x16.svg" );
 
     CAF_PDM_InitField( &m_defaultUnitsForFracTemplates,
                        "DefaultUnitForTemplates",

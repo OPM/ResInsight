@@ -122,6 +122,6 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportValveTemplatesFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.svg" ) );
     actionToSetup->setText( "Import Valve Templates" );
 }

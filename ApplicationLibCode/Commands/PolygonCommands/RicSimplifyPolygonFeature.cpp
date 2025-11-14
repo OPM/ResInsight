@@ -96,5 +96,5 @@ void RicSimplifyPolygonFeature::onActionTriggered( bool isChecked )
 void RicSimplifyPolygonFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Simplify Polygon" );
-    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.svg" ) );
 }

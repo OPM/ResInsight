@@ -156,7 +156,7 @@ RimEclipseView::RimEclipseView()
     CVF_ASSERT( preferences );
 
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Reservoir View",
-                                                    ":/3DView16x16.png",
+                                                    ":/3DView16x16.svg",
                                                     "",
                                                     "The Eclipse 3d Reservoir View",
                                                     "EclipseView",

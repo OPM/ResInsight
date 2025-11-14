@@ -54,5 +54,5 @@ void RicCreatePolygonFeature::onActionTriggered( bool isChecked )
 void RicCreatePolygonFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Polygon" );
-    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.svg" ) );
 }

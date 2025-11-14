@@ -55,6 +55,6 @@ void RicNewSurfaceCollectionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewSurfaceCollectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.svg" ) );
     actionToSetup->setText( "Add Folder" );
 }

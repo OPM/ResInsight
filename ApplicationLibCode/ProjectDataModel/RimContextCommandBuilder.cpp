@@ -425,7 +425,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimWellPathCompletions*>( firstUiItem ) )
         {
-            menuBuilder.subMenuStart( "Create Completions", QIcon( ":/CompletionsSymbol16x16.png" ) );
+            menuBuilder.subMenuStart( "Create Completions", QIcon( ":/CompletionsSymbol16x16.svg" ) );
             menuBuilder << "RicNewPerforationIntervalFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewWellPathFractureFeature";
@@ -1440,7 +1440,7 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
     candidates << "RicCreateTemporaryLgrFeature";
     candidates << "RicNewStimPlanModelFeature";
 
-    return appendSubMenuWithCommands( menuBuilder, candidates, "Create Completions", QIcon( ":/CompletionsSymbol16x16.png" ), addSeparatorBeforeMenu );
+    return appendSubMenuWithCommands( menuBuilder, candidates, "Create Completions", QIcon( ":/CompletionsSymbol16x16.svg" ), addSeparatorBeforeMenu );
 }
 
 //--------------------------------------------------------------------------------------------------

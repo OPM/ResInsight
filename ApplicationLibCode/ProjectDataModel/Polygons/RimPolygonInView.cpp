@@ -53,7 +53,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonInView, "RimPolygonInView" );
 RimPolygonInView::RimPolygonInView()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
-    CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_polygon, "Polygon", "Polygon" );
     m_polygon.uiCapability()->setUiReadOnly( true );
