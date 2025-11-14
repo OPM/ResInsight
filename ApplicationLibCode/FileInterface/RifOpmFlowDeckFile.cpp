@@ -711,10 +711,12 @@ bool RifOpmFlowDeckFile::setWsegdims( int maxMSWells, int maxSegmentsPerWell, in
     using W = Opm::ParserKeywords::WSEGDIMS;
     if ( m_fileDeck.get() == nullptr ) return false;
 
-    auto idx = m_fileDeck->find( W::keywordName );
+    bool foundWsegdims = true;
+    auto idx           = m_fileDeck->find( W::keywordName );
     if ( !idx.has_value() )
     {
-        idx = m_fileDeck->find( Opm::ParserKeywords::WELLDIMS::keywordName );
+        foundWsegdims = false;
+        idx           = m_fileDeck->find( Opm::ParserKeywords::WELLDIMS::keywordName );
         if ( !idx.has_value() ) return false;
         idx = idx.value() + 1;
     }
@@ -724,7 +726,7 @@ bool RifOpmFlowDeckFile::setWsegdims( int maxMSWells, int maxSegmentsPerWell, in
                                         RifOpmDeckTools::item( W::NSEGMX::itemName, maxSegmentsPerWell ),
                                         RifOpmDeckTools::item( W::NLBRMX::itemName, maxBranchesPerWell ) } } );
 
-    m_fileDeck->erase( idx.value() );
+    if ( foundWsegdims ) m_fileDeck->erase( idx.value() );
     m_fileDeck->insert( idx.value(), newKw );
     return true;
 }
