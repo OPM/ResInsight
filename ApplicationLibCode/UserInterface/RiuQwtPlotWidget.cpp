@@ -1018,8 +1018,10 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
         bool wasToggledOff = false;
         if ( toggleItemInSelection )
         {
-            for ( auto highlightedCurve : m_hightlightedCurves )
+            for ( auto highlightedCurve : m_highlightedCurves )
             {
+                if ( highlightedCurve.isNull() ) continue;
+
                 if ( highlightedCurve == clickedCurve )
                 {
                     wasToggledOff = true;
@@ -1165,7 +1167,7 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::vector<RimPlotCurve*>& cu
                 plotCurve->setZ( zValue + 100.0 );
                 highlightPlotAxes( plotCurve->xAxis(), plotCurve->yAxis() );
 
-                m_hightlightedCurves.push_back( currentRimPlotCurve );
+                m_highlightedCurves.push_back( currentRimPlotCurve );
             }
             else
             {
@@ -1225,9 +1227,9 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotCurve*> RiuQwtPlotWidget::highlightedCurves() const
+std::vector<caf::PdmPointer<RimPlotCurve>> RiuQwtPlotWidget::highlightedCurves() const
 {
-    return m_hightlightedCurves;
+    return m_highlightedCurves;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1235,7 +1237,7 @@ std::vector<RimPlotCurve*> RiuQwtPlotWidget::highlightedCurves() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::resetPlotCurveHighlighting()
 {
-    m_hightlightedCurves.clear();
+    m_highlightedCurves.clear();
 
     if ( !m_plotDefinition || m_originalZValues.empty() )
     {

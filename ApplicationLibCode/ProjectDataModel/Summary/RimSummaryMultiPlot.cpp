@@ -1846,7 +1846,9 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
             {
                 for ( auto highlightCurve : plotWidget->highlightedCurves() )
                 {
-                    if ( auto summaryCurve = dynamic_cast<RimSummaryCurve*>( highlightCurve ) )
+                    if ( highlightCurve.isNull() ) continue;
+
+                    if ( auto summaryCurve = dynamic_cast<RimSummaryCurve*>( highlightCurve.p() ) )
                     {
                         summaryCurves.push_back( summaryCurve );
                     }
