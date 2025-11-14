@@ -162,10 +162,10 @@ public:
 
     QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
 
-    void                       highlightPlotItem( const QwtPlotItem* plotItem );
-    void                       highlightCurvesUpdateOrder( const std::vector<RimPlotCurve*>& curves );
-    void                       resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
-    std::vector<RimPlotCurve*> highlightedCurves() const;
+    void                                       highlightPlotItem( const QwtPlotItem* plotItem );
+    void                                       highlightCurvesUpdateOrder( const std::vector<RimPlotCurve*>& curves );
+    void                                       resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
+    std::vector<caf::PdmPointer<RimPlotCurve>> highlightedCurves() const;
 
     void replot() override;
 
@@ -231,9 +231,9 @@ private:
         int    lineWidth;
     };
 
-    std::map<QwtPlotCurve*, double>  m_originalZValues;
-    std::vector<RimPlotCurve*>       m_hightlightedCurves;
-    std::map<RiuPlotAxis, QwtAxisId> m_axisMapping;
+    std::map<QwtPlotCurve*, double>            m_originalZValues;
+    std::vector<caf::PdmPointer<RimPlotCurve>> m_highlightedCurves;
+    std::map<RiuPlotAxis, QwtAxisId>           m_axisMapping;
 
     QPointer<QwtPlot> m_plot;
 
