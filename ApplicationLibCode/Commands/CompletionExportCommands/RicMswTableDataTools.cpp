@@ -741,7 +741,7 @@ void RicMswTableDataTools::collectWsegAicdData( RigMswTableData& tableData, RicM
         double flowScalingFactor = 1.0 / accumulatedFlowScalingFactorDivisor;
         row.length               = flowScalingFactor; // #5 : AICD Length is used to store the flow scaling factor
 
-        auto setOptional = [&exportInfo]( double value ) -> std::optional<double>
+        auto setOptional = []( double value ) -> std::optional<double>
         {
             if ( value == RicMswExportInfo::defaultDoubleValue() ) return std::nullopt;
 
