@@ -1050,10 +1050,12 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         return failure;
     }
 
-    auto welsegsKw  = RimKeywordFactory::welsegsKeyword( mswDataResult.value() );
-    auto compsegsKw = RimKeywordFactory::compsegsKeyword( mswDataResult.value() );
-    auto wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( mswDataResult.value() );
-    auto wsegaicdKw = RimKeywordFactory::wsegaicdKeyword( mswDataResult.value() );
+    int  maxSegNum   = 0;
+    int  maxBranches = 0;
+    auto welsegsKw   = RimKeywordFactory::welsegsKeyword( mswDataResult.value(), maxSegNum, maxBranches );
+    auto compsegsKw  = RimKeywordFactory::compsegsKeyword( mswDataResult.value() );
+    auto wsegvalvKw  = RimKeywordFactory::wsegvalvKeyword( mswDataResult.value() );
+    auto wsegaicdKw  = RimKeywordFactory::wsegaicdKeyword( mswDataResult.value() );
 
     if ( welsegsKw.empty() || compsegsKw.empty() )
     {
@@ -1099,13 +1101,15 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         }
     }
 
-    int branches = (int)m_wellPath->allWellPathLaterals().size();
+    int branches = (int)m_wellPath->allWellPathLaterals().size() + 1;
 
-    // increase wells and connections in welldims to make sure they are big enough
-    auto additionalSegments = (int)welsegsKw.size() - 1;
-    auto wsegdims           = m_deckFile->wsegdims();
-    auto maxBranches        = std::max( branches, wsegdims[2] );
-    if ( ( wsegdims.size() < 3 ) || !m_deckFile->setWsegdims( wsegdims[0] + 1, wsegdims[1] + additionalSegments, maxBranches + 1 ) )
+    // wsegdims contains: max segmented wells, max segments, max branches
+    auto wsegdims    = m_deckFile->wsegdims();
+    int  maxSegWells = wsegdims[0] + 1; // we have added one well
+    maxSegNum        = std::max( wsegdims[1], maxSegNum );
+    maxBranches      = std::max( branches, maxBranches );
+    maxBranches      = std::max( wsegdims[2], maxBranches );
+    if ( !m_deckFile->setWsegdims( maxSegWells, maxSegNum, maxBranches ) )
     {
         RiaLogging::error( "Failed to update WSEGDIMS keyword in DATA file." );
         return failure;

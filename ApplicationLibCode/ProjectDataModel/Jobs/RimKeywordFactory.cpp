@@ -46,6 +46,8 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
+#include <algorithm>
+
 //==================================================================================================
 ///
 ///
@@ -154,8 +156,11 @@ Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData )
+Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData, int& maxSegments, int& maxBranches )
 {
+    maxSegments = 0;
+    maxBranches = 0;
+
     if ( !mswData.hasWelsegsData() ) return Opm::DeckKeyword();
 
     using W = Opm::ParserKeywords::WELSEGS;
@@ -178,6 +183,10 @@ Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData )
     // welsegs data rows
     for ( auto& wsRow : mswData.welsegsData() )
     {
+        maxSegments = std::max( maxSegments, wsRow.segment1 );
+        maxSegments = std::max( maxSegments, wsRow.segment2 );
+        maxBranches = std::max( maxBranches, wsRow.branch );
+
         std::vector<Opm::DeckItem> items;
         items.push_back( RifOpmDeckTools::item( Opm::ParserKeywords::WELSEGS::SEGMENT1::itemName, wsRow.segment1 ) );
         items.push_back( RifOpmDeckTools::item( Opm::ParserKeywords::WELSEGS::SEGMENT2::itemName, wsRow.segment2 ) );

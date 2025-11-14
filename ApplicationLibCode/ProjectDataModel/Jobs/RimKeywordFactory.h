@@ -50,7 +50,7 @@ namespace RimKeywordFactory
 Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath );
 Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath );
 
-Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData );
+Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData, int& maxSegments, int& maxBranches );
 Opm::DeckKeyword compsegsKeyword( const RigMswTableData& mswData );
 Opm::DeckKeyword wsegvalvKeyword( const RigMswTableData& mswData );
 Opm::DeckKeyword wsegaicdKeyword( const RigMswTableData& mswData );
