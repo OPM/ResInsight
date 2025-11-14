@@ -743,7 +743,7 @@ void RicMswTableDataTools::collectWsegAicdData( RigMswTableData& tableData, RicM
 
         auto setOptional = [&exportInfo]( double value ) -> std::optional<double>
         {
-            if ( value == exportInfo.defaultDoubleValue() ) return std::nullopt;
+            if ( value == RicMswExportInfo::defaultDoubleValue() ) return std::nullopt;
 
             return value;
         };
