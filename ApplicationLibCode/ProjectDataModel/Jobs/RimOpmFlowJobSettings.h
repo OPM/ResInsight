@@ -69,4 +69,17 @@ private:
     caf::PdmField<std::pair<bool, int>>    m_minStrictMbIter;
     caf::PdmField<std::pair<bool, double>> m_minTimeStepBasedOnNewtonIterations;
     caf::PdmField<std::pair<bool, double>> m_minTimeStepBeforeShuttingProblematicWellsInDays;
+
+    caf::PdmField<std::pair<bool, double>> m_toleranceCnv;
+    caf::PdmField<std::pair<bool, double>> m_toleranceCnvEnergy;
+    caf::PdmField<std::pair<bool, double>> m_toleranceCnvEnergyRelaxed;
+    caf::PdmField<std::pair<bool, double>> m_toleranceCnvRelaxed;
+    caf::PdmField<std::pair<bool, double>> m_toleranceEnergyBalance;
+    caf::PdmField<std::pair<bool, double>> m_toleranceEnergyBalanceRelaxed;
+    caf::PdmField<std::pair<bool, double>> m_toleranceMb;
+    caf::PdmField<std::pair<bool, double>> m_toleranceMbRelaxed;
+    caf::PdmField<std::pair<bool, double>> m_tolerancePressureMsWells;
+    caf::PdmField<std::pair<bool, double>> m_toleranceWellControl;
+    caf::PdmField<std::pair<bool, double>> m_toleranceWells;
+    caf::PdmField<std::pair<bool, int>>    m_wellGroupConstraintsMaxIterations;
 };

@@ -123,6 +123,77 @@ RimOpmFlowJobSettings::RimOpmFlowJobSettings()
                        "Min Time Step Before Shutting Problematic Wells In Days",
                        "",
                        "The minimum time step size in days for which problematic wells are not shut." );
+    CAF_PDM_InitField( &m_toleranceCnv,
+                       "toleranceCnv",
+                       std::make_pair( false, 0.01 ),
+                       "Tolerance CNV",
+                       "",
+                       "Local convergence tolerance (Maximum of local saturation errors)." );
+    CAF_PDM_InitField( &m_toleranceCnvEnergy,
+                       "toleranceCnvEnergy",
+                       std::make_pair( false, 0.01 ),
+                       "Tolerance CNV Energy",
+                       "",
+                       "Local energy convergence tolerance (Maximum of local energy errors)." );
+    CAF_PDM_InitField( &m_toleranceCnvEnergyRelaxed,
+                       "toleranceCnvEnergyRelaxed",
+                       std::make_pair( false, 1.0 ),
+                       "Tolerance CNV Energy Relaxed",
+                       "",
+                       "Relaxed local energy convergence tolerance that applies for iterations after the iterations with the strict "
+                       "tolerance." );
+    CAF_PDM_InitField( &m_toleranceCnvRelaxed,
+                       "toleranceCnvRelaxed",
+                       std::make_pair( false, 1.0 ),
+                       "Tolerance CNV Relaxed",
+                       "",
+                       "Relaxed local convergence tolerance that applies for iterations after the iterations with the strict tolerance." );
+    CAF_PDM_InitField( &m_toleranceEnergyBalance,
+                       "toleranceEnergyBalance",
+                       std::make_pair( false, 0.01 ),
+                       "Tolerance Energy Balance",
+                       "",
+                       "Energy balance convergence tolerance (Maximum of global energy balance error)." );
+    CAF_PDM_InitField( &m_toleranceEnergyBalanceRelaxed,
+                       "toleranceEnergyBalanceRelaxed",
+                       std::make_pair( false, 1.0 ),
+                       "Tolerance Energy Balance Relaxed",
+                       "",
+                       "Relaxed energy balance convergence tolerance that applies for iterations after the iterations with the strict "
+                       "tolerance." );
+    CAF_PDM_InitField( &m_toleranceMb,
+                       "toleranceMb",
+                       std::make_pair( false, 1e-4 ),
+                       "Tolerance MB",
+                       "",
+                       "Global mass balance convergence tolerance (Maximum of global mass balance errors)." );
+    CAF_PDM_InitField( &m_toleranceMbRelaxed,
+                       "toleranceMbRelaxed",
+                       std::make_pair( false, 1.0 ),
+                       "Tolerance MB Relaxed",
+                       "",
+                       "Relaxed global mass balance convergence tolerance that applies for iterations after the iterations with the strict "
+                       "tolerance." );
+    CAF_PDM_InitField( &m_tolerancePressureMsWells,
+                       "tolerancePressureMsWells",
+                       std::make_pair( false, 1e-3 ),
+                       "Tolerance Pressure MS Wells",
+                       "",
+                       "Convergence tolerance for pressure in multi-segment wells." );
+    CAF_PDM_InitField( &m_toleranceWellControl,
+                       "toleranceWellControl",
+                       std::make_pair( false, 0.1 ),
+                       "Tolerance Well Control",
+                       "",
+                       "Convergence tolerance for well control equations." );
+    CAF_PDM_InitField( &m_toleranceWells, "toleranceWells", std::make_pair( false, 1e-4 ), "Tolerance Wells", "", "Well convergence tolerance." );
+    CAF_PDM_InitField( &m_wellGroupConstraintsMaxIterations,
+                       "wellGroupConstraintsMaxIterations",
+                       std::make_pair( false, 10 ),
+                       "Well Group Constraints Max Iterations",
+                       "",
+                       "Maximum number of iterations for well group constraints." );
+    m_wellGroupConstraintsMaxIterations.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,6 +239,21 @@ void RimOpmFlowJobSettings::uiOrdering( caf::PdmUiGroup* uiGroup, bool expandByD
     solverGroup->add( &m_minStrictMbIter );
     solverGroup->add( &m_minTimeStepBasedOnNewtonIterations );
     solverGroup->add( &m_minTimeStepBeforeShuttingProblematicWellsInDays );
+    solverGroup->add( &m_wellGroupConstraintsMaxIterations );
+
+    auto tolerancesGroup = uiGroup->addNewGroup( "Convergence Tolerances" );
+    tolerancesGroup->setCollapsedByDefault();
+    tolerancesGroup->add( &m_toleranceCnv );
+    tolerancesGroup->add( &m_toleranceCnvRelaxed );
+    tolerancesGroup->add( &m_toleranceCnvEnergy );
+    tolerancesGroup->add( &m_toleranceCnvEnergyRelaxed );
+    tolerancesGroup->add( &m_toleranceMb );
+    tolerancesGroup->add( &m_toleranceMbRelaxed );
+    tolerancesGroup->add( &m_toleranceEnergyBalance );
+    tolerancesGroup->add( &m_toleranceEnergyBalanceRelaxed );
+    tolerancesGroup->add( &m_tolerancePressureMsWells );
+    tolerancesGroup->add( &m_toleranceWellControl );
+    tolerancesGroup->add( &m_toleranceWells );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,6 +344,54 @@ QStringList RimOpmFlowJobSettings::commandLineOptions() const
     {
         options
             << QString( "--min-time-step-before-shutting-problematic-wells=%1d" ).arg( m_minTimeStepBeforeShuttingProblematicWellsInDays().second );
+    }
+    if ( m_toleranceCnv().first )
+    {
+        options << QString( "--tolerance-cnv=%1" ).arg( m_toleranceCnv().second );
+    }
+    if ( m_toleranceCnvRelaxed().first )
+    {
+        options << QString( "--tolerance-cnv-relaxed=%1" ).arg( m_toleranceCnvRelaxed().second );
+    }
+    if ( m_toleranceCnvEnergy().first )
+    {
+        options << QString( "--tolerance-cnv-energy=%1" ).arg( m_toleranceCnvEnergy().second );
+    }
+    if ( m_toleranceCnvEnergyRelaxed().first )
+    {
+        options << QString( "--tolerance-cnv-energy-relaxed=%1" ).arg( m_toleranceCnvEnergyRelaxed().second );
+    }
+    if ( m_toleranceMb().first )
+    {
+        options << QString( "--tolerance-mb=%1" ).arg( m_toleranceMb().second );
+    }
+    if ( m_toleranceMbRelaxed().first )
+    {
+        options << QString( "--tolerance-mb-relaxed=%1" ).arg( m_toleranceMbRelaxed().second );
+    }
+    if ( m_toleranceEnergyBalance().first )
+    {
+        options << QString( "--tolerance-energy-balance=%1" ).arg( m_toleranceEnergyBalance().second );
+    }
+    if ( m_toleranceEnergyBalanceRelaxed().first )
+    {
+        options << QString( "--tolerance-energy-balance-relaxed=%1" ).arg( m_toleranceEnergyBalanceRelaxed().second );
+    }
+    if ( m_tolerancePressureMsWells().first )
+    {
+        options << QString( "--tolerance-pressure-ms-wells=%1" ).arg( m_tolerancePressureMsWells().second );
+    }
+    if ( m_toleranceWellControl().first )
+    {
+        options << QString( "--tolerance-well-control=%1" ).arg( m_toleranceWellControl().second );
+    }
+    if ( m_toleranceWells().first )
+    {
+        options << QString( "--tolerance-wells=%1" ).arg( m_toleranceWells().second );
+    }
+    if ( m_wellGroupConstraintsMaxIterations().first )
+    {
+        options << QString( "--well-group-constraints-max-iterations=%1" ).arg( m_wellGroupConstraintsMaxIterations().second );
     }
 
     return options;
