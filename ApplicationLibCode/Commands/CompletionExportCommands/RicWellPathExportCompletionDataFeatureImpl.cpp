@@ -784,8 +784,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
 
         formatter.add( completionSettings->wellNameForExport() )
             .add( completionSettings->groupNameForExport() )
-            .addOneBasedCellIndex( ijIntersection.second.x() )
-            .addOneBasedCellIndex( ijIntersection.second.y() )
+            .add( ijIntersection.second.x() + 1 )
+            .add( ijIntersection.second.y() + 1 )
             .add( completionSettings->referenceDepthForExport() )
             .add( completionSettings->wellTypeNameForExport() )
             .add( completionSettings->drainageRadiusForExport() )
@@ -873,8 +873,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclips
             formatter.add( completionSettings->wellNameForExport() )
                 .add( completionSettings->groupNameForExport() )
                 .add( lgrName )
-                .addOneBasedCellIndex( ijIntersection.x() )
-                .addOneBasedCellIndex( ijIntersection.y() )
+                .add( ijIntersection.x() + 1 )
+                .add( ijIntersection.y() + 1 )
                 .add( completionSettings->referenceDepthForExport() )
                 .add( completionSettings->wellTypeNameForExport() )
                 .add( completionSettings->drainageRadiusForExport() )
@@ -1070,10 +1070,10 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
             formatter.add( gridName );
         }
 
-        formatter.addOneBasedCellIndex( data.completionDataGridCell().localCellIndexI() )
-            .addOneBasedCellIndex( data.completionDataGridCell().localCellIndexJ() )
-            .addOneBasedCellIndex( data.completionDataGridCell().localCellIndexK() )
-            .addOneBasedCellIndex( data.completionDataGridCell().localCellIndexK() );
+        formatter.add( data.completionDataGridCell().localCellIndexI() + 1 )
+            .add( data.completionDataGridCell().localCellIndexJ() + 1 )
+            .add( data.completionDataGridCell().localCellIndexK() + 1 )
+            .add( data.completionDataGridCell().localCellIndexK() + 1 );
 
         formatter.add( "OPEN" );
 
@@ -1156,9 +1156,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 
         formatter.add( completion.wpimult() );
 
-        formatter.addOneBasedCellIndex( completion.completionDataGridCell().localCellIndexI() )
-            .addOneBasedCellIndex( completion.completionDataGridCell().localCellIndexJ() )
-            .addOneBasedCellIndex( completion.completionDataGridCell().localCellIndexK() );
+        formatter.add( completion.completionDataGridCell().localCellIndexI() + 1 )
+            .add( completion.completionDataGridCell().localCellIndexJ() + 1 )
+            .add( completion.completionDataGridCell().localCellIndexK() + 1 );
         formatter.rowCompleted();
     }
 

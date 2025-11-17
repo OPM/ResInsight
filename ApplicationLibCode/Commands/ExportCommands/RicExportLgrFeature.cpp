@@ -364,12 +364,14 @@ void RicExportLgrFeature::writeLgrs( QTextStream& stream, const std::vector<LgrI
                                 RifTextDataTableColumn( "NZ" ) } );
 
             formatter.add( lgrInfo.name );
-            formatter.addOneBasedCellIndex( lgrInfo.mainGridStartCell.i() );
-            formatter.addOneBasedCellIndex( lgrInfo.mainGridEndCell.i() );
-            formatter.addOneBasedCellIndex( lgrInfo.mainGridStartCell.j() );
-            formatter.addOneBasedCellIndex( lgrInfo.mainGridEndCell.j() );
-            formatter.addOneBasedCellIndex( lgrInfo.mainGridStartCell.k() );
-            formatter.addOneBasedCellIndex( lgrInfo.mainGridEndCell.k() );
+            caf::VecIjk1 startCell = lgrInfo.mainGridStartCell.toOneBased();
+            caf::VecIjk1 endCell   = lgrInfo.mainGridEndCell.toOneBased();
+            formatter.add( startCell.i() );
+            formatter.add( endCell.i() );
+            formatter.add( startCell.j() );
+            formatter.add( endCell.j() );
+            formatter.add( startCell.k() );
+            formatter.add( endCell.k() );
             formatter.add( lgrInfo.lgrCellCounts().i() );
             formatter.add( lgrInfo.lgrCellCounts().j() );
             formatter.add( lgrInfo.lgrCellCounts().k() );
