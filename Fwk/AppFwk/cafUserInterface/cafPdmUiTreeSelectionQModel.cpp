@@ -544,7 +544,10 @@ bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVa
             }
 
             PdmUiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), fieldValueSelection );
-            emit dataChanged( index, index );
+            if ( index.isValid() )
+            {
+                emit dataChanged( index, index );
+            }
             return true;
         }
     }
