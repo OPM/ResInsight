@@ -18,7 +18,7 @@
 
 #include "gtest/gtest.h"
 
-#include "ExportCommands/RicExportEclipseSectorModelFeature.h"
+#include "RigSimulationInputTool.h"
 
 #include "RifOpmDeckTools.h"
 
@@ -50,7 +50,7 @@ static Opm::DeckRecord createEqualsRecord( const std::string& fieldName, int val
 //--------------------------------------------------------------------------------------------------
 /// Test EQUALS record with no overlap - should return error
 //--------------------------------------------------------------------------------------------------
-TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_NoOverlap )
+TEST( RigSimulationInputTool, ProcessEqualsRecord_NoOverlap )
 {
     // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9) (inclusive, cells [0-19, 15-29, 0-9])
     caf::VecIjk0 sectorMin( 0, 15, 0 );
@@ -62,7 +62,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_NoOverlap )
     // Sector J is [15-29], so no overlap in J dimension
     auto record = createEqualsRecord( "FIPNUM", 1, 1, 20, 1, 14, 1, 10 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
+    auto result = RigSimulationInputTool::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     EXPECT_FALSE( result.has_value() );
     EXPECT_TRUE( result.error().contains( "does not overlap" ) );
@@ -71,7 +71,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_NoOverlap )
 //--------------------------------------------------------------------------------------------------
 /// Test EQUALS record with partial overlap requiring clamping
 //--------------------------------------------------------------------------------------------------
-TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_PartialOverlapWithClamping )
+TEST( RigSimulationInputTool, ProcessEqualsRecord_PartialOverlapWithClamping )
 {
     // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9) (inclusive, cells [0-19, 15-29, 0-9])
     caf::VecIjk0 sectorMin( 0, 15, 0 );
@@ -84,7 +84,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_PartialOverlapWith
     // Intersection (clamped): I[0-19], J[15-29], K[0-9]
     auto record = createEqualsRecord( "FIPNUM", 2, 1, 20, 15, 30, 1, 10 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
+    auto result = RigSimulationInputTool::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     ASSERT_TRUE( result.has_value() );
 
@@ -109,7 +109,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_PartialOverlapWith
 //--------------------------------------------------------------------------------------------------
 /// Test EQUALS record completely inside sector (no clamping)
 //--------------------------------------------------------------------------------------------------
-TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyInside )
+TEST( RigSimulationInputTool, ProcessEqualsRecord_CompletelyInside )
 {
     // Sector: min=(0, 0, 0), max=(19, 19, 9) (inclusive, cells [0-19, 0-19, 0-9])
     caf::VecIjk0 sectorMin( 0, 0, 0 );
@@ -120,7 +120,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyInside )
     // Converts to 0-based: I[4-14], J[4-14], K[1-7]
     auto record = createEqualsRecord( "FIPNUM", 3, 5, 15, 5, 15, 2, 8 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
+    auto result = RigSimulationInputTool::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     ASSERT_TRUE( result.has_value() );
 
@@ -139,7 +139,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyInside )
 //--------------------------------------------------------------------------------------------------
 /// Test EQUALS record completely outside sector
 //--------------------------------------------------------------------------------------------------
-TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyOutside )
+TEST( RigSimulationInputTool, ProcessEqualsRecord_CompletelyOutside )
 {
     // Sector: min=(0, 0, 0), max=(9, 9, 9) (inclusive, cells [0-9, 0-9, 0-9])
     caf::VecIjk0 sectorMin( 0, 0, 0 );
@@ -151,7 +151,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyOutside 
     // No overlap with sector
     auto record = createEqualsRecord( "FIPNUM", 4, 20, 30, 20, 30, 1, 10 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
+    auto result = RigSimulationInputTool::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     EXPECT_FALSE( result.has_value() );
     EXPECT_TRUE( result.error().contains( "does not overlap" ) );
@@ -160,7 +160,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyOutside 
 //--------------------------------------------------------------------------------------------------
 /// Test invalid EQUALS record (insufficient items)
 //--------------------------------------------------------------------------------------------------
-TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_InvalidRecord )
+TEST( RigSimulationInputTool, ProcessEqualsRecord_InvalidRecord )
 {
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 9, 9, 9 );
@@ -177,7 +177,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_InvalidRecord )
 
     Opm::DeckRecord record{ std::move( items ) };
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
+    auto result = RigSimulationInputTool::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     EXPECT_FALSE( result.has_value() );
     EXPECT_TRUE( result.error().contains( "insufficient items" ) );
@@ -186,7 +186,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_InvalidRecord )
 //--------------------------------------------------------------------------------------------------
 /// Test EQUALS record at sector boundary
 //--------------------------------------------------------------------------------------------------
-TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_AtBoundary )
+TEST( RigSimulationInputTool, ProcessEqualsRecord_AtBoundary )
 {
     // Sector: min=(5, 5, 5), max=(14, 14, 14) (inclusive, cells [5-14, 5-14, 5-14])
     caf::VecIjk0 sectorMin( 5, 5, 5 );
@@ -197,7 +197,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_AtBoundary )
     // Converts to 0-based: I[5-14], J[5-14], K[5-14]
     auto record = createEqualsRecord( "FIPNUM", 5, 6, 15, 6, 15, 6, 15 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
+    auto result = RigSimulationInputTool::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     ASSERT_TRUE( result.has_value() );
 
