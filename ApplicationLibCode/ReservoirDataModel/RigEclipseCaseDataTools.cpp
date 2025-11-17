@@ -24,6 +24,7 @@
 #include "Well/RigSimWellData.h"
 #include "Well/RigSimulationWellCenterLineCalculator.h"
 
+#include "cafVecIjk.h"
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
 
@@ -86,21 +87,21 @@ cvf::BoundingBox RigEclipseCaseDataTools::wellBoundingBoxInDomainCoords( RigEcli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::wellBoundingBoxIjk( RigEclipseCaseData*   eclipseCaseData,
-                                                                                 const RigSimWellData* simWellData,
-                                                                                 int                   timeStepIndex,
-                                                                                 bool                  isAutoDetectingBranches,
-                                                                                 bool                  isUsingCellCenterForPipe )
+std::pair<caf::VecIjk0, caf::VecIjk0> RigEclipseCaseDataTools::wellBoundingBoxIjk( RigEclipseCaseData*   eclipseCaseData,
+                                                                                   const RigSimWellData* simWellData,
+                                                                                   int                   timeStepIndex,
+                                                                                   bool                  isAutoDetectingBranches,
+                                                                                   bool                  isUsingCellCenterForPipe )
 {
-    if ( !eclipseCaseData || !simWellData ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+    if ( !eclipseCaseData || !simWellData ) return { caf::VecIjk0::UNDEFINED, caf::VecIjk0::UNDEFINED };
 
     cvf::BoundingBox domainBB =
         wellBoundingBoxInDomainCoords( eclipseCaseData, simWellData, timeStepIndex, isAutoDetectingBranches, isUsingCellCenterForPipe );
 
-    if ( !domainBB.isValid() ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+    if ( !domainBB.isValid() ) return { caf::VecIjk0::UNDEFINED, caf::VecIjk0::UNDEFINED };
 
     auto mainGrid = eclipseCaseData->mainGrid();
-    if ( !mainGrid ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+    if ( !mainGrid ) return { caf::VecIjk0::UNDEFINED, caf::VecIjk0::UNDEFINED };
 
     // Convert domain bounding box min/max to cell indices
     cvf::Vec3d minPoint = domainBB.min();
@@ -110,20 +111,19 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::wellBoundingBoxIjk(
     size_t maxCellIndex = mainGrid->findReservoirCellIndexFromPoint( maxPoint );
 
     if ( minCellIndex == cvf::UNDEFINED_SIZE_T || maxCellIndex == cvf::UNDEFINED_SIZE_T )
-        return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+        return { caf::VecIjk0::UNDEFINED, caf::VecIjk0::UNDEFINED };
 
     // Convert cell indices to IJK coordinates
-    auto ijkFromCellIndex = []( RigMainGrid* mainGrid, size_t index )
+    auto ijkFromCellIndex = []( RigMainGrid* mainGrid, size_t index ) -> caf::VecIjk0
     {
-        if ( auto ijkOpt = mainGrid->ijkFromCellIndex( index ); ijkOpt.has_value() )
-            return cvf::Vec3st( ijkOpt->i(), ijkOpt->j(), ijkOpt->k() );
-        return cvf::Vec3st::UNDEFINED;
+        if ( auto ijkOpt = mainGrid->ijkFromCellIndex( index ); ijkOpt.has_value() ) return ijkOpt.value();
+        return caf::VecIjk0::UNDEFINED;
     };
 
-    cvf::Vec3st minIjk = ijkFromCellIndex( mainGrid, minCellIndex );
-    cvf::Vec3st maxIjk = ijkFromCellIndex( mainGrid, maxCellIndex );
+    caf::VecIjk0 minIjk = ijkFromCellIndex( mainGrid, minCellIndex );
+    caf::VecIjk0 maxIjk = ijkFromCellIndex( mainGrid, maxCellIndex );
 
-    if ( minIjk.isUndefined() || maxIjk.isUndefined() ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+    if ( minIjk.isUndefined() || maxIjk.isUndefined() ) return { caf::VecIjk0::UNDEFINED, caf::VecIjk0::UNDEFINED };
 
     if ( minIjk.x() > maxIjk.x() || minIjk.y() > maxIjk.y() || minIjk.z() > maxIjk.z() )
     {
@@ -136,16 +136,16 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::wellBoundingBoxIjk(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::wellsBoundingBoxIjk( RigEclipseCaseData*                       eclipseCaseData,
-                                                                                  const std::vector<const RigSimWellData*>& simWells,
-                                                                                  int                                       timeStepIndex,
-                                                                                  bool isAutoDetectingBranches,
-                                                                                  bool isUsingCellCenterForPipe )
+std::pair<caf::VecIjk0, caf::VecIjk0> RigEclipseCaseDataTools::wellsBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData,
+                                                                                    const std::vector<const RigSimWellData*>& simWells,
+                                                                                    int                                       timeStepIndex,
+                                                                                    bool isAutoDetectingBranches,
+                                                                                    bool isUsingCellCenterForPipe )
 {
-    if ( !eclipseCaseData || simWells.empty() ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+    if ( !eclipseCaseData || simWells.empty() ) return { caf::VecIjk0::UNDEFINED, caf::VecIjk0::UNDEFINED };
 
-    cvf::Vec3st globalMin = cvf::Vec3st::UNDEFINED;
-    cvf::Vec3st globalMax = cvf::Vec3st::UNDEFINED;
+    caf::VecIjk0 globalMin = caf::VecIjk0::UNDEFINED;
+    caf::VecIjk0 globalMax = caf::VecIjk0::UNDEFINED;
 
     for ( const auto& well : simWells )
     {
@@ -179,15 +179,15 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::wellsBoundingBoxIjk
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::expandBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData,
-                                                                                   const cvf::Vec3st&  minIjk,
-                                                                                   const cvf::Vec3st&  maxIjk,
-                                                                                   size_t              numPadding )
+std::pair<caf::VecIjk0, caf::VecIjk0> RigEclipseCaseDataTools::expandBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData,
+                                                                                     const caf::VecIjk0& minIjk,
+                                                                                     const caf::VecIjk0& maxIjk,
+                                                                                     size_t              numPadding )
 {
-    if ( !eclipseCaseData || minIjk.isUndefined() || maxIjk.isUndefined() ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+    if ( !eclipseCaseData || minIjk.isUndefined() || maxIjk.isUndefined() ) return { caf::VecIjk0::UNDEFINED, caf::VecIjk0::UNDEFINED };
 
     auto mainGrid = eclipseCaseData->mainGrid();
-    if ( !mainGrid ) return { cvf::Vec3st::UNDEFINED, cvf::Vec3st::UNDEFINED };
+    if ( !mainGrid ) return { caf::VecIjk0::UNDEFINED, caf::VecIjk0::UNDEFINED };
 
     // Calculate expanded bounds with padding, ensuring we stay within grid bounds
     size_t expandedMinI = ( minIjk.x() >= numPadding ) ? ( minIjk.x() - numPadding ) : 0;
@@ -198,15 +198,15 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RigEclipseCaseDataTools::expandBoundingBoxIj
     size_t expandedMaxJ = std::min( maxIjk.y() + numPadding, mainGrid->cellCountJ() - 1 );
     size_t expandedMaxK = std::min( maxIjk.z() + numPadding, mainGrid->cellCountK() - 1 );
 
-    return { cvf::Vec3st( expandedMinI, expandedMinJ, expandedMinK ), cvf::Vec3st( expandedMaxI, expandedMaxJ, expandedMaxK ) };
+    return { caf::VecIjk0( expandedMinI, expandedMinJ, expandedMinK ), caf::VecIjk0( expandedMaxI, expandedMaxJ, expandedMaxK ) };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::UByteArray> RigEclipseCaseDataTools::createVisibilityFromIjkBounds( RigEclipseCaseData* eclipseCaseData,
-                                                                                  const cvf::Vec3st&  minIjk,
-                                                                                  const cvf::Vec3st&  maxIjk )
+                                                                                  const caf::VecIjk0& minIjk,
+                                                                                  const caf::VecIjk0& maxIjk )
 {
     if ( !eclipseCaseData || minIjk.isUndefined() || maxIjk.isUndefined() ) return nullptr;
 

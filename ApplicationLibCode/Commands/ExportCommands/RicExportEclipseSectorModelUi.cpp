@@ -93,6 +93,8 @@ void RicExportEclipseSectorModelUi::BoundaryConditionEnum::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
+    : m_visibleMin( caf::VecIjk0::ZERO )
+    , m_visibleMax( caf::VecIjk0::ZERO )
 {
     CAF_PDM_InitObject( "Export Visible Cells as Eclipse Input Grid" );
 
@@ -184,10 +186,10 @@ const QStringList& RicExportEclipseSectorModelUi::tabNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*= nullptr*/,
-                                                 RimEclipseView*     eclipseView /*= nullptr*/,
-                                                 const cvf::Vec3st&  visibleMin /*= cvf::Vec3st::ZERO*/,
-                                                 const cvf::Vec3st&  visibleMax /*= cvf::Vec3st::ZERO*/ )
+void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData,
+                                                 RimEclipseView*     eclipseView,
+                                                 const caf::VecIjk0& visibleMin,
+                                                 const caf::VecIjk0& visibleMax )
 {
     m_caseData    = caseData;
     m_eclipseView = eclipseView;
@@ -258,23 +260,23 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RicExportEclipseSectorModelUi::min() const
+caf::VecIjk0 RicExportEclipseSectorModelUi::min() const
 {
-    return cvf::Vec3st( minI() - 1, minJ() - 1, minK() - 1 );
+    return caf::VecIjk0( minI() - 1, minJ() - 1, minK() - 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RicExportEclipseSectorModelUi::max() const
+caf::VecIjk0 RicExportEclipseSectorModelUi::max() const
 {
-    return cvf::Vec3st( maxI() - 1, maxJ() - 1, maxK() - 1 );
+    return caf::VecIjk0( maxI() - 1, maxJ() - 1, maxK() - 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::setMin( const cvf::Vec3st& min )
+void RicExportEclipseSectorModelUi::setMin( const caf::VecIjk0& min )
 {
     minI = static_cast<int>( min.x() ) + 1;
     minJ = static_cast<int>( min.y() ) + 1;
@@ -284,7 +286,7 @@ void RicExportEclipseSectorModelUi::setMin( const cvf::Vec3st& min )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::setMax( const cvf::Vec3st& max )
+void RicExportEclipseSectorModelUi::setMax( const caf::VecIjk0& max )
 {
     maxI = static_cast<int>( max.x() ) + 1;
     maxJ = static_cast<int>( max.y() ) + 1;
@@ -646,8 +648,9 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
     else if ( exportGridBox == FULL_GRID_BOX )
     {
         const RigMainGrid* mainGrid = m_caseData->mainGrid();
-        setMin( cvf::Vec3st::ZERO );
-        setMax( mainGrid->cellCounts() - cvf::Vec3st( 1, 1, 1 ) );
+        setMin( caf::VecIjk0::ZERO );
+        cvf::Vec3st maxCounts = mainGrid->cellCounts() - cvf::Vec3st( 1, 1, 1 );
+        setMax( caf::VecIjk0( maxCounts.x(), maxCounts.y(), maxCounts.z() ) );
     }
     else
     {
@@ -746,7 +749,7 @@ std::vector<const RigSimWellData*> RicExportEclipseSectorModelUi::getVisibleSimu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3st, cvf::Vec3st>
+std::pair<caf::VecIjk0, caf::VecIjk0>
     RicExportEclipseSectorModelUi::computeVisibleWellCells( RimEclipseView* view, RigEclipseCaseData* caseData, int visibleWellsPadding )
 {
     if ( view )
@@ -782,6 +785,7 @@ std::pair<cvf::Vec3st, cvf::Vec3st>
     }
 
     // No view available, fallback to full grid
-    const RigMainGrid* mainGrid = caseData->mainGrid();
-    return { cvf::Vec3st::ZERO, mainGrid->cellCounts() - cvf::Vec3st( 1, 1, 1 ) };
+    const RigMainGrid* mainGrid  = caseData->mainGrid();
+    cvf::Vec3st        maxCounts = mainGrid->cellCounts() - cvf::Vec3st( 1, 1, 1 );
+    return { caf::VecIjk0::ZERO, caf::VecIjk0( maxCounts.x(), maxCounts.y(), maxCounts.z() ) };
 }

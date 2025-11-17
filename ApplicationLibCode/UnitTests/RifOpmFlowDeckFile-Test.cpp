@@ -372,10 +372,10 @@ TEST( RifOpmFlowDeckFileTest, BcpropKeyword )
 
     // Create boundary conditions with different indices
     std::vector<RigEclipseResultTools::BorderCellFace> boundaryConditions;
-    boundaryConditions.push_back( { cvf::Vec3st( 5, 5, 2 ), cvf::StructGridInterface::POS_I, 1 } );
-    boundaryConditions.push_back( { cvf::Vec3st( 5, 6, 2 ), cvf::StructGridInterface::POS_J, 1 } );
-    boundaryConditions.push_back( { cvf::Vec3st( 6, 5, 2 ), cvf::StructGridInterface::NEG_I, 2 } );
-    boundaryConditions.push_back( { cvf::Vec3st( 7, 5, 2 ), cvf::StructGridInterface::POS_K, 2 } );
+    boundaryConditions.push_back( { caf::VecIjk0( 5, 5, 2 ), cvf::StructGridInterface::POS_I, 1 } );
+    boundaryConditions.push_back( { caf::VecIjk0( 5, 6, 2 ), cvf::StructGridInterface::POS_J, 1 } );
+    boundaryConditions.push_back( { caf::VecIjk0( 6, 5, 2 ), cvf::StructGridInterface::NEG_I, 2 } );
+    boundaryConditions.push_back( { caf::VecIjk0( 7, 5, 2 ), cvf::StructGridInterface::POS_K, 2 } );
 
     // Create boundary condition properties
     // BC 1: Free flow boundary with specified pressure

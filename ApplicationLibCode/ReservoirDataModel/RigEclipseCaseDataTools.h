@@ -20,6 +20,7 @@
 
 #include "QString"
 
+#include "cafVecIjk.h"
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -43,21 +44,21 @@ public:
                                                            bool                  isAutoDetectingBranches,
                                                            bool                  isUsingCellCenterForPipe );
 
-    static std::pair<cvf::Vec3st, cvf::Vec3st> wellBoundingBoxIjk( RigEclipseCaseData*   eclipseCaseData,
-                                                                   const RigSimWellData* simWellData,
-                                                                   int                   timeStepIndex,
-                                                                   bool                  isAutoDetectingBranches,
-                                                                   bool                  isUsingCellCenterForPipe );
+    static std::pair<caf::VecIjk0, caf::VecIjk0> wellBoundingBoxIjk( RigEclipseCaseData*   eclipseCaseData,
+                                                                     const RigSimWellData* simWellData,
+                                                                     int                   timeStepIndex,
+                                                                     bool                  isAutoDetectingBranches,
+                                                                     bool                  isUsingCellCenterForPipe );
 
-    static std::pair<cvf::Vec3st, cvf::Vec3st> wellsBoundingBoxIjk( RigEclipseCaseData*                       eclipseCaseData,
-                                                                    const std::vector<const RigSimWellData*>& simWells,
-                                                                    int                                       timeStepIndex,
-                                                                    bool                                      isAutoDetectingBranches,
-                                                                    bool                                      isUsingCellCenterForPipe );
+    static std::pair<caf::VecIjk0, caf::VecIjk0> wellsBoundingBoxIjk( RigEclipseCaseData*                       eclipseCaseData,
+                                                                      const std::vector<const RigSimWellData*>& simWells,
+                                                                      int                                       timeStepIndex,
+                                                                      bool                                      isAutoDetectingBranches,
+                                                                      bool                                      isUsingCellCenterForPipe );
 
-    static std::pair<cvf::Vec3st, cvf::Vec3st>
-        expandBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData, const cvf::Vec3st& minIjk, const cvf::Vec3st& maxIjk, size_t numPadding );
+    static std::pair<caf::VecIjk0, caf::VecIjk0>
+        expandBoundingBoxIjk( RigEclipseCaseData* eclipseCaseData, const caf::VecIjk0& minIjk, const caf::VecIjk0& maxIjk, size_t numPadding );
 
     static cvf::ref<cvf::UByteArray>
-        createVisibilityFromIjkBounds( RigEclipseCaseData* eclipseCaseData, const cvf::Vec3st& minIjk, const cvf::Vec3st& maxIjk );
+        createVisibilityFromIjkBounds( RigEclipseCaseData* eclipseCaseData, const caf::VecIjk0& minIjk, const caf::VecIjk0& maxIjk );
 };

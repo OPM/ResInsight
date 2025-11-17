@@ -34,6 +34,8 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 
+#include "cafVecIjk.h"
+
 namespace RigEclipseResultTools
 {
 namespace
@@ -260,7 +262,7 @@ int findMaxBcconValue( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void generateBcconResult( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max )
+void generateBcconResult( RimEclipseCase* eclipseCase, const caf::VecIjk0& min, const caf::VecIjk0& max )
 {
     if ( eclipseCase == nullptr ) return;
 
@@ -378,38 +380,39 @@ std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase
         if ( borderValue != BorderType::BORDER_CELL ) continue;
 
         // Get IJK indices for this cell
-        size_t i, j, k;
-        if ( !grid->ijkFromCellIndex( activeCellIdx.value(), &i, &j, &k ) ) continue;
-
-        // Check all 6 faces
-        std::vector<cvf::StructGridInterface::FaceType> faces = cvf::StructGridInterface::validFaceTypes();
-
-        for ( auto faceType : faces )
+        if ( auto ijk = grid->ijkFromCellIndex( activeCellIdx.value() ) )
         {
-            // Get neighbor cell IJK
-            size_t ni, nj, nk;
-            cvf::StructGridInterface::neighborIJKAtCellFace( i, j, k, faceType, &ni, &nj, &nk );
+            // Check all 6 faces
+            std::vector<cvf::StructGridInterface::FaceType> faces = cvf::StructGridInterface::validFaceTypes();
 
-            // Check if neighbor is within bounds
-            if ( ni >= grid->cellCountI() || nj >= grid->cellCountJ() || nk >= grid->cellCountK() ) continue;
-
-            // Get neighbor reservoir cell index
-            size_t neighborReservoirIdx = grid->cellIndexFromIJK( ni, nj, nk );
-
-            // Find active cell index for neighbor
-            auto it = std::find( activeReservoirCellIdxs.begin(), activeReservoirCellIdxs.end(), ReservoirCellIndex( neighborReservoirIdx ) );
-            if ( it == activeReservoirCellIdxs.end() ) continue; // Neighbor not active
-
-            // Check if neighbor is an interior cell
-            int neighborBorderValue = static_cast<int>( bordNumValues[neighborReservoirIdx] );
-            if ( neighborBorderValue == BorderType::INTERIOR_CELL )
+            for ( auto faceType : faces )
             {
-                // Get boundary condition value from BCCON grid property
-                int boundaryCondition = static_cast<int>( bcconValues[activeCellIdx.value()] );
-                if ( boundaryCondition > 0 )
+                // Get neighbor cell IJK
+                size_t ni, nj, nk;
+                cvf::StructGridInterface::neighborIJKAtCellFace( ijk->i(), ijk->j(), ijk->k(), faceType, &ni, &nj, &nk );
+
+                // Check if neighbor is within bounds
+                if ( ni >= grid->cellCountI() || nj >= grid->cellCountJ() || nk >= grid->cellCountK() ) continue;
+
+                // Get neighbor reservoir cell index
+                size_t neighborReservoirIdx = grid->cellIndexFromIJK( ni, nj, nk );
+
+                // Find active cell index for neighbor
+                auto it =
+                    std::find( activeReservoirCellIdxs.begin(), activeReservoirCellIdxs.end(), ReservoirCellIndex( neighborReservoirIdx ) );
+                if ( it == activeReservoirCellIdxs.end() ) continue; // Neighbor not active
+
+                // Check if neighbor is an interior cell
+                int neighborBorderValue = static_cast<int>( bordNumValues[neighborReservoirIdx] );
+                if ( neighborBorderValue == BorderType::INTERIOR_CELL )
                 {
-                    // Add this face to the result
-                    borderCellFaces.push_back( { cvf::Vec3st( i, j, k ), faceType, boundaryCondition } );
+                    // Get boundary condition value from BCCON grid property
+                    int boundaryCondition = static_cast<int>( bcconValues[activeCellIdx.value()] );
+                    if ( boundaryCondition > 0 )
+                    {
+                        // Add this face to the result
+                        borderCellFaces.push_back( { *ijk, faceType, boundaryCondition } );
+                    }
                 }
             }
         }

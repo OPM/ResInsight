@@ -260,8 +260,8 @@ TEST( RigEclipseResultToolsTest, BcconResultWithFaceNumbering )
     size_t startK = grid->cellCountK() / 4;
     size_t endK   = 3 * grid->cellCountK() / 4;
 
-    cvf::Vec3st min( startI, startJ, startK );
-    cvf::Vec3st max( endI - 1, endJ - 1, endK - 1 );
+    caf::VecIjk0 min( startI, startJ, startK );
+    caf::VecIjk0 max( endI - 1, endJ - 1, endK - 1 );
 
     // Make the box visible
     for ( size_t i = startI; i < endI; ++i )

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "cafVecIjk.h"
+
 #include "cvfArray.h"
 #include "cvfMatrix4.h"
 #include "cvfStructGrid.h"
@@ -87,10 +89,10 @@ public:
     bool        hasRefinement() const;
 
     // Coordinate transformation utilities
-    static std::expected<cvf::Vec3st, QString> transformIjkToSectorCoordinates( const cvf::Vec3st& originalIjk,
-                                                                                const cvf::Vec3st& min,
-                                                                                const cvf::Vec3st& max,
-                                                                                const cvf::Vec3st& refinement );
+    static std::expected<caf::VecIjk1, QString> transformIjkToSectorCoordinates( const caf::VecIjk0& originalIjk,
+                                                                                 const caf::VecIjk0& min,
+                                                                                 const caf::VecIjk0& max,
+                                                                                 const cvf::Vec3st&  refinement );
 
 private:
     // Internal methods to handle original vs refined cell access

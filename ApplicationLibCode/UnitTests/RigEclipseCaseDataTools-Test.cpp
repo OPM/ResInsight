@@ -109,8 +109,8 @@ TEST( RigEclipseCaseDataToolsTest, WellBoundingBoxWithBruggeModel )
     auto [minIjk, maxIjk] =
         RigEclipseCaseDataTools::wellBoundingBoxIjk( eclipseCase.p(), testWell, timeStep, isAutoDetectingBranches, isUsingCellCenterForPipe );
 
-    ASSERT_NE( minIjk, cvf::Vec3st::UNDEFINED ) << "Min IJK should be valid";
-    ASSERT_NE( maxIjk, cvf::Vec3st::UNDEFINED ) << "Max IJK should be valid";
+    ASSERT_NE( minIjk, caf::VecIjk0::UNDEFINED ) << "Min IJK should be valid";
+    ASSERT_NE( maxIjk, caf::VecIjk0::UNDEFINED ) << "Max IJK should be valid";
 
     // Sanity checks
     ASSERT_LE( minIjk.x(), maxIjk.x() ) << "Min I should be <= Max I";
@@ -180,8 +180,8 @@ TEST( RigEclipseCaseDataToolsTest, MultipleWellsBoundingBoxWithBruggeModel )
     auto [minIjk, maxIjk] =
         RigEclipseCaseDataTools::wellsBoundingBoxIjk( eclipseCase.p(), testWells, timeStep, isAutoDetectingBranches, isUsingCellCenterForPipe );
 
-    ASSERT_NE( minIjk, cvf::Vec3st::UNDEFINED ) << "Min IJK should be valid";
-    ASSERT_NE( maxIjk, cvf::Vec3st::UNDEFINED ) << "Max IJK should be valid";
+    ASSERT_NE( minIjk, caf::VecIjk0::UNDEFINED ) << "Min IJK should be valid";
+    ASSERT_NE( maxIjk, caf::VecIjk0::UNDEFINED ) << "Max IJK should be valid";
 
     // Expected values from visual inspection
     ASSERT_EQ( minIjk.x(), 44 );
@@ -234,14 +234,14 @@ TEST( RigEclipseCaseDataToolsTest, ExpandBoundingBoxIjkWithPadding )
     size_t gridCellCountK = mainGrid->cellCountK();
 
     // Test case 1: Normal expansion with padding (using safe values that won't hit grid boundaries)
-    cvf::Vec3st originalMin( 20, 20, 3 );
-    cvf::Vec3st originalMax( 22, 22, 4 );
-    size_t      padding = 3;
+    caf::VecIjk0 originalMin( 20, 20, 3 );
+    caf::VecIjk0 originalMax( 22, 22, 4 );
+    size_t       padding = 3;
 
     auto [expandedMin1, expandedMax1] = RigEclipseCaseDataTools::expandBoundingBoxIjk( eclipseCase.p(), originalMin, originalMax, padding );
 
-    ASSERT_NE( expandedMin1, cvf::Vec3st::UNDEFINED ) << "Expanded min should be valid";
-    ASSERT_NE( expandedMax1, cvf::Vec3st::UNDEFINED ) << "Expanded max should be valid";
+    ASSERT_NE( expandedMin1, caf::VecIjk0::UNDEFINED ) << "Expanded min should be valid";
+    ASSERT_NE( expandedMax1, caf::VecIjk0::UNDEFINED ) << "Expanded max should be valid";
 
     // Check expansion worked correctly (these values should not hit grid boundaries)
     ASSERT_EQ( expandedMin1.x(), originalMin.x() - padding ) << "Min I should be reduced by padding";
@@ -253,15 +253,15 @@ TEST( RigEclipseCaseDataToolsTest, ExpandBoundingBoxIjkWithPadding )
     ASSERT_EQ( expandedMax1.z(), originalMax.z() + padding ) << "Max K should be increased by padding";
 
     // Test case 2: Expansion at grid boundary - ensure min never goes below 0
-    cvf::Vec3st boundaryMin( 1, 1, 1 );
-    cvf::Vec3st boundaryMax( 3, 3, 3 );
-    size_t      largePadding = 5;
+    caf::VecIjk0 boundaryMin( 1, 1, 1 );
+    caf::VecIjk0 boundaryMax( 3, 3, 3 );
+    size_t       largePadding = 5;
 
     auto [expandedMin2, expandedMax2] =
         RigEclipseCaseDataTools::expandBoundingBoxIjk( eclipseCase.p(), boundaryMin, boundaryMax, largePadding );
 
-    ASSERT_NE( expandedMin2, cvf::Vec3st::UNDEFINED ) << "Boundary expanded min should be valid";
-    ASSERT_NE( expandedMax2, cvf::Vec3st::UNDEFINED ) << "Boundary expanded max should be valid";
+    ASSERT_NE( expandedMin2, caf::VecIjk0::UNDEFINED ) << "Boundary expanded min should be valid";
+    ASSERT_NE( expandedMax2, caf::VecIjk0::UNDEFINED ) << "Boundary expanded max should be valid";
 
     // Ensure min coordinates never go negative (should be clamped to 0)
     ASSERT_EQ( expandedMin2.x(), 0 ) << "Min I should be clamped to 0";
@@ -269,14 +269,14 @@ TEST( RigEclipseCaseDataToolsTest, ExpandBoundingBoxIjkWithPadding )
     ASSERT_EQ( expandedMin2.z(), 0 ) << "Min K should be clamped to 0";
 
     // Test case 3: Expansion at grid upper boundary - ensure max never exceeds grid dimensions
-    cvf::Vec3st upperBoundaryMin( gridCellCountI - 3, gridCellCountJ - 3, gridCellCountK - 3 );
-    cvf::Vec3st upperBoundaryMax( gridCellCountI - 1, gridCellCountJ - 1, gridCellCountK - 1 );
+    caf::VecIjk0 upperBoundaryMin( gridCellCountI - 3, gridCellCountJ - 3, gridCellCountK - 3 );
+    caf::VecIjk0 upperBoundaryMax( gridCellCountI - 1, gridCellCountJ - 1, gridCellCountK - 1 );
 
     auto [expandedMin3, expandedMax3] =
         RigEclipseCaseDataTools::expandBoundingBoxIjk( eclipseCase.p(), upperBoundaryMin, upperBoundaryMax, largePadding );
 
-    ASSERT_NE( expandedMin3, cvf::Vec3st::UNDEFINED ) << "Upper boundary expanded min should be valid";
-    ASSERT_NE( expandedMax3, cvf::Vec3st::UNDEFINED ) << "Upper boundary expanded max should be valid";
+    ASSERT_NE( expandedMin3, caf::VecIjk0::UNDEFINED ) << "Upper boundary expanded min should be valid";
+    ASSERT_NE( expandedMax3, caf::VecIjk0::UNDEFINED ) << "Upper boundary expanded max should be valid";
 
     // Ensure max coordinates never exceed grid dimensions (should be clamped to grid size - 1)
     ASSERT_EQ( expandedMax3.x(), gridCellCountI - 1 ) << "Max I should be clamped to grid size - 1";
@@ -328,8 +328,8 @@ TEST( RigEclipseCaseDataToolsTest, CreateVisibilityFromIjkBounds )
     size_t totalCellCount = eclipseCase->mainGrid()->cellCount();
 
     // Test case 1: Basic visibility generation with small bounds
-    cvf::Vec3st minIjk( 5, 5, 5 );
-    cvf::Vec3st maxIjk( 10, 10, 8 );
+    caf::VecIjk0 minIjk( 5, 5, 5 );
+    caf::VecIjk0 maxIjk( 10, 10, 8 );
 
     auto visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, maxIjk );
 
@@ -377,8 +377,8 @@ TEST( RigEclipseCaseDataToolsTest, CreateVisibilityFromIjkBounds )
     }
 
     // Test case 4: Edge case - single cell bounds
-    cvf::Vec3st singleCellMin( 2, 2, 2 );
-    cvf::Vec3st singleCellMax( 2, 2, 2 );
+    caf::VecIjk0 singleCellMin( 2, 2, 2 );
+    caf::VecIjk0 singleCellMax( 2, 2, 2 );
 
     auto singleCellVisibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), singleCellMin, singleCellMax );
 
@@ -403,15 +403,15 @@ TEST( RigEclipseCaseDataToolsTest, CreateVisibilityFromIjkBounds )
     auto invalidVisibility1 = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( nullptr, minIjk, maxIjk );
     ASSERT_TRUE( invalidVisibility1.isNull() ) << "Null case data should return null visibility";
 
-    auto invalidVisibility2 = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), cvf::Vec3st::UNDEFINED, maxIjk );
+    auto invalidVisibility2 = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), caf::VecIjk0::UNDEFINED, maxIjk );
     ASSERT_TRUE( invalidVisibility2.isNull() ) << "Undefined minIjk should return null visibility";
 
-    auto invalidVisibility3 = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, cvf::Vec3st::UNDEFINED );
+    auto invalidVisibility3 = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, caf::VecIjk0::UNDEFINED );
     ASSERT_TRUE( invalidVisibility3.isNull() ) << "Undefined maxIjk should return null visibility";
 
     // Test case 6: Boundary conditions - bounds at grid limits
-    cvf::Vec3st gridMinBounds( 0, 0, 0 );
-    cvf::Vec3st gridMaxBounds( gridCellCountI - 1, gridCellCountJ - 1, gridCellCountK - 1 );
+    caf::VecIjk0 gridMinBounds( 0, 0, 0 );
+    caf::VecIjk0 gridMaxBounds( gridCellCountI - 1, gridCellCountJ - 1, gridCellCountK - 1 );
 
     auto fullGridVisibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), gridMinBounds, gridMaxBounds );
 
@@ -453,8 +453,8 @@ TEST( RigEclipseCaseDataToolsTest, GenerateBorderResultFromIjkBounds )
     resultCase->setReservoirData( eclipseCase.p() );
 
     // Define IJK bounds for testing
-    cvf::Vec3st minIjk( 20, 20, 5 );
-    cvf::Vec3st maxIjk( 30, 30, 8 );
+    caf::VecIjk0 minIjk( 20, 20, 5 );
+    caf::VecIjk0 maxIjk( 30, 30, 8 );
 
     // Create visibility from IJK bounds
     auto visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, maxIjk );
@@ -524,8 +524,8 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     resultCase->setReservoirData( eclipseCase.p() );
 
     // Define IJK bounds for testing
-    cvf::Vec3st minIjk( 20, 20, 5 );
-    cvf::Vec3st maxIjk( 30, 30, 8 );
+    caf::VecIjk0 minIjk( 20, 20, 5 );
+    caf::VecIjk0 maxIjk( 30, 30, 8 );
 
     // Create visibility from IJK bounds
     auto visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, maxIjk );

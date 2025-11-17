@@ -52,17 +52,17 @@ static Opm::DeckRecord createEqualsRecord( const std::string& fieldName, int val
 //--------------------------------------------------------------------------------------------------
 TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_NoOverlap )
 {
-    // Sector: min=(0, 15, 0), max=(19, 29, 9) (inclusive, cells [0-19, 15-29, 0-9])
-    cvf::Vec3st min( 0, 15, 0 );
-    cvf::Vec3st max( 19, 29, 9 );
-    cvf::Vec3st refinement( 1, 1, 1 );
+    // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9) (inclusive, cells [0-19, 15-29, 0-9])
+    caf::VecIjk0 sectorMin( 0, 15, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
 
     // EQUALS record: FIPNUM 1 1 20 1 14 1 10 (1-based Eclipse)
     // Converts to 0-based: I[0-19], J[0-13], K[0-9]
     // Sector J is [15-29], so no overlap in J dimension
     auto record = createEqualsRecord( "FIPNUM", 1, 1, 20, 1, 14, 1, 10 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, min, max, refinement );
+    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     EXPECT_FALSE( result.has_value() );
     EXPECT_TRUE( result.error().contains( "does not overlap" ) );
@@ -73,10 +73,10 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_NoOverlap )
 //--------------------------------------------------------------------------------------------------
 TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_PartialOverlapWithClamping )
 {
-    // Sector: min=(0, 15, 0), max=(19, 29, 9) (inclusive, cells [0-19, 15-29, 0-9])
-    cvf::Vec3st min( 0, 15, 0 );
-    cvf::Vec3st max( 19, 29, 9 );
-    cvf::Vec3st refinement( 1, 1, 1 );
+    // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9) (inclusive, cells [0-19, 15-29, 0-9])
+    caf::VecIjk0 sectorMin( 0, 15, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
 
     // EQUALS record: FIPNUM 2 1 20 15 30 1 10 (1-based Eclipse)
     // Converts to 0-based: I[0-19], J[14-29], K[0-9]
@@ -84,7 +84,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_PartialOverlapWith
     // Intersection (clamped): I[0-19], J[15-29], K[0-9]
     auto record = createEqualsRecord( "FIPNUM", 2, 1, 20, 15, 30, 1, 10 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, min, max, refinement );
+    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     ASSERT_TRUE( result.has_value() );
 
@@ -112,15 +112,15 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_PartialOverlapWith
 TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyInside )
 {
     // Sector: min=(0, 0, 0), max=(19, 19, 9) (inclusive, cells [0-19, 0-19, 0-9])
-    cvf::Vec3st min( 0, 0, 0 );
-    cvf::Vec3st max( 19, 19, 9 );
-    cvf::Vec3st refinement( 1, 1, 1 );
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    caf::VecIjk0 sectorMax( 19, 19, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
 
     // EQUALS record completely inside: FIPNUM 3 5 15 5 15 2 8 (1-based Eclipse)
     // Converts to 0-based: I[4-14], J[4-14], K[1-7]
     auto record = createEqualsRecord( "FIPNUM", 3, 5, 15, 5, 15, 2, 8 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, min, max, refinement );
+    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     ASSERT_TRUE( result.has_value() );
 
@@ -142,16 +142,16 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyInside )
 TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyOutside )
 {
     // Sector: min=(0, 0, 0), max=(9, 9, 9) (inclusive, cells [0-9, 0-9, 0-9])
-    cvf::Vec3st min( 0, 0, 0 );
-    cvf::Vec3st max( 9, 9, 9 );
-    cvf::Vec3st refinement( 1, 1, 1 );
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    caf::VecIjk0 sectorMax( 9, 9, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
 
     // EQUALS record outside: FIPNUM 4 20 30 20 30 1 10 (1-based Eclipse)
     // Converts to 0-based: I[19-29], J[19-29], K[0-9]
     // No overlap with sector
     auto record = createEqualsRecord( "FIPNUM", 4, 20, 30, 20, 30, 1, 10 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, min, max, refinement );
+    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     EXPECT_FALSE( result.has_value() );
     EXPECT_TRUE( result.error().contains( "does not overlap" ) );
@@ -162,9 +162,9 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_CompletelyOutside 
 //--------------------------------------------------------------------------------------------------
 TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_InvalidRecord )
 {
-    cvf::Vec3st min( 0, 0, 0 );
-    cvf::Vec3st max( 9, 9, 9 );
-    cvf::Vec3st refinement( 1, 1, 1 );
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    caf::VecIjk0 sectorMax( 9, 9, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
 
     // Create a record with only 5 items (insufficient)
     std::vector<Opm::DeckItem> items;
@@ -177,7 +177,7 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_InvalidRecord )
 
     Opm::DeckRecord record{ std::move( items ) };
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, min, max, refinement );
+    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     EXPECT_FALSE( result.has_value() );
     EXPECT_TRUE( result.error().contains( "insufficient items" ) );
@@ -189,15 +189,15 @@ TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_InvalidRecord )
 TEST( RicExportEclipseSectorModelFeature, ProcessEqualsRecord_AtBoundary )
 {
     // Sector: min=(5, 5, 5), max=(14, 14, 14) (inclusive, cells [5-14, 5-14, 5-14])
-    cvf::Vec3st min( 5, 5, 5 );
-    cvf::Vec3st max( 14, 14, 14 );
-    cvf::Vec3st refinement( 1, 1, 1 );
+    caf::VecIjk0 sectorMin( 5, 5, 5 );
+    caf::VecIjk0 sectorMax( 14, 14, 14 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
 
     // EQUALS record exactly matching sector: 6 15 6 15 6 15 (1-based Eclipse)
     // Converts to 0-based: I[5-14], J[5-14], K[5-14]
     auto record = createEqualsRecord( "FIPNUM", 5, 6, 15, 6, 15, 6, 15 );
 
-    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, min, max, refinement );
+    auto result = RicExportEclipseSectorModelFeature::processEqualsRecord( record, sectorMin, sectorMax, refinement );
 
     ASSERT_TRUE( result.has_value() );
 

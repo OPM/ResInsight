@@ -60,6 +60,9 @@ class VecIjk0 : public VecIjk
 public:
     VecIjk0( size_t i, size_t j, size_t k );
     VecIjk1 toOneBased() const;
+
+    static const VecIjk0 ZERO;
+    static const VecIjk0 UNDEFINED;
 };
 
 class VecIjk1 : public VecIjk

@@ -26,6 +26,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
+#include "cafVecIjk.h"
 #include "cvfAssert.h"
 #include "cvfStructGrid.h"
 
@@ -422,10 +423,10 @@ size_t RigGridExportAdapter::totalCells() const
 /// Transform IJK coordinates from global grid space to sector-relative space with refinement
 /// Returns 1-based Eclipse coordinates
 //--------------------------------------------------------------------------------------------------
-std::expected<cvf::Vec3st, QString> RigGridExportAdapter::transformIjkToSectorCoordinates( const cvf::Vec3st& originalIjk,
-                                                                                           const cvf::Vec3st& min,
-                                                                                           const cvf::Vec3st& max,
-                                                                                           const cvf::Vec3st& refinement )
+std::expected<caf::VecIjk1, QString> RigGridExportAdapter::transformIjkToSectorCoordinates( const caf::VecIjk0& originalIjk,
+                                                                                            const caf::VecIjk0& min,
+                                                                                            const caf::VecIjk0& max,
+                                                                                            const cvf::Vec3st&  refinement )
 {
     // Check if original IJK is within the sector bounds
     if ( originalIjk.x() < min.x() || originalIjk.x() > max.x() || originalIjk.y() < min.y() || originalIjk.y() > max.y() ||
@@ -445,10 +446,9 @@ std::expected<cvf::Vec3st, QString> RigGridExportAdapter::transformIjkToSectorCo
 
     // Transform to sector-relative coordinates with refinement
     // Eclipse uses 1-based indexing, so we'll return 1-based coordinates
-    cvf::Vec3st sectorIjk;
-    sectorIjk.x() = ( originalIjk.x() - min.x() ) * refinement.x() + 1;
-    sectorIjk.y() = ( originalIjk.y() - min.y() ) * refinement.y() + 1;
-    sectorIjk.z() = ( originalIjk.z() - min.z() ) * refinement.z() + 1;
+    size_t sectorI = ( originalIjk.x() - min.x() ) * refinement.x() + 1;
+    size_t sectorJ = ( originalIjk.y() - min.y() ) * refinement.y() + 1;
+    size_t sectorK = ( originalIjk.z() - min.z() ) * refinement.z() + 1;
 
-    return sectorIjk;
+    return caf::VecIjk1( sectorI, sectorJ, sectorK );
 }

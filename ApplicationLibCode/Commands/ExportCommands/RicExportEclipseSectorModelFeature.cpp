@@ -534,7 +534,7 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addBorderBounda
             // Update the IJK coordinates to sector-relative (1-based Eclipse coordinates)
             // Note: RigGridExportAdapter::transformIjkToSectorCoordinates returns 1-based coordinates, but we need to convert back to
             // 0-based for the BorderCellFace struct
-            face.ijk = cvf::Vec3st( transformResult->x() - 1, transformResult->y() - 1, transformResult->z() - 1 );
+            face.ijk = transformResult->toZeroBased();
         }
 
         // Create BCCON keyword using the factory
@@ -666,24 +666,26 @@ std::expected<void, QString> RicExportEclipseSectorModelFeature::addFaultsToDeck
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3st, cvf::Vec3st> RicExportEclipseSectorModelFeature::getVisibleCellRange( RimEclipseView*        view,
-                                                                                             const cvf::UByteArray& cellVisibillity )
+std::pair<caf::VecIjk0, caf::VecIjk0> RicExportEclipseSectorModelFeature::getVisibleCellRange( RimEclipseView*        view,
+                                                                                               const cvf::UByteArray& cellVisibillity )
 {
     const RigMainGrid* mainGrid = view->eclipseCase()->mainGrid();
-    cvf::Vec3st        max      = cvf::Vec3st::ZERO;
-    cvf::Vec3st        min      = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
+    caf::VecIjk0       max      = caf::VecIjk0::ZERO;
+    caf::VecIjk0       min( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
 
     size_t cellCount = mainGrid->cellCount();
     for ( size_t index = 0; index < cellCount; ++index )
     {
         if ( cellVisibillity[index] )
         {
-            cvf::Vec3st ijk;
-            mainGrid->ijkFromCellIndex( index, &ijk[0], &ijk[1], &ijk[2] );
-            for ( int n = 0; n < 3; ++n )
+            auto ijk = mainGrid->ijkFromCellIndex( index );
+            if ( ijk.has_value() )
             {
-                min[n] = std::min( min[n], ijk[n] );
-                max[n] = std::max( max[n], ijk[n] );
+                for ( int n = 0; n < 3; ++n )
+                {
+                    min[n] = std::min( min[n], ijk.value()[n] );
+                    max[n] = std::max( max[n], ijk.value()[n] );
+                }
             }
         }
     }
@@ -784,8 +786,8 @@ cvf::ref<cvf::UByteArray>
             // For full grid, create visibility for
             // all cells
             const RigMainGrid* mainGrid = caseData->mainGrid();
-            const cvf::Vec3st  minIjk   = cvf::Vec3st::ZERO;
-            const cvf::Vec3st  maxIjk   = mainGrid->cellCounts();
+            const caf::VecIjk0 minIjk   = caf::VecIjk0::ZERO;
+            const caf::VecIjk0 maxIjk( mainGrid->cellCountI(), mainGrid->cellCountJ(), mainGrid->cellCountK() );
             return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minIjk, maxIjk );
         }
         default:
@@ -942,15 +944,15 @@ std::expected<Opm::DeckRecord, QString>
     int origK2 = record.getItem( 4 ).get<int>( 0 ) - 1;
 
     // Transform K1
-    cvf::Vec3st origIjkK1( origI, origJ, origK1 );
-    auto        transformResultK1 = RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1,
+    caf::VecIjk0 origIjkK1( origI, origJ, origK1 );
+    auto         transformResultK1 = RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1,
                                                                                     exportSettings.min(),
                                                                                     exportSettings.max(),
                                                                                     exportSettings.refinement() );
 
     // Transform K2
-    cvf::Vec3st origIjkK2( origI, origJ, origK2 );
-    auto        transformResultK2 = RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2,
+    caf::VecIjk0 origIjkK2( origI, origJ, origK2 );
+    auto         transformResultK2 = RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2,
                                                                                     exportSettings.min(),
                                                                                     exportSettings.max(),
                                                                                     exportSettings.refinement() );
@@ -1014,8 +1016,8 @@ std::expected<Opm::DeckRecord, QString>
     int origJ = record.getItem( 1 ).get<int>( 0 ) - 1;
     int origK = record.getItem( 2 ).get<int>( 0 ) - 1;
 
-    cvf::Vec3st origIjk( origI, origJ, origK );
-    auto        transformResult =
+    caf::VecIjk0 origIjk( origI, origJ, origK );
+    auto         transformResult =
         RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk, exportSettings.min(), exportSettings.max(), exportSettings.refinement() );
 
     if ( !transformResult )
@@ -1042,8 +1044,8 @@ std::expected<Opm::DeckRecord, QString>
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<Opm::DeckRecord, QString> RicExportEclipseSectorModelFeature::processEqualsRecord( const Opm::DeckRecord& record,
-                                                                                                 const cvf::Vec3st&     min,
-                                                                                                 const cvf::Vec3st&     max,
+                                                                                                 const caf::VecIjk0&    min,
+                                                                                                 const caf::VecIjk0&    max,
                                                                                                  const cvf::Vec3st&     refinement )
 {
     // EQUALS format: FIELD VALUE I1 I2 J1 J2 K1 K2
@@ -1070,7 +1072,7 @@ std::expected<Opm::DeckRecord, QString> RicExportEclipseSectorModelFeature::proc
 
     // Create bounding boxes (both use inclusive min/max coordinates)
     RigBoundingBoxIjk equalsBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
-    RigBoundingBoxIjk sectorBox( min, max );
+    RigBoundingBoxIjk sectorBox( cvf::Vec3st( min.x(), min.y(), min.z() ), cvf::Vec3st( max.x(), max.y(), max.z() ) );
 
     // Check if boxes overlap and get intersection
     auto intersection = equalsBox.intersection( sectorBox );
@@ -1116,8 +1118,10 @@ std::expected<Opm::DeckRecord, QString> RicExportEclipseSectorModelFeature::proc
                 .arg( corner2.z() + 1 ) );
     }
 
-    auto transformResult1 = RigGridExportAdapter::transformIjkToSectorCoordinates( corner1, min, max, refinement );
-    auto transformResult2 = RigGridExportAdapter::transformIjkToSectorCoordinates( corner2, min, max, refinement );
+    auto transformResult1 =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( corner1.x(), corner1.y(), corner1.z() ), min, max, refinement );
+    auto transformResult2 =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( corner2.x(), corner2.y(), corner2.z() ), min, max, refinement );
 
     if ( !transformResult1 )
     {

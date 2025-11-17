@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+#include "cafVecIjk.h"
+
 #include "cvfArray.h"
 #include "cvfVector3.h"
 
@@ -48,10 +50,10 @@ public:
     static void openDialogAndExecuteCommand( RimEclipseView* view );
     static void executeCommand( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings, const QString& logPrefix );
 
-    static std::pair<cvf::Vec3st, cvf::Vec3st> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
+    static std::pair<caf::VecIjk0, caf::VecIjk0> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
 
     static std::expected<Opm::DeckRecord, QString>
-        processEqualsRecord( const Opm::DeckRecord& record, const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refinement );
+        processEqualsRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
 
 protected:
     bool isCommandEnabled() const override;
