@@ -240,6 +240,9 @@ def completion_data(
 ) -> SimulatorTables_pb2.SimulatorTableData:
     """Get well completion data
 
+    Returns a :ref:`simulatortabledata` object containing completion information
+    for this well path.
+
     **SimulatorTableRequest description**::
 
        Parameter   | Description                                                   | Type
