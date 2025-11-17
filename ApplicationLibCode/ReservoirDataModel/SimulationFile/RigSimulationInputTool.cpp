@@ -57,8 +57,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimEclipseView&                   view,
-                                                                             RimEclipseCase&                   eclipseCase,
-                                                                             const RigSimulationInputSettings& settings )
+                                                                            RimEclipseCase&                   eclipseCase,
+                                                                            const RigSimulationInputSettings& settings )
 {
     // Load the deck file
     QString inputDeckFileName = settings.inputDeckFileName();
@@ -129,10 +129,9 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString>
-    RigSimulationInputTool::updateCornerPointGridInDeckFile( RimEclipseCase*                   eclipseCase,
-                                                              const RigSimulationInputSettings& settings,
-                                                              RifOpmFlowDeckFile&               deckFile )
+std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeckFile( RimEclipseCase*                   eclipseCase,
+                                                                                      const RigSimulationInputSettings& settings,
+                                                                                      RifOpmFlowDeckFile&               deckFile )
 {
     // Get grid bounds for extraction
 
@@ -194,10 +193,9 @@ std::expected<void, QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString>
-    RigSimulationInputTool::replaceKeywordValuesInDeckFile( RimEclipseCase*                   eclipseCase,
-                                                             const RigSimulationInputSettings& settings,
-                                                             RifOpmFlowDeckFile&               deckFile )
+std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckFile( RimEclipseCase*                   eclipseCase,
+                                                                                     const RigSimulationInputSettings& settings,
+                                                                                     RifOpmFlowDeckFile&               deckFile )
 {
     // Extract and replace keyword data for all keywords in the deck
     auto keywords = deckFile.keywords( false );
@@ -248,8 +246,8 @@ std::expected<void, QString>
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions( RimEclipseCase*                   eclipseCase,
-                                                                                   const RigSimulationInputSettings& settings,
-                                                                                   RifOpmFlowDeckFile&               deckFile )
+                                                                                  const RigSimulationInputSettings& settings,
+                                                                                  RifOpmFlowDeckFile&               deckFile )
 {
     // Generate border cell faces
     auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( eclipseCase );
@@ -259,10 +257,8 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
         // Transform border cell face coordinates to sector-relative coordinates
         for ( auto& face : borderCellFaces )
         {
-            auto transformResult = RigGridExportAdapter::transformIjkToSectorCoordinates( face.ijk,
-                                                                                          settings.min(),
-                                                                                          settings.max(),
-                                                                                          settings.refinement() );
+            auto transformResult =
+                RigGridExportAdapter::transformIjkToSectorCoordinates( face.ijk, settings.min(), settings.max(), settings.refinement() );
 
             if ( !transformResult )
             {
@@ -313,8 +309,8 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                                   const RigSimulationInputSettings& settings,
-                                                                                   RifOpmFlowDeckFile&               deckFile )
+                                                                                  const RigSimulationInputSettings& settings,
+                                                                                  RifOpmFlowDeckFile&               deckFile )
 {
     auto keywords = deckFile.keywords( false );
 
@@ -382,8 +378,8 @@ std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::addFaultsToDeckFile( RimEclipseCase*                   eclipseCase,
-                                                                           const RigSimulationInputSettings& settings,
-                                                                           RifOpmFlowDeckFile&               deckFile )
+                                                                          const RigSimulationInputSettings& settings,
+                                                                          RifOpmFlowDeckFile&               deckFile )
 {
     // Create FAULTS keyword using the factory
     Opm::DeckKeyword faultsKw =
@@ -456,10 +452,9 @@ std::vector<RigSimWellData*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString>
-    RigSimulationInputTool::processWelspecsRecord( const Opm::DeckRecord&            record,
-                                                    const std::string&                wellName,
-                                                    const RigSimulationInputSettings& settings )
+std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processWelspecsRecord( const Opm::DeckRecord&            record,
+                                                                                       const std::string&                wellName,
+                                                                                       const RigSimulationInputSettings& settings )
 {
     // WELSPECS format: WELL GROUP HEAD_I HEAD_J REF_DEPTH ...
     // Items: 0=WELL, 1=GROUP, 2=HEAD_I, 3=HEAD_J
@@ -517,10 +512,9 @@ std::expected<Opm::DeckRecord, QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString>
-    RigSimulationInputTool::processCompdatRecord( const Opm::DeckRecord&            record,
-                                                   const std::string&                wellName,
-                                                   const RigSimulationInputSettings& settings )
+std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompdatRecord( const Opm::DeckRecord&            record,
+                                                                                      const std::string&                wellName,
+                                                                                      const RigSimulationInputSettings& settings )
 {
     // COMPDAT format: WELL I J K1 K2 STATE ...
     // Items: 0=WELL, 1=I, 2=J, 3=K1, 4=K2
@@ -582,11 +576,10 @@ std::expected<Opm::DeckRecord, QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString>
-    RigSimulationInputTool::processCompsegsRecord( const Opm::DeckRecord&            record,
-                                                    const std::string&                wellName,
-                                                    bool                              isWellNameRecord,
-                                                    const RigSimulationInputSettings& settings )
+std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsRecord( const Opm::DeckRecord&            record,
+                                                                                       const std::string&                wellName,
+                                                                                       bool                              isWellNameRecord,
+                                                                                       const RigSimulationInputSettings& settings )
 {
     // COMPSEGS format: first record is well name, subsequent records are segment data
     // Well name record: just copy as-is
@@ -639,9 +632,9 @@ std::expected<Opm::DeckRecord, QString>
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processEqualsRecord( const Opm::DeckRecord& record,
-                                                                                      const caf::VecIjk0&    min,
-                                                                                      const caf::VecIjk0&    max,
-                                                                                      const cvf::Vec3st&     refinement )
+                                                                                     const caf::VecIjk0&    min,
+                                                                                     const caf::VecIjk0&    max,
+                                                                                     const cvf::Vec3st&     refinement )
 {
     // EQUALS format: FIELD VALUE I1 I2 J1 J2 K1 K2
     // Items: 0=FIELD, 1=VALUE, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
@@ -743,8 +736,8 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processEqualsRec
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords( RimEclipseCase*                   eclipseCase,
-                                                                                   const RigSimulationInputSettings& settings,
-                                                                                   RifOpmFlowDeckFile&               deckFile )
+                                                                                  const RigSimulationInputSettings& settings,
+                                                                                  RifOpmFlowDeckFile&               deckFile )
 {
     // Find wells that intersect with the sector
     auto intersectingWells = findIntersectingWells( eclipseCase, settings.min(), settings.max() );
@@ -942,9 +935,9 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater( RimEclipseCase*                   eclipseCase,
-                                                                                   const RigSimulationInputSettings& settings,
-                                                                                   RifOpmFlowDeckFile&               deckFile,
-                                                                                   int                               operNumRegion )
+                                                                                  const RigSimulationInputSettings& settings,
+                                                                                  RifOpmFlowDeckFile&               deckFile,
+                                                                                  int                               operNumRegion )
 {
     // Update REGDIMS and add OPERATER keyword for OPERNUM regions
     // Get the OPERNUM region number that was assigned to border cells
@@ -997,8 +990,11 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
         }
 
         // Try to extract keyword data
-        auto result =
-            RifEclipseInputFileTools::extractKeywordData( eclipseCase->eclipseCaseData(), "OPERNUM", settings.min(), settings.max(), settings.refinement() );
+        auto result = RifEclipseInputFileTools::extractKeywordData( eclipseCase->eclipseCaseData(),
+                                                                    "OPERNUM",
+                                                                    settings.min(),
+                                                                    settings.max(),
+                                                                    settings.refinement() );
         if ( result )
         {
             // Replace keyword values in deck with extracted data
