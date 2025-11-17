@@ -52,9 +52,6 @@ public:
 
     static std::pair<caf::VecIjk0, caf::VecIjk0> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processEqualsRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
-
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
@@ -64,52 +61,7 @@ private:
     RimEclipseView*                  selectedView() const;
     static cvf::ref<cvf::UByteArray> createVisibilityBasedOnBoxSelection( RimEclipseView*                      view,
                                                                           const RicExportEclipseSectorModelUi& exportSettings );
-    static std::expected<void, QString>
-        exportSimulationInput( RimEclipseView& view, RimEclipseCase& eclipseCase, const RicExportEclipseSectorModelUi& exportSettings );
-    static void exportGrid( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
-    static void exportFaults( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
-    static void exportParameters( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
-
-    static std::expected<void, QString>
-        addFaultsToDeckFile( RimEclipseCase* eclipseCase, const RicExportEclipseSectorModelUi& exportSettings, RifOpmFlowDeckFile& deckFile );
-
-    static std::expected<void, QString> addBorderBoundaryConditions( RimEclipseCase*                      eclipseCase,
-                                                                     const RicExportEclipseSectorModelUi& exportSettings,
-                                                                     RifOpmFlowDeckFile&                  deckFile );
-
-    static std::expected<void, QString> replaceKeywordValuesInDeckFile( RimEclipseCase*                      eclipseCase,
-                                                                        const RicExportEclipseSectorModelUi& exportSettings,
-                                                                        RifOpmFlowDeckFile&                  deckFile );
-
-    static std::expected<void, QString> updateCornerPointGridInDeckFile( RimEclipseCase*                      eclipseCase,
-                                                                         const RicExportEclipseSectorModelUi& exportSettings,
-                                                                         RifOpmFlowDeckFile&                  deckFile );
-
-    static std::expected<void, QString> filterAndUpdateWellKeywords( RimEclipseCase*                      eclipseCase,
-                                                                     const RicExportEclipseSectorModelUi& exportSettings,
-                                                                     RifOpmFlowDeckFile&                  deckFile );
-
-    static std::expected<void, QString> addOperNumRegionAndOperater( RimEclipseCase*                      eclipseCase,
-                                                                     const RicExportEclipseSectorModelUi& exportSettings,
-                                                                     RifOpmFlowDeckFile&                  deckFile,
-                                                                     int                                  operNumRegion );
-
-    static std::expected<void, QString> replaceEqualsKeywordIndices( RimEclipseCase*                      eclipseCase,
-                                                                     const RicExportEclipseSectorModelUi& exportSettings,
-                                                                     RifOpmFlowDeckFile&                  deckFile );
-
-    static std::vector<RigSimWellData*> findIntersectingWells( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max );
-
-    static std::expected<Opm::DeckRecord, QString> processWelspecsRecord( const Opm::DeckRecord&               record,
-                                                                          const std::string&                   wellName,
-                                                                          const RicExportEclipseSectorModelUi& exportSettings );
-
-    static std::expected<Opm::DeckRecord, QString> processCompdatRecord( const Opm::DeckRecord&               record,
-                                                                         const std::string&                   wellName,
-                                                                         const RicExportEclipseSectorModelUi& exportSettings );
-
-    static std::expected<Opm::DeckRecord, QString> processCompsegsRecord( const Opm::DeckRecord&               record,
-                                                                          const std::string&                   wellName,
-                                                                          bool                                 isWellNameRecord,
-                                                                          const RicExportEclipseSectorModelUi& exportSettings );
+    static void                      exportGrid( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
+    static void                      exportFaults( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
+    static void                      exportParameters( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
 };

@@ -89,6 +89,7 @@ list(
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
+  ReservoirDataModel/SimulationFile/CMakeLists_files.cmake
   ReservoirDataModel/CompletionsMsw/CMakeLists_files.cmake
   ReservoirDataModel/ContourMap/CMakeLists_files.cmake
   ReservoirDataModel/ResultAccessors/CMakeLists_files.cmake
@@ -391,6 +392,7 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultAccessors
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultCalculators
+         ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/SimulationFile
          ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
          ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
          ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
