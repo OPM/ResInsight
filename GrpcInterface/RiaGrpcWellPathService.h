@@ -29,6 +29,7 @@ namespace rips
 class SimulationWellRequest;
 class SimulationWellStatus;
 class SimulatorWelspecsEntry;
+class SimulatorWelsegsEntry;
 } // namespace rips
 
 class RiaGrpcCallbackInterface;
@@ -36,6 +37,7 @@ class RiaGrpcCallbackInterface;
 class RimEclipseCase;
 class RimWellPathCompletionSettings;
 class RigCompletionData;
+class RigMswTableData;
 
 //==================================================================================================
 //
@@ -49,13 +51,9 @@ public:
                                     const ::rips::SimulatorTableRequest* request,
                                     ::rips::SimulatorTableData*          response ) override;
 
-    std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
+    grpc::Status GetCompletionDataUnified( ::grpc::ServerContext*                      context,
+                                           const ::rips::SimulatorTableUnifiedRequest* request,
+                                           ::rips::SimulatorTableData*                 response ) override;
 
-private:
-    static void copyCompdatToGrpc( const RigCompletionData& inputData, rips::SimulatorCompdatEntry* compDat );
-    static void copyWelspecsToGrpc( const RimWellPathCompletionSettings* compSettings,
-                                    rips::SimulatorWelspecsEntry*        grpcData,
-                                    RimEclipseCase*                      eclipseCase,
-                                    int                                  gridI,
-                                    int                                  gridJ );
+    std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

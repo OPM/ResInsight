@@ -7,10 +7,17 @@ package rips;
 service WellPath {
   rpc GetCompletionData(SimulatorTableRequest)
       returns (SimulatorTableData) {}
+  rpc GetCompletionDataUnified(SimulatorTableUnifiedRequest)
+      returns (SimulatorTableData) {}
 }
 
 message SimulatorTableRequest {
   string wellpath_name = 1;
+  int32 case_id = 2;
+}
+
+message SimulatorTableUnifiedRequest {
+  repeated string wellpath_names = 1;
   int32 case_id = 2;
 }
 
@@ -49,8 +56,87 @@ message SimulatorWelspecsEntry {
   optional int32 fip_region = 13;
 }
 
+message SimulatorWelsegsHeaderEntry {
+  string well_name = 1;
+  double top_depth = 2;
+  double top_length = 3;
+  optional double wellbore_volume = 4;
+  string info_type = 5;
+  optional string pressure_omponents = 6;
+  optional string flow_model = 7;
+}
+
+message SimulatorWelsegsRowEntry {
+  int32 segment_1 = 1;
+  int32 segment_2 = 2;
+  int32 branch = 3;
+  int32 join_segment = 4;
+  double length = 5;
+  double depth = 6;
+  optional double diameter = 7;
+  optional double roughness = 8;
+  optional string description = 9;
+}
+
+message SimulatorWelsegsEntry {
+  SimulatorWelsegsHeaderEntry header = 1;
+  repeated SimulatorWelsegsRowEntry row = 2;
+}
+
+message SimulatorCompsegsEntry {
+  int32 i = 1;
+  int32 j = 2;
+  int32 k = 3;
+  int32 branch = 4;
+  double distance_start = 5;
+  double distance_end = 6;
+  optional string grid_name = 7;
+}
+
+message SimulatorWsegvalvEntry {
+  string well_name = 1;
+  int32 segment_number = 2;
+  double cv = 3;
+  double area = 4;
+  optional double extra_length = 5;
+  optional double pipe_d = 6;
+  optional double roughness = 7;
+  optional double pipe_a = 8;
+  optional string status = 9;
+  optional double max_a = 10;
+}
+
+message SimulatorWsegaicdEntry {
+  string well_name = 1;
+  int32 segment_1 = 2;
+  int32 segment_2 = 3;
+  double strength = 4;
+  optional double length = 5;
+  optional double density_cali = 6;
+  optional double viscosity_cali = 7;
+  optional double critical_value = 8;
+  optional double width_trans = 9;
+  optional double max_visc_ratio = 10;
+  optional int32 method_scaling_factor = 11;
+  double max_abs_rate = 12;
+  double flow_rate_exponent = 13;
+  double visc_exponent = 14;
+  optional string status = 15;
+  optional double oil_flow_fraction = 16;
+  optional double water_flow_fraction = 17;
+  optional double gas_flow_fraction = 18;
+  optional double oil_visc_fraction = 19;
+  optional double water_visc_fraction = 20;
+  optional double gas_visc_fraction = 21;
+  optional string description = 22;
+}
+
 message SimulatorTableData {
   repeated SimulatorCompdatEntry compdat = 1;
   repeated SimulatorWelspecsEntry welspecs = 2;
+  repeated SimulatorWelsegsEntry welsegs = 3;
+  repeated SimulatorCompsegsEntry compsegs = 4;
+  repeated SimulatorWsegvalvEntry wsegvalv = 5;
+  repeated SimulatorWsegaicdEntry wsegaicd = 6;
 }
 
