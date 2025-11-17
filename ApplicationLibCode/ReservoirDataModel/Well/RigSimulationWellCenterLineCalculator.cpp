@@ -233,7 +233,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
             {
                 if ( resultPoint.cellIjk().has_value() )
                 {
-                    branchTxt += QString( " %1 \n" ).arg( QString::fromStdString( ( *resultPoint.cellIjk() ).toString() ) );
+                    branchTxt += QString( " %1 \n" ).arg( QString::fromStdString( ( *resultPoint.cellIjk() ).toOneBased().toString() ) );
                 }
             }
             RiaLogging::debug( branchTxt );

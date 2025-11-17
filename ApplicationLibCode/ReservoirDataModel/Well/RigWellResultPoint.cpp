@@ -305,7 +305,7 @@ cvf::Vec3d RigWellResultPoint::bottomPosition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<caf::VecIjk1> RigWellResultPoint::cellIjk() const
+std::optional<caf::VecIjk0> RigWellResultPoint::cellIjk() const
 {
     return m_cellIjk;
 }
@@ -313,7 +313,7 @@ std::optional<caf::VecIjk1> RigWellResultPoint::cellIjk() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellResultPoint::setIjk( caf::VecIjk1 cellIJK )
+void RigWellResultPoint::setIjk( caf::VecIjk0 cellIJK )
 {
     m_cellIjk = cellIJK;
 }
