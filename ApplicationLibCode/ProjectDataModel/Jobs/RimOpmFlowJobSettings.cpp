@@ -23,6 +23,8 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiListEditor.h"
 
+#include <QFile>
+
 CAF_PDM_SOURCE_INIT( RimOpmFlowJobSettings, "OpmFlowJobSettings" );
 
 //--------------------------------------------------------------------------------------------------
@@ -285,7 +287,7 @@ int RimOpmFlowJobSettings::mpiProcesses() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimOpmFlowJobSettings::commandLineOptions() const
+QStringList RimOpmFlowJobSettings::commandLineOptions( QString resInsightWorkDir, QString flowWorkDir ) const
 {
     QStringList options;
 
@@ -322,11 +324,11 @@ QStringList RimOpmFlowJobSettings::commandLineOptions() const
     }
     if ( m_solverMaxTimeStepInDays().first )
     {
-        options << QString( "--solver-max-time-step=%1d" ).arg( m_solverMaxTimeStepInDays().second );
+        options << QString( "--solver-max-time-step-in-days=%1" ).arg( m_solverMaxTimeStepInDays().second );
     }
     if ( m_solverMinTimeStepInDays().first )
     {
-        options << QString( "--solver-min-time-step=%1d" ).arg( m_solverMinTimeStepInDays().second );
+        options << QString( "--solver-min-time-step=%1" ).arg( m_solverMinTimeStepInDays().second );
     }
     if ( m_minStrictCnvIter().first )
     {
@@ -338,12 +340,12 @@ QStringList RimOpmFlowJobSettings::commandLineOptions() const
     }
     if ( m_minTimeStepBasedOnNewtonIterations().first )
     {
-        options << QString( "--min-time-step-based-on-newton-iterations=%1d" ).arg( m_minTimeStepBasedOnNewtonIterations().second );
+        options << QString( "--min-time-step-based-on-newton-iterations=%1" ).arg( m_minTimeStepBasedOnNewtonIterations().second );
     }
     if ( m_minTimeStepBeforeShuttingProblematicWellsInDays().first )
     {
-        options
-            << QString( "--min-time-step-before-shutting-problematic-wells=%1d" ).arg( m_minTimeStepBeforeShuttingProblematicWellsInDays().second );
+        options << QString( "--min-time-step-before-shutting-problematic-wells-in-days=%1" )
+                       .arg( m_minTimeStepBeforeShuttingProblematicWellsInDays().second );
     }
     if ( m_toleranceCnv().first )
     {
@@ -392,6 +394,24 @@ QStringList RimOpmFlowJobSettings::commandLineOptions() const
     if ( m_wellGroupConstraintsMaxIterations().first )
     {
         options << QString( "--well-group-constraints-max-iterations=%1" ).arg( m_wellGroupConstraintsMaxIterations().second );
+    }
+
+    if ( options.length() > 2 )
+    {
+        QString paramName( "/opmflow.params" );
+        QFile   workDirFile( resInsightWorkDir + paramName );
+
+        if ( workDirFile.open( QFile::WriteOnly | QFile::Text ) )
+        {
+            for ( const QString& option : options )
+            {
+                QByteArray line = option.mid( 2 ).toUtf8() + "\n";
+                workDirFile.write( line );
+            }
+            workDirFile.close();
+            options.clear();
+            options << QString( "--parameter-file=%1" ).arg( flowWorkDir + paramName );
+        }
     }
 
     return options;

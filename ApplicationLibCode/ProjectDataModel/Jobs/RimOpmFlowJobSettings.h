@@ -45,7 +45,7 @@ public:
 
     int mpiProcesses() const;
 
-    QStringList commandLineOptions() const;
+    QStringList commandLineOptions( QString resInsightWorkDir, QString flowWorkDir ) const;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

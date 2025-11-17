@@ -712,7 +712,7 @@ QStringList RimOpmFlowJob::command()
     cmd.append( QString( "--output-dir=%1" ).arg( workDir ) );
     cmd.append( QString( "--ecl-deck-file-name=%1" ).arg( dataFile ) );
 
-    cmd.append( m_jobSettings->commandLineOptions() );
+    cmd.append( m_jobSettings->commandLineOptions( workingDirectory(), workDir ) );
 
     return cmd;
 }
