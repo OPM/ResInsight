@@ -152,46 +152,46 @@ RimOpmFlowJobSettings::RimOpmFlowJobSettings()
                        "Relaxed local convergence tolerance that applies for iterations after the iterations with the strict tolerance." );
     CAF_PDM_InitField( &m_toleranceEnergyBalance,
                        "toleranceEnergyBalance",
-                       std::make_pair( false, 0.01 ),
+                       std::make_pair( false, 1e-07 ),
                        "Tolerance Energy Balance",
                        "",
                        "Energy balance convergence tolerance (Maximum of global energy balance error)." );
     CAF_PDM_InitField( &m_toleranceEnergyBalanceRelaxed,
                        "toleranceEnergyBalanceRelaxed",
-                       std::make_pair( false, 1.0 ),
+                       std::make_pair( false, 1e-06 ),
                        "Tolerance Energy Balance Relaxed",
                        "",
                        "Relaxed energy balance convergence tolerance that applies for iterations after the iterations with the strict "
                        "tolerance." );
     CAF_PDM_InitField( &m_toleranceMb,
                        "toleranceMb",
-                       std::make_pair( false, 1e-4 ),
+                       std::make_pair( false, 1e-07 ),
                        "Tolerance MB",
                        "",
                        "Global mass balance convergence tolerance (Maximum of global mass balance errors)." );
     CAF_PDM_InitField( &m_toleranceMbRelaxed,
                        "toleranceMbRelaxed",
-                       std::make_pair( false, 1.0 ),
+                       std::make_pair( false, 1e-06 ),
                        "Tolerance MB Relaxed",
                        "",
                        "Relaxed global mass balance convergence tolerance that applies for iterations after the iterations with the strict "
                        "tolerance." );
     CAF_PDM_InitField( &m_tolerancePressureMsWells,
                        "tolerancePressureMsWells",
-                       std::make_pair( false, 1e-3 ),
+                       std::make_pair( false, 1000.0 ),
                        "Tolerance Pressure MS Wells",
                        "",
                        "Convergence tolerance for pressure in multi-segment wells." );
     CAF_PDM_InitField( &m_toleranceWellControl,
                        "toleranceWellControl",
-                       std::make_pair( false, 0.1 ),
+                       std::make_pair( false, 1e-07 ),
                        "Tolerance Well Control",
                        "",
                        "Convergence tolerance for well control equations." );
-    CAF_PDM_InitField( &m_toleranceWells, "toleranceWells", std::make_pair( false, 1e-4 ), "Tolerance Wells", "", "Well convergence tolerance." );
+    CAF_PDM_InitField( &m_toleranceWells, "toleranceWells", std::make_pair( false, 0.0001 ), "Tolerance Wells", "", "Well convergence tolerance." );
     CAF_PDM_InitField( &m_wellGroupConstraintsMaxIterations,
                        "wellGroupConstraintsMaxIterations",
-                       std::make_pair( false, 10 ),
+                       std::make_pair( false, 1 ),
                        "Well Group Constraints Max Iterations",
                        "",
                        "Maximum number of iterations for well group constraints." );
