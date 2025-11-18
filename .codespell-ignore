@@ -1,0 +1,98 @@
+# Domain-specific technical terms for ResInsight (reservoir simulation)
+# Petroleum engineering and reservoir simulation terms
+perm
+permeability
+porosity
+wellbore
+geomech
+geomodeling
+seismic
+facies
+stratigraphic
+petrophysical
+hydrocarbon
+
+# Eclipse file format terms
+EGRID
+GRID
+INIT
+UNRST
+SMSPEC
+ESMRY
+GRDECL
+LGR
+MULTY
+
+# Other simulation/visualization terms
+Abaqus
+ODB
+VTK
+OSDU
+FMU
+VFP
+LAS
+
+# Common abbreviations in the codebase
+Md
+Tvd
+Rkb
+Rft
+Plt
+
+# Qt/C++ terms that might be flagged
+nullptr
+QString
+QVector
+quantIt
+localY
+ThirdParty
+
+# Framework/library abbreviations
+caf
+# CAF = Computer Application Framework (internal framework namespace)
+
+# Common technical abbreviations
+API
+GUI
+RGB
+RGBA
+CSV
+JSON
+XML
+SVG
+PNG
+DOUB
+OPERATER
+equil
+Equil
+EQUIL
+grat
+GRAT
+WIR
+WIT
+GIR
+GIT
+GRUP
+NINJ
+
+# Units and measurements
+ft
+mD
+bbl
+psi
+
+# Mathematical/scientific terms
+sqrt
+vec
+rgba
+tHi
+
+# Proper names and organizations
+ResInsight
+Equinor
+Ceetron
+OPM
+
+# Common words that might be flagged but are correct
+aswell
+# Usage: "as well" should generally be two words, but in some contexts "aswell" is intentional

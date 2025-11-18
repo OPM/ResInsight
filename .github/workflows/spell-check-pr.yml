@@ -1,0 +1,50 @@
+name: Spell Check PR
+
+on:
+  pull_request:
+    paths:
+      - 'ApplicationExeCode/**'
+      - 'ApplicationLibCode/**'
+      - 'Fwk/AppFwk/**'
+      - 'GrpcInterface/**'
+
+permissions:
+  contents: read
+
+jobs:
+  spell-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+      
+      - name: Install codespell
+        run: pip install codespell
+      
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Get the list of changed files in the PR
+          git fetch origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '^(ApplicationExeCode|ApplicationLibCode|Fwk/AppFwk|GrpcInterface)/' | grep -E '\.(cpp|h|inl|py|md|txt|cmake|yml|yaml)$' || true)
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No relevant files changed"
+            echo "files=" >> $GITHUB_OUTPUT
+          else
+            echo "Changed files:"
+            echo "$CHANGED_FILES"
+            # Convert to space-separated list for codespell
+            FILES_LIST=$(echo "$CHANGED_FILES" | tr '\n' ' ')
+            echo "files=$FILES_LIST" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run codespell on changed files
+        if: steps.changed-files.outputs.files != ''
+        run: |
+          codespell ${{ steps.changed-files.outputs.files }}

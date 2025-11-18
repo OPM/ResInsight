@@ -61,6 +61,7 @@ Most dependencies are managed using vcpkg as defined in [vcpkg.json](https://git
 Contributions are welcome! Please:
 - Use the `dev` branch for contributions and pull requests
 - Note that the `master` branch is kept stable and updated only for releases
+- See [Spell Checking Guide](doc/spell-checking.md) for information on automated spell checking
 
 ### Building
 See the [Build Instructions](https://resinsight.org/releases/build-from-source/build-instructions-ubuntu/) for detailed setup information.

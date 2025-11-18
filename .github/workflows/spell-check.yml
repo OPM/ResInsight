@@ -3,18 +3,38 @@ name: Spell Check
 on:
   - push
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
-      - uses: sobolevn/misspell-fixer-action@master
+      
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
-          options: "-rsvnuR ApplicationLibCode/"
+          python-version: '3.10'
+      
+      - name: Install codespell
+        run: pip install codespell
+      
+      - name: Run codespell and apply fixes
+        run: |
+          codespell \
+            --write-changes \
+            ApplicationExeCode/ \
+            ApplicationLibCode/ \
+            Fwk/AppFwk/ \
+            GrpcInterface/ \
+            || true
+
       - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Fixes by misspell-fixer"
-          title: "Typos fix by misspell-fixer"
+          commit-message: "Fixes by codespell"
+          title: "Typos fix by codespell"
           branch: spell-check-patches
           branch-suffix: random
