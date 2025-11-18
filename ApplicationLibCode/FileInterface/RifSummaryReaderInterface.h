@@ -71,7 +71,7 @@ public:
 
 protected:
     virtual std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const = 0;
-    virtual std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const = 0;
+    virtual std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const    = 0;
     void                                         increaseSerialNumber();
 
     std::set<RifEclipseSummaryAddress> m_allResultAddresses; // Result and error addresses
