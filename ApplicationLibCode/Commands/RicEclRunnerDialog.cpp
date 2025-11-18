@@ -9,31 +9,35 @@
 #include <chrono>
 #include <thread>
 
-#include <QListWidget>
-#include <QPushButton>
+#include <QApplication>
 #include <QComboBox>
-#include <QProgressBar>
-#include <QTableWidget>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QFileDialog>
-#include <QProcess>
-#include <QLabel>
 #include <QDebug>
-#include <QTextEdit>
-#include <QFileInfo>
 #include <QDir>
 #include <QFile>
-#include <QRegularExpression>
-#include <QMutexLocker>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QHBoxLayout>
+#include <QHeaderView>
 #include <QIcon>
-#include <algorithm>
-#include <QTimer>
+#include <QItemSelectionModel>
+#include <QFileDialog>
+#include <QLabel>
+#include <QListWidget>
+#include <QMutexLocker>
 #include <QPointer>
-#include <QDateTime>
+#include <QProcess>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QRegularExpression>
+#include <QDebug>
+#include <QSizePolicy>
+#include <QTableWidget>
+#include <QTextEdit>
+#include <QTimer>
+#include <QVBoxLayout>
 #include <QDialog>
+#include <QFontDatabase>
+#include <algorithm>
 
 RicEclRunnerDialog::RicEclRunnerDialog( QWidget* parent )
     : QWidget( parent )
@@ -78,156 +82,168 @@ void RicEclRunnerDialog::setupUi()
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
     // Top: 添加DATA文件
-    // 设置整体样式
-    setStyleSheet(
-        "QWidget {"
-        "    font-size:10pt;"
-        "}"
-        "QPushButton {"
-        "    padding:5px15px;"
-        "    background-color: #f0f0f0;"
-        "    border:1px solid #c0c0c0;"
-        "    border-radius:3px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #e0e0e0;"
-        "}"
-        "QPushButton:pressed {"
-        "    background-color: #d0d0d0;"
-        "}"
-        "QLabel {"
-        "    font-weight: bold;"
-        "    color: #2c3e50;"
-        "    margin-top:10px;"
-        "}"
-        "QComboBox {"
-        "    padding:5px;"
-        "    border:1px solid #c0c0c0;"
-        "    border-radius:3px;"
-        "}"
-    );
+    // Remove inline dialog-wide stylesheet. Use styleRole properties per-widget so QSS controls appearance.
+    // Determine default dialog font to match Cell Selection Tool (use QDialog default font)
+    QFont defaultFont = QDialog().font();
 
-    QLabel* topTitle = new QLabel(tr("Add DATA Files"), this);
-    topTitle->setStyleSheet("font-size:9pt; margin:5px0;");
-    mainLayout->addWidget(topTitle);
+    // Compute standard button height based on dialog default font
+    QPushButton tmpBtn;
+    tmpBtn.setFont( defaultFont );
+    int standardButtonHeight = tmpBtn.sizeHint().height();
 
     QHBoxLayout* topLayout = new QHBoxLayout();
-    m_triggerLabel = new QLabel( tr("Select Process"), this );
-    topLayout->addWidget( m_triggerLabel );
+    // Group Select Process label and combo in a compact inner layout
+    QHBoxLayout* processLayout = new QHBoxLayout();
+    processLayout->setSpacing(4 );
+    processLayout->setContentsMargins(0,0,0,0 );
+
+    m_triggerLabel = new QLabel( tr( "Select Process" ), this );
+    m_triggerLabel->setFont( defaultFont );
+    processLayout->addWidget( m_triggerLabel );
 
     m_triggerCombo = new QComboBox(this);
     m_triggerCombo->addItem("Y-3");
     m_triggerCombo->addItem("Y-1");
     m_triggerCombo->setCurrentText("Y-3"); // 设置默认值为e300
-    topLayout->addWidget(m_triggerCombo);
+    processLayout->addWidget(m_triggerCombo);
 
-    m_addButton = new QPushButton(tr("Add Files"), this);
-    topLayout->addWidget(m_addButton);
+    topLayout->addLayout( processLayout );
 
-    mainLayout->addLayout(topLayout);
+    m_addButton = new QPushButton( tr( "Add Files" ), this );
+    m_addButton->setFont( defaultFont );
+    if ( standardButtonHeight >0 ) m_addButton->setFixedHeight( standardButtonHeight );
+    m_addButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_addButton->setStyleSheet( QString() );
+    m_addButton->setPalette( QApplication::palette() );
+    topLayout->addWidget( m_addButton );
+
+    // Make Select File and Add Files buttons match the combo box height (keeping widths/layout unchanged)
+    // Ensure combo uses default font too
+    // already set above
+
+    // Use Select File button's font for several labels to ensure consistent font type
+    QFont btnFont = defaultFont;
+    // Create the title label and set its font to match the Select File button
+    QLabel* topTitle = new QLabel( tr( "Add DATA Files" ), this );
+    topTitle->setStyleSheet( "margin:5px0;" );
+    // make title use same font as Select File button
+    topTitle->setFont( btnFont );
+    mainLayout->addWidget( topTitle );
+
+    mainLayout->addLayout( topLayout );
 
     // Middle: 任务列表
-    QLabel* middleTitle = new QLabel(tr("Mission List"), this);
-    mainLayout->addWidget(middleTitle);
+    QLabel* middleTitle = new QLabel( tr( "Mission List" ), this );
+    middleTitle->setFont( btnFont );
+    mainLayout->addWidget( middleTitle );
 
     QHBoxLayout* taskHeader = new QHBoxLayout();
-    taskHeader->setSpacing(8);
-    taskHeader->addStretch();
 
     // Create a small grouped area for task control buttons and style them
     m_deleteButton = new QPushButton(tr("Delete"), this);
+    m_deleteButton->setFont( defaultFont );
+    m_deleteButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_deleteButton->setStyleSheet( QString() );
+    m_deleteButton->setPalette( QApplication::palette() );
     m_openButton = new QPushButton(tr("Open"), this);
+    m_openButton->setFont( defaultFont );
+    m_openButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_openButton->setStyleSheet( QString() );
+    m_openButton->setPalette( QApplication::palette() );
     m_stopButton = new QPushButton(tr("Stop"), this);
-    m_runButton = new QPushButton(tr("Caulculate"), this);
+    m_stopButton->setFont( defaultFont );
+    m_stopButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_stopButton->setStyleSheet( QString() );
+    m_stopButton->setPalette( QApplication::palette() );
 
-    // Uniform sizes for nicer layout
-    const int btnMinW =90;
-    for ( QPushButton* b : { m_deleteButton, m_openButton, m_stopButton, m_runButton } ) {
-        b->setMinimumWidth(btnMinW);
-        b->setCursor(Qt::PointingHandCursor);
-        b->setEnabled(false);
-    }
-
-    // Add buttons in logical order (Delete, Open, Stop, Run)
-    taskHeader->addWidget(m_deleteButton);
-    taskHeader->addWidget(m_openButton);
-    taskHeader->addWidget(m_stopButton);
-    taskHeader->addWidget(m_runButton);
+    m_runButton = new QPushButton( tr( "Caulculate" ), this );
+    m_runButton->setFont( defaultFont );
+    m_runButton->setProperty( "styleRole", "EclRunnerButton" );
+    m_runButton->setStyleSheet( QString() );
+    m_runButton->setPalette( QApplication::palette() );
 
     // Running count label
-    m_runningLabel = new QLabel(tr("Running:0/%1").arg(RicEclRunnerDialog::MAX_CONCURRENT_TASKS), this);
-    m_runningLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    m_runningLabel->setMinimumWidth(140);
-    taskHeader->addWidget(m_runningLabel);
-    mainLayout->addLayout(taskHeader);
+    m_runningLabel = new QLabel( tr( "Running:0/%1" ).arg( RicEclRunnerDialog::MAX_CONCURRENT_TASKS ), this );
+    m_runningLabel->setAlignment( Qt::AlignCenter );
+    m_runningLabel->setFont( defaultFont );
+
+    // Make all controls expand horizontally and have equal stretch so they fill the header width equally
+    m_deleteButton->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
+    m_openButton->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
+    m_stopButton->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
+    m_runButton->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
+    m_runningLabel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
+
+    // Match header button heights to Cell Selection Tool button height
+    if ( standardButtonHeight >0 )
+    {
+      m_deleteButton->setFixedHeight( standardButtonHeight );
+      m_openButton->setFixedHeight( standardButtonHeight );
+      m_stopButton->setFixedHeight( standardButtonHeight );
+      m_runButton->setFixedHeight( standardButtonHeight );
+      // keep running label default height; it will align with buttons vertically
+    }
+
+    // Add with equal stretch factors (1 each) so widths are equal
+    taskHeader->addWidget( m_deleteButton,1 );
+    taskHeader->addWidget( m_openButton,1 );
+    taskHeader->addWidget( m_stopButton,1 );
+    taskHeader->addWidget( m_runButton,1 );
+    taskHeader->addWidget( m_runningLabel,1 );
+
+    mainLayout->addLayout( taskHeader );
 
     m_taskTable = new QTableWidget(this);
     m_taskTable->setColumnCount(4);
     QStringList headers;
-    headers << tr("File Name") << tr("Model") << tr("Status") << tr("Output");
-    m_taskTable->setHorizontalHeaderLabels(headers);
-    m_taskTable->horizontalHeader()->setStretchLastSection(true);
-    m_taskTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_taskTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    m_taskTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_taskTable->setMinimumHeight(160);
-    m_taskTable->setAlternatingRowColors(true);
-    m_taskTable->setStyleSheet(
-        "QTableWidget {"
-        "    gridline-color: #d0d0d0;"
-        "    background-color: white;"
-        "    alternate-background-color: #f8f8f8;"
-        "}"
-        "QTableWidget::item:selected {"
-        "    background-color: #0078d7;"
-        "    color: white;"
-        "}"
-        "QHeaderView::section {"
-        "    background-color: #f0f0f0;"
-        "    padding:5px;"
-        "    border: none;"
-        "    border-right:1px solid #d0d0d0;"
-        "    border-bottom:1px solid #d0d0d0;"
-        "}"
-    );
-    mainLayout->addWidget(m_taskTable);
+    headers << tr( "File Name" ) << tr( "Model" ) << tr( "Status" ) << tr( "Output" );
+    m_taskTable->setHorizontalHeaderLabels( headers );
+    m_taskTable->horizontalHeader()->setStretchLastSection( true );
+    if ( m_taskTable->horizontalHeader() )
+    {
+        m_taskTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    }
+    m_taskTable->setSelectionBehavior( QAbstractItemView::SelectRows );
+    m_taskTable->setSelectionMode( QAbstractItemView::ExtendedSelection );
+    m_taskTable->setEditTriggers( QAbstractItemView::NoEditTriggers );
+    m_taskTable->setMinimumHeight( 160 );
+    m_taskTable->setAlternatingRowColors( true );
+    // Use styleRole and clear local inline stylesheet/palette
+    m_taskTable->setProperty( "styleRole", "EclRunnerTable" );
+    m_taskTable->setStyleSheet( QString() );
+    m_taskTable->setPalette( QApplication::palette() );
+
+    if ( m_taskTable->horizontalHeader() )
+    {
+        m_taskTable->horizontalHeader()->setFont( btnFont );
+    }
+
+    mainLayout->addWidget( m_taskTable );
 
     // Bottom: 任务日志
-    QLabel* bottomTitle = new QLabel(tr("Log"), this);
-    mainLayout->addWidget(bottomTitle);
+    QLabel* bottomTitle = new QLabel( tr( "Log" ), this );
+    bottomTitle->setFont( btnFont );
+    mainLayout->addWidget( bottomTitle );
 
-    m_logOutput = new QTextEdit(this);
-    m_logOutput->setReadOnly(true);
-    m_logOutput->setStyleSheet(
-        "QTextEdit {"
-        "    background-color: #f8f8f8;"
-        "    border:1px solid #d0d0d0;"
-        "    font-family: Consolas, monospace;"
-        "}"
-    );
-    m_logOutput->setMaximumHeight(220);
+    m_logOutput = new QTextEdit( this );
+    m_logOutput->setReadOnly( true );
+    // Use styleRole and clear inline styles so theme controls appearance
+    m_logOutput->setProperty( "styleRole", "EclRunnerLog" );
+    m_logOutput->setStyleSheet( QString() );
+    m_logOutput->setPalette( QApplication::palette() );
+    m_logOutput->setMaximumHeight( 220 );
+    m_logOutput->setFont( QFontDatabase::systemFont( QFontDatabase::FixedFont ) );
 
-    // add detail button above log area (right aligned)
     QHBoxLayout* logHeader = new QHBoxLayout();
     logHeader->addStretch();
-    m_detailButton = new QPushButton(tr("Detail"), this);
-    m_detailButton->setMinimumWidth(80);
-    m_detailButton->setEnabled(false);
-    logHeader->addWidget(m_detailButton);
-    mainLayout->addLayout(logHeader);
+    m_detailButton = new QPushButton( tr( "Detail" ), this );
+    m_detailButton->setMinimumWidth( 80 );
+    m_detailButton->setEnabled( false );
+    logHeader->addWidget( m_detailButton );
+    mainLayout->addLayout( logHeader );
+    mainLayout->addWidget( m_logOutput );
 
-    mainLayout->addWidget(m_logOutput);
-
-    // make layout margins and spacing responsive
-    mainLayout->setContentsMargins(8,8,8,8);
-    mainLayout->setSpacing(8);
-
-    // Stretch factors so widgets resize proportionally with the window
-    // Layout indices:0:topTitle,1:topLayout,2:middleTitle,3:taskHeader,4:m_taskTable,5:bottomTitle,6:m_logOutput
-    mainLayout->setStretch(4,6); // task table gets most of extra space
-    mainLayout->setStretch(6,3); // log area grows but less than table
-
-    setLayout(mainLayout);
+    setLayout( mainLayout );
 
     // create log flush timer
     m_logFlushTimer = new QTimer(this);
