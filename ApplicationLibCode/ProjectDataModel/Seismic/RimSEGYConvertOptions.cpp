@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimSEGYConvertOptions, "RimSEGYConvertOptions" );
 //--------------------------------------------------------------------------------------------------
 RimSEGYConvertOptions::RimSEGYConvertOptions()
 {
-    CAF_PDM_InitObject( "SEG-Y convert options", ":/Seismic16x16.svg" );
+    CAF_PDM_InitObject( "SEG-Y convert options", ":/Seismic16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_inputFilename, "InputFilename", "Input SEG-Y File" );
     CAF_PDM_InitFieldNoDefault( &m_outputFilename, "OutputFilename", "Output VDS File" );

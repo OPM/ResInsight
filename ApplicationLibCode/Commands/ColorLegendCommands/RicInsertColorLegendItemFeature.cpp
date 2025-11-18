@@ -75,7 +75,7 @@ void RicInsertColorLegendItemFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicInsertColorLegendItemFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Legend.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Legend.png" ) );
     actionToSetup->setText( "Append Color" );
 }
 

@@ -74,6 +74,6 @@ void RicNewDepthSurfaceFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewDepthSurfaceFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
     actionToSetup->setText( "Create Depth Surface" );
 }

@@ -2547,7 +2547,7 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
     }
     else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
-        QPixmap p = QPixmap( ":/Legend.svg" );
+        QPixmap p = QPixmap( ":/Legend.png" );
         symbol->setPixmap( p );
         symbol->setSize( 8, 8 );
     }

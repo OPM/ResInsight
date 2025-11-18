@@ -114,6 +114,6 @@ void RicNewValveTemplateFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewValveTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.png" ) );
     actionToSetup->setText( "New Valve Template" );
 }

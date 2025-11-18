@@ -10,7 +10,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseContourMapViewCollection, "Eclipse2dViewCollectio
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapViewCollection::RimEclipseContourMapViewCollection()
 {
-    CAF_PDM_InitObject( "Contour Maps", ":/2DMaps16x16.svg" );
+    CAF_PDM_InitObject( "Contour Maps", ":/2DMaps16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapViews, "EclipseViews", "Contour Maps", ":/CrossSection16x16.png" );
 }

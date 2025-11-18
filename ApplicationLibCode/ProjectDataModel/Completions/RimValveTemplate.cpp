@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RimValveTemplate, "ValveTemplate" );
 //--------------------------------------------------------------------------------------------------
 RimValveTemplate::RimValveTemplate()
 {
-    CAF_PDM_InitScriptableObject( "Valve Template", ":/ICDValve16x16.svg" );
+    CAF_PDM_InitScriptableObject( "Valve Template", ":/ICDValve16x16.png" );
 
     CAF_PDM_InitField( &m_valveTemplateUnit,
                        "UnitSystem",
@@ -349,14 +349,14 @@ void RimValveTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
     setName( fullLabel() );
     if ( m_type() == RiaDefines::WellPathComponentType::ICV )
     {
-        setUiIconFromResourceString( ":/ICVValve16x16.svg" );
+        setUiIconFromResourceString( ":/ICVValve16x16.png" );
     }
     else if ( m_type() == RiaDefines::WellPathComponentType::ICD )
     {
-        setUiIconFromResourceString( ":/ICDValve16x16.svg" );
+        setUiIconFromResourceString( ":/ICDValve16x16.png" );
     }
     else if ( m_type() == RiaDefines::WellPathComponentType::AICD )
     {
-        setUiIconFromResourceString( ":/AICDValve16x16.svg" );
+        setUiIconFromResourceString( ":/AICDValve16x16.png" );
     }
 }

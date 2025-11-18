@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT( RimColorLegend, "ColorLegend" );
 RimColorLegend::RimColorLegend()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "ColorLegend", ":/Legend.svg" );
+    CAF_PDM_InitScriptableObject( "ColorLegend", ":/Legend.png" );
 
     CAF_PDM_InitField( &m_colorLegendName, "ColorLegendName", QString( "" ), "Color Legend Name" );
 

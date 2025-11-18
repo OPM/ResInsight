@@ -119,7 +119,7 @@ void RicNewViewFeature::onActionTriggered( bool isChecked )
 void RicNewViewFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New View" );
-    actionToSetup->setIcon( QIcon( ":/3DView16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/3DView16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

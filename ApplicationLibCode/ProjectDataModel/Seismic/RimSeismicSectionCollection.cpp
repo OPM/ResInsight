@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimSeismicSectionCollection, "SeismicSectionCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSeismicSectionCollection::RimSeismicSectionCollection()
 {
-    CAF_PDM_InitObject( "Seismic Sections", ":/Seismic16x16.svg" );
+    CAF_PDM_InitObject( "Seismic Sections", ":/Seismic16x16.png" );
 
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Seismic Sections" ), "Name" );
 

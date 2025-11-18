@@ -91,6 +91,6 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportSurfacesFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
     actionToSetup->setText( "Import Surfaces" );
 }

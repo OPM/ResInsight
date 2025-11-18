@@ -121,5 +121,5 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
 void RicWellPathsImportOsduFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import Well Paths from &OSDU" + RiaDefines::betaFeaturePostfix() );
-    actionToSetup->setIcon( QIcon( ":/WellCollection.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/WellCollection.png" ) );
 }

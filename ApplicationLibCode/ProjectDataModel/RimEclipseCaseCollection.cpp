@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseCaseCollection, "ResInsightAnalysisModels" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCaseCollection::RimEclipseCaseCollection()
 {
-    CAF_PDM_InitObject( "Grid Models", ":/Cases16x16.svg" );
+    CAF_PDM_InitObject( "Grid Models", ":/Cases16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "" );
 

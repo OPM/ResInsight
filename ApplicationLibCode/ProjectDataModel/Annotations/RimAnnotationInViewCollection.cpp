@@ -64,7 +64,7 @@ CAF_PDM_SOURCE_INIT( RimAnnotationInViewCollection, "Annotations" );
 //--------------------------------------------------------------------------------------------------
 RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 {
-    CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.svg" );
+    CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.png" );
 
     CAF_PDM_InitField( &m_annotationPlaneDepth, "AnnotationPlaneDepth", 0.0, "Annotation Plane Depth" );
     CAF_PDM_InitField( &m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane" );
@@ -82,8 +82,8 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
     m_globalTextAnnotations->uiCapability()->setUiName( "Global Text Annotations" );
     m_globalReachCircleAnnotations->uiCapability()->setUiName( "Global Reach Circle Annotations" );
 
-    m_globalTextAnnotations->uiCapability()->setUiIconFromResourceString( ":/TextAnnotation16x16.svg" );
-    m_globalReachCircleAnnotations->uiCapability()->setUiIconFromResourceString( ":/ReachCircle16x16.svg" );
+    m_globalTextAnnotations->uiCapability()->setUiIconFromResourceString( ":/TextAnnotation16x16.png" );
+    m_globalReachCircleAnnotations->uiCapability()->setUiIconFromResourceString( ":/ReachCircle16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------

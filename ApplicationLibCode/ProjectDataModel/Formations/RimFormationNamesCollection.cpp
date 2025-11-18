@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimFormationNamesCollection, "FormationNamesCollectionObjec
 //--------------------------------------------------------------------------------------------------
 RimFormationNamesCollection::RimFormationNamesCollection()
 {
-    CAF_PDM_InitObject( "Formations", ":/FormationCollection16x16.svg" );
+    CAF_PDM_InitObject( "Formations", ":/FormationCollection16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationNamesList, "FormationNamesList", "Formations" );
 

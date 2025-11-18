@@ -52,6 +52,6 @@ void RicImportEnsembleFileSetFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFileSetFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Cases16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Cases16x16.png" ) );
     actionToSetup->setText( "Import Ensemble File Set" );
 }

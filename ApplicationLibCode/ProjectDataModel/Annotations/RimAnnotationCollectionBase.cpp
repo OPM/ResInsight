@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT( RimAnnotationCollectionBase, "RimAnnotationCollectionBase" 
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollectionBase::RimAnnotationCollectionBase()
 {
-    CAF_PDM_InitObject( "Annotations", ":/WellCollection.svg" );
+    CAF_PDM_InitObject( "Annotations", ":/WellCollection.png" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     m_isActive.uiCapability()->setUiHidden( true );
@@ -45,7 +45,7 @@ RimAnnotationCollectionBase::RimAnnotationCollectionBase()
 
     m_textAnnotations = new RimAnnotationGroupCollection();
     m_textAnnotations->uiCapability()->setUiName( RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME );
-    m_textAnnotations->uiCapability()->setUiIconFromResourceString( ":/TextAnnotation16x16.svg" );
+    m_textAnnotations->uiCapability()->setUiIconFromResourceString( ":/TextAnnotation16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -81,5 +81,5 @@ void RicImportPolygonFileFeature::onActionTriggered( bool isChecked )
 void RicImportPolygonFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import Polygon" );
-    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
 }

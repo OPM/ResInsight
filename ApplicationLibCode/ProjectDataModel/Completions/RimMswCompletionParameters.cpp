@@ -75,7 +75,7 @@ CAF_PDM_SOURCE_INIT( RimMswCompletionParameters, "RimMswCompletionParameters" );
 RimMswCompletionParameters::RimMswCompletionParameters()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "MSW Completion Parameters",
-                                                    ":/CompletionsSymbol16x16.svg",
+                                                    ":/CompletionsSymbol16x16.png",
                                                     "",
                                                     "",
                                                     "MswSettings",

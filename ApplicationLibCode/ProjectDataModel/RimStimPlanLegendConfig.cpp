@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimStimPlanLegendConfig, "RimStimPlanLegendConfig" );
 //--------------------------------------------------------------------------------------------------
 RimStimPlanLegendConfig::RimStimPlanLegendConfig()
 {
-    CAF_PDM_InitObject( "StimPlan Color Legend", ":/Legend.svg" );
+    CAF_PDM_InitObject( "StimPlan Color Legend", ":/Legend.png" );
 
     CAF_PDM_InitField( &m_name, "Name", QString( "StimPlan Legend" ), "Name" );
     m_name.uiCapability()->setUiReadOnly( true );

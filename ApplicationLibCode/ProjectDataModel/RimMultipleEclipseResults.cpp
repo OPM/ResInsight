@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RimMultipleEclipseResults, "RimMultipleEclipseResults" );
 //--------------------------------------------------------------------------------------------------
 RimMultipleEclipseResults::RimMultipleEclipseResults()
 {
-    CAF_PDM_InitObject( "Multiple Result Info", ":/TextAnnotation16x16.svg" );
+    CAF_PDM_InitObject( "Multiple Result Info", ":/TextAnnotation16x16.png" );
 
     CAF_PDM_InitField( &m_showCenterCoordinates, "showCenterCoordinates", false, "Show Center Coordinates" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showCenterCoordinates );

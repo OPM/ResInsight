@@ -93,6 +93,6 @@ void RicExportKLayerToPtlFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicExportKLayerToPtlFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
     actionToSetup->setText( "Export Grid Case Surface to Petrel ptl-file" );
 }

@@ -46,7 +46,7 @@ RimPolygon::RimPolygon()
     : objectChanged( this )
     , coordinatesChanged( this )
 {
-    CAF_PDM_InitScriptableObject( "Polygon", ":/PolylinesFromFile16x16.svg" );
+    CAF_PDM_InitScriptableObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitField( &m_isReadOnly, "IsReadOnly", false, "Read Only" );
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Coordinates", "Points" );

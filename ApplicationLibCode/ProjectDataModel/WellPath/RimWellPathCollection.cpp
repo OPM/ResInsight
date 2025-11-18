@@ -98,7 +98,7 @@ CAF_PDM_SOURCE_INIT( RimWellPathCollection, "WellPaths" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection::RimWellPathCollection()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Wells", ":/WellCollection.svg", "", "", "WellPathCollection", "Collection of Well Paths" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Wells", ":/WellCollection.png", "", "", "WellPathCollection", "Collection of Well Paths" );
 
     CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );

@@ -45,7 +45,7 @@ CAF_PDM_SOURCE_INIT( RimNonDarcyPerforationParameters, "NonDarcyPerforationParam
 //--------------------------------------------------------------------------------------------------
 RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
 {
-    CAF_PDM_InitScriptableObject( "NonDarcyPerforationParameters", ":/CompletionsSymbol16x16.svg" );
+    CAF_PDM_InitScriptableObject( "NonDarcyPerforationParameters", ":/CompletionsSymbol16x16.png" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow" );
 

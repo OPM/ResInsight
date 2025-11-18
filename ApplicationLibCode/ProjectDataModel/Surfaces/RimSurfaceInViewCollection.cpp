@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT( RimSurfaceInViewCollection, "SurfaceInViewCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 {
-    CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.svg" );
+    CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_collectionName, "CollectionName", "Name" );
     m_collectionName.registerGetMethod( this, &RimSurfaceInViewCollection::name );

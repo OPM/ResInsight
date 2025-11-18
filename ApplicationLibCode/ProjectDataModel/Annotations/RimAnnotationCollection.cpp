@@ -45,12 +45,12 @@ CAF_PDM_SOURCE_INIT( RimAnnotationCollection, "RimAnnotationCollection" );
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollection::RimAnnotationCollection()
 {
-    CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.svg" );
+    CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations" );
     m_reachCircleAnnotations = new RimAnnotationGroupCollection();
     m_reachCircleAnnotations->uiCapability()->setUiName( RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME );
-    m_reachCircleAnnotations->uiCapability()->setUiIconFromResourceString( ":/ReachCircle16x16.svg" );
+    m_reachCircleAnnotations->uiCapability()->setUiIconFromResourceString( ":/ReachCircle16x16.png" );
 
     // obsolete things
     CAF_PDM_InitFieldNoDefault( &m_userDefinedPolylineAnnotations_OBSOLETE,

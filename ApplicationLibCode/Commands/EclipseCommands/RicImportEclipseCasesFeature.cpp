@@ -78,6 +78,6 @@ void RicImportEclipseCasesFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportEclipseCasesFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Cases16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Cases16x16.png" ) );
     actionToSetup->setText( "Import Eclipse Cases Recursively" );
 }

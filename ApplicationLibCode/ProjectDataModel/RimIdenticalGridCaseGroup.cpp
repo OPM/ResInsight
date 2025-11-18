@@ -69,7 +69,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 
     caseCollection = new RimCaseCollection;
     caseCollection->uiCapability()->setUiName( "Source Cases" );
-    caseCollection->uiCapability()->setUiIconFromResourceString( ":/Cases16x16.svg" );
+    caseCollection->uiCapability()->setUiIconFromResourceString( ":/Cases16x16.png" );
 
     statisticsCaseCollection = new RimCaseCollection;
     statisticsCaseCollection->uiCapability()->setUiName( "Derived Statistics" );

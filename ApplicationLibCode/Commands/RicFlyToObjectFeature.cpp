@@ -95,7 +95,7 @@ void RicFlyToObjectFeature::onActionTriggered( bool isChecked )
 void RicFlyToObjectFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Fly to Object" );
-    // actionToSetup->setIcon(QIcon(":/3DView16x16.svg"));
+    // actionToSetup->setIcon(QIcon(":/3DView16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

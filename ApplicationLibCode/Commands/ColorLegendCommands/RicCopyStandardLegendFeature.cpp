@@ -67,7 +67,7 @@ void RicCopyStandardLegendFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCopyStandardLegendFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Legend.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Legend.png" ) );
     actionToSetup->setText( "Copy to Custom Color Legends" );
 }
 

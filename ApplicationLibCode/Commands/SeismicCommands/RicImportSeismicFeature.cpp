@@ -89,7 +89,7 @@ void RicImportSeismicFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportSeismicFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Seismic16x16.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
     actionToSetup->setText( "Import Seismic" );
 }
 

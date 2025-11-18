@@ -43,10 +43,6 @@
 
 #include <signal.h>
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
-
 void manageSegFailure( int signalCode );
 
 RiaApplication* createApplication( int& argc, char* argv[] )
@@ -89,42 +85,6 @@ int main( int argc, char* argv[] )
     // belonging to different top-level windows through re-parenting.
     // See test application QtTestBenchOpenGLWidget
     QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
-
-    // Enable Qt high-DPI support before creating the application object
-    QApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
-    QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps );
-
-#ifdef Q_OS_WIN
-    // Try to set per-monitor DPI awareness on Windows.
-    // Prefer SetProcessDpiAwarenessContext (Win10+). If not available, fall back to SetProcessDpiAwareness from shcore.dll.
-    HMODULE user32 = LoadLibraryA("user32.dll");
-    if ( user32 )
-    {
-        typedef BOOL( WINAPI* SetProcessDpiAwarenessContext_t )( HANDLE );
-        auto spdac = reinterpret_cast<SetProcessDpiAwarenessContext_t>( GetProcAddress( user32, "SetProcessDpiAwarenessContext" ) );
-        if ( spdac )
-        {
-            // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 is not defined on older SDKs; use (HANDLE)-4 which is the documented value
-            spdac( reinterpret_cast<HANDLE>( -4 ) );
-        }
-        else
-        {
-            HMODULE shcore = LoadLibraryA("shcore.dll");
-            if ( shcore )
-            {
-                typedef HRESULT( WINAPI* SetProcessDpiAwareness_t )( int );
-                auto spda = reinterpret_cast<SetProcessDpiAwareness_t>( GetProcAddress( shcore, "SetProcessDpiAwareness" ) );
-                if ( spda )
-                {
-                    // PROCESS_PER_MONITOR_DPI_AWARE = 2
-                    spda( 2 );
-                }
-                FreeLibrary( shcore );
-            }
-        }
-        FreeLibrary( user32 );
-    }
-#endif
 
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();

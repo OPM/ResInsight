@@ -310,26 +310,11 @@
         <file>draw_style_faults_24x24.svg</file>
         <file>draw_style_WellCellsToRangeFilter_24x24.svg</file>
         <file>Fullscreen.svg</file>
+        <file>EastView.png</file>
+        <file>NorthView.png</file>
+        <file>SouthView.png</file>
+        <file>WestView.png</file>
         <file>themes/custom.qss</file>
-        <file>Cases16x16.svg</file>
-        <file>3DView16x16.svg</file>
-        <file>WellCollection.svg</file>
-        <file>ReservoirSurfaces16x16.svg</file>
-        <file>Seismic16x16.svg</file>
-        <file>SeismicData24x24.svg</file>
-        <file>SeismicViews24x24.svg</file>
-        <file>FormationCollection16x16.svg</file>
-        <file>CompletionsSymbol16x16.svg</file>
-        <file>ICDValve16x16.svg</file>
-        <file>AICDValve16x16.svg</file>
-        <file>ICVValve16x16.svg</file>
-        <file>FractureTemplates16x16.svg</file>
-        <file>Annotations16x16.svg</file>
-        <file>TextAnnotation16x16.svg</file>
-        <file>2DMaps16x16.svg</file>
-        <file>Legend.svg</file>
-        <file>ReachCircle16x16.svg</file>
-        <file>PolylinesFromFile16x16.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
