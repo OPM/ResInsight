@@ -92,7 +92,7 @@ template <>
 void caf::AppEnum<RimEnsembleFractureStatistics::MeanType>::setUp()
 {
     addItem( RimEnsembleFractureStatistics::MeanType::HARMONIC, "HARMONIC", "Harmonic" );
-    addItem( RimEnsembleFractureStatistics::MeanType::ARITHMETIC, "ARITHMETIC", "Artihmetic" );
+    addItem( RimEnsembleFractureStatistics::MeanType::ARITHMETIC, "ARITHMETIC", "Arithmetic" );
     addItem( RimEnsembleFractureStatistics::MeanType::GEOMETRIC, "GEOMETRIC", "Geometric" );
     addItem( RimEnsembleFractureStatistics::MeanType::MINIMUM, "MINIMUM", "Minimum" );
     setDefault( RimEnsembleFractureStatistics::MeanType::HARMONIC );

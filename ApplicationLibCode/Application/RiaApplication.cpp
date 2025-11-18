@@ -670,7 +670,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
             mainPlotColl->ensureDefaultFlowPlotsAreCreated();
 
-            // RimVfpTable are not presisted in the project file, and are created in vfpDataCollection->loadDataAndUpdate(). Existing VFP
+            // RimVfpTable are not persisted in the project file, and are created in vfpDataCollection->loadDataAndUpdate(). Existing VFP
             // plots will have references to RimVfpTables. Call resolveReferencesRecursively() to update the references to RimVfpTable objects.
             mainPlotColl->vfpPlotCollection()->resolveReferencesRecursively();
         }

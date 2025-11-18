@@ -63,7 +63,7 @@ RimOilField::RimOilField()
     CAF_PDM_InitFieldNoDefault( &ensembleWellLogsCollection, "EnsembleWellLogsCollection", "Ensemble Well Logs" );
     CAF_PDM_InitFieldNoDefault( &polygonCollection, "PolygonCollection", "Polygons" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureTemplateCollection_OBSOLETE, "FractureDefinitionCollection", "Defenition of Fractures" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureTemplateCollection_OBSOLETE, "FractureDefinitionCollection", "Definition of Fractures" );
 
     CAF_PDM_InitFieldNoDefault( &measurement, "Measurement", "Measurement" );
     measurement = new RimMeasurement();

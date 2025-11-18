@@ -310,7 +310,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 
   # std::stacktrace requires stdc++exp. If a custom build of GCC stdc++exp is
-  # reqiured, define the search path here.
+  # required, define the search path here.
   set(RESINSIGHT_GCC_STDCPP_EXP_PATH
       ""
       CACHE PATH "Path to search for stdc++exp"
@@ -422,7 +422,7 @@ set(UNITY_EXCLUDE_FILES
     # Exclude files including opm-common
     ProjectDataModel/RimVfpTableExtractor.cpp
     ProjectDataModel/RimVfpPlot.cpp
-    # Exclude moc files as they cause template instanciation issues
+    # Exclude moc files as they cause template instantiation issues
     # https://cmake.org/cmake/help/latest/prop_tgt/AUTOGEN_BUILD_DIR.html
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/mocs_compilation.cpp
     ProjectDataModel/RiaOpmParserTools.cpp

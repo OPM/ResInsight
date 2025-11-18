@@ -331,7 +331,7 @@ void PdmUiLineEditor::slotEditingFinished()
                 {
                     // If the existing value in the field is the same as the completer will hit, we need to echo the
                     // choice into the text field because the field values are equal, so the normal echoing is
-                    // considered unneccessary by the caf system.
+                    // considered unnecessary by the caf system.
                     int currentFieldIndexValue = uiField()->uiValue().toInt();
                     if ( currentRow == currentFieldIndexValue )
                     {

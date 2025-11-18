@@ -1026,7 +1026,7 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
 {
     size_t ni, nj, nk;
 
-    // look for a hit in the main grid frist
+    // look for a hit in the main grid first
     RigMainGrid* mainGrid = data->mainGrid();
     for ( size_t p = 0; p < points.size(); p++ )
     {

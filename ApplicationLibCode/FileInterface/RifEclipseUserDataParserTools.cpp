@@ -401,7 +401,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream& s
             return emptyTable;
         }
 
-        // For each column header, create rif adress and date time
+        // For each column header, create rif address and date time
         for ( size_t i = 0; i < tableHeaderText.size(); i++ )
         {
             auto columnText = tableHeaderText[i];

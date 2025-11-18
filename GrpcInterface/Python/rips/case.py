@@ -540,9 +540,9 @@ def create_lgr_for_completion(
         --------------- | -------------------------------------- | -----
         time_steps      | Time step index                        | Integer
         well_path_names | List of well path names                | List of Strings
-        refinement_i    | Refinment in x-direction               | Integer
-        refinement_j    | Refinment in y-direction               | Integer
-        refinement_k    | Refinment in z-direction               | Integer
+        refinement_i    | Refinement in x-direction               | Integer
+        refinement_j    | Refinement in y-direction               | Integer
+        refinement_k    | Refinement in z-direction               | Integer
         split_type      | Defines how to split LGRS              | String enum
 
     **Enum split_type**::

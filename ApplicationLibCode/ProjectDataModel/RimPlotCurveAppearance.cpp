@@ -85,7 +85,7 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
     , m_fillOptionsVisible( true )
     , m_curveFittingToleranceVisible( true )
 {
-    CAF_PDM_InitObject( "Curve Apperance" );
+    CAF_PDM_InitObject( "Curve Appearance" );
 
     CAF_PDM_InitField( &m_curveColor, "Color", RiaColorTools::textColor3f(), "Color" );
 

@@ -215,8 +215,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
 
     for ( size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++ )
     {
-        std::vector<double> totoalFlowrateIntoCell( resultCellCount ); // brukt result celle index / active  antall i
-                                                                       // stedet
+        std::vector<double> totoalFlowrateIntoCell( resultCellCount );
 
         if ( flowrateIatAllTimeSteps[timeStep - 1] != nullptr && flowrateJatAllTimeSteps[timeStep - 1] != nullptr &&
              flowrateKatAllTimeSteps[timeStep - 1] != nullptr )

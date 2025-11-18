@@ -556,7 +556,7 @@ TEST( RigWellPathStimplanIntersector, intersection )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Test of whether we can transport edge information trough clipper clipping
+// Test of whether we can transport edge information through clipper clipping
 // Seems as if it might be possible, but clipper will ignore the edge information
 // processed by the callback if one of the edges is horizontal
 //

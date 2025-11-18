@@ -448,7 +448,7 @@ void StructGridGeometryGenerator::computeArrays()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Calculates the texture coordinates in a "nearly" one dimentional texture.
+/// Calculates the texture coordinates in a "nearly" one dimensional texture.
 /// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
 void StructGridGeometryGenerator::textureCoordinates( Vec2fArray*                       textureCoords,

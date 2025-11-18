@@ -31,7 +31,7 @@ public:
                                          const std::string& baseImageDir,
                                          const std::string& newImagesDir,
                                          const std::string& diffImagesDir );
-    void generateHTMLReport( const std::string& filenName, const std::string& pathToDiff2html );
+    void generateHTMLReport( const std::string& fileName, const std::string& pathToDiff2html );
 
     void showInteractiveOnly();
 

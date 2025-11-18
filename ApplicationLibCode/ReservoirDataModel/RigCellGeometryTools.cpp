@@ -713,7 +713,7 @@ std::vector<cvf::Vec3d> RigCellGeometryTools::ajustPolygonToAvoidIntersectionsAt
 {
     std::vector<cvf::Vec3d> adjustedPolygon;
 
-    double treshold = ( 1.0 / 10000.0 ) * 5; // 5 times polygonScaleFactor for converting to int for clipper
+    double threshold = ( 1.0 / 10000.0 ) * 5; // 5 times polygonScaleFactor for converting to int for clipper
 
     for ( cvf::Vec3d polygonPoint : polygon )
     {
@@ -723,7 +723,7 @@ std::vector<cvf::Vec3d> RigCellGeometryTools::ajustPolygonToAvoidIntersectionsAt
             cvf::Vec3d linePoint2( polyLine[i + 1].x(), polyLine[i + 1].y(), 0.0 );
 
             double pointDistanceFromLine = cvf::GeometryTools::linePointSquareDist( linePoint1, linePoint2, polygonPoint );
-            if ( pointDistanceFromLine < treshold )
+            if ( pointDistanceFromLine < threshold )
             {
                 // calculate new polygonPoint
                 cvf::Vec3d directionOfLineSegment = linePoint2 - linePoint1;

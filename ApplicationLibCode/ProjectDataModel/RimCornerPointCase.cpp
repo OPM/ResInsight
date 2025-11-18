@@ -140,7 +140,7 @@ std::array<cvf::Vec3d, 8> RimCornerPointCase::getCorners( const RigMainGrid&    
     for ( size_t n = 0; n < 8; n++ )
         corners[n].z() = zcorn[zind[n]];
 
-    // calculate indices for grid pillars in COORD arrray
+    // calculate indices for grid pillars in COORD array
     std::array<size_t, 4> pind;
     pind[0] = j * ( nx + 1 ) * 6 + i * 6;
     pind[1] = pind[0] + 6;

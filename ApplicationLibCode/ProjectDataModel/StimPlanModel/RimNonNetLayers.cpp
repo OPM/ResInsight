@@ -52,7 +52,7 @@ RimNonNetLayers::RimNonNetLayers()
     CAF_PDM_InitScriptableFieldNoDefault( &m_resultDefinition, "FaciesDefinition", "" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;
-    m_resultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Facies Definiton" );
+    m_resultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Facies Definition" );
     m_resultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
     m_resultDefinition->setResultVariable( "NTG" );
 

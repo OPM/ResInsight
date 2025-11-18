@@ -383,10 +383,10 @@ std::vector<std::vector<double>> RifStimPlanXmlReader::getAllDepthDataAtTimeStep
                 depthDataStr = gridValuesString;
             }
 
-            QStringList splitted = depthDataStr.split( ' ' );
-            for ( int i = 0; i < splitted.size(); i++ )
+            QStringList split = depthDataStr.split( ' ' );
+            for ( int i = 0; i < split.size(); i++ )
             {
-                QString value = splitted[i];
+                QString value = split[i];
                 if ( value != "" )
                 {
                     propertyValuesAtDepth.push_back( value.toDouble() );

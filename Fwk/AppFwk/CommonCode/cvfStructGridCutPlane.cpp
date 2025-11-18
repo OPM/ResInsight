@@ -898,7 +898,7 @@ bool StructGridCutPlane::isCellIntersectedByPlane( const Plane& plane, const Vec
         nVertex.z() = cellMinCoord.z();
     }
 
-    // Chek if both positive and negative vertex are on same side of plane
+    // Check if both positive and negative vertex are on same side of plane
     if ( plane.distanceSquared( pVertex ) < 0 )
     {
         if ( plane.distanceSquared( nVertex ) < 0 )

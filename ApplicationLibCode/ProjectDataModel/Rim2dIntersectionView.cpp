@@ -408,7 +408,7 @@ bool Rim2dIntersectionView::showDefiningPoints() const
 std::vector<RimLegendConfig*> Rim2dIntersectionView::legendConfigs() const
 {
     // Return empty list, as the intersection view has a copy of the legend items. Picking and selection of the
-    // corresponding item is handeled by handleOverlayItemPicked()
+    // corresponding item is handled by handleOverlayItemPicked()
     return {};
 }
 

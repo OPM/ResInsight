@@ -117,7 +117,7 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bo
 /// Note : For fields with a none-empty m_optionEntryCache list, the returned QVariant contains the
 ///        _indexes_ to the selected options rather than the actual values, if they can be found.
 ///
-///        If this is a multivalue field, and we cant find all of the field values among the options,
+///        If this is a multivalue field, and we can't find all of the field values among the options,
 ///        the method asserts (For now), forcing the valueOptions to always contain the field values.
 ///        Single value fields will return -1 if the option is not found, allowing the concept of "nothing selected"
 //--------------------------------------------------------------------------------------------------

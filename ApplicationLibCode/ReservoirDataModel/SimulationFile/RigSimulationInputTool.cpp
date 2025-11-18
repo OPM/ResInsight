@@ -995,7 +995,7 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
             // Replace keyword values in deck with extracted data
             if ( deckFile.replaceKeywordData( "OPERNUM", result.value() ) )
             {
-                RiaLogging::info( "Added replaced opernum value in exising position." );
+                RiaLogging::info( "Added replaced opernum value in existing position." );
             }
             else
             {

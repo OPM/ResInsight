@@ -254,7 +254,7 @@ TEST( RifColumnBasedAsciiParserTest, ThreeLinesHeader )
     parseOptions.locale               = QLocale::c();
     parseOptions.timeSeriesColumnName = "TIME";
 
-    // The CSV header require at leas one line with header data.
+    // The CSV header require at least one line with header data.
     // Units and object names are optional header lines.
 
     // Example data with three header lines:

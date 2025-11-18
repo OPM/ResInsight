@@ -159,7 +159,7 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
             filterInvalidValuesForLogarithmicScale( values );
         }
 
-        // TOOD: Consider rewrite, as RigWellLogCurveData can do logarithmic filtering
+        // TODO: Consider rewrite, as RigWellLogCurveData can do logarithmic filtering
 
         bool useLogarithmicScale = false;
         setPropertyValuesWithMdAndTVD( values, measuredDepthValues, tvDepthValues, rkbDiff, depthUnit, !performDataSmoothing, useLogarithmicScale, xUnits );

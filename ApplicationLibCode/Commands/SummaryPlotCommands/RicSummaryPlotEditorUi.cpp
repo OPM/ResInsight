@@ -376,7 +376,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
 
     std::set<RiaSummaryCurveDefinition> summaryCurveDefsToDisplay;
 
-    // Ignore curve sets when assigning colors to singe summary curves
+    // Ignore curve sets when assigning colors to single summary curves
     for ( const auto& def : allCurveDefsToDisplay )
     {
         if ( !def.isEnsembleCurve() ) summaryCurveDefsToDisplay.insert( def );

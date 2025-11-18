@@ -76,7 +76,7 @@ def test_create_regular_surface(rips_instance, initialize_test):
     ):
         s.set_property("property_too_big", [i for i in range(nx * ny * 2)])
 
-    # Sucessfully set the depth property
+    # Successfully set the depth property
     s.set_property("depth", [i for i in range(nx * ny)])
     s.set_property_as_depth("depth")
 

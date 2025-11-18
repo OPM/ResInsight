@@ -195,12 +195,12 @@ double RigSimulationWellCoordsAndMD::simWellDipAngle( const cvf::Vec3d& position
 
         cvf::Vec3d direction = p1 - p2;
 
-        double horizonal = sqrt( pow( direction.x(), 2 ) + pow( direction.y(), 2 ) );
-        double vertical  = direction.z();
+        double horizontal = sqrt( pow( direction.x(), 2 ) + pow( direction.y(), 2 ) );
+        double vertical   = direction.z();
 
         if ( fabs( vertical ) > 1e-5 )
         {
-            double atanValue = vertical / horizonal;
+            double atanValue = vertical / horizontal;
             dipAngle         = atan( atanValue );
             dipAngle         = cvf::Math::toDegrees( dipAngle );
         }

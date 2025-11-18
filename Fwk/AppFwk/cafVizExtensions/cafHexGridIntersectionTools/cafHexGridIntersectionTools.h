@@ -44,7 +44,7 @@ public:
         size_t clippedEdgeVx2Id;
 
         bool isVxIdsNative; //< Pointing to real vertices, or indices to ClipVx's in the supplied triangle vertices array
-        int derivedVxLevel; //< Helper data to make it possible to track what set of ClipVx's the indices is reffering
+        int derivedVxLevel; //< Helper data to make it possible to track what set of ClipVx's the indices is referring
                             // to in case of consecutive clips
     };
 

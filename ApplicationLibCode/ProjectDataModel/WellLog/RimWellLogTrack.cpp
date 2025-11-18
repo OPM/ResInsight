@@ -1043,7 +1043,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         {
             if ( dIdx == 0 )
                 continue; // Skip the first line. (shallow depth, which is last)
-                          // as it is a fictious value added to make
+                          // as it is a fictitious value added to make
                           // the plot easier to read
 
             i = curveDepths.size() - 1 - dIdx; // Reverse the order, since the connections are coming bottom to top

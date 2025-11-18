@@ -285,7 +285,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     std::map<int, int> activeCellMap;
     int                nativeIdx = 0;
 
-    // non-parallell loop to set up and initialize things so that we can run in parallell later
+    // non-parallel loop to set up and initialize things so that we can run in parallel later
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmGrid.totalNumberOfCells() ); opmCellIndex++ )
     {
         if ( ( activeMatIndexes[opmCellIndex] < 0 ) && ( activeFracIndexes[opmCellIndex] < 0 ) ) continue;

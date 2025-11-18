@@ -980,7 +980,7 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
             selectedWindow = firstSelectedObject->firstAncestorOrThisOfType<RimViewWindow>();
         }
 
-        // If we cant find the view window as an MDI sub window, we search higher in the
+        // If we can't find the view window as an MDI sub window, we search higher in the
         // project tree to find a possible parent view window that has.
         if ( selectedWindow && !findMdiSubWindow( selectedWindow->viewWidget() ) )
         {

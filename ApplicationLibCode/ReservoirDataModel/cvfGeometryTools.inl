@@ -353,7 +353,7 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>&  
     // Loop over edges in the face of Cv1. Intersect each one with all the edges of the Cv2 face.
     // Add first point of the cv1 edge to polygon if it really touches Cv2 ( touch of edge is considered as not
     // touching) Add each intersection point along the Cv1 edge if present and finally: if the cv1 edge is going out of
-    // cv2, the add the cv2 vertexes from that intersection as long as they touch cv1.
+    // cv2, the add the cv2 vertices from that intersection as long as they touch cv1.
 
     int nextCv1Idx = 1;
     for ( cv1Idx = 0; cv1Idx < 4; ++cv1Idx, ++nextCv1Idx )
@@ -623,7 +623,7 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>&  
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This method assumes that all intersection and mid edge vertexes are created an are already
+/// This method assumes that all intersection and mid edge vertices are created an are already
 /// merged into all the polygons. We can also assume that all the connection polygons are completely
 /// inside (or sharing edges with) the cube face polygon initially
 //--------------------------------------------------------------------------------------------------

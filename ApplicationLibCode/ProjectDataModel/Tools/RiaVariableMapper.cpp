@@ -93,7 +93,7 @@ QString RiaVariableMapper::addPathAndGetId( const QString& path )
         return pathId;
     };
 
-    // Want to re-use ids from last save to avoid unnecessary changes and make the behavior predictable
+    // Want to reuse ids from last save to avoid unnecessary changes and make the behavior predictable
     QString trimmedPath = path.trimmed();
     QString pathId      = computePathId( trimmedPath );
 

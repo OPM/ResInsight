@@ -299,7 +299,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder( d
 
     if ( i >= cylinderCenterCoords->size() - 1 ) return nullptr; // The pipe coordinates is all the same point
 
-    // Loop along the cylinder center coords and calculate the cross section vertexes in each center vertex
+    // Loop along the cylinder center coords and calculate the cross section vertices in each center vertex
 
     for ( size_t ccIdx = 0; ccIdx < cylinderCenterCoords->size() - 1; ccIdx++ )
     {
@@ -446,7 +446,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
         crossSectionVertices.emplace_back( lastExtrudedNode );
     }
 
-    // Loop along the cylinder center coords and calculate the cross section vertexes in each center vertex
+    // Loop along the cylinder center coords and calculate the cross section vertices in each center vertex
 
     for ( size_t ccIdx = 0; ccIdx < cylinderCenterCoords->size() - 1; ccIdx++ )
     {

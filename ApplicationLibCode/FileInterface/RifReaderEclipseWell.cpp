@@ -111,7 +111,6 @@ size_t RifReaderEclipseWell::localGridCellIndexFromErtConnection( const RigGridB
 
     // The K value might also be -1. It is not yet known why, or what it is supposed to mean,
     // but for now we will interpret as 0.
-    // TODO: Ask Joakim Haave regarding this.
     if ( cellK < 0 )
     {
         // cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Detected negative K

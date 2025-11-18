@@ -44,7 +44,7 @@ bool RifWellIAFileWriter::writeToJsonFile( RimWellIASettings& settings, QString&
         QTextStream stream( &file );
 
         stream << "{" << caf::endl;
-        stream << "\"comments\": \"All units are SI unless mentioned otherwise; temperature is in Celcius; use forward "
+        stream << "\"comments\": \"All units are SI unless mentioned otherwise; temperature is in Celsius; use forward "
                   "slash (/) in 'directory' definition\","
                << caf::endl;
         stream << "\"directory\": \"" + settings.outputBaseDirectory() + "\"," << caf::endl;

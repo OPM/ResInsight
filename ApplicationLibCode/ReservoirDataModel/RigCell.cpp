@@ -181,7 +181,7 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
             const cvf::Vec3d& c2opp =  nodes[m_cornerIndices[faceVertexIndices[2]]];
             const cvf::Vec3d& c3opp =  nodes[m_cornerIndices[faceVertexIndices[3]]];
 
-            // Check if any of the opposite face vertexes are also degenerated to the pyramid top
+            // Check if any of the opposite face vertices are also degenerated to the pyramid top
             
             int okVertexCount = 0;
             cvf::Vec3d okVxs[4];

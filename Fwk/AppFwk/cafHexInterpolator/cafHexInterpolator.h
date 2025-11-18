@@ -45,7 +45,7 @@ Author Jacob Storen
 Vectors:    [v] = | v2 | = { v1, v2, v3 }
                   | v3 |
 
-the {} means that the elment list are a standing vector, but written as a row for convenience
+the {} means that the element list are a standing vector, but written as a row for convenience
 [] means matrix or vector quantity
 
 // HEX8
@@ -91,7 +91,7 @@ we use i,j,k to calculate all Nn, and then :
 
 R = sum_n(Nn * Vn)
 
-A point [P] = {x,y,z} inside a general element can then be calculated by the {i,j,k} coordinates correponding to the
+A point [P] = {x,y,z} inside a general element can then be calculated by the {i,j,k} coordinates corresponding to the
 point and the corner positions Cn = {Cx_n, Cy_n, Cz_n}  (n = 0..7) of the general hex as:
 
 x = sum_n(Nn * Cn_x)
@@ -131,7 +131,7 @@ Then multidimensional Newton-Rapson says:
 Where [J-1] is the inverse Jacobian giving the change in i,j,k when varying x,y,z (The partial derivatives)
 
 The Jacobian is the partially derived x, y, z with respect to i, j, k as follows:
-( The organization of the Jacobi is not quite concistent in the litterature.
+( The organization of the Jacobi is not quite concistent in the literature.
   It seems as if NTNU uses the following, while others use the Transpose.
   (Seems as if the correct one to use in the newton-rapson iteration is the transpose of the following: )
 

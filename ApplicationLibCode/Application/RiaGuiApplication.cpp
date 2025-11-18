@@ -1708,7 +1708,7 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
 bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
 {
     // Pre-allocating a memory exhaustion message
-    // Doing som e trickery to avoid deadlock, as creating a messagebox actually triggers a call to this notify method.
+    // Doing some e trickery to avoid deadlock, as creating a messagebox actually triggers a call to this notify method.
 
     static QMessageBox* memoryExhaustedBox   = nullptr;
     static bool         allocatingMessageBox = false;

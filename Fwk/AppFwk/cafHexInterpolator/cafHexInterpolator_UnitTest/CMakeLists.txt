@@ -6,7 +6,7 @@ if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
   message(
     STATUS
-      "Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING"
+      "Add flag to disable warnings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING"
   )
 endif()
 

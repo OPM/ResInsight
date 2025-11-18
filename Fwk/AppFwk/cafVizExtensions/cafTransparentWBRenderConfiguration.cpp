@@ -73,7 +73,7 @@ using namespace cvf;
 
 
 
-            // Cerate overlay item if needed
+            // Create overlay item if needed
             cvf::OverlayItem* overlayItem; // = new someTtem
             m_renderConf->overlayRendering()->addOverlayItem(overlayItem);
         }

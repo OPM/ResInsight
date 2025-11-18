@@ -123,7 +123,7 @@ QModelIndex caf::QTreeViewStateSerializer::getModelIndexFromString( QAbstractIte
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Store path to model index in item view using follwoing encoding into a QString <row> <column>;<row>
+/// Store path to model index in item view using following encoding into a QString <row> <column>;<row>
 /// <column>;...;<row> <column>
 //--------------------------------------------------------------------------------------------------
 void caf::QTreeViewStateSerializer::encodeStringFromModelIndex( const QModelIndex mi, QString& encodedModelIndex )

@@ -342,7 +342,7 @@ TEST( BaseTest, PdmChildArrayField )
 
 TEST( BaseTest, PdmChildArrayParentField )
 {
-    // Test of instanciating a class with forward declare of object used in PdmChildArrayField and PdmChildField
+    // Test of instantiating a class with forward declare of object used in PdmChildArrayField and PdmChildField
     Parent* parentObj = new Parent;
 
     delete parentObj;
@@ -630,8 +630,8 @@ TEST( BaseTest, testTypedChildren )
     auto obj = s1->firstAncestorOrThisOfType<InheritedDemoObj>();
     EXPECT_TRUE( obj == ihd1 );
 
-    auto decendants = ihd1->descendantsIncludingThisOfType<DemoPdmObject>();
-    EXPECT_EQ( size_t( 4 ), decendants.size() );
+    auto descendants = ihd1->descendantsIncludingThisOfType<DemoPdmObject>();
+    EXPECT_EQ( size_t( 4 ), descendants.size() );
 
     delete ihd1;
 }

@@ -311,14 +311,14 @@ TEST( OpmSummaryTests, OpmComputeSegmentTopology )
 
         RifReaderOpmRft reader( filePath );
 
-        auto adresses = reader.eclipseRftAddresses();
+        auto addresses = reader.eclipseRftAddresses();
 
         std::vector<float> segStartDepth;
         std::vector<float> segEndDepth;
         std::vector<float> segNumber;
 
         std::set<RifEclipseRftAddress> segmentAdresses;
-        for ( const auto& adr : adresses )
+        for ( const auto& adr : addresses )
         {
             if ( adr.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
             {

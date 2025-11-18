@@ -490,10 +490,10 @@ TEST( RiaArcCurveCalculator, Basic )
         EXPECT_NEAR( 0, n.y(), 1e-5 );
         EXPECT_NEAR( 0, n.z(), 1e-5 );
 
-        cvf::Vec3d te = calc.endTangent();
-        EXPECT_NEAR( 0, te.x(), 1e-5 );
-        EXPECT_NEAR( 0, te.y(), 1e-5 );
-        EXPECT_NEAR( -1, te.z(), 1e-5 );
+        cvf::Vec3d endTangent = calc.endTangent();
+        EXPECT_NEAR( 0, endTangent.x(), 1e-5 );
+        EXPECT_NEAR( 0, endTangent.y(), 1e-5 );
+        EXPECT_NEAR( -1, endTangent.z(), 1e-5 );
     }
 
     {
@@ -501,9 +501,9 @@ TEST( RiaArcCurveCalculator, Basic )
 
         EXPECT_TRUE( calc.curveStatus() == RiaArcCurveCalculator::OK_STRAIGHT_LINE );
 
-        cvf::Vec3d te = calc.endTangent();
-        EXPECT_NEAR( 0, te.x(), 1e-5 );
-        EXPECT_NEAR( 0, te.y(), 1e-5 );
-        EXPECT_NEAR( -1, te.z(), 1e-5 );
+        cvf::Vec3d endTangent = calc.endTangent();
+        EXPECT_NEAR( 0, endTangent.x(), 1e-5 );
+        EXPECT_NEAR( 0, endTangent.y(), 1e-5 );
+        EXPECT_NEAR( -1, endTangent.z(), 1e-5 );
     }
 }

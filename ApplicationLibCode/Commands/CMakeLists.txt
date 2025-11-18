@@ -7,7 +7,7 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
 endif()
 
 set(UNITY_EXCLUDE_FILES
-    # Exclude moc files as they cause template instanciation issues
+    # Exclude moc files as they cause template instantiation issues
     # https://cmake.org/cmake/help/latest/prop_tgt/AUTOGEN_BUILD_DIR.html
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/mocs_compilation.cpp
 )

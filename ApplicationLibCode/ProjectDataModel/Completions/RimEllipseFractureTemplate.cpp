@@ -106,12 +106,12 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec3
                                                            std::vector<cvf::uint>*  triangleIndices,
                                                            double                   wellPathDepthAtFracture ) const
 {
-    RigEllipsisTesselator tesselator( 20 );
+    RigEllipsisTesselator tessellator( 20 );
 
     float a = m_halfLength * m_halfLengthScaleFactor;
     float b = m_height / 2.0f * m_heightScaleFactor;
 
-    tesselator.tesselateEllipsis( a, b, triangleIndices, nodeCoords );
+    tessellator.tesselateEllipsis( a, b, triangleIndices, nodeCoords );
 
     for ( cvf::Vec3f& v : *nodeCoords )
     {

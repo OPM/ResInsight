@@ -32,7 +32,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimElasticProperties, RimcElasticProperties_a
 RimcElasticProperties_addPropertyScaling::RimcElasticProperties_addPropertyScaling( caf::PdmObjectHandle* self )
     : caf::PdmObjectCreationMethod( self )
 {
-    CAF_PDM_InitObject( "Add Elastic Propery Scaling", "", "", "Add Elastic Property Scaling" );
+    CAF_PDM_InitObject( "Add Elastic Property Scaling", "", "", "Add Elastic Property Scaling" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_formation, "Formation", "", "", "", "Formation" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "", "", "", "Facies" );

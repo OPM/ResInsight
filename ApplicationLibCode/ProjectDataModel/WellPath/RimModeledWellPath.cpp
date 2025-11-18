@@ -128,8 +128,8 @@ RimWellPathGeometryDef* RimModeledWellPath::geometryDefinition() const
 //--------------------------------------------------------------------------------------------------
 QString RimModeledWellPath::wellPlanText()
 {
-    QString     planText;
-    QTextStream qtxtStream( &planText );
+    QString     plaintext;
+    QTextStream qtxtStream( &plaintext );
 
     RifTextDataTableFormatter formatter( qtxtStream );
     formatter.setUnlimitedDataRowWidth();
@@ -167,7 +167,7 @@ QString RimModeledWellPath::wellPlanText()
     }
     formatter.tableCompleted();
 
-    return planText;
+    return plaintext;
 }
 
 //--------------------------------------------------------------------------------------------------

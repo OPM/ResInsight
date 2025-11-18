@@ -72,7 +72,7 @@ namespace caf
 //==================================================================================================
 /// A generic Factory class template
 /// Usage:
-///     Simply add the classes that is supposed to be created by the factory by doing the folowing:
+///     Simply add the classes that is supposed to be created by the factory by doing the following:
 ///
 ///     caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
 ///

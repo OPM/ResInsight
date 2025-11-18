@@ -479,7 +479,7 @@ double RimStimPlanModel::endMD() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::applyOffset( double offsetMD )
 {
-    // Nothing to do here, this operation is inteded for well path completions
+    // Nothing to do here, this operation is intended for well path completions
 }
 
 //--------------------------------------------------------------------------------------------------

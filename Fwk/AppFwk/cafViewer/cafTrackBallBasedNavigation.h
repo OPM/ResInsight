@@ -66,10 +66,10 @@ public:
         m_isEnabled        = enable;
         m_fixedSensitivity = std::numeric_limits<double>::infinity();
     }
-    void enableFixedSensitivity( double senstivity )
+    void enableFixedSensitivity( double sensitivity )
     {
         m_isEnabled        = true;
-        m_fixedSensitivity = senstivity;
+        m_fixedSensitivity = sensitivity;
     }
 
     void init( QMouseEvent* eventAtRotationStart );
@@ -109,9 +109,9 @@ public:
     {
         m_roationSensitivityCalculator.enableAdaptiveRotationSensitivity( enable );
     }
-    void enableFixedSensitivity( double senstivity )
+    void enableFixedSensitivity( double sensitivity )
     {
-        m_roationSensitivityCalculator.enableFixedSensitivity( senstivity );
+        m_roationSensitivityCalculator.enableFixedSensitivity( sensitivity );
     }
 
 protected:

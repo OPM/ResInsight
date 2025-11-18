@@ -149,7 +149,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     CAF_PDM_InitObject( "Color Legend", ":/Legend.png" );
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend" );
     m_showLegend.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "" );
+    CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks to display", "" );
     CAF_PDM_InitField( &m_precision, "Precision", 4, "Significant Digits", "", "The number of significant digits displayed in the legend numbers", "" );
     m_significantDigitsInData = m_precision;
     CAF_PDM_InitField( &m_tickNumberFormat,

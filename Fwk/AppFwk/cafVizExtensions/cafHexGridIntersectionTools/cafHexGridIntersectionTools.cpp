@@ -31,7 +31,7 @@ namespace caf
 /// \param b            End of line segment
 /// \param intersection Returns intersection point along the infinite line defined by a-b
 /// \param normalizedDistFromA Returns the normalized (0..1) position from a to b of the intersection point.
-///                            Will return values along the infinite line defined by the a-b direcion,
+///                            Will return values along the infinite line defined by the a-b direction,
 ///                            and HUGE_VAL if plane and line are parallel.
 /// \param epsilon      Tolerance margin for accepting the position being within (0..1)
 ///

@@ -254,7 +254,7 @@ void RiuQwtCurvePointTracker::updateClosestCurvePointMarker( const QPointF& clos
         {
             m_plotMarker->setValue( closestPoint.x(), closestPoint.y() );
 
-            // Set the axes that the marker realtes to, to make the positioning correct
+            // Set the axes that the marker relates to, to make the positioning correct
             m_plotMarker->setAxes( relatedXAxis, relatedYAxis );
 
             // TODO : Should use a color or other visual indicator to show what axis the curve relates to

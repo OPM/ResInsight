@@ -201,7 +201,7 @@ double GeometryTools::signedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, co
 //--------------------------------------------------------------------------------------------------
 /// This method below is more correct than the one above, both in naming and behaviour.
 /// Should be replaced, but is not done now to avoid possible sideeffects
-/// The difference is the sign of the area. The one below retuns correct sign according to the plane normal
+/// The difference is the sign of the area. The one below returns correct sign according to the plane normal
 /// provided
 //--------------------------------------------------------------------------------------------------
 template <typename Vec3Type>
@@ -225,7 +225,7 @@ double closestAxisSignedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, const 
 /*
    Determine the intersection point of two line segments
    From Paul Bourke, but modified to really handle coincident lines
-   and lines with touching vertexes.
+   and lines with touching vertices.
    Returns an intersection status telling what kind of intersection it is (if any)
    */
 
@@ -911,7 +911,7 @@ EarClipTesselator::EarClipTesselator()
 //--------------------------------------------------------------------------------------------------
 /// \brief      Do the main processing/actual triangulation
 /// \param      triangleIndices Array that will receive the indices of the triangles resulting from the triangulation
-/// \return        true when a tesselation was successully created
+/// \return        true when a tessellation was successfully created
 //--------------------------------------------------------------------------------------------------
 
 bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices )

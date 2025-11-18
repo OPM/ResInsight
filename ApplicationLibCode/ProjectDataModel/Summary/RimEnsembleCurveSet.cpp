@@ -2169,7 +2169,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             for ( int i = 0; i < (int)curves.size(); ++i )
             {
                 // When the curves are created, they contain no data. Curves can be reattached to the plot without loading of data in
-                // setParentPlotNoReplot(). Check if the curves need to load data. Read data from file reader in parallell.
+                // setParentPlotNoReplot(). Check if the curves need to load data. Read data from file reader in parallel.
                 if ( auto plotCurve = curves[i]->plotCurve() )
                 {
                     auto sampleCount = plotCurve->numSamples();

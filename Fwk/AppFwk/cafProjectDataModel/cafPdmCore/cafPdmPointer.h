@@ -68,7 +68,7 @@ private:
 /// The guarding sets the pointer to NULL if the object pointed to dies
 ///
 /// NOTE: This is not reference counting. The user is responsible to delete the objects pointed to.
-///       It _can_ be used together with the cvf::ref system if neccesary (this is no recomendation)
+///       It _can_ be used together with the cvf::ref system if necessary (this is no recommendation)
 //==================================================================================================
 
 template <class T>

@@ -179,7 +179,7 @@ size_t RigMainGrid::findReservoirCellIndexFromPoint( const cvf::Vec3d& point ) c
 void RigMainGrid::addLocalGrid( RigLocalGrid* localGrid )
 {
     CVF_ASSERT( localGrid && localGrid->gridId() != cvf::UNDEFINED_INT ); // The grid ID must be set.
-    CVF_ASSERT( localGrid->gridId() >= 0 ); // We cant handle negative ID's if they exist.
+    CVF_ASSERT( localGrid->gridId() >= 0 ); // We can't handle negative ID's if they exist.
 
     m_localGrids.push_back( localGrid );
     localGrid->setGridIndex( m_localGrids.size() ); // Maingrid itself has grid index 0
@@ -300,7 +300,7 @@ const RigGridBase* RigMainGrid::gridByIndex( size_t localGridIndex ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the grid with the given name. Main Grid itself could be retreived by using name ""
+/// Returns the grid with the given name. Main Grid itself could be retrieved by using name ""
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigMainGrid::gridByName( const std::string& name )
 {
@@ -1135,7 +1135,7 @@ std::array<double, 6> RigMainGrid::defaultMapAxes()
     const double xPoint[2] = { 1.0, 0.0 };
     const double yPoint[2] = { 0.0, 1.0 };
 
-    // Order (see Elipse Reference Manual for keyword MAPAXES): Y_x, Y_y, O_x, O_y, X_x, X_y
+    // Order (see Reference Manual for keyword MAPAXES): Y_x, Y_y, O_x, O_y, X_x, X_y
     return { yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1] };
 }
 

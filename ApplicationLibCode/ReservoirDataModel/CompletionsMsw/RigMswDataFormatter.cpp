@@ -427,7 +427,7 @@ void RigMswDataFormatter::formatMswTables( RifTextDataTableFormatter& formatter,
     for ( const auto& wellData : unifiedData.wellDataList() )
     {
         bool isLgrData = false;
-        formatCompsegsTable( formatter, wellData, isLgrData ); // Main grid, LGR is handeled separately
+        formatCompsegsTable( formatter, wellData, isLgrData ); // Main grid, LGR is handled separately
     }
 
     formatWsegvalvTable( formatter, unifiedData );

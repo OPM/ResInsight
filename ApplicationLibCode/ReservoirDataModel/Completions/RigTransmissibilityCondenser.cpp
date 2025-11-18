@@ -390,7 +390,7 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
         condensedSystem = Tee - Tei * m_TiiInv * m_Tie;
     }
 
-    // std::cout  << "Te = " << std::endl <<  condensedSystem << std::endl << std::endl;
+    // std::cout  << "Te = " << std::endl <<  condensedSystem << std::endl << std::endl; codespell:ignore
 
     for ( int exEqIdx = 0; exEqIdx < externalEquationCount; ++exEqIdx )
     {
@@ -453,7 +453,7 @@ void printCellAddress( std::stringstream&                        str,
 
         case CellAddress::WELL:
         {
-            str << "WEL ";
+            str << "WEL "; // codespell:ignore
             str << std::setw( 5 ) << cellAddr.m_globalCellIdx << std::setw( 5 ) << " " << std::setw( 5 ) << " ";
         }
         break;

@@ -3096,7 +3096,7 @@ void RigCaseCellResultsData::copyResultsMetaDataFromMainCase( RigEclipseCaseData
         RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>( destinationCases[i] );
 
         if ( !rimReservoir ) continue; // Input reservoir
-        if ( mainCaseResultsData == rimReservoir->eclipseCaseData() ) continue; // Do not copy ontop of itself
+        if ( mainCaseResultsData == rimReservoir->eclipseCaseData() ) continue; // Do not copy on top of itself
 
         RigCaseCellResultsData* cellResultsStorage = rimReservoir->results( poroModel );
 

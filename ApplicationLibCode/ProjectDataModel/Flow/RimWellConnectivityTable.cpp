@@ -386,7 +386,7 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
             setWellSelectionFromViewFilter();
         }
 
-        // For singe time step - no apply buttons due to low computation time
+        // For single time step - no apply buttons due to low computation time
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_selectedFromTimeStep || changedField == &m_selectedToTimeStep ||

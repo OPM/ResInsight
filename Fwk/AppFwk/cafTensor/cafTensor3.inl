@@ -298,7 +298,7 @@ cvf::Vec3f Tensor3<S>::calculatePrincipals( cvf::Vec3f principalDirections[3] ) 
     // http://www.engapplets.vt.edu/Mohr/java/nsfapplets/MohrCircles2-3D/Theory/theory.htm
 
     // But the roots(eigenvalues) are calculated by transforming the above equation into
-    // s**3 + aa*s + b = 0 and using the trignometric solution.
+    // s**3 + aa*s + b = 0 and using the trigonometric solution.
     // See crc standard mathematical tables 19th edition pp. 103-104.
 
     SXX += pressure;

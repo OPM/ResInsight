@@ -452,7 +452,7 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
             return {};
         }
 
-        // The first variable is the substituable one. Use its category to
+        // The first variable is the substitutable one. Use its category to
         // provide all available addresses.
         if ( m_distributeToOtherItems )
         {

@@ -94,7 +94,7 @@ home_dir = expanduser("~")
 for fracture in fractures:
     fracture_name = fracture.user_description
 
-    # Create the ouput directory
+    # Create the output directory
     output_directory = (
         Path(home_dir) / "thermal_fracture_surfaces" / "{}".format(fracture_name)
     )

@@ -128,7 +128,7 @@ QString RimTools::relocateFile( const QString& originalFileName, const QString& 
         }
     }
 
-    // Then find the possible move of a directory structure where projects and files referenced are moved in "paralell"
+    // Then find the possible move of a directory structure where projects and files referenced are moved in "parallel"
 
     QFileInfo   fileNameFileInfo( QDir::fromNativeSeparators( fileName ) );
     QString     fileNamePath         = fileNameFileInfo.path();

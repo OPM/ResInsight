@@ -1,7 +1,7 @@
 some text
 
 some more text
-some more text somthing has changed
+some more text something has changed
 some more text some more text some more text
 
 some more text

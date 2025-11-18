@@ -299,7 +299,7 @@ void RigFemPart::calculateElmNeighbors()
 {
     // Calculate elm neighbors: elmIdxs matching each face of the element
 
-    RigFemFaceComparator fComp; // Outside loop to avoid memory alloc/dealloc. Rember to set as private in opm
+    RigFemFaceComparator fComp; // Outside loop to avoid memory alloc/dealloc. Remember to set as private in opm
                                 // parallelization
     std::vector<int> candidates; //
 

@@ -47,7 +47,7 @@ macro( precompiled_header sources includes target_name header_name compiler_defi
         get_directory_property( defines_build ${defines_for_build_name} )
         list( APPEND defines ${defines_build} )
 
-        # Apppend special compiler defines
+        # Append special compiler defines
         list( APPEND defines ${compiler_defines} )
 
         # Add the "-D" prefix to all of them
@@ -61,7 +61,7 @@ macro( precompiled_header sources includes target_name header_name compiler_defi
         separate_arguments( compile_flags )
         
         # Finally, build the precompiled header.
-        # We don't add the buil command to add_custom_target
+        # We don't add the build command to add_custom_target
         # because that would force a PCH rebuild even when
         # the ${header_name}.h file hasn't changed. We add it to
         # a special add_custom_command to work around this problem.        

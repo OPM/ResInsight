@@ -165,7 +165,7 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters()
 
     CAF_PDM_InitField( &m_airGap, "AirGap", 0.0, "Air Gap" );
 
-    CAF_PDM_InitField( &m_shMultiplier, "SHMultiplier", 1.05, "SH Multplier for FG in Shale" );
+    CAF_PDM_InitField( &m_shMultiplier, "SHMultiplier", 1.05, "SH Multiplier for FG in Shale" );
 
     caf::AppEnum<UpperLimitType> defaultUpperLimitType = RimMudWeightWindowParameters::UpperLimitType::FG;
     CAF_PDM_InitField( &m_upperLimitType, "UpperLimitType", defaultUpperLimitType, "Upper Limit Type" );

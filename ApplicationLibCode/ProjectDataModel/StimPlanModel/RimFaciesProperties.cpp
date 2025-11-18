@@ -55,7 +55,7 @@ RimFaciesProperties::RimFaciesProperties()
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesDefinition, "FaciesDefinition", "" );
     m_faciesDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_faciesDefinition = new RimEclipseResultDefinition;
-    m_faciesDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Facies Definiton" );
+    m_faciesDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Facies Definition" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors" );
     m_colorLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
