@@ -711,7 +711,7 @@ void RimSummaryTable::initializeDateRange()
     const std::set<RifEclipseSummaryAddress> allResultAddresses = summaryReader->allResultAddresses();
     if ( allResultAddresses.empty() ) return;
 
-    auto timeSteps = summaryReader->timeSteps( *allResultAddresses.begin() );
+    auto timeSteps = summaryReader->safeTimeSteps( *allResultAddresses.begin() );
     if ( timeSteps.empty() ) return;
 
     m_startDate = RiaQDateTimeTools::fromTime_t( timeSteps.front() );
@@ -757,7 +757,7 @@ void RimSummaryTable::createTableData()
     for ( const auto& adr : summaryAddresses )
     {
         auto [isOk, values]                    = summaryReader->safeValues( adr );
-        const std::vector<time_t> timeSteps    = summaryReader->timeSteps( adr );
+        const std::vector<time_t> timeSteps    = summaryReader->safeTimeSteps( adr );
         const QString             vectorName   = QString::fromStdString( adr.vectorName() );
         const QString             categoryName = getCategoryNameFromAddress( adr );
 

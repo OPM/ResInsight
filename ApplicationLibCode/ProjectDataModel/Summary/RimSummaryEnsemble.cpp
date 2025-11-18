@@ -431,7 +431,7 @@ std::set<time_t> RimSummaryEnsemble::ensembleTimeSteps() const
         const std::set<RifEclipseSummaryAddress>& addrs = reader->allResultAddresses();
         for ( RifEclipseSummaryAddress addr : addrs )
         {
-            std::vector<time_t> timeSteps = reader->timeSteps( addr );
+            std::vector<time_t> timeSteps = reader->safeTimeSteps( addr );
             if ( !timeSteps.empty() )
             {
                 allTimeSteps.insert( timeSteps.begin(), timeSteps.end() );
@@ -547,7 +547,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
         auto [isOk, values]    = reader->safeValues( address );
         if ( isOk )
         {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( address );
+            const std::vector<time_t>& timeSteps = reader->safeTimeSteps( address );
             for ( size_t i = 0; i < timeSteps.size(); ++i )
             {
                 if ( timeDiff( timeSteps[i], timeStep ) < timeDiff( timeStep, closestTimeStep ) )

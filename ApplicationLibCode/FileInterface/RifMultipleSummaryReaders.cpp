@@ -88,7 +88,7 @@ std::vector<time_t> RifMultipleSummaryReaders::timeSteps( const RifEclipseSummar
 {
     for ( const auto& r : m_readers )
     {
-        const auto& timeSteps = r->timeSteps( resultAddress );
+        const auto& timeSteps = r->safeTimeSteps( resultAddress );
         if ( !timeSteps.empty() ) return timeSteps;
     }
 

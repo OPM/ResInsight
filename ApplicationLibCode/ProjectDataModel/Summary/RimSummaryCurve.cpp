@@ -360,7 +360,7 @@ std::vector<time_t> RimSummaryCurve::timeStepsY() const
 
     RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
 
-    return reader->timeSteps( addr );
+    return reader->safeTimeSteps( addr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1360,7 +1360,7 @@ std::vector<time_t> RimSummaryCurve::timeStepsX() const
 
     RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
 
-    return reader->timeSteps( addr );
+    return reader->safeTimeSteps( addr );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -45,7 +45,9 @@ public:
 
     RifEclipseSummaryAddress errorAddress( const RifEclipseSummaryAddress& resultAddress ) const;
 
-    virtual std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const = 0;
+    // Thread-safe public interface for retrieving time steps. This method should be used
+    // by external clients instead of the protected timeSteps() method.
+    std::vector<time_t> safeTimeSteps( const RifEclipseSummaryAddress& resultAddress ) const;
 
     // Thread-safe public interface for retrieving summary values. This method should be used
     // by external clients instead of the protected values() method. Returns a pair containing
@@ -68,6 +70,7 @@ public:
     virtual size_t keywordCount() const = 0;
 
 protected:
+    virtual std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const = 0;
     virtual std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const = 0;
     void                                         increaseSerialNumber();
 

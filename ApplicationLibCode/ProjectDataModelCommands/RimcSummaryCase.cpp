@@ -142,7 +142,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_availableTimeSteps:
     if ( sumReader )
     {
         RifEclipseSummaryAddress adr;
-        dataObject->m_timeValues = sumReader->timeSteps( adr );
+        dataObject->m_timeValues = sumReader->safeTimeSteps( adr );
     }
 
     return dataObject;
@@ -192,7 +192,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_resampleValues::exe
         return std::unexpected( QString( "No values found for address: '%1'" ).arg( m_addressString ) );
     }
 
-    const auto& timeValues = sumReader->timeSteps( adr );
+    const auto& timeValues = sumReader->safeTimeSteps( adr );
 
     QString                    periodString = m_resamplingPeriod().trimmed();
     RiaDefines::DateTimePeriod period       = RiaDefines::DateTimePeriodEnum::fromText( periodString );

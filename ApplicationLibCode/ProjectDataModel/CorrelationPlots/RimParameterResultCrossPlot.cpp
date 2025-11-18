@@ -501,7 +501,7 @@ std::vector<RimParameterResultCrossPlot::CaseData> RimParameterResultCrossPlot::
                 auto [isOk, summaryValues] = reader->safeValues( address );
                 if ( isOk )
                 {
-                    const std::vector<time_t>& timeSteps = reader->timeSteps( address );
+                    const std::vector<time_t>& timeSteps = reader->safeTimeSteps( address );
                     for ( size_t i = 0; i < timeSteps.size(); ++i )
                     {
                         if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )

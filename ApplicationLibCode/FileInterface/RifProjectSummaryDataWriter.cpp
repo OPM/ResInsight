@@ -52,7 +52,7 @@ void RifProjectSummaryDataWriter::importFromSourceSummaryReader( const RifSummar
     auto        summaryAddress = RifEclipseSummaryAddress::miscAddress( keyword );
     if ( reader->hasAddress( summaryAddress ) )
     {
-        auto timeSteps = reader->timeSteps( summaryAddress );
+        auto timeSteps = reader->safeTimeSteps( summaryAddress );
         if ( !timeSteps.empty() )
         {
             Opm::TimeStampUTC ts( timeSteps.front() );

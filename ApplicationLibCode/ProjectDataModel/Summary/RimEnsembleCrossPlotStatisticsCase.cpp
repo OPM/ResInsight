@@ -143,7 +143,7 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
         const auto& reader = sumCase->summaryReader();
         if ( reader )
         {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddressX );
+            const std::vector<time_t>& timeSteps = reader->safeTimeSteps( inputAddressX );
 
             auto [isXOk, valuesX] = reader->safeValues( inputAddressX );
             if ( valuesX.empty() ) continue;
@@ -300,7 +300,7 @@ std::vector<time_t> RimEnsembleCrossPlotStatisticsCase::timeSteps( const RifEcli
 {
     if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
     {
-        return m_firstSummaryCase->summaryReader()->timeSteps( resultAddress );
+        return m_firstSummaryCase->summaryReader()->safeTimeSteps( resultAddress );
     }
 
     return {};

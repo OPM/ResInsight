@@ -317,7 +317,7 @@ QList<caf::PdmOptionItemInfo> RimDeltaSummaryEnsemble::calculateValueOptions( co
             auto firstCase     = sourceEnsemble->allSummaryCases().front();
             auto summaryReader = firstCase->summaryReader();
 
-            const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
+            const std::vector<time_t>& timeSteps = summaryReader->safeTimeSteps( RifEclipseSummaryAddress() );
 
             options = RiaQDateTimeTools::createOptionItems( timeSteps );
         }

@@ -344,7 +344,7 @@ void RimFileSummaryCase::setIncludeRestartFiles( bool includeRestartFiles )
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values )
 {
-    size_t mainSummaryFileValueCount = m_multiSummaryReader->timeSteps( RifEclipseSummaryAddress() ).size();
+    size_t mainSummaryFileValueCount = m_multiSummaryReader->safeTimeSteps( RifEclipseSummaryAddress() ).size();
     if ( values.size() != mainSummaryFileValueCount )
     {
         QString txt = QString( "Wrong size of summary data for keyword %1. Expected %2 values, received %3 values" )

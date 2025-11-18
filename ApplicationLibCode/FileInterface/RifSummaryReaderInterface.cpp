@@ -68,6 +68,20 @@ std::pair<bool, std::vector<double>> RifSummaryReaderInterface::safeValues( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<time_t> RifSummaryReaderInterface::safeTimeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    // Protect access to underlying summary readers that may not be thread-safe (e.g., OPM ExtESmry)
+    std::vector<time_t> result;
+#pragma omp critical(summary_reader_access)
+    {
+        result = timeSteps( resultAddress );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifSummaryReaderInterface::createAndSetAddresses()
 {
 }

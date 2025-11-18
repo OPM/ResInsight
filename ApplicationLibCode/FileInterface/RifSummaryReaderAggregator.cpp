@@ -60,7 +60,7 @@ std::pair<bool, std::vector<double>> RifSummaryReaderAggregator::values( const R
             // a single file.
             // https://github.com/OPM/ResInsight/issues/7065
 
-            std::vector<double> zeros( reader->timeSteps( {} ).size(), 0.0 );
+            std::vector<double> zeros( reader->safeTimeSteps( {} ).size(), 0.0 );
             readerValues = zeros;
         }
 
@@ -192,7 +192,7 @@ void RifSummaryReaderAggregator::calculateOverlappingTimeSteps()
         if ( cutOffTime != 0 ) break; // Stop when we have found a valid cut-off time
 
         auto currentReader    = it.get();
-        auto currentTimeSteps = currentReader->timeSteps( {} );
+        auto currentTimeSteps = currentReader->safeTimeSteps( {} );
 
         m_valueCountForReader[currentReader] = currentTimeSteps.size();
 
@@ -210,7 +210,7 @@ void RifSummaryReaderAggregator::calculateOverlappingTimeSteps()
     for ( int i = static_cast<int>( m_summaryReaders.size() - 2 ); i >= 0; i-- )
     {
         auto currentReader    = m_summaryReaders.at( static_cast<size_t>( i ) ).get();
-        auto currentTimeSteps = currentReader->timeSteps( {} );
+        auto currentTimeSteps = currentReader->safeTimeSteps( {} );
 
         size_t timeStepIndex = 0;
         for ( auto t : currentTimeSteps )
@@ -229,7 +229,7 @@ void RifSummaryReaderAggregator::calculateOverlappingTimeSteps()
     // Create a vector of increasing time steps with no overlapping time steps
     for ( const auto& reader : m_summaryReaders )
     {
-        auto currentTimeSteps = reader->timeSteps( {} );
+        auto currentTimeSteps = reader->safeTimeSteps( {} );
         auto valueCount       = m_valueCountForReader[reader.get()];
 
         if ( currentTimeSteps.empty() || valueCount == 0 ) continue;

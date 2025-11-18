@@ -219,7 +219,7 @@ std::vector<time_t> RiaSummaryCurveDefinition::timeSteps( const RiaSummaryCurveD
     RifSummaryReaderInterface* reader = curveDefinition.summaryCaseY()->summaryReader();
     if ( !reader ) return {};
 
-    return reader->timeSteps( curveDefinition.summaryAddressY() );
+    return reader->safeTimeSteps( curveDefinition.summaryAddressY() );
 }
 
 //--------------------------------------------------------------------------------------------------

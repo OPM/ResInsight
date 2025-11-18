@@ -294,7 +294,7 @@ void RimSummaryRegressionAnalysisCurve::extractSourceCurveData()
                 auto summaryCase = m_ensembleCurveSet->summaryEnsemble()->allSummaryCases().back();
                 if ( auto reader = summaryCase->summaryReader() )
                 {
-                    auto allTimeSteps = reader->timeSteps( {} );
+                    auto allTimeSteps = reader->safeTimeSteps( {} );
                     yTimeSteps        = allTimeSteps;
 
                     yTimeSteps.resize( yValues.size() );

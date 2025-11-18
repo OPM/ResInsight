@@ -208,7 +208,7 @@ std::vector<double> RimEnsembleSummaryVectorHistogramDataSource::extractValuesFr
             auto [isOk, summaryValues] = reader->safeValues( m_summaryAddressUiField );
             if ( isOk )
             {
-                const std::vector<time_t>& timeSteps = reader->timeSteps( m_summaryAddressUiField );
+                const std::vector<time_t>& timeSteps = reader->safeTimeSteps( m_summaryAddressUiField );
                 for ( size_t i = 0; i < timeSteps.size(); ++i )
                 {
                     if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )

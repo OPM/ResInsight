@@ -348,7 +348,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
         if ( reader->hasAddress( address ) )
         {
             auto [isOk, values]                  = reader->safeValues( address );
-            const std::vector<time_t>& timesteps = reader->timeSteps( address );
+            const std::vector<time_t>& timesteps = reader->safeTimeSteps( address );
 
             if ( !timesteps.empty() && !values.empty() )
             {
@@ -395,7 +395,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
 
                     if ( !historyAddr.isHistoryVector() ) historyAddr.setVectorName( address.vectorName() + "H" );
 
-                    const std::vector<time_t>& historyTimesteps = reader->timeSteps( historyAddr );
+                    const std::vector<time_t>& historyTimesteps = reader->safeTimeSteps( historyAddr );
                     if ( !historyTimesteps.empty() )
                     {
                         min = minOrAbsMin( min, values[historyTimesteps.size() - 1] );
@@ -701,7 +701,7 @@ std::set<time_t> RimAnalysisPlot::allAvailableTimeSteps() const
     {
         if ( !sumCase || !sumCase->summaryReader() ) continue;
 
-        const std::vector<time_t>& timeSteps = sumCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
+        const std::vector<time_t>& timeSteps = sumCase->summaryReader()->safeTimeSteps( RifEclipseSummaryAddress() );
 
         for ( time_t t : timeSteps )
         {
@@ -1186,7 +1186,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                 if ( reader->hasAddress( addrToFilterValue ) )
                 {
                     auto [isOk, values]                  = reader->safeValues( addrToFilterValue );
-                    const std::vector<time_t>& timesteps = reader->timeSteps( addrToFilterValue );
+                    const std::vector<time_t>& timesteps = reader->safeTimeSteps( addrToFilterValue );
 
                     if ( filter->consideredTimeStepsType() == RimPlotDataFilterItem::ALL_TIMESTEPS )
                     {
@@ -1220,7 +1220,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
                             if ( !historyAddr.isHistoryVector() ) historyAddr.setVectorName( addrToFilterValue.vectorName() + "H" );
 
-                            std::vector<time_t> historyTimesteps = reader->timeSteps( historyAddr );
+                            std::vector<time_t> historyTimesteps = reader->safeTimeSteps( historyAddr );
                             if ( !historyTimesteps.empty() )
                             {
                                 selectedTimestepIndices = RimAnalysisPlot::findTimestepIndices( { historyTimesteps.back() }, timesteps );
@@ -1450,7 +1450,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         }
         else
         {
-            timeSteps = reader->timeSteps( curveDef.summaryAddressY() );
+            timeSteps = reader->safeTimeSteps( curveDef.summaryAddressY() );
 
             auto [isOk, readValues] = reader->safeValues( curveDef.summaryAddressY() );
             values.swap( readValues );

@@ -158,7 +158,7 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
     }
 
     auto [isOkReader, values]     = summaryReader->safeValues( addr );
-    std::vector<time_t> timeSteps = summaryReader->timeSteps( addr );
+    std::vector<time_t> timeSteps = summaryReader->safeTimeSteps( addr );
     if ( values.empty() || timeSteps.empty() )
     {
         QString message = "ERROR: no data found for well " + wellName + " " + QString::fromStdString( vectorName );

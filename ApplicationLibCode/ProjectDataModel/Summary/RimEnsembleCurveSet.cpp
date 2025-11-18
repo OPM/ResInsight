@@ -1702,7 +1702,7 @@ std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps() const
             std::vector<time_t> timeSteps;
             for ( auto address : m_objectiveValuesSummaryAddresses() )
             {
-                for ( auto timeStep : reader->timeSteps( address->address() ) )
+                for ( auto timeStep : reader->safeTimeSteps( address->address() ) )
                 {
                     timeSteps.push_back( timeStep );
                 }

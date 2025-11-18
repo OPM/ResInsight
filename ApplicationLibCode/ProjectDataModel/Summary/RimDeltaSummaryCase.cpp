@@ -292,7 +292,7 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calcula
     if ( reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
     {
         auto [isOk, summaryValues] = reader1->safeValues( address );
-        return ResultPair( reader1->timeSteps( address ), summaryValues );
+        return ResultPair( reader1->safeTimeSteps( address ), summaryValues );
     }
     else if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
     {
@@ -305,13 +305,13 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calcula
             }
         }
 
-        return ResultPair( reader2->timeSteps( address ), summaryValues );
+        return ResultPair( reader2->safeTimeSteps( address ), summaryValues );
     }
 
     auto getValidatedTimeAndValues = []( RifSummaryReaderInterface*      reader,
                                          const RifEclipseSummaryAddress& addr ) -> std::pair<std::vector<time_t>, std::vector<double>>
     {
-        auto timeSteps      = reader->timeSteps( addr );
+        auto timeSteps      = reader->safeTimeSteps( addr );
         auto [isOk, values] = reader->safeValues( addr );
 
         // Ensure that timeSteps and values have the same size. Different sizes can occur for ongoing simulations.
@@ -514,7 +514,7 @@ void RimDeltaSummaryCase::updateDisplayNameFromCases()
             auto summaryReader = sourceEnsemble->summaryReader();
             if ( summaryReader )
             {
-                const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
+                const std::vector<time_t>& timeSteps = summaryReader->safeTimeSteps( RifEclipseSummaryAddress() );
                 if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < static_cast<int>( timeSteps.size() ) )
                 {
                     time_t    selectedTime = timeSteps[m_fixedTimeStepIndex];
@@ -625,7 +625,7 @@ QList<caf::PdmOptionItemInfo> RimDeltaSummaryCase::calculateValueOptions( const 
 
         if ( sourceCase && sourceCase->summaryReader() )
         {
-            const std::vector<time_t>& timeSteps = sourceCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
+            const std::vector<time_t>& timeSteps = sourceCase->summaryReader()->safeTimeSteps( RifEclipseSummaryAddress() );
 
             options = RiaQDateTimeTools::createOptionItems( timeSteps );
         }

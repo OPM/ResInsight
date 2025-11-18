@@ -689,7 +689,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 if ( isValid && !values.empty() )
                 {
                     auto timeConfig = curveSet->objectiveFunctionTimeConfig();
-                    auto timeSteps  = reader->timeSteps( m_addressSelector->summaryAddress() );
+                    auto timeSteps  = reader->safeTimeSteps( m_addressSelector->summaryAddress() );
 
                     for ( size_t i = 0; i < std::min( timeSteps.size(), values.size() ); i++ )
                     {

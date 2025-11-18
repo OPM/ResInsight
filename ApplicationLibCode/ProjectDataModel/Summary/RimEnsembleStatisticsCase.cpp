@@ -167,7 +167,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         }
         else
         {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
+            const std::vector<time_t>& timeSteps = reader->safeTimeSteps( inputAddress );
             const auto [isOk, values]            = reader->safeValues( inputAddress );
 
             if ( values.empty() || timeSteps.empty() )
@@ -286,7 +286,7 @@ std::pair<time_t, time_t> RimEnsembleStatisticsCase::findMinMaxTime( const std::
         const auto& reader = sumCase->summaryReader();
         if ( reader )
         {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
+            const std::vector<time_t>& timeSteps = reader->safeTimeSteps( inputAddress );
             if ( !timeSteps.empty() )
             {
                 minTime = std::min( timeSteps.front(), minTime );

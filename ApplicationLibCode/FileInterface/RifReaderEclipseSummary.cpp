@@ -227,7 +227,7 @@ std::pair<bool, std::vector<double>> RifReaderEclipseSummary::values( const RifE
 std::vector<time_t> RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     auto reader = currentSummaryReader();
-    if ( reader ) return reader->timeSteps( resultAddress );
+    if ( reader ) return reader->safeTimeSteps( resultAddress );
 
     return {};
 }
