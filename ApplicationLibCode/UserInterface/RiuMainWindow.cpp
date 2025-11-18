@@ -756,7 +756,7 @@ void RiuMainWindow::slotShowEclRunnerDialog()
     if (!runnerDock)
     {
         // First time - create the dock widget and its content
-        runnerDock = RiuDockWidgetTools::createDockWidget( "Ecl Runner", "MainWindow.EclRunner", dockManager() );
+        runnerDock = RiuDockWidgetTools::createDockWidget( "Y-Simulator", "MainWindow.EclRunner", dockManager() );
         RicEclRunnerDialog* runner = new RicEclRunnerDialog( this );
         runnerDock->setWidget( runner );
         // 连接文件打开信号，使用 ResInsight 自己的打开方法

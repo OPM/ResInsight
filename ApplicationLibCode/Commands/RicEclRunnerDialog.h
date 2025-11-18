@@ -15,6 +15,8 @@
 #include <QLabel>
 #include <QTimer>
 
+#include <map>
+
 class QListWidget;
 class QPushButton;
 class QComboBox;
@@ -33,7 +35,6 @@ public:
     ~RicEclRunnerDialog() override;
 
 private slots:
-    void slotImportFiles();
     void slotAddFile();
     void slotDeleteSelected();
     void slotOpenSelected();
@@ -47,6 +48,9 @@ private slots:
     // flush buffered logs to the QTextEdit periodically
     void flushLogs();
 
+    // show detailed dialog that parses the selected row's log into categorized entries
+    void slotShowDetails();
+
 signals:
     void fileOpenRequested(const QString& filePath);
 
@@ -56,7 +60,6 @@ private:
     void startNextProcess();
 
     // Top area
-    QPushButton* m_importButton;
     QPushButton* m_addButton; // add selected imported file to task list
     QComboBox*   m_triggerCombo; // model selector (e300/e100)
     QLabel*      m_triggerLabel;
@@ -74,6 +77,7 @@ private:
 
     // Bottom log area
     QTextEdit*    m_logOutput;
+    QPushButton*  m_detailButton; // button to show parsed log details
 
     // per-task storage (indexed by table row)
     QVector<QString> m_taskFiles;
@@ -100,4 +104,6 @@ private:
     
     // helper to show running count
     void updateRunningLabel();
+
+    std::map<QString, QString> m_outputFileNamePathMap;
 };
