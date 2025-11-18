@@ -81,7 +81,7 @@ CAF_PDM_SOURCE_INIT( RimWellPathCompletionSettings, "WellPathCompletionSettings"
 //--------------------------------------------------------------------------------------------------
 RimWellPathCompletionSettings::RimWellPathCompletionSettings()
 {
-    CAF_PDM_InitScriptableObject( "Completion Settings", ":/CompletionsSymbol16x16.png" );
+    CAF_PDM_InitScriptableObject( "Completion Settings", ":/CompletionsSymbol16x16.svg" );
 
     CAF_PDM_InitScriptableField( &m_wellNameForExport, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );

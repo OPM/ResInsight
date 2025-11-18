@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseViewCollection, "EclipseViewCollection", "Eclipse
 //--------------------------------------------------------------------------------------------------
 RimEclipseViewCollection::RimEclipseViewCollection()
 {
-    CAF_PDM_InitObject( "Views", ":/3DView16x16.png" );
+    CAF_PDM_InitObject( "Views", ":/3DView16x16.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_views, "Views", "Eclipse Views" );
 

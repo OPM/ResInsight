@@ -76,7 +76,7 @@ void RicNewViewForGridEnsembleFeature::onActionTriggered( bool isChecked )
 void RicNewViewForGridEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New View" );
-    actionToSetup->setIcon( QIcon( ":/3DView16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/3DView16x16.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -81,7 +81,7 @@ void RicNewValveAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewValveAtMeasuredDepthFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.svg" ) );
     actionToSetup->setText( "Create Valve at this Depth" );
 }
 

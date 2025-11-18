@@ -71,7 +71,7 @@ void RicCreateTextAnnotationFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateTextAnnotationFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/TextAnnotation16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/TextAnnotation16x16.svg" ) );
     actionToSetup->setText( "Create Text Annotation" );
 }
 
