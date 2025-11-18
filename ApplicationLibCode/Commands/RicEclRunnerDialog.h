@@ -12,6 +12,10 @@
 #include <QMap>
 #include <QVector>
 #include <QMutex>
+#include <QLabel>
+#include <QTimer>
+
+#include <map>
 
 class QListWidget;
 class QPushButton;
@@ -31,7 +35,6 @@ public:
     ~RicEclRunnerDialog() override;
 
 private slots:
-    void slotImportFiles();
     void slotAddFile();
     void slotDeleteSelected();
     void slotOpenSelected();
@@ -42,6 +45,12 @@ private slots:
     void slotTableCellDoubleClicked(int row, int column);
     void slotStopSelected();
 
+    // flush buffered logs to the QTextEdit periodically
+    void flushLogs();
+
+    // show detailed dialog that parses the selected row's log into categorized entries
+    void slotShowDetails();
+
 signals:
     void fileOpenRequested(const QString& filePath);
 
@@ -51,7 +60,6 @@ private:
     void startNextProcess();
 
     // Top area
-    QPushButton* m_importButton;
     QPushButton* m_addButton; // add selected imported file to task list
     QComboBox*   m_triggerCombo; // model selector (e300/e100)
     QLabel*      m_triggerLabel;
@@ -69,6 +77,7 @@ private:
 
     // Bottom log area
     QTextEdit*    m_logOutput;
+    QPushButton*  m_detailButton; // button to show parsed log details
 
     // per-task storage (indexed by table row)
     QVector<QString> m_taskFiles;
@@ -76,6 +85,10 @@ private:
     QVector<QString> m_taskStatus;
     QVector<QStringList> m_taskOutputs;
     QVector<QString> m_taskLogs;
+
+    // Track how many characters of each task's log have already been shown
+    QVector<int> m_logShownLen;
+    QTimer* m_logFlushTimer;
 
     // Multi-process management
     static const int MAX_CONCURRENT_TASKS = 8;
@@ -91,4 +104,6 @@ private:
     
     // helper to show running count
     void updateRunningLabel();
+
+    std::map<QString, QString> m_outputFileNamePathMap;
 };
