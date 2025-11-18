@@ -116,5 +116,5 @@ void RicExportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
 void RicExportSummaryCalculationExpressionsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export Summary Calculation Expressions" );
-    actionToSetup->setIcon( QIcon( ":/svg/Calculator.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
 }

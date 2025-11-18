@@ -126,7 +126,7 @@ void RicExportCarfin::onActionTriggered( bool isChecked )
 void RicExportCarfin::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export CARFIN ..." );
-    actionToSetup->setIcon( QIcon( ":/svg/Save.svg" ) );
+    actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

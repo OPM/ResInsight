@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseFaultColors, "RimFaultResultSlot" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseFaultColors::RimEclipseFaultColors()
 {
-    CAF_PDM_InitObject( "Fault Result", ":/svg/draw_style_faults_24x24.svg" );
+    CAF_PDM_InitObject( "Fault Result", ":/draw_style_faults_24x24.svg" );
 
     CAF_PDM_InitField( &showCustomFaultResult, "ShowCustomFaultResult", false, "Show Custom Fault Result" );
     showCustomFaultResult.uiCapability()->setUiHidden( true );
