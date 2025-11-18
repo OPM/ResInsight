@@ -1120,7 +1120,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleLegendItem()
         }
         else if ( m_colorMode == ColorMode::COLOR_BY_ENSEMBLE_CURVE_SET )
         {
-            QPixmap p = QPixmap( ":/Legend.png" );
+            QPixmap p = QPixmap( ":/Legend.svg" );
 
             symbol = new QwtSymbol;
             symbol->setPixmap( p );

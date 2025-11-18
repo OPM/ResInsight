@@ -161,7 +161,7 @@ void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportFormationNamesFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/FormationCollection16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/FormationCollection16x16.svg" ) );
     actionToSetup->setText( "Import Formations" );
 }
 

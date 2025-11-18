@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimTextAnnotation, "TextAnnotation", "RimTextAnnotation" );
 //--------------------------------------------------------------------------------------------------
 RimTextAnnotation::RimTextAnnotation()
 {
-    CAF_PDM_InitScriptableObject( "TextAnnotation", ":/TextAnnotation16x16.png" );
+    CAF_PDM_InitScriptableObject( "TextAnnotation", ":/TextAnnotation16x16.svg" );
     setUi3dEditorTypeName( RicTextAnnotation3dEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point" );

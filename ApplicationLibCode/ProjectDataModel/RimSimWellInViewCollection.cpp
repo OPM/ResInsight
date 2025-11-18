@@ -134,7 +134,7 @@ CAF_PDM_SOURCE_INIT( RimSimWellInViewCollection, "Wells" );
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection::RimSimWellInViewCollection()
 {
-    CAF_PDM_InitObject( "Simulation Wells", ":/WellCollection.png" );
+    CAF_PDM_InitObject( "Simulation Wells", ":/WellCollection.svg" );
 
     CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );

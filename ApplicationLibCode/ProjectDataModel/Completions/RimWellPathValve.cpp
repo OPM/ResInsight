@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimWellPathValve, "WellPathValve" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathValve::RimWellPathValve()
 {
-    CAF_PDM_InitScriptableObject( "WellPathValve", ":/ICDValve16x16.png" );
+    CAF_PDM_InitScriptableObject( "WellPathValve", ":/ICDValve16x16.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_valveTemplate, "ValveTemplate", "Valve Template" );
     CAF_PDM_InitScriptableField( &m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD" );
@@ -182,13 +182,13 @@ void RimWellPathValve::applyValveLabelAndIcon()
 {
     if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
-        setUiIconFromResourceString( ":/ICVValve16x16.png" );
+        setUiIconFromResourceString( ":/ICVValve16x16.svg" );
         QString fullName = QString( "%1: %2" ).arg( componentLabel() ).arg( m_measuredDepth() );
         setName( fullName );
     }
     else if ( componentType() == RiaDefines::WellPathComponentType::ICD )
     {
-        setUiIconFromResourceString( ":/ICDValve16x16.png" );
+        setUiIconFromResourceString( ":/ICDValve16x16.svg" );
         QString fullName = QString( "%1 %2: %3 - %4" )
                                .arg( m_multipleValveLocations->valveLocations().size() )
                                .arg( componentLabel() )
@@ -198,7 +198,7 @@ void RimWellPathValve::applyValveLabelAndIcon()
     }
     else if ( componentType() == RiaDefines::WellPathComponentType::AICD )
     {
-        setUiIconFromResourceString( ":/AICDValve16x16.png" );
+        setUiIconFromResourceString( ":/AICDValve16x16.svg" );
         QString fullName = QString( "%1 %2: %3 - %4" )
                                .arg( m_multipleValveLocations->valveLocations().size() )
                                .arg( componentLabel() )

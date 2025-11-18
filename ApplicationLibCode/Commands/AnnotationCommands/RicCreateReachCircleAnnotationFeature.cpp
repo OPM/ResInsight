@@ -73,7 +73,7 @@ void RicCreateReachCircleAnnotationFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateReachCircleAnnotationFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ReachCircle16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ReachCircle16x16.svg" ) );
     actionToSetup->setText( "Create Reach Circle Annotation" );
 }
 

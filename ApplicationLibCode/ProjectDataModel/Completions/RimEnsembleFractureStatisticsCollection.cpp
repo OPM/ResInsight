@@ -27,7 +27,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatisticsCollection, "FractureGroupStat
 //--------------------------------------------------------------------------------------------------
 RimEnsembleFractureStatisticsCollection::RimEnsembleFractureStatisticsCollection()
 {
-    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplates16x16.png" );
+    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplates16x16.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatistics, "FractureGroupStatistics", "" );
 }

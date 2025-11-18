@@ -186,6 +186,7 @@ enum class ThemeEnum
     DEFAULT,
     DARK,
     LIGHT,
+    CUSTOM,
     UNDEFINED
 };
 

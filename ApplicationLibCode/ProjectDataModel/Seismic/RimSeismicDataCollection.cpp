@@ -37,7 +37,7 @@ CAF_PDM_SOURCE_INIT( RimSeismicDataCollection, "SeismicDataCollection", "Seismic
 //--------------------------------------------------------------------------------------------------
 RimSeismicDataCollection::RimSeismicDataCollection()
 {
-    CAF_PDM_InitObject( "Data", ":/SeismicData24x24.png" );
+    CAF_PDM_InitObject( "Data", ":/SeismicData24x24.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
 

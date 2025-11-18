@@ -64,6 +64,6 @@ void RicNewValveFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewValveFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.svg" ) );
     actionToSetup->setText( "Create Valve" );
 }

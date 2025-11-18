@@ -1524,7 +1524,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
             if ( oilField->seismicDataCollection() )
             {
-                auto child = uiTreeOrdering.add( "Seismic", ":/Seismic16x16.png" );
+                auto child = uiTreeOrdering.add( "Seismic", ":/Seismic16x16.svg" );
                 child->add( oilField->seismicDataCollection() );
                 child->add( oilField->seismicViewCollection() );
             }

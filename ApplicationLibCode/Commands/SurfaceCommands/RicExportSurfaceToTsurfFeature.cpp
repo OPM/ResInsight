@@ -87,6 +87,6 @@ void RicExportSurfaceToTsurfFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicExportSurfaceToTsurfFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.svg" ) );
     actionToSetup->setText( "Export Surface to GOCAD TSurf file" );
 }

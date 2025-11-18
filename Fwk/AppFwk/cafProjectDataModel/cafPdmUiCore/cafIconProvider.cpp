@@ -39,6 +39,8 @@
 #include <QLinearGradient>
 #include <QPainter>
 #include <QPixmapCache>
+#include <QGuiApplication>
+#include <QScreen>
 
 using namespace caf;
 
@@ -157,7 +159,25 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
 
     if ( m_pixmap ) return std::unique_ptr<QIcon>( new QIcon( *m_pixmap ) );
 
-    QPixmap pixmap( size );
+    // Fast path: if there is no background/overlay composition needed, return the QIcon
+    // directly from the resource string. This preserves vector (SVG) sharpness and HiDPI.
+    if ( m_backgroundColorStrings.empty() && m_overlayResourceString.isEmpty() && !m_iconResourceString.isEmpty() )
+    {
+        return std::unique_ptr<QIcon>( new QIcon( m_iconResourceString ) );
+    }
+
+    // When we need to compose (background/overlay), create a HiDPI-aware pixmap.
+    qreal dpr = 1.0;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+    if ( auto screen = QGuiApplication::primaryScreen() )
+    {
+        dpr = screen->devicePixelRatio();
+    }
+#endif
+
+    const QSize pixelSize( qMax(1, qRound(size.width() * dpr)), qMax(1, qRound(size.height() * dpr)) );
+    QPixmap     pixmap( pixelSize );
+    pixmap.setDevicePixelRatio( dpr );
 
     bool validIcon = false;
     if ( !m_backgroundColorStrings.empty() )
@@ -202,17 +222,11 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
 
     if ( !m_iconResourceString.isEmpty() )
     {
-        QPixmap pm;
-        if ( !QPixmapCache::find( m_iconResourceString, &pm ) )
+        // Use QIcon directly to render SVGs/sharp icons at the requested size and DPR
+        QIcon   resourceStringIcon( m_iconResourceString );
+        QPixmap iconPixmap = resourceStringIcon.pixmap( pixelSize, m_active ? QIcon::Normal : QIcon::Disabled );
+        if ( !iconPixmap.isNull() )
         {
-            pm.load( m_iconResourceString );
-            QPixmapCache::insert( m_iconResourceString, pm );
-        }
-
-        if ( !pm.isNull() )
-        {
-            QIcon    resourceStringIcon( pm );
-            QPixmap  iconPixmap = resourceStringIcon.pixmap( size, m_active ? QIcon::Normal : QIcon::Disabled );
             QPainter painter( &pixmap );
             painter.drawPixmap( 0, 0, iconPixmap );
             validIcon = true;
@@ -224,7 +238,7 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
         QIcon overlayIcon( m_overlayResourceString );
         if ( !overlayIcon.isNull() )
         {
-            QPixmap  overlayPixmap = overlayIcon.pixmap( size, m_active ? QIcon::Normal : QIcon::Disabled );
+            QPixmap overlayPixmap = overlayIcon.pixmap( pixelSize, m_active ? QIcon::Normal : QIcon::Disabled );
             QPainter painter( &pixmap );
             painter.drawPixmap( 0, 0, overlayPixmap );
             validIcon = true;
