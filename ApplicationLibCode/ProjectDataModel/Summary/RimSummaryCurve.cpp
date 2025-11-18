@@ -285,7 +285,7 @@ std::vector<double> RimSummaryCurve::valuesY() const
 
     RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
 
-    auto [isOk, values] = reader->values( addr );
+    auto [isOk, values] = reader->safeValues( addr );
     if ( values.empty() ) return values;
 
     RimSummaryPlot* plot         = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -327,7 +327,7 @@ std::vector<double> RimSummaryCurve::errorValuesY() const
     RifEclipseSummaryAddress addr = errorSummaryAddressY();
     if ( !reader->hasAddress( addr ) ) return {};
 
-    auto [isOk, values] = reader->values( addr );
+    auto [isOk, values] = reader->safeValues( addr );
     return values;
 }
 
@@ -342,7 +342,7 @@ std::vector<double> RimSummaryCurve::valuesX() const
     RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
     if ( m_xValuesSummaryCase() )
     {
-        auto [isOk, values] = reader->values( addr );
+        auto [isOk, values] = reader->safeValues( addr );
         return values;
     }
 
@@ -615,8 +615,8 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 // Read x and y values from ensemble statistics (not time steps are read)
                 if ( RifSummaryReaderInterface* reader = valuesSummaryReaderX() )
                 {
-                    auto [isOkX, curveValuesX] = reader->values( m_xValuesSummaryAddress->address() );
-                    auto [isOkY, curveValuesY] = reader->values( m_yValuesSummaryAddress->address() );
+                    auto [isOkX, curveValuesX] = reader->safeValues( m_xValuesSummaryAddress->address() );
+                    auto [isOkY, curveValuesY] = reader->safeValues( m_yValuesSummaryAddress->address() );
                     setSamplesFromXYValues( curveValuesX, curveValuesY, useLogarithmicScale );
                 }
             }
@@ -665,7 +665,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     if ( auto reader = valuesSummaryReaderY() )
                     {
                         errAddress = reader->errorAddress( summaryAddressY() );
-                        errValues  = reader->values( errAddress ).second;
+                        errValues  = reader->safeValues( errAddress ).second;
                     }
 
                     if ( errAddress.isValid() )

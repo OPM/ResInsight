@@ -49,7 +49,7 @@ std::pair<bool, std::vector<double>> RifSummaryReaderAggregator::values( const R
     std::vector<double> values;
     for ( const auto& reader : m_summaryReaders )
     {
-        auto [isOk, readerValues] = reader->values( resultAddress );
+        auto [isOk, readerValues] = reader->safeValues( resultAddress );
 
         if ( readerValues.empty() )
         {

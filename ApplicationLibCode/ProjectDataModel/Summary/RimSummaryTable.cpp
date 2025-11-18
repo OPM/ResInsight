@@ -756,7 +756,7 @@ void RimSummaryTable::createTableData()
     QString    unitName;
     for ( const auto& adr : summaryAddresses )
     {
-        auto [isOk, values]                    = summaryReader->values( adr );
+        auto [isOk, values]                    = summaryReader->safeValues( adr );
         const std::vector<time_t> timeSteps    = summaryReader->timeSteps( adr );
         const QString             vectorName   = QString::fromStdString( adr.vectorName() );
         const QString             categoryName = getCategoryNameFromAddress( adr );

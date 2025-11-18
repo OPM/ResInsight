@@ -544,7 +544,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 
         double closestValue    = std::numeric_limits<double>::infinity();
         time_t closestTimeStep = 0;
-        auto [isOk, values]    = reader->values( address );
+        auto [isOk, values]    = reader->safeValues( address );
         if ( isOk )
         {
             const std::vector<time_t>& timeSteps = reader->timeSteps( address );
@@ -821,7 +821,7 @@ void RimSummaryEnsemble::computeMinMax( const RifEclipseSummaryAddress& address 
     {
         if ( auto reader = s->summaryReader() )
         {
-            auto [isOk, values] = reader->values( address );
+            auto [isOk, values] = reader->safeValues( address );
             if ( values.empty() ) continue;
 
             const auto [min, max] = std::minmax_element( values.begin(), values.end() );

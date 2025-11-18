@@ -204,7 +204,7 @@ std::vector<double> RiaSummaryCurveDefinition::resultValues( const RiaSummaryCur
     RifSummaryReaderInterface* reader = curveDefinition.summaryCaseY()->summaryReader();
     if ( !reader ) return {};
 
-    auto [isOk, values] = reader->values( curveDefinition.summaryAddressY() );
+    auto [isOk, values] = reader->safeValues( curveDefinition.summaryAddressY() );
     return values;
 }
 

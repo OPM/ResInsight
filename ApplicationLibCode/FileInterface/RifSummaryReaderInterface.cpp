@@ -54,6 +54,20 @@ RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress( const RifEclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<bool, std::vector<double>> RifSummaryReaderInterface::safeValues( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    // Protect access to underlying summary readers that may not be thread-safe (e.g., OPM ExtESmry)
+    std::pair<bool, std::vector<double>> result;
+#pragma omp critical(summary_reader_access)
+    {
+        result = values( resultAddress );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifSummaryReaderInterface::createAndSetAddresses()
 {
 }

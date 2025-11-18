@@ -168,7 +168,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         else
         {
             const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
-            const auto [isOk, values]            = reader->values( inputAddress );
+            const auto [isOk, values]            = reader->safeValues( inputAddress );
 
             if ( values.empty() || timeSteps.empty() )
             {

@@ -682,7 +682,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
         {
             if ( auto reader = sumCase->summaryReader() )
             {
-                const auto [isValid, values] = reader->values( m_addressSelector->summaryAddress() );
+                const auto [isValid, values] = reader->safeValues( m_addressSelector->summaryAddress() );
 
                 bool isInsideFilter = isValid;
 

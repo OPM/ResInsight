@@ -213,7 +213,7 @@ std::pair<bool, std::vector<double>> RifReaderEclipseSummary::values( const RifE
     auto reader = currentSummaryReader();
     if ( reader )
     {
-        auto [status, values] = reader->values( resultAddress );
+        auto [status, values] = reader->safeValues( resultAddress );
         if ( status ) m_valuesCache->insertValues( resultAddress, values );
         return { status, values };
     }

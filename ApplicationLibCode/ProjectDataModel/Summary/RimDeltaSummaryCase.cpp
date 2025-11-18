@@ -291,12 +291,12 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calcula
 
     if ( reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
     {
-        auto [isOk, summaryValues] = reader1->values( address );
+        auto [isOk, summaryValues] = reader1->safeValues( address );
         return ResultPair( reader1->timeSteps( address ), summaryValues );
     }
     else if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
     {
-        auto [isOk, summaryValues] = reader2->values( address );
+        auto [isOk, summaryValues] = reader2->safeValues( address );
         if ( summaryOperator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
         {
             for ( auto& v : summaryValues )
@@ -312,7 +312,7 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDeltaSummaryCase::calcula
                                          const RifEclipseSummaryAddress& addr ) -> std::pair<std::vector<time_t>, std::vector<double>>
     {
         auto timeSteps      = reader->timeSteps( addr );
-        auto [isOk, values] = reader->values( addr );
+        auto [isOk, values] = reader->safeValues( addr );
 
         // Ensure that timeSteps and values have the same size. Different sizes can occur for ongoing simulations.
         size_t minSize = std::min( timeSteps.size(), values.size() );

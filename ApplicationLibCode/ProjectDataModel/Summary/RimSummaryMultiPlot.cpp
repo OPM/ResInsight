@@ -1003,7 +1003,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         if ( summaryCase && summaryCase->summaryReader() )
         {
             RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-            auto [isOk, values]               = reader->values( addr );
+            auto [isOk, values]               = reader->safeValues( addr );
             return values;
         }
 

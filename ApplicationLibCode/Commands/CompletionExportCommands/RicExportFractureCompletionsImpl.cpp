@@ -413,7 +413,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
         auto summaryCase = RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( resultCase );
         if ( summaryCase && summaryCase->summaryReader() )
         {
-            auto [isOk, values] = summaryCase->summaryReader()->values( wbhpPressureAddress );
+            auto [isOk, values] = summaryCase->summaryReader()->safeValues( wbhpPressureAddress );
             if ( isOk )
             {
                 std::vector<time_t> summaryTimeSteps = summaryCase->summaryReader()->timeSteps( wbhpPressureAddress );

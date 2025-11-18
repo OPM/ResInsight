@@ -102,7 +102,7 @@ std::pair<bool, std::vector<double>> RifMultipleSummaryReaders::values( const Ri
 {
     for ( const auto& r : m_readers )
     {
-        const auto& okAndValues = r->values( resultAddress );
+        const auto& okAndValues = r->safeValues( resultAddress );
         if ( okAndValues.first && !okAndValues.second.empty() ) return okAndValues;
     }
 

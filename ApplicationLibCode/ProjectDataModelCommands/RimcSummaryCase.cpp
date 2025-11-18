@@ -57,7 +57,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_summaryVectorValues
 
     if ( sumReader )
     {
-        auto [isOk, values] = sumReader->values( adr );
+        auto [isOk, values] = sumReader->safeValues( adr );
         if ( isOk )
         {
             return RimcDataContainerDouble::create( values );
@@ -186,7 +186,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_resampleValues::exe
 
     auto adr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
 
-    auto [isOk, values] = sumReader->values( adr );
+    auto [isOk, values] = sumReader->safeValues( adr );
     if ( !isOk )
     {
         return std::unexpected( QString( "No values found for address: '%1'" ).arg( m_addressString ) );

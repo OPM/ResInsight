@@ -498,7 +498,7 @@ std::vector<RimParameterResultCrossPlot::CaseData> RimParameterResultCrossPlot::
 
                 double summaryValue        = std::numeric_limits<double>::infinity();
                 time_t closestTimeStep     = 0;
-                auto [isOk, summaryValues] = reader->values( address );
+                auto [isOk, summaryValues] = reader->safeValues( address );
                 if ( isOk )
                 {
                     const std::vector<time_t>& timeSteps = reader->timeSteps( address );

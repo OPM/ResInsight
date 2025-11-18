@@ -536,7 +536,7 @@ void RimCorrelationMatrixPlot::createMatrix()
                         {
                             double closestValue    = std::numeric_limits<double>::infinity();
                             time_t closestTimeStep = 0;
-                            auto [isOk, values]    = reader->values( address );
+                            auto [isOk, values]    = reader->safeValues( address );
                             if ( isOk )
                             {
                                 const std::vector<time_t>& timeSteps = reader->timeSteps( address );

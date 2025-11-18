@@ -205,7 +205,7 @@ std::vector<double> RimEnsembleSummaryVectorHistogramDataSource::extractValuesFr
 
             double summaryValue        = std::numeric_limits<double>::infinity();
             time_t closestTimeStep     = 0;
-            auto [isOk, summaryValues] = reader->values( m_summaryAddressUiField );
+            auto [isOk, summaryValues] = reader->safeValues( m_summaryAddressUiField );
             if ( isOk )
             {
                 const std::vector<time_t>& timeSteps = reader->timeSteps( m_summaryAddressUiField );

@@ -59,7 +59,7 @@ void RifProjectSummaryDataWriter::importFromSourceSummaryReader( const RifSummar
             m_startTime = { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
         }
 
-        auto [isOk, values] = reader->values( summaryAddress );
+        auto [isOk, values] = reader->safeValues( summaryAddress );
 
         const auto& unitString = reader->unitName( summaryAddress );
 
