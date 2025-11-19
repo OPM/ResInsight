@@ -20,12 +20,23 @@
 
 #include "RigSimulationInputTool.h"
 
+#include "RiaTestDataDirectory.h"
 #include "RifOpmDeckTools.h"
+#include "RifReaderEclipseOutput.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigSimulationInputSettings.h"
+#include "RimEclipseResultCase.h"
 
+#include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
+#include "opm/input/eclipse/Parser/Parser.hpp"
 
+#include <QDir>
+#include <QFile>
 #include <QString>
+#include <QTemporaryDir>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -209,4 +220,76 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_AtBoundary )
     EXPECT_EQ( 10, result->getItem( 5 ).get<int>( 0 ) ); // J2
     EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
     EXPECT_EQ( 10, result->getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test exportSimulationInput with model5 data
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5 )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "0_BASE_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model.DATA";
+
+    // Set up export settings for sector export
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive)
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Read the file content and verify key elements
+    QFile file( exportFilePath );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    QString fileContent = file.readAll();
+    file.close();
+
+    // Verify key keywords exist in the file
+    EXPECT_TRUE( fileContent.contains( "DIMENS" ) );
+    EXPECT_TRUE( fileContent.contains( "SPECGRID" ) ) << "SPECGRID keyword missing from exported file";
+    EXPECT_TRUE( fileContent.contains( "COORD" ) );
+    EXPECT_TRUE( fileContent.contains( "ZCORN" ) );
+    EXPECT_TRUE( fileContent.contains( "ACTNUM" ) );
+
+    // Verify dimensions are correct for the sector (20x15x10)
+    // Max is (19,14,9) which means 20 cells in I, 15 cells in J, 10 cells in K
+    EXPECT_TRUE( fileContent.contains( " 20 15 10 /" ) ) << "File does not contain expected sector dimensions 20 15 10";
 }

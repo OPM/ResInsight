@@ -1,0 +1,312 @@
+-- This reservoir simulation deck is made available under the Open Database
+-- License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in
+-- individual contents of the database are licensed under the Database Contents
+-- License: http://opendatacommons.org/licenses/dbcl/1.0/
+
+-- Copyright (C) 2020 Equinor
+
+-- This is the base case for model5.
+--
+
+
+------------------------------------------------------------------------------------------------
+RUNSPEC
+------------------------------------------------------------------------------------------------
+
+
+DIMENS
+ 20 30 10 /
+
+
+OIL
+WATER
+GAS
+DISGAS
+--VAPOIL
+
+METRIC
+
+START
+ 01 'JAN' 2020 /
+
+--
+GRIDOPTS
+ 'YES'        0 /
+
+EQLDIMS
+ 1 1*  25 /
+
+
+REGDIMS
+-- max. ntfip  nmfipr  max. nrfreg   max. ntfreg
+   3          2       1*            2    /
+
+--
+TABDIMS
+--ntsfun     ntpvt  max.nssfun  max.nppvt  max.ntfip  max.nrpvt
+  1          1      150          60         3         60 /
+
+--
+WELLDIMS
+--max.well  max.con/well  max.grup  max.w/grup
+ 10         15            9          10   /
+
+--FLOW   THP  WCT  GCT  ALQ  VFP
+VFPPDIMS
+  22     13   10   13    13   50  /
+
+
+
+UNIFIN
+UNIFOUT
+
+------------------------------------------------------------------------------------------------
+GRID
+------------------------------------------------------------------------------------------------
+
+--
+NEWTRAN
+
+--
+GRIDFILE
+ 0  1 /
+
+--
+GRIDUNIT
+METRES  /
+
+--
+INIT
+
+
+INCLUDE
+ 'include/test1_20x30x10.grdecl' /
+
+INCLUDE
+ 'include/permx_model5.grdecl' /
+ 
+
+PORO
+ 6000*0.28 / 
+
+COPY
+  PERMX PERMY /
+  PERMX PERMZ /
+/
+
+MULTIPLY
+  PERMZ 0.1 /
+/ 
+
+RPTGRID
+ 'ALLNNC' /
+
+EQUALS
+  'MULTY'  0.01 1 20  14 14  1 10 /
+/
+
+
+------------------------------------------------------------------------------------------------
+EDIT
+------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------
+PROPS
+------------------------------------------------------------------------------------------------
+
+NOECHO
+
+INCLUDE
+ 'include/pvt_live_oil_dgas.ecl' /
+
+
+INCLUDE
+ 'include/rock.inc' /
+
+INCLUDE
+ 'include/relperm.inc' /
+
+
+------------------------------------------------------------------------------------------------
+REGIONS
+------------------------------------------------------------------------------------------------
+
+EQLNUM
+ 6000*1 /
+
+EQUALS
+  FIPNUM  1  1 20   1 14  1 10 /
+  FIPNUM  2  1 20  15 30  1 10 /
+/ 
+
+SATNUM
+ 6000*1 /
+
+-- custom region
+FIPABC
+  2000*1 2000*2 2000*3 /
+
+------------------------------------------------------------------------------------------------
+SOLUTION
+------------------------------------------------------------------------------------------------
+
+
+RPTRST
+  'BASIC = 2' 'PBPD' /
+
+EQUIL
+-- Datum    P     woc     Pc   goc    Pc  Rsvd  Rvvd
+ 2000.00  195.0  2070     0.0  500.00  0.0   1   0   0 /
+
+PBVD
+  2000.00    75.00
+  2150.00    75.00  /
+
+
+
+------------------------------------------------------------------------------------------------
+SUMMARY
+------------------------------------------------------------------------------------------------
+
+
+INCLUDE
+ 'include/summary.inc' /
+
+
+------------------------------------------------------------------------------------------------
+SCHEDULE
+------------------------------------------------------------------------------------------------
+
+--
+--                                       FIELD
+--                                         |
+--                                       PLAT-A
+--                          ---------------+---------------------
+--                         |                                    |
+--                        M5S                                  M5N
+--                ---------+----------                     -----+-------
+--               |                   |                    |            |
+--              B1                  G1                   C1           F1
+--           ----+------          ---+---              ---+---       ---+---
+--          |    |     |         |      |             |      |      |      |
+--        B-1H  B-2H  B-3H     G-3H    G-4H         C-1H   C-2H    F-1H   F-2H
+--
+
+TUNING
+ 0.5 1  /
+ /
+ 2* 50 1*  20 /
+
+NUPCOL
+ 4 /
+
+
+GRUPTREE
+ 'PROD'    'FIELD' /
+
+ 'M5S'    'PLAT-A'  /
+ 'M5N'    'PLAT-A'  /
+
+ 'C1'     'M5N'  /
+ 'F1'     'M5N'  /
+ 'B1'     'M5S'  /
+ 'G1'     'M5S'  /
+ /
+
+RPTRST
+ 'BASIC=2' /
+
+
+INCLUDE
+ 'include/well_vfp.ecl' /
+
+INCLUDE
+ 'include/flowl_b_vfp.ecl' /
+
+INCLUDE
+ 'include/flowl_c_vfp.ecl' /
+
+
+WELSPECS
+--WELL     GROUP  IHEEL JHEEL   DREF PHASE   DRAD INFEQ SIINS XFLOW PRTAB  DENS
+ 'B-1H'  'B1'   11    3      1*   OIL     1*   1*   SHUT 1* 1* 1* /
+ 'B-2H'  'B1'    4    7      1*   OIL     1*   1*   SHUT 1* 1* 1* /
+ 'B-3H'  'B1'   11   12      1*   OIL     1*   1*   SHUT 1* 1* 1* /
+ 'C-1H'  'C1'   13   20      1*   OIL     1*   1*   SHUT 1* 1* 1* /
+ 'C-2H'  'C1'   12   27      1*   OIL     1*   1*   SHUT 1* 1* 1* /
+/
+
+WELSPECS
+ 'F-1H'  'F1'   19    4      1*   WATER   1*   1*   SHUT 1* 1* 1* /
+ 'F-2H'  'F1'   19   12      1*   WATER   1*   1*   SHUT 1* 1* 1* /
+ 'G-3H'  'G1'   19   21      1*   WATER   1*   1*   SHUT 1* 1* 1* /
+ 'G-4H'  'G1'   19   25      1*   WATER   1*   1*   SHUT 1* 1* 1* /
+/
+
+COMPDAT
+--WELL      I   J    K1   K2 OP/SH  SATN    TRAN    WBDIA    KH     SKIN DFACT   DIR    PEQVR
+ 'B-1H'    11   3    1    5   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+ 'B-2H'     4   7    1    6   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+ 'B-3H'    11  12    1    4   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+ 'C-1H'    13  20    1    4   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+ 'C-2H'    12  27    1    5   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+/
+
+COMPDAT
+ 'F-1H'    19   4    6   10   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+ 'F-2H'    19  12    6   10   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+ 'G-3H'    19  21    6   10   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+ 'G-4H'    19  25    6   10   OPEN    1*      1*    0.216    1*        0    1*    Z       1* /
+/
+
+WCONPROD
+--  Well_name  Status  Ctrl  Orate   Wrate  Grate Lrate   RFV  FBHP   WHP  VFP Glift
+   'B-1H'      OPEN    ORAT  1500.0  1*     1*    3000.0  1*   100.0  30   1   1*  /
+   'B-2H'      SHUT    ORAT  1500.0  1*     1*    3000.0  1*   100.0  30   1   1*  /
+   'B-3H'      OPEN    ORAT  1500.0  1*     1*    3000.0  1*   100.0  30   1   1*  /
+   'C-1H'      OPEN    ORAT  1500.0  1*     1*    3000.0  1*   100.0  30   1   1*  /
+   'C-2H'      SHUT    ORAT  1500.0  1*     1*    3000.0  1*   100.0  30   1   1*  /
+/
+
+GCONINJE
+ 'FIELD'   'WATER'    'VREP'  3*      1.020    'NO'  5* /
+/
+
+
+WCONINJE
+-- Well_name    Type    Status  Ctrl    SRate1  Rrate   BHP     THP     VFP
+  'F-1H'        WATER   OPEN    GRUP    4000    1*      225.0    1*      1*     /
+  'F-2H'        WATER   OPEN    GRUP    4000    1*      225.0    1*      1*     /
+  'G-3H'        WATER   OPEN    GRUP    4000    1*      225.0    1*      1*     /
+  'G-4H'        WATER   OPEN    GRUP    4000    1*      225.0    1*      1*     /
+/
+
+TSTEP
+ 0.5 /
+
+
+DATES
+ 1 FEB 2020 /
+/
+
+
+WELOPEN
+ 'B-2H' OPEN /
+/
+
+DATES
+ 1 MAR 2020 /
+/
+
+WELOPEN
+ 'C-2H' OPEN /
+/
+
+DATES
+ 1 APR 2020 /
+ 1 MAY 2020 /
+/
+
+END
+
