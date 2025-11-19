@@ -314,3 +314,102 @@ TEST( RigSimulationInputTool, ExportModel5 )
     // Max is (19,14,9) which means 20 cells in I, 15 cells in J, 10 cells in K
     EXPECT_TRUE( fileContent.contains( " 20 15 10 /" ) ) << "File does not contain expected sector dimensions 20 15 10";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Test exportSimulationInput with model5 data using BCCON_BCPROP boundary condition
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "0_BASE_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model_bccon.DATA";
+
+    // Set up export settings for sector export with BCCON_BCPROP boundary condition
+    // Use a smaller sector (not starting at 0,0,0) to ensure border cells are created
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
+    settings.setMax( caf::VecIjk0( 14, 14, 7 ) ); // Sector (0-based inclusive) - 10x10x6
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    settings.setBoundaryCondition( RigSimulationInputSettings::BCCON_BCPROP );
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Load the exported deck file using RifOpmFlowDeckFile
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    // Get all keywords from the deck
+    std::vector<std::string> allKeywords = deckFile.keywords( false );
+
+    // Verify key keywords exist in the file
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "DIMENS" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "SPECGRID" ) != allKeywords.end() )
+        << "SPECGRID keyword missing from exported file";
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "COORD" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "ZCORN" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "ACTNUM" ) != allKeywords.end() );
+
+    // Verify BCCON and BCPROP keywords exist (for boundary conditions with BCCON_BCPROP)
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "BCCON" ) != allKeywords.end() )
+        << "BCCON keyword missing from exported file";
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "BCPROP" ) != allKeywords.end() )
+        << "BCPROP keyword missing from exported file";
+
+    // Verify OPERNUM and OPERATER keywords do NOT exist (should only be present with OPERNUM_OPERATER)
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "OPERNUM" ) == allKeywords.end() )
+        << "OPERNUM keyword should not be present when using BCCON_BCPROP";
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "OPERATER" ) == allKeywords.end() )
+        << "OPERATER keyword should not be present when using BCCON_BCPROP";
+
+    // Read the file content to verify dimensions
+    QFile file( exportFilePath );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    QString fileContent = file.readAll();
+    file.close();
+
+    // Verify dimensions are correct for the sector (10x10x6)
+    // Min (5,5,2) to Max (14,14,7) means 10 cells in I, 10 cells in J, 6 cells in K
+    EXPECT_TRUE( fileContent.contains( " 10 10 6 /" ) ) << "File does not contain expected sector dimensions 10 10 6";
+}
