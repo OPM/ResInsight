@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 
+#include "RiaResultNames.h"
 #include "RigSimulationInputSettings.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -56,7 +57,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimEclipseCase&                   eclipseCase,
-                                                                            const RigSimulationInputSettings& settings )
+                                                                            const RigSimulationInputSettings& settings,
+                                                                            cvf::UByteArray*                  visibility )
 {
     // Load the deck file
     QString inputDeckFileName = settings.inputDeckFileName();
@@ -75,6 +77,27 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     if ( auto result = updateCornerPointGridInDeckFile( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
+    }
+
+    // Generate BORDNUM result based on visibility
+    if ( visibility && visibility->size() > 0 )
+    {
+        RigEclipseResultTools::generateBorderResult( &eclipseCase, visibility, RiaResultNames::bordnum() );
+        if ( settings.boundaryCondition() == RigSimulationInputSettings::BoundaryCondition::BCCON_BCPROP )
+        {
+            // Generate BCCON result to assign values 1-6 based on which face of the box the border cells are on
+            RigEclipseResultTools::generateBcconResult( &eclipseCase, settings.min(), settings.max() );
+        }
+        else if ( settings.boundaryCondition() == RigSimulationInputSettings::BoundaryCondition::OPERNUM_OPERATER )
+        {
+            // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
+            int operNumRegion = RigEclipseResultTools::generateOperNumResult( &eclipseCase );
+
+            if ( auto result = addOperNumRegionAndOperater( &eclipseCase, settings, deckFile, operNumRegion ); !result )
+            {
+                return result;
+            }
+        }
     }
 
     if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, settings, deckFile ); !result )

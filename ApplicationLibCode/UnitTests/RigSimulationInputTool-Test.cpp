@@ -22,8 +22,10 @@
 
 #include "RiaTestDataDirectory.h"
 #include "RifOpmDeckTools.h"
+#include "RifOpmFlowDeckFile.h"
 #include "RifReaderEclipseOutput.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseCaseDataTools.h"
 #include "RigMainGrid.h"
 #include "RigSimulationInputSettings.h"
 #include "RimEclipseResultCase.h"
@@ -268,26 +270,45 @@ TEST( RigSimulationInputTool, ExportModel5 )
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
     // Export simulation input
     resultCase->setReservoirData( caseData.p() );
-    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
     ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
 
     // Verify exported file exists
     ASSERT_TRUE( QFile::exists( exportFilePath ) );
 
-    // Read the file content and verify key elements
+    // Load the exported deck file using RifOpmFlowDeckFile
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    // Get all keywords from the deck
+    std::vector<std::string> allKeywords = deckFile.keywords( false );
+
+    // Verify key keywords exist in the file
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "DIMENS" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "SPECGRID" ) != allKeywords.end() )
+        << "SPECGRID keyword missing from exported file";
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "COORD" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "ZCORN" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "ACTNUM" ) != allKeywords.end() );
+
+    // Verify OPERNUM and OPERATER keywords exist (for boundary conditions with default OPERNUM_OPERATER)
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "OPERNUM" ) != allKeywords.end() )
+        << "OPERNUM keyword missing from exported file";
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "OPERATER" ) != allKeywords.end() )
+        << "OPERATER keyword missing from exported file";
+
+    // Read the file content to verify dimensions
     QFile file( exportFilePath );
     ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
     QString fileContent = file.readAll();
     file.close();
-
-    // Verify key keywords exist in the file
-    EXPECT_TRUE( fileContent.contains( "DIMENS" ) );
-    EXPECT_TRUE( fileContent.contains( "SPECGRID" ) ) << "SPECGRID keyword missing from exported file";
-    EXPECT_TRUE( fileContent.contains( "COORD" ) );
-    EXPECT_TRUE( fileContent.contains( "ZCORN" ) );
-    EXPECT_TRUE( fileContent.contains( "ACTNUM" ) );
 
     // Verify dimensions are correct for the sector (20x15x10)
     // Max is (19,14,9) which means 20 cells in I, 15 cells in J, 10 cells in K
