@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RiaModelExportDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafVecIjk.h"
 #include "cvfVector3.h"
 
@@ -37,11 +40,7 @@ class DeckRecord;
 class RigSimulationInputSettings
 {
 public:
-    enum BoundaryCondition
-    {
-        OPERNUM_OPERATER,
-        BCCON_BCPROP
-    };
+    using BoundaryConditionEnum = caf::AppEnum<RiaModelExportDefines::BoundaryCondition>;
 
     RigSimulationInputSettings();
 
@@ -59,8 +58,8 @@ public:
     std::vector<Opm::DeckRecord> bcpropKeywords() const;
     void                         setBcpropKeywords( const std::vector<Opm::DeckRecord>& keywords );
 
-    BoundaryCondition boundaryCondition() const;
-    void              setBoundaryCondition( BoundaryCondition value );
+    RiaModelExportDefines::BoundaryCondition boundaryCondition() const;
+    void                                     setBoundaryCondition( RiaModelExportDefines::BoundaryCondition value );
 
     double porvMultiplier() const;
     void   setPorvMultiplier( double value );
@@ -77,7 +76,7 @@ private:
     caf::VecIjk0                 m_max;
     cvf::Vec3st                  m_refinement;
     std::vector<Opm::DeckRecord> m_bcpropKeywords;
-    BoundaryCondition            m_boundaryCondition;
+    BoundaryConditionEnum        m_boundaryCondition;
     double                       m_porvMultiplier;
     QString                      m_inputDeckFileName;
     QString                      m_outputDeckFileName;

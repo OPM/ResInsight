@@ -27,7 +27,7 @@ RigSimulationInputSettings::RigSimulationInputSettings()
     : m_min( caf::VecIjk0::ZERO )
     , m_max( caf::VecIjk0::ZERO )
     , m_refinement( 1, 1, 1 )
-    , m_boundaryCondition( OPERNUM_OPERATER )
+    , m_boundaryCondition( RiaModelExportDefines::BoundaryCondition::OPERNUM_OPERATER )
     , m_porvMultiplier( 1.0e6 )
 {
 }
@@ -99,7 +99,7 @@ void RigSimulationInputSettings::setBcpropKeywords( const std::vector<Opm::DeckR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigSimulationInputSettings::BoundaryCondition RigSimulationInputSettings::boundaryCondition() const
+RiaModelExportDefines::BoundaryCondition RigSimulationInputSettings::boundaryCondition() const
 {
     return m_boundaryCondition;
 }
@@ -107,7 +107,7 @@ RigSimulationInputSettings::BoundaryCondition RigSimulationInputSettings::bounda
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setBoundaryCondition( BoundaryCondition value )
+void RigSimulationInputSettings::setBoundaryCondition( RiaModelExportDefines::BoundaryCondition value )
 {
     m_boundaryCondition = value;
 }

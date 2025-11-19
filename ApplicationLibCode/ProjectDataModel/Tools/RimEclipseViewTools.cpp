@@ -129,4 +129,65 @@ std::pair<caf::VecIjk0, caf::VecIjk0> getVisibleCellRange( RimEclipseView* view,
     return std::make_pair( min, max );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::UByteArray> createVisibilityBasedOnBoxSelection( RimEclipseView*                         view,
+                                                               RiaModelExportDefines::GridBoxSelection gridBoxType,
+                                                               caf::VecIjk0                            minIjk,
+                                                               caf::VecIjk0                            maxIjk,
+                                                               int                                     wellPadding )
+{
+    RigEclipseCaseData* caseData = view->eclipseCase()->eclipseCaseData();
+
+    switch ( gridBoxType )
+    {
+        case RiaModelExportDefines::GridBoxSelection::VISIBLE_WELLS_BOX:
+        {
+            auto [minWellCells, maxWellCells] = computeVisibleWellCells( view, caseData, wellPadding );
+            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minWellCells, maxWellCells );
+        }
+        case RiaModelExportDefines::GridBoxSelection::ACTIVE_CELLS_BOX:
+        {
+            // For active cells, we need to create a
+            // visibility array based on active cells
+            auto   activeCellInfo       = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            auto   activeReservoirCells = activeCellInfo->activeReservoirCellIndices();
+            size_t totalCellCount       = caseData->mainGrid()->cellCount();
+
+            cvf::ref<cvf::UByteArray> visibility = new cvf::UByteArray( totalCellCount );
+            visibility->setAll( false );
+
+            for ( auto activeCellIdx : activeReservoirCells )
+            {
+                visibility->set( activeCellIdx.value(), true );
+            }
+            return visibility;
+        }
+        case RiaModelExportDefines::GridBoxSelection::VISIBLE_CELLS_BOX:
+        {
+            // Use the current total cell visibility
+            // from the view
+            cvf::ref<cvf::UByteArray> cellVisibility = new cvf::UByteArray();
+            view->calculateCurrentTotalCellVisibility( cellVisibility.p(), view->currentTimeStep() );
+            return cellVisibility;
+        }
+        case RiaModelExportDefines::GridBoxSelection::MANUAL_SELECTION:
+        {
+            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minIjk, maxIjk );
+        }
+        case RiaModelExportDefines::GridBoxSelection::FULL_GRID_BOX:
+        {
+            // For full grid, create visibility for
+            // all cells
+            const RigMainGrid* mainGrid = caseData->mainGrid();
+            const caf::VecIjk0 minIjk   = caf::VecIjk0::ZERO;
+            const caf::VecIjk0 maxIjk( mainGrid->cellCountI(), mainGrid->cellCountJ(), mainGrid->cellCountK() );
+            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minIjk, maxIjk );
+        }
+        default:
+            return nullptr;
+    }
+}
+
 } // namespace RimEclipseViewTools

@@ -36,5 +36,10 @@ namespace RimEclipseViewTools
 std::vector<const RigSimWellData*> getVisibleSimulationWells( RimEclipseView* view );
 std::pair<caf::VecIjk0, caf::VecIjk0> computeVisibleWellCells( RimEclipseView* view, RigEclipseCaseData* caseData, int visibleWellsPadding );
 std::pair<caf::VecIjk0, caf::VecIjk0> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibillity );
+cvf::ref<cvf::UByteArray>             createVisibilityBasedOnBoxSelection( RimEclipseView*                         view,
+                                                                           RiaModelExportDefines::GridBoxSelection gridBoxType,
+                                                                           caf::VecIjk0                            minIjk,
+                                                                           caf::VecIjk0                            maxIjk,
+                                                                           int                                     wellPadding );
 
 } // namespace RimEclipseViewTools

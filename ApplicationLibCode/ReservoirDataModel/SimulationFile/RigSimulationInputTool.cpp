@@ -83,12 +83,12 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     if ( visibility && visibility->size() > 0 )
     {
         RigEclipseResultTools::generateBorderResult( &eclipseCase, visibility, RiaResultNames::bordnum() );
-        if ( settings.boundaryCondition() == RigSimulationInputSettings::BoundaryCondition::BCCON_BCPROP )
+        if ( settings.boundaryCondition() == RiaModelExportDefines::BoundaryCondition::BCCON_BCPROP )
         {
             // Generate BCCON result to assign values 1-6 based on which face of the box the border cells are on
             RigEclipseResultTools::generateBcconResult( &eclipseCase, settings.min(), settings.max() );
         }
-        else if ( settings.boundaryCondition() == RigSimulationInputSettings::BoundaryCondition::OPERNUM_OPERATER )
+        else if ( settings.boundaryCondition() == RiaModelExportDefines::BoundaryCondition::OPERNUM_OPERATER )
         {
             // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
             int operNumRegion = RigEclipseResultTools::generateOperNumResult( &eclipseCase );

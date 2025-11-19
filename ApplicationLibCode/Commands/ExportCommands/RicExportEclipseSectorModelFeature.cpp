@@ -178,7 +178,12 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         settings.setInputDeckFileName( dataFileName );
         settings.setOutputDeckFileName( exportSettings.exportGridFilename() );
 
-        cvf::ref<cvf::UByteArray> cellVisibility = createVisibilityBasedOnBoxSelection( view, exportSettings );
+        cvf::ref<cvf::UByteArray> cellVisibility =
+            RimEclipseViewTools::createVisibilityBasedOnBoxSelection( view,
+                                                                      exportSettings.exportGridBox(),
+                                                                      exportSettings.min(),
+                                                                      exportSettings.max(),
+                                                                      exportSettings.m_visibleWellsPadding() );
         if ( auto result = RigSimulationInputTool::exportSimulationInput( *view->eclipseCase(), settings, cellVisibility.p() ); !result )
         {
             RiaLogging::error( QString( "Failed to export simulation input: %1" ).arg( result.error() ) );
