@@ -246,7 +246,7 @@ TEST( RigSimulationInputTool, ExportModel5 )
     std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
     cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
 
-    cvf::ref<RifReaderEclipseOutput> reader = new RifReaderEclipseOutput;
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
     bool                             loadResult = reader->open( egridFilePath, caseData.p() );
     ASSERT_TRUE( loadResult );
 
@@ -266,12 +266,13 @@ TEST( RigSimulationInputTool, ExportModel5 )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive)
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );      // No refinement
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
     // Create visibility from IJK bounds
-    cvf::ref<cvf::UByteArray> visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
 
     // Export simulation input
     resultCase->setReservoirData( caseData.p() );
@@ -336,7 +337,7 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
     std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
     cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
 
-    cvf::ref<RifReaderEclipseOutput> reader = new RifReaderEclipseOutput;
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
     bool                             loadResult = reader->open( egridFilePath, caseData.p() );
     ASSERT_TRUE( loadResult );
 
@@ -357,13 +358,14 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
     settings.setMax( caf::VecIjk0( 14, 14, 7 ) ); // Sector (0-based inclusive) - 10x10x6
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );      // No refinement
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
     settings.setBoundaryCondition( RigSimulationInputSettings::BCCON_BCPROP );
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
     // Create visibility from IJK bounds
-    cvf::ref<cvf::UByteArray> visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
 
     // Export simulation input
     resultCase->setReservoirData( caseData.p() );
