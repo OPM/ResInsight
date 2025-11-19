@@ -39,6 +39,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellFlowDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaQuickAccessScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGridDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaModelExportDefines.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -82,6 +83,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellFlowDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaQuickAccessScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGridDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaModelExportDefines.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

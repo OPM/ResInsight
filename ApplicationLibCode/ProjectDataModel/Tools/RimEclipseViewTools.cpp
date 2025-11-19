@@ -18,6 +18,9 @@
 
 #include "RimEclipseViewTools.h"
 
+#include "RiaModelExportDefines.h"
+
+#include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCaseDataTools.h"
 #include "RigMainGrid.h"

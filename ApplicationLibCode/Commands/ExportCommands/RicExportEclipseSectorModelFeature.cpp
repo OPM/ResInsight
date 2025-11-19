@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaModelExportDefines.h"
 #include "RiaResultNames.h"
 
 #include "RicExportEclipseSectorModelUi.h"
@@ -355,64 +356,4 @@ RimEclipseView* RicExportEclipseSectorModelFeature::selectedView() const
     // Command triggered from project tree or file menu
     auto view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
     return view;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::UByteArray>
-    RicExportEclipseSectorModelFeature::createVisibilityBasedOnBoxSelection( RimEclipseView*                      view,
-                                                                             const RicExportEclipseSectorModelUi& exportSettings )
-{
-    RigEclipseCaseData* caseData = view->eclipseCase()->eclipseCaseData();
-
-    switch ( exportSettings.exportGridBox() )
-    {
-        case RicExportEclipseSectorModelUi::VISIBLE_WELLS_BOX:
-        {
-            auto [minWellCells, maxWellCells] =
-                RimEclipseViewTools::computeVisibleWellCells( view, caseData, exportSettings.m_visibleWellsPadding() );
-            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minWellCells, maxWellCells );
-        }
-        case RicExportEclipseSectorModelUi::ACTIVE_CELLS_BOX:
-        {
-            // For active cells, we need to create a
-            // visibility array based on active cells
-            auto   activeCellInfo       = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-            auto   activeReservoirCells = activeCellInfo->activeReservoirCellIndices();
-            size_t totalCellCount       = caseData->mainGrid()->cellCount();
-
-            cvf::ref<cvf::UByteArray> visibility = new cvf::UByteArray( totalCellCount );
-            visibility->setAll( false );
-
-            for ( auto activeCellIdx : activeReservoirCells )
-            {
-                visibility->set( activeCellIdx.value(), true );
-            }
-            return visibility;
-        }
-        case RicExportEclipseSectorModelUi::VISIBLE_CELLS_BOX:
-        {
-            // Use the current total cell visibility
-            // from the view
-            cvf::ref<cvf::UByteArray> cellVisibility = new cvf::UByteArray();
-            view->calculateCurrentTotalCellVisibility( cellVisibility.p(), view->currentTimeStep() );
-            return cellVisibility;
-        }
-        case RicExportEclipseSectorModelUi::MANUAL_SELECTION:
-        {
-            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, exportSettings.min(), exportSettings.max() );
-        }
-        case RicExportEclipseSectorModelUi::FULL_GRID_BOX:
-        {
-            // For full grid, create visibility for
-            // all cells
-            const RigMainGrid* mainGrid = caseData->mainGrid();
-            const caf::VecIjk0 minIjk   = caf::VecIjk0::ZERO;
-            const caf::VecIjk0 maxIjk( mainGrid->cellCountI(), mainGrid->cellCountJ(), mainGrid->cellCountK() );
-            return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minIjk, maxIjk );
-        }
-        default:
-            return nullptr;
-    }
 }

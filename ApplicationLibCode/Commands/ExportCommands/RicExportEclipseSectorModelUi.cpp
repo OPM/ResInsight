@@ -67,27 +67,6 @@ void RicExportEclipseSectorModelUi::ResultExportOptionsEnum::setUp()
     setDefault( RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT );
 }
 
-template <>
-void RicExportEclipseSectorModelUi::GridBoxSelectionEnum::setUp()
-{
-    addItem( RicExportEclipseSectorModelUi::VISIBLE_CELLS_BOX, "VISIBLE_CELLS", "Box Containing all Visible Cells" );
-    addItem( RicExportEclipseSectorModelUi::ACTIVE_CELLS_BOX, "ACTIVE_CELLS", "Box Containing all Active Cells" );
-    addItem( RicExportEclipseSectorModelUi::VISIBLE_WELLS_BOX, "VISIBLE_WELLS", "Box Containing all Visible Simulation Wells" );
-    addItem( RicExportEclipseSectorModelUi::FULL_GRID_BOX, "FULL_GRID", "Full Grid" );
-    addItem( RicExportEclipseSectorModelUi::MANUAL_SELECTION, "MANUAL_SELECTION", "User Defined Selection" );
-
-    setDefault( RicExportEclipseSectorModelUi::VISIBLE_CELLS_BOX );
-}
-
-template <>
-void RicExportEclipseSectorModelUi::BoundaryConditionEnum::setUp()
-{
-    addItem( RigSimulationInputSettings::OPERNUM_OPERATER, "OPERNUM_OPERATER", "OPERNUM + OPERATER" );
-    addItem( RigSimulationInputSettings::BCCON_BCPROP, "BCCON_BCPROP", "BCCON + BCPROP" );
-
-    setDefault( RigSimulationInputSettings::OPERNUM_OPERATER );
-}
-
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -414,19 +393,20 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         gridBoxGroup->appendToRow( &maxJ );
         gridBoxGroup->appendToRow( &maxK );
 
-        if ( exportGridBox() == VISIBLE_WELLS_BOX )
+        if ( exportGridBox() == RiaModelExportDefines::VISIBLE_WELLS_BOX )
         {
             gridBoxGroup->add( &m_visibleWellsPadding, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
         }
 
         gridBoxGroup->add( &makeInvisibleCellsInactive, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
 
-        minI.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
-        minJ.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
-        minK.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
-        maxI.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
-        maxJ.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
-        maxK.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
+        const bool boxReadOnly = ( exportGridBox() != RiaModelExportDefines::MANUAL_SELECTION );
+        minI.uiCapability()->setUiReadOnly( boxReadOnly );
+        minJ.uiCapability()->setUiReadOnly( boxReadOnly );
+        minK.uiCapability()->setUiReadOnly( boxReadOnly );
+        maxI.uiCapability()->setUiReadOnly( boxReadOnly );
+        maxJ.uiCapability()->setUiReadOnly( boxReadOnly );
+        maxK.uiCapability()->setUiReadOnly( boxReadOnly );
 
         caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
         gridRefinement->add( &refinementCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
@@ -471,11 +451,11 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         caf::PdmUiGroup* bcGroup = uiOrdering.addNewGroup( "Boundary Conditions" );
         bcGroup->add( &m_boundaryCondition );
 
-        if ( m_boundaryCondition() == RigSimulationInputSettings::OPERNUM_OPERATER )
+        if ( m_boundaryCondition() == RiaModelExportDefines::OPERNUM_OPERATER )
         {
             bcGroup->add( &m_porvMultiplier );
         }
-        else if ( m_boundaryCondition() == RigSimulationInputSettings::BCCON_BCPROP )
+        else if ( m_boundaryCondition() == RiaModelExportDefines::BCCON_BCPROP )
         {
             m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
             bcGroup->add( &m_bcpropKeywords );
@@ -629,24 +609,24 @@ QString RicExportEclipseSectorModelUi::defaultFaultsFileName() const
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
 {
-    if ( exportGridBox == ACTIVE_CELLS_BOX )
+    if ( exportGridBox == RiaModelExportDefines::ACTIVE_CELLS_BOX )
     {
         auto [minActive, maxActive] = m_caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->ijkBoundingBox();
         setMin( minActive );
         setMax( maxActive );
     }
-    else if ( exportGridBox == VISIBLE_CELLS_BOX )
+    else if ( exportGridBox == RiaModelExportDefines::VISIBLE_CELLS_BOX )
     {
         setMin( m_visibleMin );
         setMax( m_visibleMax );
     }
-    else if ( exportGridBox == VISIBLE_WELLS_BOX )
+    else if ( exportGridBox == RiaModelExportDefines::VISIBLE_WELLS_BOX )
     {
         auto [minWellCells, maxWellCells] = RimEclipseViewTools::computeVisibleWellCells( m_eclipseView, m_caseData, m_visibleWellsPadding() );
         setMin( minWellCells );
         setMax( maxWellCells );
     }
-    else if ( exportGridBox == FULL_GRID_BOX )
+    else if ( exportGridBox == RiaModelExportDefines::FULL_GRID_BOX )
     {
         const RigMainGrid* mainGrid = m_caseData->mainGrid();
         setMin( caf::VecIjk0::ZERO );

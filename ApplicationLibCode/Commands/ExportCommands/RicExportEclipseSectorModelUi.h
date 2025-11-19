@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigSimulationInputSettings.h"
+#include "RiaModelExportDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -55,17 +55,8 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
     };
     using ResultExportOptionsEnum = caf::AppEnum<ResultExportOptions>;
 
-    enum GridBoxSelection
-    {
-        VISIBLE_CELLS_BOX,
-        ACTIVE_CELLS_BOX,
-        VISIBLE_WELLS_BOX,
-        FULL_GRID_BOX,
-        MANUAL_SELECTION
-    };
-    using GridBoxSelectionEnum = caf::AppEnum<GridBoxSelection>;
-
-    using BoundaryConditionEnum = caf::AppEnum<RigSimulationInputSettings::BoundaryCondition>;
+    using GridBoxSelectionEnum  = caf::AppEnum<RiaModelExportDefines::GridBoxSelection>;
+    using BoundaryConditionEnum = caf::AppEnum<RiaModelExportDefines::BoundaryCondition>;
 
 public:
     RicExportEclipseSectorModelUi();

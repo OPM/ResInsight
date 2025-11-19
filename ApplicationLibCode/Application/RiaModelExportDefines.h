@@ -18,23 +18,24 @@
 
 #pragma once
 
-#include "RiaModelExportDefines.h"
+#include <QString>
 
-#include "cafVecIjk.h"
-#include "cvfArray.h"
-
-#include <utility>
-#include <vector>
-
-class RimEclipseView;
-class RigEclipseCaseData;
-class RigSimWellData;
-
-namespace RimEclipseViewTools
+namespace RiaModelExportDefines
 {
 
-std::vector<const RigSimWellData*> getVisibleSimulationWells( RimEclipseView* view );
-std::pair<caf::VecIjk0, caf::VecIjk0> computeVisibleWellCells( RimEclipseView* view, RigEclipseCaseData* caseData, int visibleWellsPadding );
-std::pair<caf::VecIjk0, caf::VecIjk0> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibillity );
+enum GridBoxSelection
+{
+    VISIBLE_CELLS_BOX,
+    ACTIVE_CELLS_BOX,
+    VISIBLE_WELLS_BOX,
+    FULL_GRID_BOX,
+    MANUAL_SELECTION
+};
 
-} // namespace RimEclipseViewTools
+enum BoundaryCondition
+{
+    OPERNUM_OPERATER,
+    BCCON_BCPROP
+};
+
+} // namespace RiaModelExportDefines

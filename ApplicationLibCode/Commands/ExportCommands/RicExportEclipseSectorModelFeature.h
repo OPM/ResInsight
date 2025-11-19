@@ -56,10 +56,8 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimEclipseView*                  selectedView() const;
-    static cvf::ref<cvf::UByteArray> createVisibilityBasedOnBoxSelection( RimEclipseView*                      view,
-                                                                          const RicExportEclipseSectorModelUi& exportSettings );
-    static void                      exportGrid( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
-    static void                      exportFaults( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
-    static void                      exportParameters( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
+    RimEclipseView* selectedView() const;
+    static void     exportGrid( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
+    static void     exportFaults( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
+    static void     exportParameters( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
 };
