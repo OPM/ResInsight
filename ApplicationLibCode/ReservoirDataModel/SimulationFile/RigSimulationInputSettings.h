@@ -37,6 +37,12 @@ class DeckRecord;
 class RigSimulationInputSettings
 {
 public:
+    enum BoundaryCondition
+    {
+        OPERNUM_OPERATER,
+        BCCON_BCPROP
+    };
+
     RigSimulationInputSettings();
 
     // Sector bounds (0-based grid coordinates)
@@ -53,8 +59,8 @@ public:
     std::vector<Opm::DeckRecord> bcpropKeywords() const;
     void                         setBcpropKeywords( const std::vector<Opm::DeckRecord>& keywords );
 
-    int  boundaryCondition() const;
-    void setBoundaryCondition( int value );
+    BoundaryCondition boundaryCondition() const;
+    void              setBoundaryCondition( BoundaryCondition value );
 
     // File paths
     QString inputDeckFileName() const;
@@ -68,7 +74,7 @@ private:
     caf::VecIjk0                 m_max;
     cvf::Vec3st                  m_refinement;
     std::vector<Opm::DeckRecord> m_bcpropKeywords;
-    int                          m_boundaryCondition;
+    BoundaryCondition            m_boundaryCondition;
     QString                      m_inputDeckFileName;
     QString                      m_outputDeckFileName;
 };

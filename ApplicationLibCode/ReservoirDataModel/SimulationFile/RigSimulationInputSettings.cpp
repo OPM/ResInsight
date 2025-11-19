@@ -27,7 +27,7 @@ RigSimulationInputSettings::RigSimulationInputSettings()
     : m_min( caf::VecIjk0::ZERO )
     , m_max( caf::VecIjk0::ZERO )
     , m_refinement( 1, 1, 1 )
-    , m_boundaryCondition( 0 )
+    , m_boundaryCondition( OPERNUM_OPERATER )
 {
 }
 
@@ -98,7 +98,7 @@ void RigSimulationInputSettings::setBcpropKeywords( const std::vector<Opm::DeckR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigSimulationInputSettings::boundaryCondition() const
+RigSimulationInputSettings::BoundaryCondition RigSimulationInputSettings::boundaryCondition() const
 {
     return m_boundaryCondition;
 }
@@ -106,7 +106,7 @@ int RigSimulationInputSettings::boundaryCondition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setBoundaryCondition( int value )
+void RigSimulationInputSettings::setBoundaryCondition( BoundaryCondition value )
 {
     m_boundaryCondition = value;
 }

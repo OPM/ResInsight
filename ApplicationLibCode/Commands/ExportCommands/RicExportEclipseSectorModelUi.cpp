@@ -81,10 +81,10 @@ void RicExportEclipseSectorModelUi::GridBoxSelectionEnum::setUp()
 template <>
 void RicExportEclipseSectorModelUi::BoundaryConditionEnum::setUp()
 {
-    addItem( RicExportEclipseSectorModelUi::OPERNUM_OPERATER, "OPERNUM_OPERATER", "OPERNUM + OPERATER" );
-    addItem( RicExportEclipseSectorModelUi::BCCON_BCPROP, "BCCON_BCPROP", "BCCON + BCPROP" );
+    addItem( RigSimulationInputSettings::OPERNUM_OPERATER, "OPERNUM_OPERATER", "OPERNUM + OPERATER" );
+    addItem( RigSimulationInputSettings::BCCON_BCPROP, "BCCON_BCPROP", "BCCON + BCPROP" );
 
-    setDefault( RicExportEclipseSectorModelUi::OPERNUM_OPERATER );
+    setDefault( RigSimulationInputSettings::OPERNUM_OPERATER );
 }
 
 } // namespace caf
@@ -470,11 +470,11 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         caf::PdmUiGroup* bcGroup = uiOrdering.addNewGroup( "Boundary Conditions" );
         bcGroup->add( &m_boundaryCondition );
 
-        if ( m_boundaryCondition() == OPERNUM_OPERATER )
+        if ( m_boundaryCondition() == RigSimulationInputSettings::OPERNUM_OPERATER )
         {
             bcGroup->add( &m_porvMultiplier );
         }
-        else if ( m_boundaryCondition() == BCCON_BCPROP )
+        else if ( m_boundaryCondition() == RigSimulationInputSettings::BCCON_BCPROP )
         {
             m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
             bcGroup->add( &m_bcpropKeywords );

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigSimulationInputSettings.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -63,12 +65,7 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
     };
     using GridBoxSelectionEnum = caf::AppEnum<GridBoxSelection>;
 
-    enum BoundaryCondition
-    {
-        OPERNUM_OPERATER,
-        BCCON_BCPROP
-    };
-    using BoundaryConditionEnum = caf::AppEnum<BoundaryCondition>;
+    using BoundaryConditionEnum = caf::AppEnum<RigSimulationInputSettings::BoundaryCondition>;
 
 public:
     RicExportEclipseSectorModelUi();
