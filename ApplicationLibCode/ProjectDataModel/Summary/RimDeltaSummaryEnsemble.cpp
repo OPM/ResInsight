@@ -409,7 +409,7 @@ void RimDeltaSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chang
         // If other derived ensembles are referring to this ensemble, update their cases as well
         for ( auto referring : findReferringEnsembles() )
         {
-            refering->updateReferringCurveSetsZoomAll();
+            referring->updateReferringCurveSetsZoomAll();
         }
     }
 }
