@@ -23,6 +23,9 @@ GRDECL
 LGR
 MULTY
 
+# NB The following line has "WEL ", note the space at the end of the string to be able to catch other spelling in lower case like "wel" -> "well"
+WEL 
+
 # Other simulation/visualization terms
 Abaqus
 ODB
