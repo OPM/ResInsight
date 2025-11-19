@@ -1,0 +1,29 @@
+-- This reservoir simulation deck is made available under the Open Database
+-- License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in
+-- individual contents of the database are licensed under the Database Contents
+-- License: http://opendatacommons.org/licenses/dbcl/1.0/
+
+-- Copyright (C) 2020 Equinor
+
+
+WELSEGS
+-- Name     Dep 1          Tlen 1      Vol 1     Len&Dep     PresDrop
+   C-2H     2040.38899     0.00000     1*        INC         'HF-'    /
+-- First Seg     Last Seg     Branch Num     Outlet Seg     Length      Depth Change     Diam        Rough    
+-- Main Stem Segments
+   2             2            1              1              2.38461     2.29948          0.15200     0.0000100 /
+   3             3            1              2              4.95131     4.77455          0.15200     0.0000100 /
+   4             4            1              3              5.13346     4.95019          0.15200     0.0000100 /
+   5             5            1              4              5.13339     4.95013          0.15200     0.0000100 /
+   6             6            1              5              4.25971     4.10764          0.15200     0.0000100 /
+    /
+    
+COMPSEGS
+-- Name
+   C-2H /
+-- I      J      K     Branch no     Start Length     End Length     Dir Pen     End Range     Connection Depth
+   12     27     1     1             0.00000          4.76922         /
+   12     27     2     1             4.76922          9.90261         /
+   12     27     3     1             9.90261          15.03613        /
+   12     27     4     1             15.03613         19.86910        /
+    /
