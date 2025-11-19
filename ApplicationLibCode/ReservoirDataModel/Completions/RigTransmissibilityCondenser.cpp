@@ -358,8 +358,6 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
         ++c1EquationIdx;
     }
 
-    // std::cout  << "T = " << std::endl <<  totalSystem << std::endl;
-
     int externalEquationCount = totalEquationCount - internalEquationCount;
 
     MatrixXd condensedSystem;
@@ -374,30 +372,18 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
         MatrixXd Tei = totalSystem.bottomLeftCorner( externalEquationCount, internalEquationCount );
         MatrixXd Tii = totalSystem.topLeftCorner( internalEquationCount, internalEquationCount );
 
-        // std::ofstream outFileStream( "D:\\Data\\TestData\\TiiMatrix.txt" );
-        // outFileStream << Tii;
-
         Eigen::FullPivLU<MatrixXd> solver( Tii );
-
-        // outFileStream << std::endl;
-        // outFileStream << "Rows x Cols: " << Tii.rows() << "x" << Tii.cols() << std::endl;
-        // outFileStream << "Invertible:  " << ( solver.isInvertible() ? "True" : "False" ) << std::endl;
-        // outFileStream << "Condition:   " << solver.rcond() << std::endl;
-        // outFileStream << "Rank:        " << solver.rank() << std::endl;
 
         m_TiiInv        = solver.inverse();
         m_Tie           = totalSystem.topRightCorner( internalEquationCount, externalEquationCount );
         condensedSystem = Tee - Tei * m_TiiInv * m_Tie;
     }
 
-    // std::cout  << "Te = " << std::endl <<  condensedSystem << std::endl << std::endl; codespell:ignore
-
     for ( int exEqIdx = 0; exEqIdx < externalEquationCount; ++exEqIdx )
     {
         for ( int exColIdx = exEqIdx + 1; exColIdx < externalEquationCount; ++exColIdx )
         {
             double T = condensedSystem( exEqIdx, exColIdx );
-            // if (T != 0.0)
             {
                 CellAddress cell1 = eqIdxToCellAddressMapping[exEqIdx + internalEquationCount];
                 CellAddress cell2 = eqIdxToCellAddressMapping[exColIdx + internalEquationCount];
