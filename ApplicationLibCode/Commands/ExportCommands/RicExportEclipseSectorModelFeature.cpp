@@ -343,7 +343,7 @@ void RicExportEclipseSectorModelFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicExportEclipseSectorModelFeature::selectedView() const
+RimEclipseView* RicExportEclipseSectorModelFeature::selectedView()
 {
     auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
     if ( contextViewer != nullptr )

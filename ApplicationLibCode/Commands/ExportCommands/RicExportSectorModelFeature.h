@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2025   Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,44 +20,15 @@
 
 #include "cafCmdFeature.h"
 
-#include "cafVecIjk.h"
-
-#include "cvfArray.h"
-#include "cvfVector3.h"
-
-#include <expected>
-
-class RimEclipseView;
-class RimEclipseCase;
-class RicExportEclipseSectorModelUi;
-class RifOpmFlowDeckFile;
-class RigSimWellData;
-
-namespace Opm
-{
-class DeckRecord;
-class DeckKeyword;
-} // namespace Opm
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExportEclipseSectorModelFeature : public caf::CmdFeature
+class RicExportSectorModelFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static void openDialogAndExecuteCommand( RimEclipseView* view );
-    static void executeCommand( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings, const QString& logPrefix );
-    static RimEclipseView* selectedView();
 
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    static void exportGrid( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
-    static void exportFaults( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
-    static void exportParameters( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings );
 };

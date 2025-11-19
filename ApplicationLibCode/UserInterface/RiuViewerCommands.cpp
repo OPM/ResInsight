@@ -620,6 +620,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             }
             menuBuilder.addSeparator();
             menuBuilder.subMenuStart( "Export" );
+            menuBuilder << "RicExportSectorModelFeature";
             menuBuilder << "RicExportEclipseInputGridFeature";
             menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
             menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";

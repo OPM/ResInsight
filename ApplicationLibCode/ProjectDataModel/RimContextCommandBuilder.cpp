@@ -227,10 +227,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicCreateSaturationPressurePlotsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
+            menuBuilder.subMenuStart( "Export" );
+            menuBuilder << "RicExportSectorModelFeature";
             menuBuilder << "RicExportEclipseInputGridFeature";
             menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
             menuBuilder << "RicExportContourMapToTextFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
+            menuBuilder.subMenuEnd();
             menuBuilder << "RicAddEclipseInputPropertyFeature";
         }
         else if ( dynamic_cast<RimEclipseContourMapViewCollection*>( firstUiItem ) )

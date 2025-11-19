@@ -492,6 +492,7 @@ void RiuMainWindow::createMenus()
     exportMenu->addAction( m_snapshotAllViewsToFile );
     exportMenu->addAction( cmdFeatureMgr->action( "RicAdvancedSnapshotExportFeature" ) );
     exportMenu->addSeparator();
+    exportMenu->addAction( cmdFeatureMgr->action( "RicExportSectorModelFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportEclipseInputGridFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSaveEclipseInputActiveVisibleCellsFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportCompletionsForVisibleWellPathsFeature" ) );
@@ -955,6 +956,7 @@ void RiuMainWindow::slotRefreshFileActions()
     CVF_ASSERT( cmdFeatureMgr );
 
     QStringList commandIdList;
+    commandIdList << "RicExportSectorModelFeature";
     commandIdList << "RicExportEclipseInputGridFeature";
     commandIdList << "RicSaveEclipseInputVisibleCellsFeature";
     commandIdList << "RicSaveEclipseInputActiveVisibleCellsFeature";
