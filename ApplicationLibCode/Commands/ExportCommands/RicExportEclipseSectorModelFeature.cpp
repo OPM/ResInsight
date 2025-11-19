@@ -40,6 +40,7 @@
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimProject.h"
+#include "Tools/RimEclipseViewTools.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigBoundingBoxIjk.h"
@@ -95,7 +96,7 @@ void RicExportEclipseSectorModelFeature::openDialogAndExecuteCommand( RimEclipse
     cvf::UByteArray cellVisibility;
     view->calculateCurrentTotalCellVisibility( &cellVisibility, view->currentTimeStep() );
 
-    const auto& [min, max] = getVisibleCellRange( view, cellVisibility );
+    const auto& [min, max] = RimEclipseViewTools::getVisibleCellRange( view, cellVisibility );
 
     RicExportEclipseSectorModelUi* exportSettings = RimProject::current()->dialogData()->exportSectorModelUi();
     exportSettings->setCaseData( caseData, view, min, max );
@@ -191,7 +192,6 @@ void RicExportEclipseSectorModelFeature::exportGrid( RimEclipseView* view, const
 {
     cvf::UByteArray cellVisibility;
     view->calculateCurrentTotalCellVisibility( &cellVisibility, view->currentTimeStep() );
-    getVisibleCellRange( view, cellVisibility );
 
     const cvf::UByteArray* cellVisibilityForActnum = exportSettings.makeInvisibleCellsInactive() ? &cellVisibility : nullptr;
 
@@ -317,35 +317,6 @@ void RicExportEclipseSectorModelFeature::exportFaults( RimEclipseView* view, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<caf::VecIjk0, caf::VecIjk0> RicExportEclipseSectorModelFeature::getVisibleCellRange( RimEclipseView*        view,
-                                                                                               const cvf::UByteArray& cellVisibillity )
-{
-    const RigMainGrid* mainGrid = view->eclipseCase()->mainGrid();
-    caf::VecIjk0       max      = caf::VecIjk0::ZERO;
-    caf::VecIjk0       min( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
-
-    size_t cellCount = mainGrid->cellCount();
-    for ( size_t index = 0; index < cellCount; ++index )
-    {
-        if ( cellVisibillity[index] )
-        {
-            auto ijk = mainGrid->ijkFromCellIndex( index );
-            if ( ijk.has_value() )
-            {
-                for ( int n = 0; n < 3; ++n )
-                {
-                    min[n] = std::min( min[n], ijk.value()[n] );
-                    max[n] = std::max( max[n], ijk.value()[n] );
-                }
-            }
-        }
-    }
-    return std::make_pair( min, max );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RicExportEclipseSectorModelFeature::isCommandEnabled() const
 {
     return selectedView() != nullptr;
@@ -400,7 +371,7 @@ cvf::ref<cvf::UByteArray>
         case RicExportEclipseSectorModelUi::VISIBLE_WELLS_BOX:
         {
             auto [minWellCells, maxWellCells] =
-                RicExportEclipseSectorModelUi::computeVisibleWellCells( view, caseData, exportSettings.m_visibleWellsPadding() );
+                RimEclipseViewTools::computeVisibleWellCells( view, caseData, exportSettings.m_visibleWellsPadding() );
             return RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData, minWellCells, maxWellCells );
         }
         case RicExportEclipseSectorModelUi::ACTIVE_CELLS_BOX:

@@ -38,10 +38,12 @@
 
 #include "cvfAssert.h"
 
+namespace RimSimWellInViewTools
+{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSimWellInViewTools::summaryCaseForWell( RimSimWellInView* well )
+RimSummaryCase* summaryCaseForWell( RimSimWellInView* well )
 {
     RimProject* project = RimProject::current();
     if ( !project ) return nullptr;
@@ -58,7 +60,7 @@ RimSummaryCase* RimSimWellInViewTools::summaryCaseForWell( RimSimWellInView* wel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSimWellInViewTools::summaryCases()
+std::vector<RimSummaryCase*> summaryCases()
 {
     std::vector<RimSummaryCase*> cases;
 
@@ -79,7 +81,7 @@ std::vector<RimSummaryCase*> RimSimWellInViewTools::summaryCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
+bool isInjector( RimSimWellInView* well )
 {
     RigSimWellData* wRes = well->simWellData();
     if ( wRes )
@@ -105,7 +107,7 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSimWellInViewTools::isProducer( RimSimWellInView* well )
+bool isProducer( RimSimWellInView* well )
 {
     RigSimWellData* wRes = well->simWellData();
     if ( wRes )
@@ -131,11 +133,11 @@ bool RimSimWellInViewTools::isProducer( RimSimWellInView* well )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
-                                                       const QString&             wellName,
-                                                       const std::string&         vectorName,
-                                                       const QDateTime&           currentDate,
-                                                       bool*                      isOk )
+double extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
+                                const QString&             wellName,
+                                const std::string&         vectorName,
+                                const QDateTime&           currentDate,
+                                bool*                      isOk )
 
 {
     CVF_ASSERT( summaryReader );
@@ -188,3 +190,5 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
     *isOk = false;
     return -1;
 }
+
+} // namespace RimSimWellInViewTools

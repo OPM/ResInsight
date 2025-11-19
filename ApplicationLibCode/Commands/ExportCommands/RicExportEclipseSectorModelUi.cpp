@@ -36,6 +36,7 @@
 #include "RimEclipseView.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
+#include "Tools/RimEclipseViewTools.h"
 
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
@@ -641,7 +642,7 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
     }
     else if ( exportGridBox == VISIBLE_WELLS_BOX )
     {
-        auto [minWellCells, maxWellCells] = computeVisibleWellCells( m_eclipseView, m_caseData, m_visibleWellsPadding() );
+        auto [minWellCells, maxWellCells] = RimEclipseViewTools::computeVisibleWellCells( m_eclipseView, m_caseData, m_visibleWellsPadding() );
         setMin( minWellCells );
         setMax( maxWellCells );
     }
@@ -719,73 +720,4 @@ QString RicExportEclipseSectorModelUi::exportParametersFilename() const
 bool RicExportEclipseSectorModelUi::writeEchoKeywords() const
 {
     return m_writeEchoInGrdeclFiles;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<const RigSimWellData*> RicExportEclipseSectorModelUi::getVisibleSimulationWells( RimEclipseView* view )
-{
-    std::vector<const RigSimWellData*> visibleWells;
-
-    if ( !view ) return visibleWells;
-
-    // Get well collection from view
-    RimSimWellInViewCollection* wellCollection = view->wellCollection();
-    if ( !wellCollection ) return visibleWells;
-
-    // Iterate through visible wells in the collection
-    for ( RimSimWellInView* rimWell : wellCollection->wells() )
-    {
-        if ( rimWell && rimWell->showWell() && rimWell->simWellData() )
-        {
-            visibleWells.push_back( rimWell->simWellData() );
-        }
-    }
-
-    return visibleWells;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<caf::VecIjk0, caf::VecIjk0>
-    RicExportEclipseSectorModelUi::computeVisibleWellCells( RimEclipseView* view, RigEclipseCaseData* caseData, int visibleWellsPadding )
-{
-    if ( view )
-    {
-        // Get visible simulation wells from the view
-        std::vector<const RigSimWellData*> visibleWells = getVisibleSimulationWells( view );
-
-        if ( !visibleWells.empty() )
-        {
-            // Get current time step
-            int currentTimeStep = view->currentTimeStep();
-
-            // Calculate wells bounding box IJK
-            auto [minIjk, maxIjk] = RigEclipseCaseDataTools::wellsBoundingBoxIjk( caseData, visibleWells, currentTimeStep, true, true );
-            if ( !minIjk.isUndefined() && !maxIjk.isUndefined() )
-            {
-                // Apply user-defined padding
-                size_t padding                  = static_cast<size_t>( std::max( 0, visibleWellsPadding ) );
-                auto [expandedMin, expandedMax] = RigEclipseCaseDataTools::expandBoundingBoxIjk( caseData, minIjk, maxIjk, padding );
-
-                if ( !expandedMin.isUndefined() && !expandedMax.isUndefined() )
-                {
-                    // Use 0-based indexing as expected by setMin/setMax
-                    return { expandedMin, expandedMax };
-                }
-                else
-                {
-                    // Fallback without padding
-                    return { minIjk, maxIjk };
-                }
-            }
-        }
-    }
-
-    // No view available, fallback to full grid
-    const RigMainGrid* mainGrid  = caseData->mainGrid();
-    cvf::Vec3st        maxCounts = mainGrid->cellCounts() - cvf::Vec3st( 1, 1, 1 );
-    return { caf::VecIjk0::ZERO, caf::VecIjk0( maxCounts.x(), maxCounts.y(), maxCounts.z() ) };
 }
