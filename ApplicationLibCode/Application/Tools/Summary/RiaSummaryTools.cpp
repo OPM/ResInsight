@@ -426,6 +426,7 @@ void RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( RimSummaryCase* 
     {
         multiPlot->loadDataAndUpdateAllPlots();
         multiPlot->updatePlotTitles();
+        multiPlot->zoomAll();
     }
 
     auto depthTrackPlots = caf::PdmObjectHandleTools::referringAncestorOfType<RimDepthTrackPlot, RimSummaryCase>( { summaryCase } );
