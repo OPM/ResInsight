@@ -28,6 +28,7 @@ RigSimulationInputSettings::RigSimulationInputSettings()
     , m_max( caf::VecIjk0::ZERO )
     , m_refinement( 1, 1, 1 )
     , m_boundaryCondition( OPERNUM_OPERATER )
+    , m_porvMultiplier( 1.0e6 )
 {
 }
 
@@ -109,6 +110,22 @@ RigSimulationInputSettings::BoundaryCondition RigSimulationInputSettings::bounda
 void RigSimulationInputSettings::setBoundaryCondition( BoundaryCondition value )
 {
     m_boundaryCondition = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigSimulationInputSettings::porvMultiplier() const
+{
+    return m_porvMultiplier;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSimulationInputSettings::setPorvMultiplier( double value )
+{
+    m_porvMultiplier = value;
 }
 
 //--------------------------------------------------------------------------------------------------

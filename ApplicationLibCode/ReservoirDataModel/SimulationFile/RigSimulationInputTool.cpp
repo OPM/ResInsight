@@ -93,7 +93,8 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
             // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
             int operNumRegion = RigEclipseResultTools::generateOperNumResult( &eclipseCase );
 
-            if ( auto result = addOperNumRegionAndOperater( &eclipseCase, settings, deckFile, operNumRegion ); !result )
+            if ( auto result = addOperNumRegionAndOperater( &eclipseCase, settings, deckFile, operNumRegion, settings.porvMultiplier() );
+                 !result )
             {
                 return result;
             }
@@ -963,7 +964,8 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
 std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater( RimEclipseCase*                   eclipseCase,
                                                                                   const RigSimulationInputSettings& settings,
                                                                                   RifOpmFlowDeckFile&               deckFile,
-                                                                                  int                               operNumRegion )
+                                                                                  int                               operNumRegion,
+                                                                                  double                            porvMultiplier )
 {
     // Update REGDIMS and add OPERATER keyword for OPERNUM regions
     // Get the OPERNUM region number that was assigned to border cells
@@ -1046,9 +1048,8 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
     // Create OPERATER keyword to multiply pore volume in border region
     // OPERATER format: TARGET_ARRAY REGION_NUMBER OPERATION ARRAY_PARAMETER PARAM1 PARAM2 REGION_NAME
     // Example: OPERATER / PORV 1 MULTX PORV 1.0e6 1* 1* /
-    // Note: We don't have access to m_porvMultiplier from settings, so we use a default value
-    float            porvMultiplier = 1.0e6f; // Default value
-    Opm::DeckKeyword operaterKw     = RimKeywordFactory::operaterKeyword( "PORV", operNumRegion, "MULTX", "PORV", porvMultiplier );
+    Opm::DeckKeyword operaterKw =
+        RimKeywordFactory::operaterKeyword( "PORV", operNumRegion, "MULTX", "PORV", static_cast<float>( porvMultiplier ) );
 
     // Add OPERATER keyword to EDIT section
     if ( !deckFile.replaceKeyword( "EDIT", operaterKw ) )
