@@ -48,7 +48,7 @@ class RigSimulationInputTool
 {
 public:
     static std::expected<void, QString>
-        exportSimulationInput( RimEclipseView& view, RimEclipseCase& eclipseCase, const RigSimulationInputSettings& settings );
+        exportSimulationInput( RimEclipseCase& eclipseCase, const RigSimulationInputSettings& settings );
 
     static std::expected<Opm::DeckRecord, QString>
         processEqualsRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );

@@ -55,8 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimEclipseView&                   view,
-                                                                            RimEclipseCase&                   eclipseCase,
+std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimEclipseCase&                   eclipseCase,
                                                                             const RigSimulationInputSettings& settings )
 {
     // Load the deck file
