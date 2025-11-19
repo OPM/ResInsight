@@ -108,8 +108,6 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     // TODO: fix this..
     deckFile.removeKeywords( "MAPAXES" );
 
-    deckFile.removeKeywords( "SPECGRID" );
-
     // Save the modified deck file to the export directory
     if ( !deckFile.saveDeckInline( outputFolder.toStdString(), outputFile.toStdString() ) )
     {
@@ -145,6 +143,17 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
     if ( !deckFile.replaceKeywordData( "DIMENS", dimens ) )
     {
         return std::unexpected( "Failed to replace DIMENS keyword in deck file" );
+    }
+
+    // SPECGRID has the same dimensions plus NUMRES and COORD_TYPE
+    // Format: NX NY NZ (use defaults for NUMRES (1) and  COORD_TYPE: 'F'=Cartesian)
+    std::vector<int> specgrid = { static_cast<int>( gridAdapter.cellCountI() ),
+                                  static_cast<int>( gridAdapter.cellCountJ() ),
+                                  static_cast<int>( gridAdapter.cellCountK() ) };
+
+    if ( !deckFile.replaceKeywordData( "SPECGRID", specgrid ) )
+    {
+        return std::unexpected( "Failed to replace SPECGRID keyword in deck file" );
     }
 
     auto convertToDoubleVector = []( const std::vector<float>& vec )
