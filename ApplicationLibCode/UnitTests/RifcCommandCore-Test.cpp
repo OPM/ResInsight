@@ -69,7 +69,7 @@ CAF_PDM_SOURCE_INIT( TC2, "TC2" );
 //--------------------------------------------------------------------------------------------------
 TEST( RicfCommands, Test1 )
 {
-   QString commandString( "TestCommand1(IntArgument=3, TextArgument=\"Dette er en tekst, \\\"og\\\" jeg er: "
+    QString commandString( "TestCommand1(IntArgument=3, TextArgument=\"Dette er en tekst, \\\"og\\\" jeg er: "
                            "(happy)\", DoubleArgument=5.0e3) \n"
                            "TestCommand1 (  IntArgument = 4 , \n  TextArgument =  \"Dette er en tekst, \\\"og\\\" jeg "
                            "er: (happy)\", \n  DoubleArgument =  5.0e-3  ) \n"
