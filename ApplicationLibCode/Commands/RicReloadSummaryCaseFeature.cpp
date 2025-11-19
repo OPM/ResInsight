@@ -111,12 +111,20 @@ void RicReloadSummaryCaseFeature::reloadTaggedSummaryCasesAndUpdate()
     auto proj = RimProject::current();
     for ( auto summaryCase : proj->allSummaryCases() )
     {
-        if ( summaryCase->includeInAutoReload() ) RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
+        if ( summaryCase->includeInAutoReload() )
+        {
+            RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
+            summaryCase->updateConnectedEditors();
+        }
     }
 
     for ( RimSummaryEnsemble* ensemble : proj->summaryEnsembles() )
     {
-        if ( ensemble->includeInAutoReload() ) ensemble->reloadCases();
+        if ( ensemble->includeInAutoReload() )
+        {
+            ensemble->reloadCases();
+            ensemble->updateConnectedEditors();
+        }
     }
 }
 
@@ -135,6 +143,7 @@ void RicReloadSummaryCaseFeature::reloadSelectedCasesAndUpdate()
     for ( RimSummaryCase* summaryCase : caseSelection )
     {
         RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
+        summaryCase->updateConnectedEditors();
 
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }
