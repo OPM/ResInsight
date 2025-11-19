@@ -54,7 +54,9 @@ RimSurfaceCollection::RimSurfaceCollection()
 {
     CAF_PDM_InitScriptableObject( "Surfaces", ":/ReservoirSurfaces16x16.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "SurfaceUserDecription", "Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "SurfaceUserDescription", "Name" );
+    m_collectionName.registerKeywordAlias( "SurfaceUserDecription" );
+
     m_collectionName = "Surfaces";
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_subCollections, "SubCollections", "Surfaces" );

@@ -65,7 +65,8 @@ RimSeismicDifferenceData::RimSeismicDifferenceData()
 {
     CAF_PDM_InitObject( "SeismicDifferenceData", ":/SeismicDelta16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_userDescription, "SeismicUserDecription", "Name" );
+    CAF_PDM_InitFieldNoDefault( &m_userDescription, "SeismicUserDescription", "Name" );
+    m_userDescription.registerKeywordAlias( "SeismicUserDecription" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimSeismicDifferenceData::fullName );

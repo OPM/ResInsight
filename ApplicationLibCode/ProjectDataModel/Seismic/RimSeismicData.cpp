@@ -63,7 +63,8 @@ RimSeismicData::RimSeismicData()
 {
     CAF_PDM_InitObject( "SeismicData", ":/SeismicData24x24.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_userDescription, "SeismicUserDecription", "Name" );
+    CAF_PDM_InitFieldNoDefault( &m_userDescription, "SeismicUserDescription", "Name" ); 
+    m_userDescription.registerKeywordAlias( "SeismicUserDecription" );
 
     CAF_PDM_InitFieldNoDefault( &m_filename, "SeismicFilePath", "File" );
     m_filename.uiCapability()->setUiReadOnly( true );
