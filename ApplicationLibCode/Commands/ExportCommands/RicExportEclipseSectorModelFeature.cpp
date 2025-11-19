@@ -168,6 +168,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         }
         settings.setBcpropKeywords( bcpropKeywords );
         settings.setBoundaryCondition( exportSettings.m_boundaryCondition() );
+        settings.setPorvMultiplier( exportSettings.m_porvMultiplier() );
 
         // Get input deck file name from eclipse case
         QFileInfo fi( view->eclipseCase()->gridFileName() );

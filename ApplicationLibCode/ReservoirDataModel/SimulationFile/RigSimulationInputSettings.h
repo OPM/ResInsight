@@ -62,6 +62,9 @@ public:
     BoundaryCondition boundaryCondition() const;
     void              setBoundaryCondition( BoundaryCondition value );
 
+    double porvMultiplier() const;
+    void   setPorvMultiplier( double value );
+
     // File paths
     QString inputDeckFileName() const;
     void    setInputDeckFileName( const QString& fileName );
@@ -75,6 +78,7 @@ private:
     cvf::Vec3st                  m_refinement;
     std::vector<Opm::DeckRecord> m_bcpropKeywords;
     BoundaryCondition            m_boundaryCondition;
+    double                       m_porvMultiplier;
     QString                      m_inputDeckFileName;
     QString                      m_outputDeckFileName;
 };
