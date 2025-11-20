@@ -514,7 +514,10 @@ void RimDeltaSummaryEnsemble::updateDerivedEnsembleCases()
     {
         derivedCase->createSummaryReaderInterface();
 
-        auto crp = derivedCase->summaryCase1()->caseRealizationParameters();
+        auto summaryCase1 = derivedCase->summaryCase1();
+        if ( !summaryCase1 ) continue;
+        
+        auto crp = summaryCase1->caseRealizationParameters();
         if ( !crp ) continue;
         derivedCase->setCaseRealizationParameters( crp );
     }
