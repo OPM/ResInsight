@@ -100,7 +100,7 @@ for well in wells:
             txt += str(header.top_length) + "  "
             txt += fieldValueOrDefaultText(header, "wellbore_volume") + "  "
             txt += header.info_type + "  "
-            txt += fieldValueOrDefaultText(header, "pressure_omponents") + "  "
+            txt += fieldValueOrDefaultText(header, "pressure_components") + "  "
             txt += fieldValueOrDefaultText(header, "flow_model")
             print(txt)
 

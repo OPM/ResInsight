@@ -296,8 +296,8 @@ TEST( RiaGrpcWellPathServiceTest, copyWelsegsToGrpcCopiesAllFields )
     EXPECT_TRUE( headerEntry.has_wellbore_volume() );
     EXPECT_DOUBLE_EQ( headerEntry.wellbore_volume(), 0.5 );
     EXPECT_EQ( headerEntry.info_type(), "ABS" );
-    EXPECT_TRUE( headerEntry.has_pressure_omponents() );
-    EXPECT_EQ( headerEntry.pressure_omponents(), "HFA" );
+    EXPECT_TRUE( headerEntry.has_pressure_components() );
+    EXPECT_EQ( headerEntry.pressure_components(), "HFA" );
     EXPECT_TRUE( headerEntry.has_flow_model() );
     EXPECT_EQ( headerEntry.flow_model(), "HO" );
 

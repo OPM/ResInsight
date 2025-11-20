@@ -127,7 +127,7 @@ void RiaWellPathDataToGrpcConverter::copyWelsegsToGrpc( const RigMswTableData&  
     headerEntry->set_info_type( welsegsHeader.infoType );
     if ( welsegsHeader.pressureComponents.has_value() )
     {
-        headerEntry->set_pressure_omponents( welsegsHeader.pressureComponents.value() );
+        headerEntry->set_pressure_components( welsegsHeader.pressureComponents.value() );
     }
     if ( welsegsHeader.flowModel.has_value() )
     {

@@ -62,7 +62,7 @@ message SimulatorWelsegsHeaderEntry {
   double top_length = 3;
   optional double wellbore_volume = 4;
   string info_type = 5;
-  optional string pressure_omponents = 6;
+  optional string pressure_components = 6;
   optional string flow_model = 7;
 }
 
