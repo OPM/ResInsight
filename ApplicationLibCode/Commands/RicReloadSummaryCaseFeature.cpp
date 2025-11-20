@@ -90,13 +90,13 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryEnsemble*>> RicRel
 
     if ( ensembleSelection.empty() && caseSelection.empty() )
     {
-        // Fallback to all top-level cases and ensembles
-        if ( auto sumCaseColl = RiaSummaryTools::summaryCaseMainCollection() )
+        const auto sumCaseColl = caf::SelectionManager::instance()->objectsByType<RimSummaryCaseMainCollection>();
+        if ( !sumCaseColl.empty() )
         {
-            ensembleSelection = sumCaseColl->summaryEnsembles();
+            ensembleSelection = sumCaseColl.front()->summaryEnsembles();
 
             // Make sure to select top-level cases only, not cases part of ensembles
-            caseSelection = sumCaseColl->topLevelSummaryCases();
+            caseSelection = sumCaseColl.front()->topLevelSummaryCases();
         }
     }
 
