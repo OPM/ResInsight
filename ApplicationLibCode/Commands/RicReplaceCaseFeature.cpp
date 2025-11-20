@@ -109,6 +109,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
             summaryCase->setSummaryHeaderFileName( summaryFileNames.front() );
 
             RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
+            summaryCase->updateConnectedEditors();
         }
     }
 }

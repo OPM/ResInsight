@@ -84,7 +84,11 @@ void RimRftCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 {
     auto parentCase = firstAncestorOfType<RimSummaryCase>();
 
-    if ( parentCase ) RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( parentCase );
+    if ( parentCase )
+    {
+        RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( parentCase );
+        parentCase->updateConnectedEditors();
+    }
 
     RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
 }
