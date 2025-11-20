@@ -34,10 +34,11 @@ print("Got " + str(len(wells)) + " well paths: ")
 for well in wells:
     print("Well path name: " + well.name + "\n\n")
 
+    completion_data = well.completion_data(the_case.id)
+
     print("WELSPECS")
 
-    welspecs = well.completion_data(the_case.id).welspecs
-
+    welspecs = completion_data.welspecs
     for line in welspecs:
         txt = line.well_name + "  "
         txt += line.group_name + "  "
@@ -57,7 +58,7 @@ for well in wells:
 
     print("/\n")
 
-    compdat = well.completion_data(the_case.id).compdat
+    compdat = completion_data.compdat
 
     print("COMPDAT")
 
@@ -85,4 +86,55 @@ for well in wells:
 
         print(txt)
 
+    print("WELSEGS")
+    welsegs = completion_data.welsegs
+    if (welsegs is None) or (len(welsegs) == 0):
+        print("  -- No WELSEGS data --")
+    else:
+        for welsegs_entry in welsegs:
+            # Print WELSEGS header
+            header = welsegs_entry.header
+            txt = "-- Header: " + header.well_name + "\n"
+            txt += "   " + header.well_name + "  "
+            txt += str(header.top_depth) + "  "
+            txt += str(header.top_length) + "  "
+            txt += fieldValueOrDefaultText(header, "wellbore_volume") + "  "
+            txt += header.info_type + "  "
+            txt += fieldValueOrDefaultText(header, "pressure_omponents") + "  "
+            txt += fieldValueOrDefaultText(header, "flow_model")
+            print(txt)
+            
+            # Print WELSEGS segment rows
+            for row in welsegs_entry.row:
+                txt = "   "
+                txt += str(row.segment_1) + "  "
+                txt += str(row.segment_2) + "  "
+                txt += str(row.branch) + "  "
+                txt += str(row.join_segment) + "  "
+                txt += str(row.length) + "  "
+                txt += str(row.depth) + "  "
+                txt += fieldValueOrDefaultText(row, "diameter") + "  "
+                txt += fieldValueOrDefaultText(row, "roughness") + "  "
+                # txt += fieldValueOrDefaultText(row, "description")
+                print(txt)
+
     print("/")
+
+    # Print COMPSEGS (MSW completion segments)
+    print("\nCOMPSEGS")
+    compsegs = completion_data.compsegs
+    if (compsegs is None) or (len(compsegs) == 0):
+        print("  -- No COMPSEGS data --")
+    else:
+        for compseg in compsegs:
+            txt = "   "
+            txt += str(compseg.i) + "  "
+            txt += str(compseg.j) + "  "
+            txt += str(compseg.k) + "  "
+            txt += str(compseg.branch) + "  "
+            txt += str(compseg.distance_start) + "  "
+            txt += str(compseg.distance_end) + "  "
+            txt += fieldValueOrDefaultText(compseg, "grid_name")
+            print(txt)
+
+    print("/\n")
