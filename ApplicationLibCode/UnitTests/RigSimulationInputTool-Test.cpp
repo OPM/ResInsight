@@ -359,7 +359,7 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
     settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
     settings.setMax( caf::VecIjk0( 14, 14, 7 ) ); // Sector (0-based inclusive) - 10x10x6
     settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
-    settings.setBoundaryCondition( RigSimulationInputSettings::BCCON_BCPROP );
+    settings.setBoundaryCondition( RiaModelExportDefines::BCCON_BCPROP );
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
