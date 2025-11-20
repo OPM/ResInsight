@@ -66,6 +66,14 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
     RiuPropertyViewTabWidget propertyDialog( nullptr, app->preferences(), "Preferences", tabNames );
 
     auto pushButton = propertyDialog.dialogButtonBox()->addButton( "Help", QDialogButtonBox::HelpRole );
+    // mark help button for QSS targeting (preferences dialog buttons)
+    if ( pushButton )
+    {
+        pushButton->setProperty( "preferencesDialogButton", true );
+        pushButton->style()->unpolish( pushButton );
+        pushButton->style()->polish( pushButton );
+        pushButton->update();
+    }
     connect( pushButton, &QPushButton::clicked, this, &RicEditPreferencesFeature::showHelp );
 
     if ( propertyDialog.exec() == QDialog::Accepted )

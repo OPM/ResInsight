@@ -51,9 +51,13 @@ RiuProcessMonitor::RiuProcessMonitor( QWidget* pParent )
     pTopLayout->addStretch();
     QPushButton* clearPushButton = new QPushButton( "Clear", this );
     pTopLayout->addWidget( clearPushButton );
+    // mark for QSS targeting: add a property so stylesheet can add top margin
+    clearPushButton->setProperty( "processMonitorButton", "true" );
     connect( clearPushButton, SIGNAL( clicked() ), this, SLOT( slotClearTextEdit() ) );
 
     m_terminatePushButton = new QPushButton( "Stop", this );
+    // mark for QSS targeting: add a property so stylesheet can add top margin
+    m_terminatePushButton->setProperty( "processMonitorButton", "true" );
     pTopLayout->addWidget( m_terminatePushButton );
     connect( m_terminatePushButton, SIGNAL( clicked() ), this, SLOT( slotTerminateProcess() ) );
     m_terminatePushButton->setEnabled( false );

@@ -330,6 +330,9 @@
         <file>Legend.svg</file>
         <file>ReachCircle16x16.svg</file>
         <file>PolylinesFromFile16x16.svg</file>
+        <file>themes/shared/comboBox-arrow.svg</file>
+        <file>themes/shared/checkbox-checked.svg</file>
+        <file>themes/shared/dark-collapsed.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

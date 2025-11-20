@@ -70,6 +70,26 @@ RiuPropertyViewTabWidget::RiuPropertyViewTabWidget( QWidget*           parent,
     connect( m_dialogButtonBox, SIGNAL( accepted() ), this, SLOT( accept() ) );
     connect( m_dialogButtonBox, SIGNAL( rejected() ), this, SLOT( reject() ) );
 
+    // mark standard buttons for QSS targeting (preferences dialog buttons)
+    QPushButton* btnOk = m_dialogButtonBox->button( QDialogButtonBox::Ok );
+    if ( btnOk )
+    {
+        btnOk->setProperty( "preferencesDialogButton", true );
+        // Ensure stylesheet is reapplied for this widget
+        btnOk->style()->unpolish( btnOk );
+        btnOk->style()->polish( btnOk );
+        btnOk->update();
+    }
+    QPushButton* btnCancel = m_dialogButtonBox->button( QDialogButtonBox::Cancel );
+    if ( btnCancel )
+    {
+        btnCancel->setProperty( "preferencesDialogButton", true );
+        // Ensure stylesheet is reapplied for this widget
+        btnCancel->style()->unpolish( btnCancel );
+        btnCancel->style()->polish( btnCancel );
+        btnCancel->update();
+    }
+
     dialogLayout->addWidget( m_dialogButtonBox );
 }
 

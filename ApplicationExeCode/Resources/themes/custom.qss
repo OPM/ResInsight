@@ -1,295 +1,352 @@
-/***************************************************************************
- custom.qss - 基于 dark.qss, light.qss 和 default.qss 的自定义主题（已整理）
-
- 说明（中文注释）：
-  - 本文件已按照语义分区（变量 / 全局容器 / 面板 / 工具栏 / 停靠窗 / 表单控件 / 按钮 / 选项卡 /
-    滚动条 / 列表/树/表格 / 表头 / 文本控件 / QwtPlot / svg / 针对性覆盖）重新组织并合并重复项。
-  - 变量集中声明，便于主题色调统一调整。QSS 中保留了用于程序端替换的变量语法（例如 $mainBackgroundColor）。
-  - 避免使用过多的内联/重复选择器，将相似控件样式归类，降低维护成本。
-***************************************************************************/
-
-/* -------------------------------------------------------------------------
- 颜色变量（集中管理）
- ------------------------------------------------------------------------- */
-/* 主背景色（窗口、主要面板背景） */
-$mainBackgroundColor: #00A2E8;
-/* 面板/分组背景 */
-$panelBackground: #B5E61D;
-/* 交替面板背景（列表/选项卡） */
-$altPanelBackground: #FFAEC9;
-/* 输入框背景 */
-$inputBackground: #7092BE;
-/* 主文本颜色 */
-$textColor: #141719;
-/* 次要文字颜色 */
-$textColorMuted: #6b6f73;
-/* 交互色 */
-$primaryColor: #BE64B2;
-$primaryHover: #931FE0;
-$secondaryColor: #e82257;
-$tertiaryColor: #ffc50d;
-/* 边框颜色 */
-$borderColor: #FF7F27;
-$strongBorderColor: #000000;
-$disabledColor: #bfc3c6;
-$plotGridColor: #e6e9ec;
-$markerColor: #173F3F;
-$curveColorGas: #c80000;
-$curveColorOil: #00c800;
-$curveColorWater: #0000c8;
-/* -------------------------------------------------------------------------
- 全局基础容器（窗口、对话框、常用面板）
- 说明：影响大部分 QWidget、QMainWindow、QDialog、QFrame 等容器的背景和文字颜色
- ------------------------------------------------------------------------- */
-QWidget,
-QMainWindow,
-QDialog,
-QFrame,
-QScrollArea,
-QTextBrowser,
-QGroupBox {
-    background-color: $mainBackgroundColor;
+$mainBackgroundColor: #E4F1FF; /* 主背景颜色 */
+$backgroundColor1: #C3DFFF; /* 背景颜色层 1 */
+$backgroundColor2: #C3DFFF; /* 背景颜色层 2 */
+$backgroundColor3: #E4F1FF; /* 背景颜色层 3 */
+$ScrollBarColor: #0068DF; /* 滚动条颜色 */
+$textColor: #000000; /* 主文本颜色 */
+$inputColor: #C3DFFF; /* 输入框背景颜色 */
+$buttonColor: #459CFF; /* 按钮颜色 */
+$buttonHoverColor: #0661D6; /* 按钮悬停颜色 */
+$primaryColor: #3e7aa7; /* 主要颜色 */
+$secondaryColor: #cc6632; /* 次要颜色 */
+$tertiaryColor: #ffc50d; /* 第三颜色 */
+$senaryColor: #a54ce5; /* 第六颜色 */
+$borderColor: #459CFF; /* 边框颜色 */
+$curveColorGas: #a91210; /* 气体曲线颜色 */
+$curveColorOil: #7ba700; /* 油曲线颜色 */
+$curveColorWater: #3e7aa7; /* 水曲线颜色 */
+$externalInputColor: #e82257; /* 外部输入背景颜色 */
+/* =====================================================
+   全局 / 通用 元素样式
+   ===================================================== */
+/* 
+*/
+QTreeView[state="UseRadioButtons"] {
     color: $textColor;
-    border-color: $borderColor;
+    selection-color: $textColor;
 }
 
-    /* 特定面板内容（用于在面板内部提供层次感） */
-    QFrame#FramedGroupContent,
-    RiuAbstractOverlayContentFrame,
-    RiuDraggableOverlayFrame {
-        background-color: $panelBackground;
-        border-top: 1px solid $borderColor;
+QTreeView[state="UseRadioButtons"]::indicator:checked {
+    image: url(:/themes/shared/radio-button-active.svg);
+}
+
+QTreeView[state="UseRadioButtons"]::indicator:unchecked {
+    image: url(:/themes/shared/radio-circle-active.svg);
+}
+
+
+svg {
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* 全局复选框 / 指示器样式（Checkbox / Indicator） */
+QCheckBox::indicator,
+QTreeView::indicator,
+QTableView::indicator,
+QListWidget::indicator {
+    background-color: $backgroundColor1;
+    border-radius: 3px;
+    width: 16px;
+    height: 16px;
+}
+
+    QCheckBox::indicator:unchecked,
+    QTreeView::indicator:unchecked,
+    QTableView::indicator:unchecked,
+    QListWidget::indicator:unchecked {
+        image: url(:/themes/dark/checkbox-unchecked.svg);
     }
 
-/* 浮层半透明背景（提示、拖拽区域等） */
-RiuAbstractOverlayContentFrame,
-RiuDraggableOverlayFrame {
-    background-color: rgba(255,255,255,0.85);
+    QCheckBox::indicator:checked,
+    QTreeView::indicator:checked,
+    QTableView::indicator:checked,
+    QListWidget::indicator:checked {
+        image: url(:/themes/shared/checkbox-checked.svg);
+    }
+
+    QCheckBox::indicator:indeterminate,
+    QTreeView::indicator:indeterminate,
+    QTableView::indicator:indeterminate,
+    QListWidget::indicator:indeterminate {
+        image: url(:/themes/dark/checkbox-indeterminate.svg);
+    }
+
+    QCheckBox::indicator:unchecked:disabled,
+    QTreeView::indicator:unchecked:disabled,
+    QTableView::indicator:unchecked:disabled,
+    QListWidget::indicator:unchecked:disabled {
+        image: url(:/themes/dark/checkbox-unchecked-disabled.svg);
+    }
+
+    QCheckBox::indicator:checked:disabled,
+    QTreeView::indicator:checked:disabled,
+    QTableView::indicator:checked:disabled,
+    QListWidget::indicator:checked:disabled {
+        image: url(:/themes/dark/checkbox-checked-disabled.svg);
+    }
+
+    QCheckBox::indicator:indeterminate:disabled,
+    QTreeView::indicator:indeterminate:disabled,
+    QTableView::indicator:indeterminate:disabled,
+    QListWidget::indicator:indeterminate:disabled {
+        image: url(:/themes/dark/checkbox-indeterminate-disabled.svg);
+    }
+
+/* 绘图（QwtPlot）相关样式 */
+QwtPlot["*"]::grid["*"] {
+    color: $backgroundColor2;
 }
 
-/* -------------------------------------------------------------------------
- 工具栏与菜单（Top toolbar / QToolBar / QMenu）
- ------------------------------------------------------------------------- */
-QToolBar {
-    background-color: $panelBackground;
-    border-bottom: 1px solid $strongBorderColor;
+QwtPlot["*"]::legend {
+    text-color: $textColor;
 }
+
+RiuQwtPlotWidget {
+    color: $textColor;
+}
+
+QwtPlot QWidget {
+    color: $textColor;
+}
+
+QwtTextLabel {
+    color: $textColor;
+}
+
+QwtPlot["PvtPlot"]::picker {
+    text-color: $textColor;
+}
+
+QwtPlot["PvtPlot"]::curve["Auxiliary"] {
+    line-color: #ffffff;
+}
+
+QwtPlot["PvtPlot"]::curve["Oil"] {
+    line-color: $curveColorOil;
+    symbol-color: $curveColorOil;
+}
+
+QwtPlot["PvtPlot"]::curve["Gas"] {
+    line-color: $curveColorGas;
+    symbol-color: $curveColorGas;
+}
+
+QwtPlot["RelPermPlot"]::curve["KRW"] {
+    line-color: $curveColorWater;
+    symbol-color: $curveColorWater;
+}
+
+QwtPlot["RelPermPlot"]::curve["KROW"] {
+    line-color: $curveColorWater;
+    symbol-color: $curveColorWater;
+}
+
+QwtPlot["RelPermPlot"]::curve["PCOW"] {
+    line-color: $tertiaryColor;
+    symbol-color: $tertiaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["KRG"] {
+    line-color: $curveColorGas;
+    symbol-color: $curveColorGas;
+}
+
+QwtPlot["RelPermPlot"]::curve["KROG"] {
+    line-color: $curveColorGas;
+    symbol-color: $curveColorGas;
+}
+
+QwtPlot["RelPermPlot"]::curve["PCOG"] {
+    line-color: $senaryColor;
+    symbol-color: $senaryColor;
+}
+
+QwtPlot["PvtPlot"]::lineMarker["*"] {
+    color: $textColor;
+}
+
+QwtPlot["PvtPlot"]::pointMarker["*"] {
+    color: $textColor;
+}
+
+/* 按钮、输入与表单控件 */
+QProgressBar {
+    border-color: $borderColor;
+    text-align: center;
+    background-color: $backgroundColor1;
+    color: $textColor;
+}
+
+QLineEdit,
+QComboBox,
+QSpinBox,
+QDoubleSpinBox,
+QDateEdit,
+QDateTimeEdit {
+    background-color: $inputColor;
+    color: $textColor;
+    padding: 3px;
+    border: 1px solid $borderColor;
+    selection-background-color: $secondaryColor;
+}
+
+    QLineEdit:focus,
+    QComboBox:focus,
+    QSpinBox:focus,
+    QDoubleSpinBox:focus,
+    QDateEdit:focus,
+    QDateTimeEdit:focus {
+        border: 2px solid $primaryColor;
+    }
+
+/* 工具栏、工具按钮与菜单 */
+QToolBar {
+    background-color: $mainBackgroundColor;
+    border: none;
+}
+
+    QToolBar QToolButton {
+        background: transparent; /* 透明背景 */
+        border: none; /* 无边框 */
+        qproperty-iconSize: 24px 24px; /* 图标大小 */
+    }
+
+    QToolBar QComboBox {
+        background-color: #ffffff; /* 工具栏下拉框背景色 */
+        border: 1px solid $borderColor; /* 边框 */
+    }
+
+    QToolBar QToolButton:hover {
+        background-color: $primaryColor;
+        border: none;
+    }
 
     QToolBar QWidget {
         background-color: transparent;
         border-color: $borderColor;
     }
 
-    QToolBar QToolButton {
-        background: transparent;
-        border: none;
-        color: $textColor;
-    }
-
-        QToolBar QToolButton:hover {
-            background-color: $altPanelBackground;
-        }
-
-QMenu::item:selected {
+QMenuBar::item:selected {
     background-color: $primaryColor;
-    color: white;
-}
-
-/* -------------------------------------------------------------------------
- 停靠窗口（QDockWidget）
- 说明：统一停靠窗口的标题、按钮与内容背景
- ------------------------------------------------------------------------- */
-QDockWidget {
-    background-color: $mainBackgroundColor;
-    /*    titlebar-close-icon: url(:/themes/dark/blank.svg);
-    titlebar-normal-icon: url(:/themes/dark/blank.svg);*/
-}
-
-    QDockWidget::title {
-        background-color: $altPanelBackground;
-        padding: 5px;
-        border-bottom: 1px solid $borderColor;
-        color: $textColor;
-    }
-
-    QDockWidget::close-button, QDockWidget::float-button {
-        background: transparent;
-        border: none;
-        padding: 0;
-    }
-/*QDockWidget::float-button { image: url(:/themes/dark/float.svg); }
-QDockWidget::close-button { image: url(:/themes/dark/close.svg); }
-QDockWidget::float-button:hover { image: url(:/themes/dark/float-hover.svg); }
-QDockWidget::close-button:hover { image: url(:/themes/dark/close-hover.svg); }*/
-
-/* -------------------------------------------------------------------------
- 表单控件（输入框、下拉、spin、日期等）
- 说明：统一输入类控件的背景、边框与焦点效果
- ------------------------------------------------------------------------- */
-QLineEdit,
-QComboBox,
-QSpinBox,
-QDoubleSpinBox,
-QDateEdit,
-QDateTimeEdit,
-QToolButton {
-    background-color: $inputBackground;
     color: $textColor;
-    border: 1.5px solid $borderColor;
-    border-radius: 3px;
-    padding: 3px;
 }
 
-    QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus, QDateEdit:focus, QDateTimeEdit:focus {
-        border: 1.5px solid $primaryColor;
-    }
+QMenu {
+    border: none;
+}
 
-    QComboBox::drop-down {
-        border: 0px;
-    }
-
-    QComboBox QAbstractItemView {
-        background-color: $panelBackground;
+    QMenu::item:selected {
+        background-color: $primaryColor;
         color: $textColor;
     }
 
-QWidget:readonly {
-    background-color: $altPanelBackground;
-    color: $textColorMuted;
+    QMenu::icon:checked {
+        background-color: $primaryColor;
+        border: 1px inset $backgroundColor1;
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        bottom: 1px;
+        left: 1px;
+    }
+
+/* 标签、文本与窗体相关 */
+QToolBox {
+    background-color: $mainBackgroundColor;
 }
 
-QWidget[state="ExternalInput"], QListView[state="ExternalInput"] {
-    background-color: $tertiaryColor;
+QLabel {
+    background-color: transparent;
+    color: $textColor;
+}
+
+QWidget,
+QFrame,
+QMainWindow,
+QDialog,
+QMenu,
+QLabel,
+QCheckBox,
+QTabBar,
+QDockWidget,
+QTextEdit,
+QPlainTextEdit,
+QScrollArea,
+QTextBrowser,
+QGroupBox,
+QRadioButton {
+    background-color: $mainBackgroundColor;
+    color: $textColor;
+    border-color: $borderColor;
+    selection-background-color: $primaryColor;
+}
+
+RiuAbstractOverlayContentFrame,
+RiuDraggableOverlayFrame {
+    background-color: rgba(36, 41, 46, 0.3);
+}
+
+QTextEdit,
+QPlainTextEdit {
+    border: 1px solid $borderColor;
+}
+
+QWidget[state="ExternalInput"] {
+    background-color: $externalInputColor;
     border: 2px solid $borderColor;
 }
 
-/* -------------------------------------------------------------------------
- 按钮（QPushButton）
- 说明：主按钮/次按钮/禁用/悬停/按压等状态
- ------------------------------------------------------------------------- */
-QPushButton {
-    color: $textColor;
-    background-color: $primaryColor;
-    border: 0px;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-weight: bold;
+QWidget:readonly {
+    background-color: $backgroundColor1;
+    color: $backgroundColor3;
 }
 
-    QPushButton:hover {
-        background-color: $primaryHover;
-    }
-
-    QPushButton:pressed {
-        background-color: $primaryHover;
-    }
-
-    QPushButton:disabled {
-        background-color: $disabledColor;
-        color: white;
-    }
-
-    QPushButton#Secondary {
-        background-color: transparent;
-        color: $textColor;
-        border: 1px solid $borderColor;
-    }
-
-        QPushButton#Secondary:hover {
-            background-color: $altPanelBackground;
-        }
-
-/* -------------------------------------------------------------------------
- 选项卡（QTabWidget / QTabBar）
- ------------------------------------------------------------------------- */
-QTabWidget {
-    background-color: $panelBackground;
-}
-
-    QTabWidget::pane {
-        border-top: 1px solid $strongBorderColor;
-        background-color: $mainBackgroundColor;
-    }
-
-QTabBar::tab {
-    background-color: $altPanelBackground;
-    border: 1px solid $borderColor;
-    border-bottom: 0px;
-    padding: 6px;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-}
-
-    QTabBar::tab:selected, QTabBar::tab:hover {
-        background-color: $panelBackground;
-    }
-
-    QTabBar::tab:!selected {
-        color: $textColorMuted;
-    }
-
-/* -------------------------------------------------------------------------
- 滚动条（ScrollBar）
- ------------------------------------------------------------------------- */
-QScrollBar:vertical, QScrollBar:horizontal {
-    border: 0px;
-    background: transparent;
-}
-
-QScrollBar:vertical {
-    width: 15px;
-}
-
-QScrollBar:horizontal {
-    height: 15px;
-}
-
-    QScrollBar:vertical:hover, QScrollBar:horizontal:hover {
-        background: $altPanelBackground;
-    }
-
-QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
-    background: $panelBackground;
-    border-radius: 3px;
-    margin: 3px;
-}
-
-    /*    QScrollBar::handle:vertical::hover, QScrollBar::handle:horizontal::hover {
-        background: $altPanelBackground;
-    }*/
-
-    QScrollBar::handle:vertical::pressed, QScrollBar::handle:horizontal::pressed {
-        background: $primaryColor;
-    }
-
-QScrollBar::add-line, QScrollBar::sub-line {
-    height: 0px;
-}
-
-/* -------------------------------------------------------------------------
- 列表 / 树 / 表格视图（QAbstractItemView 及子类）
- ------------------------------------------------------------------------- */
+/* 表格、列表、抽象项视图 */
 QAbstractItemView {
     border: 1px solid $borderColor;
+    border-style: solid;
     outline: 0;
-    background-color: $mainBackgroundColor;
 }
 
     QAbstractItemView::item:hover {
         background-color: $primaryColor;
-        color: white;
     }
 
     QAbstractItemView::item:selected {
         background-color: $secondaryColor;
-        color: white;
+        color: $textColor;
     }
 
-/* 树视图分支图标（折叠/展开） */
+QHeaderView {
+    background-color: $backgroundColor1;
+    border: none;
+}
+
+    QHeaderView::section {
+        background-color: $backgroundColor1;
+        border-bottom: 1px solid #666666; /* 下边框：深灰色实线 */
+        border-right: 1px solid #666666; /* 右边框：深灰色实线 */
+        border-left: none; /* 取消左边框 */
+        border-top: none; /* 取消上边框 */
+        color: $textColor;
+        padding: 4px;
+    }
+
+QTableView QTableCornerButton::section {
+    background: transparent;
+}
+
+QTableView QTableCornerButton::section {
+    background: transparent;
+}
+
+/* 树视图分支与图标 */
 QTreeView::branch:has-children:!has-siblings:closed,
 QTreeView::branch:closed:has-children:has-siblings {
     border-image: none;
-    image: url(:/themes/dark/collapsed.svg);
+    image: url(:/themes/shared/dark-collapsed.svg);
     width: 12px;
     height: 12px;
 }
@@ -297,202 +354,509 @@ QTreeView::branch:closed:has-children:has-siblings {
 QTreeView::branch:open:has-children:!has-siblings,
 QTreeView::branch:open:has-children:has-siblings {
     border-image: none;
-    image: url(:/themes/dark/expanded.svg);
+    image: url(:/themes/shared/comboBox-arrow.svg);
     icon-size: 12px;
 }
 
-/* -------------------------------------------------------------------------
- 表头（QHeaderView）与表格角按钮
- ------------------------------------------------------------------------- */
-QHeaderView::section {
-    background-color: $altPanelBackground;
-    color: $textColor;
-    padding: 4px;
-    border-bottom: 1px solid $borderColor;
+/* 头部、分页与选项卡 */
+QTabWidget {
+    background-color: #535353;
 }
 
-QTableView QTableCornerButton::section {
-    background: transparent;
+    QTabWidget::pane {
+        border-top: 1px solid $backgroundColor3;
+        background-color: $mainBackgroundColor;
+    }
+
+QTabBar::tab {
+    background-color: $backgroundColor1;
+    border: 1px solid #2C2C2C;
+    border-bottom: 0px;
+    border-radius: 1px;
+    padding: 6px;
 }
 
-/* -------------------------------------------------------------------------
- 文本控件（QLabel / QTextEdit / QPlainTextEdit / QProgressBar / QLCDNumber）
- ------------------------------------------------------------------------- */
-QLabel {
-    background-color: transparent;
-    color: $textColor;
-}
+    QTabBar::tab:selected,
+    QTabBar::tab:hover {
+        background-color: $backgroundColor3;
+    }
 
-QTextEdit, QPlainTextEdit {
-    border: 1.5px solid $borderColor;
-    background-color: $inputBackground;
+    QTabBar::tab:selected {
+        border-bottom: 0px;
+    }
+
+    QTabBar::tab:!selected {
+        color: $textColor;
+    }
+
+/* 进度、LCD、压缩面板等 */
+QLCDNumber {
     color: $textColor;
+    border-color: $borderColor;
+    border-width: 1.5px;
+    border-style: solid;
+    border-radius: 5px;
 }
 
 QProgressBar {
+    border-color: $borderColor;
     text-align: center;
-    background-color: $altPanelBackground;
-    border: 1px solid $borderColor;
+    background-color: $backgroundColor1;
     color: $textColor;
 }
 
-QLCDNumber {
-    color: $textColor;
-    border: 1.5px solid $borderColor;
-    border-radius: 4px;
+/* 滚动条（Scrollbar） */
+QScrollBar:vertical {
+    border: 0px;
+    background: transparent;
+    width: 5px;
+    margin: 0px 0px 0px 0px;
 }
 
-/* -------------------------------------------------------------------------
- QwtPlot 与图表相关（曲线、标记、网格、图例）
- 说明：保留 qss->runtime 映射机制，实际颜色由 RiuGuiTheme 解析并应用
- ------------------------------------------------------------------------- */
-QwtPlot {
+    QScrollBar:vertical:hover {
+        background: $backgroundColor2;
+    }
+
+QScrollBar::handle:vertical {
+    background: rgba(0, 104, 223, 0.5);
+    min-height: 20px;
+    margin: 1px 1px 1px 1px;
+    border-radius: 1px;
+}
+
+    QScrollBar::handle:vertical::hover,
+    QScrollBar::handle:horizontal::hover {
+        background: rgba(0, 104, 223, 0.9);
+    }
+
+    QScrollBar::handle:vertical::pressed,
+    QScrollBar::handle:horizontal::pressed {
+        background: rgba(0, 104, 223, 0.9);
+    }
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical,
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    border: 0px;
+    height: 0px;
+}
+
+QScrollBar::up-arrow:vertical,
+QScrollBar::down-arrow:vertical,
+QScrollBar::down-arrow:horizontal,
+QScrollBar::up-arrow:horizontal {
+    border: 0px;
+    background: none;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical,
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    border: 0px;
+    background: transparent;
+    height: 5px;
+    margin: 0px 0px 0px 0px;
+}
+
+    QScrollBar:horizontal:hover {
+        background: $backgroundColor2;
+    }
+
+QScrollBar::handle:horizontal {
+    background: rgba(0, 104, 223, 0.5);
+    min-width: 20px;
+    margin: 1px 1px 1px 1px;
+    border-radius: 1px;
+}
+
+/* 特定命名框架与面板样式（ID 选择器） */
+QFrame#FramedGroupContent {
     background-color: $mainBackgroundColor;
+    border-top: 1px solid $borderColor;
 }
 
-    QwtPlot > QWidget {
+QFrame#GroupTitleFrame QToolButton {
+    padding: 3px;
+}
+
+QMinimizePanel {
+    qproperty-background: $mainBackgroundColor;
+    qproperty-titleBackground: $backgroundColor2;
+    qproperty-border: $borderColor;
+    qproperty-expandIconPath: url(:/themes/dark/arrow-down.svg);
+    qproperty-collapseIconPath: url(:/themes/dark/arrow-up.svg);
+    qproperty-iconSize: 8px;
+    border: 2px solid $backgroundColor2;
+}
+
+    QMinimizePanel QLabel,
+    QMinimizePanel QCheckBox,
+    QToolButton {
         background-color: transparent;
     }
 
-    QwtPlot["*"]::grid["*"] {
-        color: $plotGridColor;
-    }
-
-    QwtPlot["PvtPlot"]::curve["Oil"] {
-        line-color: $curveColorOil;
-        symbol-color: $curveColorOil;
-    }
-
-    QwtPlot["PvtPlot"]::curve["Gas"] {
-        line-color: $curveColorGas;
-        symbol-color: $curveColorGas;
-    }
-
-    QwtPlot["RelPermPlot"]::curve["KRW"] {
-        line-color: $curveColorWater;
-        symbol-color: $curveColorWater;
-    }
-
-    QwtPlot["PvtPlot"]::lineMarker["*"] {
-        color: $markerColor;
-    }
-
-    QwtPlot["PvtPlot"]::pointMarker["*"] {
-        color: $markerColor;
-    }
-
-    QwtPlot["*"]::legend {
-        text-color: $textColor;
-    }
-
-QwtTextLabel {
-    color: $textColor;
-}
-
-/* -------------------------------------------------------------------------
- 主题特殊元素（svg 描边）
- ------------------------------------------------------------------------- */
-svg {
-    stroke: currentColor;
-    stroke-width: 2;
-    fill: none;
-}
-
-/* -------------------------------------------------------------------------
- 兼容与后备：按 objectName 或 styleRole 提供更具体的覆盖
- - 优先使用 styleRole（支持空格/特殊字符）来避免 objectName 的歧义
- ------------------------------------------------------------------------- */
-
-/* 自动生成的 objectName 针对性覆盖（摘录） */
-QDockWidget[objectName="dockPlotWindow_mainPlotWindow"],
-QDockWidget[objectName="dock3DWindow_mainWindow"],
-QDockWidget[objectName="dockPropertyEditor_mainWindow"],
-QDockWidget[objectName="dockResultInfo_mainWindow"],
-QDockWidget[objectName="dockProcessMonitor_mainWindow"],
-QDockWidget[objectName="dockResultPlot_mainWindow"],
-QDockWidget[objectName="dockDepthPlot_mainWindow"],
-QDockWidget[objectName="dockRelPermPlot_mainWindow"],
-QDockWidget[objectName="dockPvtPlot_mainWindow"],
-QDockWidget[objectName="dockSeisHist_mainWindow"],
-QDockWidget[objectName="dockMohrsCirclePlot_mainWindow"],
-QDockWidget[objectName="dockUndoStack_mainWindow"],
-QDockWidget[objectName="dockQuickAccess_mainWindow"],
-QDockWidget[objectName="dockCellSelectionTool_mainWindow"],
-QDockWidget[objectName="dockSummaryPlotManager"],
-QDockWidget[objectName="dockQuickAccess_plotWindow"],
-QDockWidget[objectName="dockProjectTree_mainWindow"],
-QDockWidget[objectName="dockDataSourceTree_mainWindow"],
-QDockWidget[objectName="dockScriptsTree_mainWindow"],
-QDockWidget[objectName="dockDataSourceTree_plotMainWindow"],
-QDockWidget[objectName="dockPlotsTree_plotMainWindow"],
-QDockWidget[objectName="dockTemplatesTree_plotMainWindow"],
-QDockWidget[objectName="dockScriptsTree_plotMainWindow"],
-QDockWidget[objectName="dockCloudTree_plotMainWindow"],
-QDockWidget[objectName="dockPropertyEditor_plotMainWindow"],
-QDockWidget[objectName="dockPropertyEditorRight_plotMainWindow"],
-QDockWidget[objectName="dockMessages_plotMainWindow"],
-QDockWidget[objectName="dockUndoStack_plotMainWindow"],
-QDockWidget[objectName="dockMessages_mainWindow"] {
-    background-color: $panelBackground;
-    color: $textColor;
-    border: 1px solid $borderColor;
-}
-
-    QDockWidget[objectName="dockPlotWindow_mainPlotWindow"]::title,
-    QDockWidget[objectName="dock3DWindow_mainWindow"]::title,
-    QDockWidget[objectName="dockProjectTree_mainWindow"]::title,
-    QDockWidget[objectName="dockPropertyEditor_mainWindow"]::title,
-    QDockWidget[objectName="dockMessages_mainWindow"]::title {
-        background-color: $altPanelBackground;
-        color: $textColor;
-        padding: 4px;
-        border-bottom: 1px solid $borderColor;
-    }
-
-/* -------------------------------------------------------------------------
- styleRole 覆盖：优先推荐在 C++ 端使用 setProperty("styleRole", "...")
- 然后在 QSS 中用属性选择器进行样式控制；便于主题切换和集中管理
- ------------------------------------------------------------------------- */
-/* EclRunner controls styled via styleRole properties */
-[styleRole="EclRunnerButton"] {
-    background-color: $panelBackground;
-    color: $textColor;
-    border: 1px solid $borderColor;
-    padding: 5px 15px;
-    border-radius: 3px;
-}
-
-    [styleRole="EclRunnerButton"]:hover {
-        background-color: $altPanelBackground;
-    }
-
-[styleRole="EclRunnerTable"] {
+/* 分组/边框/分割线等 */
+QFrame#FramedGroupContent {
     background-color: $mainBackgroundColor;
-    color: $textColor;
-    gridline-color: $borderColor;
+    border-top: 1px solid $borderColor;
 }
 
-    [styleRole="EclRunnerTable"] QHeaderView::section {
-        background-color: $panelBackground;
-        color: $textColor;
+/* 特殊控件：ComboBox 下拉箭头、下拉列表背景 */
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 18px;
+    border: 0px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: $inputColor;
+}
+
+QComboBox::down-arrow {
+    image: url(:/themes/shared/comboBox-arrow.svg);
+    width: 18px;
+    height: 14px;
+}
+
+/* 窗口停靠、浮动以及停靠系统样式（Advanced docking system）
+   基于 ResInsight 第三方 qtadvanceddocking 的默认样式
+*/
+
+/* CDockContainerWidget 基础 */
+ads--CDockContainerWidget {
+    background: $mainBackgroundColor;
+}
+
+    ads--CDockContainerWidget > QSplitter {
+        padding: 1 0 1 0;
     }
 
-[styleRole="EclRunnerLog"] {
-    background-color: $inputBackground;
-    color: $textColor;
-    border: 1px solid $borderColor;
-    font-family: Consolas, monospace;
+ads--CDockContainer ads--CDockSplitter::handle {
+    background: $backgroundColor3;
 }
 
-/* -------------------------------------------------------------------------
- 结论与维护建议
- - 首选通过 C++ 设置 `setProperty("styleRole", "...")` 并在此处定义样式；避免使用 widget->setStyleSheet 或 setPalette。
- - 当需要按主题切换动态改变颜色，请使用 RiuGuiTheme 的变量替换与 preparse 流程，保证变量被替换为字面色值。
- - 若希望我进一步：
-    1) 将所有使用 inline style 的控件扫描列出；
-    2) 将更多控件迁移为 styleRole 策略并在 QSS 中统一管理；
-    3) 将变量替换为最终字面色值并生成 ready-to-use qss。
- 请告知你的偏好。
- ------------------------------------------------------------------------- */
+/* CDockAreaWidget */
+ads--CDockAreaWidget {
+    background: $mainBackgroundColor;
+}
 
+ads--CTitleBarButton {
+    padding: 0px 0px;
+    background: $backgroundColor2;
+}
 
+#tabsMenuButton::menu-indicator {
+    image: none;
+}
+
+#tabsMenuButton {
+    qproperty-icon: url(:/ads/images/tabs-menu-button.svg);
+    qproperty-iconSize: 16px;
+}
+
+#dockAreaCloseButton {
+    qproperty-icon: url(:/ads/images/close-button.svg), url(:/ads/images/close-button-disabled.svg) disabled;
+    qproperty-iconSize: 16px;
+}
+
+#detachGroupButton {
+    qproperty-icon: url(:/ads/images/detach-button.svg), url(:/ads/images/detach-button-disabled.svg) disabled;
+    qproperty-iconSize: 16px;
+}
+
+/* CDockWidgetTab 与 关闭按钮 */
+ads--CDockWidgetTab {
+    background: $mainBackgroundColor;
+    border-color: $backgroundColor1;
+    border-style: solid;
+    border-width: 0 1px 0 0;
+    padding: 0 0px;
+}
+
+    ads--CDockWidgetTab[activeTab="true"] {
+        background: $backgroundColor1;
+    }
+
+    ads--CDockWidgetTab QLabel {
+        color: $textColor;
+        background: $mainBackgroundColor;
+    }
+
+    ads--CDockWidgetTab[activeTab="true"] QLabel {
+        color: $textColor;
+        background: $backgroundColor1;
+    }
+
+#tabCloseButton {
+    margin-top: 2px;
+    background: $backgroundColor2;
+    border: none;
+    padding: 0px -2px;
+    qproperty-icon: url(:/ads/images/close-button.svg), url(:/ads/images/close-button-disabled.svg) disabled;
+    qproperty-iconSize: 16px;
+}
+
+    #tabCloseButton:hover {
+        border: 1px solid $backgroundColor3;
+        background: $backgroundColor3;
+    }
+
+    #tabCloseButton:pressed {
+        background: $backgroundColor2;
+    }
+
+/* CDockWidget */
+ads--CDockWidget {
+    background: $mainBackgroundColor;
+    border-color: $backgroundColor1;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+}
+
+QScrollArea#dockWidgetScrollArea {
+    padding: 0px 0px 0px 8px; /* 左侧留出 8px 间隙，避免编辑框超出窗口显示范围 */
+    border: none;
+}
+
+/* 自动隐藏（Auto hide）相关样式分组 */
+ads--CAutoHideTab {
+    qproperty-iconSize: 16px 16px;
+    /* 如果需要更改图标大小，可修改此处 */
+    background: none;
+    border: none;
+    padding-left: 2px;
+    padding-right: 0px;
+    text-align: center;
+    min-height: 20px;
+    padding-bottom: 2px;
+}
+
+    ads--CAutoHideTab:hover {
+        color: palette(highlight);
+    }
+
+    ads--CAutoHideTab[iconOnly="false"][sideBarLocation="0"],
+    ads--CAutoHideTab[iconOnly="false"][sideBarLocation="2"] {
+        border-top: 6px solid rgba(0, 0, 0, 48);
+    }
+
+    ads--CAutoHideTab[iconOnly="false"][sideBarLocation="1"],
+    ads--CAutoHideTab[iconOnly="false"][sideBarLocation="3"] {
+        border-bottom: 6px solid rgba(0, 0, 0, 48);
+    }
+
+    ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="0"],
+    ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="2"],
+    ads--CAutoHideTab[iconOnly="false"][sideBarLocation="0"][activeTab="true"],
+    ads--CAutoHideTab[iconOnly="false"][sideBarLocation="2"][activeTab="true"] {
+        border-top: 6px solid palette(highlight);
+    }
+
+    ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="1"],
+    ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="3"],
+    ads--CAutoHideTab[iconOnly="false"][sideBarLocation="1"][activeTab="true"],
+    ads--CAutoHideTab[iconOnly="false"][sideBarLocation="3"][activeTab="true"] {
+        border-bottom: 6px solid palette(highlight);
+    }
+
+    /* 仅图标的自动隐藏标签样式 */
+    ads--CAutoHideTab[iconOnly="true"][sideBarLocation="0"] {
+        border-top: 6px solid rgba(0, 0, 0, 48);
+    }
+
+    ads--CAutoHideTab[iconOnly="true"][sideBarLocation="1"] {
+        border-left: 6px solid rgba(0, 0, 0, 48);
+    }
+
+    ads--CAutoHideTab[iconOnly="true"][sideBarLocation="2"] {
+        border-right: 6px solid rgba(0, 0, 0, 48);
+    }
+
+    ads--CAutoHideTab[iconOnly="true"][sideBarLocation="3"] {
+        border-bottom: 6px solid rgba(0, 0, 0, 48);
+    }
+
+    /* 仅图标自动隐藏标签悬停样式 */
+    ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="0"],
+    ads--CAutoHideTab[iconOnly="true"][sideBarLocation="0"][activeTab="true"] {
+        border-top: 6px solid palette(highlight);
+    }
+
+    ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="1"],
+    ads--CAutoHideTab[iconOnly="true"][sideBarLocation="1"][activeTab="true"] {
+        border-left: 6px solid palette(highlight);
+    }
+
+    ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="2"],
+    ads--CAutoHideTab[iconOnly="true"][sideBarLocation="2"][activeTab="true"] {
+        border-right: 6px solid palette(highlight);
+    }
+
+    ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="3"],
+    ads--CAutoHideTab[iconOnly="true"][sideBarLocation="3"][activeTab="true"] {
+        border-bottom: 6px solid palette(highlight);
+    }
+
+/* CAutoHideSideBar */
+ads--CAutoHideSideBar {
+    background: palette(window);
+    border: none;
+    qproperty-spacing: 12;
+}
+
+#sideTabsContainerWidget {
+    background: transparent;
+}
+
+ads--CAutoHideSideBar[sideBarLocation="0"] {
+    border-bottom: 1px solid palette(dark);
+}
+
+ads--CAutoHideSideBar[sideBarLocation="1"] {
+    border-right: 1px solid palette(dark);
+}
+
+ads--CAutoHideSideBar[sideBarLocation="2"] {
+    border-left: 1px solid palette(dark);
+}
+
+ads--CAutoHideSideBar[sideBarLocation="3"] {
+    border-top: 1px solid palette(dark);
+}
+
+/* CAutoHideDockContainer */
+ads--CAutoHideDockContainer {
+    background: palette(window);
+}
+
+    ads--CAutoHideDockContainer ads--CDockAreaTitleBar {
+        background: palette(highlight);
+        padding: 0px;
+        border: none;
+    }
+
+    /* 由于 ads--CDockAreaWidget[focused="true"] 会覆盖上面规则，这里再次指定 */
+    ads--CAutoHideDockContainer ads--CDockAreaWidget[focused="true"] ads--CDockAreaTitleBar {
+        background: palette(highlight);
+        padding: 0px;
+        border: none;
+    }
+
+#autoHideTitleLabel {
+    padding-left: 4px;
+    color: palette(light);
+}
+
+/* CAutoHideDockContainer 标题按钮 */
+#dockAreaAutoHideButton {
+    qproperty-icon: url(:/ads/images/vs-pin-button.svg);
+    qproperty-iconSize: 16px;
+}
+
+ads--CAutoHideDockContainer #dockAreaAutoHideButton {
+    qproperty-icon: url(:/ads/images/vs-pin-button-pinned-focused.svg);
+    qproperty-iconSize: 16px;
+}
+
+ads--CAutoHideDockContainer #dockAreaCloseButton {
+    qproperty-icon: url(:/ads/images/close-button-focused.svg)
+}
+
+ads--CAutoHideDockContainer ads--CTitleBarButton:hover {
+    background: rgba(255, 255, 255, 48);
+}
+
+ads--CAutoHideDockContainer ads--CTitleBarButton:pressed {
+    background: rgba(255, 255, 255, 96);
+}
+
+/* CResizeHandle */
+ads--CResizeHandle {
+    background: palette(window);
+}
+
+ads--CAutoHideDockContainer[sideBarLocation="0"] ads--CResizeHandle {
+    border-top: 1px solid palette(dark);
+}
+
+ads--CAutoHideDockContainer[sideBarLocation="1"] ads--CResizeHandle {
+    border-left: 1px solid palette(dark);
+}
+
+ads--CAutoHideDockContainer[sideBarLocation="2"] ads--CResizeHandle {
+    border-right: 1px solid palette(dark);
+}
+
+ads--CAutoHideDockContainer[sideBarLocation="3"] ads--CResizeHandle {
+    border-top: 1px solid palette(dark);
+}
+
+/* Dock 容器内按钮与图标 */
+#dockAreaCloseButton {
+    qproperty-icon: url(:/ads/images/close-button.svg), url(:/ads/images/close-button-disabled.svg) disabled;
+    qproperty-iconSize: 16px;
+}
+
+#detachGroupButton {
+    qproperty-icon: url(:/ads/images/detach-button.svg), url(:/ads/images/detach-button-disabled.svg) disabled;
+    qproperty-iconSize: 16px;
+}
+
+/* CDockWidget 的标题区 */
+ads--CDockWidget {
+    background: $mainBackgroundColor;
+    border-color: $backgroundColor1;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+}
+
+QScrollArea#dockWidgetScrollArea {
+    padding: 0px 0px 0px 8px; /* 左侧留出 8px 间隙，避免编辑框超出窗口显示范围 */
+    border: none;
+}
+
+QStatusBar {
+    color: $textColor;
+}
+
+/* 在文件末尾单独放置 QPushButton 样式，确保不被覆盖 */
+QPushButton {
+    color: $textColor;
+    border-color: $borderColor;
+    background-color: $buttonColor;
+    border: 0px;
+    padding: 3px;
+}
+
+    QPushButton:hover {
+        background-color: $buttonHoverColor;
+    }
+
+/* 针对停靠窗口内的按钮设置最小尺寸，使其与 Delete/Open 等按钮高度一致 */
+ads--CDockWidget QPushButton,
+QDockWidget QPushButton,
+QScrollArea#dockWidgetScrollArea QPushButton {
+    min-width: 50px;
+}
+
+/* Process Monitor top buttons spacing: target buttons with property processMonitorButton = true */
+QPushButton[processMonitorButton="true"] {
+    margin-top: 3px;
+}
+
+/* Preferences dialog buttons: OK, Cancel, Help uniform min width */
+RiuPropertyViewTabWidget QPushButton[preferencesDialogButton],
+QDialog QPushButton[preferencesDialogButton],
+QPushButton[preferencesDialogButton="true"],
+QPushButton[preferencesDialogButton] {
+    min-width: 50px;
+}
+
+/* 结束：自定义 qss 文件 */

@@ -53,12 +53,14 @@ QToolBar {
     QToolBar QToolButton {
         background: transparent;
         border: none;
+        qproperty-iconSize: 24px 24px;
     }
 
     /* If you want to target specific named toolbars (objectName == windowTitle), list them here */
     QToolBar#Standard, QToolBar#View {
         background-color: $topToolbarColor;
         border-bottom: 1px solid $borderColor;
+        qproperty-iconSize: 24px 24px;
     }
 
 
