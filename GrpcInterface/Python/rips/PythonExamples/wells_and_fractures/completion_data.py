@@ -103,7 +103,7 @@ for well in wells:
             txt += fieldValueOrDefaultText(header, "pressure_omponents") + "  "
             txt += fieldValueOrDefaultText(header, "flow_model")
             print(txt)
-            
+
             # Print WELSEGS segment rows
             for row in welsegs_entry.row:
                 txt = "   "
