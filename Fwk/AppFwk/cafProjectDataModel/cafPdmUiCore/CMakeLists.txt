@@ -44,7 +44,7 @@ set(PROJECT_FILES
     cafPdmUiCommandSystemProxy.h
     cafPdmUiTreeOrdering.cpp
     cafPdmUiTreeOrdering.h
-    cafUiTreeItem.h
+    cafUiTreeManager.h
     cafPdmUiGroup.cpp
     cafPdmUiGroup.h
     cafPdmUiLabel.cpp

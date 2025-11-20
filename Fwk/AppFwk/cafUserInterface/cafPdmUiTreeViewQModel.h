@@ -36,8 +36,6 @@
 
 #pragma once
 
-#include "cafUiTreeItem.h"
-
 #include <QAbstractItemModel>
 #include <QStringList>
 

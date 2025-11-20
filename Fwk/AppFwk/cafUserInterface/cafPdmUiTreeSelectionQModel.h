@@ -36,7 +36,7 @@
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafUiTreeItem.h"
+#include "cafUiTreeManager.h"
 
 #include <QAbstractItemModel>
 
@@ -93,11 +93,9 @@ public:
     static bool isMultipleValueField( const QVariant& fieldValue );
 
 private:
-    typedef caf::UiTreeItem<int> TreeItemType;
-
     const caf::PdmOptionItemInfo* optionItem( const QModelIndex& index ) const;
     int                           optionIndex( const QModelIndex& index ) const;
-    void                          buildOptionItemTree( int optionIndex, TreeItemType* parentNode );
+    void                          buildOptionItemTree( int optionIndex, int parentNodeIndex );
 
     void notifyChangedForAllModelIndices();
     void recursiveNotifyChildren( const QModelIndex& index );
@@ -108,7 +106,7 @@ private:
 
     const QVariant* m_uiValueCache;
 
-    TreeItemType* m_tree;
+    caf::UiTreeManager<int> m_treeManager;
 
     bool        m_singleSelectionMode;
     QModelIndex m_indexForLastUncheckedItem;

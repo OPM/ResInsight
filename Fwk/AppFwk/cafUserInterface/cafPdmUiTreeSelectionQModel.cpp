@@ -54,7 +54,6 @@ caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel( QObject* parent /*= 0*/
     : QAbstractItemModel( parent )
     , m_uiFieldHandle( nullptr )
     , m_uiValueCache( nullptr )
-    , m_tree( nullptr )
     , m_singleSelectionMode( false )
     , m_showCheckBoxes( true )
     , m_indexForLastUncheckedItem( QModelIndex() )
@@ -67,9 +66,7 @@ caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel( QObject* parent /*= 0*/
 caf::PdmUiTreeSelectionQModel::~PdmUiTreeSelectionQModel()
 {
     m_uiFieldHandle = nullptr;
-
-    delete m_tree;
-    m_tree = nullptr;
+    m_treeManager.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,14 +221,9 @@ void caf::PdmUiTreeSelectionQModel::setOptions( caf::PdmUiFieldEditorHandle*    
     {
         beginResetModel();
 
-        if ( m_tree )
-        {
-            delete m_tree;
-            m_tree = nullptr;
-        }
-
-        m_tree = new TreeItemType( nullptr, -1, 0 );
-        buildOptionItemTree( 0, m_tree );
+        m_treeManager.clear();
+        int rootIndex = m_treeManager.createRootNode( 0 );
+        buildOptionItemTree( 0, rootIndex );
 
         endResetModel();
     }
@@ -280,7 +272,8 @@ bool caf::PdmUiTreeSelectionQModel::isChecked( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiTreeSelectionQModel::hasGrandChildren() const
 {
-    return m_tree && m_tree->hasGrandChildren();
+    int rootIndex = m_treeManager.getRootIndex();
+    return m_treeManager.isValidIndex( rootIndex ) && m_treeManager.hasGrandChildren( rootIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,11 +293,8 @@ int caf::PdmUiTreeSelectionQModel::optionIndex( const QModelIndex& index ) const
 {
     CAF_ASSERT( index.isValid() );
 
-    TreeItemType* item = static_cast<TreeItemType*>( index.internalPointer() );
-
-    int optionIndex = item->dataObject();
-
-    return optionIndex;
+    int nodeIndex = static_cast<int>( index.internalId() );
+    return m_treeManager.getNodeData( nodeIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,16 +327,15 @@ QModelIndex caf::PdmUiTreeSelectionQModel::index( int row, int column, const QMo
 {
     if ( !hasIndex( row, column, parent ) ) return QModelIndex();
 
-    TreeItemType* parentItem;
-
+    int parentNodeIndex;
     if ( !parent.isValid() )
-        parentItem = m_tree;
+        parentNodeIndex = m_treeManager.getRootIndex();
     else
-        parentItem = static_cast<TreeItemType*>( parent.internalPointer() );
+        parentNodeIndex = static_cast<int>( parent.internalId() );
 
-    TreeItemType* childItem = parentItem->child( row );
-    if ( childItem )
-        return createIndex( row, column, childItem );
+    int childNodeIndex = m_treeManager.getChildIndex( parentNodeIndex, row );
+    if ( m_treeManager.isValidIndex( childNodeIndex ) )
+        return createIndex( row, column, static_cast<quintptr>( childNodeIndex ) );
     else
         return QModelIndex();
 }
@@ -366,12 +355,15 @@ QModelIndex caf::PdmUiTreeSelectionQModel::parent( const QModelIndex& index ) co
 {
     if ( !index.isValid() ) return QModelIndex();
 
-    TreeItemType* childItem  = static_cast<TreeItemType*>( index.internalPointer() );
-    TreeItemType* parentItem = childItem->parent();
+    int childNodeIndex  = static_cast<int>( index.internalId() );
+    int parentNodeIndex = m_treeManager.getParentIndex( childNodeIndex );
 
-    if ( parentItem == m_tree ) return QModelIndex();
+    if ( parentNodeIndex == m_treeManager.getRootIndex() || !m_treeManager.isValidIndex( parentNodeIndex ) )
+        return QModelIndex();
 
-    return createIndex( parentItem->row(), 0, parentItem );
+    int row = m_treeManager.getRow( parentNodeIndex );
+
+    return createIndex( row, 0, static_cast<quintptr>( parentNodeIndex ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,17 +371,17 @@ QModelIndex caf::PdmUiTreeSelectionQModel::parent( const QModelIndex& index ) co
 //--------------------------------------------------------------------------------------------------
 int caf::PdmUiTreeSelectionQModel::rowCount( const QModelIndex& parent /*= QModelIndex()*/ ) const
 {
-    if ( !m_tree ) return 0;
+    if ( m_treeManager.getRootIndex() < 0 ) return 0;
 
     if ( parent.column() > 0 ) return 0;
 
-    TreeItemType* parentItem;
+    int parentNodeIndex;
     if ( !parent.isValid() )
-        parentItem = m_tree;
+        parentNodeIndex = m_treeManager.getRootIndex();
     else
-        parentItem = static_cast<TreeItemType*>( parent.internalPointer() );
+        parentNodeIndex = static_cast<int>( parent.internalId() );
 
-    return parentItem->childCount();
+    return m_treeManager.getChildCount( parentNodeIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,31 +566,32 @@ void caf::PdmUiTreeSelectionQModel::clearIndexForLastUncheckedItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::buildOptionItemTree( int parentOptionIndex, TreeItemType* parentNode )
+void caf::PdmUiTreeSelectionQModel::buildOptionItemTree( int parentOptionIndex, int parentNodeIndex )
 {
-    if ( parentNode == m_tree )
+    if ( !m_treeManager.isValidIndex( parentNodeIndex ) ) return;
+
+    if ( parentNodeIndex == m_treeManager.getRootIndex() )
     {
         for ( int i = 0; i < m_options.size(); i++ )
         {
             if ( m_options[i].level() == 0 )
             {
-                TreeItemType* node = new TreeItemType( parentNode, -1, i );
-
-                buildOptionItemTree( i, node );
+                int nodeIndex = m_treeManager.createNode( i, parentNodeIndex );
+                buildOptionItemTree( i, nodeIndex );
             }
         }
     }
     else
     {
+        int parentData         = m_treeManager.getNodeData( parentNodeIndex );
         int currentOptionIndex = parentOptionIndex + 1;
         while ( currentOptionIndex < m_options.size() &&
-                m_options[currentOptionIndex].level() > m_options[parentNode->dataObject()].level() )
+                m_options[currentOptionIndex].level() > m_options[parentData].level() )
         {
-            if ( m_options[currentOptionIndex].level() == m_options[parentNode->dataObject()].level() + 1 )
+            if ( m_options[currentOptionIndex].level() == m_options[parentData].level() + 1 )
             {
-                TreeItemType* node = new TreeItemType( parentNode, -1, currentOptionIndex );
-
-                buildOptionItemTree( currentOptionIndex, node );
+                int nodeIndex = m_treeManager.createNode( currentOptionIndex, parentNodeIndex );
+                buildOptionItemTree( currentOptionIndex, nodeIndex );
             }
             currentOptionIndex++;
         }

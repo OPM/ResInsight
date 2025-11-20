@@ -21,6 +21,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 set(PROJECT_FILES
     cafPdmBasicTest.cpp
     cafProjectDataModel_UnitTests.cpp
+    cafUiTreeManagerTest.cpp
     Child.cpp
     Parent.cpp
     TestObj.cpp
