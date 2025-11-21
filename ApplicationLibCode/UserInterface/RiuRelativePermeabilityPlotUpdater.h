@@ -48,14 +48,3 @@ protected:
 private:
     QPointer<RiuRelativePermeabilityPlotPanel> m_targetPlotPanel;
 };
-
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class CellLookupHelper
-{
-public:
-    static size_t mapToActiveCellIndex( const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex );
-};

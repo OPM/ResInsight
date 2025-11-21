@@ -29,17 +29,17 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-
 #include "RigFlowDiagInterfaceTools.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
+#include "RimFlowDiagSolution.h"
+
 #include "opm/flowdiagnostics/DerivedQuantities.hpp"
 
 #include "opm/utility/ECLPropertyUnitConversion.hpp"
 #include "opm/utility/ECLPvtCurveCollection.hpp"
 #include "opm/utility/ECLSaturationFunc.hpp"
-
-#include "RimEclipseCase.h"
-#include "RimEclipseResultCase.h"
-#include "RimFlowDiagSolution.h"
 
 #include "cafProgressInfo.h"
 
@@ -661,7 +661,8 @@ RigFlowDiagDefines::FlowCharacteristicsResultFrame
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFlowDiagDefines::RelPermCurve> RigFlowDiagSolverInterface::calculateRelPermCurves( size_t activeCellIndex )
+std::vector<RigFlowDiagDefines::RelPermCurve> RigFlowDiagSolverInterface::calculateRelPermCurves( const std::string& gridName,
+                                                                                                  size_t gridLocalActiveCellIndex )
 {
     using RawCurve = Opm::ECLSaturationFunc::RawCurve;
 
@@ -749,12 +750,11 @@ std::vector<RigFlowDiagDefines::RelPermCurve> RigFlowDiagSolverInterface::calcul
                 scaling.enable = static_cast<unsigned char>( 0 );
             }
 
-            std::string                              gridID = "";
             std::vector<Opm::FlowDiagnostics::Graph> graphArr =
                 m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve( satFuncRequests,
                                                                                m_opmFlowDiagStaticData->m_initData,
-                                                                               gridID,
-                                                                               static_cast<int>( activeCellIndex ),
+                                                                               gridName,
+                                                                               static_cast<int>( gridLocalActiveCellIndex ),
                                                                                scaling );
 
             // Process results - now includes both drainage and imbibition curves
