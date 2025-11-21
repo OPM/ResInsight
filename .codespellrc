@@ -3,7 +3,7 @@
 
 [codespell]
 # Files and patterns to skip during spell checking
-skip = *.svg,*.xml,*.json,*.glsl,*.qss,*gtest*,*.DATA,*.py.orig,*.h.orig,*.cpp.orig,QMinimizePanel.cpp
+skip = *.svg,*.xml,*.json,*.glsl,*.qss,*gtest*,*.DATA,*.py.orig,*.h.orig,*.cpp.orig,QMinimizePanel.cpp,*.inc
 
 # Custom ignore words file for domain-specific terms
 ignore-words = .codespell-ignore
