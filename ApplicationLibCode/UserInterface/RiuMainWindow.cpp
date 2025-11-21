@@ -263,22 +263,22 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
         }
     }
 
-    // Find the project tree and reselect items to trigger the selectionChanged signal. This will make sure that the property view is
-    // updated based on the selection in the main project tree.
-    if ( auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::mainWindowProjectTreeName() ) )
+    // Sync selections with property editor.
+    // Go backwards as the most "important" tree view is first in the list
+    // and we want that to use the property editor in case multiple tree views are visible
+    for ( auto it = m_projectTreeViews.rbegin(); it != m_projectTreeViews.rend(); it++ )
     {
-        if ( auto tree = dynamic_cast<caf::PdmUiTreeView*>( dockWidget->widget() ) )
+        auto projectTree = *it;
+        if ( !projectTree->isVisible() ) continue;
+        std::vector<caf::PdmUiItem*> uiItems;
+        projectTree->selectedUiItems( uiItems );
+
+        if ( !uiItems.empty() )
         {
-            std::vector<caf::PdmUiItem*> uiItems;
-            tree->selectedUiItems( uiItems );
-
-            std::vector<const caf::PdmUiItem*> constSelectedItems;
-            for ( auto item : uiItems )
-            {
-                constSelectedItems.push_back( item );
-            }
-
-            tree->selectItems( constSelectedItems );
+            auto firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>( uiItems.front() );
+            updateUiFieldsFromActiveResult( firstSelectedObject );
+            m_pdmUiPropertyView->showProperties( firstSelectedObject );
+            m_seismicHistogramPanel->showHistogram( firstSelectedObject );
         }
     }
 }
@@ -1517,9 +1517,7 @@ void RiuMainWindow::selectedObjectsChanged()
     }
 
     updateUiFieldsFromActiveResult( firstSelectedObject );
-
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
-
     m_seismicHistogramPanel->showHistogram( firstSelectedObject );
 
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
