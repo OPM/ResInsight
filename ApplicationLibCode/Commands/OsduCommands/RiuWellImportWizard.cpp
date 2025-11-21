@@ -18,10 +18,6 @@
 
 #include "RiuWellImportWizard.h"
 
-#include "RiaFeatureCommandContext.h"
-
-#include "cafCmdFeatureMenuBuilder.h"
-
 #include <QAbstractTableModel>
 #include <QObject>
 #include <QString>
@@ -29,7 +25,6 @@
 #include <QtNetwork>
 #include <QtWidgets>
 
-#include <algorithm>
 #include <optional>
 #include <vector>
 
@@ -91,7 +86,7 @@ void RiuWellImportWizard::slotAuthenticationRequired( QNetworkReply* networkRepl
 void RiuWellImportWizard::downloadWells( const QString& fieldId )
 {
     m_osduConnector->clearCachedData();
-    m_osduConnector->requestWellsByFieldId( fieldId );
+    m_osduConnector->requestWellboresByFieldId( fieldId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,8 +380,7 @@ WellSelectionPage::WellSelectionPage( RiaOsduConnector* osduConnector, QWidget* 
     QObject::connect( filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterWildcard );
 
     m_osduConnector = osduConnector;
-    connect( m_osduConnector, SIGNAL( wellsFinished() ), SLOT( wellsFinished() ) );
-    connect( m_osduConnector, SIGNAL( wellboresFinished( const QString& ) ), SLOT( wellboresFinished( const QString& ) ) );
+    connect( m_osduConnector, SIGNAL( wellboresByFieldIdFinished( const QString& ) ), SLOT( wellboresByFieldIdFinished( const QString& ) ) );
 
     connect( m_tableView->selectionModel(),
              SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
@@ -421,22 +415,38 @@ WellSelectionPage::~WellSelectionPage()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WellSelectionPage::wellsFinished()
+void WellSelectionPage::wellboresByFieldIdFinished( const QString& fieldId )
 {
-    std::vector<OsduWell> wells = m_osduConnector->wells();
-    for ( auto w : wells )
-    {
-        m_osduConnector->requestWellboresByWellId( w.id );
-    }
-}
+    RiuWellImportWizard* wiz             = dynamic_cast<RiuWellImportWizard*>( wizard() );
+    QString              selectedFieldId = wiz->selectedFieldId();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void WellSelectionPage::wellboresFinished( const QString& wellId )
-{
-    std::vector<OsduWellbore> wellbores = m_osduConnector->wellbores( wellId );
-    if ( !wellbores.empty() ) m_osduWellboresModel->setOsduWellbores( wellId, wellbores );
+    std::vector<OsduWellbore> wellbores = m_osduConnector->wellboresByFieldId( selectedFieldId );
+
+    // Extract unique well IDs from wellbores
+    std::set<QString> uniqueWellIds;
+    for ( const auto& wellbore : wellbores )
+    {
+        if ( !wellbore.wellId.isEmpty() )
+        {
+            uniqueWellIds.insert( wellbore.wellId );
+        }
+    }
+
+    // Request wells for each unique well ID
+    for ( const QString& wellId : uniqueWellIds )
+    {
+        // For now, we just populate the wellbores directly since we already have them
+        // The wellId is already in the wellbore structure
+        std::vector<OsduWellbore> wellboresForWell;
+        for ( const auto& wellbore : wellbores )
+        {
+            if ( wellbore.wellId == wellId )
+            {
+                wellboresForWell.push_back( wellbore );
+            }
+        }
+        m_osduWellboresModel->setOsduWellbores( wellId, wellboresForWell );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,38 +526,14 @@ void WellSummaryPage::initializePage()
 void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId, int numTrajectories, const QString& errorMessage )
 {
     std::vector<OsduWellboreTrajectory> wellboreTrajectories = m_osduConnector->wellboreTrajectories( wellboreId );
-    std::vector<OsduWell>               wells                = m_osduConnector->wells();
-
-    auto findWellboreById = []( const std::vector<OsduWellbore>& wellbores, const QString& wellboreId ) -> std::optional<const OsduWellbore>
-    {
-        auto it = std::find_if( wellbores.begin(), wellbores.end(), [wellboreId]( const OsduWellbore& w ) { return w.id == wellboreId; } );
-        if ( it != wellbores.end() )
-            return std::optional<const OsduWellbore>( *it );
-        else
-            return {};
-    };
-
-    auto findWellForWellId = []( const std::vector<OsduWell>& wells, const QString& wellId ) -> std::optional<const OsduWell>
-    {
-        auto it = std::find_if( wells.begin(), wells.end(), [wellId]( const OsduWell& w ) { return w.id == wellId; } );
-        if ( it != wells.end() )
-            return std::optional<const OsduWell>( *it );
-        else
-            return {};
-    };
 
     RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
 
     {
         QMutexLocker lock( &m_mutex );
 
-        QString                       wellId = m_osduConnector->wellIdForWellboreId( wellboreId );
-        std::optional<const OsduWell> well   = findWellForWellId( wells, wellId );
-
-        std::vector<OsduWellbore>         wellbores = m_osduConnector->wellbores( wellId );
-        std::optional<const OsduWellbore> wellbore  = findWellboreById( wellbores, wellboreId );
-
-        if ( well.has_value() && wellbore.has_value() )
+        std::optional<OsduWellbore> wellbore = m_osduConnector->wellboreById( wellboreId );
+        if ( wellbore.has_value() )
         {
             if ( !errorMessage.isEmpty() )
             {
@@ -562,7 +548,7 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId, int
             {
                 QString wellboreTrajectoryId = w.id;
                 wiz->addWellInfo( { .name                 = wellbore.value().name,
-                                    .wellId               = well.value().id,
+                                    .wellId               = wellbore.value().wellId,
                                     .wellboreId           = w.wellboreId,
                                     .wellboreTrajectoryId = wellboreTrajectoryId,
                                     .datumElevation       = wellbore.value().datumElevation } );

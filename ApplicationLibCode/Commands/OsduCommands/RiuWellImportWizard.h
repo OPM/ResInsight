@@ -323,8 +323,7 @@ public:
     bool isComplete() const override;
 
 private slots:
-    void wellboresFinished( const QString& wellId );
-    void wellsFinished();
+    void wellboresByFieldIdFinished( const QString& fieldId );
     void selectWellbore( const QItemSelection& newSelection, const QItemSelection& oldSelection );
 
 private:

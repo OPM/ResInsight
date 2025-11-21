@@ -63,7 +63,6 @@ void RiaOsduConnector::clearCachedData()
 {
     QMutexLocker lock( &m_mutex );
     m_fields.clear();
-    m_wells.clear();
     m_wellbores.clear();
     m_wellboreTrajectories.clear();
     m_wellLogs.clear();
@@ -118,18 +117,18 @@ void RiaOsduConnector::requestFieldsByName( const QString& server, const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::requestWellsByFieldId( const QString& fieldId )
+void RiaOsduConnector::requestWellboresByFieldId( const QString& fieldId )
 {
-    requestWellsByFieldId( m_server, m_dataPartitionId, token(), fieldId );
+    requestWellboresByFieldId( m_server, m_dataPartitionId, token(), fieldId );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::requestWellsByFieldId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fieldId )
+void RiaOsduConnector::requestWellboresByFieldId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& fieldId )
 {
     std::map<QString, QString> params;
-    params["kind"]  = RiaOsduDefines::osduWellKind();
+    params["kind"]  = RiaOsduDefines::osduWellboreKind();
     params["limit"] = "10000";
     params["query"] = QString( "nested(data.GeoContexts, (FieldID:\"%1\"))" ).arg( fieldId );
 
@@ -140,48 +139,12 @@ void RiaOsduConnector::requestWellsByFieldId( const QString& server, const QStri
              {
                  if ( reply->error() == QNetworkReply::NoError )
                  {
-                     parseWells( reply );
+                     parseWellboresByFieldId( reply, fieldId );
                  }
                  else
                  {
                      QString errorMessage =
-                         QString( "Request failed for wells for field (%1). Error: %2" ).arg( fieldId ).arg( reply->errorString() );
-                     RiaLogging::error( errorMessage );
-                 }
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::requestWellboresByWellId( const QString& wellId )
-{
-    requestWellboresByWellId( m_server, m_dataPartitionId, token(), wellId );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::requestWellboresByWellId( const QString& server, const QString& dataPartitionId, const QString& token, const QString& wellId )
-{
-    std::map<QString, QString> params;
-    params["kind"]  = RiaOsduDefines::osduWellboreKind();
-    params["limit"] = "10000";
-    params["query"] = "data.WellID: \"" + wellId + "\"";
-
-    auto reply = makeSearchRequest( params, server, dataPartitionId, token );
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, wellId]()
-             {
-                 if ( reply->error() == QNetworkReply::NoError )
-                 {
-                     parseWellbores( reply, wellId );
-                 }
-                 else
-                 {
-                     QString errorMessage =
-                         QString( "Request failed for wellbores for well (%1). Error: %2" ).arg( wellId ).arg( reply->errorString() );
+                         QString( "Request failed for wellbores for field (%1). Error: %2" ).arg( fieldId ).arg( reply->errorString() );
                      RiaLogging::error( errorMessage );
                  }
              } );
@@ -376,7 +339,7 @@ void RiaOsduConnector::parseFields( QNetworkReply* reply )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::parseWells( QNetworkReply* reply )
+void RiaOsduConnector::parseWellboresByFieldId( QNetworkReply* reply, const QString& fieldId )
 {
     QByteArray result = reply->readAll();
     reply->deleteLater();
@@ -389,44 +352,14 @@ void RiaOsduConnector::parseWells( QNetworkReply* reply )
 
         {
             QMutexLocker lock( &m_mutex );
-            m_wells.clear();
+            m_wellbores[fieldId].clear();
             for ( const QJsonValue& value : resultsArray )
             {
                 QJsonObject resultObj = value.toObject();
                 QString     id        = resultObj["id"].toString();
                 QString     kind      = resultObj["kind"].toString();
                 QString     name      = resultObj["data"].toObject()["FacilityName"].toString();
-                m_wells.push_back( OsduWell{ id, kind, name } );
-            }
-        }
-
-        emit wellsFinished();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaOsduConnector::parseWellbores( QNetworkReply* reply, const QString& wellId )
-{
-    QByteArray result = reply->readAll();
-    reply->deleteLater();
-
-    if ( reply->error() == QNetworkReply::NoError )
-    {
-        QJsonDocument doc          = QJsonDocument::fromJson( result );
-        QJsonObject   jsonObj      = doc.object();
-        QJsonArray    resultsArray = jsonObj["results"].toArray();
-
-        {
-            QMutexLocker lock( &m_mutex );
-            m_wellbores[wellId].clear();
-            for ( const QJsonValue& value : resultsArray )
-            {
-                QJsonObject resultObj = value.toObject();
-                QString     id        = resultObj["id"].toString();
-                QString     kind      = resultObj["kind"].toString();
-                QString     name      = resultObj["data"].toObject()["FacilityName"].toString();
+                QString     wellId    = resultObj["data"].toObject()["WellID"].toString();
 
                 // Extract datum elevation. The DefaultVerticalMeasurementID is probably the datum elevation needed.
                 // Default to 0.0 if nothing is found, but finding nothing is suspicious.
@@ -449,15 +382,15 @@ void RiaOsduConnector::parseWellbores( QNetworkReply* reply, const QString& well
                     datumElevation = 0.0;
                 }
 
-                m_wellbores[wellId].push_back( OsduWellbore{ id, kind, name, wellId, datumElevation } );
+                m_wellbores[fieldId].push_back( OsduWellbore{ id, kind, name, wellId, fieldId, datumElevation } );
             }
         }
 
-        emit wellboresFinished( wellId );
+        emit wellboresByFieldIdFinished( fieldId );
     }
     else
     {
-        RiaLogging::error( "Failed to download well with id " + wellId + ": " + reply->errorString() );
+        RiaLogging::error( "Failed to download wellbores for field with id " + fieldId + ": " + reply->errorString() );
     }
 }
 
@@ -617,15 +550,6 @@ std::vector<OsduField> RiaOsduConnector::fields() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<OsduWell> RiaOsduConnector::wells() const
-{
-    QMutexLocker lock( &m_mutex );
-    return m_wells;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<OsduWellLog> RiaOsduConnector::wellLogs( const QString& wellboreId ) const
 {
     QMutexLocker lock( &m_mutex );
@@ -639,11 +563,11 @@ std::vector<OsduWellLog> RiaOsduConnector::wellLogs( const QString& wellboreId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<OsduWellbore> RiaOsduConnector::wellbores( const QString& wellId ) const
+std::vector<OsduWellbore> RiaOsduConnector::wellboresByFieldId( const QString& fieldId ) const
 {
     QMutexLocker lock( &m_mutex );
 
-    auto it = m_wellbores.find( wellId );
+    auto it = m_wellbores.find( fieldId );
     if ( it != m_wellbores.end() ) return it->second;
 
     return {};
@@ -652,26 +576,20 @@ std::vector<OsduWellbore> RiaOsduConnector::wellbores( const QString& wellId ) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaOsduConnector::wellIdForWellboreId( const QString& wellboreId ) const
+std::optional<OsduWellbore> RiaOsduConnector::wellboreById( const QString& wellboreId ) const
 {
-    auto findWellIdForWellboreId = []( const std::vector<OsduWellbore>& wellbores, const QString& wellboreId )
+    QMutexLocker lock( &m_mutex );
+
+    for ( const auto& [fieldId, wellbores] : m_wellbores )
     {
         auto it = std::find_if( wellbores.begin(), wellbores.end(), [wellboreId]( const OsduWellbore& w ) { return w.id == wellboreId; } );
-        if ( it != wellbores.end() ) return it->wellId;
-
-        return QString();
-    };
-
-    QMutexLocker lock( &m_mutex );
-    for ( auto [wellId, wellbores] : m_wellbores )
-    {
-        if ( auto res = findWellIdForWellboreId( wellbores, wellboreId ); !res.isEmpty() )
+        if ( it != wellbores.end() )
         {
-            return wellId;
+            return *it;
         }
     }
 
-    return QString();
+    return std::nullopt;
 }
 
 //--------------------------------------------------------------------------------------------------
