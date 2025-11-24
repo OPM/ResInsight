@@ -21,9 +21,13 @@
 #include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 #include "cafVecIjk.h"
 
 #include "RiaModelExportDefines.h"
+
+#include <QString>
+#include <QStringList>
 
 class RimKeywordBcprop;
 class RimEclipseCase;
