@@ -31,6 +31,8 @@ set(PROJECT_FILES
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.cpp
     cafPdmUiComboBoxEditor.h
+    cafPdmUiRadioButtonEditor.cpp
+    cafPdmUiRadioButtonEditor.h
     cafPdmUiDateEditor.cpp
     cafPdmUiDateEditor.h
     cafPdmUiTimeEditor.cpp
