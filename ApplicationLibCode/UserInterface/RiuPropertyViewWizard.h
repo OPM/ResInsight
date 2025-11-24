@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025   Equinor ASA
+//  Copyright (C) 2025 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,23 +18,31 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <QStringList>
+#include <QWizard>
 
-class RimEclipseView;
-class RicExportSectorModelUi;
-
-//==================================================================================================
-///
-//==================================================================================================
-class RicExportSectorModelFeature : public caf::CmdFeature
+namespace caf
 {
-    CAF_CMD_HEADER_INIT;
+class PdmObject;
+class PdmUiPropertyView;
+} // namespace caf
 
+class QWidget;
+class QString;
+
+class RiuPropertyViewWizard : public QWizard
+{
 public:
-    void doExport( const RicExportSectorModelUi& exportSettings, RimEclipseView* view );
+    RiuPropertyViewWizard( QWidget*           parent,
+                           caf::PdmObject*    object,
+                           const QString&     windowTitle,
+                           const QStringList& uiConfigNameForPages,
+                           const QStringList& pageSubtitles );
+    ~RiuPropertyViewWizard() override;
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    QSize minimumSizeHint() const override;
+    QSize sizeHint() const override;
+
+private:
+    std::vector<caf::PdmUiPropertyView*> m_pageWidgets;
 };

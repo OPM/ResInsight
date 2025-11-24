@@ -14,6 +14,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseSectorModelFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseSectorModelUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportSectorModelFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportSectorModelUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllPlotsToFileFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllViewsToFileFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotFilenameGenerator.h
@@ -47,6 +48,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseSectorModelFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseSectorModelUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportSectorModelFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportSectorModelUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseResultAsInputPropertyExec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseResultAsInputPropertyFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllPlotsToFileFeature.cpp

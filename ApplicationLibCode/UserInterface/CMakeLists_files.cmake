@@ -21,6 +21,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewWizard.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotWidget.h
@@ -137,6 +138,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewWizard.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotWidget.cpp
