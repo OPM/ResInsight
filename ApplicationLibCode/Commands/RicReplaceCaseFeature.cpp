@@ -74,6 +74,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
     const auto& fileName = fileNames.front();
 
     eclipseResultCase->setGridFileName( fileName );
+    eclipseResultCase->setFilesContainingFaults( {} );
     eclipseResultCase->reloadEclipseGridFile();
 
     std::vector<RimTimeStepFilter*> timeStepFilter = eclipseResultCase->descendantsIncludingThisOfType<RimTimeStepFilter>();
