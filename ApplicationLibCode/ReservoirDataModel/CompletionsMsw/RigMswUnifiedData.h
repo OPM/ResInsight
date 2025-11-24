@@ -26,10 +26,10 @@
 //==================================================================================================
 /// Container class for unified MSW table data from multiple wells
 //==================================================================================================
-class RigMswUnifiedDataWIP
+class RigMswUnifiedData
 {
 public:
-    RigMswUnifiedDataWIP() = default;
+    RigMswUnifiedData() = default;
 
     // Data modification
     void addWellData( RigMswTableData wellData );
@@ -37,14 +37,11 @@ public:
 
     // Data access
     const std::vector<RigMswTableData>& wellDataList() const { return m_wellDataList; }
-    const RigMswTableData*              getWellData( const std::string& wellName ) const;
 
     // Aggregated data access - combines data from all wells
-    std::vector<WelsegsHeader> getAllWelsegsHeaders() const;
-    std::vector<WelsegsRow>    getAllWelsegsRows() const;
-    std::vector<CompsegsRow>   getAllCompsegsRows( bool lgrOnly = false ) const;
-    std::vector<WsegvalvRow>   getAllWsegvalvRows() const;
-    std::vector<WsegaicdRow>   getAllWsegaicdRows() const;
+    std::vector<CompsegsRow> getAllCompsegsRows( bool lgrOnly = false ) const;
+    std::vector<WsegvalvRow> getAllWsegvalvRows() const;
+    std::vector<WsegaicdRow> getAllWsegaicdRows() const;
 
     // Metadata and analysis
     bool                     isEmpty() const { return m_wellDataList.empty(); }
@@ -56,15 +53,6 @@ public:
     bool                 isValid() const;
     std::vector<QString> validationErrors() const;
 
-    // Iterator support for range-based loops
-    auto begin() const { return m_wellDataList.begin(); }
-    auto end() const { return m_wellDataList.end(); }
-    auto begin() { return m_wellDataList.begin(); }
-    auto end() { return m_wellDataList.end(); }
-
 private:
-    std::vector<RigMswTableData>  m_wellDataList;
-    std::map<std::string, size_t> m_wellNameToIndex;
-
-    void updateIndex();
+    std::vector<RigMswTableData> m_wellDataList;
 };

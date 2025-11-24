@@ -38,6 +38,8 @@ public:
         , m_valid( false )
     {
     }
+
+    virtual ~RicMswValveAccumulator() = default;
     virtual bool accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength ) = 0;
     virtual void applyToSuperValve() = 0;
 

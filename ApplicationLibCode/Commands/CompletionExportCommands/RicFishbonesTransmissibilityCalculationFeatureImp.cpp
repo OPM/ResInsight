@@ -24,7 +24,7 @@
 #include "RicMswExportInfo.h"
 #include "RicMswSegment.h"
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
-#include "RicWellPathExportMswCompletionsImpl.h"
+#include "RicWellPathExportMswTableData.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCompletionData.h"
@@ -88,7 +88,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
 
     std::map<size_t, std::vector<WellBorePartForTransCalc>> wellBorePartsInCells; // wellBore = main bore or fishbone
                                                                                   // lateral
-    findFishboneLateralsWellBoreParts( wellBorePartsInCells, wellPath, settings );
+    findFishboneLateralsWellBoreParts( wellBorePartsInCells, wellPath, settings.caseToApply() );
 
     const RigActiveCellInfo* activeCellInfo =
         settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -191,12 +191,12 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
 void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWellBoreParts(
     std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
     const RimWellPath*                                       wellPath,
-    const RicExportCompletionDataSettingsUi&                 settings )
+    const RimEclipseCase*                                    eclipseCase )
 {
     if ( !wellPath || !wellPath->wellPathGeometry() || wellPath->wellPathGeometry()->measuredDepths().size() < 2 ) return;
 
     // Generate data
-    const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
+    const RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
 
     auto                          mswParameters = wellPath->mswCompletionParameters();
     RiaDefines::EclipseUnitSystem unitSystem    = caseData->unitsType();
@@ -207,10 +207,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                                  mswParameters->lengthAndDepth().text(),
                                  mswParameters->pressureDrop().text() );
 
-    RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfoForWell( settings.caseToApply(),
-                                                                                wellPath,
-                                                                                &exportInfo,
-                                                                                exportInfo.mainBoreBranch() );
+    RicWellPathExportMswTableData::generateFishbonesMswExportInfoForWell( eclipseCase, wellPath, &exportInfo, exportInfo.mainBoreBranch() );
 
     bool isMainBore = false;
 
@@ -271,7 +268,14 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                     endMD += 0.5;
                 }
 
-                appendMainWellBoreParts( wellBorePartsInCells, wellPath, settings, skinFactor, holeRadius, startMD, endMD, fishboneDefinition );
+                appendMainWellBoreParts( wellBorePartsInCells,
+                                         wellPath,
+                                         eclipseCase->eclipseCaseData(),
+                                         skinFactor,
+                                         holeRadius,
+                                         startMD,
+                                         endMD,
+                                         fishboneDefinition );
             }
         }
     }
@@ -283,7 +287,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
     std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
     const RimWellPath*                                       wellPath,
-    const RicExportCompletionDataSettingsUi&                 settings,
+    const RigEclipseCaseData*                                eclipseCaseData,
     double                                                   skinFactor,
     double                                                   holeRadius,
     double                                                   startMeasuredDepth,
@@ -300,7 +304,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
         wellPath->wellPathGeometry()->clippedPointSubset( startMeasuredDepth, endMeasuredDepth );
 
     std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo =
-        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( settings.caseToApply->eclipseCaseData(),
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCaseData,
                                                                           wellPath->name(),
                                                                           fishbonePerfWellPathCoords.first,
                                                                           fishbonePerfWellPathCoords.second );
