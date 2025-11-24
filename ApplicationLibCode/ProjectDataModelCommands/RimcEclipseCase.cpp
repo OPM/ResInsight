@@ -144,7 +144,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_exportValuesIntern
         return std::unexpected( "Result property not found." );
     }
 
-    if ( m_timeStep < 0 || m_timeStep >= static_cast<int>( eclipseCase->timeStepDates().size() ) )
+    // Num timesteps can be zero for roff cases.
+    int numTimesteps = static_cast<int>( eclipseCase->timeStepDates().size() );
+    if ( m_timeStep < 0 || ( m_timeStep >= numTimesteps && numTimesteps != 0 ) )
     {
         return std::unexpected( "Invalid time step." );
     }

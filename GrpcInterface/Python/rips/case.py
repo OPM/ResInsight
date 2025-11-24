@@ -1337,7 +1337,7 @@ def set_nnc_connections_values(
         raise IndexError
 
 
-@add_method(EclipseCase)
+@add_method(Reservoir)
 def grid_property_for_positions(
     self,
     positions: List[List[float]],
