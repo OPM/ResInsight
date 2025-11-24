@@ -1,0 +1,322 @@
+-- This reservoir simulation deck is made available under the Open Database
+-- License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in
+-- individual contents of the database are licensed under the Database Contents
+-- License: http://opendatacommons.org/licenses/dbcl/1.0/
+
+-- Copyright (C) 2018 Equinor
+
+-- Testing hysteresis option, keyword SATOPTS, EHYSTR, ISGL, ISGU, ISWCR, ISWL, IMBNUM.
+
+-- ------------------------------------------------------------------------
+-- ----------------------- BASE MODEL 1 -----------------------------------
+-- ------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------
+RUNSPEC
+------------------------------------------------------------------------------------------------
+
+
+DIMENS
+ 13 22 11 /
+
+
+OIL
+WATER
+GAS
+DISGAS
+VAPOIL
+
+METRIC
+
+START
+ 01  'NOV' 2018 /
+
+--
+GRIDOPTS
+ 'YES'	      0 / 
+
+SATOPTS
+ HYSTER  /
+
+EQLDIMS
+ 2 1*  25 /
+
+
+EQLOPTS
+ THPRES  /   
+
+
+REGDIMS
+-- max. ntfip  nmfipr  max. nrfreg   max. ntfreg
+   2          1       1*            2    /
+
+--
+WELLDIMS
+--max.well  max.con/well  max.grup  max.w/grup
+ 10	    15 	          3	     10   /
+
+--
+TABDIMS
+--ntsfun     ntpvt  max.nssfun  max.nppvt  max.ntfip  max.nrpvt
+  10          1      50          60         2         60 /
+
+
+VFPPDIMS
+--max.rate  max.THP   max.fw   max.fg	max.ALQ    max.tabs
+  40	    20        20       20	0	   60	    /
+
+--
+FAULTDIM
+120 / max. number os fault segments
+
+
+UNIFIN
+UNIFOUT
+
+LGR
+--MAXLGR MAXCLS MCOARS MAMALG MXLALG LSTACK Pressure NCHCOR
+       3   1500      0      0      0     1*      1*  /
+
+------------------------------------------------------------------------------------------------
+GRID
+------------------------------------------------------------------------------------------------
+
+--
+NEWTRAN
+
+--
+GRIDFILE
+0  1/
+
+--
+INIT
+
+
+--
+PINCH
+ 0.001   GAP  1*   TOPBOT   ALL /
+
+MINPVV
+ 1144*100 2002*300 /
+
+
+
+INCLUDE
+ 'include/mod2a_13x22x11.grdecl' /
+
+INCLUDE
+ 'include/fluxmun.grdecl' /
+
+
+INCLUDE
+ 'include/faults.grdecl' /
+
+
+INCLUDE
+ 'include/poro.grdecl' /
+
+INCLUDE
+ 'include/permx.grdecl' /
+
+INCLUDE
+ 'include/ntg.grdecl' /
+
+
+INCLUDE
+ 'include/multz.grdecl' /
+
+INCLUDE
+ 'include/multx.grdecl' /
+
+INCLUDE
+ 'include/multy.grdecl' /
+
+COPY
+ PERMX PERMY /
+/
+
+
+INCLUDE
+ 'include/permz.grdecl'/
+ 
+
+--MULTREGT 
+-- 1  2	 0.0  2* F / 
+--/
+
+
+RPTGRID
+ 'ALLNNC' /
+ 
+
+CARFIN
+--Name  I1 I2  J1 J2  K1 K2  NX NY NZ
+  LGR1   6  8   6  7   1  2   6  4  4 /
+
+MINPVV
+ 96*5 /
+
+CARFIN
+--Name  I1 I2  J1 J2  K1 K2  NX NY NZ
+  LGR2   2  5   2  3   1  2   8  4  2 0 LGR1 /
+
+MINPVV
+ 64*1 /
+
+
+CARFIN
+--Name  I1 I2  J1 J2  K1 K2  NX NY NZ
+  LGR3  10 13  17 19   6 11  12  9 12 /
+
+MINPVV
+ 1296*5 /
+
+ENDFIN
+ 
+------------------------------------------------------------------------------------------------  
+EDIT
+------------------------------------------------------------------------------------------------
+
+MULTFLT
+ 'F1'  0.1 /
+ 'F2'  0.2 /
+ 'F3'  0.3 /
+ 'F4'  0.4 /
+/
+ 
+
+------------------------------------------------------------------------------------------------
+PROPS
+------------------------------------------------------------------------------------------------
+
+NOECHO
+
+INCLUDE
+ 'include/norne_pvt.inc' /
+
+INCLUDE
+ 'include/rock.inc' /
+
+INCLUDE
+ 'include/relperm_ow.inc' /
+
+INCLUDE
+ 'include/relperm_go.inc' /
+
+INCLUDE
+ 'include/swatinit.grdecl' /
+
+ 
+INCLUDE
+ 'include/swl.grdecl' /
+
+-- SWCR = SWL
+COPY
+  SWL  SWCR /
+/
+
+EQUALS
+ 'SGL' 0.0 /
+/
+
+-- SGU = 1-SWL
+INCLUDE
+ 'include/sgu.grdecl' /
+
+
+EHYSTR
+      0.1  1  0.1 1* KR /
+
+
+COPY
+ 'SGL' 'ISGL'   /
+ 'SGU' 'ISGU'   /
+ 'SWCR' 'ISWCR' /
+ 'SWL' 'ISWL'   /
+/
+
+EPSDEBUG
+-- IX1 IX2 IY1 IY2 IZ1 IZ2  TAB    GRID HYST
+    7   7    1   1   7   7    0  GLOBAL    0 /
+
+EPSDEBUG
+-- IX1 IX2 IY1 IY2 IZ1 IZ2  TAB    GRID HYST
+    12  12   5   5   8   8    0    LGR3    0 /
+
+
+------------------------------------------------------------------------------------------------
+REGIONS
+------------------------------------------------------------------------------------------------
+
+INCLUDE
+ 'include/eqlnum.grdecl' /
+
+INCLUDE
+ 'include/fipnum.grdecl' /
+
+INCLUDE
+ 'include/satnum.grdecl' /
+
+INCLUDE
+ 'include/imbnum.grdecl' /
+
+------------------------------------------------------------------------------------------------
+SOLUTION
+------------------------------------------------------------------------------------------------
+
+
+RPTRST
+  'BASIC = 2' 'PBPD' /
+
+EQUIL
+-- Datum    P     woc     Pc   goc    Pc  Rsvd  Rvvd
+ 2561.59  268.55  2645.21   0.0 2561.59  0.0   1   0   0 /  
+ 2584.20  268.71 2685.21   0.0 2584.20  0.0   5   0   0 /   
+
+RSVD
+ 2561.59  122.30
+ 2597.0  110.00
+ 2660.7  106.77
+ 2697.0  106.77 /
+
+ 2584.20  122.41
+ 2599.9  110.00
+ 2663.6  106.77
+ 2699.9  106.77 /
+
+
+THPRES
+ 1  2 /
+/
+
+
+------------------------------------------------------------------------------------------------
+SUMMARY
+------------------------------------------------------------------------------------------------
+
+
+INCLUDE
+ 'include/summary.inc' /
+
+
+------------------------------------------------------------------------------------------------
+SCHEDULE
+------------------------------------------------------------------------------------------------
+ 
+RPTRST
+ 'BASIC=2' /
+
+TUNING
+ 1* 0.5 /
+ /
+ /
+
+INCLUDE
+ 'include/D-1.Ecl' / 
+
+
+INCLUDE
+ 'include/hist_schedule.sch' /
+
+ 
+END

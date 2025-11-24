@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ResInsightProject>
-    <DocumentFileName>C:/gitroot/ResInsight/TestModels/msw-export/project-files/perf_aicd.rsp</DocumentFileName>
+    <DocumentFileName>C:/gitroot/ResInsight/TestModels/msw-export/project-files/two_wells.rsp</DocumentFileName>
     <ProjectFileVersionString>2025.09.4-dev.02</ProjectFileVersionString>
     <ReferencedExternalFiles>
         $PathId_001$ C:/gitroot/ResInsight/TestModels/msw-export/opm-simulation-reference/BASE_MODEL_1.EGRID;
@@ -366,7 +366,7 @@
                                             </ReservoirSurfaceResultDefColl>
                                             <GridCollection>
                                                 <GridCollection>
-                                                    <IsActive>False </IsActive>
+                                                    <IsActive>True </IsActive>
                                                     <MainGrid>
                                                         <GridInfo>
                                                             <IsActive>True </IsActive>
@@ -1079,10 +1079,10 @@
                                                     <AddSampleSpacing>False </AddSampleSpacing>
                                                 </RimViewNameConfig>
                                             </NameConfig>
-                                            <CameraPosition>-0.967155222606826 -0.206275759349899 0.148529749508181 1008.21173953321 0.147463959923488 0.0206203041309467 0.988852457943667 -743.415694354018 -0.207039020254696 0.978276604116734 0.0104752054779744 -2341.28355863008 0 0 0 1</CameraPosition>
-                                            <CameraPointOfInterest>1216.69443106598 1656.36188012115 501.172276252353</CameraPointOfInterest>
-                                            <CameraPositionProxy>-0.967155222606826 -0.206275759349899 0.148529749508181 1008.21173953321 0.147463959923488 0.0206203041309467 0.988852457943667 -743.415694354018 -0.207039020254696 0.978276604116734 0.0104752054779744 -2341.28355863008 0 0 0 1</CameraPositionProxy>
-                                            <CameraPointOfInterestProxy>1216.69443106598 1656.36188012115 501.172276252353</CameraPointOfInterestProxy>
+                                            <CameraPosition>-0.680664039507489 0.719291506084811 0.138982713297706 -898.943881453335 -0.17691384210483 -0.345485725382072 0.92159704102657 -379.255128571302 0.710913467162534 0.602709998947643 0.36241233336557 -7677.41559943489 0 0 0 1</CameraPosition>
+                                            <CameraPointOfInterest>5.16684795681658 2322.61551929043 598.023098712781</CameraPointOfInterest>
+                                            <CameraPositionProxy>-0.680664039507489 0.719291506084811 0.138982713297706 -898.943881453335 -0.17691384210483 -0.345485725382072 0.92159704102657 -379.255128571302 0.710913467162534 0.602709998947643 0.36241233336557 -7677.41559943489 0 0 0 1</CameraPositionProxy>
+                                            <CameraPointOfInterestProxy>5.16684795681658 2322.61551929043 598.023098712781</CameraPointOfInterestProxy>
                                             <PerspectiveProjection>True </PerspectiveProjection>
                                             <GridZScale>5</GridZScale>
                                             <BackgroundColor>0.689997732639313 0.770000755786896 0.869993150234222</BackgroundColor>
@@ -1305,7 +1305,7 @@
                                             </ReservoirSurfaceResultDefColl>
                                             <GridCollection>
                                                 <GridCollection>
-                                                    <IsActive>False </IsActive>
+                                                    <IsActive>True </IsActive>
                                                     <MainGrid>
                                                         <GridInfo>
                                                             <IsActive>True </IsActive>
@@ -1365,7 +1365,22 @@
                                                 <CellFilterCollection>
                                                     <Active>True </Active>
                                                     <CombineFilterMode>AND</CombineFilterMode>
-                                                    <CellFilters/>
+                                                    <CellFilters>
+                                                        <CellRangeFilter>
+                                                            <UserDescription>Range Filter 1</UserDescription>
+                                                            <Active>True </Active>
+                                                            <Case>.. .. .. ..</Case>
+                                                            <FilterType>INCLUDE</FilterType>
+                                                            <GridIndex>0</GridIndex>
+                                                            <PropagateToSubGrids>True </PropagateToSubGrids>
+                                                            <StartIndexI>1</StartIndexI>
+                                                            <CellCountI>6</CellCountI>
+                                                            <StartIndexJ>1</StartIndexJ>
+                                                            <CellCountJ>8</CellCountJ>
+                                                            <StartIndexK>7</StartIndexK>
+                                                            <CellCountK>1</CellCountK>
+                                                        </CellRangeFilter>
+                                                    </CellFilters>
                                                 </CellFilterCollection>
                                             </RangeFilters>
                                             <CustomEclipseCase></CustomEclipseCase>
@@ -1935,7 +1950,7 @@
                     <WellPaths>
                         <ModeledWellPath>
                             <Name>Well-1</Name>
-                            <AirGap>inf</AirGap>
+                            <AirGap>0</AirGap>
                             <DatumElevation>0</DatumElevation>
                             <UnitSystem>UNITS_METRIC</UnitSystem>
                             <SimWellName>Well-1</SimWellName>
@@ -1965,9 +1980,9 @@
                                                     <EndDate>2000_12_30-00:00:00</EndDate>
                                                     <Valves>
                                                         <WellPathValve>
-                                                            <Name>1 AICD: 3100 - 3800</Name>
+                                                            <Name>1 ICD: 3100 - 3800</Name>
                                                             <IsChecked>True </IsChecked>
-                                                            <ValveTemplate>.. .. .. .. .. .. CompletionTemplateCollection 0 ValveTemplates 0 ValveDefinitions 0</ValveTemplate>
+                                                            <ValveTemplate>.. .. .. .. .. .. CompletionTemplateCollection 0 ValveTemplates 0 ValveDefinitions 1</ValveTemplate>
                                                             <StartMeasuredDepth>3100</StartMeasuredDepth>
                                                             <ValveLocations>
                                                                 <RimMultipleValveLocations>
@@ -2121,45 +2136,45 @@
                                 <WellPathGeometryDef>
                                     <ReferencePosUtmXyd>2396.76894299986 2546.33210593977 2633.21284797828</ReferencePosUtmXyd>
                                     <AirGap>0</AirGap>
-                                    <MdAtFirstTarget>2892.81933283547</MdAtFirstTarget>
+                                    <MdAtFirstTarget>0</MdAtFirstTarget>
                                     <WellPathTargets>
                                         <WellPathTarget>
                                             <IsEnabled>True </IsEnabled>
-                                            <TargetPoint>-29.9498740653398 799.654971524146 34.569094276821</TargetPoint>
-                                            <TargetPointForDisplay>-29.9498740653398 799.654971524146 34.569094276821</TargetPointForDisplay>
-                                            <TargetMeasuredDepth>2892.81933283547</TargetMeasuredDepth>
+                                            <TargetPoint>-29.9498740653398 799.654971524146 41.5302941929508</TargetPoint>
+                                            <TargetPointForDisplay>-29.9498740653398 799.654971524146 41.5302941929508</TargetPointForDisplay>
+                                            <TargetMeasuredDepth>2929.59590165912</TargetMeasuredDepth>
                                             <Dogleg1>3</Dogleg1>
                                             <Dogleg2>3</Dogleg2>
                                             <UseFixedAzimuth>False </UseFixedAzimuth>
                                             <Azimuth>70.0208758408677</Azimuth>
                                             <UseFixedInclination>False </UseFixedInclination>
-                                            <Inclination>87.5764369959842</Inclination>
-                                            <EstimatedDogleg1>0</EstimatedDogleg1>
+                                            <Inclination>82.4608803117543</Inclination>
+                                            <EstimatedDogleg1>2.99999998032033</EstimatedDogleg1>
                                             <EstimatedDogleg2>0</EstimatedDogleg2>
                                             <EstimatedAzimuth>70.0208758408677</EstimatedAzimuth>
-                                            <EstimatedInclination>87.5764369959842</EstimatedInclination>
+                                            <EstimatedInclination>82.4608803117543</EstimatedInclination>
                                         </WellPathTarget>
                                         <WellPathTarget>
                                             <IsEnabled>True </IsEnabled>
                                             <TargetPoint>1236.9904202153 1260.26083230065 91.6253907017731</TargetPoint>
                                             <TargetPointForDisplay>1236.9904202153 1260.26083230065 91.6253907017731</TargetPointForDisplay>
-                                            <TargetMeasuredDepth>4242.09724683811</TargetMeasuredDepth>
+                                            <TargetMeasuredDepth>4278.72842337743</TargetMeasuredDepth>
                                             <Dogleg1>3</Dogleg1>
                                             <Dogleg2>3</Dogleg2>
                                             <UseFixedAzimuth>False </UseFixedAzimuth>
                                             <Azimuth>70.0208758408677</Azimuth>
                                             <UseFixedInclination>False </UseFixedInclination>
-                                            <Inclination>87.5764369959842</Inclination>
+                                            <Inclination>87.9848467503234</Inclination>
                                             <EstimatedDogleg1>0</EstimatedDogleg1>
                                             <EstimatedDogleg2>0</EstimatedDogleg2>
                                             <EstimatedAzimuth>70.0208758408677</EstimatedAzimuth>
-                                            <EstimatedInclination>87.5764369959842</EstimatedInclination>
+                                            <EstimatedInclination>87.9848467503234</EstimatedInclination>
                                         </WellPathTarget>
                                         <WellPathTarget>
                                             <IsEnabled>False </IsEnabled>
                                             <TargetPoint>1929.51139254053 2455.31736287457 120.824833681511</TargetPoint>
                                             <TargetPointForDisplay>1929.51139254053 2455.31736287457 120.824833681511</TargetPointForDisplay>
-                                            <TargetMeasuredDepth>3769.97654090605</TargetMeasuredDepth>
+                                            <TargetMeasuredDepth>4276.79051372472</TargetMeasuredDepth>
                                             <Dogleg1>3</Dogleg1>
                                             <Dogleg2>3</Dogleg2>
                                             <UseFixedAzimuth>False </UseFixedAzimuth>
@@ -2174,7 +2189,260 @@
                                     </WellPathTargets>
                                     <ShowAbsolutePosForWellTargets>False </ShowAbsolutePosForWellTargets>
                                     <UseTopLevelWellReferencePoint>False </UseTopLevelWellReferencePoint>
-                                    <UseAutoGeneratedTargetAtSeaLevel>False </UseAutoGeneratedTargetAtSeaLevel>
+                                    <UseAutoGeneratedTargetAtSeaLevel>True </UseAutoGeneratedTargetAtSeaLevel>
+                                    <LinkReferencePointUpdates>False </LinkReferencePointUpdates>
+                                    <AttachedToParentWell>False </AttachedToParentWell>
+                                    <FixedWellPathPoints></FixedWellPathPoints>
+                                    <FixedMeasuredDepths></FixedMeasuredDepths>
+                                    <ShowSpheres>True </ShowSpheres>
+                                    <SphereColor>0.317647069692612 0.52549022436142 0.580392181873322</SphereColor>
+                                    <SphereRadiusFactor>0.15</SphereRadiusFactor>
+                                    <WellTargetHandleScalingFactor>2</WellTargetHandleScalingFactor>
+                                </WellPathGeometryDef>
+                            </WellPathGeometryDef>
+                        </ModeledWellPath>
+                        <ModeledWellPath>
+                            <Name>Well-A</Name>
+                            <AirGap>0</AirGap>
+                            <DatumElevation>0</DatumElevation>
+                            <UnitSystem>UNITS_METRIC</UnitSystem>
+                            <SimWellName>Well-1</SimWellName>
+                            <SimBranchIndex>0</SimBranchIndex>
+                            <ShowWellPathLabel>True </ShowWellPathLabel>
+                            <MeasuredDepthLabelInterval>False  50</MeasuredDepthLabelInterval>
+                            <ShowWellPath>True </ShowWellPath>
+                            <WellPathRadiusScale>1</WellPathRadiusScale>
+                            <WellPathColor>0.788235306739807 0.5686274766922 0.788235306739807</WellPathColor>
+                            <Completions>
+                                <WellPathCompletions>
+                                    <Perforations>
+                                        <PerforationCollection>
+                                            <Name>Perforations</Name>
+                                            <IsChecked>True </IsChecked>
+                                            <Perforations>
+                                                <Perforation>
+                                                    <Name>3100 - 3800</Name>
+                                                    <IsChecked>True </IsChecked>
+                                                    <StartMeasuredDepth>3100</StartMeasuredDepth>
+                                                    <EndMeasuredDepth>3800</EndMeasuredDepth>
+                                                    <Diameter>0.216</Diameter>
+                                                    <SkinFactor>0</SkinFactor>
+                                                    <UseCustomStartDate>False </UseCustomStartDate>
+                                                    <StartDate>2000_01_01-00:00:00</StartDate>
+                                                    <UseCustomEndDate>False </UseCustomEndDate>
+                                                    <EndDate>2000_12_30-00:00:00</EndDate>
+                                                    <Valves>
+                                                        <WellPathValve>
+                                                            <Name>1 ICD: 3100 - 3800</Name>
+                                                            <IsChecked>True </IsChecked>
+                                                            <ValveTemplate>.. .. .. .. .. .. CompletionTemplateCollection 0 ValveTemplates 0 ValveDefinitions 1</ValveTemplate>
+                                                            <StartMeasuredDepth>3100</StartMeasuredDepth>
+                                                            <ValveLocations>
+                                                                <RimMultipleValveLocations>
+                                                                    <LocationMode>VALVE_COUNT</LocationMode>
+                                                                    <RangeStart>3100</RangeStart>
+                                                                    <RangeEnd>3800</RangeEnd>
+                                                                    <ValveSpacing>700</ValveSpacing>
+                                                                    <RangeValveCount>1</RangeValveCount>
+                                                                    <LocationOfValves>3100 </LocationOfValves>
+                                                                </RimMultipleValveLocations>
+                                                            </ValveLocations>
+                                                            <EditTemplate>False </EditTemplate>
+                                                            <CreateTemplate>False </CreateTemplate>
+                                                        </WellPathValve>
+                                                    </Valves>
+                                                </Perforation>
+                                            </Perforations>
+                                            <NonDarcyParameters>
+                                                <NonDarcyPerforationParameters>
+                                                    <NonDarcyFlowType>None</NonDarcyFlowType>
+                                                    <UserDefinedDFactor>1</UserDefinedDFactor>
+                                                    <GridPermeabilityScalingFactor>1</GridPermeabilityScalingFactor>
+                                                    <WellRadius>0.108</WellRadius>
+                                                    <RelativeGasDensity>0.8</RelativeGasDensity>
+                                                    <GasViscosity>0.02</GasViscosity>
+                                                    <InertialCoefficientBeta0>883.9</InertialCoefficientBeta0>
+                                                    <PermeabilityScalingFactor>-1.1045</PermeabilityScalingFactor>
+                                                    <PorosityScalingFactor>0</PorosityScalingFactor>
+                                                </NonDarcyPerforationParameters>
+                                            </NonDarcyParameters>
+                                        </PerforationCollection>
+                                    </Perforations>
+                                    <Fishbones>
+                                        <FishbonesCollection>
+                                            <Name>Fishbones</Name>
+                                            <IsChecked>True </IsChecked>
+                                            <FishbonesSubs/>
+                                            <StartMDAuto>AUTOMATIC</StartMDAuto>
+                                            <StartMD>inf</StartMD>
+                                            <EndMDAuto>AUTOMATIC</EndMDAuto>
+                                            <EndMD>-inf</EndMD>
+                                            <MainBoreDiameter>0.216</MainBoreDiameter>
+                                            <MainBoreSkinFactor>0</MainBoreSkinFactor>
+                                        </FishbonesCollection>
+                                    </Fishbones>
+                                    <Fractures>
+                                        <WellPathFractureCollection>
+                                            <Name>Fractures</Name>
+                                            <IsChecked>True </IsChecked>
+                                            <Fractures/>
+                                        </WellPathFractureCollection>
+                                    </Fractures>
+                                    <StimPlanModels>
+                                        <StimPlanModelCollection>
+                                            <Name>StimPlan Models</Name>
+                                            <IsChecked>True </IsChecked>
+                                            <StimPlanModels/>
+                                        </StimPlanModelCollection>
+                                    </StimPlanModels>
+                                </WellPathCompletions>
+                            </Completions>
+                            <CompletionSettings>
+                                <WellPathCompletionSettings>
+                                    <WellNameForExport>Well-A</WellNameForExport>
+                                    <ReferenceDepth></ReferenceDepth>
+                                    <DrainageRadius>0</DrainageRadius>
+                                    <WellGroupNameForExport>PROD_N</WellGroupNameForExport>
+                                    <WellTypeForExport>OIL</WellTypeForExport>
+                                    <GasInflowEq>STD</GasInflowEq>
+                                    <AutoWellShutIn>STOP</AutoWellShutIn>
+                                    <AllowWellCrossFlow>True </AllowWellCrossFlow>
+                                    <WellBoreFluidPVTTable>0</WellBoreFluidPVTTable>
+                                    <HydrostaticDensity>SEG</HydrostaticDensity>
+                                    <FluidInPlaceRegion>0</FluidInPlaceRegion>
+                                    <MswParameters>
+                                        <RimMswCompletionParameters>
+                                            <RefMDType>GridEntryPoint</RefMDType>
+                                            <RefMD>0</RefMD>
+                                            <CustomValuesForLateral>False </CustomValuesForLateral>
+                                            <LinerDiameter>0.152</LinerDiameter>
+                                            <RoughnessFactor>1e-05</RoughnessFactor>
+                                            <DiameterRoughnessMode>Uniform</DiameterRoughnessMode>
+                                            <DiameterRoughnessIntervals>
+                                                <DiameterRoughnessIntervalCollection>
+                                                    <Intervals/>
+                                                </DiameterRoughnessIntervalCollection>
+                                            </DiameterRoughnessIntervals>
+                                            <PressureDrop>HF-</PressureDrop>
+                                            <LengthAndDepth>ABS</LengthAndDepth>
+                                            <EnforceMaxSegmentLength>False </EnforceMaxSegmentLength>
+                                            <MaxSegmentLength>200</MaxSegmentLength>
+                                        </RimMswCompletionParameters>
+                                    </MswParameters>
+                                    <MswLinerDiameter>0.152</MswLinerDiameter>
+                                    <MswRoughness>1e-05</MswRoughness>
+                                </WellPathCompletionSettings>
+                            </CompletionSettings>
+                            <WellLogs/>
+                            <CollectionOf3dWellLogCurves>
+                                <Rim3dWellLogCurveCollection>
+                                    <Show3dWellLogCurves>True </Show3dWellLogCurves>
+                                    <PlaneWidthScaling>1</PlaneWidthScaling>
+                                    <Show3dWellLogGrid>True </Show3dWellLogGrid>
+                                    <Show3dWellLogBackground>False </Show3dWellLogBackground>
+                                    <ArrayOf3dWellLogCurves/>
+                                </Rim3dWellLogCurveCollection>
+                            </CollectionOf3dWellLogCurves>
+                            <WellPathFormationKeyInFile></WellPathFormationKeyInFile>
+                            <WellPathFormationFilePath></WellPathFormationFilePath>
+                            <WellPathAttributes>
+                                <WellPathAttributes>
+                                    <Name>Casing Design</Name>
+                                    <IsChecked>True </IsChecked>
+                                    <Attributes/>
+                                </WellPathAttributes>
+                            </WellPathAttributes>
+                            <WellPathTieIn>
+                                <RimWellPathTieIn>
+                                    <ParentWellPath></ParentWellPath>
+                                    <ChildWellPath>..</ChildWellPath>
+                                    <TieInMeasuredDepth>0</TieInMeasuredDepth>
+                                    <AddValveAtConnection>False </AddValveAtConnection>
+                                    <Valve>
+                                        <WellPathValve>
+                                            <Name></Name>
+                                            <IsChecked>True </IsChecked>
+                                            <ValveTemplate></ValveTemplate>
+                                            <StartMeasuredDepth>0</StartMeasuredDepth>
+                                            <ValveLocations>
+                                                <RimMultipleValveLocations>
+                                                    <LocationMode>VALVE_COUNT</LocationMode>
+                                                    <RangeStart>100</RangeStart>
+                                                    <RangeEnd>250</RangeEnd>
+                                                    <ValveSpacing>0</ValveSpacing>
+                                                    <RangeValveCount>13</RangeValveCount>
+                                                    <LocationOfValves></LocationOfValves>
+                                                </RimMultipleValveLocations>
+                                            </ValveLocations>
+                                            <EditTemplate>False </EditTemplate>
+                                            <CreateTemplate>False </CreateTemplate>
+                                        </WellPathValve>
+                                    </Valve>
+                                </RimWellPathTieIn>
+                            </WellPathTieIn>
+                            <WellIASettings>
+                                <RimWellIASettingsCollection>
+                                    <WellIASettings/>
+                                </RimWellIASettingsCollection>
+                            </WellIASettings>
+                            <WellPathGeometryDef>
+                                <WellPathGeometryDef>
+                                    <ReferencePosUtmXyd>2396.76894299986 2546.33210593977 2633.21284797828</ReferencePosUtmXyd>
+                                    <AirGap>0</AirGap>
+                                    <MdAtFirstTarget>0</MdAtFirstTarget>
+                                    <WellPathTargets>
+                                        <WellPathTarget>
+                                            <IsEnabled>True </IsEnabled>
+                                            <TargetPoint>-66.680747767422 1771.67924436726 41.5305944053571</TargetPoint>
+                                            <TargetPointForDisplay>-66.680747767422 1771.67924436726 41.5305944053571</TargetPointForDisplay>
+                                            <TargetMeasuredDepth>2929.59621168459</TargetMeasuredDepth>
+                                            <Dogleg1>3</Dogleg1>
+                                            <Dogleg2>3</Dogleg2>
+                                            <UseFixedAzimuth>False </UseFixedAzimuth>
+                                            <Azimuth>70.0208758408677</Azimuth>
+                                            <UseFixedInclination>False </UseFixedInclination>
+                                            <Inclination>82.4608814024017</Inclination>
+                                            <EstimatedDogleg1>2.9999999803195</EstimatedDogleg1>
+                                            <EstimatedDogleg2>0</EstimatedDogleg2>
+                                            <EstimatedAzimuth>70.0208758408677</EstimatedAzimuth>
+                                            <EstimatedInclination>82.4608814024017</EstimatedInclination>
+                                        </WellPathTarget>
+                                        <WellPathTarget>
+                                            <IsEnabled>True </IsEnabled>
+                                            <TargetPoint>1200.25954651322 2232.28510514377 91.6256909141794</TargetPoint>
+                                            <TargetPointForDisplay>1200.25954651322 2232.28510514377 91.6256909141794</TargetPointForDisplay>
+                                            <TargetMeasuredDepth>4278.72873331883</TargetMeasuredDepth>
+                                            <Dogleg1>3</Dogleg1>
+                                            <Dogleg2>3</Dogleg2>
+                                            <UseFixedAzimuth>False </UseFixedAzimuth>
+                                            <Azimuth>70.0208758408677</Azimuth>
+                                            <UseFixedInclination>False </UseFixedInclination>
+                                            <Inclination>87.9848467038311</Inclination>
+                                            <EstimatedDogleg1>0</EstimatedDogleg1>
+                                            <EstimatedDogleg2>0</EstimatedDogleg2>
+                                            <EstimatedAzimuth>70.0208758408677</EstimatedAzimuth>
+                                            <EstimatedInclination>87.9848467038311</EstimatedInclination>
+                                        </WellPathTarget>
+                                        <WellPathTarget>
+                                            <IsEnabled>False </IsEnabled>
+                                            <TargetPoint>1929.51139254053 2455.31736287457 120.824833681511</TargetPoint>
+                                            <TargetPointForDisplay>1929.51139254053 2455.31736287457 120.824833681511</TargetPointForDisplay>
+                                            <TargetMeasuredDepth>4276.79364211055</TargetMeasuredDepth>
+                                            <Dogleg1>3</Dogleg1>
+                                            <Dogleg2>3</Dogleg2>
+                                            <UseFixedAzimuth>False </UseFixedAzimuth>
+                                            <Azimuth>36.591018613603</Azimuth>
+                                            <UseFixedInclination>False </UseFixedInclination>
+                                            <Inclination>88.1528471139157</Inclination>
+                                            <EstimatedDogleg1>0</EstimatedDogleg1>
+                                            <EstimatedDogleg2>0</EstimatedDogleg2>
+                                            <EstimatedAzimuth>36.591018613603</EstimatedAzimuth>
+                                            <EstimatedInclination>88.1528471139157</EstimatedInclination>
+                                        </WellPathTarget>
+                                    </WellPathTargets>
+                                    <ShowAbsolutePosForWellTargets>False </ShowAbsolutePosForWellTargets>
+                                    <UseTopLevelWellReferencePoint>False </UseTopLevelWellReferencePoint>
+                                    <UseAutoGeneratedTargetAtSeaLevel>True </UseAutoGeneratedTargetAtSeaLevel>
                                     <LinkReferencePointUpdates>False </LinkReferencePointUpdates>
                                     <AttachedToParentWell>False </AttachedToParentWell>
                                     <FixedWellPathPoints></FixedWellPathPoints>
@@ -2266,15 +2534,15 @@
                                     <AICDParameters>
                                         <WellPathAicdParameters>
                                             <DeviceOpen>True </DeviceOpen>
-                                            <StrengthAICD>1</StrengthAICD>
-                                            <DensityCalibrationFluid>2</DensityCalibrationFluid>
-                                            <ViscosityCalibrationFluid>3</ViscosityCalibrationFluid>
-                                            <VolumeFlowRateExponent>4</VolumeFlowRateExponent>
-                                            <ViscosityFunctionExponent>5</ViscosityFunctionExponent>
+                                            <StrengthAICD></StrengthAICD>
+                                            <DensityCalibrationFluid></DensityCalibrationFluid>
+                                            <ViscosityCalibrationFluid></ViscosityCalibrationFluid>
+                                            <VolumeFlowRateExponent></VolumeFlowRateExponent>
+                                            <ViscosityFunctionExponent></ViscosityFunctionExponent>
                                             <CriticalWaterLiquidFractionEmul></CriticalWaterLiquidFractionEmul>
                                             <ViscosityTransitionRegionEmul></ViscosityTransitionRegionEmul>
                                             <MaxRatioOfEmulsionVisc></MaxRatioOfEmulsionVisc>
-                                            <MaxFlowRate>12</MaxFlowRate>
+                                            <MaxFlowRate></MaxFlowRate>
                                             <ExponentOilDensity></ExponentOilDensity>
                                             <ExponentWaterDensity></ExponentWaterDensity>
                                             <ExponentGasDensity></ExponentGasDensity>
@@ -3009,6 +3277,14 @@
                                 </RimFieldReference>
                             </FieldReference>
                         </RimFieldQuickAccess>
+                        <RimFieldQuickAccess>
+                            <FieldReference>
+                                <RimFieldReference>
+                                    <Object>$ROOT$ OilFields 0 AnalysisModels 0 Reservoirs 1 ViewCollection 0 Views 0 RangeFilters 0 CellFilters 0</Object>
+                                    <FieldKeyword>StartIndexK</FieldKeyword>
+                                </RimFieldReference>
+                            </FieldReference>
+                        </RimFieldQuickAccess>
                     </FieldReferences>
                     <OwnerView>$ROOT$ OilFields 0 AnalysisModels 0 Reservoirs 1 ViewCollection 0 Views 0</OwnerView>
                 </RimFieldQuickAccessGroup>
@@ -3032,8 +3308,8 @@
         </RimGridCalculationCollection>
     </GridCalculationCollection>
     <MultiSnapshotDefinitions/>
-    <TreeViewStates>-1-11000;-1-110100080;-1-1101000110;-1-1101000;-1-11010;-1-110;-1-130002000;-1-1300020;-1-13000;-1-130;-1-18000;-1-180||-1-110</TreeViewStates>
-    <TreeViewCurrentModelIndexPaths>3 0;0 0||1 0;0 0</TreeViewCurrentModelIndexPaths>
+    <TreeViewStates>-1-110000010;-1-1100000;-1-11000;-1-110100040;-1-110100080;-1-1101000110;-1-1101000;-1-11010;-1-110;-1-130002000;-1-1300020;-1-13000;-1-13010;-1-130||-1-110</TreeViewStates>
+    <TreeViewCurrentModelIndexPaths>3 0;1 0;0 0||1 0;0 0</TreeViewCurrentModelIndexPaths>
     <PlotWindowTreeViewStates>-1-100|-1-100|||</PlotWindowTreeViewStates>
     <PlotWindowTreeViewCurrentModelIndexPaths>||||</PlotWindowTreeViewCurrentModelIndexPaths>
     <show3DWindow>True </show3DWindow>
@@ -3083,7 +3359,7 @@
                     <TransScalingWBHP>200</TransScalingWBHP>
                     <ExcludeMainBoreForFishbones>False </ExcludeMainBoreForFishbones>
                     <ReportCompletionTypesSeparately>INDIVIDUALLY</ReportCompletionTypesSeparately>
-                    <ExportDataSourceAsComment>False </ExportDataSourceAsComment>
+                    <ExportDataSourceAsComment>True </ExportDataSourceAsComment>
                     <ExportWelspec>True </ExportWelspec>
                     <CompletionWelspecAfterMainBore>True </CompletionWelspecAfterMainBore>
                     <UseCustomFileName>False </UseCustomFileName>
