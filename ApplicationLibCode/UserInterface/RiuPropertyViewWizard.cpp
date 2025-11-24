@@ -40,7 +40,7 @@ RiuPropertyViewWizard::RiuPropertyViewWizard( QWidget*           parent,
     setWizardStyle( QWizard::ModernStyle );
 
     // these must be of same size, programming error otherwise
-    CVF_ASSERT( uiConfigNameForPages.size() == pageSubTitles.size() );
+    CAF_ASSERT( uiConfigNameForPages.size() == pageSubTitles.size() );
 
     for ( int i = 0; i < uiConfigNameForPages.size(); i++ )
     {
