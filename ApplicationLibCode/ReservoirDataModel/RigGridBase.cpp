@@ -406,14 +406,9 @@ cvf::Vec3d RigGridBase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 double RigGridBase::characteristicIJCellSize() const
 {
-    double characteristicCellSize = HUGE_VAL;
-
     cvf::Vec3d cellSize = characteristicCellSizes();
 
-    if ( cellSize.x() < characteristicCellSize ) return cellSize.x();
-    if ( cellSize.y() < characteristicCellSize ) return cellSize.y();
-
-    return characteristicCellSize;
+    return std::min( cellSize.x(), cellSize.y() );
 }
 
 //--------------------------------------------------------------------------------------------------
