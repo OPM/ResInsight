@@ -74,25 +74,26 @@ void exportUnifiedMswData( const RicExportCompletionDataSettingsUi& exportSettin
         return;
     }
 
-    auto generateFileName = []( const RicExportCompletionDataSettingsUi& exportSettings, const QString& postFix ) -> QString
+    auto generateFileName = []( const RicExportCompletionDataSettingsUi& exportSettings, const QString& postFix ) -> std::pair<QString, QString>
     {
         QFileInfo fi( exportSettings.customFileName() );
         if ( !exportSettings.customFileName().isEmpty() )
         {
-            return fi.baseName() + postFix;
+            auto candidate = fi.baseName() + postFix;
+            return { candidate, fi.suffix() };
         }
         else
         {
-            return QString( "UnifiedCompletions_%1_%2" ).arg( exportSettings.caseToApply->caseUserDescription() ).arg( postFix );
+            return { QString( "UnifiedCompletions_%1_%2" ).arg( exportSettings.caseToApply->caseUserDescription() ).arg( postFix ), "" };
         }
     };
 
     // Set up file names
-    QString fileName = generateFileName( exportSettings, "_MSW" );
+    auto [fileName, suffix] = generateFileName( exportSettings, "_MSW" );
 
     // Create main grid file
     auto mainGridFile =
-        RicWellPathExportCompletionsFileTools::openFileForExport( exportFolder, fileName, "", exportSettings.exportDataSourceAsComment() );
+        RicWellPathExportCompletionsFileTools::openFileForExport( exportFolder, fileName, suffix, exportSettings.exportDataSourceAsComment() );
 
     // Write main grid data
     {
@@ -106,10 +107,12 @@ void exportUnifiedMswData( const RicExportCompletionDataSettingsUi& exportSettin
     // Create LGR file if needed
     if ( unifiedData.hasAnyLgrData() )
     {
-        QString lgrFileName = generateFileName( exportSettings, "_MSW_LGR" );
+        auto [lgrFileName, suffix] = generateFileName( exportSettings, "_MSW_LGR" );
 
-        auto lgrFile =
-            RicWellPathExportCompletionsFileTools::openFileForExport( exportFolder, lgrFileName, "", exportSettings.exportDataSourceAsComment() );
+        auto lgrFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportFolder,
+                                                                                 lgrFileName,
+                                                                                 suffix,
+                                                                                 exportSettings.exportDataSourceAsComment() );
 
         QTextStream               stream( lgrFile.get() );
         RifTextDataTableFormatter formatter( stream );
