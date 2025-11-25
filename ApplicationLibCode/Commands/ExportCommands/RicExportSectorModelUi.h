@@ -69,6 +69,7 @@ public:
     int                                     wellPadding() const;
 
     bool    shouldCreateSimulationJob() const;
+    bool    startSimulationJobAfterExport() const;
     QString newSimulationJobFolder() const;
     QString newSimulationJobName() const;
 
@@ -106,6 +107,7 @@ private:
     caf::PdmField<bool>          m_createSimulationJob;
     caf::PdmField<caf::FilePath> m_simulationJobFolder;
     caf::PdmField<QString>       m_simulationJobName;
+    caf::PdmField<bool>          m_startSimulationJobAfterExport;
 
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
     caf::PdmPtrField<RimEclipseView*> m_eclipseView;

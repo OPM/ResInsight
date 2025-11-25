@@ -66,6 +66,8 @@ public:
     QString deckName();
     QString mainWorkingDirectory() const;
 
+    static QString jobInputFileKey();
+
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -73,6 +75,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
 
+    bool matchesKeyValue( const QString& key, const QString& value ) const override;
     void processLogOutput( const QString& logLine ) override;
 
     QStringList                command() override;
@@ -90,8 +93,9 @@ protected:
 private:
     RimEclipseCase* findExistingCase( QString filename );
     QString         deckExtension() const;
-    QString         baseDeckName() const;
-    QString         restartDeckName() const;
+    QString         baseDeckName();
+    QString         restartDeckName();
+    QString         inputDeckName() const;
 
     std::vector<QDateTime> datesInFileDeck();
     std::vector<QString>   wellgroupsInFileDeck();

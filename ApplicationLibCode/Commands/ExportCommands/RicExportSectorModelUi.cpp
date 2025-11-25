@@ -57,13 +57,7 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     CAF_PDM_InitFieldNoDefault( &m_gridBoxSelection, "GridBoxSelection", "Cells to Export:" );
     m_gridBoxSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_visibleWellsPadding,
-                       "VisibleWellsPadding",
-                       2,
-                       "Wells Padding (cells)",
-                       "",
-                       "Number of cells to add around visible wells",
-                       "" );
+    CAF_PDM_InitField( &m_visibleWellsPadding, "VisibleWellsPadding", 2, "Wells Padding", "", "Number of cells to add around visible wells", "" );
 
     CAF_PDM_InitField( &m_minI, "MinI", std::numeric_limits<int>::max(), "Min I, J, K" );
     CAF_PDM_InitField( &m_minJ, "MinJ", std::numeric_limits<int>::max(), "" );
@@ -91,6 +85,13 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSimulationJob );
     CAF_PDM_InitFieldNoDefault( &m_simulationJobFolder, "SimulationJobFolder", "Working Folder" );
     CAF_PDM_InitFieldNoDefault( &m_simulationJobName, "SimulationJobName", "Job Name" );
+    CAF_PDM_InitField( &m_startSimulationJobAfterExport,
+                       "StartSimulationJobAfterExport",
+                       false,
+                       "Start Simulation Job After Export",
+                       "",
+                       "Automatically start all jobs using the exported sector model file as input." );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_startSimulationJobAfterExport );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Source Eclipse Case" );
     m_eclipseCase.uiCapability()->setUiReadOnly( true );
@@ -99,8 +100,8 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     m_exportFolder = defaultFolder();
 
-    m_pageNames << "Export";
-    m_pageSubtitles << "Select the name (no extension) and the output folder of the new sector model.";
+    m_pageNames << "General Settings";
+    m_pageSubtitles << "Select the name (no extension or spaces) and the output folder of the new sector model.";
 
     m_pageNames << "Sector Model Definition";
     m_pageSubtitles << "Select grid box to export as a new sector model.";
@@ -111,8 +112,8 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     m_pageNames << "Boundary Conditions";
     m_pageSubtitles << "Set up the boundary conditions of the new sector model.";
 
-    m_pageNames << "Simulation Job Setup";
-    m_pageSubtitles << "You can optionally create a new simulation job using the exported sector model.";
+    m_pageNames << "Simulation Job Settings";
+    m_pageSubtitles << "Optionally create and/or run a simulation job using the exported sector model.";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,13 +143,12 @@ QList<caf::PdmOptionItemInfo> RicExportSectorModelUi::calculateValueOptions( con
 void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // must be kept in sync with the page names defined in the constructor
-    CVF_ASSERT( m_pageNames.size() == 5 );
+    CAF_ASSERT( m_pageNames.size() == 5 );
 
     if ( uiConfigName == m_pageNames[0] )
     {
-        auto destGrp = uiOrdering.addNewGroup( "Export Settings" );
-        destGrp->add( &m_exportDeckName );
-        destGrp->add( &m_exportFolder );
+        uiOrdering.add( &m_exportDeckName );
+        uiOrdering.add( &m_exportFolder );
 
         auto infoGrp = uiOrdering.addNewGroup( "Source Information" );
         infoGrp->addNewLabel( QString( "Source Folder: " ) + m_eclipseCase->locationOnDisc() );
@@ -156,20 +156,22 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
     else if ( uiConfigName == m_pageNames[1] )
     {
-        caf::PdmUiGroup* gridBoxGroup = uiOrdering.addNewGroup( "Grid Box Selection" );
-        gridBoxGroup->add( &m_gridBoxSelection, { .newRow = true, .totalColumnSpan = 4, .leftLabelColumnSpan = 1 } );
+        uiOrdering.add( &m_gridBoxSelection, { .newRow = true, .totalColumnSpan = 4, .leftLabelColumnSpan = 1 } );
 
-        gridBoxGroup->add( &m_minI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        gridBoxGroup->appendToRow( &m_minJ );
-        gridBoxGroup->appendToRow( &m_minK );
+        uiOrdering.addNewLabel( "" );
 
-        gridBoxGroup->add( &m_maxI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        gridBoxGroup->appendToRow( &m_maxJ );
-        gridBoxGroup->appendToRow( &m_maxK );
+        uiOrdering.add( &m_minI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+        uiOrdering.appendToRow( &m_minJ );
+        uiOrdering.appendToRow( &m_minK );
+
+        uiOrdering.add( &m_maxI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+        uiOrdering.appendToRow( &m_maxJ );
+        uiOrdering.appendToRow( &m_maxK );
 
         if ( m_gridBoxSelection() == RiaModelExportDefines::VISIBLE_WELLS_BOX )
         {
-            gridBoxGroup->add( &m_visibleWellsPadding, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+            uiOrdering.add( &m_visibleWellsPadding, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+            uiOrdering.addNewLabel( "(cells)", { .newRow = false } );
         }
 
         const bool boxReadOnly = ( m_gridBoxSelection() != RiaModelExportDefines::MANUAL_SELECTION );
@@ -182,12 +184,12 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
     else if ( uiConfigName == m_pageNames[2] )
     {
-        caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
-        gridRefinement->add( &m_refineGrid );
+        uiOrdering.add( &m_refineGrid );
+        uiOrdering.addNewLabel( "" );
 
-        gridRefinement->add( &m_refinementCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        gridRefinement->appendToRow( &m_refinementCountJ );
-        gridRefinement->appendToRow( &m_refinementCountK );
+        uiOrdering.add( &m_refinementCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+        uiOrdering.appendToRow( &m_refinementCountJ );
+        uiOrdering.appendToRow( &m_refinementCountK );
 
         m_refinementCountI.uiCapability()->setUiReadOnly( !m_refineGrid() );
         m_refinementCountJ.uiCapability()->setUiReadOnly( !m_refineGrid() );
@@ -195,17 +197,16 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
     else if ( uiConfigName == m_pageNames[3] )
     {
-        caf::PdmUiGroup* bcGroup = uiOrdering.addNewGroup( "Boundary Conditions" );
-        bcGroup->add( &m_boundaryCondition );
+        uiOrdering.add( &m_boundaryCondition );
+        uiOrdering.addNewLabel( "", { .newRow = false } ); // needed to get proper layout in BCCON/BCPROP case
 
         if ( m_boundaryCondition() == RiaModelExportDefines::OPERNUM_OPERATER )
         {
-            bcGroup->add( &m_porvMultiplier );
+            uiOrdering.add( &m_porvMultiplier );
         }
         else if ( m_boundaryCondition() == RiaModelExportDefines::BCCON_BCPROP )
         {
-            m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-            bcGroup->add( &m_bcpropKeywords );
+            uiOrdering.add( &m_bcpropKeywords );
         }
     }
     else if ( uiConfigName == m_pageNames[4] )
@@ -219,6 +220,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
             simGrp->add( &m_simulationJobName );
             simGrp->add( &m_simulationJobFolder );
         }
+        uiOrdering.add( &m_startSimulationJobAfterExport );
     }
 
     uiOrdering.skipRemainingFields();
@@ -272,7 +274,9 @@ void RicExportSectorModelUi::setEclipseView( RimEclipseView* view )
         m_bcpropKeywords.push_back( keyword );
     }
 
-    if ( m_eclipseCase != nullptr ) m_exportDeckName = m_eclipseCase->caseUserDescription();
+    if ( ( m_eclipseCase != nullptr ) && m_exportDeckName().isEmpty() ) m_exportDeckName = m_eclipseCase->caseUserDescription();
+
+    m_createSimulationJob = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -532,6 +536,14 @@ QString RicExportSectorModelUi::defaultFolder()
 bool RicExportSectorModelUi::shouldCreateSimulationJob() const
 {
     return m_createSimulationJob();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportSectorModelUi::startSimulationJobAfterExport() const
+{
+    return m_startSimulationJobAfterExport();
 }
 
 //--------------------------------------------------------------------------------------------------

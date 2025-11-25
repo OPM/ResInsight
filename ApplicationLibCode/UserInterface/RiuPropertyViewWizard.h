@@ -28,7 +28,6 @@ class PdmUiPropertyView;
 } // namespace caf
 
 class QWidget;
-class QString;
 
 class RiuPropertyViewWizard : public QWizard
 {

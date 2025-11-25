@@ -24,6 +24,7 @@
 #include "ExportCommands/RicExportCarfinUi.h"
 #include "ExportCommands/RicExportEclipseSectorModelUi.h"
 #include "ExportCommands/RicExportLgrUi.h"
+#include "ExportCommands/RicExportSectorModelUi.h"
 #include "ExportCommands/RicExportWellPathsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
@@ -57,8 +58,8 @@ RimDialogData::RimDialogData()
     CAF_PDM_InitFieldNoDefault( &m_exportLgrData, "ExportLgr", "LGR Export" );
     m_exportLgrData = new RicExportLgrUi();
 
-    CAF_PDM_InitFieldNoDefault( &m_exportSectorModelData, "ExportSectorModel", "Export Sector Model" );
-    m_exportSectorModelData = new RicExportEclipseSectorModelUi();
+    CAF_PDM_InitFieldNoDefault( &m_exportEclipseSectorModelData, "ExportSectorModel", "Export Eclipse Sector Model" );
+    m_exportEclipseSectorModelData = new RicExportEclipseSectorModelUi();
 
     CAF_PDM_InitFieldNoDefault( &m_mockModelSettings, "MockModelSettings", "Mock Model Settings" );
     m_mockModelSettings = new RimMockModelSettings();
@@ -68,6 +69,9 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault( &m_createEnsembleWellLogUi, "CreateEnsembleWellLogUi", "Create Ensemble Well Log Ui" );
     m_createEnsembleWellLogUi = new RicCreateEnsembleWellLogUi();
+
+    CAF_PDM_InitFieldNoDefault( &m_exportSectorModelUi, "ExportSectorModelUi", "Sector Model Export Ui" );
+    m_exportSectorModelUi = new RicExportSectorModelUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,9 +150,9 @@ RicExportLgrUi* RimDialogData::exportLgrData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicExportEclipseSectorModelUi* RimDialogData::exportSectorModelUi() const
+RicExportEclipseSectorModelUi* RimDialogData::exportEclipseSectorModelUi() const
 {
-    return m_exportSectorModelData;
+    return m_exportEclipseSectorModelData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,4 +177,12 @@ RicCreateEnsembleSurfaceUi* RimDialogData::createEnsembleSurfaceUi() const
 RicCreateEnsembleWellLogUi* RimDialogData::createEnsembleWellLogUi() const
 {
     return m_createEnsembleWellLogUi;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicExportSectorModelUi* RimDialogData::createExportSectorModelUi() const
+{
+    return m_exportSectorModelUi;
 }

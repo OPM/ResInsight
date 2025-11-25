@@ -258,3 +258,11 @@ const QStringList RimGenericJob::jobLog() const
 
     return m_process->stdOut();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGenericJob::matchesKeyValue( const QString& key, const QString& value ) const
+{
+    return false;
+}

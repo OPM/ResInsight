@@ -36,13 +36,9 @@ RiuPropertyViewWizard::RiuPropertyViewWizard( QWidget*           parent,
     : QWizard( parent )
 {
     setWindowTitle( windowTitle );
-
     setWizardStyle( QWizard::ModernStyle );
 
-    // these must be of same size, programming error otherwise
-    CAF_ASSERT( uiConfigNameForPages.size() == pageSubTitles.size() );
-
-    for ( int i = 0; i < uiConfigNameForPages.size(); i++ )
+    for ( int i = 0; i < (int)uiConfigNameForPages.size(); i++ )
     {
         QWizardPage* page       = new QWizardPage();
         QHBoxLayout* pageLayout = new QHBoxLayout;
@@ -55,7 +51,7 @@ RiuPropertyViewWizard::RiuPropertyViewWizard( QWidget*           parent,
 
         page->setObjectName( uiConfigNameForPages[i] );
         page->setTitle( uiConfigNameForPages[i] );
-        page->setSubTitle( pageSubTitles[i] );
+        if ( i < (int)pageSubTitles.size() ) page->setSubTitle( pageSubTitles[i] );
         page->setLayout( pageLayout );
 
         pdmUiPropertyView->showProperties( object );

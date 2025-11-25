@@ -30,11 +30,11 @@ class RicExportSectorModelFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    void doExport( const RicExportSectorModelUi& exportSettings, RimEclipseView* view );
-
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    void doExport( RicExportSectorModelUi* exportSettings, RimEclipseView* view );
 };

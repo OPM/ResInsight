@@ -238,6 +238,18 @@ void RimOpmFlowJob::processLogOutput( const QString& logLine )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::matchesKeyValue( const QString& key, const QString& value ) const
+{
+    if ( key == jobInputFileKey() )
+    {
+        return ( m_deckFileName() == value );
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_workDir )
@@ -656,18 +668,32 @@ QString RimOpmFlowJob::deckName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::baseDeckName() const
+QString RimOpmFlowJob::baseDeckName()
 {
-    QFileInfo fi( m_deckFileName().path() );
-    return fi.completeBaseName();
+    if ( m_deckName.isEmpty() )
+    {
+        m_deckName = name();
+        m_deckName.replace( ' ', '_' );
+        m_deckName = m_deckName.toUpper();
+    }
+    return m_deckName;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::restartDeckName() const
+QString RimOpmFlowJob::restartDeckName()
 {
-    return baseDeckName() + "_RST";
+    return inputDeckName() + "_RST";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::inputDeckName() const
+{
+    QFileInfo fi( m_deckFileName().path() );
+    return fi.completeBaseName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -735,6 +761,12 @@ std::map<QString, QString> RimOpmFlowJob::environment()
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::onPrepare()
 {
+    if ( name().isEmpty() )
+    {
+        RiaLogging::error( "Please set a name for the OPM Flow Job." );
+        return false;
+    }
+
     // reload file deck to make sure we start with the original
     closeDeckFile();
     if ( !openDeckFile() )
@@ -1191,4 +1223,12 @@ std::vector<QString> RimOpmFlowJob::wellgroupsInFileDeck()
         }
     }
     return groups;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::jobInputFileKey()
+{
+    return "OpmFlowInputFile";
 }

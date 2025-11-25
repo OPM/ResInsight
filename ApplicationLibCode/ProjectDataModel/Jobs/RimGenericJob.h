@@ -50,6 +50,8 @@ public:
     double            percentageDone() const;
     const QStringList jobLog() const;
 
+    virtual bool matchesKeyValue( const QString& key, const QString& value ) const;
+
     virtual void processLogOutput( const QString& logLine ) = 0;
 
 protected:
