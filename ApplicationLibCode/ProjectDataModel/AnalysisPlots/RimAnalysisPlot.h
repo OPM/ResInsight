@@ -170,9 +170,10 @@ private:
     int  barTextFontSize() const;
     void initAfterRead() override;
 
-private:
     void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );
     void connectAllCaseSignals();
+
+    void showSelectVariablesDialog();
 
 private:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
@@ -180,9 +181,6 @@ private:
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 
     // Fields
-
-    caf::PdmField<QString> m_selectedVarsUiField;
-    caf::PdmField<bool>    m_selectVariablesButtonField;
 
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 

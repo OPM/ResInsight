@@ -53,6 +53,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiActionPushButtonEditor.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiGroup.h"
@@ -97,16 +98,6 @@ CAF_PDM_SOURCE_INIT( RimAnalysisPlot, "AnalysisPlot" );
 RimAnalysisPlot::RimAnalysisPlot()
 {
     CAF_PDM_InitObject( "Analysis Plot", ":/AnalysisPlot16x16.png" );
-
-    // Variable selection
-
-    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Vectors" );
-    m_selectedVarsUiField.xmlCapability()->disableIO();
-    m_selectedVarsUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
-
-    CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "..." );
-    caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_selectVariablesButtonField );
 
     CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "" );
     m_analysisPlotDataSelection.uiCapability()->setUiTreeChildrenHidden( true );
@@ -445,37 +436,40 @@ std::vector<time_t> RimAnalysisPlot::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::showSelectVariablesDialog()
+{
+    RiuSummaryVectorSelectionDialog dlg( nullptr );
+
+    dlg.enableMultiSelect( true );
+    dlg.enableIndividualEnsembleCaseSelection( true );
+    dlg.hideEnsembles();
+    dlg.setCurveSelection( curveDefinitions() );
+
+    if ( dlg.exec() == QDialog::Accepted )
+    {
+        std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
+
+        m_analysisPlotDataSelection.deleteChildren();
+        for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
+        {
+            auto dataEntry = new RimAnalysisPlotDataEntry();
+            dataEntry->setFromCurveDefinition( vectorDef );
+            m_analysisPlotDataSelection.push_back( dataEntry );
+        }
+        connectAllCaseSignals();
+
+        loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_selectVariablesButtonField )
-    {
-        // Do select variables
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
-
-        dlg.enableMultiSelect( true );
-        dlg.enableIndividualEnsembleCaseSelection( true );
-        dlg.hideEnsembles();
-        dlg.setCurveSelection( curveDefinitions() );
-
-        if ( dlg.exec() == QDialog::Accepted )
-        {
-            std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
-
-            m_analysisPlotDataSelection.deleteChildren();
-            for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
-            {
-                auto dataEntry = new RimAnalysisPlotDataEntry();
-                dataEntry->setFromCurveDefinition( vectorDef );
-                m_analysisPlotDataSelection.push_back( dataEntry );
-            }
-            connectAllCaseSignals();
-        }
-
-        m_selectVariablesButtonField = false;
-    }
-    else if ( changedField == &m_timeStepFilter )
+    if ( changedField == &m_timeStepFilter )
     {
         m_selectedTimeSteps.v().clear();
 
@@ -490,33 +484,40 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
-    selVectorsGrp->add( &m_selectedVarsUiField );
-    selVectorsGrp->appendToRow( &m_selectVariablesButtonField );
-    selVectorsGrp->add( &m_referenceCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 2 } );
-
-    QString vectorNames;
-    if ( updateAndGetCurveAnalyzer() )
+    auto createLabelText = [this]() -> QString
     {
-        for ( const std::string& vectorName : updateAndGetCurveAnalyzer()->m_vectorNames )
+        QString vectorNames;
+        if ( updateAndGetCurveAnalyzer() )
         {
-            vectorNames += QString::fromStdString( vectorName ) + ", ";
+            for ( const std::string& vectorName : updateAndGetCurveAnalyzer()->m_vectorNames )
+            {
+                vectorNames += QString::fromStdString( vectorName ) + ", ";
+            }
+
+            if ( !vectorNames.isEmpty() )
+            {
+                vectorNames.chop( 2 );
+            }
         }
 
         if ( !vectorNames.isEmpty() )
         {
-            vectorNames.chop( 2 );
+            return vectorNames;
         }
-    }
+        else
+        {
+            return "Select Data Sources -->";
+        }
+    };
 
-    if ( !vectorNames.isEmpty() )
-    {
-        m_selectedVarsUiField = vectorNames;
-    }
-    else
-    {
-        m_selectedVarsUiField = "Select Data Sources -->";
-    }
+    caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
+    selVectorsGrp->addNewLabel( createLabelText(), { .newRow = false, .totalColumnSpan = 4 } );
+    auto showVectorSelection = selVectorsGrp->addNewButton( "...",
+                                                            [this]() { RimAnalysisPlot::showSelectVariablesDialog(); },
+                                                            { .newRow = false, .totalColumnSpan = 1 } );
+    showVectorSelection->setAlignment( Qt::AlignRight );
+
+    selVectorsGrp->add( &m_referenceCase );
 
     caf::PdmUiGroup* timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
     timeStepGrp->add( &m_timeStepFilter );
