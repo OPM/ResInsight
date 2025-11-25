@@ -607,13 +607,12 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>&  
         if ( polygon.back() == polygon.front() ) polygon.pop_back();
     }
 
-    // Sanity checks with logging
+    // Sanity checks
     if ( polygon.size() < 3 )
     {
-        caf::PdmLogging::warning( QString( "GeometryTools: Generated degenerate polygon with %1 vertices. "
-                                           "Input faces may not overlap significantly. Tolerance=%2" )
-                                      .arg( polygon.size() )
-                                      .arg( tolerance ) );
+        // Do not log here - this is a common situation when cube faces only touch at edges or corners. The logging system can be flooded in
+        // some cases.
+
         polygon.clear();
 
         return false;
