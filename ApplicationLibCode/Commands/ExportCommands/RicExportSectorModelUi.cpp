@@ -35,6 +35,7 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiRadioButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RicExportSectorModelUi, "RicExportSectorModelUi" );
@@ -51,8 +52,10 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
     CAF_PDM_InitFieldNoDefault( &m_exportDeckName, "ExportDeckName", "Sector Model Name" );
     CAF_PDM_InitField( &m_porvMultiplier, "PorvMultiplier", 1.0, "PORV Multiplier" );
-    CAF_PDM_InitFieldNoDefault( &m_boundaryCondition, "BoundaryCondition", "Boundary Condition Type" );
-    CAF_PDM_InitFieldNoDefault( &m_gridBoxSelection, "GridBoxSelection", "Cells to Export" );
+    CAF_PDM_InitFieldNoDefault( &m_boundaryCondition, "BoundaryCondition", "Boundary Condition Type:" );
+    m_boundaryCondition.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_gridBoxSelection, "GridBoxSelection", "Cells to Export:" );
+    m_gridBoxSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_visibleWellsPadding,
                        "VisibleWellsPadding",
@@ -99,7 +102,7 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     m_pageNames << "Export";
     m_pageSubtitles << "Select the name (no extension) and the output folder of the new sector model.";
 
-    m_pageNames << "Grid Box Selection";
+    m_pageNames << "Sector Model Definition";
     m_pageSubtitles << "Select grid box to export as a new sector model.";
 
     m_pageNames << "Refinement";
@@ -331,7 +334,7 @@ void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* f
         }
     }
 
-    if ( field == &m_exportFolder )
+    if ( ( field == &m_exportFolder ) || ( field == &m_simulationJobFolder ) )
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )

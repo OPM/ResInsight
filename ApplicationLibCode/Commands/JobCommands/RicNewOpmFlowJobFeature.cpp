@@ -68,12 +68,12 @@ void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
     if ( !inDataFile.isEmpty() )
     {
         job->setInputDataFile( inDataFile );
-        job->setName( job->deckName() + " - Opm Flow Simulation" );
+        job->setName( job->deckName() );
     }
     else
     {
         job->setEclipseCase( selectedEclipseCases[0] );
-        job->setName( selectedEclipseCases[0]->caseUserDescription() + " - Opm Flow Simulation" );
+        job->setName( selectedEclipseCases[0]->caseUserDescription() );
     }
 
     job->setWorkingDirectory( workDir );
@@ -90,7 +90,7 @@ void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
 void RicNewOpmFlowJobFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/opm.png" ) );
-    actionToSetup->setText( "New Opm Flow Simulation... " + RiaDefines::betaFeaturePostfix() );
+    actionToSetup->setText( "New OPM Flow Simulation... " );
 }
 
 //--------------------------------------------------------------------------------------------------
