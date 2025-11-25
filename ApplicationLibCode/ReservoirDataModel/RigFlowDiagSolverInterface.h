@@ -18,7 +18,7 @@
 #pragma once
 
 #include "RigFlowDiagDefines.h"
-#include "RigFlowDiagResultAddress.h"
+#include "RigFlowDiagTimeStepResult.h"
 
 #include "cafPdmPointer.h"
 
@@ -29,36 +29,6 @@
 
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
-
-class RigFlowDiagTimeStepResult
-{
-public:
-    explicit RigFlowDiagTimeStepResult( size_t activeCellCount );
-
-    void setTracerTOF( const std::string&                       tracerName,
-                       RigFlowDiagResultAddress::PhaseSelection phaseSelection,
-                       const std::map<int, double>&             cellValues );
-    void setTracerFraction( const std::string&                       tracerName,
-                            RigFlowDiagResultAddress::PhaseSelection phaseSelection,
-                            const std::map<int, double>&             cellValues );
-    void setInjProdWellPairFlux( const std::string&               injectorTracerName,
-                                 const std::string&               producerTracerName,
-                                 const std::pair<double, double>& injProdFluxes );
-
-    using Curve = std::pair<std::vector<double>, std::vector<double>>;
-
-    // Used to "steal" the data from this one using swap
-    std::map<RigFlowDiagResultAddress, std::vector<double>>&                  nativeResults() { return m_nativeResults; }
-    std::map<std::pair<std::string, std::string>, std::pair<double, double>>& injProdWellPairFluxes() { return m_injProdWellPairFluxes; }
-
-private:
-    void addResult( const RigFlowDiagResultAddress& resAddr, const std::map<int, double>& cellValues );
-
-    std::map<RigFlowDiagResultAddress, std::vector<double>>                  m_nativeResults;
-    std::map<std::pair<std::string, std::string>, std::pair<double, double>> m_injProdWellPairFluxes;
-
-    size_t m_activeCellCount;
-};
 
 class RigEclipseCaseData;
 class RigOpmFlowDiagStaticData;

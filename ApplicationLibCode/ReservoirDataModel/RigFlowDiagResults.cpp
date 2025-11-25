@@ -22,6 +22,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RigFlowDiagStatCalc.h"
+#include "RigFlowDiagTimeStepResult.h"
 #include "RigMainGrid.h"
 
 #include "RigFlowDiagResultFrames.h"
