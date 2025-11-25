@@ -151,6 +151,7 @@ private:
                                 const QString&                  timestepString ) const;
 
     RiaSummaryCurveDefinitionAnalyser*     updateAndGetCurveAnalyzer() const;
+    std::vector<RiaSummaryCurveDefinition> curveDefinitionsExpanded() const;
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     std::vector<RiaSummaryCurveDefinition> filteredCurveDefs() const;
     void                                   applyFilter( const RimPlotDataFilterItem*        filter,

@@ -252,12 +252,11 @@ std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses() const
 //--------------------------------------------------------------------------------------------------
 std::set<RigEnsembleParameter> RimAnalysisPlot::ensembleParameters() const
 {
-    std::set<RigEnsembleParameter> ensembleParms;
-
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = updateAndGetCurveAnalyzer();
 
     std::set<RimSummaryEnsemble*> ensembles;
 
+    // If present, add the ensemble for single summary cases
     for ( RimSummaryCase* sumCase : analyserOfSelectedCurveDefs->m_singleSummaryCases )
     {
         if ( sumCase->ensemble() )
@@ -266,7 +265,14 @@ std::set<RigEnsembleParameter> RimAnalysisPlot::ensembleParameters() const
         }
     }
 
-    for ( RimSummaryEnsemble* ensemble : ensembles )
+    // Add ensembles from the analyzer
+    for ( auto ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        ensembles.insert( ensemble );
+    }
+
+    std::set<RigEnsembleParameter> ensembleParms;
+    for ( auto ensemble : ensembles )
     {
         std::vector<RigEnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
         ensembleParms.insert( parameters.begin(), parameters.end() );
@@ -442,7 +448,6 @@ void RimAnalysisPlot::showSelectVariablesDialog()
 
     dlg.enableMultiSelect( true );
     dlg.enableIndividualEnsembleCaseSelection( true );
-    dlg.hideEnsembles();
     dlg.setCurveSelection( curveDefinitions() );
 
     if ( dlg.exec() == QDialog::Accepted )
@@ -1035,7 +1040,7 @@ std::vector<size_t> RimAnalysisPlot::findTimestepIndices( std::vector<time_t> se
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs() const
 {
-    std::vector<RiaSummaryCurveDefinition> dataDefinitions = curveDefinitions();
+    std::vector<RiaSummaryCurveDefinition> dataDefinitions = curveDefinitionsExpanded();
 
     // Split out the filter targets
 
@@ -1645,6 +1650,34 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions() const
     for ( const auto& dataEntry : m_analysisPlotDataSelection )
     {
         curveDefs.push_back( dataEntry->curveDefinition() );
+    }
+
+    return curveDefs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsExpanded() const
+{
+    std::vector<RiaSummaryCurveDefinition> curveDefs;
+    for ( const auto& dataEntry : m_analysisPlotDataSelection )
+    {
+        auto curveDef = dataEntry->curveDefinition();
+        if ( curveDef.summaryCaseY() )
+        {
+            curveDefs.push_back( curveDef );
+        }
+        else if ( curveDef.ensemble() )
+        {
+            // Expand ensemble curves to individual summary cases
+            RimSummaryEnsemble* ensemble = curveDef.ensemble();
+            for ( RimSummaryCase* sumCase : ensemble->allSummaryCases() )
+            {
+                RiaSummaryCurveDefinition expandedCurveDef( sumCase, curveDef.summaryAddressY(), ensemble );
+                curveDefs.push_back( expandedCurveDef );
+            }
+        }
     }
 
     return curveDefs;
