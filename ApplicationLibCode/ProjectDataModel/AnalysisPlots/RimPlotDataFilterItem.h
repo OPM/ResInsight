@@ -54,9 +54,6 @@ class RimPlotDataFilterItem : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<> filterChanged;
-
-public:
     RimPlotDataFilterItem();
     ~RimPlotDataFilterItem() override;
 

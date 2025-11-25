@@ -43,7 +43,6 @@ RimPlotDataFilterItem* RimPlotDataFilterCollection::addFilter()
     m_filters.push_back( newFilter );
 
     newFilter->updateMaxMinAndDefaultValues( false );
-    newFilter->filterChanged.connect( this, &RimPlotDataFilterCollection::onFilterChanged );
 
     filtersChanged.send();
 
@@ -58,6 +57,14 @@ void RimPlotDataFilterCollection::removeFilter( RimPlotDataFilterItem* filter )
     m_filters.removeChild( filter );
     delete filter;
 
+    filtersChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotDataFilterCollection::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
     filtersChanged.send();
 }
 
@@ -85,6 +92,9 @@ caf::PdmFieldHandle* RimPlotDataFilterCollection::objectToggleField()
     return &m_isActive;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterCollection::onFilterChanged( const caf::SignalEmitter* emitter )
 {
     filtersChanged.send();

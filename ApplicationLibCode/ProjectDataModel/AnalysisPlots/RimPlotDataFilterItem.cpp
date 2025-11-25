@@ -83,7 +83,6 @@ CAF_PDM_SOURCE_INIT( RimPlotDataFilterItem, "PlotDataFilterItem" );
 RimPlotDataFilterItem::RimPlotDataFilterItem()
     : m_lowerLimit( -std::numeric_limits<double>::infinity() )
     , m_upperLimit( std::numeric_limits<double>::infinity() )
-    , filterChanged( this )
 {
     CAF_PDM_InitObject( "Plot Data Filter", ":/AnalysisPlotFilter16x16.png" );
 
@@ -262,7 +261,6 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         updateMaxMinAndDefaultValues( false );
     }
-    filterChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
