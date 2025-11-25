@@ -36,6 +36,7 @@
 #include "Riu3DMainWindowTools.h"
 #include "Tools/RimEclipseViewTools.h"
 
+#include "RiuMainWindowBase.h"
 #include "RiuPropertyViewWizard.h"
 
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
