@@ -39,6 +39,7 @@
 #include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QButtonGroup>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QPointer>
 #include <QRadioButton>
@@ -85,6 +86,7 @@ private:
 
 private:
     QPointer<QWidget>      m_containerWidget;
+    QPointer<QGroupBox>    m_groupBox;
     QPointer<QVBoxLayout>  m_verticalLayout;
     QPointer<QHBoxLayout>  m_horizontalLayout;
     QPointer<QButtonGroup> m_buttonGroup;

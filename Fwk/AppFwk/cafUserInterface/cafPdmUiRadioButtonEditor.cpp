@@ -44,6 +44,7 @@
 #include <QApplication>
 #include <QButtonGroup>
 #include <QDebug>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QRadioButton>
@@ -60,6 +61,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiRadioButtonEditor );
 //--------------------------------------------------------------------------------------------------
 PdmUiRadioButtonEditor::PdmUiRadioButtonEditor()
     : m_containerWidget( nullptr )
+    , m_groupBox( nullptr )
     , m_verticalLayout( nullptr )
     , m_horizontalLayout( nullptr )
     , m_buttonGroup( nullptr )
@@ -82,7 +84,13 @@ QWidget* PdmUiRadioButtonEditor::createEditorWidget( QWidget* parent )
     m_containerWidget = new QWidget( parent );
     m_buttonGroup     = new QButtonGroup( m_containerWidget );
 
-    // We'll set the actual layout in configureAndUpdateUi based on orientation
+    // Create main layout for the container
+    QVBoxLayout* mainLayout = new QVBoxLayout( m_containerWidget );
+    mainLayout->setContentsMargins( 0, 0, 0, 0 );
+
+    // Create group box for radio buttons
+    m_groupBox = new QGroupBox( m_containerWidget );
+    mainLayout->addWidget( m_groupBox );
 
     return m_containerWidget;
 }
@@ -123,14 +131,14 @@ void PdmUiRadioButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     // Create appropriate layout based on orientation
     if ( m_attributes.orientation == Qt::Vertical )
     {
-        m_verticalLayout = new QVBoxLayout( m_containerWidget );
-        m_verticalLayout->setContentsMargins( 0, 0, 0, 0 );
+        m_verticalLayout = new QVBoxLayout( m_groupBox );
+        m_verticalLayout->setContentsMargins( 6, 6, 6, 6 );
         m_verticalLayout->setSpacing( 2 );
     }
     else
     {
-        m_horizontalLayout = new QHBoxLayout( m_containerWidget );
-        m_horizontalLayout->setContentsMargins( 0, 0, 0, 0 );
+        m_horizontalLayout = new QHBoxLayout( m_groupBox );
+        m_horizontalLayout->setContentsMargins( 6, 6, 6, 6 );
         m_horizontalLayout->setSpacing( 6 );
     }
 
