@@ -181,16 +181,16 @@ void RimAnalysisPlotCollection::applyAllSummaryCasesAndFieldAddressesToPlot( Rim
 ///
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*    plot,
-                                                                                 RimSummaryEnsemble* summaryCaseCollection,
+                                                                                 RimSummaryEnsemble* ensemble,
                                                                                  const std::string&  quantityName )
 {
-    if ( summaryCaseCollection )
+    if ( ensemble )
     {
-        std::set<RifEclipseSummaryAddress>     allAddresses = summaryCaseCollection->ensembleSummaryAddresses();
+        std::set<RifEclipseSummaryAddress>     allAddresses = ensemble->ensembleSummaryAddresses();
         std::vector<RiaSummaryCurveDefinition> curveDefs;
         if ( allAddresses.empty() )
         {
-            for ( auto summaryCase : summaryCaseCollection->allSummaryCases() )
+            for ( auto summaryCase : ensemble->allSummaryCases() )
             {
                 curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, RifEclipseSummaryAddress::fieldAddress( quantityName ), false ) );
             }
@@ -203,10 +203,7 @@ void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot(
                 {
                     if ( quantityName.empty() || quantityName == address.vectorName() )
                     {
-                        for ( auto summaryCase : summaryCaseCollection->allSummaryCases() )
-                        {
-                            curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, false ) );
-                        }
+                        curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
                     }
                 }
             }
