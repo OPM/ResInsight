@@ -91,11 +91,3 @@ caf::PdmFieldHandle* RimPlotDataFilterCollection::objectToggleField()
 {
     return &m_isActive;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotDataFilterCollection::onFilterChanged( const caf::SignalEmitter* emitter )
-{
-    filtersChanged.send();
-}

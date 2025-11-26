@@ -44,7 +44,6 @@ public:
 private:
     caf::PdmFieldHandle* objectToggleField() override;
 
-    void onFilterChanged( const caf::SignalEmitter* emitter );
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
 private:
