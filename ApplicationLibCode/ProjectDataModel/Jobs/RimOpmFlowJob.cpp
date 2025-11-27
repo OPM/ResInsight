@@ -119,7 +119,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", false, "Pause before running OPM Flow" );
     CAF_PDM_InitField( &m_addNewWell, "AddNewWell", true, "Add New Well" );
     CAF_PDM_InitField( &m_openWellDeckPosition, "OpenWellDeckPosition", -1, "Open Well at Keyword Index" );
-    CAF_PDM_InitField( &m_includeMSWData, "IncludeMswData", false, "Include MSW Data (experimental)" );
+    CAF_PDM_InitField( &m_includeMSWData, "IncludeMswData", false, "Include MSW Data" );
     CAF_PDM_InitField( &m_addToEnsemble, "AddToEnsemble", false, "Add Runs to Ensemble" );
     CAF_PDM_InitField( &m_useRestart, "UseRestart", false, "Restart Simulation at Well Open Date" );
     CAF_PDM_InitField( &m_currentRunId, "CurrentRunID", 0, "Current Ensemble Run ID" );

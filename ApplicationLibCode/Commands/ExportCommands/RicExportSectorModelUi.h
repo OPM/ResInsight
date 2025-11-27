@@ -116,4 +116,5 @@ private:
     QStringList  m_pageSubtitles;
     caf::VecIjk0 m_visibleMin;
     caf::VecIjk0 m_visibleMax;
+    int          m_totalCells;
 };

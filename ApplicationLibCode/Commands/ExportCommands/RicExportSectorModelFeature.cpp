@@ -18,6 +18,7 @@
 
 #include "RicExportSectorModelFeature.h"
 
+#include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
@@ -73,7 +74,11 @@ void RicExportSectorModelFeature::onActionTriggered( bool isChecked )
 
     auto parent = RiaGuiApplication::instance()->activeMainWindow();
 
-    RiuPropertyViewWizard wizard( parent, exportSettings, "Sector Model Export", exportSettings->pageNames(), exportSettings->pageSubTitles() );
+    RiuPropertyViewWizard wizard( parent,
+                                  exportSettings,
+                                  "Sector Model Export" + RiaDefines::betaFeaturePostfix(),
+                                  exportSettings->pageNames(),
+                                  exportSettings->pageSubTitles() );
 
     if ( wizard.exec() == QDialog::Accepted )
     {
@@ -152,5 +157,5 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
 //--------------------------------------------------------------------------------------------------
 void RicExportSectorModelFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Export Sector Model" );
+    actionToSetup->setText( "Export Sector Model" + RiaDefines::betaFeaturePostfix() );
 }

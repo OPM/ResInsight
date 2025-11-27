@@ -38,6 +38,8 @@
 #include "cafPdmUiRadioButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
+#include <utility>
+
 CAF_PDM_SOURCE_INIT( RicExportSectorModelUi, "RicExportSectorModelUi" );
 
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +48,7 @@ CAF_PDM_SOURCE_INIT( RicExportSectorModelUi, "RicExportSectorModelUi" );
 RicExportSectorModelUi::RicExportSectorModelUi()
     : m_visibleMin( caf::VecIjk0::ZERO )
     , m_visibleMax( caf::VecIjk0::ZERO )
+    , m_totalCells( 0 )
 {
     CAF_PDM_InitObject( "Export Sector Model for Simulation Input" );
 
@@ -53,9 +56,9 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     CAF_PDM_InitFieldNoDefault( &m_exportDeckName, "ExportDeckName", "Sector Model Name" );
     CAF_PDM_InitField( &m_porvMultiplier, "PorvMultiplier", 1.0, "PORV Multiplier" );
     CAF_PDM_InitFieldNoDefault( &m_boundaryCondition, "BoundaryCondition", "Boundary Condition Type:" );
-    m_boundaryCondition.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
+    // m_boundaryCondition.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_gridBoxSelection, "GridBoxSelection", "Cells to Export:" );
-    m_gridBoxSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
+    // m_gridBoxSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_visibleWellsPadding, "VisibleWellsPadding", 2, "Well Padding", "", "Number of cells to add around visible wells", "" );
 
@@ -181,6 +184,11 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         m_maxI.uiCapability()->setUiReadOnly( boxReadOnly );
         m_maxJ.uiCapability()->setUiReadOnly( boxReadOnly );
         m_maxK.uiCapability()->setUiReadOnly( boxReadOnly );
+
+        if ( m_totalCells > 0 )
+        {
+            uiOrdering.addNewLabel( QString( "Total cells to export: %1" ).arg( m_totalCells ) );
+        }
     }
     else if ( uiConfigName == m_pageNames[2] )
     {
@@ -454,10 +462,14 @@ int RicExportSectorModelUi::wellPadding() const
 //--------------------------------------------------------------------------------------------------
 void RicExportSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_gridBoxSelection || changedField == &m_visibleWellsPadding )
+    if ( changedField == &m_gridBoxSelection )
     {
         applyBoundaryDefaults();
         updateConnectedEditors();
+    }
+    if ( changedField == &m_visibleWellsPadding )
+    {
+        applyBoundaryDefaults();
     }
     else if ( ( changedField == &m_boundaryCondition ) || ( changedField == &m_refineGrid ) )
     {
@@ -514,6 +526,8 @@ void RicExportSectorModelUi::applyBoundaryDefaults()
             m_maxK = (int)mainGrid->cellCountK();
         }
     }
+
+    m_totalCells = std::max( 0, ( ( m_maxI() - m_minI() + 1 ) * ( m_maxJ() - m_minJ() + 1 ) * ( m_maxK() - m_minK() + 1 ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
