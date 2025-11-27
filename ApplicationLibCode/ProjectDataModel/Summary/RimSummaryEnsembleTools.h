@@ -26,6 +26,7 @@
 class RimSummaryCase;
 class RimPlotCurve;
 class RigEnsembleParameter;
+class RimSummaryEnsemble;
 
 namespace RimSummaryEnsembleTools
 {
@@ -45,5 +46,7 @@ void                         highlightCurvesForSummaryCases( const std::vector<R
 void                         resetHighlightAllPlots();
 
 RimSummaryCase* caseWithMostDataObjects( const std::vector<RimSummaryCase*>& sourceCases );
+
+void updateDependentDeltaEnsembles( const RimSummaryEnsemble* sourceEnsemble );
 
 } // namespace RimSummaryEnsembleTools

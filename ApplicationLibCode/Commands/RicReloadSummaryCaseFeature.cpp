@@ -27,6 +27,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
+#include "RimSummaryEnsembleTools.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -124,6 +125,7 @@ void RicReloadSummaryCaseFeature::reloadTaggedSummaryCasesAndUpdate()
         {
             ensemble->reloadCases();
             ensemble->updateConnectedEditors();
+            RimSummaryEnsembleTools::updateDependentDeltaEnsembles( ensemble );
         }
     }
 }
@@ -138,6 +140,7 @@ void RicReloadSummaryCaseFeature::reloadSelectedCasesAndUpdate()
     for ( RimSummaryEnsemble* ensemble : ensembleSelection )
     {
         ensemble->reloadCases();
+        RimSummaryEnsembleTools::updateDependentDeltaEnsembles( ensemble );
     }
 
     for ( RimSummaryCase* summaryCase : caseSelection )

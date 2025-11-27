@@ -60,6 +60,7 @@ public:
 
     void onLoadDataAndUpdate() override;
 
+    void onSourceEnsembleChanged();
     void createDerivedEnsembleCases();
 
     bool discardMissingOrIncompleteRealizations() const;

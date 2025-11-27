@@ -151,6 +151,17 @@ std::set<RifEclipseSummaryAddress> RimDeltaSummaryEnsemble::ensembleSummaryAddre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimDeltaSummaryEnsemble::onSourceEnsembleChanged()
+{
+    createDerivedEnsembleCases();
+    buildMetaData();
+    updateReferringCurveSets();
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDeltaSummaryEnsemble::createDerivedEnsembleCases()
 {
     if ( !m_ensemble1 || !m_ensemble2 ) return;

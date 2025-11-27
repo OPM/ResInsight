@@ -26,6 +26,7 @@
 #include "RigEnsembleParameter.h"
 
 #include "RimCorrelationPlotCollection.h"
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimParameterResultCrossPlot.h"
@@ -505,4 +506,19 @@ RimSummaryCase* RimSummaryEnsembleTools::caseWithMostDataObjects( const std::vec
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleTools::updateDependentDeltaEnsembles( const RimSummaryEnsemble* sourceEnsemble )
+{
+    if ( !sourceEnsemble ) return;
+
+    auto referringObjects = sourceEnsemble->objectsWithReferringPtrFieldsOfType<RimDeltaSummaryEnsemble>();
+    for ( auto referringEnsemble : referringObjects )
+    {
+        referringEnsemble->onSourceEnsembleChanged();
+        updateDependentDeltaEnsembles( referringEnsemble );
+    }
 }

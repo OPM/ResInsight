@@ -27,6 +27,7 @@
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryEnsembleTools.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryFileSetEnsemble, "RimSummaryFileSetEnsemble" );
 
@@ -134,6 +135,8 @@ void RimSummaryFileSetEnsemble::onFileSetChanged( const caf::SignalEmitter* emit
     RiaSummaryTools::updateConnectedPlots( this );
     buildChildNodes();
     updateAllRequiredEditors();
+
+    RimSummaryEnsembleTools::updateDependentDeltaEnsembles( this );
 }
 
 //--------------------------------------------------------------------------------------------------
