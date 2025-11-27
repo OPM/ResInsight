@@ -439,10 +439,10 @@ void RimGridCrossPlotRegressionCurve::fieldChangedByUi( const caf::PdmFieldHandl
 
     if ( &m_minRangeX == changedField || &m_maxRangeX == changedField || &m_minRangeY == changedField || &m_maxRangeY == changedField ||
          &m_minExtrapolationRangeX == changedField || &m_maxExtrapolationRangeX == changedField || &m_regressionType == changedField ||
-         &m_polynomialDegree == changedField || &m_showDataSelectionInPlot == changedField )
+         &m_polynomialDegree == changedField || &m_showDataSelectionInPlot == changedField || &m_showCurve == changedField )
     {
         auto dataSet = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlotDataSet>();
-        dataSet->loadDataAndUpdate( true );
+        dataSet->updateRegressionCurves();
     }
 }
 

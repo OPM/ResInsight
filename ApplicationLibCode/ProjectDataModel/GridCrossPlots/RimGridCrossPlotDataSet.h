@@ -140,6 +140,7 @@ public:
     void setCustomColor( const cvf::Color3f color );
     void destroyCurves();
 
+    void updateRegressionCurves();
     void destroyRegressionCurves();
 
     size_t visibleCurveCount() const;
