@@ -57,7 +57,7 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     CAF_PDM_InitFieldNoDefault( &m_gridBoxSelection, "GridBoxSelection", "Cells to Export:" );
     m_gridBoxSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_visibleWellsPadding, "VisibleWellsPadding", 2, "Wells Padding", "", "Number of cells to add around visible wells", "" );
+    CAF_PDM_InitField( &m_visibleWellsPadding, "VisibleWellsPadding", 2, "Well Padding", "", "Number of cells to add around visible wells", "" );
 
     CAF_PDM_InitField( &m_minI, "MinI", std::numeric_limits<int>::max(), "Min I, J, K" );
     CAF_PDM_InitField( &m_minJ, "MinJ", std::numeric_limits<int>::max(), "" );
@@ -198,11 +198,12 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     else if ( uiConfigName == m_pageNames[3] )
     {
         uiOrdering.add( &m_boundaryCondition );
-        uiOrdering.addNewLabel( "", { .newRow = false } ); // needed to get proper layout in BCCON/BCPROP case
+        uiOrdering.addNewLabel( "", { .newRow = false } ); // needed to get proper visual layout in BCCON/BCPROP case
 
         if ( m_boundaryCondition() == RiaModelExportDefines::OPERNUM_OPERATER )
         {
             uiOrdering.add( &m_porvMultiplier );
+            uiOrdering.addNewLabel( " ", { .newRow = false } ); // needed to get proper visual layout
         }
         else if ( m_boundaryCondition() == RiaModelExportDefines::BCCON_BCPROP )
         {
