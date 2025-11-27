@@ -562,6 +562,8 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 
             for ( auto parameter : parameters )
             {
+                if ( caseIdx >= parameter.values.size() ) continue;
+
                 if ( parameter.isNumeric() && parameter.isValid() )
                 {
                     double paramValue = parameter.values[caseIdx].toDouble();
