@@ -70,7 +70,7 @@ caf::PdmScriptResponse RicfScaleFractureTemplate::execute()
 
     if ( !templ )
     {
-        QString error = QString( "scaleFractureTemplate: Fracture template not found. Id=%1" ).arg( m_id );
+        QString error = QString( "scaleFractureTemplate: Fracture template not found. Id=%1" ).arg( m_id() );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }

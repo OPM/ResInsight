@@ -405,7 +405,7 @@ void RimPlotWindow::updateWindowVisibility()
 void RimPlotWindow::setId( int id )
 {
     m_id                  = id;
-    QString viewIdTooltip = QString( "Plot id: %1" ).arg( m_id );
+    QString viewIdTooltip = QString( "Plot id: %1" ).arg( m_id() );
     setUiToolTip( viewIdTooltip );
 }
 

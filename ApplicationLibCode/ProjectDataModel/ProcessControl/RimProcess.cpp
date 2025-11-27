@@ -176,7 +176,7 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     m_qProcess  = new QProcess();
     QString cmd = commandLine();
 
-    if ( m_enableLogging ) RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id ).arg( cmd ) );
+    if ( m_enableLogging ) RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id() ).arg( cmd ) );
 
     m_monitor->clearStdOutErr();
 
@@ -200,7 +200,7 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     auto error = m_qProcess->errorString();
     if ( !m_qProcess->waitForStarted( -1 ) )
     {
-        RiaLogging::error( QString( "Failed to start process %1. %2." ).arg( m_id ).arg( error ) );
+        RiaLogging::error( QString( "Failed to start process %1. %2." ).arg( m_id() ).arg( error ) );
         return false;
     }
 

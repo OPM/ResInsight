@@ -104,7 +104,7 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnFile()
     computeDepthOfWellPathAtFracture();
     computePerforationLength();
 
-    RiaLogging::info( QString( "Setting well/fracture intersection depth at %1" ).arg( m_wellPathDepthAtFracture ) );
+    RiaLogging::info( QString( "Setting well/fracture intersection depth at %1" ).arg( m_wellPathDepthAtFracture() ) );
 
     m_activeTimeStepIndex = static_cast<int>( m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1 );
 

@@ -332,7 +332,7 @@ void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    setName( QString( "%1 - %2" ).arg( m_startMD ).arg( m_endMD ) );
+    setName( QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

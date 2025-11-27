@@ -1160,7 +1160,7 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         // Add part to curve name for geo mech cases with more than 1 part
         if ( geomCase && geomCase->geoMechData() && geomCase->geoMechData()->femParts() && geomCase->geoMechData()->femParts()->partCount() > 1 )
         {
-            generatedCurveName.push_back( QString( "Part %1" ).arg( m_geomPartId ) );
+            generatedCurveName.push_back( QString( "Part %1" ).arg( m_geomPartId() ) );
         }
     }
 

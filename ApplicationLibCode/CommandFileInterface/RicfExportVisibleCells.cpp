@@ -94,8 +94,10 @@ caf::PdmScriptResponse RicfExportVisibleCells::execute()
     }
     if ( !eclipseView )
     {
-        QString error(
-            QString( "exportVisibleCells: Could not find view of id %1 or named '%2' in case ID %3" ).arg( m_viewId ).arg( m_viewName ).arg( m_caseId ) );
+        QString error( QString( "exportVisibleCells: Could not find view of id %1 or named '%2' in case ID %3" )
+                           .arg( m_viewId() )
+                           .arg( m_viewName() )
+                           .arg( m_caseId() ) );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }

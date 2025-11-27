@@ -111,7 +111,7 @@ void RimVfpTable::updateObjectName()
         if ( m_tableNumber >= 0 )
         {
             if ( !name.isEmpty() ) name += " - ";
-            name += QString( "Table %1" ).arg( m_tableNumber );
+            name += QString( "Table %1" ).arg( m_tableNumber() );
         }
 
         if ( m_tableType() == RimVfpDefines::TableType::INJECTION )

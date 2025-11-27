@@ -158,7 +158,7 @@ void RimColorLegendItem::defineEditorAttribute( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 QString RimColorLegendItem::itemName() const
 {
-    return QString( "%1" ).arg( m_categoryValue, 2, 10, QChar( '0' ) ) + " " + m_categoryName;
+    return QString( "%1" ).arg( m_categoryValue(), 2, 10, QChar( '0' ) ) + " " + m_categoryName;
 }
 
 //--------------------------------------------------------------------------------------------------

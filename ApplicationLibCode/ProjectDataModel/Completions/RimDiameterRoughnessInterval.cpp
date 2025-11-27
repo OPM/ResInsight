@@ -297,7 +297,7 @@ void RimDiameterRoughnessInterval::updateConnectedEditors()
 //--------------------------------------------------------------------------------------------------
 QString RimDiameterRoughnessInterval::generateDisplayLabel() const
 {
-    return QString( "MD %.1f-%.1f: D=%.3fm, R=%1em" ).arg( m_startMD ).arg( m_endMD ).arg( m_diameter ).arg( m_roughnessFactor );
+    return QString( "MD %.1f-%.1f: D=%.3fm, R=%1em" ).arg( m_startMD() ).arg( m_endMD() ).arg( m_diameter() ).arg( m_roughnessFactor() );
 }
 
 //--------------------------------------------------------------------------------------------------

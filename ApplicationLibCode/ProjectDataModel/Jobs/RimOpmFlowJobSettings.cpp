@@ -291,7 +291,7 @@ QStringList RimOpmFlowJobSettings::commandLineOptions( QString resInsightWorkDir
 {
     QStringList options;
 
-    options << QString( "--threads-per-process=%1" ).arg( m_threadsPerProcess );
+    options << QString( "--threads-per-process=%1" ).arg( m_threadsPerProcess() );
 
     QString trueOrFalse = m_enableEsmry ? "true" : "false";
     options << "--enable-esmry=" + trueOrFalse;

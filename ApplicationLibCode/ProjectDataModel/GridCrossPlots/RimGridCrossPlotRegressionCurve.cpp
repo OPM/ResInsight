@@ -541,8 +541,8 @@ void RimGridCrossPlotRegressionCurve::updateRectAnnotation()
         {
             QString textLines;
             textLines += QString( "<b>Case:</b> %1<br>" ).arg( dataSet->caseNameString() );
-            textLines += QString( "<b>%1:</b> %2 - %3<br>" ).arg( dataSet->xAxisName() ).arg( m_minRangeX ).arg( m_maxRangeX );
-            textLines += QString( "<b>%1:</b> %2 - %3<br>" ).arg( dataSet->yAxisName() ).arg( m_minRangeY ).arg( m_maxRangeY );
+            textLines += QString( "<b>%1:</b> %2 - %3<br>" ).arg( dataSet->xAxisName() ).arg( m_minRangeX() ).arg( m_maxRangeX() );
+            textLines += QString( "<b>%1:</b> %2 - %3<br>" ).arg( dataSet->yAxisName() ).arg( m_minRangeY() ).arg( m_maxRangeY() );
             annotation->setText( textLines );
         }
     }

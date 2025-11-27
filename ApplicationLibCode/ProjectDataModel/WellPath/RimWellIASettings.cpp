@@ -234,7 +234,7 @@ void RimWellIASettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 QString RimWellIASettings::fullName() const
 {
-    return QString( "%1 - [%2 - %3]" ).arg( name() ).arg( m_startMD ).arg( m_endMD );
+    return QString( "%1 - [%2 - %3]" ).arg( name() ).arg( m_startMD() ).arg( m_endMD() );
 }
 
 //--------------------------------------------------------------------------------------------------

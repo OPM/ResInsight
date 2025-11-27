@@ -130,10 +130,10 @@ RigEclipseCaseData* RimElasticPropertyScaling::getEclipseCaseData()
 void RimElasticPropertyScaling::updateAutoName()
 {
     QString name = QString( "%1/%2 - %3: %4" )
-                       .arg( m_formation )
-                       .arg( m_facies )
+                       .arg( m_formation() )
+                       .arg( m_facies() )
                        .arg( caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_property() ) )
-                       .arg( m_scale );
+                       .arg( m_scale() );
     setName( name );
 }
 

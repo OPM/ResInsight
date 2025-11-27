@@ -102,21 +102,21 @@ QString RimCellRangeFilter::fullName() const
     {
         if ( ( cellCountI == 1 ) && ( cellCountJ > 1 ) && ( cellCountK > 1 ) )
         {
-            return QString( "%1-slice %2" ).arg( axisI ).arg( startIndexI );
+            return QString( "%1-slice %2" ).arg( axisI ).arg( startIndexI() );
         }
         else if ( ( cellCountJ == 1 ) && ( cellCountI > 1 ) && ( cellCountK > 1 ) )
         {
-            return QString( "%1-slice %2" ).arg( axisJ ).arg( startIndexJ );
+            return QString( "%1-slice %2" ).arg( axisJ ).arg( startIndexJ() );
         }
         else if ( ( cellCountK == 1 ) && ( cellCountI > 1 ) && ( cellCountJ > 1 ) )
         {
-            return QString( "%1-slice %2" ).arg( axisK ).arg( startIndexK );
+            return QString( "%1-slice %2" ).arg( axisK ).arg( startIndexK() );
         }
         else
         {
-            QString irange = QString( "%1=%2-%3" ).arg( axisI ).arg( startIndexI ).arg( startIndexI + cellCountI - 1 );
-            QString jrange = QString( "%1=%2-%3" ).arg( axisJ ).arg( startIndexJ ).arg( startIndexJ + cellCountJ - 1 );
-            QString krange = QString( "%1=%2-%3" ).arg( axisK ).arg( startIndexK ).arg( startIndexK + cellCountK - 1 );
+            QString irange = QString( "%1=%2-%3" ).arg( axisI ).arg( startIndexI() ).arg( startIndexI + cellCountI - 1 );
+            QString jrange = QString( "%1=%2-%3" ).arg( axisJ ).arg( startIndexJ() ).arg( startIndexJ + cellCountJ - 1 );
+            QString krange = QString( "%1=%2-%3" ).arg( axisK ).arg( startIndexK() ).arg( startIndexK + cellCountK - 1 );
             return QString( "%1 %2 %3" ).arg( irange, jrange, krange );
         }
     };

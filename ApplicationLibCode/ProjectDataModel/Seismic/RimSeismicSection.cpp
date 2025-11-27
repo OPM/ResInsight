@@ -1093,15 +1093,15 @@ QString RimSeismicSection::fullName() const
     }
     else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
     {
-        prefix = QString( "Inline [%1]" ).arg( m_inlineIndex );
+        prefix = QString( "Inline [%1]" ).arg( m_inlineIndex() );
     }
     else if ( m_type() == RiaDefines::SeismicSectionType::SS_XLINE )
     {
-        prefix = QString( "Xline [%1]" ).arg( m_xlineIndex );
+        prefix = QString( "Xline [%1]" ).arg( m_xlineIndex() );
     }
     else if ( m_type() == RiaDefines::SeismicSectionType::SS_DEPTHSLICE )
     {
-        prefix = QString( "Depth Slice [%1]" ).arg( m_depthIndex );
+        prefix = QString( "Depth Slice [%1]" ).arg( m_depthIndex() );
     }
 
     if ( !name.isEmpty() ) return QString( "%1 - %2" ).arg( prefix ).arg( name );

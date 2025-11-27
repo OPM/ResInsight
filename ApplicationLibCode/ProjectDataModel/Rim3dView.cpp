@@ -372,7 +372,7 @@ void Rim3dView::updateViewWidgetAfterCreation()
 void Rim3dView::setId( int id )
 {
     m_id                  = id;
-    QString viewIdTooltip = QString( "View id: %1" ).arg( m_id );
+    QString viewIdTooltip = QString( "View id: %1" ).arg( m_id() );
     this->setUiToolTip( viewIdTooltip );
 }
 

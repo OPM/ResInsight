@@ -101,14 +101,14 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
 
     if ( !gridCase )
     {
-        QString error = QString( "createMultipleFractures: Could not find case with ID %1" ).arg( m_caseId );
+        QString error = QString( "createMultipleFractures: Could not find case with ID %1" ).arg( m_caseId() );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     if ( !fractureTemplate )
     {
-        QString error = QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( m_templateId );
+        QString error = QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( m_templateId() );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }

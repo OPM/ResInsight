@@ -612,7 +612,7 @@ QString RimFractureTemplate::dFactorSummary() const
             auto wellRadius = f->nonDarcyProperties().eqWellRadius;
             text += indentedText( QString( "rw : %1" ).arg( wellRadius ) );
 
-            auto mu = m_gasViscosity;
+            auto mu = m_gasViscosity();
             text += indentedText( QString( "&mu;  : %1" ).arg( mu ) );
         }
         text += "</pre>";

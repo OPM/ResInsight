@@ -107,7 +107,7 @@ QString RimEclipseGeometrySelectionItem::geometrySelectionText() const
     }
 
     text += ", ";
-    text += QString( "Grid index %1" ).arg( m_gridIndex );
+    text += QString( "Grid index %1" ).arg( m_gridIndex() );
     text += ", ";
     text += RigTimeHistoryResultAccessor::geometrySelectionText( m_eclipseCase->eclipseCaseData(), m_gridIndex, m_cellIndex );
 

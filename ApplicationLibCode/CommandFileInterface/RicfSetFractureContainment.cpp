@@ -66,7 +66,7 @@ caf::PdmScriptResponse RicfSetFractureContainment::execute()
 
     if ( !templ )
     {
-        QString error = QString( "setFractureContainment: Fracture template not found. Id=%1" ).arg( m_id );
+        QString error = QString( "setFractureContainment: Fracture template not found. Id=%1" ).arg( m_id() );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
