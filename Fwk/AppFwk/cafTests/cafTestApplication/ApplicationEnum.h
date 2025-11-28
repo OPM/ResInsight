@@ -31,4 +31,5 @@ private:
     caf::PdmField<caf::AppEnum<MyEnumType>> m_enum2Field;
     caf::PdmField<caf::AppEnum<MyEnumType>> m_enum3Field;
     caf::PdmField<caf::AppEnum<MyEnumType>> m_radioButtonEnumField;
+    caf::PdmField<int>                      m_integerField;
 };
