@@ -104,7 +104,7 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     m_exportFolder = defaultFolder();
 
     m_pageNames << "General Settings";
-    m_pageSubtitles << "Select the name (no extension or spaces) and the output folder of the new sector model.";
+    m_pageSubtitles << "Select the name (no extension) and the output folder of the new sector model.";
 
     m_pageNames << "Sector Model Definition";
     m_pageSubtitles << "Select grid box to export as a new sector model.";
@@ -124,20 +124,6 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 //--------------------------------------------------------------------------------------------------
 RicExportSectorModelUi::~RicExportSectorModelUi()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicExportSectorModelUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &m_eclipseCase )
-    {
-        RimTools::eclipseCaseOptionItems( &options );
-    }
-
-    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,6 +173,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
         if ( m_totalCells > 0 )
         {
+            uiOrdering.addNewLabel( "" );
             uiOrdering.addNewLabel( QString( "Total cells to export: %1" ).arg( m_totalCells ) );
         }
     }
@@ -211,7 +198,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         if ( m_boundaryCondition() == RiaModelExportDefines::OPERNUM_OPERATER )
         {
             uiOrdering.add( &m_porvMultiplier );
-            uiOrdering.addNewLabel( " ", { .newRow = false } ); // needed to get proper visual layout
+            uiOrdering.addNewLabel( "", { .newRow = false } ); // needed to get proper visual layout
         }
         else if ( m_boundaryCondition() == RiaModelExportDefines::BCCON_BCPROP )
         {
@@ -398,6 +385,10 @@ void RicExportSectorModelUi::setMax( const caf::VecIjk0& max )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3st RicExportSectorModelUi::refinement() const
 {
+    if ( m_refineGrid() == false )
+    {
+        return cvf::Vec3st( 1, 1, 1 );
+    }
     return cvf::Vec3st( m_refinementCountI(), m_refinementCountJ(), m_refinementCountK() );
 }
 
