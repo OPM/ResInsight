@@ -35,6 +35,20 @@ jobs:
               ri-unit-test-path: "ResInsight-tests",
             }
           - {
+              name: "Windows Latest MSVC",
+              os: windows-2022,
+              cc: "cl",
+              cxx: "cl",
+              build-python-module: false,
+              execute-unit-tests: true,
+              execute-pytests: false,
+              unity-build: true,
+              publish-to-pypi: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.bat,
+              qt-version: 6.10.1,
+              ri-unit-test-path: "ResInsight-tests",
+            }
+          - {
               name: "Ubuntu 24.04 gcc",
               os: ubuntu-24.04,
               cc: "gcc",
