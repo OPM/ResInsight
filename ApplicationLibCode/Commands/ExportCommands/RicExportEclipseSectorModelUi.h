@@ -37,7 +37,6 @@
 class RigEclipseCaseData;
 class RigSimWellData;
 class RimEclipseView;
-class RimKeywordBcprop;
 
 //==================================================================================================
 ///
@@ -92,14 +91,6 @@ public:
     caf::PdmField<std::vector<QString>> selectedKeywords;
 
     caf::PdmField<GridBoxSelectionEnum> exportGridBox;
-
-    caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
-
-    caf::PdmField<bool> m_exportSimulationInput;
-
-    caf::PdmField<BoundaryConditionEnum> m_boundaryCondition;
-
-    caf::PdmField<double> m_porvMultiplier;
 
     caf::PdmField<int> m_visibleWellsPadding;
 

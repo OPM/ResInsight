@@ -129,23 +129,12 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
     m_exportFolder = defaultFolder();
 
-    CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
-    m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_bcpropKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitField( &m_exportSimulationInput, "ExportSimulationInput", false, "Export Simulation Input" );
-
-    CAF_PDM_InitFieldNoDefault( &m_boundaryCondition, "BoundaryCondition", "Boundary Condition Type" );
-
-    CAF_PDM_InitField( &m_porvMultiplier, "PorvMultiplier", 1.0e6, "PORV Multiplier" );
-
     m_exportGridFilename       = defaultGridFileName();
     m_exportParametersFilename = defaultResultsFileName();
     m_exportFaultsFilename     = defaultFaultsFileName();
 
     m_tabNames << "Grid Data";
     m_tabNames << "Parameters";
-    m_tabNames << "Simulation Input";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,33 +164,6 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData,
     m_eclipseView = eclipseView;
     m_visibleMin  = visibleMin;
     m_visibleMax  = visibleMax;
-
-    // Check if a .DATA file exists next to the grid file
-    m_exportSimulationInput = false;
-    if ( eclipseView && eclipseView->eclipseCase() )
-    {
-        QFileInfo fi( eclipseView->eclipseCase()->gridFileName() );
-        QString   dataFileName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
-        if ( QFile::exists( dataFileName ) )
-        {
-            m_exportSimulationInput = true;
-        }
-    }
-
-    // Initialize BCPROP keywords based on max BCCON value in the grid
-    int maxBccon = RigEclipseResultTools::findMaxBcconValue( eclipseView ? eclipseView->eclipseCase() : nullptr );
-
-    // Clear existing keywords
-    m_bcpropKeywords.deleteChildren();
-
-    // Add appropriate number of BCPROP keywords (max BCCON value or default to 6 for the 6 faces)
-    int numKeywords = ( maxBccon > 0 ) ? maxBccon : 6;
-    for ( int i = 0; i < numKeywords; ++i )
-    {
-        auto* keyword = new RimKeywordBcprop();
-        keyword->setIndex( i + 1 ); // BCCON values start from 1, not 0
-        m_bcpropKeywords.push_back( keyword );
-    }
 
     if ( minI == std::numeric_limits<int>::max() ) minI = static_cast<int>( m_visibleMin.x() ) + 1;
     if ( minJ == std::numeric_limits<int>::max() ) minJ = static_cast<int>( m_visibleMin.y() ) + 1;
@@ -307,15 +269,6 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
         if ( myAttr )
         {
             myAttr->heightHint = 280;
-        }
-    }
-    else if ( field == &m_bcpropKeywords )
-    {
-        auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttr )
-        {
-            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
-            tvAttr->alwaysEnforceResizePolicy = true;
         }
     }
     else if ( field == &m_visibleWellsPadding )
@@ -446,21 +399,6 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
             resultsGroup->add( &selectedKeywords );
         }
     }
-    else if ( uiConfigName == m_tabNames[2] )
-    {
-        caf::PdmUiGroup* bcGroup = uiOrdering.addNewGroup( "Boundary Conditions" );
-        bcGroup->add( &m_boundaryCondition );
-
-        if ( m_boundaryCondition() == RiaModelExportDefines::OPERNUM_OPERATER )
-        {
-            bcGroup->add( &m_porvMultiplier );
-        }
-        else if ( m_boundaryCondition() == RiaModelExportDefines::BCCON_BCPROP )
-        {
-            m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-            bcGroup->add( &m_bcpropKeywords );
-        }
-    }
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -487,10 +425,6 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle*
     else if ( changedField == &exportGridBox || changedField == &m_visibleWellsPadding )
     {
         applyBoundaryDefaults();
-        updateConnectedEditors();
-    }
-    else if ( changedField == &m_boundaryCondition )
-    {
         updateConnectedEditors();
     }
 }

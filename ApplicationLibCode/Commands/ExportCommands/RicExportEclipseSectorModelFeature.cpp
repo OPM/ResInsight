@@ -151,44 +151,6 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         auto task = progress.task( "Export Faults", faultsProgressPercentage );
         exportFaults( view, exportSettings );
     }
-
-    // Export simulation input if enabled
-    if ( exportSettings.m_exportSimulationInput() )
-    {
-        // Convert UI settings to RigSimulationInputSettings
-        RigSimulationInputSettings settings;
-        settings.setMin( exportSettings.min() );
-        settings.setMax( exportSettings.max() );
-        settings.setRefinement( exportSettings.refinement() );
-
-        std::vector<Opm::DeckRecord> bcpropKeywords;
-        for ( auto bcprop : exportSettings.m_bcpropKeywords )
-        {
-            Opm::DeckKeyword kw     = bcprop->keyword();
-            const auto&      record = kw.getRecord( 0 );
-            bcpropKeywords.push_back( record );
-        }
-        settings.setBcpropKeywords( bcpropKeywords );
-        settings.setBoundaryCondition( exportSettings.m_boundaryCondition() );
-        settings.setPorvMultiplier( exportSettings.m_porvMultiplier() );
-
-        // Get input deck file name from eclipse case
-        QFileInfo fi( view->eclipseCase()->gridFileName() );
-        QString   dataFileName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
-        settings.setInputDeckFileName( dataFileName );
-        settings.setOutputDeckFileName( exportSettings.exportGridFilename() );
-
-        cvf::ref<cvf::UByteArray> cellVisibility =
-            RimEclipseViewTools::createVisibilityBasedOnBoxSelection( view,
-                                                                      exportSettings.exportGridBox(),
-                                                                      exportSettings.min(),
-                                                                      exportSettings.max(),
-                                                                      exportSettings.m_visibleWellsPadding() );
-        if ( auto result = RigSimulationInputTool::exportSimulationInput( *view->eclipseCase(), settings, cellVisibility.p() ); !result )
-        {
-            RiaLogging::error( QString( "Failed to export simulation input: %1" ).arg( result.error() ) );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
