@@ -303,11 +303,20 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                             currentColumn += fieldColumnSpan;
                         }
 
-                        if ( previousTabOrderWidget )
+                        if ( previousTabOrderWidget && fieldEditorWidget )
                         {
-                            QWidget::setTabOrder( previousTabOrderWidget, fieldEditorWidget );
+                            // Skip tab order setup for widgets that have ClickFocus policy to prevent crashes
+                            if ( fieldEditorWidget->focusPolicy() != Qt::ClickFocus )
+                            {
+                                QWidget::setTabOrder( previousTabOrderWidget, fieldEditorWidget );
+                            }
                         }
-                        previousTabOrderWidget = fieldEditorWidget;
+
+                        // Only set as previous widget if it accepts tab focus
+                        if ( fieldEditorWidget && fieldEditorWidget->focusPolicy() != Qt::ClickFocus )
+                        {
+                            previousTabOrderWidget = fieldEditorWidget;
+                        }
 
                         parentLayout->setRowStretch( currentRowIndex, fieldEditor->rowStretchFactor() );
                         sumRowStretch += fieldEditor->rowStretchFactor();
