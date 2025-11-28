@@ -42,6 +42,7 @@
 #include <QString>
 
 #include <map>
+#include <vector>
 
 class QMinimizePanel;
 class QGridLayout;
@@ -90,8 +91,6 @@ protected:
                                          int            itemColumnSpan );
 
     QMinimizePanel* findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
-    QLabel*         findOrCreateLabel( QWidget* parent, PdmUiLabel* label, const QString& uiConfigName );
-    QPushButton*    findOrCreateButton( QWidget* parent, PdmUiButton* button, const QString& uiConfigName );
     PdmUiFieldEditorHandle* findOrCreateFieldEditor( QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName );
 
     static void ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins = QMargins() );
@@ -109,16 +108,18 @@ private:
                                             std::set<QString>*             fieldKeywordNames,
                                             std::set<QString>*             groupNames );
 
+    QLabel*      createLabel( QWidget* parent, const PdmUiLabel& label, const QString& uiConfigName );
+    QPushButton* createButton( QWidget* parent, const PdmUiButton& button, const QString& uiConfigName );
+
 private:
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*> m_fieldViews;
     std::set<PdmFieldHandle*> m_usedFields; ///< used temporarily to store the new(complete) set of used fields
     std::map<QString, QPointer<QMinimizePanel>> m_groupBoxes;
     std::map<QString, QPointer<QMinimizePanel>> m_newGroupBoxes; ///< used temporarily to store the new(complete) set of
                                                                  ///< group boxes
-    std::map<QString, QPointer<QLabel>>      m_labels;
-    std::map<QString, QPointer<QLabel>>      m_newLabels; ///< used temporarily to store the new(complete) set of labels
-    std::map<QString, QPointer<QPushButton>> m_buttons;
-    std::map<QString, QPointer<QPushButton>> m_newButtons; ///< used temporarily to store the new(complete) set of buttons
+    std::vector<QPointer<QLabel>>      m_labels;
+    std::vector<QPointer<QPushButton>> m_buttons;
+
     std::map<QString, std::map<QString, bool>> m_objectKeywordGroupUiNameExpandedState;
 };
 
