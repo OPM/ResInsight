@@ -164,7 +164,7 @@ void PdmUiRadioButtonEditor::updateRadioButtons()
 
         // Store the option value as user data
         radioButton->setProperty( "optionValue", options[i].value() );
-        
+
         // Set ClickFocus to exclude from tab navigation and prevent crash
         radioButton->setFocusPolicy( Qt::ClickFocus );
 
