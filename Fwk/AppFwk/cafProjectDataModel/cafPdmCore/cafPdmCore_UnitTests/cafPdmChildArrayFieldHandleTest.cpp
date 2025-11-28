@@ -25,7 +25,7 @@ public:
         static int a = 0;
 
         id   = a++;
-        name = QString( "Name %1" ).arg( id );
+        name = QString( "Name %1" ).arg( id() );
     }
 
     caf::PdmDataValueField<QString> name;

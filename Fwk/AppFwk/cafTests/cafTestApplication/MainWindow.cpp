@@ -298,7 +298,7 @@ protected:
 
         uiOrdering.add( &m_doubleField );
         uiOrdering.add( &m_intField );
-        QString dynamicGroupName = QString( "Dynamic Group Text (%1)" ).arg( m_intField );
+        QString dynamicGroupName = QString( "Dynamic Group Text (%1)" ).arg( m_intField() );
 
         caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword( dynamicGroupName, "MyTest" );
         group->add( &m_textField );
@@ -588,7 +588,7 @@ protected:
         uiOrdering.appendToRow( &m_intFieldRight );
         uiOrdering.add( &m_intFieldWideBoth, { .totalColumnSpan = 4, .leftLabelColumnSpan = 2 } );
 
-        QString dynamicGroupName = QString( "Dynamic Group Text (%1)" ).arg( m_intFieldStandard );
+        QString dynamicGroupName = QString( "Dynamic Group Text (%1)" ).arg( m_intFieldStandard() );
 
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Wide Group", { .totalColumnSpan = 4 } );
         group->add( &m_intFieldWideBoth2, { .totalColumnSpan = 6, .leftLabelColumnSpan = 3 } );
