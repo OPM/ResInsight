@@ -35,7 +35,7 @@ jobs:
               ri-unit-test-path: "ResInsight-tests",
             }
           - {
-              name: "Windows Latest MSVC",
+              name: "Windows_2022_qt_610",
               os: windows-2022,
               cc: "cl",
               cxx: "cl",
