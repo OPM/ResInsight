@@ -159,6 +159,8 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
 
     RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
 
+    auto keywords = deckFile.keywords( false );
+
     // Sector dimensions (after refinement)
     std::vector<int> dimens = { static_cast<int>( gridAdapter.cellCountI() ),
                                 static_cast<int>( gridAdapter.cellCountJ() ),
@@ -171,6 +173,12 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
 
     // SPECGRID has the same dimensions plus NUMRES and COORD_TYPE
     // Format: NX NY NZ (use defaults for NUMRES (1) and  COORD_TYPE: 'F'=Cartesian)
+    if ( std::find( keywords.begin(), keywords.end(), "SPECGRID" ) == keywords.end() )
+    {
+        Opm::DeckKeyword newKw( Opm::ParserKeyword( "SPECGRID" ) );
+        deckFile.addKeyword( "GRID", newKw );
+    }
+
     std::vector<int> specgrid = { static_cast<int>( gridAdapter.cellCountI() ),
                                   static_cast<int>( gridAdapter.cellCountJ() ),
                                   static_cast<int>( gridAdapter.cellCountK() ) };
@@ -191,7 +199,6 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
     std::vector<double> coords = convertToDoubleVector( coordArray );
     std::vector<double> zcorn  = convertToDoubleVector( zcornArray );
 
-    auto keywords = deckFile.keywords( false );
     if ( std::find( keywords.begin(), keywords.end(), "ACTNUM" ) == keywords.end() )
     {
         Opm::DeckKeyword newKw( Opm::ParserKeyword( "ACTNUM" ) );
