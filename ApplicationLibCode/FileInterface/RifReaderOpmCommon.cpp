@@ -928,13 +928,21 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
         RiaDefines::EclipseUnitSystem unitsType      = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
         int                           unitsTypeValue = -1;
 
+        namespace VI = Opm::RestartIO::Helpers::VectorItems;
+
         if ( m_restartFile != nullptr )
         {
-            if ( m_restartFile->hasArray( "INTEHEAD", 0 ) )
+            for ( auto reportStep : m_restartFile->listOfReportStepNumbers() )
             {
-                const auto& intHeader = m_restartFile->getRestartData<int>( "INTEHEAD", 0 );
-
-                if ( intHeader.size() > 2 ) unitsTypeValue = intHeader[2];
+                if ( m_restartFile->hasArray( "INTEHEAD", reportStep ) )
+                {
+                    const auto& intHeader = m_restartFile->getRestartData<int>( "INTEHEAD", reportStep );
+                    if ( intHeader.size() > VI::intehead::UNIT )
+                    {
+                        unitsTypeValue = intHeader[VI::intehead::UNIT];
+                        break;
+                    }
+                }
             }
         }
 
