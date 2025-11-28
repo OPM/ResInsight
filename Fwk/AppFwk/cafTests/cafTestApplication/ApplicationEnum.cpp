@@ -42,6 +42,8 @@ ApplicationEnum::ApplicationEnum()
     // Radio button enum field example
     CAF_PDM_InitField( &m_radioButtonEnumField, "RadioButtonEnumField", MyEnumType::T1, "Radio Button Example" );
     m_radioButtonEnumField.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_integerField, "IntegerField", 2, "Integer Field Example" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,4 +78,5 @@ void ApplicationEnum::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     uiOrdering.add( &m_enum2Field );
     uiOrdering.add( &m_radioButtonEnumField );
     uiOrdering.add( &m_enum3Field );
+    uiOrdering.add( &m_integerField );
 }
