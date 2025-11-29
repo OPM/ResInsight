@@ -385,7 +385,7 @@ void RicExportSectorModelUi::setMax( const caf::VecIjk0& max )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3st RicExportSectorModelUi::refinement() const
 {
-    if ( m_refineGrid() == false )
+    if ( !m_refineGrid() )
     {
         return cvf::Vec3st( 1, 1, 1 );
     }
