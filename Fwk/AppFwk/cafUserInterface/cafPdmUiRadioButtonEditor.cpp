@@ -208,11 +208,12 @@ void PdmUiRadioButtonEditor::updateRadioButtons()
 //--------------------------------------------------------------------------------------------------
 void PdmUiRadioButtonEditor::clearRadioButtons()
 {
+    // Use deleteLater to avoid issues if called from signal handlers. Crash has been observed during focus changes.
     for ( QRadioButton* radioButton : m_radioButtons )
     {
         if ( radioButton )
         {
-            delete radioButton;
+            radioButton->deleteLater();
         }
     }
     m_radioButtons.clear();
