@@ -72,7 +72,7 @@ void RicExportSectorModelFeature::onActionTriggered( bool isChecked )
     auto exportSettings = RimProject::current()->dialogData()->createExportSectorModelUi();
     exportSettings->setEclipseView( view );
 
-    auto parent = RiaGuiApplication::instance()->activeMainWindow();
+    auto parent = RiaGuiApplication::activeMainWindow();
 
     RiuPropertyViewWizard wizard( parent,
                                   exportSettings,
