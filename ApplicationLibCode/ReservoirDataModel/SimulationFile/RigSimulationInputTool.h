@@ -64,6 +64,9 @@ private:
                                                                         RifOpmFlowDeckFile&               deckFile );
 
     static std::expected<void, QString>
+        updateWelldimsKeyword( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+
+    static std::expected<void, QString>
         addBorderBoundaryConditions( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
     static std::expected<void, QString>

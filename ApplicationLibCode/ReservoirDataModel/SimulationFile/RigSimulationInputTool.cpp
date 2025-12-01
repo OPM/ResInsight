@@ -111,6 +111,11 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
+    if ( auto result = updateWelldimsKeyword( &eclipseCase, settings, deckFile ); !result )
+    {
+        return result;
+    }
+
     if ( auto result = addBorderBoundaryConditions( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
@@ -404,6 +409,24 @@ std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices
             }
         }
     }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::updateWelldimsKeyword( RimEclipseCase*                   eclipseCase,
+                                                                            const RigSimulationInputSettings& settings,
+                                                                            RifOpmFlowDeckFile&               deckFile )
+{
+    auto wellDims = deckFile.welldims();
+    if ( wellDims.empty() ) return std::unexpected( QString( "Missing WELLDIMS keyword" ) );
+
+    // Scale the max connections with the refinement
+    int newMaxConnections = wellDims[1] * static_cast<int>( settings.refinement().x() * settings.refinement().y() * settings.refinement().z() );
+
+    deckFile.setWelldims( wellDims[0], newMaxConnections, wellDims[2], wellDims[3] );
 
     return {};
 }
