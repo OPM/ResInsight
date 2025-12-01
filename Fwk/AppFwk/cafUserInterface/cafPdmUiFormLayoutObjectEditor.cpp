@@ -624,23 +624,7 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
 
     m_groupBoxes.clear();
 
-    for ( auto& label : m_labels )
-    {
-        if ( label )
-        {
-            delete label;
-        }
-    }
-    m_labels.clear();
-
-    for ( auto& button : m_buttons )
-    {
-        if ( button )
-        {
-            delete button;
-        }
-    }
-    m_buttons.clear();
+    deleteLabelsAndButtons();
 
     // Note: Layouts are now managed by Qt's parent-child ownership system.
     // When added to parent layouts via addLayout(), Qt automatically handles cleanup.
@@ -649,8 +633,34 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void caf::PdmUiFormLayoutObjectEditor::deleteLabelsAndButtons()
+{
+    for ( auto& label : m_labels )
+    {
+        if ( label )
+        {
+            label->deleteLater();
+        }
+    }
+    m_labels.clear();
+
+    for ( auto& button : m_buttons )
+    {
+        if ( button )
+        {
+            button->deleteLater();
+        }
+    }
+    m_buttons.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
+    deleteLabelsAndButtons();
+
     caf::PdmUiOrdering config;
     if ( pdmObject() )
     {

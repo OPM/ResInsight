@@ -111,6 +111,8 @@ private:
     QLabel*      createLabel( QWidget* parent, const PdmUiLabel& label, const QString& uiConfigName );
     QPushButton* createButton( QWidget* parent, const PdmUiButton& button, const QString& uiConfigName );
 
+    void deleteLabelsAndButtons();
+
 private:
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*> m_fieldViews;
     std::set<PdmFieldHandle*> m_usedFields; ///< used temporarily to store the new(complete) set of used fields
