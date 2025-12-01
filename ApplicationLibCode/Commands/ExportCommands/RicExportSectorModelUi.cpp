@@ -292,7 +292,7 @@ void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* f
         auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
         if ( tvAttr )
         {
-            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
             tvAttr->alwaysEnforceResizePolicy = true;
         }
     }

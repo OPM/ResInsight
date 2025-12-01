@@ -65,6 +65,13 @@ public:
         NONE
     };
 
+    enum class MechType
+    {
+        FREE,
+        FIXED,
+        NONE
+    };
+
     RimKeywordBcprop();
     ~RimKeywordBcprop() override;
 
@@ -81,4 +88,8 @@ private:
     caf::PdmField<double>                  m_rate;
     caf::PdmField<std::optional<double>>   m_press;
     caf::PdmField<std::optional<double>>   m_temp;
+    caf::PdmField<caf::AppEnum<MechType>>  m_mechType;
+    caf::PdmField<size_t>                  m_fixedX;
+    caf::PdmField<size_t>                  m_fixedY;
+    caf::PdmField<size_t>                  m_fixedZ;
 };
