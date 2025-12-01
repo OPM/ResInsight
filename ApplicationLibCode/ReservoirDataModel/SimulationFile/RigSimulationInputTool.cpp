@@ -539,8 +539,9 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processWelspecsR
     size_t clampedJ = std::max( settings.min().y(), std::min( settings.max().y(), static_cast<size_t>( origJ ) ) );
 
     // Transform with clamped coordinates (this will always succeed)
-    size_t sectorI = ( clampedI - settings.min().x() ) * settings.refinement().x() + 1;
-    size_t sectorJ = ( clampedJ - settings.min().y() ) * settings.refinement().y() + 1;
+    // Center the coordinate in the refined cell block
+    size_t sectorI = ( clampedI - settings.min().x() ) * settings.refinement().x() + ( settings.refinement().x() + 1 ) / 2;
+    size_t sectorJ = ( clampedJ - settings.min().y() ) * settings.refinement().y() + ( settings.refinement().y() + 1 ) / 2;
 
     if ( origI < static_cast<int>( settings.min().x() ) || origI > static_cast<int>( settings.max().x() ) ||
          origJ < static_cast<int>( settings.min().y() ) || origJ > static_cast<int>( settings.max().y() ) )

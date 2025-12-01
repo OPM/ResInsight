@@ -446,9 +446,10 @@ std::expected<caf::VecIjk1, QString> RigGridExportAdapter::transformIjkToSectorC
 
     // Transform to sector-relative coordinates with refinement
     // Eclipse uses 1-based indexing, so we'll return 1-based coordinates
-    size_t sectorI = ( originalIjk.x() - min.x() ) * refinement.x() + 1;
-    size_t sectorJ = ( originalIjk.y() - min.y() ) * refinement.y() + 1;
-    size_t sectorK = ( originalIjk.z() - min.z() ) * refinement.z() + 1;
+    // Center the coordinate in the refined cell block
+    size_t sectorI = ( originalIjk.x() - min.x() ) * refinement.x() + ( refinement.x() + 1 ) / 2;
+    size_t sectorJ = ( originalIjk.y() - min.y() ) * refinement.y() + ( refinement.y() + 1 ) / 2;
+    size_t sectorK = ( originalIjk.z() - min.z() ) * refinement.z() + ( refinement.z() + 1 ) / 2;
 
     return caf::VecIjk1( sectorI, sectorJ, sectorK );
 }

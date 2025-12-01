@@ -413,3 +413,190 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
     // Min (5,5,2) to Max (14,14,7) means 10 cells in I, 10 cells in J, 6 cells in K
     EXPECT_TRUE( fileContent.contains( " 10 10 6 /" ) ) << "File does not contain expected sector dimensions 10 10 6";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Test exportSimulationInput with model5 data and refinement (1, 3, 5)
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5WithRefinement )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "0_BASE_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model_refined.DATA";
+
+    // Set up export settings for sector export with refinement (1, 3, 5)
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive)
+    settings.setRefinement( cvf::Vec3st( 1, 3, 5 ) ); // Refinement: I=1 (no refinement), J=3, K=5
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Load the exported deck file using RifOpmFlowDeckFile
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    // Get all keywords from the deck
+    std::vector<std::string> allKeywords = deckFile.keywords( false );
+
+    // Verify key keywords exist in the file
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "DIMENS" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "SPECGRID" ) != allKeywords.end() )
+        << "SPECGRID keyword missing from exported file";
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "COORD" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "ZCORN" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "ACTNUM" ) != allKeywords.end() );
+
+    // Read the file content to verify dimensions
+    QFile file( exportFilePath );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    QString fileContent = file.readAll();
+    file.close();
+
+    // Verify dimensions are correct for the refined sector
+    // Original sector: 20x15x10 cells
+    // With refinement (1, 3, 5): 20*1 x 15*3 x 10*5 = 20 x 45 x 50
+    EXPECT_TRUE( fileContent.contains( " 20 45 50 /" ) ) << "File does not contain expected refined dimensions 20 45 50";
+
+    // Verify WELSPECS coordinates are centered in refined cells
+    auto welspecsKeywords = deckFile.findAllKeywords( "WELSPECS" );
+    ASSERT_FALSE( welspecsKeywords.empty() ) << "WELSPECS keyword not found in exported file";
+
+    std::cout << "\n=== WELSPECS Analysis ===" << std::endl;
+    for ( const auto& keyword : welspecsKeywords )
+    {
+        for ( size_t i = 0; i < keyword.size(); ++i )
+        {
+            const auto& record   = keyword.getRecord( i );
+            std::string wellName = record.getItem( "WELL" ).get<std::string>( 0 );
+            int         iHeel    = record.getItem( "HEAD_I" ).get<int>( 0 );
+            int         jHeel    = record.getItem( "HEAD_J" ).get<int>( 0 );
+
+            std::cout << "Well: " << wellName << " - WELSPECS I=" << iHeel << ", J=" << jHeel << std::endl;
+        }
+    }
+
+    // Verify specific well coordinates are centered correctly
+    // For refinement (1, 3, 5):
+    // - I dimension: refinement=1, center offset = (1+1)/2 = 1
+    // - J dimension: refinement=3, center offset = (3+1)/2 = 2
+    // Formula: new_coord = (old_coord - sector_min) * refinement + center_offset
+    auto checkWelspecsCoordinates = [&welspecsKeywords]( const std::string& wellName, int expectedI, int expectedJ ) -> bool
+    {
+        return std::any_of( welspecsKeywords.begin(),
+                            welspecsKeywords.end(),
+                            [&]( const auto& kw )
+                            {
+                                for ( size_t i = 0; i < kw.size(); ++i )
+                                {
+                                    const auto& rec = kw.getRecord( i );
+                                    if ( rec.getItem( "WELL" ).template get<std::string>( 0 ) == wellName )
+                                    {
+                                        return rec.getItem( "HEAD_I" ).template get<int>( 0 ) == expectedI &&
+                                               rec.getItem( "HEAD_J" ).template get<int>( 0 ) == expectedJ;
+                                    }
+                                }
+                                return false;
+                            } );
+    };
+
+    //
+    // B-1H: original (11, 3), sector_min (0, 0)
+    //   I: (11-0)*1 + 1 = 11, J: (3-0)*3 + 2 = 8
+    EXPECT_TRUE( checkWelspecsCoordinates( "B-1H", 11, 8 ) );
+
+    // B-2H: original (4, 7)
+    //   I: (4-0)*1 + 1 = 4, J: (7-0)*3 + 2 = 20
+    EXPECT_TRUE( checkWelspecsCoordinates( "B-2H", 4, 20 ) );
+
+    // Verify COMPDAT coordinates are centered in refined cells
+    auto compdatKeywords = deckFile.findAllKeywords( "COMPDAT" );
+    ASSERT_FALSE( compdatKeywords.empty() ) << "COMPDAT keyword not found in exported file";
+
+    std::cout << "\n=== COMPDAT Analysis ===" << std::endl;
+    for ( const auto& keyword : compdatKeywords )
+    {
+        for ( size_t i = 0; i < keyword.size(); ++i )
+        {
+            const auto& record   = keyword.getRecord( i );
+            std::string wellName = record.getItem( "WELL" ).get<std::string>( 0 );
+            int         iComp    = record.getItem( "I" ).get<int>( 0 );
+            int         jComp    = record.getItem( "J" ).get<int>( 0 );
+            int         k1       = record.getItem( "K1" ).get<int>( 0 );
+            int         k2       = record.getItem( "K2" ).get<int>( 0 );
+
+            std::cout << "Well: " << wellName << " - COMPDAT I=" << iComp << ", J=" << jComp << ", K1=" << k1 << ", K2=" << k2 << std::endl;
+        }
+    }
+
+    // Verify specific COMPDAT coordinates are centered correctly
+    // For refinement (1, 3, 5):
+    // - K dimension: refinement=5, center offset = (5+1)/2 = 3
+    auto checkCompdatCoordinates = [&compdatKeywords]( const std::string& wellName, int expectedK1, int expectedK2 ) -> bool
+    {
+        return std::any_of( compdatKeywords.begin(),
+                            compdatKeywords.end(),
+                            [&]( const auto& kw )
+                            {
+                                for ( size_t i = 0; i < kw.size(); ++i )
+                                {
+                                    const auto& rec = kw.getRecord( i );
+                                    if ( rec.getItem( "WELL" ).template get<std::string>( 0 ) == wellName )
+                                    {
+                                        return rec.getItem( "K1" ).template get<int>( 0 ) == expectedK1 &&
+                                               rec.getItem( "K2" ).template get<int>( 0 ) == expectedK2;
+                                    }
+                                }
+                                return false;
+                            } );
+    };
+
+    // B-1H: original K1=1, K2=5, sector_min K=0
+    //   K1: (1-0)*5 + 3 = 3, K2: (5-0)*5 + 3 = 23
+    EXPECT_TRUE( checkCompdatCoordinates( "B-1H", 3, 23 ) ) << "B-1H COMPDAT K coordinates not centered correctly";
+
+    // B-2H: original K1=1, K2=6
+    //   K1: (1-0)*5 + 3 = 3, K2: (6-0)*5 + 3 = 28
+    EXPECT_TRUE( checkCompdatCoordinates( "B-2H", 3, 28 ) ) << "B-2H COMPDAT K coordinates not centered correctly";
+}
