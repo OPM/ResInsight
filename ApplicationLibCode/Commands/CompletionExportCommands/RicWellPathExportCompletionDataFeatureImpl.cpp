@@ -329,7 +329,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                     }
                 }
 
-                QString fileName = QString( "%1_UnifiedCompletions_%2" ).arg( wellPath->name() ).arg( eclipseCaseName );
+                QString fileName = QString( "%1_Completions_%2" ).arg( wellPath->name() ).arg( eclipseCaseName );
                 sortAndExportCompletionsToFile( exportSettings.caseToApply,
                                                 exportSettings.folder,
                                                 fileName,

@@ -148,7 +148,7 @@ void exportSplitMswData( const RicExportCompletionDataSettingsUi& exportSettings
         auto wellData = wellDataResult.value();
 
         // Set up file names
-        QString wellFileName = QString( "%1_Completions_MSW_%2" ).arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
+        QString wellFileName = QString( "%1_Completions_%2_MSW" ).arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
 
         // Create main grid file
         auto mainGridFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportFolder,
