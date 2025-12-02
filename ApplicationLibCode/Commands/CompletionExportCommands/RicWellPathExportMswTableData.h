@@ -77,14 +77,14 @@ public:
 private:
     static void updateDataForMultipleItemsInSameGridCell( gsl::not_null<RicMswBranch*> branch );
 
-    static bool generatePerforationsMswExportInfo( const RimEclipseCase*                            eclipseCase,
-                                                   const RimWellPath*                               wellPath,
-                                                   bool                                             includePerforations,
-                                                   int                                              timeStep,
-                                                   double                                           initialMD,
-                                                   const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
-                                                   gsl::not_null<RicMswExportInfo*>                 exportInfo,
-                                                   gsl::not_null<RicMswBranch*>                     branch );
+    static bool generateWellSegmentsForMswExportInfo( const RimEclipseCase*                            eclipseCase,
+                                                      const RimWellPath*                               wellPath,
+                                                      bool                                             createSegmentsForPerforations,
+                                                      int                                              timeStep,
+                                                      double                                           initialMD,
+                                                      const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
+                                                      gsl::not_null<RicMswExportInfo*>                 exportInfo,
+                                                      gsl::not_null<RicMswBranch*>                     branch );
 
     static void appendFishbonesMswExportInfo( const RimEclipseCase*                            eclipseCase,
                                               const RimWellPath*                               wellPath,

@@ -88,14 +88,14 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
 
     // Generate completion data based on the completion type parameter
     const bool createSegmentsForPerforations = ( completionType & CompletionType::PERFORATIONS ) == CompletionType::PERFORATIONS;
-    if ( !generatePerforationsMswExportInfo( eclipseCase,
-                                             wellPath,
-                                             createSegmentsForPerforations,
-                                             timeStep,
-                                             initialMD,
-                                             cellIntersections,
-                                             &exportInfo,
-                                             exportInfo.mainBoreBranch() ) )
+    if ( !generateWellSegmentsForMswExportInfo( eclipseCase,
+                                                wellPath,
+                                                createSegmentsForPerforations,
+                                                timeStep,
+                                                initialMD,
+                                                cellIntersections,
+                                                &exportInfo,
+                                                exportInfo.mainBoreBranch() ) )
     {
         return std::unexpected( "Failed to generate perforations MSW export info" );
     }
@@ -190,14 +190,14 @@ void RicWellPathExportMswTableData::generateFishbonesMswExportInfoForWell( const
 
     int        timeStep                      = 0;
     const bool createSegmentsForPerforations = true;
-    if ( !generatePerforationsMswExportInfo( eclipseCase,
-                                             wellPath,
-                                             createSegmentsForPerforations,
-                                             timeStep,
-                                             initialMD,
-                                             cellIntersections,
-                                             exportInfo,
-                                             exportInfo->mainBoreBranch() ) )
+    if ( !generateWellSegmentsForMswExportInfo( eclipseCase,
+                                                wellPath,
+                                                createSegmentsForPerforations,
+                                                timeStep,
+                                                initialMD,
+                                                cellIntersections,
+                                                exportInfo,
+                                                exportInfo->mainBoreBranch() ) )
     {
         return;
     }
@@ -540,14 +540,14 @@ bool RicWellPathExportMswTableData::appendFracturesMswExportInfo( RimEclipseCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportMswTableData::generatePerforationsMswExportInfo( const RimEclipseCase* eclipseCase,
-                                                                       const RimWellPath*    wellPath,
-                                                                       bool                  createSegmentsForPerforations,
-                                                                       int                   timeStep,
-                                                                       double                initialMD,
-                                                                       const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
-                                                                       gsl::not_null<RicMswExportInfo*>                 exportInfo,
-                                                                       gsl::not_null<RicMswBranch*>                     branch )
+bool RicWellPathExportMswTableData::generateWellSegmentsForMswExportInfo( const RimEclipseCase* eclipseCase,
+                                                                          const RimWellPath*    wellPath,
+                                                                          bool                  createSegmentsForPerforations,
+                                                                          int                   timeStep,
+                                                                          double                initialMD,
+                                                                          const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
+                                                                          gsl::not_null<RicMswExportInfo*> exportInfo,
+                                                                          gsl::not_null<RicMswBranch*>     branch )
 {
     auto perforationIntervals = createSegmentsForPerforations ? wellPath->perforationIntervalCollection()->activePerforations()
                                                               : std::vector<const RimPerforationInterval*>();
@@ -608,14 +608,14 @@ bool RicWellPathExportMswTableData::generatePerforationsMswExportInfo( const Rim
         // Start MD of child well path at the tie in location
         const double tieInOnParentWellPath = childWellPath->wellPathTieIn() ? childWellPath->wellPathTieIn()->tieInMeasuredDepth() : initialMD;
 
-        if ( generatePerforationsMswExportInfo( eclipseCase,
-                                                childWellPath,
-                                                createSegmentsForPerforations,
-                                                timeStep,
-                                                tieInOnParentWellPath,
-                                                childCellIntersections,
-                                                exportInfo,
-                                                childMswBranch.get() ) )
+        if ( generateWellSegmentsForMswExportInfo( eclipseCase,
+                                                   childWellPath,
+                                                   createSegmentsForPerforations,
+                                                   timeStep,
+                                                   tieInOnParentWellPath,
+                                                   childCellIntersections,
+                                                   exportInfo,
+                                                   childMswBranch.get() ) )
         {
             branch->addChildBranch( std::move( childMswBranch ) );
         }
