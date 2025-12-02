@@ -96,7 +96,16 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comments" );
 
     CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "WELSPEC keyword" );
-    CAF_PDM_InitField( &m_completionWelspecAfterMainBore, "CompletionWelspecAfterMainBore", true, "WELSEGS per Completion Type" );
+
+    const QString completionWelspecAfterMainBoreDesc = "If checked, export all mainbore well segments first, then completions. "
+                                                       "Otherwise, export completion segments based on measured depth. "
+                                                       "Applies to Fracture and Fishbones completions.";
+    CAF_PDM_InitField( &m_completionWelspecAfterMainBore,
+                       "CompletionWelspecAfterMainBore",
+                       true,
+                       "Export completion well segments after main bore",
+                       "",
+                       completionWelspecAfterMainBoreDesc );
 
     CAF_PDM_InitField( &m_useCustomFileName, "UseCustomFileName", false, "Use Custom Filename" );
     CAF_PDM_InitField( &m_customFileName, "CustomFileName", {}, "Custom Filename" );
