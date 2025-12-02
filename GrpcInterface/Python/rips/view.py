@@ -123,7 +123,6 @@ def export_sim_well_fracture_completions(
         ----------------------------------- | ------------
         "UNIFIED_FILE" <b>Default Option</b>| A single file with all transmissibilities
         "SPLIT_ON_WELL"                     | One file for each well transmissibilities
-        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well
 
     **Enum compdat_export**::
 

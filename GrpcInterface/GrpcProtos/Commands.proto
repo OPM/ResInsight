@@ -75,7 +75,6 @@ message ExportPropertyInViewsRequest {
 enum CompdatExportSplit {
   UNIFIED_FILE = 0;
   SPLIT_ON_WELL = 1;
-  SPLIT_ON_WELL_AND_COMPLETION_TYPE = 2;
 }
 
 enum CompdatExportType {

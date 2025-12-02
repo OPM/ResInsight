@@ -425,7 +425,6 @@ def export_well_path_completions(
         ----------------------------------- | ------------
         "UNIFIED_FILE"                      | A single file with all combined transmissibilities
         "SPLIT_ON_WELL"                     | One file for each well with combined transmissibilities
-        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well
 
     **Enum compdat_export**::
 
