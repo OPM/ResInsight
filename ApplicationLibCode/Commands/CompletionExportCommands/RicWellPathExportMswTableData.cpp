@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 
+#include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicMswCompletions.h"
 #include "RicMswExportInfo.h"
@@ -65,7 +66,8 @@ constexpr double VALVE_SEGMENT_LENGTH = 0.1;
 std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extractSingleWellMswData( RimEclipseCase* eclipseCase,
                                                                                                      RimWellPath*    wellPath,
                                                                                                      int             timeStep,
-                                                                                                     bool exportCompletionsAfterMainBoreSegments )
+                                                                                                     bool exportCompletionsAfterMainBoreSegments,
+                                                                                                     CompletionType completionType )
 {
     if ( !eclipseCase || !wellPath || eclipseCase->eclipseCaseData() == nullptr )
     {
@@ -84,15 +86,29 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
     RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
     RicMswExportInfo exportInfo( wellPath, unitSystem, initialMD, mswParameters->lengthAndDepth().text(), mswParameters->pressureDrop().text() );
 
-    // Generate all completion data using existing functions
-    if ( !generatePerforationsMswExportInfo( eclipseCase, wellPath, timeStep, initialMD, cellIntersections, &exportInfo, exportInfo.mainBoreBranch() ) )
+    // Generate completion data based on the completion type parameter
+    const bool createSegmentsForPerforations = ( completionType & CompletionType::PERFORATIONS ) == CompletionType::PERFORATIONS;
+    if ( !generatePerforationsMswExportInfo( eclipseCase,
+                                             wellPath,
+                                             createSegmentsForPerforations,
+                                             timeStep,
+                                             initialMD,
+                                             cellIntersections,
+                                             &exportInfo,
+                                             exportInfo.mainBoreBranch() ) )
     {
         return std::unexpected( "Failed to generate perforations MSW export info" );
     }
 
-    // Add other completion types
-    appendFishbonesMswExportInfo( eclipseCase, wellPath, initialMD, cellIntersections, &exportInfo, exportInfo.mainBoreBranch() );
-    appendFracturesMswExportInfo( eclipseCase, wellPath, initialMD, cellIntersections, &exportInfo, exportInfo.mainBoreBranch() );
+    if ( ( completionType & CompletionType::FISHBONES ) == CompletionType::FISHBONES )
+    {
+        appendFishbonesMswExportInfo( eclipseCase, wellPath, initialMD, cellIntersections, &exportInfo, exportInfo.mainBoreBranch() );
+    }
+
+    if ( ( completionType & CompletionType::FRACTURES ) == CompletionType::FRACTURES )
+    {
+        appendFracturesMswExportInfo( eclipseCase, wellPath, initialMD, cellIntersections, &exportInfo, exportInfo.mainBoreBranch() );
+    }
 
     updateDataForMultipleItemsInSameGridCell( exportInfo.mainBoreBranch() );
 
@@ -127,6 +143,32 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicWellPathExportMswTableData::CompletionType
+    RicWellPathExportMswTableData::convertFromExportSettings( const RicExportCompletionDataSettingsUi& settings )
+{
+    CompletionType result = CompletionType::NONE;
+
+    if ( settings.includePerforations() )
+    {
+        result |= CompletionType::PERFORATIONS;
+    }
+
+    if ( settings.includeFishbones() )
+    {
+        result |= CompletionType::FISHBONES;
+    }
+
+    if ( settings.includeFractures() )
+    {
+        result |= CompletionType::FRACTURES;
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswTableData::generateFishbonesMswExportInfoForWell( const RimEclipseCase* eclipseCase,
                                                                            const RimWellPath*    wellPath,
                                                                            RicMswExportInfo*     exportInfo,
@@ -146,8 +188,16 @@ void RicWellPathExportMswTableData::generateFishbonesMswExportInfoForWell( const
     auto   cellIntersections = generateCellSegments( eclipseCase, wellPath );
     double initialMD         = computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
 
-    int timeStep = 0;
-    if ( !generatePerforationsMswExportInfo( eclipseCase, wellPath, timeStep, initialMD, cellIntersections, exportInfo, exportInfo->mainBoreBranch() ) )
+    int        timeStep                      = 0;
+    const bool createSegmentsForPerforations = true;
+    if ( !generatePerforationsMswExportInfo( eclipseCase,
+                                             wellPath,
+                                             createSegmentsForPerforations,
+                                             timeStep,
+                                             initialMD,
+                                             cellIntersections,
+                                             exportInfo,
+                                             exportInfo->mainBoreBranch() ) )
     {
         return;
     }
@@ -490,15 +540,17 @@ bool RicWellPathExportMswTableData::appendFracturesMswExportInfo( RimEclipseCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportMswTableData::generatePerforationsMswExportInfo( const RimEclipseCase*                            eclipseCase,
-                                                                       const RimWellPath*                               wellPath,
-                                                                       int                                              timeStep,
-                                                                       double                                           initialMD,
+bool RicWellPathExportMswTableData::generatePerforationsMswExportInfo( const RimEclipseCase* eclipseCase,
+                                                                       const RimWellPath*    wellPath,
+                                                                       bool                  createSegmentsForPerforations,
+                                                                       int                   timeStep,
+                                                                       double                initialMD,
                                                                        const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
                                                                        gsl::not_null<RicMswExportInfo*>                 exportInfo,
                                                                        gsl::not_null<RicMswBranch*>                     branch )
 {
-    auto perforationIntervals = wellPath->perforationIntervalCollection()->activePerforations();
+    auto perforationIntervals = createSegmentsForPerforations ? wellPath->perforationIntervalCollection()->activePerforations()
+                                                              : std::vector<const RimPerforationInterval*>();
 
     // Check if there exist overlap between valves in a perforation interval
     for ( const auto& perfInterval : perforationIntervals )
@@ -558,6 +610,7 @@ bool RicWellPathExportMswTableData::generatePerforationsMswExportInfo( const Rim
 
         if ( generatePerforationsMswExportInfo( eclipseCase,
                                                 childWellPath,
+                                                createSegmentsForPerforations,
                                                 timeStep,
                                                 tieInOnParentWellPath,
                                                 childCellIntersections,

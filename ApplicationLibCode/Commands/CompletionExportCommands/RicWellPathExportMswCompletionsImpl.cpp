@@ -41,14 +41,19 @@ namespace internal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigMswUnifiedData extractUnifiedMswData( RimEclipseCase* eclipseCase, int timeStep, const std::vector<RimWellPath*>& wellPaths )
+RigMswUnifiedData
+    extractUnifiedMswData( RimEclipseCase*                  eclipseCase,
+                           int                              timeStep,
+                           const std::vector<RimWellPath*>& wellPaths,
+                           RicWellPathExportMswTableData::CompletionType completionType = RicWellPathExportMswTableData::CompletionType::ALL )
 {
     RigMswUnifiedData unifiedData;
 
     for ( RimWellPath* wellPath : wellPaths )
     {
         bool exportAfterMainbore = true;
-        auto wellData = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, timeStep, exportAfterMainbore );
+        auto wellData =
+            RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, timeStep, exportAfterMainbore, completionType );
         if ( wellData.has_value() )
         {
             unifiedData.addWellData( std::move( wellData.value() ) );
@@ -65,8 +70,8 @@ void exportUnifiedMswData( const RicExportCompletionDataSettingsUi& exportSettin
                            const QString&                           exportFolder,
                            const std::vector<RimWellPath*>&         wellPaths )
 {
-    // Extract all MSW data using new approach
-    RigMswUnifiedData unifiedData = extractUnifiedMswData( exportSettings.caseToApply, exportSettings.timeStep, wellPaths );
+    auto              completionType = RicWellPathExportMswTableData::convertFromExportSettings( exportSettings );
+    RigMswUnifiedData unifiedData = extractUnifiedMswData( exportSettings.caseToApply, exportSettings.timeStep, wellPaths, completionType );
 
     if ( unifiedData.isEmpty() )
     {
@@ -134,11 +139,12 @@ void exportSplitMswData( const RicExportCompletionDataSettingsUi& exportSettings
 {
     for ( const auto& wellPath : wellPaths )
     {
-        // Extract data for single well
+        auto completionType = RicWellPathExportMswTableData::convertFromExportSettings( exportSettings );
         auto wellDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( exportSettings.caseToApply,
                                                                                        wellPath,
                                                                                        exportSettings.timeStep,
-                                                                                       exportSettings.exportCompletionWelspecAfterMainBore() );
+                                                                                       exportSettings.exportCompletionWelspecAfterMainBore(),
+                                                                                       completionType );
 
         if ( !wellDataResult.has_value() )
         {
