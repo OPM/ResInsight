@@ -38,48 +38,63 @@
 
 using namespace rips;
 
+namespace internal
+{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*               context,
-                                                        const rips::SimulatorTableRequest* request,
-                                                        rips::SimulatorTableData*          reply )
-
+void populateReply( RimEclipseCase* eclipseCase, RimWellPath* wellPath, ::rips::SimulatorTableData* reply )
 {
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( request->case_id() ) );
-    if ( !eclipseCase )
-    {
-        return grpc::Status( grpc::NOT_FOUND, "Case not found" );
-    }
-
-    RimWellPath* wellPath = nullptr;
-
-    if ( auto proj = RimProject::current() )
-    {
-        wellPath = proj->wellPathByName( QString::fromStdString( request->wellpath_name() ) );
-    }
-
-    if ( !wellPath )
-    {
-        return grpc::Status( grpc::NOT_FOUND, "Well path " + request->wellpath_name() + " not found" );
-    }
-
+    std::set<QString> gridNames;
     auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( wellPath, eclipseCase );
     for ( const auto& cd : compdata )
     {
         SimulatorCompdatEntry* grpcData = reply->add_compdat();
         RiaWellPathDataToGrpcConverter::copyCompdatToGrpc( cd, grpcData );
+
+        auto completionCell = cd.completionDataGridCell();
+        gridNames.insert( completionCell.lgrName() );
+
+        const auto wpimult = cd.wpimult();
+        if ( wpimult != 0.0 && !RigCompletionData::isDefaultValue( wpimult ) )
+        {
+            const auto wellName = wellPath->completionSettings()->wellNameForExport();
+
+            SimulatorWpimultEntry* grpcWpiData = reply->add_wpimult();
+            grpcWpiData->set_well_name( wellName.toStdString() );
+            grpcWpiData->set_pimult( wpimult );
+            grpcWpiData->set_i( completionCell.localCellIndexI() + 1 );
+            grpcWpiData->set_j( completionCell.localCellIndexJ() + 1 );
+            grpcWpiData->set_k( completionCell.localCellIndexK() + 1 );
+            grpcWpiData->set_grid_name( completionCell.lgrName().toStdString() );
+        }
     }
 
-    auto ijPos = RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath );
-    auto compSettings = wellPath->completionSettings();
+    // See RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile
+    // Find the grid with the uppermost intersection along the well path
+    std::tuple<double, cvf::Vec2i, QString> itemWithLowestMD =
+        std::make_tuple( std::numeric_limits<double>::max(), cvf::Vec2i(), "" );
+
+    for ( const auto& gridName : gridNames )
+    {
+        auto candidate =
+            RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath, gridName );
+        if ( candidate.first < std::get<0>( itemWithLowestMD ) )
+        {
+            itemWithLowestMD = std::make_tuple( candidate.first, candidate.second, gridName );
+        }
+    }
+
+    auto       compSettings   = wellPath->completionSettings();
+    cvf::Vec2i ijIntersection = std::get<1>( itemWithLowestMD );
+    QString    lgrName        = std::get<2>( itemWithLowestMD );
 
     SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
     RiaWellPathDataToGrpcConverter::copyWelspecsToGrpc( compSettings,
                                                         grpcData,
-                                                        eclipseCase,
-                                                        ijPos.second.x(),
-                                                        ijPos.second.y() );
+                                                        ijIntersection.x(),
+                                                        ijIntersection.y(),
+                                                        lgrName.toStdString() );
 
     // Multisegment wells
 
@@ -99,6 +114,37 @@ grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*    
         RiaWellPathDataToGrpcConverter::copyWsegvalvToGrpc( tables, reply );
         RiaWellPathDataToGrpcConverter::copyWsegaicdToGrpc( tables, reply );
     }
+}
+
+} // namespace internal
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcWellPathService::GetCompletionData( grpc::ServerContext*               context,
+                                                        const rips::SimulatorTableRequest* request,
+                                                        rips::SimulatorTableData*          reply )
+
+{
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( request->case_id() ) );
+    if ( !eclipseCase )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Case not found" );
+    }
+
+    auto proj = RimProject::current();
+    if ( !proj )
+    {
+        return grpc::Status( grpc::INTERNAL, "No current project" );
+    }
+
+    auto wellPath = proj->wellPathByName( QString::fromStdString( request->wellpath_name() ) );
+    if ( !wellPath )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Well path " + request->wellpath_name() + " not found" );
+    }
+
+    internal::populateReply( eclipseCase, wellPath, reply );
 
     return grpc::Status::OK;
 }
@@ -126,48 +172,9 @@ grpc::Status RiaGrpcWellPathService::GetCompletionDataUnified( grpc::ServerConte
     for ( const std::string& wellPathName : request->wellpath_names() )
     {
         RimWellPath* wellPath = proj->wellPathByName( QString::fromStdString( wellPathName ) );
-        if ( !wellPath )
-        {
-            // Continue processing other wells instead of failing the entire request
-            continue;
-        }
+        if ( !wellPath ) continue;
 
-        // Add completion data for this well
-        auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( wellPath, eclipseCase );
-        for ( const auto& cd : compdata )
-        {
-            SimulatorCompdatEntry* grpcData = reply->add_compdat();
-            RiaWellPathDataToGrpcConverter::copyCompdatToGrpc( cd, grpcData );
-        }
-
-        // Add welspecs data for this well
-        auto ijPos = RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath );
-        auto compSettings = wellPath->completionSettings();
-
-        SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
-        RiaWellPathDataToGrpcConverter::copyWelspecsToGrpc( compSettings,
-                                                            grpcData,
-                                                            eclipseCase,
-                                                            ijPos.second.x(),
-                                                            ijPos.second.y() );
-
-        // Add multisegment well data for this well
-        int timeStep = 0;
-        auto mswDataContainer = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, timeStep );
-        if ( mswDataContainer.has_value() )
-        {
-            auto tables = mswDataContainer.value();
-
-            if ( tables.hasWelsegsData() )
-            {
-                SimulatorWelsegsEntry* grpcSegData = reply->add_welsegs();
-                RiaWellPathDataToGrpcConverter::copyWelsegsToGrpc( tables, grpcSegData );
-            }
-
-            RiaWellPathDataToGrpcConverter::copyCompsegsToGrpc( tables, reply );
-            RiaWellPathDataToGrpcConverter::copyWsegvalvToGrpc( tables, reply );
-            RiaWellPathDataToGrpcConverter::copyWsegaicdToGrpc( tables, reply );
-        }
+        internal::populateReply( eclipseCase, wellPath, reply );
     }
 
     return grpc::Status::OK;

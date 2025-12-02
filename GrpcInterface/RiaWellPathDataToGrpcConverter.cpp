@@ -72,6 +72,9 @@ void RiaWellPathDataToGrpcConverter::copyCompdatToGrpc( const RigCompletionData&
         compDat->set_start_md( inputData.startMD().value() );
         compDat->set_end_md( inputData.endMD().value() );
     }
+
+    // Set LGR grid name, empty string for main grid
+    compDat->set_grid_name( inputData.completionDataGridCell().lgrName().toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,9 +82,9 @@ void RiaWellPathDataToGrpcConverter::copyCompdatToGrpc( const RigCompletionData&
 //--------------------------------------------------------------------------------------------------
 void RiaWellPathDataToGrpcConverter::copyWelspecsToGrpc( const RimWellPathCompletionSettings* compSettings,
                                                          rips::SimulatorWelspecsEntry*        grpcData,
-                                                         RimEclipseCase*                      eclipseCase,
                                                          int                                  gridI,
-                                                         int                                  gridJ )
+                                                         int                                  gridJ,
+                                                         std::string                          gridName )
 {
     grpcData->set_well_name( compSettings->wellNameForExport().toStdString() );
     grpcData->set_group_name( compSettings->groupNameForExport().toStdString() );
@@ -105,6 +108,9 @@ void RiaWellPathDataToGrpcConverter::copyWelspecsToGrpc( const RimWellPathComple
     grpcData->set_pvt_num( compSettings->wellBoreFluidPVT() );
     grpcData->set_hydrostatic_density_calc( compSettings->hydrostaticDensityForExport().toStdString() );
     grpcData->set_fip_region( compSettings->fluidInPlaceRegion() );
+
+    // Set LGR grid name, empty string for main grid
+    grpcData->set_grid_name( gridName );
 }
 
 //--------------------------------------------------------------------------------------------------

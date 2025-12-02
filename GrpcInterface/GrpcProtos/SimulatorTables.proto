@@ -38,6 +38,7 @@ message SimulatorCompdatEntry {
   optional double start_md = 14;
   optional double end_md = 15;
   optional string comment = 16;
+  optional string grid_name = 17;
 }
 
 message SimulatorWelspecsEntry {
@@ -54,6 +55,7 @@ message SimulatorWelspecsEntry {
   optional int32 pvt_num = 11;
   optional string hydrostatic_density_calc = 12;
   optional int32 fip_region = 13;
+  optional string grid_name = 14;
 }
 
 message SimulatorWelsegsHeaderEntry {
@@ -131,6 +133,15 @@ message SimulatorWsegaicdEntry {
   optional string description = 22;
 }
 
+message SimulatorWpimultEntry {
+  string well_name = 1;
+  double pimult = 2;
+  int32 i = 3;
+  int32 j = 4;
+  int32 k = 5;
+  optional string grid_name = 6;
+}
+
 message SimulatorTableData {
   repeated SimulatorCompdatEntry compdat = 1;
   repeated SimulatorWelspecsEntry welspecs = 2;
@@ -138,5 +149,6 @@ message SimulatorTableData {
   repeated SimulatorCompsegsEntry compsegs = 4;
   repeated SimulatorWsegvalvEntry wsegvalv = 5;
   repeated SimulatorWsegaicdEntry wsegaicd = 6;
+  repeated SimulatorWpimultEntry wpimult = 7;
 }
 

@@ -22,7 +22,6 @@
 
 class RigCompletionData;
 class RimWellPathCompletionSettings;
-class RimEclipseCase;
 class RigMswTableData;
 
 //==================================================================================================
@@ -37,9 +36,9 @@ public:
 
     static void copyWelspecsToGrpc( const RimWellPathCompletionSettings* compSettings,
                                     rips::SimulatorWelspecsEntry*        grpcData,
-                                    RimEclipseCase*                      eclipseCase,
                                     int                                  gridI,
-                                    int                                  gridJ );
+                                    int                                  gridJ,
+                                    std::string                          gridName );
 
     static void copyWelsegsToGrpc( const RigMswTableData& mswTableData, rips::SimulatorWelsegsEntry* grpcData );
     static void copyCompsegsToGrpc( const RigMswTableData& mswTableData, rips::SimulatorTableData* reply );

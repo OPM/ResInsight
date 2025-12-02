@@ -24,20 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace rips
-{
-class SimulationWellRequest;
-class SimulationWellStatus;
-class SimulatorWelspecsEntry;
-class SimulatorWelsegsEntry;
-} // namespace rips
-
 class RiaGrpcCallbackInterface;
-
-class RimEclipseCase;
-class RimWellPathCompletionSettings;
-class RigCompletionData;
-class RigMswTableData;
 
 //==================================================================================================
 //

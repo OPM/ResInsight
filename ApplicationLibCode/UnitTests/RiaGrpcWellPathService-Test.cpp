@@ -222,11 +222,12 @@ TEST( RiaGrpcWellPathServiceTest, copyWelspecsToGrpcCopiesAllFields )
     rips::SimulatorWelspecsEntry grpcData;
 
     // Test coordinates
-    int gridI = 10;
-    int gridJ = 20;
+    int         gridI    = 10;
+    int         gridJ    = 20;
+    std::string gridName = "";
 
     // Call the function under test
-    RiaWellPathDataToGrpcConverter::copyWelspecsToGrpc( &compSettings, &grpcData, nullptr, gridI, gridJ );
+    RiaWellPathDataToGrpcConverter::copyWelspecsToGrpc( &compSettings, &grpcData, gridI, gridJ, gridName );
 
     // Verify basic fields are copied
     EXPECT_EQ( grpcData.well_name(), "TEST_WELL" );
