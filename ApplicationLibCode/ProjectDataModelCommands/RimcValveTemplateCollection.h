@@ -36,14 +36,23 @@ class RimcValveTemplateCollection_add_template : public caf::PdmObjectCreationMe
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class ValveTemplateType
+    {
+        ICD,
+        ICV,
+        AICD,
+        UNDEFINED
+    };
+
+public:
     RimcValveTemplateCollection_add_template( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<caf::AppEnum<RiaDefines::WellPathComponentType>> m_completionType;
-    caf::PdmField<double>                                          m_orificeDiameter;
-    caf::PdmField<double>                                          m_flowCoefficient;
-    caf::PdmField<QString>                                         m_userLabel;
+    caf::PdmField<caf::AppEnum<ValveTemplateType>> m_completionType;
+    caf::PdmField<double>                          m_orificeDiameter;
+    caf::PdmField<double>                          m_flowCoefficient;
+    caf::PdmField<QString>                         m_userLabel;
 };

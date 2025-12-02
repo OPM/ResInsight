@@ -24,6 +24,17 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
+template <>
+void caf::AppEnum<RimcValveTemplateCollection_add_template::ValveTemplateType>::setUp()
+{
+    addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::ICD, "ICD", "Inflow Control Device" );
+    addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::ICV, "ICV", "Inflow Control Valve" );
+    addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::AICD, "AICD", "Adaptive Inflow Control Device" );
+    addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::UNDEFINED, "UNDEFINED", "Undefined Valve Template" );
+
+    setDefault( RimcValveTemplateCollection_add_template::ValveTemplateType::UNDEFINED );
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimValveTemplateCollection, RimcValveTemplateCollection_add_template, "AddTemplate" );
 
 //--------------------------------------------------------------------------------------------------
@@ -36,7 +47,7 @@ RimcValveTemplateCollection_add_template::RimcValveTemplateCollection_add_templa
 
     CAF_PDM_InitScriptableField( &m_completionType,
                                  "CompletionType",
-                                 caf::AppEnum<RiaDefines::WellPathComponentType>( RiaDefines::WellPathComponentType::ICD ),
+                                 caf::AppEnum<ValveTemplateType>( ValveTemplateType::UNDEFINED ),
                                  "",
                                  "",
                                  "",
@@ -57,12 +68,21 @@ std::expected<caf::PdmObjectHandle*, QString> RimcValveTemplateCollection_add_te
         return std::unexpected( QString( "Invalid valve template collection" ) );
     }
 
-    // Validate completion type
-    RiaDefines::WellPathComponentType completionType = m_completionType();
-    if ( completionType != RiaDefines::WellPathComponentType::ICD && completionType != RiaDefines::WellPathComponentType::ICV &&
-         completionType != RiaDefines::WellPathComponentType::AICD )
+    // Map ValveTemplateType to WellPathComponentType
+    RiaDefines::WellPathComponentType completionType;
+    switch ( m_completionType() )
     {
-        return std::unexpected( QString( "Invalid completion type. Must be ICD, ICV, or AICD" ) );
+        case ValveTemplateType::ICD:
+            completionType = RiaDefines::WellPathComponentType::ICD;
+            break;
+        case ValveTemplateType::ICV:
+            completionType = RiaDefines::WellPathComponentType::ICV;
+            break;
+        case ValveTemplateType::AICD:
+            completionType = RiaDefines::WellPathComponentType::AICD;
+            break;
+        default:
+            return std::unexpected( QString( "Unknown completion type" ) );
     }
 
     // Create new valve template
