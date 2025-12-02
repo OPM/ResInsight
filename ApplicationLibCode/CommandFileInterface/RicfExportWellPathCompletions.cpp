@@ -51,10 +51,6 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 
     CAF_PDM_InitScriptableField( &m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split" );
     CAF_PDM_InitScriptableField( &m_compdatExport, "compdatExport", RicExportCompletionDataSettingsUi::CompdatExportType(), "Compdat Export" );
-    CAF_PDM_InitScriptableField( &m_combinationMode,
-                                 "combinationMode",
-                                 RicExportCompletionDataSettingsUi::CombinationModeType(),
-                                 "Combination Mode" );
 
     CAF_PDM_InitScriptableField( &m_includeMsw, "includeMsw", true, "Export Multi Segment Well Model" );
     CAF_PDM_InitScriptableField( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally" );
@@ -114,8 +110,6 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     exportSettings.includeFishbones            = m_includeFishbones;
     exportSettings.excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
     exportSettings.includeFractures            = m_includeFractures;
-
-    exportSettings.setCombinationMode( m_combinationMode() );
 
     exportSettings.setExportDataSourceAsComment( m_exportDataSourceAsComments );
     exportSettings.setExportWelspec( m_exportWelspec );

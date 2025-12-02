@@ -43,9 +43,8 @@ private:
     caf::PdmField<int>                  m_timeStep;
     caf::PdmField<std::vector<QString>> m_wellPathNames;
 
-    caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType>     m_fileSplit;
-    caf::PdmField<RicExportCompletionDataSettingsUi::CompdatExportType>   m_compdatExport;
-    caf::PdmField<RicExportCompletionDataSettingsUi::CombinationModeType> m_combinationMode;
+    caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType>   m_fileSplit;
+    caf::PdmField<RicExportCompletionDataSettingsUi::CompdatExportType> m_compdatExport;
 
     caf::PdmField<bool>                                                      m_performTransScaling;
     caf::PdmField<int>                                                       m_transScalingTimeStep;

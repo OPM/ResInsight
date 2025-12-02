@@ -199,9 +199,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                 }
 
                 std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;
-                std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFishbones;
-                std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFracture;
-                std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellPerforations;
 
                 for ( auto wellPathLateral : allWellPathLaterals )
                 {
@@ -220,7 +217,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                                exportSettings );
 
                         appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, perforationCompletionData );
-                        appendCompletionData( &completionsPerEclipseCellPerforations, perforationCompletionData );
                     }
 
                     if ( exportSettings.includeFishbones )
@@ -233,7 +229,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                                                                                                      exportSettings );
 
                         appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fishbonesCompletionData );
-                        appendCompletionData( &completionsPerEclipseCellFishbones, fishbonesCompletionData );
                     }
 
                     if ( exportSettings.includeFractures() )
@@ -253,33 +248,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                                                                exportSettings.transScalingWBHP() ) );
 
                         appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fractureCompletionData );
-                        appendCompletionData( &completionsPerEclipseCellFracture, fractureCompletionData );
                     }
                 }
 
-                if ( exportSettings.reportCompletionsTypesIndividually() )
+                for ( auto& data : completionsPerEclipseCellAllCompletionTypes )
                 {
-                    for ( auto& data : completionsPerEclipseCellFracture )
-                    {
-                        completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
-                    }
-
-                    for ( auto& data : completionsPerEclipseCellFishbones )
-                    {
-                        completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
-                    }
-
-                    for ( auto& data : completionsPerEclipseCellPerforations )
-                    {
-                        completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
-                    }
-                }
-                else
-                {
-                    for ( auto& data : completionsPerEclipseCellAllCompletionTypes )
-                    {
-                        completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
-                    }
+                    completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
                 }
 
                 progress.incrementProgress();

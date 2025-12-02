@@ -50,14 +50,6 @@ public:
     };
     using CompdatExportType = caf::AppEnum<CompdatExport>;
 
-    // Exported in .proto file. Do not change without changing .proto
-    enum class CombinationMode
-    {
-        INDIVIDUALLY,
-        COMBINED,
-    };
-    using CombinationModeType = caf::AppEnum<CombinationMode>;
-
     using TransScalingWBHPSource = caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionWBHPSource>;
 
     RicExportCompletionDataSettingsUi();
@@ -82,13 +74,9 @@ public:
 
     void enableIncludeMsw();
 
-    void setCombinationMode( CombinationMode combinationMode );
-
     void showFractureInUi( bool enable );
     void showPerforationsInUi( bool enable );
     void showFishbonesInUi( bool enable );
-
-    bool reportCompletionsTypesIndividually() const;
 
     void setExportDataSourceAsComment( bool enable );
     bool exportDataSourceAsComment() const;
@@ -111,8 +99,6 @@ protected:
     std::map<int, std::vector<std::pair<QString, QString>>> generateWellProductionStartStrings();
 
 private:
-    caf::PdmField<CombinationModeType> m_reportCompletionTypesSeparately;
-
     caf::PdmField<bool>    m_exportDataSourceAsComment;
     caf::PdmField<bool>    m_exportWelspec;
     caf::PdmField<bool>    m_completionWelspecAfterMainBore;

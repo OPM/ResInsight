@@ -50,14 +50,6 @@ void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
 }
 
 template <>
-void RicExportCompletionDataSettingsUi::CombinationModeType::setUp()
-{
-    addItem( RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY, "INDIVIDUALLY", "Individually" );
-    addItem( RicExportCompletionDataSettingsUi::CombinationMode::COMBINED, "COMBINED", "Combined" );
-    setDefault( RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY );
-}
-
-template <>
 void RicExportCompletionDataSettingsUi::TransScalingWBHPSource::setUp()
 {
     addItem( RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY, "WBHP_SUMMARY", "WBHP From Summary Case" );
@@ -104,8 +96,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                        "definition",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_reportCompletionTypesSeparately, "ReportCompletionTypesSeparately", "Export Completion Types" );
-
     CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comments" );
 
     CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "WELSPEC keyword" );
@@ -125,14 +115,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 void RicExportCompletionDataSettingsUi::enableIncludeMsw()
 {
     includeMsw = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::setCombinationMode( CombinationMode combinationMode )
-{
-    m_reportCompletionTypesSeparately = combinationMode;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,14 +147,6 @@ void RicExportCompletionDataSettingsUi::showPerforationsInUi( bool enable )
 void RicExportCompletionDataSettingsUi::showFishbonesInUi( bool enable )
 {
     m_fishbonesEnabled = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() const
-{
-    return m_reportCompletionTypesSeparately() == CombinationMode::INDIVIDUALLY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,7 +325,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "File Settings" );
         group->add( &fileSplit );
-        group->add( &m_reportCompletionTypesSeparately );
         group->add( &folder );
 
         if ( fileSplit() == ExportSplit::UNIFIED_FILE )
