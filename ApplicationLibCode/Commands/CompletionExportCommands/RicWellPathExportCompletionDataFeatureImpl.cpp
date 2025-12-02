@@ -314,62 +314,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 exportSettings.exportWelspec() );
             }
         }
-        else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
-        {
-            std::vector<RigCompletionData::CompletionType> completionTypes;
-            completionTypes.push_back( RigCompletionData::CompletionType::FISHBONES );
-            completionTypes.push_back( RigCompletionData::CompletionType::FRACTURE );
-            completionTypes.push_back( RigCompletionData::CompletionType::PERFORATION );
-
-            for ( const auto& completionType : completionTypes )
-            {
-                for ( auto wellPath : wellPaths )
-                {
-                    std::vector<RigCompletionData> completionsForWell;
-                    for ( const auto& completion : completions )
-                    {
-                        if ( completionType == completion.completionType() )
-                        {
-                            if ( wellPath == topLevelWellPath( completion ) )
-                            {
-                                completionsForWell.push_back( completion );
-                            }
-                        }
-                    }
-
-                    if ( completionsForWell.empty() ) continue;
-
-                    std::vector<RicWellPathFractureReportItem> reportItemsForWell;
-                    if ( completionType == RigCompletionData::CompletionType::FRACTURE )
-                    {
-                        for ( const auto& fracItem : fractureDataReportItems )
-                        {
-                            if ( fracItem.wellPathNameForExport() == wellPath->completionSettings()->wellNameForExport() )
-                            {
-                                reportItemsForWell.push_back( fracItem );
-                            }
-                        }
-                    }
-
-                    {
-                        QString completionTypeText;
-                        if ( completionType == RigCompletionData::CompletionType::FISHBONES ) completionTypeText = "Fishbones";
-                        if ( completionType == RigCompletionData::CompletionType::FRACTURE ) completionTypeText = "Fracture";
-                        if ( completionType == RigCompletionData::CompletionType::PERFORATION ) completionTypeText = "Perforation";
-
-                        QString fileName = QString( "%1_%2_%3" ).arg( wellPath->name() ).arg( completionTypeText ).arg( eclipseCaseName );
-                        sortAndExportCompletionsToFile( exportSettings.caseToApply,
-                                                        exportSettings.folder,
-                                                        fileName,
-                                                        completionsForWell,
-                                                        reportItemsForWell,
-                                                        exportSettings.compdatExport,
-                                                        exportSettings.exportDataSourceAsComment(),
-                                                        exportSettings.exportWelspec() );
-                    }
-                }
-            }
-        }
     }
 
     if ( exportSettings.includeMsw )

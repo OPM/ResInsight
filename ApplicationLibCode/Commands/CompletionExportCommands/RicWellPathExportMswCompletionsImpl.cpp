@@ -190,9 +190,7 @@ void exportSplitMswData( const RicExportCompletionDataSettingsUi& exportSettings
 void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( const RicExportCompletionDataSettingsUi& exportSettings,
                                                                                const std::vector<RimWellPath*>&         wellPaths )
 {
-    // There are two modes of MSW export, either split on well or unified. The split on completion type is used for export of COMPDAT
-    if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL ||
-         exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
+    if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL )
     {
         internal::exportSplitMswData( exportSettings, exportSettings.folder(), wellPaths );
     }

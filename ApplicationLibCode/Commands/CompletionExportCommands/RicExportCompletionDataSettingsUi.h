@@ -38,7 +38,6 @@ public:
     {
         UNIFIED_FILE,
         SPLIT_ON_WELL,
-        SPLIT_ON_WELL_AND_COMPLETION_TYPE,
     };
     using ExportSplitType = caf::AppEnum<ExportSplit>;
 
