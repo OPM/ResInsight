@@ -458,7 +458,8 @@ void RicExportSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         applyBoundaryDefaults();
         updateConnectedEditors();
     }
-    if ( changedField == &m_visibleWellsPadding )
+    if ( changedField == &m_visibleWellsPadding || changedField == &m_minI || changedField == &m_maxI || changedField == &m_minJ ||
+         changedField == &m_maxJ || changedField == &m_minK || changedField == &m_maxK )
     {
         applyBoundaryDefaults();
     }
