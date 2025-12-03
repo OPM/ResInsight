@@ -1,3 +1,4 @@
+#pragma execution_character_set( "utf-8" )
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-     Statoil ASA
@@ -23,7 +24,8 @@
 const std::string RiaStringEncodingTools::toNativeEncoded( const QString& qstring )
 {
 #ifdef WIN32
-    return std::string( qstring.toLatin1().data() );
+    return std::string( qstring.toLocal8Bit().data() );
+    // return std::string( qstring.toLatin1().data() );
 #else
     return std::string( qstring.toUtf8().data() );
 #endif
@@ -35,6 +37,7 @@ const std::string RiaStringEncodingTools::toNativeEncoded( const QString& qstrin
 const QString RiaStringEncodingTools::fromNativeEncoded( const char* native )
 {
 #ifdef WIN32
+    return QString::fromLocal8Bit( native );
     return QString::fromLatin1( native );
 #else
     return QString::fromUtf8( native );

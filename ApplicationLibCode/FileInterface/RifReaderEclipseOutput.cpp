@@ -470,7 +470,12 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         }
         else
         {
-            auto isRadial = RifOpmRadialGridTools::tryConvertRadialGridToCartesianGrid( fileName.toStdString(), eclipseCaseData->mainGrid() );
+#ifdef WIN32
+            std::string pathForOpm = fileName.toLocal8Bit().constData();
+#else
+            std::string pathForOpm = fileName.toUtf8().constData();
+#endif
+            auto isRadial = RifOpmRadialGridTools::tryConvertRadialGridToCartesianGrid( pathForOpm, eclipseCaseData->mainGrid() );
             mainGrid->setIsRadial( isRadial );
         }
     }

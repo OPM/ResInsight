@@ -1,3 +1,4 @@
+#pragma execution_character_set("utf-8")
 /**
    This file implements a simpler version of the util_abort() function
    which does not present a backtrace.
