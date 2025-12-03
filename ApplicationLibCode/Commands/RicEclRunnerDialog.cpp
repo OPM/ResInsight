@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicEclRunnerDialog.h"
+#include "RiaLogging.h"
 // #include <Windows.h>
 #include <chrono>
 #include <thread>
@@ -414,6 +415,28 @@ void RicEclRunnerDialog::startNextProcess()
     QFileInfo fileInfo( fileToRun );
     QString   workingDir = fileInfo.absolutePath();
     QString   dataArg    = fileInfo.completeBaseName();
+
+    // Check for FMTOUT in the data file and log its presence. Do not parse/replace dataArg.
+    {
+        QFile df( fileToRun );
+        if ( df.open( QFile::ReadOnly ) )
+        {
+            // Read a reasonably sized head of the file to look for FMTOUT
+            QByteArray head = df.read( 16 * 1024 );
+            df.close();
+
+            QString headStr = QString::fromUtf8( head );
+            if ( headStr.isEmpty() ) headStr = QString::fromLocal8Bit( head );
+
+            QRegularExpression fmtRe( "\\bFMTOUT\\b", QRegularExpression::CaseInsensitiveOption );
+            if ( fmtRe.match( headStr ).hasMatch() )
+            {
+                if ( row >= 0 && row < m_taskLogs.size() )
+                    RiaLogging::warning(
+                        QString( "This Data`s grid will be output as .FEGRID file,which cannot be viewed,you can remove the 'FMTOUT' field in .DATA file " ) );
+            }
+        }
+    }
 
     QString model   = m_taskModels[row];
     QString exePath = ( model == "Y-3" ) ? "D:/e300/e300.exe" : "D:/eclipse/eclrun.exe";

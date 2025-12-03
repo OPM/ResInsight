@@ -3377,6 +3377,10 @@ ecl_grid_type * ecl_grid_alloc_GRID(const char * grid_file, bool apply_mapaxes) 
     int cell_offset = 0;
     ecl_file_type * ecl_file  = ecl_file_open( grid_file , 0);
     int num_grid              = ecl_file_get_num_named_kw( ecl_file , DIMENS_KW);
+
+    if(0 == num_grid)
+		return NULL;
+
     ecl_grid_type * main_grid;
     int grid_nr;
     int dualp_flag;
