@@ -139,9 +139,9 @@ public:
     static std::vector<int> uniqueClosestIndices( const std::vector<double>& sourceValues, const std::vector<double>& valuesToMatch );
 
 private:
-    static VfpPlotData populatePlotData( const Opm::VFPInjTable&                 table,
-                                         RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                                         RimVfpDefines::FlowingPhaseType         flowingPhase );
+    VfpPlotData populatePlotData( const Opm::VFPInjTable&                 table,
+                                  RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                  RimVfpDefines::FlowingPhaseType         flowingPhase ) const;
 
     VfpPlotData populatePlotData( const Opm::VFPProdTable&                table,
                                   RimVfpDefines::ProductionVariableType   primaryVariable,
@@ -157,12 +157,18 @@ private:
                                   RimVfpDefines::FlowingPhaseType         flowingPhase,
                                   const VfpValueSelection&                valueSelection ) const;
 
-    static QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase );
-    static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
-    static QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType );
+    QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase ) const;
+    QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType ) const;
+    QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType ) const;
+    
+    static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem );
+    static QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem );
 
-    static double convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
-    static void   convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
+    double convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType ) const;
+    void   convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType ) const;
+    
+    static double convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem );
+    static void   convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem );
 
     static QString textForPlotData( const VfpPlotData& plotData );
 

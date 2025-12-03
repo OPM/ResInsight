@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPInjTable&                 table,
                                             RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                                            RimVfpDefines::FlowingPhaseType         flowingPhase )
+                                            RimVfpDefines::FlowingPhaseType         flowingPhase ) const
 {
     VfpPlotData plotData;
 
@@ -411,7 +411,7 @@ std::vector<int> RigVfpTables::uniqueClosestIndices( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigVfpTables::axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase )
+QString RigVfpTables::axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase ) const
 {
     QString title;
 
@@ -432,11 +432,27 @@ QString RigVfpTables::axisTitle( RimVfpDefines::ProductionVariableType variableT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigVfpTables::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType )
+QString RigVfpTables::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType ) const
 {
-    if ( variableType == RimVfpDefines::ProductionVariableType::THP ) return "Bar";
+    return getDisplayUnit( variableType, m_unitSystem );
+}
 
-    if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE ) return "Sm3/day";
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigVfpTables::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem )
+{
+    bool isFieldUnits = ( unitSystem.getType() == Opm::UnitSystem::UnitType::UNIT_TYPE_FIELD );
+
+    if ( variableType == RimVfpDefines::ProductionVariableType::THP )
+    {
+        return isFieldUnits ? "psia" : "Bar";
+    }
+
+    if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
+    {
+        return isFieldUnits ? "stb/day" : "Sm3/day";
+    }
 
     return "";
 }
@@ -444,9 +460,17 @@ QString RigVfpTables::getDisplayUnit( RimVfpDefines::ProductionVariableType vari
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigVfpTables::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType )
+QString RigVfpTables::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType ) const
 {
-    QString unit = getDisplayUnit( variableType );
+    return getDisplayUnitWithBracket( variableType, m_unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigVfpTables::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem )
+{
+    QString unit = getDisplayUnit( variableType, unitSystem );
     if ( !unit.isEmpty() ) return QString( "[%1]" ).arg( unit );
 
     return {};
@@ -455,17 +479,37 @@ QString RigVfpTables::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariab
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigVfpTables::convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType )
+double RigVfpTables::convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType ) const
 {
+    return convertToDisplayUnit( value, variableType, m_unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigVfpTables::convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem )
+{
+    bool isFieldUnits = ( unitSystem.getType() == Opm::UnitSystem::UnitType::UNIT_TYPE_FIELD );
+
     if ( variableType == RimVfpDefines::ProductionVariableType::THP )
     {
-        return RiaEclipseUnitTools::pascalToBar( value );
+        if ( isFieldUnits )
+        {
+            // Convert from psi (field) to psia - no conversion needed, already in correct units
+            return value;
+        }
+        else
+        {
+            // Convert Pascal (SI) to Bar (metric)
+            return RiaEclipseUnitTools::pascalToBar( value );
+        }
     }
 
     if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
     {
-        // Convert to m3/sec to m3/day
-        return value * static_cast<double>( 24 * 60 * 60 );
+        // Convert from per-second to per-day for both unit systems
+        const double secToDay = 24.0 * 60.0 * 60.0;
+        return value * secToDay;
     }
 
     return value;
@@ -474,10 +518,20 @@ double RigVfpTables::convertToDisplayUnit( double value, RimVfpDefines::Producti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigVfpTables::convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType )
+void RigVfpTables::convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType ) const
+{
+    convertToDisplayUnit( values, variableType, m_unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigVfpTables::convertToDisplayUnit( std::vector<double>&                  values,
+                                         RimVfpDefines::ProductionVariableType variableType,
+                                         const Opm::UnitSystem&                unitSystem )
 {
     for ( double& value : values )
-        value = convertToDisplayUnit( value, variableType );
+        value = convertToDisplayUnit( value, variableType, unitSystem );
 }
 
 //--------------------------------------------------------------------------------------------------
