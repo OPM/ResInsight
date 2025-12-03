@@ -54,6 +54,9 @@ public:
     static std::expected<Opm::DeckRecord, QString>
         processEqualsRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
 
+    static std::expected<Opm::DeckRecord, QString>
+        processMultiplyRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+
 private:
     static std::expected<void, QString> updateCornerPointGridInDeckFile( RimEclipseCase*                   eclipseCase,
                                                                          const RigSimulationInputSettings& settings,
@@ -71,6 +74,9 @@ private:
 
     static std::expected<void, QString>
         replaceEqualsKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+
+    static std::expected<void, QString>
+        replaceMultiplyKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
     static std::expected<void, QString>
         addFaultsToDeckFile( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
