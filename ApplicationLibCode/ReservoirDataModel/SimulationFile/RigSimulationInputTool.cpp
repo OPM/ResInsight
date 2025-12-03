@@ -270,12 +270,6 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
                 RiaLogging::warning( QString( "Failed to replace keyword '%1' in deck" ).arg( keyword ) );
             }
         }
-        else
-        {
-            // Not all keywords will have data - this is expected
-            RiaLogging::debug(
-                QString( "Could not extract data for keyword '%1': %2" ).arg( keyword ).arg( QString::fromStdString( result.error() ) ) );
-        }
     }
 
     return {};
