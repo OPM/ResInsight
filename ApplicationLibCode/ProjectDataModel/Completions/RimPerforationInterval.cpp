@@ -50,6 +50,7 @@ RimPerforationInterval::RimPerforationInterval()
     CAF_PDM_InitScriptableField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD" );
     CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.216, "Diameter" );
     CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
+    CAF_PDM_InitScriptableField( &m_completionNumber, "CompletionNumber", 0, "Completion Number" );
 
     CAF_PDM_InitField( &m_startOfHistory_OBSOLETE, "StartOfHistory", true, "All Timesteps" );
     m_startOfHistory_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -156,6 +157,22 @@ double RimPerforationInterval::diameter( RiaDefines::EclipseUnitSystem unitSyste
 double RimPerforationInterval::skinFactor() const
 {
     return m_skinFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::setCompletionNumber( int number )
+{
+    m_completionNumber = number;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPerforationInterval::completionNumber() const
+{
+    return m_completionNumber();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -363,13 +380,15 @@ void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_endMD );
     uiOrdering.add( &m_diameter );
     uiOrdering.add( &m_skinFactor );
+    uiOrdering.add( &m_completionNumber );
 
-    uiOrdering.add( &m_useCustomStartDate );
-    uiOrdering.add( &m_startDate );
+    auto dateGrp = uiOrdering.addNewGroup( "Date Settings" );
+    dateGrp->setCollapsedByDefault();
+    dateGrp->add( &m_useCustomStartDate );
+    dateGrp->add( &m_startDate );
     m_startDate.uiCapability()->setUiReadOnly( !m_useCustomStartDate );
-
-    uiOrdering.add( &m_useCustomEndDate );
-    uiOrdering.add( &m_endDate );
+    dateGrp->add( &m_useCustomEndDate );
+    dateGrp->add( &m_endDate );
     m_endDate.uiCapability()->setUiReadOnly( !m_useCustomEndDate );
 
     uiOrdering.skipRemainingFields();

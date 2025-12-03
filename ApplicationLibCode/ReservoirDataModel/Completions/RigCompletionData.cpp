@@ -46,6 +46,7 @@ RigCompletionData::RigCompletionData( const QString& wellName, const RigCompleti
     , m_secondOrderingValue( std::numeric_limits<double>::infinity() )
     , m_startMD( std::nullopt )
     , m_endMD( std::nullopt )
+    , m_completionNumber( std::nullopt )
 {
 }
 
@@ -384,6 +385,14 @@ std::optional<double> RigCompletionData::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<int> RigCompletionData::completionNumber() const
+{
+    return m_completionNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RigCompletionData::directionStringIJK() const
 {
     switch ( m_direction )
@@ -517,6 +526,7 @@ void RigCompletionData::copy( RigCompletionData& target, const RigCompletionData
     target.m_firstOrderingValue  = from.m_firstOrderingValue;
     target.m_secondOrderingValue = from.m_secondOrderingValue;
     target.m_sourcePdmObject     = from.m_sourcePdmObject;
+    target.m_completionNumber    = from.m_completionNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -526,4 +536,12 @@ void RigCompletionData::setDepthRange( double startMD, double endMD )
 {
     m_startMD = startMD;
     m_endMD   = endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCompletionData::setCompletionNumber( int completionNumber )
+{
+    m_completionNumber = completionNumber;
 }

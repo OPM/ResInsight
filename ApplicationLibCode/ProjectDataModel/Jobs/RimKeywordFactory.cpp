@@ -97,20 +97,16 @@ Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath )
+Opm::DeckKeyword compdatKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName )
 {
-    if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr || eCase->eclipseCaseData() == nullptr )
+    if ( compdata.empty() )
     {
         return Opm::DeckKeyword();
     }
 
-    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( wellPath, eCase );
-
     using C = Opm::ParserKeywords::COMPDAT;
 
     Opm::DeckKeyword kw( ( Opm::ParserKeywords::COMPDAT() ) );
-
-    auto wellName = wellPath->completionSettings()->wellNameForExport().toStdString();
 
     for ( auto& cd : compdata )
     {
@@ -150,6 +146,70 @@ Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath )
         kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
     }
 
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword wpimultKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName )
+{
+    if ( compdata.empty() )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    using W = Opm::ParserKeywords::WPIMULT;
+
+    Opm::DeckKeyword kw( ( Opm::ParserKeywords::WPIMULT() ) );
+
+    for ( auto& cd : compdata )
+    {
+        if ( cd.wpimult() == RigCompletionData::defaultValue() )
+        {
+            continue;
+        }
+
+        std::vector<Opm::DeckItem> items;
+
+        items.push_back( RifOpmDeckTools::item( W::WELL::itemName, wellName ) );
+        items.push_back( RifOpmDeckTools::item( W::WELLPI::itemName, cd.wpimult() ) );
+        items.push_back( RifOpmDeckTools::item( W::I::itemName, cd.completionDataGridCell().localCellIndexI() + 1 ) );
+        items.push_back( RifOpmDeckTools::item( W::J::itemName, cd.completionDataGridCell().localCellIndexJ() + 1 ) );
+        items.push_back( RifOpmDeckTools::item( W::K::itemName, cd.completionDataGridCell().localCellIndexK() + 1 ) );
+
+        kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword complumpKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName )
+{
+    if ( compdata.empty() )
+    {
+        return Opm::DeckKeyword();
+    }
+    using C = Opm::ParserKeywords::COMPLUMP;
+    Opm::DeckKeyword kw( ( Opm::ParserKeywords::COMPLUMP() ) );
+    for ( auto& cd : compdata )
+    {
+        if ( !cd.completionNumber().has_value() )
+        {
+            continue;
+        }
+        std::vector<Opm::DeckItem> items;
+        items.push_back( RifOpmDeckTools::item( C::WELL::itemName, wellName ) );
+        items.push_back( RifOpmDeckTools::item( C::I::itemName, cd.completionDataGridCell().localCellIndexI() + 1 ) );
+        items.push_back( RifOpmDeckTools::item( C::J::itemName, cd.completionDataGridCell().localCellIndexJ() + 1 ) );
+        items.push_back( RifOpmDeckTools::item( C::K1::itemName, cd.completionDataGridCell().localCellIndexK() + 1 ) );
+        items.push_back( RifOpmDeckTools::item( C::K2::itemName, cd.completionDataGridCell().localCellIndexK() + 1 ) );
+        items.push_back( RifOpmDeckTools::item( C::N::itemName, cd.completionNumber().value() ) );
+        kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    }
     return kw;
 }
 

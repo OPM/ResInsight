@@ -53,6 +53,7 @@ for well in wells:
         txt += fieldValueOrDefaultText(line, "pvt_num") + "  "
         txt += fieldValueOrDefaultText(line, "hydrostatic_density_calc") + "  "
         txt += fieldValueOrDefaultText(line, "fip_region") + "  "
+        txt += "/"
 
         print(txt)
 
@@ -60,14 +61,17 @@ for well in wells:
 
     compdat = completion_data.compdat
 
+    complump_entries = []
+
     print("COMPDAT")
 
     for line in compdat:
         txt = ""
+        complump = ""
 
         if line.HasField("start_md"):
             txt += "-- Perforation MD In " + str(line.start_md)
-            txt += ", MD Out " + str(line.end_md) + "\n"
+            txt += ", MD Out " + str(line.end_md) + "--\n"
 
         txt += "   "
         txt += line.well_name + "  "
@@ -83,13 +87,36 @@ for well in wells:
         txt += fieldValueOrDefaultText(line, "skin_factor") + "  "
         txt += fieldValueOrDefaultText(line, "d_factor") + "  "
         txt += "'%s'" % line.direction
+        txt += " /"
+
+        if (line.HasField("completion_number")) and (line.completion_number > 0):
+            complump += "   "
+            complump += line.well_name + "  "
+            complump += str(line.grid_i) + "  "
+            complump += str(line.grid_j) + "  "
+            complump += str(line.upper_k) + "  "
+            complump += str(line.lower_k) + "  "
+            complump += str(line.completion_number) + "  "
+            complump += " /"
+
+            complump_entries.append(complump)
 
         print(txt)
+
+    print("/\n")
+
+    if len(complump_entries) > 0:
+        print("COMPLUMP")
+        for complump_entry in complump_entries:
+            print(complump_entry)
+        print("/\n")
+    else:
+        print("-- No COMPLUMP entries --\n")
 
     print("WELSEGS")
     welsegs = completion_data.welsegs
     if (welsegs is None) or (len(welsegs) == 0):
-        print("  -- No WELSEGS data --")
+        print("  -- No WELSEGS data --\n")
     else:
         for welsegs_entry in welsegs:
             # Print WELSEGS header
@@ -102,6 +129,7 @@ for well in wells:
             txt += header.info_type + "  "
             txt += fieldValueOrDefaultText(header, "pressure_components") + "  "
             txt += fieldValueOrDefaultText(header, "flow_model")
+            txt += " /"
             print(txt)
 
             # Print WELSEGS segment rows
@@ -115,7 +143,7 @@ for well in wells:
                 txt += str(row.depth) + "  "
                 txt += fieldValueOrDefaultText(row, "diameter") + "  "
                 txt += fieldValueOrDefaultText(row, "roughness") + "  "
-                # txt += fieldValueOrDefaultText(row, "description")
+                txt += " /"
                 print(txt)
 
     print("/")
@@ -135,6 +163,7 @@ for well in wells:
             txt += str(compseg.distance_start) + "  "
             txt += str(compseg.distance_end) + "  "
             txt += fieldValueOrDefaultText(compseg, "grid_name")
+            txt += " /"
             print(txt)
 
     print("/\n")

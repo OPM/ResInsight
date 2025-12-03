@@ -39,6 +39,7 @@ message SimulatorCompdatEntry {
   optional double end_md = 15;
   optional string comment = 16;
   optional string grid_name = 17;
+  optional int32 completion_number = 18;
 }
 
 message SimulatorWelspecsEntry {

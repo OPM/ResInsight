@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 
+class RigCompletionData;
 class RigMainGrid;
 class RigMswTableData;
 class RimEclipseCase;
@@ -48,7 +49,9 @@ namespace RimKeywordFactory
 {
 
 Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath );
-Opm::DeckKeyword compdatKeyword( RimEclipseCase* eCase, RimWellPath* wellPath );
+Opm::DeckKeyword compdatKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );
+Opm::DeckKeyword wpimultKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );
+Opm::DeckKeyword complumpKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );
 
 Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData, int& maxSegments, int& maxBranches );
 Opm::DeckKeyword compsegsKeyword( const RigMswTableData& mswData );

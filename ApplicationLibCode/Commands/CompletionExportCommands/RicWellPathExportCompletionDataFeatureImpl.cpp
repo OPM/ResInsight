@@ -413,8 +413,9 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     auto isValidTransmissibility = []( double transmissibility )
     { return RiaStatisticsTools::isValidNumber<double>( transmissibility ) && transmissibility >= 0.0; };
 
-    auto startMD = completions[0].startMD();
-    auto endMD   = completions[0].endMD();
+    auto startMD          = completions[0].startMD();
+    auto endMD            = completions[0].endMD();
+    auto completionNumber = completions[0].completionNumber();
 
     for ( const RigCompletionData& completion : completions )
     {
@@ -439,6 +440,14 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             if ( completion.endMD().has_value() && ( completion.endMD().value() > endMD.value() ) )
             {
                 endMD = completion.endMD();
+            }
+        }
+
+        if ( !completionNumber.has_value() )
+        {
+            if ( completion.completionNumber().has_value() )
+            {
+                completionNumber = completion.completionNumber();
             }
         }
 
@@ -468,6 +477,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     {
         resultCompletion.setDepthRange( startMD.value(), endMD.value() );
     }
+    if ( completionNumber.has_value() ) resultCompletion.setCompletionNumber( completionNumber.value() );
 
     double combinedDiameter   = diameterCalculator.weightedMean();
     double combinedSkinFactor = skinFactorCalculator.weightedMean();
@@ -1172,6 +1182,7 @@ std::vector<RigCompletionData>
                                                                             kh,
                                                                             direction );
                 completion.setDepthRange( cell.startMD, cell.endMD );
+                if ( interval->completionNumber() > 0 ) completion.setCompletionNumber( interval->completionNumber() );
 
                 completion.addMetadata( "Perforation Completion",
                                         QString( "MD In: %1 - MD Out: %2" ).arg( cell.startMD ).arg( cell.endMD ) +

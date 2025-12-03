@@ -72,6 +72,10 @@ void RiaWellPathDataToGrpcConverter::copyCompdatToGrpc( const RigCompletionData&
         compDat->set_start_md( inputData.startMD().value() );
         compDat->set_end_md( inputData.endMD().value() );
     }
+    if ( inputData.completionNumber().has_value() )
+    {
+        compDat->set_completion_number( inputData.completionNumber().value() );
+    }
 
     // Set LGR grid name, empty string for main grid
     compDat->set_grid_name( inputData.completionDataGridCell().lgrName().toStdString() );
