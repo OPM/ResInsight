@@ -83,9 +83,9 @@ RimKeywordBcprop::RimKeywordBcprop()
     CAF_PDM_InitFieldNoDefault( &m_press, "press", "Pressure" );
     CAF_PDM_InitFieldNoDefault( &m_temp, "temp", "Temp." );
     CAF_PDM_InitFieldNoDefault( &m_mechType, "mechType", "Mech. Type" );
-    CAF_PDM_InitField( &m_fixedX, "fixedX", (size_t)1, "Fixed X" );
-    CAF_PDM_InitField( &m_fixedY, "fixedY", (size_t)1, "Fixed Y" );
-    CAF_PDM_InitField( &m_fixedZ, "fixedZ", (size_t)1, "Fixed Z" );
+    CAF_PDM_InitField( &m_fixedX, "fixedX", 1, "Fixed X" );
+    CAF_PDM_InitField( &m_fixedY, "fixedY", 1, "Fixed Y" );
+    CAF_PDM_InitField( &m_fixedZ, "fixedZ", 1, "Fixed Z" );
 }
 
 //--------------------------------------------------------------------------------------------------

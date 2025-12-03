@@ -89,7 +89,7 @@ private:
     caf::PdmField<std::optional<double>>   m_press;
     caf::PdmField<std::optional<double>>   m_temp;
     caf::PdmField<caf::AppEnum<MechType>>  m_mechType;
-    caf::PdmField<size_t>                  m_fixedX;
-    caf::PdmField<size_t>                  m_fixedY;
-    caf::PdmField<size_t>                  m_fixedZ;
+    caf::PdmField<int>                     m_fixedX;
+    caf::PdmField<int>                     m_fixedY;
+    caf::PdmField<int>                     m_fixedZ;
 };
