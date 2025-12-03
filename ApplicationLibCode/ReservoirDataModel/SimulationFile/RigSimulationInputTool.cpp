@@ -43,6 +43,7 @@
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/M.hpp"
@@ -113,6 +114,11 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     }
 
     if ( auto result = replaceMultiplyKeywordIndices( &eclipseCase, settings, deckFile ); !result )
+    {
+        return result;
+    }
+
+    if ( auto result = replaceBoxKeywordIndices( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
     }
@@ -466,6 +472,67 @@ std::expected<void, QString> RigSimulationInputTool::replaceMultiplyKeywordIndic
             catch ( std::exception& e )
             {
                 return std::unexpected( QString( "Exception processing MULTIPLY keyword: %1" ).arg( e.what() ) );
+            }
+        }
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::replaceBoxKeywordIndices( RimEclipseCase*                   eclipseCase,
+                                                                               const RigSimulationInputSettings& settings,
+                                                                               RifOpmFlowDeckFile&               deckFile )
+{
+    // Handle BOX keyword specially - it has IJK coordinates that need transformation
+    auto boxKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( "BOX" );
+    if ( !boxKeywordsWithIndices.empty() )
+    {
+        RiaLogging::info( QString( "Processing %1 occurrence(s) of BOX keyword" ).arg( boxKeywordsWithIndices.size() ) );
+
+        // Process in reverse order so indices remain valid after modifications
+        for ( auto it = boxKeywordsWithIndices.rbegin(); it != boxKeywordsWithIndices.rend(); ++it )
+        {
+            const Opm::FileDeck::Index& index = it->first;
+            const Opm::DeckKeyword&     kw    = it->second;
+
+            // Create new keyword with transformed coordinates
+            Opm::DeckKeyword transformedKeyword( kw.location(), kw.name() );
+
+            try
+            {
+                for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
+                {
+                    const auto& record = kw.getRecord( recordIdx );
+                    auto        result = processBoxRecord( record, settings.min(), settings.max(), settings.refinement() );
+
+                    if ( result )
+                    {
+                        transformedKeyword.addRecord( std::move( result.value() ) );
+                    }
+                    else
+                    {
+                        RiaLogging::warning( QString( "Failed to process BOX record: %1" ).arg( result.error() ) );
+                    }
+                }
+
+                // Replace with transformed keyword
+                if ( transformedKeyword.size() > 0 )
+                {
+                    RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
+                    deckFile.replaceKeywordAtIndex( index, transformedKeyword );
+                }
+                else
+                {
+                    // If all records failed, remove the keyword
+                    deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
+                }
+            }
+            catch ( std::exception& e )
+            {
+                return std::unexpected( QString( "Exception processing BOX keyword: %1" ).arg( e.what() ) );
             }
         }
     }
@@ -955,6 +1022,100 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processMultiplyR
         items.push_back( RifOpmDeckTools::item( M::K1::itemName, static_cast<int>( transformResult1->z() ) ) );
         items.push_back( RifOpmDeckTools::item( M::K2::itemName, static_cast<int>( transformResult2->z() ) ) );
     }
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processBoxRecord( const Opm::DeckRecord& record,
+                                                                                  const caf::VecIjk0&    min,
+                                                                                  const caf::VecIjk0&    max,
+                                                                                  const cvf::Vec3st&     refinement )
+{
+    // BOX format: I1 I2 J1 J2 K1 K2
+    // Items: 0=I1, 1=I2, 2=J1, 3=J2, 4=K1, 5=K2
+    if ( record.size() < 6 )
+    {
+        return std::unexpected( QString( "BOX record has insufficient items (expected at least 6, got %1)" ).arg( record.size() ) );
+    }
+
+    std::vector<Opm::DeckItem> items;
+
+    // Transform IJK box coordinates (items 0-5: I1, I2, J1, J2, K1, K2)
+    // Note: BOX uses 1-based Eclipse coordinates
+    int origI1 = record.getItem( 0 ).get<int>( 0 ) - 1; // Convert to 0-based
+    int origI2 = record.getItem( 1 ).get<int>( 0 ) - 1;
+    int origJ1 = record.getItem( 2 ).get<int>( 0 ) - 1;
+    int origJ2 = record.getItem( 3 ).get<int>( 0 ) - 1;
+    int origK1 = record.getItem( 4 ).get<int>( 0 ) - 1;
+    int origK2 = record.getItem( 5 ).get<int>( 0 ) - 1;
+
+    // Create bounding boxes (both use inclusive min/max coordinates)
+    RigBoundingBoxIjk boxBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
+    RigBoundingBoxIjk sectorBox( cvf::Vec3st( min.x(), min.y(), min.z() ), cvf::Vec3st( max.x(), max.y(), max.z() ) );
+
+    // Check if boxes overlap and get intersection
+    auto intersection = boxBox.intersection( sectorBox );
+    if ( !intersection )
+    {
+        // No overlap with sector - skip this record
+        RiaLogging::info( QString( "BOX record [%1-%2, %3-%4, %5-%6] does not overlap with sector - skipping" )
+                              .arg( origI1 + 1 )
+                              .arg( origI2 + 1 )
+                              .arg( origJ1 + 1 )
+                              .arg( origJ2 + 1 )
+                              .arg( origK1 + 1 )
+                              .arg( origK2 + 1 ) );
+        return std::unexpected( "BOX record does not overlap with sector" );
+    }
+
+    // Get the clamped coordinates from the intersection
+    cvf::Vec3st corner1 = intersection->min();
+    cvf::Vec3st corner2 = intersection->max();
+
+    // Log if clamping occurred (partial overlap)
+    if ( origI1 != static_cast<int>( corner1.x() ) || origI2 != static_cast<int>( corner2.x() ) || origJ1 != static_cast<int>( corner1.y() ) ||
+         origJ2 != static_cast<int>( corner2.y() ) || origK1 != static_cast<int>( corner1.z() ) || origK2 != static_cast<int>( corner2.z() ) )
+    {
+        RiaLogging::info( QString( "BOX record partially overlaps sector, clamped from [%1-%2, %3-%4, %5-%6] to [%7-%8, %9-%10, %11-%12]" )
+                              .arg( origI1 + 1 )
+                              .arg( origI2 + 1 )
+                              .arg( origJ1 + 1 )
+                              .arg( origJ2 + 1 )
+                              .arg( origK1 + 1 )
+                              .arg( origK2 + 1 )
+                              .arg( corner1.x() + 1 )
+                              .arg( corner2.x() + 1 )
+                              .arg( corner1.y() + 1 )
+                              .arg( corner2.y() + 1 )
+                              .arg( corner1.z() + 1 )
+                              .arg( corner2.z() + 1 ) );
+    }
+
+    auto transformResult1 =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( corner1.x(), corner1.y(), corner1.z() ), min, max, refinement );
+    auto transformResult2 =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( corner2.x(), corner2.y(), corner2.z() ), min, max, refinement );
+
+    if ( !transformResult1 )
+    {
+        return std::unexpected( QString( "BOX I1,J1,K1 coordinate is out of sector bounds: %1" ).arg( transformResult1.error() ) );
+    }
+
+    if ( !transformResult2 )
+    {
+        return std::unexpected( QString( "BOX I2,J2,K2 coordinate is out of sector bounds: %1" ).arg( transformResult2.error() ) );
+    }
+
+    using B = Opm::ParserKeywords::BOX;
+    items.push_back( RifOpmDeckTools::item( B::I1::itemName, static_cast<int>( transformResult1->x() ) ) );
+    items.push_back( RifOpmDeckTools::item( B::I2::itemName, static_cast<int>( transformResult2->x() ) ) );
+    items.push_back( RifOpmDeckTools::item( B::J1::itemName, static_cast<int>( transformResult1->y() ) ) );
+    items.push_back( RifOpmDeckTools::item( B::J2::itemName, static_cast<int>( transformResult2->y() ) ) );
+    items.push_back( RifOpmDeckTools::item( B::K1::itemName, static_cast<int>( transformResult1->z() ) ) );
+    items.push_back( RifOpmDeckTools::item( B::K2::itemName, static_cast<int>( transformResult2->z() ) ) );
 
     return Opm::DeckRecord{ std::move( items ) };
 }
