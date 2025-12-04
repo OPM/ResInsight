@@ -915,7 +915,16 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
             exportWpimultTableUsingFormatter( formatter, gridName, completions );
         }
 
-        exportComplumpTableUsingFormatter( formatter, gridName, completions );
+        bool hasCompletionNumber = false;
+        for ( auto& completion : completions )
+        {
+            hasCompletionNumber = hasCompletionNumber || completion.completionNumber().has_value();
+        }
+
+        if ( hasCompletionNumber )
+        {
+            exportComplumpTableUsingFormatter( formatter, gridName, completions );
+        }
     }
 
     RiaLogging::info( QString( "Successfully exported completion data to %1" ).arg( exportFile->fileName() ) );
