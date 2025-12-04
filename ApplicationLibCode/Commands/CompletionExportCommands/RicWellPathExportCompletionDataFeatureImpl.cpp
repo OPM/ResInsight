@@ -914,6 +914,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
         {
             exportWpimultTableUsingFormatter( formatter, gridName, completions );
         }
+
+        exportComplumpTableUsingFormatter( formatter, gridName, completions );
     }
 
     RiaLogging::info( QString( "Successfully exported completion data to %1" ).arg( exportFile->fileName() ) );
@@ -1016,10 +1018,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
         formatter.addValueOrDefaultMarker( data.diameter(), RigCompletionData::defaultValue() );
         formatter.addValueOrDefaultMarker( data.kh(), RigCompletionData::defaultValue() );
         formatter.addValueOrDefaultMarker( data.skinFactor(), RigCompletionData::defaultValue() );
-        if ( RigCompletionData::isDefaultValue( data.dFactor() ) )
-            formatter.add( "1*" );
-        else
-            formatter.add( data.dFactor() );
+        formatter.addValueOrDefaultMarker( data.dFactor(), RigCompletionData::defaultValue() );
 
         switch ( data.direction() )
         {
@@ -1034,6 +1033,65 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
                 formatter.add( "'Z'" );
                 break;
         }
+
+        formatter.rowCompleted();
+    }
+    formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::exportComplumpTableUsingFormatter( RifTextDataTableFormatter&            formatter,
+                                                                                    const QString&                        gridName,
+                                                                                    const std::vector<RigCompletionData>& completionData )
+{
+    if ( gridName.isEmpty() )
+    {
+        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "WELL", "NAME" ),
+                                                       RifTextDataTableColumn( "", "I" ),
+                                                       RifTextDataTableColumn( "", "J" ),
+                                                       RifTextDataTableColumn( "", "K1" ),
+                                                       RifTextDataTableColumn( "", "K2" ),
+                                                       RifTextDataTableColumn( "COMP", "NUM" ) };
+
+        formatter.header( header );
+        formatter.keyword( "COMPLUMP" );
+    }
+    else
+    {
+        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "WELL", "NAME" ),
+                                                       RifTextDataTableColumn( "LGR", "NAME" ),
+                                                       RifTextDataTableColumn( "", "I" ),
+                                                       RifTextDataTableColumn( "", "J" ),
+                                                       RifTextDataTableColumn( "", "K1" ),
+                                                       RifTextDataTableColumn( "", "K2" ),
+                                                       RifTextDataTableColumn( "COMP", "NUM" ) };
+
+        formatter.header( header );
+        formatter.keyword( "COMPLMPL" );
+    }
+
+    for ( const RigCompletionData& data : completionData )
+    {
+        if ( !data.completionNumber().has_value() || data.transmissibility() == 0.0 || data.wpimult() == 0.0 )
+        {
+            // Don't export completions without transmissibility or completion number set
+            continue;
+        }
+
+        formatter.add( data.wellName() );
+
+        if ( !gridName.isEmpty() )
+        {
+            formatter.add( gridName );
+        }
+
+        formatter.add( data.completionDataGridCell().localCellIndexI() + 1 )
+            .add( data.completionDataGridCell().localCellIndexJ() + 1 )
+            .add( data.completionDataGridCell().localCellIndexK() + 1 )
+            .add( data.completionDataGridCell().localCellIndexK() + 1 )
+            .add( data.completionNumber().value() );
 
         formatter.rowCompleted();
     }

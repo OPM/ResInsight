@@ -179,6 +179,10 @@ private:
                                                   const QString&                        gridName,
                                                   const std::vector<RigCompletionData>& completionData );
 
+    static void exportComplumpTableUsingFormatter( RifTextDataTableFormatter&            formatter,
+                                                   const QString&                        gridName,
+                                                   const std::vector<RigCompletionData>& completionData );
+
     static void exportWpimultTableUsingFormatter( RifTextDataTableFormatter&            formatter,
                                                   const QString&                        gridName,
                                                   const std::vector<RigCompletionData>& completionData );
