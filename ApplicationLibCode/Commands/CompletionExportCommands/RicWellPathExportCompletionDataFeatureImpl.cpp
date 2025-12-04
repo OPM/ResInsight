@@ -915,15 +915,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
             exportWpimultTableUsingFormatter( formatter, gridName, completions );
         }
 
-        bool hasCompletionNumber = false;
         for ( auto& completion : completions )
         {
-            hasCompletionNumber = hasCompletionNumber || completion.completionNumber().has_value();
-        }
-
-        if ( hasCompletionNumber )
-        {
-            exportComplumpTableUsingFormatter( formatter, gridName, completions );
+            if ( completion.completionNumber().has_value() )
+            {
+                exportComplumpTableUsingFormatter( formatter, gridName, completions );
+                break;
+            }
         }
     }
 
