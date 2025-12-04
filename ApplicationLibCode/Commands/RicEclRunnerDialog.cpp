@@ -37,6 +37,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <algorithm>
+#include <QMessageBox>
 
 RicEclRunnerDialog::RicEclRunnerDialog( QWidget* parent )
     : QWidget( parent )
@@ -431,9 +432,59 @@ void RicEclRunnerDialog::startNextProcess()
             QRegularExpression fmtRe( "\\bFMTOUT\\b", QRegularExpression::CaseInsensitiveOption );
             if ( fmtRe.match( headStr ).hasMatch() )
             {
-                if ( row >= 0 && row < m_taskLogs.size() )
-                    RiaLogging::warning(
-                        QString( "This Data`s grid will be output as .FEGRID file,which cannot be viewed,you can remove the 'FMTOUT' field in .DATA file " ) );
+                // Prompt the user with a choice: remove FMTOUT from the .data file or keep running
+                QMessageBox msgBox( this );
+                msgBox.setIcon( QMessageBox::Warning );
+                msgBox.setWindowTitle( tr( "FMTOUT detected" ) );
+                msgBox.setText( tr( "This Data`s grid will be output as .FEGRID file,which cannot be viewed,you can remove the 'FMTOUT' field in .DATA file " ) );
+                QPushButton* removeBtn = msgBox.addButton( tr( "Remove FMTOUT" ), QMessageBox::AcceptRole );
+                QPushButton* keepBtn = msgBox.addButton( tr( "Keep Running" ), QMessageBox::RejectRole );
+                msgBox.exec();
+
+                if ( msgBox.clickedButton() == removeBtn )
+                {
+                    // Remove lines containing FMTOUT (case-insensitive) from the file
+                    QFile df2( fileToRun );
+                    if ( df2.open( QFile::ReadOnly ) )
+                    {
+                        QByteArray all = df2.readAll();
+                        df2.close();
+
+                        QString content = QString::fromUtf8( all );
+                        if ( content.isEmpty() ) content = QString::fromLocal8Bit( all );
+
+                        QRegularExpression lineRe( "^.*\\bFMTOUT\\b.*\\r?\\n?",
+                        QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption );
+                        QString newContent = content;
+                        newContent.remove( lineRe );
+
+                        QFile out( fileToRun );
+                        if ( out.open( QFile::WriteOnly | QFile::Truncate ) )
+                        {
+                            QByteArray outBytes = newContent.toLocal8Bit();
+                            out.write( outBytes );
+                            out.close();
+
+                            if ( row >=0 && row < m_taskLogs.size() )
+                            m_taskLogs[row] += QString( "FMTOUT removed from %1\n" ).arg( fileToRun );
+                        }
+                        else
+                        {
+                            if ( row >=0 && row < m_taskLogs.size() )
+                            m_taskLogs[row] += QString( "Failed to open %1 for writing while removing FMTOUT\n" ).arg( fileToRun );
+                        }
+                    }
+                    else
+                    {
+                        if ( row >=0 && row < m_taskLogs.size() )
+                        m_taskLogs[row] += QString( "Failed to open %1 for reading while removing FMTOUT\n" ).arg( fileToRun );
+                    }
+                }
+                else
+                {
+                    if ( row >=0 && row < m_taskLogs.size() )
+                    m_taskLogs[row] += QString( "User chose to keep FMTOUT; continuing\n" );
+                }
             }
         }
     }
@@ -1033,7 +1084,7 @@ void RicEclRunnerDialog::slotShowDetails()
         //    table->insertRow( r );
         //    QTableWidgetItem* levelItem = new QTableWidgetItem( level );
         //    table->setItem( r, 0, levelItem );
-        //}
+        // }
         // info += cleaned;
     }
 
