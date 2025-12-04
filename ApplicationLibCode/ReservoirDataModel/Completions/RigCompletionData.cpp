@@ -24,6 +24,7 @@
 
 #include <QString>
 
+#include <cmath>
 #include <limits>
 
 //==================================================================================================
@@ -260,6 +261,17 @@ bool RigCompletionData::isNonDarcyFlow() const
 void RigCompletionData::setDFactor( double dFactor )
 {
     m_dFactor = dFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCompletionData::setPerConnectionDfactor()
+{
+    if ( isDefaultValue( m_dFactor ) ) return;
+
+    // We use per connection dfactors, they have negative values, ref OPM Flow manual - COMPDAT kw
+    m_dFactor = std::abs( m_dFactor ) * -1.0;
 }
 
 //--------------------------------------------------------------------------------------------------

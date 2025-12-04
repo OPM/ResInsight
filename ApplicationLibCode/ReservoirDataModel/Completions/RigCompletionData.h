@@ -121,6 +121,7 @@ public:
     bool isNonDarcyFlow() const;
     void setDFactor( double dFactor );
     void setKh( double kh );
+    void setPerConnectionDfactor();
 
     void addMetadata( const QString& name, const QString& comment );
 

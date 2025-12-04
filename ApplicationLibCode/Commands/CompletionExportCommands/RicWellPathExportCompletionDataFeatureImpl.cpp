@@ -260,6 +260,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             }
         }
 
+        // make sure we use per-connection D-factors, must be done after combining completions
+        for ( auto& completion : completions )
+        {
+            completion.setPerConnectionDfactor();
+        }
+
         const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 
         if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
@@ -1013,7 +1019,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
         if ( RigCompletionData::isDefaultValue( data.dFactor() ) )
             formatter.add( "1*" );
         else
-            formatter.add( -data.dFactor() );
+            formatter.add( data.dFactor() );
 
         switch ( data.direction() )
         {
@@ -1737,6 +1743,13 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
     }
 
     std::sort( completions.begin(), completions.end() );
+
+    // make sure we set per-connection D-factors, must be done after combining completions
+    for ( auto& completion : completions )
+    {
+        completion.setPerConnectionDfactor(); // we calculate per connection D-factors, which are negative per definition (ref. OPM Flow
+                                              // manual)
+    }
 
     return completions;
 }
