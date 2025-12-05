@@ -109,10 +109,10 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
 
         std::map<QString, QStringList> keyFileComponentsForAllFiles = RiaFilePathTools::keyPathComponentsForEachFilePath( layerFileNames );
 
-        std::vector<RimFileSurface*> surfaces;
+        std::vector<RimSurface*> surfaces;
         for ( int i = 0; i < layerFileNames.size(); i++ )
         {
-            surfaces.push_back( new RimFileSurface );
+            surfaces.push_back( RimSurfaceCollection::createSurfaceFromFile( layerFileNames[i] ) );
         }
 
         auto fileCount = static_cast<int>( layerFileNames.size() );
@@ -121,23 +121,22 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
         {
             auto fileName = layerFileNames[i];
 
-            auto fileSurface = surfaces[i];
-            fileSurface->setSurfaceFilePath( fileName );
+            auto surface = surfaces[i];
 
             auto shortName = RiaEnsembleNameTools::uniqueShortNameFromComponents( fileName, keyFileComponentsForAllFiles, ensembleName );
-            fileSurface->setUserDescription( shortName );
+            surface->setUserDescription( shortName );
 
-            auto isOk = fileSurface->onLoadData();
+            auto isOk = surface->onLoadData();
             if ( !isOk )
             {
-                delete fileSurface;
+                delete surface;
                 surfaces[i] = nullptr;
             }
         }
 
         {
             // Remove null pointers from vector of surfaces
-            std::vector<RimFileSurface*> tmp;
+            std::vector<RimSurface*> tmp;
             for ( auto s : surfaces )
             {
                 if ( s != nullptr ) tmp.push_back( s );
@@ -151,7 +150,7 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
         auto ensemble = new RimEnsembleSurface;
         ensemble->setCollectionName( ensembleName );
         for ( auto surface : surfaces )
-            ensemble->addFileSurface( surface );
+            ensemble->addSurface( surface );
 
         ensemble->loadDataAndUpdate();
 

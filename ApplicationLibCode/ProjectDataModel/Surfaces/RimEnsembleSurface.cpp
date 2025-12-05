@@ -68,6 +68,14 @@ RimEnsembleSurface::RimEnsembleSurface()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleSurface::addFileSurface( RimFileSurface* fileSurface )
 {
+    addSurface( fileSurface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleSurface::addSurface( RimSurface* surface )
+{
     if ( !sourceFileSurfaceCollection() )
     {
         auto coll = new RimSurfaceCollection;
@@ -75,7 +83,7 @@ void RimEnsembleSurface::addFileSurface( RimFileSurface* fileSurface )
         addSubCollection( coll );
     }
 
-    sourceFileSurfaceCollection()->addSurface( fileSurface );
+    sourceFileSurfaceCollection()->addSurface( surface );
 }
 
 //--------------------------------------------------------------------------------------------------

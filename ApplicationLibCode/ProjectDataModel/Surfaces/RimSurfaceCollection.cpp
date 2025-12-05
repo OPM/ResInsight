@@ -135,6 +135,37 @@ std::vector<RimEnsembleSurface*> RimSurfaceCollection::ensembleSurfaces() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSurface* RimSurfaceCollection::createSurfaceFromFile( const QString& fileName )
+{
+    RimSurface* newSurface = nullptr;
+
+    auto extension = QFileInfo( fileName ).suffix().toLower();
+
+    if ( extension == "pvd" )
+    {
+        RimFractureSurface* fractureSurface = new RimFractureSurface;
+        fractureSurface->setSurfaceFilePath( fileName );
+        newSurface = fractureSurface;
+    }
+    else if ( extension == "irap" || extension == "gri" )
+    {
+        auto regularFileSurface = new RimRegularFileSurface;
+        regularFileSurface->setFilePath( fileName );
+        newSurface = regularFileSurface;
+    }
+    else
+    {
+        RimFileSurface* fileSurface = new RimFileSurface;
+        fileSurface->setSurfaceFilePath( fileName );
+        newSurface = fileSurface;
+    }
+
+    return newSurface;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames, bool showLegend /* = true */ )
 {
     size_t  newSurfCount      = 0;
@@ -145,31 +176,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     for ( const QString& newFileName : fileNames )
     {
-        RimSurface* newSurface = nullptr;
-
-        auto extension = QFileInfo( newFileName ).suffix().toLower();
-
-        if ( extension == "pvd" )
-        {
-            RimFractureSurface* fractureSurface = new RimFractureSurface;
-            fractureSurface->setSurfaceFilePath( newFileName );
-
-            newSurface = fractureSurface;
-        }
-        else if ( extension == "irap" || extension == "gri" )
-        {
-            auto regularFileSurface = new RimRegularFileSurface;
-            regularFileSurface->setFilePath( newFileName );
-
-            newSurface = regularFileSurface;
-        }
-        else
-        {
-            RimFileSurface* fileSurface = new RimFileSurface;
-
-            fileSurface->setSurfaceFilePath( newFileName );
-            newSurface = fileSurface;
-        }
+        RimSurface* newSurface = createSurfaceFromFile( newFileName );
 
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
         newSurface->setColor( newColor );

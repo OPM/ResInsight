@@ -45,6 +45,7 @@ public:
     RimEnsembleSurface();
 
     void              addFileSurface( RimFileSurface* fileSurface );
+    void              addSurface( RimSurface* surface );
     void              loadDataAndUpdate();
     const RigSurface* statisticsSurface() const;
 

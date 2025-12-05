@@ -78,8 +78,8 @@ public:
                                                                         const QString&               fileNameFilter,
                                                                         const std::vector<FileType>& fileTypes );
 
-    static QString fileNameForType( FileType fileType );
-    static QString fileExtensionForType( FileType fileType );
+    static QString     fileNameForType( FileType fileType );
+    static QStringList fileExtensionForType( FileType fileType );
 
     static RiaDefines::FileType mapSummaryFileType( RicRecursiveFileSearchDialog::FileType fileType );
 

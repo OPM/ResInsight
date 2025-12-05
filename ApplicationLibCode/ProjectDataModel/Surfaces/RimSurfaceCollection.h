@@ -45,6 +45,8 @@ public:
     RimSurface* copySurfaces( std::vector<RimSurface*> surfaces );
     RimSurface* addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
 
+    static RimSurface* createSurfaceFromFile( const QString& fileName );
+
     void                  addSubCollection( RimSurfaceCollection* collection );
     RimSurfaceCollection* getSubCollection( const QString& name ) const;
     void                  deleteSubCollection( const QString& name );

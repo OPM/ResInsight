@@ -216,7 +216,9 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 
         for ( const auto& fileType : fileTypes )
         {
-            QString item = QString( "%1 (%2)" ).arg( fileNameForType( fileType ) ).arg( fileExtensionForType( fileType ) );
+            QStringList extensions     = fileExtensionForType( fileType );
+            QString     extensionsText = extensions.join( " " );
+            QString     item           = QString( "%1 (%2)" ).arg( fileNameForType( fileType ) ).arg( extensionsText );
             dialog.m_fileTypeField->addItem( item, static_cast<int>( fileType ) );
         }
 
@@ -237,7 +239,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 
         if ( !fileTypes.empty() )
         {
-            dialog.m_fileExtensions = QStringList( fileExtensionForType( fileTypes.front() ) );
+            dialog.m_fileExtensions = fileExtensionForType( fileTypes.front() );
             dialog.m_fileType       = fileTypes.front();
         }
 
@@ -876,10 +878,9 @@ void RicRecursiveFileSearchDialog::slotFileTypeChanged( int index )
 {
     m_fileType = static_cast<FileType>( m_fileTypeField->itemData( index ).toInt() );
 
-    QString extension = fileExtensionForType( m_fileType );
-    m_fileExtensions  = QStringList( extension );
+    m_fileExtensions = fileExtensionForType( m_fileType );
 
-    m_fileExtensionField->setText( extension );
+    m_fileExtensionField->setText( m_fileExtensions.join( " " ) );
 
     updateEffectiveFilter();
 }
@@ -1183,32 +1184,32 @@ QStringList RicRecursiveFileSearchDialog::fileTypeToExtensionStrings( const std:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicRecursiveFileSearchDialog::fileExtensionForType( FileType fileType )
+QStringList RicRecursiveFileSearchDialog::fileExtensionForType( FileType fileType )
 {
     switch ( fileType )
     {
         case FileType::GRDECL:
-            return "GRDECL";
+            return { "GRDECL" };
         case FileType::EGRID:
-            return "EGRID";
+            return { "EGRID" };
         case FileType::GRID:
-            return "GRID";
+            return { "GRID" };
         case FileType::SMSPEC:
-            return "SMSPEC";
+            return { "SMSPEC" };
         case FileType::ESMRY:
-            return "ESMRY";
+            return { "ESMRY" };
         case FileType::STIMPLAN_FRACTURE:
-            return "XML";
+            return { "XML" };
         case FileType::LAS:
-            return "LAS";
+            return { "LAS" };
         case FileType::SURFACE:
-            return "TS";
+            return { "TS", "PTL", "DAT", "XYZ", "VTU", "IRAP", "GRI", "PVD" };
         case FileType::STIMPLAN_SUMMARY:
-            return "CSV";
+            return { "CSV" };
         case FileType::REVEAL_SUMMARY:
-            return "CSV";
+            return { "CSV" };
         default:
-            return "*";
+            return { "*" };
     }
 };
 
