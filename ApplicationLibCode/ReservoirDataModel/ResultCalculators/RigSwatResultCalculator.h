@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2023-     Equinor ASA
+//  Copyright (C) 2025-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,26 +16,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
+#include <cstddef>
+
 #include "RigEclipseResultCalculator.h"
 
-//==================================================================================================
-///
-//==================================================================================================
-RigEclipseResultCalculator::RigEclipseResultCalculator( RigCaseCellResultsData& resultsData )
-    : m_resultsData( &resultsData )
-{
-}
+class RigCaseCellResultsData;
+class RigEclipseResultAddress;
 
 //==================================================================================================
 ///
 //==================================================================================================
-RigEclipseResultCalculator::~RigEclipseResultCalculator()
+class RigSwatResultCalculator : public RigEclipseResultCalculator
 {
-}
+public:
+    RigSwatResultCalculator( RigCaseCellResultsData& resultsData );
+    ~RigSwatResultCalculator() override;
 
-//==================================================================================================
-///
-//==================================================================================================
-void RigEclipseResultCalculator::checkAndCreatePlaceholderEntry( const RigEclipseResultAddress& resVarAddr )
-{
-}
+    void checkAndCreatePlaceholderEntry( const RigEclipseResultAddress& resVarAddr ) override;
+    bool isMatching( const RigEclipseResultAddress& resVarAddr ) const override;
+    void calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) override;
+
+private:
+    bool hasOnlyWaterPhase() const;
+};

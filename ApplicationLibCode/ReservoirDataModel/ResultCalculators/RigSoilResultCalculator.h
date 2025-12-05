@@ -33,6 +33,11 @@ class RigSoilResultCalculator : public RigEclipseResultCalculator
 public:
     RigSoilResultCalculator( RigCaseCellResultsData& resultsData );
     ~RigSoilResultCalculator() override;
+
+    void checkAndCreatePlaceholderEntry( const RigEclipseResultAddress& resVarAddr ) override;
     bool isMatching( const RigEclipseResultAddress& resVarAddr ) const override;
     void calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) override;
+
+private:
+    bool hasOilPhase() const;
 };

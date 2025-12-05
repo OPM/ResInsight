@@ -164,6 +164,7 @@ private:
     // All other data access assumes all time steps are loaded at the same time
     friend class RimEclipseStatisticsCaseEvaluator;
     friend class RigSoilResultCalculator;
+    friend class RigSwatResultCalculator;
     friend class RigFaultDistanceResultCalculator;
     friend class RigMobilePoreVolumeResultCalculator;
     friend class RigIndexIjkResultCalculator;

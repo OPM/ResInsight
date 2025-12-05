@@ -31,6 +31,8 @@ class RigEclipseResultCalculator
 public:
     RigEclipseResultCalculator( RigCaseCellResultsData& resultsData );
     virtual ~RigEclipseResultCalculator();
+
+    virtual void checkAndCreatePlaceholderEntry( const RigEclipseResultAddress& resVarAddr );
     virtual bool isMatching( const RigEclipseResultAddress& resVarAddr ) const                = 0;
     virtual void calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) = 0;
 

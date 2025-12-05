@@ -18,6 +18,7 @@
 
 #include "RigSoilResultCalculator.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 
 #include "RiaResultNames.h"
@@ -35,6 +36,31 @@ RigSoilResultCalculator::RigSoilResultCalculator( RigCaseCellResultsData& result
 //==================================================================================================
 RigSoilResultCalculator::~RigSoilResultCalculator()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSoilResultCalculator::checkAndCreatePlaceholderEntry( const RigEclipseResultAddress& resVarAddr )
+{
+    if ( !isMatching( resVarAddr ) ) return;
+
+    // Only create SOIL if oil phase is present
+    if ( !hasOilPhase() ) return;
+
+    bool needsToBeStored = false;
+
+    if ( !m_resultsData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) ) )
+    {
+        if ( m_resultsData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ) ) ||
+             m_resultsData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) ) )
+        {
+            size_t soilIndex = m_resultsData->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                                      RiaResultNames::soil() ),
+                                                                             needsToBeStored );
+            m_resultsData->setMustBeCalculated( soilIndex );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,4 +193,22 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
 
         soilForTimeStep->at( idx ) = soilValue;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigSoilResultCalculator::hasOilPhase() const
+{
+    // Get the available phases from the eclipse case data
+    const RigEclipseCaseData* eclipseCaseData = m_resultsData->m_ownerCaseData;
+    if ( !eclipseCaseData ) return false;
+
+    std::set<RiaDefines::PhaseType> availablePhases = eclipseCaseData->availablePhases();
+
+    // Consider case with no phase information as having oil phase
+    if ( availablePhases.empty() ) return true;
+
+    // Check if oil phase is present
+    return availablePhases.count( RiaDefines::PhaseType::OIL_PHASE ) > 0;
 }
