@@ -799,7 +799,21 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
     if ( maxTimeStepCount() > 0 )
     {
         auto prefs = RiaPreferencesGrid::current();
-        if ( prefs->loadAndShowSoil() ) return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+        if ( prefs->loadAndShowSoil() && m_ownerCaseData )
+        {
+            const auto phases = m_ownerCaseData->availablePhases();
+            if ( phases.contains( RiaDefines::PhaseType::OIL_PHASE ) )
+            {
+                return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+            }
+
+            if ( phases.contains( RiaDefines::PhaseType::GAS_PHASE ) )
+            {
+                return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
+            }
+
+            return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
+        }
 
         auto dynamicResult = std::find_if( allResults.begin(),
                                            allResults.end(),
