@@ -77,13 +77,30 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
     activeGrid->setDualPorosity( opmGrid.porosity_mode() > 0 );
 
     // assign grid unit, if found (1 = Metric, 2 = Field, 3 = Lab)
+    // Note: Accepts "m" or "M" as abbreviation for "METRES" (METRIC units)
     auto gridUnitStr = RiaStdStringTools::toUpper( opmGrid.grid_unit() );
     if ( gridUnitStr.starts_with( 'M' ) )
+    {
         m_gridUnit = 1;
+        RiaLogging::debug(
+            QString( "Grid unit from EGRID file: '%1' (interpreted as METRIC)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+    }
     else if ( gridUnitStr.starts_with( 'F' ) )
+    {
         m_gridUnit = 2;
+        RiaLogging::debug(
+            QString( "Grid unit from EGRID file: '%1' (interpreted as FIELD)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+    }
     else if ( gridUnitStr.starts_with( 'C' ) )
+    {
         m_gridUnit = 3;
+        RiaLogging::debug(
+            QString( "Grid unit from EGRID file: '%1' (interpreted as LAB)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+    }
+    else if ( !gridUnitStr.empty() )
+    {
+        RiaLogging::warning( QString( "Unknown grid unit from EGRID file: '%1'" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+    }
 
     auto totalCellCount           = opmGrid.totalNumberOfCells();
     auto totalActiveCellCount     = opmGrid.totalActiveCells();

@@ -189,13 +189,30 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     mainGrid->setDualPorosity( opmGrid.porosity_mode() > 0 );
 
     // assign grid unit, if found (1 = Metric, 2 = Field, 3 = Lab)
+    // Note: Accepts "m" or "M" as abbreviation for "METRES" (METRIC units)
     auto gridUnitStr = RiaStdStringTools::toUpper( opmGrid.grid_unit() );
     if ( gridUnitStr.starts_with( 'M' ) )
+    {
         m_gridUnit = 1;
+        RiaLogging::debug(
+            QString( "Grid unit from EGRID file: '%1' (interpreted as METRIC)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+    }
     else if ( gridUnitStr.starts_with( 'F' ) )
+    {
         m_gridUnit = 2;
+        RiaLogging::debug(
+            QString( "Grid unit from EGRID file: '%1' (interpreted as FIELD)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+    }
     else if ( gridUnitStr.starts_with( 'C' ) )
+    {
         m_gridUnit = 3;
+        RiaLogging::debug(
+            QString( "Grid unit from EGRID file: '%1' (interpreted as LAB)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+    }
+    else if ( !gridUnitStr.empty() )
+    {
+        RiaLogging::warning( QString( "Unknown grid unit from EGRID file: '%1'" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+    }
 
     auto totalCellCount           = opmGrid.totalNumberOfCells();
     auto globalMatrixActiveSize   = opmGrid.activeCells();
@@ -925,12 +942,23 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 
     // Unit system
     {
-        // Default units type is METRIC, look in restart file, then init file and then grid file until we find something
-        RiaDefines::EclipseUnitSystem unitsType      = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-        int                           unitsTypeValue = -1;
+        std::optional<RiaDefines::EclipseUnitSystem> egridUnit = RifEclipseOutputFileTools::unitValueToEnum( m_gridUnit );
+        std::optional<RiaDefines::EclipseUnitSystem> initUnit;
+        std::optional<RiaDefines::EclipseUnitSystem> unrstUnit;
 
         namespace VI = Opm::RestartIO::Helpers::VectorItems;
 
+        // Read from init file
+        if ( m_initFile != nullptr )
+        {
+            const auto& intHeader = m_initFile->getInitData<int>( "INTEHEAD" );
+            if ( intHeader.size() > 2 )
+            {
+                initUnit = RifEclipseOutputFileTools::unitValueToEnum( intHeader[2] );
+            }
+        }
+
+        // Read from restart file
         if ( m_restartFile != nullptr )
         {
             for ( auto reportStep : m_restartFile->listOfReportStepNumbers() )
@@ -940,35 +968,15 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
                     const auto& intHeader = m_restartFile->getRestartData<int>( "INTEHEAD", reportStep );
                     if ( intHeader.size() > VI::intehead::UNIT )
                     {
-                        unitsTypeValue = intHeader[VI::intehead::UNIT];
+                        unrstUnit = RifEclipseOutputFileTools::unitValueToEnum( intHeader[VI::intehead::UNIT] );
                         break;
                     }
                 }
             }
         }
 
-        if ( unitsTypeValue < 0 )
-        {
-            if ( m_initFile != nullptr )
-            {
-                const auto& intHeader = m_initFile->getInitData<int>( "INTEHEAD" );
-                if ( intHeader.size() > 2 ) unitsTypeValue = intHeader[2];
-            }
-        }
-
-        if ( unitsTypeValue < 0 )
-        {
-            unitsTypeValue = m_gridUnit;
-        }
-
-        if ( unitsTypeValue == 2 )
-        {
-            unitsType = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
-        }
-        else if ( unitsTypeValue == 3 )
-        {
-            unitsType = RiaDefines::EclipseUnitSystem::UNITS_LAB;
-        }
+        // Determine final unit system using hierarchy (egrid > init > unrst) with warnings
+        RiaDefines::EclipseUnitSystem unitsType = RifEclipseOutputFileTools::determineUnitSystem( egridUnit, initUnit, unrstUnit );
         m_eclipseCaseData->setUnitsType( unitsType );
     }
 

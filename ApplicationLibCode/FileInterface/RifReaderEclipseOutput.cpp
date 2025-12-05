@@ -895,34 +895,30 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
     // Unit system
     {
-        // Default units type is METRIC
-        RiaDefines::EclipseUnitSystem unitsType = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-        int                           unitsTypeValue;
+        std::optional<RiaDefines::EclipseUnitSystem> egridUnit;
+        std::optional<RiaDefines::EclipseUnitSystem> initUnit;
+        std::optional<RiaDefines::EclipseUnitSystem> unrstUnit;
 
+        // Read from grid file
+        if ( grid )
+        {
+            egridUnit = RifEclipseOutputFileTools::unitValueToEnum( ecl_grid_get_unit_system( grid ) );
+        }
+
+        // Read from init file
+        if ( m_ecl_init_file )
+        {
+            initUnit = RifEclipseOutputFileTools::unitValueToEnum( RifEclipseOutputFileTools::readUnitsType( m_ecl_init_file ) );
+        }
+
+        // Read from restart file
         if ( m_dynamicResultsAccess.notNull() )
         {
-            unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
-        }
-        else
-        {
-            if ( m_ecl_init_file )
-            {
-                unitsTypeValue = RifEclipseOutputFileTools::readUnitsType( m_ecl_init_file );
-            }
-            else
-            {
-                unitsTypeValue = ecl_grid_get_unit_system( grid );
-            }
+            unrstUnit = RifEclipseOutputFileTools::unitValueToEnum( m_dynamicResultsAccess->readUnitsType() );
         }
 
-        if ( unitsTypeValue == 2 )
-        {
-            unitsType = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
-        }
-        else if ( unitsTypeValue == 3 )
-        {
-            unitsType = RiaDefines::EclipseUnitSystem::UNITS_LAB;
-        }
+        // Determine final unit system using hierarchy (egrid > init > unrst) with warnings
+        RiaDefines::EclipseUnitSystem unitsType = RifEclipseOutputFileTools::determineUnitSystem( egridUnit, initUnit, unrstUnit );
         m_eclipseCaseData->setUnitsType( unitsType );
     }
 

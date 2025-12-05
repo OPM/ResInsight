@@ -35,6 +35,7 @@
 #include <QString>
 #include <QStringList>
 
+#include <optional>
 #include <vector>
 
 using ecl_file_type = struct ecl_file_struct;
@@ -113,6 +114,12 @@ public:
                                                          RiaDefines::PorosityModelType matrixOrFracture,
                                                          std::vector<double>*          values,
                                                          const std::vector<double>&    fileValues );
+
+    // Unit system handling utilities
+    static std::optional<RiaDefines::EclipseUnitSystem> unitValueToEnum( int unitValue );
+    static RiaDefines::EclipseUnitSystem                determineUnitSystem( const std::optional<RiaDefines::EclipseUnitSystem>& egridUnit,
+                                                                             const std::optional<RiaDefines::EclipseUnitSystem>& initUnit,
+                                                                             const std::optional<RiaDefines::EclipseUnitSystem>& unrstUnit );
 
 private:
     static void                     getDayMonthYear( const ecl_kw_type* intehead_kw, int* day, int* month, int* year );
