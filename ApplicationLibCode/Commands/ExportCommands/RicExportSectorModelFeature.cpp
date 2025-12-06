@@ -46,6 +46,7 @@
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 
 #include <QAction>
+#include <QDir>
 #include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicExportSectorModelFeature, "RicExportSectorModelFeature" );
@@ -136,6 +137,9 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
         job->setInputDataFile( exportSettings->exportDeckFilename() );
         job->setName( exportSettings->newSimulationJobName() );
         job->setWorkingDirectory( exportSettings->newSimulationJobFolder() );
+
+        QDir d;
+        d.mkpath( exportSettings->newSimulationJobFolder() );
 
         jobColl->addNewJob( job );
 

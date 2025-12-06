@@ -473,13 +473,11 @@ void RicExportSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         updateConnectedEditors();
     }
-    else if ( changedField == &m_exportDeckName )
+    else if ( changedField == &m_exportFolder )
     {
         if ( m_simulationJobFolder().path().isEmpty() )
         {
-            QDir d;
             m_simulationJobFolder = m_exportFolder().path() + "/job";
-            d.mkpath( m_simulationJobFolder().path() );
         }
         updateConnectedEditors();
     }
