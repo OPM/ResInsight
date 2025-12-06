@@ -505,11 +505,7 @@ std::vector<QDateTime> RimOpmFlowJob::addedDateTimes()
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_deckFileName ) || ( changedField == &m_addToEnsemble ) )
-    {
-        m_deckName = "";
-    }
-    else if ( changedField == &m_wellPath )
+    if ( changedField == &m_wellPath )
     {
         if ( ( m_wellPath() != nullptr ) && ( m_wellPath->completionSettings() != nullptr ) )
         {
@@ -543,7 +539,6 @@ QString RimOpmFlowJob::mainWorkingDirectory() const
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
 {
-    m_deckName = "";
     if ( eCase == nullptr )
     {
         m_deckFileName.setValue( QString() );
@@ -563,7 +558,6 @@ void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::setInputDataFile( QString filename )
 {
-    m_deckName = "";
     m_deckFileName.setValue( filename );
     closeDeckFile();
     openDeckFile();
@@ -653,16 +647,13 @@ QString RimOpmFlowJob::workingDirectory() const
 //--------------------------------------------------------------------------------------------------
 QString RimOpmFlowJob::deckName()
 {
-    if ( m_deckName.isEmpty() )
+    auto deckName = baseDeckName();
+    if ( m_addToEnsemble() )
     {
-        m_deckName = baseDeckName();
-        if ( m_addToEnsemble() )
-        {
-            m_deckName = m_deckName + "-" + QString::number( m_currentRunId() );
-        }
+        deckName = deckName + "-" + QString::number( m_currentRunId() );
     }
 
-    return m_deckName;
+    return deckName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -670,13 +661,10 @@ QString RimOpmFlowJob::deckName()
 //--------------------------------------------------------------------------------------------------
 QString RimOpmFlowJob::baseDeckName()
 {
-    if ( m_deckName.isEmpty() )
-    {
-        m_deckName = name();
-        m_deckName.replace( ' ', '_' );
-        m_deckName = m_deckName.toUpper();
-    }
-    return m_deckName;
+    auto baseName = name();
+    baseName.replace( ' ', '_' );
+    baseName = baseName.toUpper();
+    return baseName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -969,7 +957,6 @@ void RimOpmFlowJob::onCompleted( bool success )
         }
 
         m_currentRunId = m_currentRunId + 1;
-        m_deckName     = "";
     }
     else
     {

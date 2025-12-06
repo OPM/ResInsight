@@ -143,7 +143,6 @@ private:
 
     caf::PdmField<QString> m_wellOpenKeyword;
 
-    QString                             m_deckName;
     std::unique_ptr<RifOpmFlowDeckFile> m_deckFile;
     bool                                m_fileDeckHasDates;
     bool                                m_fileDeckIsRestart;

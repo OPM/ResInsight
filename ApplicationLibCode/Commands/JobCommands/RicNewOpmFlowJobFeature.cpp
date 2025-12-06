@@ -68,7 +68,8 @@ void RicNewOpmFlowJobFeature::onActionTriggered( bool isChecked )
     if ( !inDataFile.isEmpty() )
     {
         job->setInputDataFile( inDataFile );
-        job->setName( job->deckName() );
+        QFileInfo fi( inDataFile );
+        job->setName( fi.baseName().toUpper() );
     }
     else
     {
