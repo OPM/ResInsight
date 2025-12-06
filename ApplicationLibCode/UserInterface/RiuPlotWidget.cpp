@@ -172,9 +172,22 @@ void RiuPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 //--------------------------------------------------------------------------------------------------
 void RiuPlotWidget::clearOverlayFrames( std::function<bool( RiuDraggableOverlayFrame* )> matcher )
 {
+    // Collect matching frames first to avoid iterator invalidation
+    QList<QPointer<RiuDraggableOverlayFrame>> framesToRemove;
+    
     for ( auto p : m_overlayFrames )
     {
-        if ( matcher( p ) )
+        // Check if the QPointer is valid before calling matcher
+        if ( p && matcher( p ) )
+        {
+            framesToRemove.append( p );
+        }
+    }
+    
+    // Now safely remove the collected frames
+    for ( auto p : framesToRemove )
+    {
+        if ( p ) // Check again in case the object was deleted
         {
             removeOverlayFrame( p );
             p->deleteLater();
