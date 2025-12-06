@@ -38,7 +38,6 @@
 #include "cafPdmUiRadioButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
-#include <QDir>
 #include <utility>
 
 CAF_PDM_SOURCE_INIT( RicExportSectorModelUi, "RicExportSectorModelUi" );
