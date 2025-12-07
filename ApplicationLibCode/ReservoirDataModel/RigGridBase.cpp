@@ -155,20 +155,42 @@ void RigGridBase::initSubCellsMainGridCellIndex()
         {
             RigLocalGrid* localGrid  = static_cast<RigLocalGrid*>( grid );
             RigGridBase*  parentGrid = localGrid->parentGrid();
+            if ( !parentGrid )
+            {
+                break;
+            }
 
             RigCell& cell            = localGrid->cell( cellIdx );
             size_t   parentCellIndex = cell.parentCellIndex();
 
             while ( !parentGrid->isMainGrid() )
             {
+                // Check for invalid parent cell index (e.g., from RigActiveCellGrid invalid cells)
+                // This can happen if the local grid is refined for cells that are not active in the parent grid
+                if ( parentCellIndex >= parentGrid->cellCount() || parentCellIndex == cvf::UNDEFINED_SIZE_T )
+                {
+                    // Invalid parent cell index - skip this cell
+                    parentGrid = nullptr;
+                    break;
+                }
+
                 const RigCell& parentCell = parentGrid->cell( parentCellIndex );
                 parentCellIndex           = parentCell.parentCellIndex();
 
                 localGrid  = static_cast<RigLocalGrid*>( parentGrid );
                 parentGrid = localGrid->parentGrid();
+
+                if ( !parentGrid )
+                {
+                    break; // Null parent grid
+                }
             }
 
-            cell.setMainGridCellIndex( parentCellIndex );
+            // Only set main grid cell index if we successfully traversed to the main grid
+            if ( parentGrid && parentGrid->isMainGrid() )
+            {
+                cell.setMainGridCellIndex( parentCellIndex );
+            }
         }
     }
 }
