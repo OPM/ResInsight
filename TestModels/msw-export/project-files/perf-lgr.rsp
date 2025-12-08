@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ResInsightProject>
     <DocumentFileName>C:/gitroot/ResInsight/TestModels/msw-export/project-files/perf-lgr.rsp</DocumentFileName>
-    <ProjectFileVersionString>2025.09.4-dev.02</ProjectFileVersionString>
+    <ProjectFileVersionString>2025.09.4-dev.04</ProjectFileVersionString>
     <ReferencedExternalFiles>
         $PathId_001$ C:/gitroot/ResInsight/TestModels/lgr-msw-export/ECL_7_HYSTERESIS_NESTEDLGR_DEBUG_MODEL2.EGRID;
         $PathId_002$ C:/gitroot/ResInsight/TestModels/lgr-msw-export/ECL_7_HYSTERESIS_NESTEDLGR_DEBUG_MODEL2.SMSPEC;
@@ -49,7 +49,7 @@
                                                 </MdiWindowController>
                                             </WindowController>
                                             <ShowWindow>False </ShowWindow>
-                                            <Id>-1</Id>
+                                            <Id>1</Id>
                                             <NameConfig>
                                                 <RimViewNameConfig>
                                                     <CustomCurveName>3D View: Well-1</CustomCurveName>
@@ -133,9 +133,9 @@
                                                     <AddSampleSpacing>False </AddSampleSpacing>
                                                 </RimViewNameConfig>
                                             </NameConfig>
-                                            <CameraPosition>-0.10786740248159 -0.982616455128768 0.151094426078692 542.630399993544 0.224077259064927 0.124040364459617 0.966645421007453 -851.072304167511 -0.968583504635416 0.138126355540499 0.206802090060221 -371.219952424182 0 0 0 1</CameraPosition>
+                                            <CameraPosition>-0.476154123504017 -0.876001671084387 0.0768005398906062 751.639186869655 0.752573541248525 -0.360766781544913 0.55089054661192 -604.925659694638 -0.454873955819386 0.320106859643919 0.831036270403484 -1206.9923671071 0 0 0 1</CameraPosition>
                                             <CameraPointOfInterest>619.875585147031 630.329475810917 644.996292151517</CameraPointOfInterest>
-                                            <CameraPositionProxy>-0.10786740248159 -0.982616455128768 0.151094426078692 542.630399993544 0.224077259064927 0.124040364459617 0.966645421007453 -851.072304167511 -0.968583504635416 0.138126355540499 0.206802090060221 -371.219952424182 0 0 0 1</CameraPositionProxy>
+                                            <CameraPositionProxy>-0.476154123504017 -0.876001671084387 0.0768005398906062 751.639186869655 0.752573541248525 -0.360766781544913 0.55089054661192 -604.925659694638 -0.454873955819386 0.320106859643919 0.831036270403484 -1206.9923671071 0 0 0 1</CameraPositionProxy>
                                             <CameraPointOfInterestProxy>619.875585147031 630.329475810917 644.996292151517</CameraPointOfInterestProxy>
                                             <PerspectiveProjection>True </PerspectiveProjection>
                                             <GridZScale>5</GridZScale>
@@ -359,10 +359,10 @@
                                             </ReservoirSurfaceResultDefColl>
                                             <GridCollection>
                                                 <GridCollection>
-                                                    <IsActive>False </IsActive>
+                                                    <IsActive>True </IsActive>
                                                     <MainGrid>
                                                         <GridInfo>
-                                                            <IsActive>True </IsActive>
+                                                            <IsActive>False </IsActive>
                                                             <GridName>Main Grid</GridName>
                                                             <GridIndex>0</GridIndex>
                                                         </GridInfo>
@@ -854,42 +854,7 @@
                                             <PropertyFilters>
                                                 <CellPropertyFilters>
                                                     <Active>True </Active>
-                                                    <PropertyFilters>
-                                                        <CellPropertyFilter>
-                                                            <UserDescription>None (-inf .. -inf)</UserDescription>
-                                                            <Active>True </Active>
-                                                            <Case></Case>
-                                                            <FilterType>INCLUDE</FilterType>
-                                                            <GridIndex>0</GridIndex>
-                                                            <PropagateToSubGrids>True </PropagateToSubGrids>
-                                                            <SelectedValues></SelectedValues>
-                                                            <ResultDefinition>
-                                                                <ResultDefinition>
-                                                                    <IsChecked>True </IsChecked>
-                                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
-                                                                    <ResultVariable>None</ResultVariable>
-                                                                    <FlowDiagSolution>.. .. .. .. .. FlowDiagSolutions 0</FlowDiagSolution>
-                                                                    <TimeLapseBaseTimeStep>-1</TimeLapseBaseTimeStep>
-                                                                    <DifferenceCase></DifferenceCase>
-                                                                    <DivideByCellFaceArea>False </DivideByCellFaceArea>
-                                                                    <SelectedInjectorTracers></SelectedInjectorTracers>
-                                                                    <SelectedProducerTracers></SelectedProducerTracers>
-                                                                    <SelectedSouringTracers></SelectedSouringTracers>
-                                                                    <FlowTracerSelectionMode>FLOW_TR_INJ_AND_PROD</FlowTracerSelectionMode>
-                                                                    <PhaseSelection>PHASE_ALL</PhaseSelection>
-                                                                    <ShowOnlyVisibleCategoriesInLegend>True </ShowOnlyVisibleCategoriesInLegend>
-                                                                    <MSyncSelectedInjProd>False </MSyncSelectedInjProd>
-                                                                    <MSyncSelectedProdInj>False </MSyncSelectedProdInj>
-                                                                </ResultDefinition>
-                                                            </ResultDefinition>
-                                                            <LinkedWithCellResult>False </LinkedWithCellResult>
-                                                            <LowerBound>-inf</LowerBound>
-                                                            <UpperBound>-inf</UpperBound>
-                                                            <CategorySelection>True </CategorySelection>
-                                                            <IsDuplicatedFromLinkedView>False </IsDuplicatedFromLinkedView>
-                                                        </CellPropertyFilter>
-                                                    </PropertyFilters>
+                                                    <PropertyFilters/>
                                                 </CellPropertyFilters>
                                             </PropertyFilters>
                                             <ShowInactiveCells>False </ShowInactiveCells>
@@ -909,6 +874,7 @@
                             </ViewCollection>
                             <WellTargetMappings/>
                             <UnitSystem>UNITS_METRIC</UnitSystem>
+                            <Phases>Oil, Gas, Water</Phases>
                             <FlowDiagSolutions>
                                 <FlowDiagSolution>
                                     <UserDescription>All Wells</UserDescription>
@@ -959,6 +925,7 @@
                                                     <EndMeasuredDepth>3819.0162624546</EndMeasuredDepth>
                                                     <Diameter>0.216</Diameter>
                                                     <SkinFactor>0</SkinFactor>
+                                                    <CompletionNumber>0</CompletionNumber>
                                                     <UseCustomStartDate>False </UseCustomStartDate>
                                                     <StartDate>2025_11_22-15:56:22</StartDate>
                                                     <UseCustomEndDate>False </UseCustomEndDate>
@@ -1014,7 +981,7 @@
                                 <WellPathCompletionSettings>
                                     <WellNameForExport>Well-1</WellNameForExport>
                                     <ReferenceDepth></ReferenceDepth>
-                                    <DrainageRadius></DrainageRadius>
+                                    <DrainageRadius>0</DrainageRadius>
                                     <WellGroupNameForExport></WellGroupNameForExport>
                                     <WellTypeForExport>OIL</WellTypeForExport>
                                     <GasInflowEq>STD</GasInflowEq>
@@ -1108,33 +1075,33 @@
                                             <IsEnabled>True </IsEnabled>
                                             <TargetPoint>0 0 0</TargetPoint>
                                             <TargetPointForDisplay>0 0 0</TargetPointForDisplay>
-                                            <TargetMeasuredDepth>2824.62658489137</TargetMeasuredDepth>
+                                            <TargetMeasuredDepth>2824.76146780576</TargetMeasuredDepth>
                                             <Dogleg1>3</Dogleg1>
                                             <Dogleg2>3</Dogleg2>
                                             <UseFixedAzimuth>False </UseFixedAzimuth>
-                                            <Azimuth>178.628819744506</Azimuth>
+                                            <Azimuth>177.709958726465</Azimuth>
                                             <UseFixedInclination>False </UseFixedInclination>
-                                            <Inclination>84.3720727541001</Inclination>
-                                            <EstimatedDogleg1>3.00000000780776</EstimatedDogleg1>
+                                            <Inclination>84.3867171281514</Inclination>
+                                            <EstimatedDogleg1>3.00000001049136</EstimatedDogleg1>
                                             <EstimatedDogleg2>0</EstimatedDogleg2>
-                                            <EstimatedAzimuth>178.628819744506</EstimatedAzimuth>
-                                            <EstimatedInclination>84.3720727541001</EstimatedInclination>
+                                            <EstimatedAzimuth>177.709958726465</EstimatedAzimuth>
+                                            <EstimatedInclination>84.3867171281514</EstimatedInclination>
                                         </WellPathTarget>
                                         <WellPathTarget>
                                             <IsEnabled>True </IsEnabled>
-                                            <TargetPoint>26.3751033460912 -1101.89276220699 12.5044844970171</TargetPoint>
-                                            <TargetPointForDisplay>26.3751033460912 -1101.89276220699 12.5044844970171</TargetPointForDisplay>
-                                            <TargetMeasuredDepth>3927.00901023609</TargetMeasuredDepth>
+                                            <TargetPoint>43.8908940615206 -1097.5451675893 12.5045054876682</TargetPoint>
+                                            <TargetPointForDisplay>43.8908940615206 -1097.5451675893 12.5045054876682</TargetPointForDisplay>
+                                            <TargetMeasuredDepth>3923.35713225963</TargetMeasuredDepth>
                                             <Dogleg1>3</Dogleg1>
                                             <Dogleg2>3</Dogleg2>
                                             <UseFixedAzimuth>False </UseFixedAzimuth>
-                                            <Azimuth>178.628819744506</Azimuth>
+                                            <Azimuth>177.709958726465</Azimuth>
                                             <UseFixedInclination>False </UseFixedInclination>
-                                            <Inclination>89.4677145963357</Inclination>
+                                            <Inclination>89.4650798748376</Inclination>
                                             <EstimatedDogleg1>0</EstimatedDogleg1>
                                             <EstimatedDogleg2>0</EstimatedDogleg2>
-                                            <EstimatedAzimuth>178.628819744506</EstimatedAzimuth>
-                                            <EstimatedInclination>89.4677145963357</EstimatedInclination>
+                                            <EstimatedAzimuth>177.709958726465</EstimatedAzimuth>
+                                            <EstimatedInclination>89.4650798748376</EstimatedInclination>
                                         </WellPathTarget>
                                     </WellPathTargets>
                                     <ShowAbsolutePosForWellTargets>False </ShowAbsolutePosForWellTargets>
@@ -1535,7 +1502,7 @@
                                 </MdiWindowController>
                             </WindowController>
                             <ShowWindow>False </ShowWindow>
-                            <Id>-1</Id>
+                            <Id>0</Id>
                             <ShowPlotTitle>True </ShowPlotTitle>
                             <ShowTrackLegends>True </ShowTrackLegends>
                             <TrackLegendsHorizontal>True </TrackLegendsHorizontal>
@@ -1599,7 +1566,7 @@
                                 </MdiWindowController>
                             </WindowController>
                             <ShowWindow>False </ShowWindow>
-                            <Id>-1</Id>
+                            <Id>1</Id>
                             <ShowPlotTitle>True </ShowPlotTitle>
                             <ShowTrackLegends>True </ShowTrackLegends>
                             <TrackLegendsHorizontal>True </TrackLegendsHorizontal>
@@ -1724,7 +1691,7 @@
                                 </MdiWindowController>
                             </WindowController>
                             <ShowWindow>False </ShowWindow>
-                            <Id>-1</Id>
+                            <Id>2</Id>
                             <ShowPlotTitle>True </ShowPlotTitle>
                             <ShowTrackLegends>True </ShowTrackLegends>
                             <TrackLegendsHorizontal>True </TrackLegendsHorizontal>
@@ -1870,28 +1837,6 @@
                     </FieldReferences>
                     <OwnerView>$ROOT$ OilFields 0 AnalysisModels 0 Reservoirs 0 ViewCollection 0 Views 0</OwnerView>
                 </RimFieldQuickAccessGroup>
-                <RimFieldQuickAccessGroup>
-                    <Name>Property Filter : None</Name>
-                    <FieldReferences>
-                        <RimFieldQuickAccess>
-                            <FieldReference>
-                                <RimFieldReference>
-                                    <Object>$ROOT$ OilFields 0 AnalysisModels 0 Reservoirs 0 ViewCollection 0 Views 0 PropertyFilters 0 PropertyFilters 0</Object>
-                                    <FieldKeyword>LowerBound</FieldKeyword>
-                                </RimFieldReference>
-                            </FieldReference>
-                        </RimFieldQuickAccess>
-                        <RimFieldQuickAccess>
-                            <FieldReference>
-                                <RimFieldReference>
-                                    <Object>$ROOT$ OilFields 0 AnalysisModels 0 Reservoirs 0 ViewCollection 0 Views 0 PropertyFilters 0 PropertyFilters 0</Object>
-                                    <FieldKeyword>UpperBound</FieldKeyword>
-                                </RimFieldReference>
-                            </FieldReference>
-                        </RimFieldQuickAccess>
-                    </FieldReferences>
-                    <OwnerView>$ROOT$ OilFields 0 AnalysisModels 0 Reservoirs 0 ViewCollection 0 Views 0</OwnerView>
-                </RimFieldQuickAccessGroup>
             </FieldReferencesGroup>
         </RimQuickAccessCollection>
     </PinnedFieldCollection>
@@ -1912,8 +1857,8 @@
         </RimGridCalculationCollection>
     </GridCalculationCollection>
     <MultiSnapshotDefinitions/>
-    <TreeViewStates>-1-110000040;-1-110000050;-1-1100000110;-1-1100000;-1-11000;-1-110;-1-1300020;-1-13000;-1-130||</TreeViewStates>
-    <TreeViewCurrentModelIndexPaths>3 0;0 0||</TreeViewCurrentModelIndexPaths>
+    <TreeViewStates>-1-110000010;-1-110000040;-1-110000050;-1-1100000100;-1-1100000110;-1-1100000;-1-11000;-1-110;-1-1300020;-1-13000;-1-130||</TreeViewStates>
+    <TreeViewCurrentModelIndexPaths>1 0;0 0;0 0;2 0||</TreeViewCurrentModelIndexPaths>
     <PlotWindowTreeViewStates>-1-100|-1-100|||</PlotWindowTreeViewStates>
     <PlotWindowTreeViewCurrentModelIndexPaths>||||</PlotWindowTreeViewCurrentModelIndexPaths>
     <show3DWindow>True </show3DWindow>
@@ -1962,7 +1907,6 @@
                     <TransScalingWBHPSource>WBHP_SUMMARY</TransScalingWBHPSource>
                     <TransScalingWBHP>200</TransScalingWBHP>
                     <ExcludeMainBoreForFishbones>False </ExcludeMainBoreForFishbones>
-                    <ReportCompletionTypesSeparately>INDIVIDUALLY</ReportCompletionTypesSeparately>
                     <ExportDataSourceAsComment>True </ExportDataSourceAsComment>
                     <ExportWelspec>True </ExportWelspec>
                     <CompletionWelspecAfterMainBore>True </CompletionWelspecAfterMainBore>
@@ -2031,91 +1975,6 @@
                     <ExportMainKeywords></ExportMainKeywords>
                     <WriteEchoInGrdeclFiles>False </WriteEchoInGrdeclFiles>
                     <ExportFolder>$PathId_003$</ExportFolder>
-                    <BcpropKeywords>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                        <KeywordBcprop>
-                            <index>0</index>
-                            <type>NONE</type>
-                            <component>NONE</component>
-                            <rate>0</rate>
-                            <press></press>
-                            <temp></temp>
-                        </KeywordBcprop>
-                    </BcpropKeywords>
-                    <ExportSimulationInput>False </ExportSimulationInput>
-                    <BoundaryCondition>OPERNUM_OPERATER</BoundaryCondition>
-                    <PorvMultiplier>1000000</PorvMultiplier>
                 </RicExportEclipseInputGridUi>
             </ExportSectorModel>
             <MockModelSettings>
@@ -2146,6 +2005,33 @@
                     <SelectedProperties></SelectedProperties>
                 </RicCreateEnsembleWellLogUi>
             </CreateEnsembleWellLogUi>
+            <ExportSectorModelUi>
+                <RicExportSectorModelUi>
+                    <ExportFolder>$PathId_003$</ExportFolder>
+                    <ExportDeckName></ExportDeckName>
+                    <PorvMultiplier>1000000</PorvMultiplier>
+                    <BoundaryCondition>OPERNUM_OPERATER</BoundaryCondition>
+                    <GridBoxSelection>VISIBLE_CELLS</GridBoxSelection>
+                    <VisibleWellsPadding>2</VisibleWellsPadding>
+                    <MinI>2147483647</MinI>
+                    <MinJ>2147483647</MinJ>
+                    <MinK>2147483647</MinK>
+                    <MaxI>-2147483647</MaxI>
+                    <MaxJ>-2147483647</MaxJ>
+                    <MaxK>-2147483647</MaxK>
+                    <RefineGrid>False </RefineGrid>
+                    <RefinementCountI>1</RefinementCountI>
+                    <RefinementCountJ>1</RefinementCountJ>
+                    <RefinementCountK>1</RefinementCountK>
+                    <BcpropKeywords/>
+                    <CreateSimulationJob>False </CreateSimulationJob>
+                    <SimulationJobFolder></SimulationJobFolder>
+                    <SimulationJobName></SimulationJobName>
+                    <StartSimulationJobAfterExport>False </StartSimulationJobAfterExport>
+                    <EclipseCase></EclipseCase>
+                    <EclipseView></EclipseView>
+                </RicExportSectorModelUi>
+            </ExportSectorModelUi>
         </RimDialogData>
     </DialogData>
     <TileMode3DWindow>UNDEFINED</TileMode3DWindow>

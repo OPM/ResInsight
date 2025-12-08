@@ -39,71 +39,155 @@ for well in wells:
     print("WELSPECS")
 
     welspecs = completion_data.welspecs
-    for line in welspecs:
-        txt = line.well_name + "  "
-        txt += line.group_name + "  "
-        txt += str(line.grid_i) + "  "
-        txt += str(line.grid_j) + "  "
-        txt += fieldValueOrDefaultText(line, "bhp_depth") + "  "
-        txt += line.phase + "  "
-        txt += fieldValueOrDefaultText(line, "drainage_radius") + "  "
-        txt += fieldValueOrDefaultText(line, "inflow_equation") + "  "
-        txt += fieldValueOrDefaultText(line, "auto_shut_in") + "  "
-        txt += fieldValueOrDefaultText(line, "cross_flow") + "  "
-        txt += fieldValueOrDefaultText(line, "pvt_num") + "  "
-        txt += fieldValueOrDefaultText(line, "hydrostatic_density_calc") + "  "
-        txt += fieldValueOrDefaultText(line, "fip_region") + "  "
-        txt += "/"
+    welspecl_entries = []
 
-        print(txt)
+    for line in welspecs:
+        # Check if grid_name is present and not empty
+        has_grid_name = (
+            hasattr(line, "grid_name")
+            and line.HasField("grid_name")
+            and line.grid_name.strip()
+        )
+
+        if has_grid_name:
+            # Store for WELSPECL section
+            welspecl_entries.append(line)
+        else:
+            # Output as WELSPECS
+            txt = line.well_name + "  "
+            txt += line.group_name + "  "
+            txt += str(line.grid_i) + "  "
+            txt += str(line.grid_j) + "  "
+            txt += fieldValueOrDefaultText(line, "bhp_depth") + "  "
+            txt += line.phase + "  "
+            txt += fieldValueOrDefaultText(line, "drainage_radius") + "  "
+            txt += fieldValueOrDefaultText(line, "inflow_equation") + "  "
+            txt += fieldValueOrDefaultText(line, "auto_shut_in") + "  "
+            txt += fieldValueOrDefaultText(line, "cross_flow") + "  "
+            txt += fieldValueOrDefaultText(line, "pvt_num") + "  "
+            txt += fieldValueOrDefaultText(line, "hydrostatic_density_calc") + "  "
+            txt += fieldValueOrDefaultText(line, "fip_region") + "  "
+            txt += "/"
+
+            print(txt)
 
     print("/\n")
+
+    # Output WELSPECL section if there are entries with grid_name
+    if len(welspecl_entries) > 0:
+        print("WELSPECL")
+
+        for line in welspecl_entries:
+            txt = line.well_name + "  "
+            txt += line.group_name + "  "
+            txt += line.grid_name + "  "
+            txt += str(line.grid_i) + "  "
+            txt += str(line.grid_j) + "  "
+            txt += fieldValueOrDefaultText(line, "bhp_depth") + "  "
+            txt += line.phase + "  "
+            txt += fieldValueOrDefaultText(line, "drainage_radius") + "  "
+            txt += fieldValueOrDefaultText(line, "inflow_equation") + "  "
+            txt += fieldValueOrDefaultText(line, "auto_shut_in") + "  "
+            txt += fieldValueOrDefaultText(line, "cross_flow") + "  "
+            txt += fieldValueOrDefaultText(line, "pvt_num") + "  "
+            txt += fieldValueOrDefaultText(line, "hydrostatic_density_calc") + "  "
+            txt += fieldValueOrDefaultText(line, "fip_region") + "  "
+            txt += "/"
+
+            print(txt)
+
+        print("/\n")
 
     compdat = completion_data.compdat
 
     complump_entries = []
+    compdatl_entries = []
 
     print("COMPDAT")
 
     for line in compdat:
-        txt = ""
-        complump = ""
+        # Check if grid_name is present and not empty
+        has_grid_name = (
+            hasattr(line, "grid_name")
+            and line.HasField("grid_name")
+            and line.grid_name.strip()
+        )
 
-        if line.HasField("start_md"):
-            txt += "-- Perforation MD In " + str(line.start_md)
-            txt += ", MD Out " + str(line.end_md) + "--\n"
+        if has_grid_name:
+            # Store for COMPDATL section
+            compdatl_entries.append(line)
+        else:
+            # Output as COMPDAT
+            txt = ""
+            complump = ""
 
-        txt += "   "
-        txt += line.well_name + "  "
-        txt += str(line.grid_i) + "  "
-        txt += str(line.grid_j) + "  "
-        txt += str(line.upper_k) + "  "
-        txt += str(line.lower_k) + "  "
-        txt += line.open_shut_flag + "  "
-        txt += fieldValueOrDefaultText(line, "saturation") + "  "
-        txt += str(line.transmissibility) + "  "
-        txt += str(line.diameter) + "  "
-        txt += str(line.kh) + "  "
-        txt += fieldValueOrDefaultText(line, "skin_factor") + "  "
-        txt += fieldValueOrDefaultText(line, "d_factor") + "  "
-        txt += "'%s'" % line.direction
-        txt += " /"
+            if line.HasField("start_md"):
+                txt += "-- Perforation MD In " + str(line.start_md)
+                txt += ", MD Out " + str(line.end_md) + "--\n"
 
-        if (line.HasField("completion_number")) and (line.completion_number > 0):
-            complump += "   "
-            complump += line.well_name + "  "
-            complump += str(line.grid_i) + "  "
-            complump += str(line.grid_j) + "  "
-            complump += str(line.upper_k) + "  "
-            complump += str(line.lower_k) + "  "
-            complump += str(line.completion_number) + "  "
-            complump += " /"
+            txt += "   "
+            txt += line.well_name + "  "
+            txt += str(line.grid_i) + "  "
+            txt += str(line.grid_j) + "  "
+            txt += str(line.upper_k) + "  "
+            txt += str(line.lower_k) + "  "
+            txt += line.open_shut_flag + "  "
+            txt += fieldValueOrDefaultText(line, "saturation") + "  "
+            txt += str(line.transmissibility) + "  "
+            txt += str(line.diameter) + "  "
+            txt += str(line.kh) + "  "
+            txt += fieldValueOrDefaultText(line, "skin_factor") + "  "
+            txt += fieldValueOrDefaultText(line, "d_factor") + "  "
+            txt += "'%s'" % line.direction
+            txt += " /"
 
-            complump_entries.append(complump)
+            if (line.HasField("completion_number")) and (line.completion_number > 0):
+                complump += "   "
+                complump += line.well_name + "  "
+                complump += str(line.grid_i) + "  "
+                complump += str(line.grid_j) + "  "
+                complump += str(line.upper_k) + "  "
+                complump += str(line.lower_k) + "  "
+                complump += str(line.completion_number) + "  "
+                complump += " /"
 
-        print(txt)
+                complump_entries.append(complump)
+
+            print(txt)
 
     print("/\n")
+
+    # Output COMPDATL section if there are entries with grid_name
+    if len(compdatl_entries) > 0:
+        print("COMPDATL")
+
+        for line in compdatl_entries:
+            txt = ""
+
+            if line.HasField("start_md"):
+                txt += "-- Perforation MD In " + str(line.start_md)
+                txt += ", MD Out " + str(line.end_md) + "--\n"
+
+            txt += "   "
+            txt += line.well_name + "  "
+            txt += line.grid_name + "  "
+            txt += str(line.grid_i) + "  "
+            txt += str(line.grid_j) + "  "
+            txt += str(line.upper_k) + "  "
+            txt += str(line.lower_k) + "  "
+            txt += line.open_shut_flag + "  "
+            txt += fieldValueOrDefaultText(line, "saturation") + "  "
+            txt += str(line.transmissibility) + "  "
+            txt += str(line.diameter) + "  "
+            txt += str(line.kh) + "  "
+            txt += fieldValueOrDefaultText(line, "skin_factor") + "  "
+            txt += fieldValueOrDefaultText(line, "d_factor") + "  "
+            txt += "'%s'" % line.direction
+            txt += " /"
+
+            print(txt)
+
+        print("/\n")
 
     if len(complump_entries) > 0:
         print("COMPLUMP")
@@ -151,19 +235,50 @@ for well in wells:
     # Print COMPSEGS (MSW completion segments)
     print("\nCOMPSEGS")
     compsegs = completion_data.compsegs
+    compsegl_entries = []
+
     if (compsegs is None) or (len(compsegs) == 0):
         print("  -- No COMPSEGS data --")
     else:
         for compseg in compsegs:
+            # Check if grid_name is present and not empty
+            has_grid_name = (
+                hasattr(compseg, "grid_name")
+                and compseg.HasField("grid_name")
+                and compseg.grid_name.strip()
+            )
+
+            if has_grid_name:
+                # Store for COMPSEGL section
+                compsegl_entries.append(compseg)
+            else:
+                # Output as COMPSEGS
+                txt = "   "
+                txt += str(compseg.i) + "  "
+                txt += str(compseg.j) + "  "
+                txt += str(compseg.k) + "  "
+                txt += str(compseg.branch) + "  "
+                txt += str(compseg.distance_start) + "  "
+                txt += str(compseg.distance_end) + "  "
+                txt += " /"
+                print(txt)
+
+    print("/\n")
+
+    # Output COMPSEGL section if there are entries with grid_name
+    if len(compsegl_entries) > 0:
+        print("COMPSEGL")
+
+        for compseg in compsegl_entries:
             txt = "   "
+            txt += compseg.grid_name + "  "
             txt += str(compseg.i) + "  "
             txt += str(compseg.j) + "  "
             txt += str(compseg.k) + "  "
             txt += str(compseg.branch) + "  "
             txt += str(compseg.distance_start) + "  "
             txt += str(compseg.distance_end) + "  "
-            txt += fieldValueOrDefaultText(compseg, "grid_name")
             txt += " /"
             print(txt)
 
-    print("/\n")
+        print("/\n")
