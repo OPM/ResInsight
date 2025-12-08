@@ -1527,7 +1527,8 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                                               "WELTARG",
                                               "WPAVEDEP",
                                               "WRFTPLT",
-                                              "WTRACER" };
+                                              "WTRACER",
+                                              "WTEST" };
 
     // Process each type of well keyword
     // Use findAllKeywordsWithIndices to get all occurrences with their positions
