@@ -45,7 +45,7 @@ namespace internal
 //--------------------------------------------------------------------------------------------------
 void populateReply( RimEclipseCase* eclipseCase, RimWellPath* wellPath, ::rips::SimulatorTableData* reply )
 {
-    std::set<QString> gridNames;
+    std::set<QString> gridNamesWithCompletions;
     auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( wellPath, eclipseCase );
     for ( const auto& cd : compdata )
     {
@@ -53,7 +53,7 @@ void populateReply( RimEclipseCase* eclipseCase, RimWellPath* wellPath, ::rips::
         RiaWellPathDataToGrpcConverter::copyCompdatToGrpc( cd, grpcData );
 
         auto completionCell = cd.completionDataGridCell();
-        gridNames.insert( completionCell.lgrName() );
+        gridNamesWithCompletions.insert( completionCell.lgrName() );
 
         const auto wpimult = cd.wpimult();
         if ( wpimult != 0.0 && !RigCompletionData::isDefaultValue( wpimult ) )
@@ -71,30 +71,21 @@ void populateReply( RimEclipseCase* eclipseCase, RimWellPath* wellPath, ::rips::
     }
 
     // See RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile
-    // Find the grid with the uppermost intersection along the well path
-    std::tuple<double, cvf::Vec2i, QString> itemWithLowestMD =
-        std::make_tuple( std::numeric_limits<double>::max(), cvf::Vec2i(), "" );
-
-    for ( const auto& gridName : gridNames )
+    for ( const auto& gridName : gridNamesWithCompletions )
     {
-        auto candidate =
+        auto upperGridIntersection =
             RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( eclipseCase, wellPath, gridName );
-        if ( candidate.first < std::get<0>( itemWithLowestMD ) )
-        {
-            itemWithLowestMD = std::make_tuple( candidate.first, candidate.second, gridName );
-        }
+
+        auto       compSettings   = wellPath->completionSettings();
+        cvf::Vec2i ijIntersection = std::get<1>( upperGridIntersection );
+
+        SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
+        RiaWellPathDataToGrpcConverter::copyWelspecsToGrpc( compSettings,
+                                                            grpcData,
+                                                            ijIntersection.x(),
+                                                            ijIntersection.y(),
+                                                            gridName.toStdString() );
     }
-
-    auto       compSettings   = wellPath->completionSettings();
-    cvf::Vec2i ijIntersection = std::get<1>( itemWithLowestMD );
-    QString    lgrName        = std::get<2>( itemWithLowestMD );
-
-    SimulatorWelspecsEntry* grpcData = reply->add_welspecs();
-    RiaWellPathDataToGrpcConverter::copyWelspecsToGrpc( compSettings,
-                                                        grpcData,
-                                                        ijIntersection.x(),
-                                                        ijIntersection.y(),
-                                                        lgrName.toStdString() );
 
     // Multisegment wells
 

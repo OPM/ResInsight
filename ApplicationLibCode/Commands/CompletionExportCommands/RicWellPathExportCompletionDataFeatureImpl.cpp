@@ -774,33 +774,18 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclips
         for ( const auto& completion : completionsForLgr.second )
         {
             const auto wellPath = RicWellPathExportCompletionsFileTools::findWellPathFromExportName( completion.wellName() );
+            if ( !wellPath ) continue;
             wellPathToLgrNameMap[wellPath].insert( completionsForLgr.first );
         }
     }
 
-    for ( const auto& wellPathsForLgr : wellPathToLgrNameMap )
+    // See similar logic in RiaGrpcWellPathService::GetCompletionData()
+
+    for ( const auto& [wellPath, gridNames] : wellPathToLgrNameMap )
     {
-        const RimWellPath* wellPath = wellPathsForLgr.first;
-
-        std::tuple<double, cvf::Vec2i, QString> itemWithLowestMD = std::make_tuple( std::numeric_limits<double>::max(), cvf::Vec2i(), "" );
-
-        // Find first LGR-intersection along the well path
-
-        for ( const auto& lgrName : wellPathsForLgr.second )
+        for ( const auto& lgrName : gridNames )
         {
-            auto ijIntersection = wellPathUpperGridIntersectionIJ( gridCase, wellPath, lgrName );
-            if ( ijIntersection.first < std::get<0>( itemWithLowestMD ) )
-            {
-                itemWithLowestMD = std::make_tuple( ijIntersection.first, ijIntersection.second, lgrName );
-            }
-        }
-
-        {
-            double     measuredDepth = 0.0;
-            cvf::Vec2i ijIntersection;
-            QString    lgrName;
-
-            std::tie( measuredDepth, ijIntersection, lgrName ) = itemWithLowestMD;
+            const auto& [measuredDepth, ijIntersection] = wellPathUpperGridIntersectionIJ( gridCase, wellPath, lgrName );
 
             auto completionSettings = wellPath->completionSettings();
 
