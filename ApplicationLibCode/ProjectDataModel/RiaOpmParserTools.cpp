@@ -20,6 +20,8 @@
 #include "RiaLogging.h"
 #include "RiaTextStringTools.h"
 
+#include "FileInterface/RifVfpInjTable.h"
+#include "FileInterface/RifVfpProdTable.h"
 #include "RifEclipseInputFileTools.h"
 
 #include "cafPdmUiItem.h"
@@ -49,7 +51,7 @@ namespace RiaOpmParserTools
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<Opm::UnitSystem, Opm::VFPInjTable> createInjectionTable( const Opm::DeckKeyword& keyword )
+std::pair<Opm::UnitSystem, RifVfpInjTable> createInjectionTable( const Opm::DeckKeyword& keyword )
 {
     Opm::UnitSystem unitSystem;
     {
@@ -63,13 +65,13 @@ std::pair<Opm::UnitSystem, Opm::VFPInjTable> createInjectionTable( const Opm::De
         }
     }
 
-    return { unitSystem, { keyword, unitSystem } };
+    return { unitSystem, RifVfpInjTable( keyword ) };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<Opm::UnitSystem, Opm::VFPProdTable> createProductionTable( const Opm::DeckKeyword& keyword )
+std::pair<Opm::UnitSystem, RifVfpProdTable> createProductionTable( const Opm::DeckKeyword& keyword )
 {
     Opm::UnitSystem unitSystem;
     {
@@ -85,20 +87,20 @@ std::pair<Opm::UnitSystem, Opm::VFPProdTable> createProductionTable( const Opm::
 
     bool gaslift_opt_active = false;
 
-    return { unitSystem, { keyword, gaslift_opt_active, unitSystem } };
+    return { unitSystem, RifVfpProdTable( keyword, gaslift_opt_active ) };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>
+std::tuple<Opm::UnitSystem, std::vector<RifVfpProdTable>, std::vector<RifVfpInjTable>>
     extractVfpTablesFromDataFile( const std::string& dataDeckFilename )
 {
     if ( !std::filesystem::exists( dataDeckFilename ) )
-        return std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>{};
+        return std::tuple<Opm::UnitSystem, std::vector<RifVfpProdTable>, std::vector<RifVfpInjTable>>{};
 
-    std::vector<Opm::VFPProdTable> prodTables;
-    std::vector<Opm::VFPInjTable>  injTables;
+    std::vector<RifVfpProdTable> prodTables;
+    std::vector<RifVfpInjTable>  injTables;
 
     std::optional<Opm::UnitSystem> unitSystemFromTables;
 
@@ -179,7 +181,7 @@ std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFP
         unitSystemValue = *unitSystemFromTables;
     }
 
-    return std::tuple<Opm::UnitSystem, std::vector<Opm::VFPProdTable>, std::vector<Opm::VFPInjTable>>{ unitSystemValue, prodTables, injTables };
+    return std::tuple<Opm::UnitSystem, std::vector<RifVfpProdTable>, std::vector<RifVfpInjTable>>{ unitSystemValue, prodTables, injTables };
 }
 
 //--------------------------------------------------------------------------------------------------

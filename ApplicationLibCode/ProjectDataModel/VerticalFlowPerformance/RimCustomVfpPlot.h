@@ -123,10 +123,8 @@ private:
                                       RimVfpDefines::ProductionVariableType   primaryVariable,
                                       RimVfpDefines::ProductionVariableType   familyVariable );
 
-    static double  convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
-    static void    convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
-    static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
-    static QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType );
+    QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType ) const;
+    QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType ) const;
 
     struct CurveNameContent
     {
@@ -147,8 +145,6 @@ private:
                                          const CurveNameContent&  curveNameContent );
 
     void updateLegendWidget( size_t curveSetCount, CurveNameContent& curveNameContent );
-
-    static QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase );
 
     void connectAxisSignals( RimPlotAxisProperties* axis );
     void axisSettingsChanged( const caf::SignalEmitter* emitter );

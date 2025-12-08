@@ -29,9 +29,11 @@
 
 namespace Opm
 {
-class VFPInjTable;
-class VFPProdTable;
+class UnitSystem;
 } // namespace Opm
+
+class RifVfpInjTable;
+class RifVfpProdTable;
 
 class VfpPlotData
 {
@@ -102,9 +104,11 @@ struct VfpTableInitialData
 class RigVfpTables
 {
 public:
-    void setUnitSystem( const Opm::UnitSystem& unitSystem );
-    void addInjectionTable( const Opm::VFPInjTable& table );
-    void addProductionTable( const Opm::VFPProdTable& table );
+    void                  setUnitSystem( const Opm::UnitSystem& unitSystem );
+    const Opm::UnitSystem unitSystem() const;
+
+    void addInjectionTable( const RifVfpInjTable& table );
+    void addProductionTable( const RifVfpProdTable& table );
 
     std::vector<int> injectionTableNumbers() const;
     std::vector<int> productionTableNumbers() const;
@@ -141,24 +145,20 @@ public:
     // Static versions of display and conversion functions that take unit system parameter
     static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem );
     static QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem );
-    static double convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem );
-    static void convertToDisplayUnit( std::vector<double>&                  values,
-                                      RimVfpDefines::ProductionVariableType variableType,
-                                      const Opm::UnitSystem&                unitSystem );
 
 private:
-    VfpPlotData populatePlotData( const Opm::VFPInjTable&                 table,
+    VfpPlotData populatePlotData( const RifVfpInjTable&                   table,
                                   RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                   RimVfpDefines::FlowingPhaseType         flowingPhase ) const;
 
-    VfpPlotData populatePlotData( const Opm::VFPProdTable&                table,
+    VfpPlotData populatePlotData( const RifVfpProdTable&                  table,
                                   RimVfpDefines::ProductionVariableType   primaryVariable,
                                   RimVfpDefines::ProductionVariableType   familyVariable,
                                   RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                   RimVfpDefines::FlowingPhaseType         flowingPhase,
                                   const VfpTableSelection&                tableSelection ) const;
 
-    VfpPlotData populatePlotData( const Opm::VFPProdTable&                table,
+    VfpPlotData populatePlotData( const RifVfpProdTable&                  table,
                                   RimVfpDefines::ProductionVariableType   primaryVariable,
                                   RimVfpDefines::ProductionVariableType   familyVariable,
                                   RimVfpDefines::InterpolatedVariableType interpolatedVariable,
@@ -168,13 +168,11 @@ private:
     QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase ) const;
     QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType ) const;
     QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType ) const;
-    double  convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType ) const;
-    void    convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType ) const;
 
     static QString textForPlotData( const VfpPlotData& plotData );
 
-    std::vector<double> getProductionTableData( const Opm::VFPProdTable& table, RimVfpDefines::ProductionVariableType variableType ) const;
-    size_t              getVariableIndex( const Opm::VFPProdTable&              table,
+    std::vector<double> getProductionTableData( const RifVfpProdTable& table, RimVfpDefines::ProductionVariableType variableType ) const;
+    size_t              getVariableIndex( const RifVfpProdTable&                table,
                                           RimVfpDefines::ProductionVariableType targetVariable,
                                           RimVfpDefines::ProductionVariableType primaryVariable,
                                           size_t                                primaryValue,
@@ -182,7 +180,7 @@ private:
                                           size_t                                familyValue,
                                           const VfpTableSelection&              tableSelection ) const;
 
-    size_t getVariableIndexForValue( const Opm::VFPProdTable&              table,
+    size_t getVariableIndexForValue( const RifVfpProdTable&                table,
                                      RimVfpDefines::ProductionVariableType targetVariable,
                                      RimVfpDefines::ProductionVariableType primaryVariable,
                                      double                                primaryValue,
@@ -190,19 +188,19 @@ private:
                                      double                                familyValue,
                                      const VfpValueSelection&              valueSelection ) const;
 
-    std::optional<Opm::VFPInjTable>  injectionTable( int tableNumber ) const;
-    std::optional<Opm::VFPProdTable> productionTable( int tableNumber ) const;
+    std::optional<RifVfpInjTable>  injectionTable( int tableNumber ) const;
+    std::optional<RifVfpProdTable> productionTable( int tableNumber ) const;
 
-    static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPProdTable& table );
-    static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPInjTable& table );
-    static RimVfpDefines::FlowingWaterFractionType getFlowingWaterFractionType( const Opm::VFPProdTable& table );
-    static RimVfpDefines::FlowingGasFractionType   getFlowingGasFractionType( const Opm::VFPProdTable& table );
+    static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const RifVfpProdTable& table );
+    static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const RifVfpInjTable& table );
+    static RimVfpDefines::FlowingWaterFractionType getFlowingWaterFractionType( const RifVfpProdTable& table );
+    static RimVfpDefines::FlowingGasFractionType   getFlowingGasFractionType( const RifVfpProdTable& table );
 
     // Returns the indices of the closest values in valuesToMatch for each value in sourceValues. Returned index value -1 indicates no match.
     static std::vector<int> findClosestIndices( const std::vector<double>& sourceValues, const std::vector<double>& valuesToMatch );
 
 private:
-    std::vector<Opm::VFPInjTable>  m_injectionTables;
-    std::vector<Opm::VFPProdTable> m_productionTables;
-    Opm::UnitSystem                m_unitSystem;
+    std::vector<RifVfpInjTable>  m_injectionTables;
+    std::vector<RifVfpProdTable> m_productionTables;
+    Opm::UnitSystem              m_unitSystem;
 };

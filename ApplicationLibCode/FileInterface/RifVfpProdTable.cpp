@@ -30,13 +30,14 @@
 #include "RifVfpProdTable.h"
 #include "RifVfpInjTable.h"
 
+#include "cafAssert.h"
+
 #include <opm/input/eclipse/Deck/DeckItem.hpp>
 #include <opm/input/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/input/eclipse/Deck/DeckRecord.hpp>
 #include <opm/input/eclipse/Parser/ParserKeywords/V.hpp>
 
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <stdexcept>
 
@@ -337,11 +338,11 @@ double RifVfpProdTable::operator()( size_t thpIdx, size_t wfrIdx, size_t gfrIdx,
     size_t na = m_alqData.size();
     size_t nf = m_floData.size();
 
-    assert( thpIdx < nt );
-    assert( wfrIdx < nw );
-    assert( gfrIdx < ng );
-    assert( alqIdx < na );
-    assert( floIdx < nf );
+    CAF_ASSERT( thpIdx < nt );
+    CAF_ASSERT( wfrIdx < nw );
+    CAF_ASSERT( gfrIdx < ng );
+    CAF_ASSERT( alqIdx < na );
+    CAF_ASSERT( floIdx < nf );
 
     size_t index = thpIdx + nt * ( wfrIdx + nw * ( gfrIdx + ng * ( alqIdx + na * floIdx ) ) );
     return m_data[index];
@@ -358,11 +359,11 @@ double& RifVfpProdTable::operator()( size_t thpIdx, size_t wfrIdx, size_t gfrIdx
     size_t na = m_alqData.size();
     size_t nf = m_floData.size();
 
-    assert( thpIdx < nt );
-    assert( wfrIdx < nw );
-    assert( gfrIdx < ng );
-    assert( alqIdx < na );
-    assert( floIdx < nf );
+    CAF_ASSERT( thpIdx < nt );
+    CAF_ASSERT( wfrIdx < nw );
+    CAF_ASSERT( gfrIdx < ng );
+    CAF_ASSERT( alqIdx < na );
+    CAF_ASSERT( floIdx < nf );
 
     size_t index = thpIdx + nt * ( wfrIdx + nw * ( gfrIdx + ng * ( alqIdx + na * floIdx ) ) );
     return m_data[index];

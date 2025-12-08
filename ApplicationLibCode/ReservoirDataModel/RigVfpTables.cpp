@@ -22,13 +22,13 @@
 
 #include "cafAppEnum.h"
 
-#include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
-#include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
+#include "FileInterface/RifVfpInjTable.h"
+#include "FileInterface/RifVfpProdTable.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPInjTable&                 table,
+VfpPlotData RigVfpTables::populatePlotData( const RifVfpInjTable&                   table,
                                             RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                             RimVfpDefines::FlowingPhaseType         flowingPhase ) const
 {
@@ -41,12 +41,12 @@ VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPInjTable&             
                                                  getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::THP ) );
     plotData.setYAxisTitle( yAxisTitle );
 
-    std::vector<double> thpValues = table.getTHPAxis();
+    std::vector<double> thpValues = table.thpAxis();
 
     for ( size_t thp = 0; thp < thpValues.size(); thp++ )
     {
-        size_t              numValues = table.getFloAxis().size();
-        std::vector<double> xVals     = table.getFloAxis();
+        size_t              numValues = table.floAxis().size();
+        std::vector<double> xVals     = table.floAxis();
         std::vector<double> yVals( numValues, 0.0 );
         for ( size_t y = 0; y < numValues; y++ )
         {
@@ -57,15 +57,12 @@ VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPInjTable&             
             }
         }
 
-        double  value = convertToDisplayUnit( thpValues[thp], RimVfpDefines::ProductionVariableType::THP );
+        double  value = thpValues[thp];
         QString unit  = getDisplayUnit( RimVfpDefines::ProductionVariableType::THP );
         QString title = QString( "%1 [%2]: %3" )
                             .arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( RimVfpDefines::ProductionVariableType::THP ) )
                             .arg( unit )
                             .arg( value );
-
-        convertToDisplayUnit( yVals, RimVfpDefines::ProductionVariableType::THP );
-        convertToDisplayUnit( xVals, RimVfpDefines::ProductionVariableType::FLOW_RATE );
 
         plotData.appendCurve( title, xVals, yVals );
     }
@@ -76,7 +73,7 @@ VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPInjTable&             
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPProdTable&                table,
+VfpPlotData RigVfpTables::populatePlotData( const RifVfpProdTable&                  table,
                                             RimVfpDefines::ProductionVariableType   primaryVariable,
                                             RimVfpDefines::ProductionVariableType   familyVariable,
                                             RimVfpDefines::InterpolatedVariableType interpolatedVariable,
@@ -132,20 +129,25 @@ VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPProdTable&            
             }
         }
 
-        double  familyValue = convertToDisplayUnit( familyVariableValues[familyIdx], familyVariable );
+        double  familyValue = familyVariableValues[familyIdx];
         QString familyUnit  = getDisplayUnit( familyVariable );
         QString familyTitle = QString( "%1: %2 %3" )
                                   .arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( familyVariable ) )
                                   .arg( familyValue )
                                   .arg( familyUnit );
 
-        convertToDisplayUnit( yVals, RimVfpDefines::ProductionVariableType::THP );
-        convertToDisplayUnit( primaryAxisValues, primaryVariable );
-
         plotData.appendCurve( familyTitle, primaryAxisValues, yVals );
     }
 
     return plotData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const Opm::UnitSystem RigVfpTables::unitSystem() const
+{
+    return m_unitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,7 +203,7 @@ VfpPlotData RigVfpTables::populatePlotData( int                                 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPProdTable&                table,
+VfpPlotData RigVfpTables::populatePlotData( const RifVfpProdTable&                  table,
                                             RimVfpDefines::ProductionVariableType   primaryVariable,
                                             RimVfpDefines::ProductionVariableType   familyVariable,
                                             RimVfpDefines::InterpolatedVariableType interpolatedVariable,
@@ -281,15 +283,12 @@ VfpPlotData RigVfpTables::populatePlotData( const Opm::VFPProdTable&            
             }
         }
 
-        double  familyValue = convertToDisplayUnit( currentFamilyValue, familyVariable );
+        double  familyValue = currentFamilyValue;
         QString familyUnit  = getDisplayUnit( familyVariable );
         QString familyTitle = QString( "%1: %2 %3" )
                                   .arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( familyVariable ) )
                                   .arg( familyValue )
                                   .arg( familyUnit );
-
-        convertToDisplayUnit( yVals, RimVfpDefines::ProductionVariableType::THP );
-        convertToDisplayUnit( primaryAxisValues, primaryVariable );
 
         plotData.appendCurve( familyTitle, primaryAxisValues, yVals );
     }
@@ -479,64 +478,6 @@ QString RigVfpTables::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariab
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigVfpTables::convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType ) const
-{
-    return convertToDisplayUnit( value, variableType, m_unitSystem );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RigVfpTables::convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType, const Opm::UnitSystem& unitSystem )
-{
-    bool isFieldUnits = ( unitSystem.getType() == Opm::UnitSystem::UnitType::UNIT_TYPE_FIELD );
-
-    if ( variableType == RimVfpDefines::ProductionVariableType::THP )
-    {
-        if ( isFieldUnits )
-        {
-            // Convert from psi (field) to psia - no conversion needed, already in correct units
-            return value;
-        }
-        else
-        {
-            // Convert Pascal (SI) to Bar (metric)
-            return RiaEclipseUnitTools::pascalToBar( value );
-        }
-    }
-
-    if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
-    {
-        // Convert from per-second to per-day for both unit systems
-        const double secToDay = 24.0 * 60.0 * 60.0;
-        return value * secToDay;
-    }
-
-    return value;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigVfpTables::convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType ) const
-{
-    convertToDisplayUnit( values, variableType, m_unitSystem );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigVfpTables::convertToDisplayUnit( std::vector<double>&                  values,
-                                         RimVfpDefines::ProductionVariableType variableType,
-                                         const Opm::UnitSystem&                unitSystem )
-{
-    for ( double& value : values )
-        value = convertToDisplayUnit( value, variableType, unitSystem );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RigVfpTables::textForPlotData( const VfpPlotData& plotData )
 {
     QString dataText;
@@ -582,38 +523,28 @@ QString RigVfpTables::textForPlotData( const VfpPlotData& plotData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigVfpTables::getProductionTableData( const Opm::VFPProdTable& table, RimVfpDefines::ProductionVariableType variableType ) const
+std::vector<double> RigVfpTables::getProductionTableData( const RifVfpProdTable& table, RimVfpDefines::ProductionVariableType variableType ) const
 {
     std::vector<double> xVals;
     if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT )
     {
-        xVals = table.getWFRAxis();
+        xVals = table.wfrAxis();
     }
     else if ( variableType == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
     {
-        xVals = table.getGFRAxis();
+        xVals = table.gfrAxis();
     }
     else if ( variableType == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
     {
-        xVals = table.getALQAxis();
-
-        // Convert ALQ values to raw values. No conversion of this data type is done in convertToDisplayUnit. As convertToDisplayUnit is a
-        // static function, it will require a lot of refactoring to get the unit system information communicated to this function.
-        auto alq_dim = Opm::VFPProdTable::ALQDimension( table.getALQType(), m_unitSystem );
-        for ( double& value : xVals )
-        {
-            value = alq_dim.convertSiToRaw( value );
-        }
+        xVals = table.alqAxis();
     }
     else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
     {
-        // Values are converted in convertToDisplayUnit
-        xVals = table.getFloAxis();
+        xVals = table.floAxis();
     }
     else if ( variableType == RimVfpDefines::ProductionVariableType::THP )
     {
-        // Values are converted in convertToDisplayUnit
-        xVals = table.getTHPAxis();
+        xVals = table.thpAxis();
     }
 
     return xVals;
@@ -636,7 +567,7 @@ std::vector<double> RigVfpTables::getProductionTableData( int tableIndex, RimVfp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigVfpTables::getVariableIndex( const Opm::VFPProdTable&              table,
+size_t RigVfpTables::getVariableIndex( const RifVfpProdTable&                table,
                                        RimVfpDefines::ProductionVariableType targetVariable,
                                        RimVfpDefines::ProductionVariableType primaryVariable,
                                        size_t                                primaryValue,
@@ -659,7 +590,7 @@ size_t RigVfpTables::getVariableIndex( const Opm::VFPProdTable&              tab
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigVfpTables::getVariableIndexForValue( const Opm::VFPProdTable&              table,
+size_t RigVfpTables::getVariableIndexForValue( const RifVfpProdTable&                table,
                                                RimVfpDefines::ProductionVariableType targetVariable,
                                                RimVfpDefines::ProductionVariableType primaryVariable,
                                                double                                primaryValue,
@@ -705,7 +636,7 @@ size_t RigVfpTables::getVariableIndexForValue( const Opm::VFPProdTable&         
     }
 
     auto findClosestIndexForVariable =
-        [&]( RimVfpDefines::ProductionVariableType targetVariable, const double selectedValue, const Opm::VFPProdTable& table )
+        [&]( RimVfpDefines::ProductionVariableType targetVariable, const double selectedValue, const RifVfpProdTable& table )
     {
         const auto values = getProductionTableData( table, targetVariable );
         return findClosestIndex( values, selectedValue );
@@ -743,11 +674,11 @@ size_t RigVfpTables::getVariableIndexForValue( const Opm::VFPProdTable&         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<Opm::VFPInjTable> RigVfpTables::injectionTable( int tableNumber ) const
+std::optional<RifVfpInjTable> RigVfpTables::injectionTable( int tableNumber ) const
 {
     for ( const auto& table : m_injectionTables )
     {
-        if ( table.getTableNum() == tableNumber )
+        if ( table.tableNum() == tableNumber )
         {
             return table;
         }
@@ -759,11 +690,11 @@ std::optional<Opm::VFPInjTable> RigVfpTables::injectionTable( int tableNumber ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<Opm::VFPProdTable> RigVfpTables::productionTable( int tableNumber ) const
+std::optional<RifVfpProdTable> RigVfpTables::productionTable( int tableNumber ) const
 {
     for ( const auto& table : m_productionTables )
     {
-        if ( table.getTableNum() == tableNumber )
+        if ( table.tableNum() == tableNumber )
         {
             return table;
         }
@@ -775,15 +706,15 @@ std::optional<Opm::VFPProdTable> RigVfpTables::productionTable( int tableNumber 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpDefines::FlowingPhaseType RigVfpTables::getFlowingPhaseType( const Opm::VFPProdTable& table )
+RimVfpDefines::FlowingPhaseType RigVfpTables::getFlowingPhaseType( const RifVfpProdTable& table )
 {
-    switch ( table.getFloType() )
+    switch ( table.floType() )
     {
-        case Opm::VFPProdTable::FLO_TYPE::FLO_OIL:
+        case RifVfpProdTable::FLO_TYPE::FLO_OIL:
             return RimVfpDefines::FlowingPhaseType::OIL;
-        case Opm::VFPProdTable::FLO_TYPE::FLO_GAS:
+        case RifVfpProdTable::FLO_TYPE::FLO_GAS:
             return RimVfpDefines::FlowingPhaseType::GAS;
-        case Opm::VFPProdTable::FLO_TYPE::FLO_LIQ:
+        case RifVfpProdTable::FLO_TYPE::FLO_LIQ:
             return RimVfpDefines::FlowingPhaseType::LIQUID;
         default:
             return RimVfpDefines::FlowingPhaseType::INVALID;
@@ -793,15 +724,15 @@ RimVfpDefines::FlowingPhaseType RigVfpTables::getFlowingPhaseType( const Opm::VF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpDefines::FlowingPhaseType RigVfpTables::getFlowingPhaseType( const Opm::VFPInjTable& table )
+RimVfpDefines::FlowingPhaseType RigVfpTables::getFlowingPhaseType( const RifVfpInjTable& table )
 {
-    switch ( table.getFloType() )
+    switch ( table.floType() )
     {
-        case Opm::VFPInjTable::FLO_TYPE::FLO_OIL:
+        case RifVfpInjTable::FLO_TYPE::FLO_OIL:
             return RimVfpDefines::FlowingPhaseType::OIL;
-        case Opm::VFPInjTable::FLO_TYPE::FLO_GAS:
+        case RifVfpInjTable::FLO_TYPE::FLO_GAS:
             return RimVfpDefines::FlowingPhaseType::GAS;
-        case Opm::VFPInjTable::FLO_TYPE::FLO_WAT:
+        case RifVfpInjTable::FLO_TYPE::FLO_WAT:
             return RimVfpDefines::FlowingPhaseType::WATER;
         default:
             return RimVfpDefines::FlowingPhaseType::INVALID;
@@ -811,15 +742,15 @@ RimVfpDefines::FlowingPhaseType RigVfpTables::getFlowingPhaseType( const Opm::VF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpDefines::FlowingWaterFractionType RigVfpTables::getFlowingWaterFractionType( const Opm::VFPProdTable& table )
+RimVfpDefines::FlowingWaterFractionType RigVfpTables::getFlowingWaterFractionType( const RifVfpProdTable& table )
 {
-    switch ( table.getWFRType() )
+    switch ( table.wfrType() )
     {
-        case Opm::VFPProdTable::WFR_TYPE::WFR_WOR:
+        case RifVfpProdTable::WFR_TYPE::WFR_WOR:
             return RimVfpDefines::FlowingWaterFractionType::WOR;
-        case Opm::VFPProdTable::WFR_TYPE::WFR_WCT:
+        case RifVfpProdTable::WFR_TYPE::WFR_WCT:
             return RimVfpDefines::FlowingWaterFractionType::WCT;
-        case Opm::VFPProdTable::WFR_TYPE::WFR_WGR:
+        case RifVfpProdTable::WFR_TYPE::WFR_WGR:
             return RimVfpDefines::FlowingWaterFractionType::WGR;
         default:
             return RimVfpDefines::FlowingWaterFractionType::INVALID;
@@ -829,15 +760,15 @@ RimVfpDefines::FlowingWaterFractionType RigVfpTables::getFlowingWaterFractionTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpDefines::FlowingGasFractionType RigVfpTables::getFlowingGasFractionType( const Opm::VFPProdTable& table )
+RimVfpDefines::FlowingGasFractionType RigVfpTables::getFlowingGasFractionType( const RifVfpProdTable& table )
 {
-    switch ( table.getGFRType() )
+    switch ( table.gfrType() )
     {
-        case Opm::VFPProdTable::GFR_TYPE::GFR_GOR:
+        case RifVfpProdTable::GFR_TYPE::GFR_GOR:
             return RimVfpDefines::FlowingGasFractionType::GOR;
-        case Opm::VFPProdTable::GFR_TYPE::GFR_GLR:
+        case RifVfpProdTable::GFR_TYPE::GFR_GLR:
             return RimVfpDefines::FlowingGasFractionType::GLR;
-        case Opm::VFPProdTable::GFR_TYPE::GFR_OGR:
+        case RifVfpProdTable::GFR_TYPE::GFR_OGR:
             return RimVfpDefines::FlowingGasFractionType::OGR;
         default:
             return RimVfpDefines::FlowingGasFractionType::INVALID;
@@ -855,7 +786,7 @@ void RigVfpTables::setUnitSystem( const Opm::UnitSystem& unitSystem )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigVfpTables::addInjectionTable( const Opm::VFPInjTable& table )
+void RigVfpTables::addInjectionTable( const RifVfpInjTable& table )
 {
     m_injectionTables.push_back( table );
 }
@@ -863,7 +794,7 @@ void RigVfpTables::addInjectionTable( const Opm::VFPInjTable& table )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigVfpTables::addProductionTable( const Opm::VFPProdTable& table )
+void RigVfpTables::addProductionTable( const RifVfpProdTable& table )
 {
     m_productionTables.push_back( table );
 }
@@ -877,7 +808,7 @@ std::vector<int> RigVfpTables::injectionTableNumbers() const
 
     for ( const auto& table : m_injectionTables )
     {
-        tableNumbers.push_back( table.getTableNum() );
+        tableNumbers.push_back( table.tableNum() );
     }
 
     return tableNumbers;
@@ -892,7 +823,7 @@ std::vector<int> RigVfpTables::productionTableNumbers() const
 
     for ( const auto& table : m_productionTables )
     {
-        tableNumbers.push_back( table.getTableNum() );
+        tableNumbers.push_back( table.tableNum() );
     }
 
     return tableNumbers;
@@ -908,8 +839,8 @@ VfpTableInitialData RigVfpTables::getTableInitialData( int tableIndex ) const
     {
         VfpTableInitialData initialData{};
         initialData.isProductionTable = true;
-        initialData.tableNumber       = prodTable->getTableNum();
-        initialData.datumDepth        = prodTable->getDatumDepth();
+        initialData.tableNumber       = prodTable->tableNum();
+        initialData.datumDepth        = prodTable->datumDepth();
         initialData.flowingPhase      = getFlowingPhaseType( *prodTable );
         initialData.waterFraction     = getFlowingWaterFractionType( *prodTable );
         initialData.gasFraction       = getFlowingGasFractionType( *prodTable );
@@ -922,8 +853,8 @@ VfpTableInitialData RigVfpTables::getTableInitialData( int tableIndex ) const
     {
         VfpTableInitialData initialData{};
         initialData.isProductionTable = false;
-        initialData.tableNumber       = injTable->getTableNum();
-        initialData.datumDepth        = injTable->getDatumDepth();
+        initialData.tableNumber       = injTable->tableNum();
+        initialData.datumDepth        = injTable->datumDepth();
         initialData.flowingPhase      = getFlowingPhaseType( *injTable );
         return initialData;
     }

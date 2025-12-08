@@ -29,13 +29,14 @@
 
 #include "RifVfpInjTable.h"
 
+#include "cafAssert.h"
+
 #include <opm/input/eclipse/Deck/DeckItem.hpp>
 #include <opm/input/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/input/eclipse/Deck/DeckRecord.hpp>
 #include <opm/input/eclipse/Parser/ParserKeywords/V.hpp>
 
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <stdexcept>
 
@@ -235,8 +236,8 @@ double RifVfpInjTable::operator()( size_t thpIdx, size_t floIdx ) const
     size_t nt = m_thpData.size();
     size_t nf = m_floData.size();
 
-    assert( thpIdx < nt );
-    assert( floIdx < nf );
+    CAF_ASSERT( thpIdx < nt );
+    CAF_ASSERT( floIdx < nf );
 
     size_t index = thpIdx + nt * floIdx;
     return m_data[index];
@@ -250,8 +251,8 @@ double& RifVfpInjTable::operator()( size_t thpIdx, size_t floIdx )
     size_t nt = m_thpData.size();
     size_t nf = m_floData.size();
 
-    assert( thpIdx < nt );
-    assert( floIdx < nf );
+    CAF_ASSERT( thpIdx < nt );
+    CAF_ASSERT( floIdx < nf );
 
     size_t index = thpIdx + nt * floIdx;
     return m_data[index];

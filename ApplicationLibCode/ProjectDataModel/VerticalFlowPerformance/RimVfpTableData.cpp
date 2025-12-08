@@ -20,11 +20,12 @@
 
 #include "RiaOpmParserTools.h"
 
+#include "RifVfpInjTable.h"
+#include "RifVfpProdTable.h"
+
 #include "RigVfpTables.h"
 
 #include "RimVfpTable.h"
-
-#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 #include "cafCmdFeatureMenuBuilder.h"
 
@@ -87,7 +88,7 @@ void RimVfpTableData::ensureDataIsImported()
 
         auto table = new RimVfpTable;
         table->setDataSource( this );
-        table->setTableNumber( prod.getTableNum() );
+        table->setTableNumber( prod.tableNum() );
         table->setTableType( RimVfpDefines::TableType::PRODUCTION );
         m_tables.push_back( table );
     }
@@ -98,7 +99,7 @@ void RimVfpTableData::ensureDataIsImported()
 
         auto table = new RimVfpTable;
         table->setDataSource( this );
-        table->setTableNumber( inj.getTableNum() );
+        table->setTableNumber( inj.tableNum() );
         table->setTableType( RimVfpDefines::TableType::INJECTION );
         m_tables.push_back( table );
     }

@@ -21,7 +21,13 @@
 #include "ProjectDataModel/VerticalFlowPerformance/RimVfpDefines.h"
 #include "RigVfpTables.h"
 
+#include "FileInterface/RifVfpInjTable.h"
+#include "FileInterface/RifVfpProdTable.h"
+#include "ProjectDataModel/RiaOpmParserTools.h"
+
 #include "opm/input/eclipse/Units/UnitSystem.hpp"
+
+#include "RiaTestDataDirectory.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -130,55 +136,84 @@ TEST( RigVfpTables, MetricUnitDisplayUnits )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RigVfpTables, FieldUnitConversion )
+TEST( RigVfpTables, ImportVfpDataFromFile )
 {
-    // Test field unit conversions
-    Opm::UnitSystem fieldUnitSystem = Opm::UnitSystem::newFIELD();
+    // Import VFP data using the new ResInsight VFP file readers
+    std::string vfpFilePath = QString( "%1/RigSimulationInputTool/model5/include/flowl_b_vfp.ecl" ).arg( TEST_DATA_DIR ).toStdString();
 
-    // Test THP conversion for field units (no conversion should be done, data already in psi)
-    double thpValue     = 100.0; // psi
-    double convertedThp = RigVfpTables::convertToDisplayUnit( thpValue, RimVfpDefines::ProductionVariableType::THP, fieldUnitSystem );
-    EXPECT_DOUBLE_EQ( 100.0, convertedThp ); // Should remain unchanged
+    auto [unitSystem, prodTables, injTables] = RiaOpmParserTools::extractVfpTablesFromDataFile( vfpFilePath );
 
-    // Test flow rate conversion for field units (convert from stb/sec to stb/day)
-    double flowRateValue = 1.0; // stb/sec
-    double convertedFlowRate =
-        RigVfpTables::convertToDisplayUnit( flowRateValue, RimVfpDefines::ProductionVariableType::FLOW_RATE, fieldUnitSystem );
-    EXPECT_DOUBLE_EQ( 86400.0, convertedFlowRate ); // 1 * 24 * 60 * 60 = 86400 stb/day
+    // Verify we got data
+    EXPECT_FALSE( prodTables.empty() );
+    EXPECT_TRUE( injTables.empty() ); // This file contains only production tables
 
-    // Test vector conversion
-    std::vector<double> flowRateValues = { 1.0, 2.0, 0.5 }; // stb/sec
-    RigVfpTables::convertToDisplayUnit( flowRateValues, RimVfpDefines::ProductionVariableType::FLOW_RATE, fieldUnitSystem );
+    // Check unit system is metric (based on VFPPROD header "METRIC")
+    EXPECT_EQ( Opm::UnitSystem::UnitType::UNIT_TYPE_METRIC, unitSystem.getType() );
 
-    EXPECT_DOUBLE_EQ( 86400.0, flowRateValues[0] ); // 86400 stb/day
-    EXPECT_DOUBLE_EQ( 172800.0, flowRateValues[1] ); // 172800 stb/day
-    EXPECT_DOUBLE_EQ( 43200.0, flowRateValues[2] ); // 43200 stb/day
-}
+    // Verify first production table
+    const auto& table = prodTables[0];
+    EXPECT_EQ( 4, table.tableNum() );
+    EXPECT_DOUBLE_EQ( 114.60, table.datumDepth() );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST( RigVfpTables, MetricUnitConversion )
-{
-    // Test metric unit conversions
-    Opm::UnitSystem metricUnitSystem = Opm::UnitSystem::newMETRIC();
+    // Check table type indicators
+    EXPECT_EQ( RifVfpProdTable::FLO_TYPE::FLO_LIQ, table.floType() );
+    EXPECT_EQ( RifVfpProdTable::WFR_TYPE::WFR_WCT, table.wfrType() );
+    EXPECT_EQ( RifVfpProdTable::GFR_TYPE::GFR_GOR, table.gfrType() );
+    EXPECT_EQ( RifVfpProdTable::ALQ_TYPE::ALQ_GRAT, table.alqType() );
 
-    // Test THP conversion for metric units (Pascal to Bar)
-    double thpValue     = 100000.0; // Pascal
-    double convertedThp = RigVfpTables::convertToDisplayUnit( thpValue, RimVfpDefines::ProductionVariableType::THP, metricUnitSystem );
-    EXPECT_DOUBLE_EQ( 1.0, convertedThp ); // 100000 Pa = 1 Bar
+    // Verify axis data preserved from original file
+    const auto& floAxis = table.floAxis();
+    EXPECT_EQ( 19, floAxis.size() );
+    EXPECT_DOUBLE_EQ( 20.0, floAxis[0] );
+    EXPECT_DOUBLE_EQ( 30.0, floAxis[1] );
+    EXPECT_DOUBLE_EQ( 11171.0, floAxis[floAxis.size() - 1] );
 
-    // Test flow rate conversion for metric units (m3/sec to m3/day)
-    double flowRateValue = 1.0; // m3/sec
-    double convertedFlowRate =
-        RigVfpTables::convertToDisplayUnit( flowRateValue, RimVfpDefines::ProductionVariableType::FLOW_RATE, metricUnitSystem );
-    EXPECT_DOUBLE_EQ( 86400.0, convertedFlowRate ); // 1 * 24 * 60 * 60 = 86400 m3/day
+    const auto& thpAxis = table.thpAxis();
+    EXPECT_EQ( 6, thpAxis.size() );
+    EXPECT_DOUBLE_EQ( 2.00, thpAxis[0] );
+    EXPECT_DOUBLE_EQ( 35.00, thpAxis[thpAxis.size() - 1] );
 
-    // Test vector conversion
-    std::vector<double> thpValues = { 100000.0, 200000.0, 50000.0 }; // Pascal
-    RigVfpTables::convertToDisplayUnit( thpValues, RimVfpDefines::ProductionVariableType::THP, metricUnitSystem );
+    const auto& wfrAxis = table.wfrAxis();
+    EXPECT_EQ( 10, wfrAxis.size() );
+    EXPECT_DOUBLE_EQ( 0.000, wfrAxis[0] );
+    EXPECT_DOUBLE_EQ( 0.990, wfrAxis[wfrAxis.size() - 1] );
 
-    EXPECT_DOUBLE_EQ( 1.0, thpValues[0] ); // 1 Bar
-    EXPECT_DOUBLE_EQ( 2.0, thpValues[1] ); // 2 Bar
-    EXPECT_DOUBLE_EQ( 0.5, thpValues[2] ); // 0.5 Bar
+    const auto& gfrAxis = table.gfrAxis();
+    EXPECT_EQ( 9, gfrAxis.size() );
+    EXPECT_DOUBLE_EQ( 20.0, gfrAxis[0] );
+    EXPECT_DOUBLE_EQ( 1000.0, gfrAxis[gfrAxis.size() - 1] );
+
+    const auto& alqAxis = table.alqAxis();
+    EXPECT_EQ( 6, alqAxis.size() );
+    EXPECT_DOUBLE_EQ( 0.0, alqAxis[0] );
+    EXPECT_DOUBLE_EQ( 300000.0, alqAxis[alqAxis.size() - 1] );
+
+    // Test table dimensions
+    auto shape = table.shape();
+    EXPECT_EQ( 6, shape[0] ); // THP
+    EXPECT_EQ( 10, shape[1] ); // WFR
+    EXPECT_EQ( 9, shape[2] ); // GFR
+    EXPECT_EQ( 6, shape[3] ); // ALQ
+    EXPECT_EQ( 19, shape[4] ); // FLO
+
+    // Test specific table value (first data point from file)
+    // THP=1, WFR=1, GFR=1, ALQ=1 should give BHP=13.977
+    EXPECT_DOUBLE_EQ( 13.977, table( 0, 0, 0, 0, 0 ) );
+
+    // Test RigVfpTables functionality with imported data
+    RigVfpTables vfpTables;
+    vfpTables.setUnitSystem( unitSystem );
+    vfpTables.addProductionTable( table );
+
+    // Verify table numbers
+    auto tableNumbers = vfpTables.productionTableNumbers();
+    EXPECT_EQ( 1, tableNumbers.size() );
+    EXPECT_EQ( 4, tableNumbers[0] );
+
+    // Test unit display with imported data
+    QString thpUnit = RigVfpTables::getDisplayUnit( RimVfpDefines::ProductionVariableType::THP, vfpTables.unitSystem() );
+    EXPECT_EQ( "Bar", thpUnit.toStdString() );
+
+    QString flowRateUnit = RigVfpTables::getDisplayUnit( RimVfpDefines::ProductionVariableType::FLOW_RATE, vfpTables.unitSystem() );
+    EXPECT_EQ( "Sm3/day", flowRateUnit.toStdString() );
 }

@@ -444,28 +444,26 @@ QString RimCustomVfpPlot::infoForCurve( RimPlotCurve* plotCurve ) const
 
         if ( m_familyVariable() != RimVfpDefines::ProductionVariableType::WATER_CUT && m_waterCut().size() > 1 )
             info += QString( "\nWC: %1 %2" )
-                        .arg( convertToDisplayUnit( values.waterCutValue, RimVfpDefines::ProductionVariableType::WATER_CUT ) )
+                        .arg( values.waterCutValue )
                         .arg( getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::WATER_CUT ) );
 
         if ( m_familyVariable() != RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO && m_gasLiquidRatio().size() > 1 )
             info += QString( "\nGLR: %1 %2" )
-                        .arg( convertToDisplayUnit( values.gasLiquidRatioValue, RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO ) )
+                        .arg( values.gasLiquidRatioValue )
                         .arg( getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO ) );
 
         if ( m_familyVariable() != RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY && m_artificialLiftQuantity().size() > 1 )
             info += QString( "\nLift: %1 %2" )
-                        .arg( convertToDisplayUnit( values.artificialLiftQuantityValue,
-                                                    RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY ) )
+                        .arg( values.artificialLiftQuantityValue )
                         .arg( getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY ) );
 
         if ( m_familyVariable() != RimVfpDefines::ProductionVariableType::THP && m_thp().size() > 1 )
-            info += QString( "\nTPH: %1 %2" )
-                        .arg( convertToDisplayUnit( values.thpValue, RimVfpDefines::ProductionVariableType::THP ) )
-                        .arg( getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::THP ) );
+            info +=
+                QString( "\nTPH: %1 %2" ).arg( values.thpValue ).arg( getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::THP ) );
 
         if ( m_familyVariable() != RimVfpDefines::ProductionVariableType::FLOW_RATE && m_flowRate().size() > 1 )
             info += QString( "\nRate: %1 %2" )
-                        .arg( convertToDisplayUnit( values.flowRateValue, RimVfpDefines::ProductionVariableType::FLOW_RATE ) )
+                        .arg( values.flowRateValue )
                         .arg( getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::FLOW_RATE ) );
 
         info += "\n";
@@ -766,10 +764,7 @@ void RimCustomVfpPlot::updateLegendWidget( size_t curveSetCount, CurveNameConten
             auto color = curveColors().cycledColor3f( i );
 
             auto formatNamePart = [&]( RimVfpDefines::ProductionVariableType variableType, double selectionValue, const QString& namePart ) -> QString
-            {
-                double displayValue = convertToDisplayUnit( selectionValue, variableType );
-                return QString( " %1:%2" ).arg( namePart ).arg( displayValue );
-            };
+            { return QString( " %1:%2" ).arg( namePart ).arg( selectionValue ); };
 
             if ( plotCurveIdx < m_plotCurveMetaData.size() )
             {
@@ -843,9 +838,8 @@ void RimCustomVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget*           
     auto formatCurveNamePart =
         [&]( RimVfpDefines::ProductionVariableType variableType, double familyValue, double selectionValue, const QString& namePart ) -> QString
     {
-        double value        = ( variableType == m_familyVariable() ) ? familyValue : selectionValue;
-        double displayValue = convertToDisplayUnit( value, variableType );
-        return QString( " %1:%2" ).arg( namePart ).arg( displayValue );
+        double value = ( variableType == m_familyVariable() ) ? familyValue : selectionValue;
+        return QString( " %1:%2" ).arg( namePart ).arg( value );
     };
 
     for ( auto curveIndex = 0u; curveIndex < plotData.size(); curveIndex++ )
@@ -915,27 +909,6 @@ void RimCustomVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget*           
     }
 
     updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimCustomVfpPlot::axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase )
-{
-    QString title;
-
-    if ( flowingPhase == RimVfpDefines::FlowingPhaseType::GAS )
-    {
-        title = "Gas ";
-    }
-    else
-    {
-        title = "Liquid ";
-    }
-    title += QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( variableType ),
-                                     getDisplayUnitWithBracket( variableType ) );
-
-    return title;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1190,53 +1163,30 @@ void RimCustomVfpPlot::initializeFromInitData( const VfpTableInitialData& table 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimCustomVfpPlot::convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType )
+QString RimCustomVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType ) const
 {
-    if ( variableType == RimVfpDefines::ProductionVariableType::THP )
+    // Use RigVfpTables to get proper unit strings based on the actual unit system
+    if ( m_mainDataSource && m_mainDataSource->dataSource() && m_mainDataSource->dataSource()->vfpTables() )
     {
-        return RiaEclipseUnitTools::pascalToBar( value );
+        auto vfpTables = m_mainDataSource->dataSource()->vfpTables();
+
+        // Use the static method from RigVfpTables that properly handles unit systems
+        return RigVfpTables::getDisplayUnit( variableType, vfpTables->unitSystem() );
     }
 
-    if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
-    {
-        // Convert to m3/sec to m3/day
-        return value * static_cast<double>( 24 * 60 * 60 );
-    }
-
-    return value;
+    // Return empty string if VFP data not available
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCustomVfpPlot::convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType )
-{
-    for ( double& value : values )
-        value = convertToDisplayUnit( value, variableType );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimCustomVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType )
+QString RimCustomVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType ) const
 {
     QString unit = getDisplayUnit( variableType );
     if ( !unit.isEmpty() ) return QString( "[%1]" ).arg( unit );
 
     return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimCustomVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType )
-
-{
-    if ( variableType == RimVfpDefines::ProductionVariableType::THP ) return "Bar";
-
-    if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE ) return "Sm3/day";
-
-    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1424,9 +1374,7 @@ void RimCustomVfpPlot::calculateTableValueOptions( RimVfpDefines::ProductionVari
 
     for ( double value : values )
     {
-        options.push_back(
-            caf::PdmOptionItemInfo( QString( "%1 %2" ).arg( convertToDisplayUnit( value, variableType ) ).arg( getDisplayUnit( variableType ) ),
-                                    value ) );
+        options.push_back( caf::PdmOptionItemInfo( QString( "%1 %2" ).arg( value ).arg( getDisplayUnit( variableType ) ), value ) );
     }
 }
 
