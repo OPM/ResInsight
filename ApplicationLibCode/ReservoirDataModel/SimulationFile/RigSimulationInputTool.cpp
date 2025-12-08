@@ -357,61 +357,52 @@ std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices
                                                                                   const RigSimulationInputSettings& settings,
                                                                                   RifOpmFlowDeckFile&               deckFile )
 {
-    auto keywords = deckFile.keywords( false );
-
-    for ( const auto& keyword : keywords )
+    auto equalsKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( "EQUALS" );
+    if ( !equalsKeywordsWithIndices.empty() )
     {
-        // Handle EQUALS keyword specially - it has IJK coordinates that need transformation
-        if ( keyword == "EQUALS" )
+        RiaLogging::info( QString( "Processing %1 occurrence(s) of EQUALS keyword" ).arg( equalsKeywordsWithIndices.size() ) );
+
+        // Process in reverse order so indices remain valid after modifications
+        for ( auto it = equalsKeywordsWithIndices.rbegin(); it != equalsKeywordsWithIndices.rend(); ++it )
         {
-            auto equalsKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( keyword );
-            if ( !equalsKeywordsWithIndices.empty() )
+            const Opm::FileDeck::Index& index = it->first;
+            const Opm::DeckKeyword&     kw    = it->second;
+
+            // Create new keyword with transformed coordinates
+            Opm::DeckKeyword transformedKeyword( kw.location(), kw.name() );
+
+            try
             {
-                RiaLogging::info( QString( "Processing %1 occurrence(s) of EQUALS keyword" ).arg( equalsKeywordsWithIndices.size() ) );
-
-                // Process in reverse order so indices remain valid after modifications
-                for ( auto it = equalsKeywordsWithIndices.rbegin(); it != equalsKeywordsWithIndices.rend(); ++it )
+                for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
                 {
-                    const Opm::FileDeck::Index& index = it->first;
-                    const Opm::DeckKeyword&     kw    = it->second;
+                    const auto& record = kw.getRecord( recordIdx );
+                    auto        result = processEqualsRecord( record, settings.min(), settings.max(), settings.refinement() );
 
-                    // Create new keyword with transformed coordinates
-                    Opm::DeckKeyword transformedKeyword( kw.location(), kw.name() );
-
-                    try
+                    if ( result )
                     {
-                        for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
-                        {
-                            const auto& record = kw.getRecord( recordIdx );
-                            auto        result = processEqualsRecord( record, settings.min(), settings.max(), settings.refinement() );
-
-                            if ( result )
-                            {
-                                transformedKeyword.addRecord( std::move( result.value() ) );
-                            }
-                            else
-                            {
-                                RiaLogging::warning( QString( "Failed to process EQUALS record: %1" ).arg( result.error() ) );
-                            }
-                        }
-
-                        // Replace with transformed keyword
-                        if ( transformedKeyword.size() > 0 )
-                        {
-                            RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
-                            deckFile.replaceKeywordAtIndex( index, transformedKeyword );
-                        }
-                        else
-                        {
-                            // If all records failed, remove the keyword
-                            deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
-                        }
+                        transformedKeyword.addRecord( std::move( result.value() ) );
                     }
-                    catch ( std::exception& e )
+                    else
                     {
-                        return std::unexpected( QString( "Exception processing EQUALS keyword: %1" ).arg( e.what() ) );
+                        RiaLogging::warning( QString( "Failed to process EQUALS record: %1" ).arg( result.error() ) );
                     }
                 }
+
+                // Replace with transformed keyword
+                if ( transformedKeyword.size() > 0 )
+                {
+                    RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
+                    deckFile.replaceKeywordAtIndex( index, transformedKeyword );
+                }
+                else
+                {
+                    // If all records failed, remove the keyword
+                    deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
+                }
+            }
+            catch ( std::exception& e )
+            {
+                return std::unexpected( QString( "Exception processing EQUALS keyword: %1" ).arg( e.what() ) );
             }
         }
     }
