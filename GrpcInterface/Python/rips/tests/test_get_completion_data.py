@@ -731,6 +731,55 @@ def test_completion_data_reference_failure_simulation(rips_instance, initialize_
     print("Reference test correctly detects data changes")
 
 
+def test_welspecs_grid_name_field(rips_instance, initialize_test):
+    """Test WELSPECS grid_name field behavior for main grid vs LGR grids"""
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    well_path_file = case_root_path + "/wellpath_a.dev"
+    rips_instance.project.import_well_paths([well_path_file])
+    well_path = rips_instance.project.well_paths()[0]
+    well_path.name = "GridNameTestWell"
+    well_path.update()
+
+    # Add completion
+    result = well_path.trajectory_properties(resampling_interval=10.0)
+    measured_depths = result["measured_depth"]
+    start_md = measured_depths[len(measured_depths) // 2]
+    end_md = measured_depths[len(measured_depths) // 2 + 5] if len(measured_depths) > 10 else measured_depths[-1]
+    
+    perf_interval = well_path.append_perforation_interval(start_md, end_md, 0.25, 0.1)
+    assert perf_interval is not None
+
+    # Get completion data
+    completion_data = well_path.completion_data(case.id)
+    assert completion_data is not None
+    assert len(completion_data.welspecs) > 0
+
+    # Test WELSPECS grid_name field
+    for welspec in completion_data.welspecs:
+        assert welspec.well_name == "GridNameTestWell"
+        
+        # For main grid wells, grid_name should be empty or not present
+        # This results in WELSPECS output (not WELSPECL)
+        if welspec.HasField("grid_name"):
+            # If grid_name field exists, it should be empty for main grid
+            assert welspec.grid_name.strip() == "", "Main grid wells should have empty grid_name"
+        
+        # Verify required WELSPECS fields
+        assert welspec.group_name, "Should have group name"
+        
+        # Test specific grid coordinates (these should be deterministic for the test well path)
+        assert welspec.grid_i == 29, f"Expected grid_i=29, got {welspec.grid_i}"
+        assert welspec.grid_j == 41, f"Expected grid_j=41, got {welspec.grid_j}"
+        
+        assert welspec.phase in ["OIL", "GAS", "WATER", "LIQ"], "Should have valid phase"
+    
+    print("Note: WELSPECL testing requires LGR grids. Current test case uses main grid only.")
+    print("WELSPECL functionality would be tested when grid_name contains a non-empty string.")
+
+
 def test_completion_data_cross_validation(rips_instance, initialize_test):
     """Cross-validate completion data with perforation interval properties"""
     case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
