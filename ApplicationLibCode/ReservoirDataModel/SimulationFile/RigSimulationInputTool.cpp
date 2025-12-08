@@ -362,19 +362,21 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Generic helper for processing keywords with box indices (EQUALS, COPY, MULTIPLY, ADD)
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                                  const RigSimulationInputSettings& settings,
-                                                                                  RifOpmFlowDeckFile&               deckFile )
+std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndices( const std::string&                keywordName,
+                                                                                   RimEclipseCase*                   eclipseCase,
+                                                                                   const RigSimulationInputSettings& settings,
+                                                                                   RifOpmFlowDeckFile&               deckFile,
+                                                                                   RecordProcessorFunc               processorFunc )
 {
-    auto equalsKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( "EQUALS" );
-    if ( !equalsKeywordsWithIndices.empty() )
+    auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( keywordName );
+    if ( !keywordsWithIndices.empty() )
     {
-        RiaLogging::info( QString( "Processing %1 occurrence(s) of EQUALS keyword" ).arg( equalsKeywordsWithIndices.size() ) );
+        RiaLogging::info( QString( "Processing %1 occurrence(s) of %2 keyword" ).arg( keywordsWithIndices.size() ).arg( keywordName.c_str() ) );
 
         // Process in reverse order so indices remain valid after modifications
-        for ( auto it = equalsKeywordsWithIndices.rbegin(); it != equalsKeywordsWithIndices.rend(); ++it )
+        for ( auto it = keywordsWithIndices.rbegin(); it != keywordsWithIndices.rend(); ++it )
         {
             const Opm::FileDeck::Index& index = it->first;
             const Opm::DeckKeyword&     kw    = it->second;
@@ -387,7 +389,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices
                 for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
                 {
                     const auto& record = kw.getRecord( recordIdx );
-                    auto        result = processEqualsRecord( record, settings.min(), settings.max(), settings.refinement() );
+                    auto        result = processorFunc( record, settings.min(), settings.max(), settings.refinement() );
 
                     if ( result )
                     {
@@ -395,7 +397,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices
                     }
                     else
                     {
-                        RiaLogging::warning( QString( "Failed to process EQUALS record: %1" ).arg( result.error() ) );
+                        RiaLogging::warning( QString( "Failed to process %1 record: %2" ).arg( keywordName.c_str() ).arg( result.error() ) );
                     }
                 }
 
@@ -413,12 +415,22 @@ std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices
             }
             catch ( std::exception& e )
             {
-                return std::unexpected( QString( "Exception processing EQUALS keyword: %1" ).arg( e.what() ) );
+                return std::unexpected( QString( "Exception processing %1 keyword: %2" ).arg( keywordName.c_str() ).arg( e.what() ) );
             }
         }
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices( RimEclipseCase*                   eclipseCase,
+                                                                                  const RigSimulationInputSettings& settings,
+                                                                                  RifOpmFlowDeckFile&               deckFile )
+{
+    return replaceKeywordWithBoxIndices( "EQUALS", eclipseCase, settings, deckFile, processEqualsRecord );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -428,57 +440,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceMultiplyKeywordIndic
                                                                                     const RigSimulationInputSettings& settings,
                                                                                     RifOpmFlowDeckFile&               deckFile )
 {
-    auto multiplyKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( "MULTIPLY" );
-    if ( !multiplyKeywordsWithIndices.empty() )
-    {
-        RiaLogging::info( QString( "Processing %1 occurrence(s) of MULTIPLY keyword" ).arg( multiplyKeywordsWithIndices.size() ) );
-
-        // Process in reverse order so indices remain valid after modifications
-        for ( auto it = multiplyKeywordsWithIndices.rbegin(); it != multiplyKeywordsWithIndices.rend(); ++it )
-        {
-            const Opm::FileDeck::Index& index = it->first;
-            const Opm::DeckKeyword&     kw    = it->second;
-
-            // Create new keyword with transformed coordinates
-            Opm::DeckKeyword transformedKeyword( kw.location(), kw.name() );
-
-            try
-            {
-                for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
-                {
-                    const auto& record = kw.getRecord( recordIdx );
-                    auto        result = processMultiplyRecord( record, settings.min(), settings.max(), settings.refinement() );
-
-                    if ( result )
-                    {
-                        transformedKeyword.addRecord( std::move( result.value() ) );
-                    }
-                    else
-                    {
-                        RiaLogging::warning( QString( "Failed to process MULTIPLY record: %1" ).arg( result.error() ) );
-                    }
-                }
-
-                // Replace with transformed keyword
-                if ( transformedKeyword.size() > 0 )
-                {
-                    RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
-                    deckFile.replaceKeywordAtIndex( index, transformedKeyword );
-                }
-                else
-                {
-                    // If all records failed, remove the keyword
-                    deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
-                }
-            }
-            catch ( std::exception& e )
-            {
-                return std::unexpected( QString( "Exception processing MULTIPLY keyword: %1" ).arg( e.what() ) );
-            }
-        }
-    }
-
-    return {};
+    return replaceKeywordWithBoxIndices( "MULTIPLY", eclipseCase, settings, deckFile, processMultiplyRecord );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -488,57 +450,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceCopyKeywordIndices( 
                                                                                 const RigSimulationInputSettings& settings,
                                                                                 RifOpmFlowDeckFile&               deckFile )
 {
-    auto copyKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( "COPY" );
-    if ( !copyKeywordsWithIndices.empty() )
-    {
-        RiaLogging::info( QString( "Processing %1 occurrence(s) of COPY keyword" ).arg( copyKeywordsWithIndices.size() ) );
-
-        // Process in reverse order so indices remain valid after modifications
-        for ( auto it = copyKeywordsWithIndices.rbegin(); it != copyKeywordsWithIndices.rend(); ++it )
-        {
-            const Opm::FileDeck::Index& index = it->first;
-            const Opm::DeckKeyword&     kw    = it->second;
-
-            // Create new keyword with transformed coordinates
-            Opm::DeckKeyword transformedKeyword( kw.location(), kw.name() );
-
-            try
-            {
-                for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
-                {
-                    const auto& record = kw.getRecord( recordIdx );
-                    auto        result = processCopyRecord( record, settings.min(), settings.max(), settings.refinement() );
-
-                    if ( result )
-                    {
-                        transformedKeyword.addRecord( std::move( result.value() ) );
-                    }
-                    else
-                    {
-                        RiaLogging::warning( QString( "Failed to process COPY record: %1" ).arg( result.error() ) );
-                    }
-                }
-
-                // Replace with transformed keyword
-                if ( transformedKeyword.size() > 0 )
-                {
-                    RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
-                    deckFile.replaceKeywordAtIndex( index, transformedKeyword );
-                }
-                else
-                {
-                    // If all records failed, remove the keyword
-                    deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
-                }
-            }
-            catch ( std::exception& e )
-            {
-                return std::unexpected( QString( "Exception processing COPY keyword: %1" ).arg( e.what() ) );
-            }
-        }
-    }
-
-    return {};
+    return replaceKeywordWithBoxIndices( "COPY", eclipseCase, settings, deckFile, processCopyRecord );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -548,57 +460,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceAddKeywordIndices( R
                                                                                const RigSimulationInputSettings& settings,
                                                                                RifOpmFlowDeckFile&               deckFile )
 {
-    auto addKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( "ADD" );
-    if ( !addKeywordsWithIndices.empty() )
-    {
-        RiaLogging::info( QString( "Processing %1 occurrence(s) of ADD keyword" ).arg( addKeywordsWithIndices.size() ) );
-
-        // Process in reverse order so indices remain valid after modifications
-        for ( auto it = addKeywordsWithIndices.rbegin(); it != addKeywordsWithIndices.rend(); ++it )
-        {
-            const Opm::FileDeck::Index& index = it->first;
-            const Opm::DeckKeyword&     kw    = it->second;
-
-            // Create new keyword with transformed coordinates
-            Opm::DeckKeyword transformedKeyword( kw.location(), kw.name() );
-
-            try
-            {
-                for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
-                {
-                    const auto& record = kw.getRecord( recordIdx );
-                    auto        result = processAddRecord( record, settings.min(), settings.max(), settings.refinement() );
-
-                    if ( result )
-                    {
-                        transformedKeyword.addRecord( std::move( result.value() ) );
-                    }
-                    else
-                    {
-                        RiaLogging::warning( QString( "Failed to process ADD record: %1" ).arg( result.error() ) );
-                    }
-                }
-
-                // Replace with transformed keyword
-                if ( transformedKeyword.size() > 0 )
-                {
-                    RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
-                    deckFile.replaceKeywordAtIndex( index, transformedKeyword );
-                }
-                else
-                {
-                    // If all records failed, remove the keyword
-                    deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
-                }
-            }
-            catch ( std::exception& e )
-            {
-                return std::unexpected( QString( "Exception processing ADD keyword: %1" ).arg( e.what() ) );
-            }
-        }
-    }
-
-    return {};
+    return replaceKeywordWithBoxIndices( "ADD", eclipseCase, settings, deckFile, processAddRecord );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -608,58 +470,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceBoxKeywordIndices( R
                                                                                const RigSimulationInputSettings& settings,
                                                                                RifOpmFlowDeckFile&               deckFile )
 {
-    // Handle BOX keyword specially - it has IJK coordinates that need transformation
-    auto boxKeywordsWithIndices = deckFile.findAllKeywordsWithIndices( "BOX" );
-    if ( !boxKeywordsWithIndices.empty() )
-    {
-        RiaLogging::info( QString( "Processing %1 occurrence(s) of BOX keyword" ).arg( boxKeywordsWithIndices.size() ) );
-
-        // Process in reverse order so indices remain valid after modifications
-        for ( auto it = boxKeywordsWithIndices.rbegin(); it != boxKeywordsWithIndices.rend(); ++it )
-        {
-            const Opm::FileDeck::Index& index = it->first;
-            const Opm::DeckKeyword&     kw    = it->second;
-
-            // Create new keyword with transformed coordinates
-            Opm::DeckKeyword transformedKeyword( kw.location(), kw.name() );
-
-            try
-            {
-                for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
-                {
-                    const auto& record = kw.getRecord( recordIdx );
-                    auto        result = processBoxRecord( record, settings.min(), settings.max(), settings.refinement() );
-
-                    if ( result )
-                    {
-                        transformedKeyword.addRecord( std::move( result.value() ) );
-                    }
-                    else
-                    {
-                        RiaLogging::warning( QString( "Failed to process BOX record: %1" ).arg( result.error() ) );
-                    }
-                }
-
-                // Replace with transformed keyword
-                if ( transformedKeyword.size() > 0 )
-                {
-                    RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
-                    deckFile.replaceKeywordAtIndex( index, transformedKeyword );
-                }
-                else
-                {
-                    // If all records failed, remove the keyword
-                    deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
-                }
-            }
-            catch ( std::exception& e )
-            {
-                return std::unexpected( QString( "Exception processing BOX keyword: %1" ).arg( e.what() ) );
-            }
-        }
-    }
-
-    return {};
+    return replaceKeywordWithBoxIndices( "BOX", eclipseCase, settings, deckFile, processBoxRecord );
 }
 
 //--------------------------------------------------------------------------------------------------
