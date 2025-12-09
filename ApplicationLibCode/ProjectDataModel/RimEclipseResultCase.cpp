@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
+#include "RiaPhaseTools.h"
 #include "RiaPreferencesGrid.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaResultNames.h"
@@ -90,10 +91,6 @@ RimEclipseResultCase::RimEclipseResultCase()
     m_unitSystem.registerGetMethod( RimProject::current(), &RimProject::commonUnitSystemForAllCases );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_phases, "Phases", "Phases" );
-    m_phases.registerGetMethod( this, &RimEclipseResultCase::phasesAsString );
-    m_phases.uiCapability()->setUiReadOnly( true );
-
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions" );
     m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -140,19 +137,13 @@ QString RimEclipseResultCase::phasesAsString() const
 {
     if ( auto caseData = eclipseCaseData() )
     {
-        QStringList phaseNames;
-        const auto  phases = caseData->availablePhases();
-        for ( const auto& phase : phases )
-        {
-            phaseNames.append( caf::AppEnum<RiaDefines::PhaseType>::uiText( phase ) );
-        }
-
-        if ( phaseNames.isEmpty() )
+        const auto phases = caseData->availablePhases();
+        if ( phases.empty() )
         {
             return "No phases available";
         }
 
-        return phaseNames.join( ", " );
+        return RiaPhaseTools::getSystemDescription( phases );
     }
 
     return "No data available";
@@ -709,7 +700,10 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_caseId );
     uiOrdering.add( &m_caseFileName );
     uiOrdering.add( &m_unitSystem );
-    uiOrdering.add( &m_phases );
+
+    QString phaseText = phasesAsString();
+    uiOrdering.addNewLabel( "Phase System" );
+    uiOrdering.addNewLabel( phaseText, { .newRow = false } );
 
     auto group = uiOrdering.addNewGroup( "Case Options" );
     group->add( &m_activeFormationNames );

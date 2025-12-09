@@ -22,6 +22,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 
+#include "RiaPhaseTools.h"
 #include "RiaResultNames.h"
 
 //==================================================================================================
@@ -113,5 +114,5 @@ bool RigSwatResultCalculator::hasOnlyWaterPhase() const
     if ( !eclipseCaseData ) return false;
 
     std::set<RiaDefines::PhaseType> availablePhases = eclipseCaseData->availablePhases();
-    return availablePhases.size() == 1 && availablePhases.contains( RiaDefines::PhaseType::WATER_PHASE );
+    return RiaPhaseTools::isSinglePhaseWater( availablePhases );
 }

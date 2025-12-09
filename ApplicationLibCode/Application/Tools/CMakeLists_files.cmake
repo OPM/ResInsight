@@ -51,6 +51,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaNetworkTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaOpenMPTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumericalTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPhaseTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTextTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaFileLogger.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectBackupTools.h
@@ -107,6 +108,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaNetworkTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOpenMPTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumericalTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPhaseTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTextTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFileLogger.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectBackupTools.cpp

@@ -21,6 +21,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 
+#include "RiaPhaseTools.h"
 #include "RiaResultNames.h"
 
 //==================================================================================================
@@ -210,5 +211,5 @@ bool RigSoilResultCalculator::hasOilPhase() const
     if ( availablePhases.empty() ) return true;
 
     // Check if oil phase is present
-    return availablePhases.count( RiaDefines::PhaseType::OIL_PHASE ) > 0;
+    return RiaPhaseTools::hasOilPhase( availablePhases );
 }

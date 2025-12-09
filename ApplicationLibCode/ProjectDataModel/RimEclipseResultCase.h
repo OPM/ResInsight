@@ -104,7 +104,6 @@ private:
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;
     caf::PdmField<caf::FilePath>                                         m_sourSimFileName;
-    caf::PdmProxyValueField<QString>                                     m_phases;
 
     caf::PdmField<std::pair<bool, int>> m_mswMergeThreshold;
 
