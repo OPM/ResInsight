@@ -185,3 +185,14 @@ void RimPerforationCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPerforationCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimProject* proj = RimProject::current();
+    proj->reloadCompletionTypeResultsInAllViews();
+
+    updateConnectedEditors();
+}
