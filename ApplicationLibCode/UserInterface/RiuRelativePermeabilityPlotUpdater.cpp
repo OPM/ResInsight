@@ -254,7 +254,8 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
 
             const bool enableImbibitionCurveSelection = ( imbnumAccessor.notNull() && imbnumAccessor->cellScalar( gridLocalCellIndex ) > 0 );
             m_targetPlotPanel->enableImbibitionCurveSelection( enableImbibitionCurveSelection );
-            m_targetPlotPanel->setPlotData( eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, caseName, cellRefText );
+            const auto phases = eclipseCaseData->availablePhases();
+            m_targetPlotPanel->setPlotData( eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, caseName, cellRefText, phases );
 
             return true;
         }

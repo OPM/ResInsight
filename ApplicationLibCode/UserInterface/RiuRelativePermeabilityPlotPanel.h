@@ -20,6 +20,8 @@
 
 #include "RiaDefines.h"
 
+#include <set>
+
 #include "RigFlowDiagDefines.h"
 
 #include <QPointer>
@@ -56,7 +58,8 @@ public:
                       double                                               swat,
                       double                                               sgas,
                       const QString&                                       caseName,
-                      const QString&                                       cellReferenceText );
+                      const QString&                                       cellReferenceText,
+                      const std::set<RiaDefines::PhaseType>&               availablePhases );
 
     void enableImbibitionCurveSelection( bool enable );
 
@@ -84,7 +87,8 @@ private:
                                  QwtPlot*                                             plot,
                                  std::vector<QwtPlotMarker*>*                         myPlotMarkers,
                                  bool                                                 showScaled,
-                                 bool                                                 showUnscaled );
+                                 bool                                                 showUnscaled,
+                                 const std::set<RiaDefines::PhaseType>&               availablePhases );
 
     static QwtPlotCurve* getLegendCurve( QString title, bool scaled );
 
@@ -110,6 +114,7 @@ private:
 
     std::vector<RigFlowDiagDefines::RelPermCurve> gatherUiSelectedCurves() const;
     QString                                       asciiDataForUiSelectedCurves() const;
+    void                                          updateCheckboxTexts();
 
     const QwtPlotCurve* closestCurveSample( const QPoint& cursorPosition, int* closestSampleIndex ) const;
     void                updateTrackerPlotMarkerAndLabelFromPicker();
@@ -132,6 +137,7 @@ private:
     double                                        m_sgas;
     QString                                       m_caseName;
     QString                                       m_cellReferenceText;
+    std::set<RiaDefines::PhaseType>               m_availablePhases;
     QPointer<RiuDockedQwtPlot>                    m_qwtPlot;
     std::vector<QwtPlotMarker*>                   m_myPlotMarkers;
 
