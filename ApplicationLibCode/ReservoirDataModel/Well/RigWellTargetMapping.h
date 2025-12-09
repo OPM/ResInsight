@@ -193,13 +193,22 @@ private:
 
     static std::optional<size_t> getActiveCellCount( RimEclipseCase* eclipseCase );
 
-    static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds );
+    static void
+        createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds, size_t timeStepIdx );
 
-    static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values );
+    static void
+        createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values, size_t timeStepIdx );
 
-    static void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds, double value );
+    static void createResultVector( RimEclipseCase&         eclipseCase,
+                                    const QString&          resultName,
+                                    const std::vector<int>& clusterIds,
+                                    double                  value,
+                                    size_t                  timeStepIdx );
 
-    static void createResultVectorIfDefined( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values );
+    static void createResultVectorIfDefined( RimEclipseCase&            eclipseCase,
+                                             const QString&             resultName,
+                                             const std::vector<double>& values,
+                                             size_t                     timeStepIdx );
 
     static double getValueForFace( const std::vector<double>& x,
                                    const std::vector<double>& y,

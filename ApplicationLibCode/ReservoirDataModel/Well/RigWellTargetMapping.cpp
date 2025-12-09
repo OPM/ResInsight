@@ -29,6 +29,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigEclipseResultInfo.h"
 #include "RigFloodingSettings.h"
 #include "RigHydrocarbonFlowTools.h"
 #include "RigMainGrid.h"
@@ -196,7 +197,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     RiaLogging::info( QString( "Time spent: %1 ms" ).arg( milliseconds.count() ), logKeyword );
 
     QString resultName = RigWellTargetMapping::wellTargetResultName();
-    createResultVector( *eclipseCase, resultName, clusters );
+    createResultVector( *eclipseCase, resultName, clusters, timeStepIdx );
 
     // Update views and property filters
     RimProject* proj = RimProject::current();
@@ -269,27 +270,27 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
 
     if ( skipUndefinedResults )
     {
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SOIL", totalPorvSoil );
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SGAS", totalPorvSgas );
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SOIL_SGAS", totalPorvSoilAndSgas );
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_FIPOIL", totalFipOil );
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_FIPGAS", totalFipGas );
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_RFIPOIL", totalRfipOil );
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_RFIPGAS", totalRfipGas );
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_SFIPOIL", totalSfipOil );
-        createResultVectorIfDefined( *eclipseCase, "TOTAL_SFIPGAS", totalSfipGas );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SOIL", totalPorvSoil, timeStepIdx );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SGAS", totalPorvSgas, timeStepIdx );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_PORV_SOIL_SGAS", totalPorvSoilAndSgas, timeStepIdx );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_FIPOIL", totalFipOil, timeStepIdx );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_FIPGAS", totalFipGas, timeStepIdx );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_RFIPOIL", totalRfipOil, timeStepIdx );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_RFIPGAS", totalRfipGas, timeStepIdx );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_SFIPOIL", totalSfipOil, timeStepIdx );
+        createResultVectorIfDefined( *eclipseCase, "TOTAL_SFIPGAS", totalSfipGas, timeStepIdx );
     }
     else
     {
-        createResultVector( *eclipseCase, "TOTAL_PORV_SOIL", totalPorvSoil );
-        createResultVector( *eclipseCase, "TOTAL_PORV_SGAS", totalPorvSgas );
-        createResultVector( *eclipseCase, "TOTAL_PORV_SOIL_SGAS", totalPorvSoilAndSgas );
-        createResultVector( *eclipseCase, "TOTAL_FIPOIL", totalFipOil );
-        createResultVector( *eclipseCase, "TOTAL_FIPGAS", totalFipGas );
-        createResultVector( *eclipseCase, "TOTAL_RFIPOIL", totalRfipOil );
-        createResultVector( *eclipseCase, "TOTAL_RFIPGAS", totalRfipGas );
-        createResultVector( *eclipseCase, "TOTAL_SFIPOIL", totalSfipOil );
-        createResultVector( *eclipseCase, "TOTAL_SFIPGAS", totalSfipGas );
+        createResultVector( *eclipseCase, "TOTAL_PORV_SOIL", totalPorvSoil, timeStepIdx );
+        createResultVector( *eclipseCase, "TOTAL_PORV_SGAS", totalPorvSgas, timeStepIdx );
+        createResultVector( *eclipseCase, "TOTAL_PORV_SOIL_SGAS", totalPorvSoilAndSgas, timeStepIdx );
+        createResultVector( *eclipseCase, "TOTAL_FIPOIL", totalFipOil, timeStepIdx );
+        createResultVector( *eclipseCase, "TOTAL_FIPGAS", totalFipGas, timeStepIdx );
+        createResultVector( *eclipseCase, "TOTAL_RFIPOIL", totalRfipOil, timeStepIdx );
+        createResultVector( *eclipseCase, "TOTAL_RFIPGAS", totalRfipGas, timeStepIdx );
+        createResultVector( *eclipseCase, "TOTAL_SFIPOIL", totalSfipOil, timeStepIdx );
+        createResultVector( *eclipseCase, "TOTAL_SFIPGAS", totalSfipGas, timeStepIdx );
     }
 }
 
@@ -485,15 +486,23 @@ void RigWellTargetMapping::assignClusterIdToCells( const RigActiveCellInfo&   ac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellTargetMapping::createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds )
+void RigWellTargetMapping::createResultVector( RimEclipseCase&         eclipseCase,
+                                               const QString&          resultName,
+                                               const std::vector<int>& clusterIds,
+                                               size_t                  timeStepIdx )
 {
     RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
 
     auto resultsData = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    resultsData->addStaticScalarResult( RiaDefines::ResultCatType::GENERATED, resultName, false, clusterIds.size() );
+    resultsData->createResultEntry( resultAddress, true );
 
-    std::vector<double>* resultVector = resultsData->modifiableCellScalarResult( resultAddress, 0 );
+    RigEclipseResultAddress addrToMaxTimeStepCountResult;
+    resultsData->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+    const std::vector<RigEclipseTimeStepInfo> timeStepInfos = resultsData->timeStepInfos( addrToMaxTimeStepCountResult );
+    resultsData->setTimeStepInfos( resultAddress, timeStepInfos );
+
+    std::vector<double>* resultVector = resultsData->modifiableCellScalarResult( resultAddress, timeStepIdx );
     resultVector->resize( clusterIds.size(), std::numeric_limits<double>::infinity() );
 
     std::fill( resultVector->begin(), resultVector->end(), std::numeric_limits<double>::infinity() );
@@ -512,28 +521,41 @@ void RigWellTargetMapping::createResultVector( RimEclipseCase& eclipseCase, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellTargetMapping::createResultVectorIfDefined( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values )
+void RigWellTargetMapping::createResultVectorIfDefined( RimEclipseCase&            eclipseCase,
+                                                        const QString&             resultName,
+                                                        const std::vector<double>& values,
+                                                        size_t                     timeStepIdx )
 {
     // Avoid creating the result vector if all values are inf/nan
     if ( std::all_of( values.begin(), values.end(), []( auto v ) { return std::isinf( v ) || std::isnan( v ); } ) ) return;
 
-    createResultVector( eclipseCase, resultName, values );
+    createResultVector( eclipseCase, resultName, values, timeStepIdx );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellTargetMapping::createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values )
+void RigWellTargetMapping::createResultVector( RimEclipseCase&            eclipseCase,
+                                               const QString&             resultName,
+                                               const std::vector<double>& values,
+                                               size_t                     timeStepIdx )
 {
     RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
 
     auto resultsData = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    resultsData->addStaticScalarResult( RiaDefines::ResultCatType::GENERATED, resultName, false, values.size() );
+    if ( !resultsData->ensureKnownResultLoaded( resultAddress ) )
+    {
+        resultsData->createResultEntry( resultAddress, true );
+    }
 
-    std::vector<double>* resultVector = resultsData->modifiableCellScalarResult( resultAddress, 0 );
+    RigEclipseResultAddress addrToMaxTimeStepCountResult;
+    resultsData->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+    const std::vector<RigEclipseTimeStepInfo> timeStepInfos = resultsData->timeStepInfos( addrToMaxTimeStepCountResult );
+    resultsData->setTimeStepInfos( resultAddress, timeStepInfos );
+
+    std::vector<double>* resultVector = resultsData->modifiableCellScalarResult( resultAddress, timeStepIdx );
     resultVector->resize( values.size(), std::numeric_limits<double>::infinity() );
-
     std::copy( values.begin(), values.end(), resultVector->begin() );
 
     resultsData->recalculateStatistics( resultAddress );
@@ -545,15 +567,24 @@ void RigWellTargetMapping::createResultVector( RimEclipseCase& eclipseCase, cons
 void RigWellTargetMapping::createResultVector( RimEclipseCase&         eclipseCase,
                                                const QString&          resultName,
                                                const std::vector<int>& clusterIds,
-                                               double                  value )
+                                               double                  value,
+                                               size_t                  timeStepIdx )
 {
     RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
 
     auto resultsData = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    resultsData->addStaticScalarResult( RiaDefines::ResultCatType::GENERATED, resultName, false, clusterIds.size() );
+    if ( !resultsData->ensureKnownResultLoaded( resultAddress ) )
+    {
+        resultsData->createResultEntry( resultAddress, true );
+    }
 
-    std::vector<double>* resultVector = resultsData->modifiableCellScalarResult( resultAddress, 0 );
+    RigEclipseResultAddress addrToMaxTimeStepCountResult;
+    resultsData->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+    const std::vector<RigEclipseTimeStepInfo> timeStepInfos = resultsData->timeStepInfos( addrToMaxTimeStepCountResult );
+    resultsData->setTimeStepInfos( resultAddress, timeStepInfos );
+
+    std::vector<double>* resultVector = resultsData->modifiableCellScalarResult( resultAddress, timeStepIdx );
     resultVector->resize( clusterIds.size(), std::numeric_limits<double>::infinity() );
 
     std::fill( resultVector->begin(), resultVector->end(), std::numeric_limits<double>::infinity() );
@@ -981,9 +1012,9 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( RimEclipse
         return fractions;
     };
 
-    createResultVector( *targetCase, "OCCURRENCE", occurrence );
+    createResultVector( *targetCase, "OCCURRENCE", occurrence, 0 );
     std::vector<double> probability = createFractionVector( occurrence, static_cast<int>( ensemble.cases().size() ) );
-    createResultVector( *targetCase, "PROBABILITY", probability );
+    createResultVector( *targetCase, "PROBABILITY", probability, 0 );
 
     for ( auto [resultName, vec] : resultNamesAndSamples )
     {
@@ -1039,12 +1070,12 @@ void RigWellTargetMapping::computeStatisticsAndCreateVectors( RimEclipseCase&   
         if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
     }
 
-    createResultVectorIfDefined( targetCase, resultName + "_P10", p10Results );
-    createResultVectorIfDefined( targetCase, resultName + "_P50", p50Results );
-    createResultVectorIfDefined( targetCase, resultName + "_P90", p90Results );
-    createResultVectorIfDefined( targetCase, resultName + "_MEAN", meanResults );
-    createResultVectorIfDefined( targetCase, resultName + "_MIN", minResults );
-    createResultVectorIfDefined( targetCase, resultName + "_MAX", maxResults );
+    createResultVectorIfDefined( targetCase, resultName + "_P10", p10Results, 0 );
+    createResultVectorIfDefined( targetCase, resultName + "_P50", p50Results, 0 );
+    createResultVectorIfDefined( targetCase, resultName + "_P90", p90Results, 0 );
+    createResultVectorIfDefined( targetCase, resultName + "_MEAN", meanResults, 0 );
+    createResultVectorIfDefined( targetCase, resultName + "_MIN", minResults, 0 );
+    createResultVectorIfDefined( targetCase, resultName + "_MAX", maxResults, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

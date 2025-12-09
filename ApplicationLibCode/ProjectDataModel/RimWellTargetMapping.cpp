@@ -433,6 +433,7 @@ void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase )
                                               floodingSettings,
                                               limits,
                                               true );
+    // TODO - switch to the selected time step in the active 3D view
 }
 
 //--------------------------------------------------------------------------------------------------
