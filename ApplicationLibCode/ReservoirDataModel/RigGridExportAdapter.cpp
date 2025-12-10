@@ -426,7 +426,9 @@ size_t RigGridExportAdapter::totalCells() const
 std::expected<caf::VecIjk1, QString> RigGridExportAdapter::transformIjkToSectorCoordinates( const caf::VecIjk0& originalIjk,
                                                                                             const caf::VecIjk0& min,
                                                                                             const caf::VecIjk0& max,
-                                                                                            const cvf::Vec3st&  refinement )
+                                                                                            const cvf::Vec3st&  refinement,
+                                                                                            bool                applyRefinementCentering,
+                                                                                            bool                isBoxMaxCoordinate )
 {
     // Check if original IJK is within the sector bounds
     if ( originalIjk.x() < min.x() || originalIjk.x() > max.x() || originalIjk.y() < min.y() || originalIjk.y() > max.y() ||
@@ -446,10 +448,31 @@ std::expected<caf::VecIjk1, QString> RigGridExportAdapter::transformIjkToSectorC
 
     // Transform to sector-relative coordinates with refinement
     // Eclipse uses 1-based indexing, so we'll return 1-based coordinates
-    // Center the coordinate in the refined cell block
-    size_t sectorI = ( originalIjk.x() - min.x() ) * refinement.x() + ( refinement.x() + 1 ) / 2;
-    size_t sectorJ = ( originalIjk.y() - min.y() ) * refinement.y() + ( refinement.y() + 1 ) / 2;
-    size_t sectorK = ( originalIjk.z() - min.z() ) * refinement.z() + ( refinement.z() + 1 ) / 2;
+    size_t sectorI, sectorJ, sectorK;
+
+    if ( applyRefinementCentering )
+    {
+        // Center the coordinate in the refined cell block (for point coordinates like WELSPECS)
+        sectorI = ( originalIjk.x() - min.x() ) * refinement.x() + ( refinement.x() + 1 ) / 2;
+        sectorJ = ( originalIjk.y() - min.y() ) * refinement.y() + ( refinement.y() + 1 ) / 2;
+        sectorK = ( originalIjk.z() - min.z() ) * refinement.z() + ( refinement.z() + 1 ) / 2;
+    }
+    else if ( isBoxMaxCoordinate )
+    {
+        // Box maximum coordinate: map to end of last refined cell
+        // For a cell at index i (0-based), after refinement it becomes cells [i*r, i*r+r-1]
+        // So the max index of a box [min, max] becomes: (max-sector_min+1)*r (1-based)
+        sectorI = ( originalIjk.x() - min.x() + 1 ) * refinement.x();
+        sectorJ = ( originalIjk.y() - min.y() + 1 ) * refinement.y();
+        sectorK = ( originalIjk.z() - min.z() + 1 ) * refinement.z();
+    }
+    else
+    {
+        // Box minimum coordinate: map to start of first refined cell
+        sectorI = ( originalIjk.x() - min.x() ) * refinement.x() + 1;
+        sectorJ = ( originalIjk.y() - min.y() ) * refinement.y() + 1;
+        sectorK = ( originalIjk.z() - min.z() ) * refinement.z() + 1;
+    }
 
     return caf::VecIjk1( sectorI, sectorJ, sectorK );
 }

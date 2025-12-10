@@ -319,7 +319,7 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
         for ( auto& face : borderCellFaces )
         {
             auto transformResult =
-                RigGridExportAdapter::transformIjkToSectorCoordinates( face.ijk, settings.min(), settings.max(), settings.refinement() );
+                RigGridExportAdapter::transformIjkToSectorCoordinates( face.ijk, settings.min(), settings.max(), settings.refinement(), true );
 
             if ( !transformResult )
             {
@@ -672,12 +672,12 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompdatRe
     // Transform K1
     caf::VecIjk0 origIjkK1( origI, origJ, origK1 );
     auto         transformResultK1 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1, settings.min(), settings.max(), settings.refinement() );
+        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1, settings.min(), settings.max(), settings.refinement(), true );
 
     // Transform K2
     caf::VecIjk0 origIjkK2( origI, origJ, origK2 );
     auto         transformResultK2 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2, settings.min(), settings.max(), settings.refinement() );
+        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2, settings.min(), settings.max(), settings.refinement(), true );
 
     if ( !transformResultK1 )
     {
@@ -739,7 +739,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsR
 
     caf::VecIjk0 origIjk( origI, origJ, origK );
     auto         transformResult =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk, settings.min(), settings.max(), settings.refinement() );
+        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk, settings.min(), settings.max(), settings.refinement(), true );
 
     if ( !transformResult )
     {
@@ -774,8 +774,9 @@ std::expected<RigBoundingBoxIjk, QString> RigSimulationInputTool::transformBoxTo
                                                                                                    const QString& recordIdentifier )
 {
     // Create sector bounding box
-    RigBoundingBoxIjk sectorBox( cvf::Vec3st( sectorMin.x(), sectorMin.y(), sectorMin.z() ),
-                                 cvf::Vec3st( sectorMax.x(), sectorMax.y(), sectorMax.z() ) );
+    RigBoundingBoxIjk sectorBox( sectorMin, sectorMax );
+    // cvf::Vec3st( sectorMin.x(), sectorMin.y(), sectorMin.z() ),
+    //                              cvf::Vec3st( sectorMax.x(), sectorMax.y(), sectorMax.z() ) );
 
     // Check if boxes overlap and get intersection
     auto intersection = inputBox.intersection( sectorBox );
@@ -829,12 +830,16 @@ std::expected<RigBoundingBoxIjk, QString> RigSimulationInputTool::transformBoxTo
         RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( clampedMin.x(), clampedMin.y(), clampedMin.z() ),
                                                                sectorMin,
                                                                sectorMax,
-                                                               refinement );
+                                                               refinement,
+                                                               false,
+                                                               false );
     auto transformResult2 =
         RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( clampedMax.x(), clampedMax.y(), clampedMax.z() ),
                                                                sectorMin,
                                                                sectorMax,
-                                                               refinement );
+                                                               refinement,
+                                                               false,
+                                                               true );
 
     if ( !transformResult1 )
     {

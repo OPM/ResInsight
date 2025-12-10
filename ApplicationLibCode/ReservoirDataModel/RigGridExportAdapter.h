@@ -92,7 +92,9 @@ public:
     static std::expected<caf::VecIjk1, QString> transformIjkToSectorCoordinates( const caf::VecIjk0& originalIjk,
                                                                                  const caf::VecIjk0& min,
                                                                                  const caf::VecIjk0& max,
-                                                                                 const cvf::Vec3st&  refinement );
+                                                                                 const cvf::Vec3st&  refinement,
+                                                                                 bool                applyRefinementCentering = false,
+                                                                                 bool                isBoxMaxCoordinate       = false );
 
 private:
     // Internal methods to handle original vs refined cell access
