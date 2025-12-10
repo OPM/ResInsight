@@ -25,8 +25,8 @@ namespace caf
 template <>
 void caf::AppEnum<RiaModelExportDefines::GridBoxSelection>::setUp()
 {
-    addItem( RiaModelExportDefines::VISIBLE_CELLS_BOX, "VISIBLE_CELLS", "Box Containing all Visible Cells" );
-    addItem( RiaModelExportDefines::ACTIVE_CELLS_BOX, "ACTIVE_CELLS", "Box Containing all Active Cells" );
+    addItem( RiaModelExportDefines::VISIBLE_CELLS_BOX, "VISIBLE_CELLS", "Visible Cells Box" );
+    addItem( RiaModelExportDefines::ACTIVE_CELLS_BOX, "ACTIVE_CELLS", "Active Cells Box" );
     addItem( RiaModelExportDefines::VISIBLE_WELLS_BOX, "VISIBLE_WELLS", "Box Containing all Visible Simulation Wells" );
     addItem( RiaModelExportDefines::FULL_GRID_BOX, "FULL_GRID", "Full Grid" );
     addItem( RiaModelExportDefines::MANUAL_SELECTION, "MANUAL_SELECTION", "User Defined Selection" );
