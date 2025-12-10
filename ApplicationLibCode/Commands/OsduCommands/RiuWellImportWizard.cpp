@@ -18,15 +18,24 @@
 
 #include "RiuWellImportWizard.h"
 
+#include "RiaStringListSerializer.h"
+
 #include <QAbstractTableModel>
 #include <QObject>
 #include <QString>
 
+#include <QComboBox>
+#include <QRadioButton>
+#include <QSettings>
 #include <QtNetwork>
 #include <QtWidgets>
 
 #include <optional>
 #include <vector>
+
+// Static member definitions
+const QString FieldSelectionPage::FIELD_SEARCH_HISTORY_KEY = "OsduWellImport/FieldSearchHistory";
+const QString WellSelectionPage::WELL_FILTER_HISTORY_KEY   = "OsduWellImport/WellFilterHistory";
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -161,6 +170,14 @@ void RiuWellImportWizard::addWellInfo( RiuWellImportWizard::WellInfo wellInfo )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuWellImportWizard::clearWellInfos()
+{
+    m_wellInfos.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 AuthenticationPage::AuthenticationPage( RiaOsduConnector* osduConnector, QWidget* parent /*= 0*/ )
     : QWizardPage( parent )
     , m_accessOk( false )
@@ -228,8 +245,11 @@ FieldSelectionPage::FieldSelectionPage( RiaOsduConnector* osduConnector, QWidget
     setLayout( layout );
 
     QHBoxLayout* searchLayout = new QHBoxLayout;
-    m_searchTextEdit          = new QLineEdit( this );
-    searchLayout->addWidget( m_searchTextEdit );
+    m_searchComboBox          = new QComboBox( this );
+    m_searchComboBox->setEditable( true );
+    m_searchComboBox->setInsertPolicy( QComboBox::NoInsert );
+    m_searchComboBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    searchLayout->addWidget( m_searchComboBox );
 
     m_searchButton = new QPushButton( "Search", this );
     m_searchButton->setEnabled( false );
@@ -263,8 +283,9 @@ FieldSelectionPage::FieldSelectionPage( RiaOsduConnector* osduConnector, QWidget
     m_osduConnector = osduConnector;
     connect( m_osduConnector, SIGNAL( fieldsFinished() ), SLOT( fieldsFinished() ) );
 
-    connect( m_searchTextEdit, SIGNAL( textChanged( const QString& ) ), this, SLOT( onSearchTextChanged( const QString& ) ) );
-    connect( m_searchTextEdit, SIGNAL( returnPressed() ), this, SLOT( searchForFields() ) );
+    connect( m_searchComboBox->lineEdit(), SIGNAL( textChanged( const QString& ) ), this, SLOT( onSearchTextChanged( const QString& ) ) );
+    connect( m_searchComboBox->lineEdit(), SIGNAL( returnPressed() ), this, SLOT( searchForFields() ) );
+    connect( m_searchComboBox, SIGNAL( currentTextChanged( const QString& ) ), this, SLOT( onSearchTextChanged( const QString& ) ) );
 
     connect( m_searchButton, SIGNAL( clicked() ), this, SLOT( searchForFields() ) );
 
@@ -275,6 +296,28 @@ FieldSelectionPage::FieldSelectionPage( RiaOsduConnector* osduConnector, QWidget
     connect( m_tableView->selectionModel(),
              SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
              SIGNAL( completeChanged() ) );
+
+    // Load search history after all UI elements are created
+    {
+        RiaStringListSerializer serializer( FIELD_SEARCH_HISTORY_KEY );
+        QStringList             history = serializer.textStrings();
+
+        m_searchComboBox->clear();
+        m_searchComboBox->addItems( history );
+
+        // Set the last used search term as default (first item in history)
+        if ( !history.isEmpty() )
+        {
+            m_searchComboBox->setCurrentText( history.first() );
+            // Enable search button if text meets minimum requirements
+            m_searchButton->setEnabled( history.first().length() >= MINIMUM_CHARACTERS_FOR_SEARCH );
+        }
+        else
+        {
+            m_searchComboBox->setCurrentText( "" ); // Start with empty text if no history
+            m_searchButton->setEnabled( false );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -292,8 +335,13 @@ void FieldSelectionPage::searchForFields()
 {
     RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
 
-    QString text = m_searchTextEdit->text();
-    if ( text.length() >= MINIMUM_CHARACTERS_FOR_SEARCH ) wiz->downloadFields( text );
+    QString text = m_searchComboBox->currentText();
+    if ( text.length() >= MINIMUM_CHARACTERS_FOR_SEARCH )
+    {
+        RiaStringListSerializer serializer( FIELD_SEARCH_HISTORY_KEY );
+        serializer.addString( text, 10 );
+        wiz->downloadFields( text );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -349,8 +397,11 @@ WellSelectionPage::WellSelectionPage( RiaOsduConnector* osduConnector, QWidget* 
 
     QHBoxLayout* filterLayout = new QHBoxLayout;
     filterLayout->addWidget( new QLabel( "Filter:", this ) );
-    QLineEdit* filterLineEdit = new QLineEdit( this );
-    filterLayout->addWidget( filterLineEdit );
+    m_filterComboBox = new QComboBox( this );
+    m_filterComboBox->setEditable( true );
+    m_filterComboBox->setInsertPolicy( QComboBox::NoInsert );
+    m_filterComboBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    filterLayout->addWidget( m_filterComboBox );
 
     layout->addLayout( filterLayout );
 
@@ -378,7 +429,20 @@ WellSelectionPage::WellSelectionPage( RiaOsduConnector* osduConnector, QWidget* 
     header->setSectionResizeMode( nameColumn, QHeaderView::ResizeToContents );
     header->setStretchLastSection( true );
 
-    QObject::connect( filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterWildcard );
+    QObject::connect( m_filterComboBox->lineEdit(), &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterWildcard );
+
+    // Add to history when text is entered and filter is applied
+    QObject::connect( m_filterComboBox->lineEdit(),
+                      &QLineEdit::editingFinished,
+                      [this]()
+                      {
+                          QString filterText = m_filterComboBox->currentText();
+                          if ( !filterText.isEmpty() && filterText.length() >= 2 ) // Minimum 2 characters for history
+                          {
+                              RiaStringListSerializer serializer( WELL_FILTER_HISTORY_KEY );
+                              serializer.addString( filterText, 10 );
+                          }
+                      } );
 
     m_osduConnector = osduConnector;
     connect( m_osduConnector, SIGNAL( wellboresByFieldIdFinished( const QString& ) ), SLOT( wellboresByFieldIdFinished( const QString& ) ) );
@@ -390,6 +454,34 @@ WellSelectionPage::WellSelectionPage( RiaOsduConnector* osduConnector, QWidget* 
     connect( m_tableView->selectionModel(),
              SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
              SIGNAL( completeChanged() ) );
+
+    // Load well filter history after all UI elements and proxy model are created
+    {
+        RiaStringListSerializer serializer( WELL_FILTER_HISTORY_KEY );
+        QStringList             history = serializer.textStrings();
+
+        m_filterComboBox->clear();
+        m_filterComboBox->addItems( history );
+
+        // Set the last used filter as default (first item in history)
+        if ( !history.isEmpty() )
+        {
+            m_filterComboBox->setCurrentText( history.first() );
+            // Apply the filter to the proxy model
+            if ( m_proxyModel )
+            {
+                m_proxyModel->setFilterWildcard( history.first() );
+            }
+        }
+        else
+        {
+            m_filterComboBox->setCurrentText( "" ); // Start with empty text if no history
+            if ( m_proxyModel )
+            {
+                m_proxyModel->setFilterWildcard( "" );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -490,6 +582,20 @@ WellSummaryPage::WellSummaryPage( RiaOsduConnector* osduConnector, QWidget* pare
     QVBoxLayout* layout = new QVBoxLayout;
     setLayout( layout );
 
+    // Existence Kind filter
+    QHBoxLayout* existenceFilterLayout = new QHBoxLayout;
+    existenceFilterLayout->addWidget( new QLabel( "Import:", this ) );
+
+    m_showAllRadioButton    = new QRadioButton( "All", this );
+    m_showActualRadioButton = new QRadioButton( "Actual only", this );
+    m_showActualRadioButton->setChecked( true ); // Default to Actual only
+
+    existenceFilterLayout->addWidget( m_showAllRadioButton );
+    existenceFilterLayout->addWidget( m_showActualRadioButton );
+    existenceFilterLayout->addStretch();
+
+    layout->addLayout( existenceFilterLayout );
+
     m_textEdit = new QTextEdit( this );
     m_textEdit->setReadOnly( true );
     layout->addWidget( m_textEdit );
@@ -499,6 +605,9 @@ WellSummaryPage::WellSummaryPage( RiaOsduConnector* osduConnector, QWidget* pare
     connect( m_osduConnector,
              SIGNAL( wellboreTrajectoryFinished( const QString&, int, const QString& ) ),
              SLOT( wellboreTrajectoryFinished( const QString&, int, const QString& ) ) );
+
+    connect( m_showAllRadioButton, SIGNAL( toggled( bool ) ), this, SLOT( onFilterChanged() ) );
+    connect( m_showActualRadioButton, SIGNAL( toggled( bool ) ), this, SLOT( onFilterChanged() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -512,6 +621,7 @@ void WellSummaryPage::initializePage()
 
     QMutexLocker lock( &m_mutex );
     m_pendingWellboreIds.clear();
+    m_wellboreTrajectories.clear();
     for ( const QString& wellboreId : wiz->selectedWellboreIds() )
     {
         m_pendingWellboreIds.insert( wellboreId );
@@ -530,10 +640,11 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId, int
 {
     std::vector<OsduWellboreTrajectory> wellboreTrajectories = m_osduConnector->wellboreTrajectories( wellboreId );
 
-    RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
-
     {
         QMutexLocker lock( &m_mutex );
+
+        // Store trajectory data for filtering
+        m_wellboreTrajectories[wellboreId] = wellboreTrajectories;
 
         std::optional<OsduWellbore> wellbore = m_osduConnector->wellboreById( wellboreId );
         if ( wellbore.has_value() )
@@ -550,23 +661,106 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId, int
             {
                 m_textEdit->append( QString( "Wellbore '%1': Found %2 trajectory(ies)." ).arg( wellbore.value().name ).arg( numTrajectories ) );
             }
-
-            for ( auto w : wellboreTrajectories )
-            {
-                QString wellboreTrajectoryId = w.id;
-                wiz->addWellInfo( { .name                 = wellbore.value().name,
-                                    .wellId               = wellbore.value().wellId,
-                                    .wellboreId           = w.wellboreId,
-                                    .wellboreTrajectoryId = wellboreTrajectoryId,
-                                    .existenceKind        = w.existenceKind,
-                                    .datumElevation       = wellbore.value().datumElevation } );
-            }
         }
 
         m_pendingWellboreIds.erase( wellboreId );
     }
 
+    // Update the display after data is loaded
+    if ( m_pendingWellboreIds.empty() )
+    {
+        updateSummaryDisplay();
+    }
+
     emit( completeChanged() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void WellSummaryPage::onFilterChanged()
+{
+    if ( m_pendingWellboreIds.empty() )
+    {
+        updateSummaryDisplay();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void WellSummaryPage::updateSummaryDisplay()
+{
+    RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
+    if ( !wiz ) return;
+
+    // Clear the text display
+    m_textEdit->clear();
+
+    // Clear existing well infos and rebuild based on current filter
+    wiz->clearWellInfos();
+
+    QMutexLocker lock( &m_mutex );
+
+    for ( const auto& [wellboreId, trajectories] : m_wellboreTrajectories )
+    {
+        std::optional<OsduWellbore> wellbore = m_osduConnector->wellboreById( wellboreId );
+        if ( wellbore.has_value() )
+        {
+            int includedCount = 0;
+            for ( const auto& w : trajectories )
+            {
+                if ( shouldIncludeTrajectory( w.existenceKind ) )
+                {
+                    QString wellboreTrajectoryId = w.id;
+                    wiz->addWellInfo( { .name                 = wellbore.value().name,
+                                        .wellId               = wellbore.value().wellId,
+                                        .wellboreId           = w.wellboreId,
+                                        .wellboreTrajectoryId = wellboreTrajectoryId,
+                                        .existenceKind        = w.existenceKind,
+                                        .datumElevation       = wellbore.value().datumElevation } );
+                    includedCount++;
+                }
+            }
+
+            // Show trajectory count and filtering info
+            if ( m_showActualRadioButton->isChecked() )
+            {
+                if ( includedCount != static_cast<int>( trajectories.size() ) )
+                {
+                    m_textEdit->append( QString( "Wellbore '%1': Found %2 trajectory(ies), %3 included after filtering." )
+                                            .arg( wellbore.value().name )
+                                            .arg( trajectories.size() )
+                                            .arg( includedCount ) );
+                }
+                else
+                {
+                    m_textEdit->append( QString( "Wellbore '%1': Found %2 trajectory(ies) (all match filter)." )
+                                            .arg( wellbore.value().name )
+                                            .arg( trajectories.size() ) );
+                }
+            }
+            else
+            {
+                m_textEdit->append(
+                    QString( "Wellbore '%1': Found %2 trajectory(ies)." ).arg( wellbore.value().name ).arg( trajectories.size() ) );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool WellSummaryPage::shouldIncludeTrajectory( const QString& existenceKind ) const
+{
+    if ( m_showActualRadioButton->isChecked() )
+    {
+        // Match the OSDU format: "data:reference-data--ExistenceKind:Actual:"
+        return existenceKind.contains( ":Actual:", Qt::CaseInsensitive );
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
