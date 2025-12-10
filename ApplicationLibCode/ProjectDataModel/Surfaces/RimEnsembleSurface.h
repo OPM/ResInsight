@@ -61,16 +61,16 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
-    std::vector<RimFileSurface*> filterByEnsembleCurveSet( const std::vector<RimFileSurface*>& fileSurfaces ) const;
+    std::vector<RimSurface*> filterByEnsembleCurveSet( const std::vector<RimSurface*>& fileSurfaces ) const;
 
-    bool isSameRealization( RimSummaryCase* summaryCase, RimFileSurface* fileSurface ) const;
+    bool isSameRealization( RimSummaryCase* summaryCase, RimSurface* fileSurface ) const;
 
 private:
     void connectEnsembleCurveSetFilterSignals();
     void onFilterSourceChanged( const caf::SignalEmitter* emitter );
 
-    RimSurfaceCollection*        sourceFileSurfaceCollection() const;
-    std::vector<RimFileSurface*> sourceFileSurfaces() const;
+    RimSurfaceCollection*    sourceFileSurfaceCollection() const;
+    std::vector<RimSurface*> sourceFileSurfaces() const;
 
 private:
     caf::PdmPtrField<RimEnsembleCurveSet*> m_ensembleCurveSet;

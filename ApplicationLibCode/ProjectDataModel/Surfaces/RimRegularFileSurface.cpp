@@ -47,6 +47,14 @@ void RimRegularFileSurface::setFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimRegularFileSurface::filePath() const
+{
+    return m_surfaceFilePath().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimRegularFileSurface::onLoadData()
 {
     auto surfaceData = RifSurfio::importSurfaceData( m_surfaceFilePath().path().toStdString() );

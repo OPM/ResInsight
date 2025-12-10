@@ -72,6 +72,11 @@ public:
     void loadDataIfRequired();
     void reloadData();
 
+    // File-based surface interface (override in subclasses that load from files)
+    virtual bool    isFileBased() const { return false; }
+    virtual QString filePath() const { return QString(); }
+    virtual void    setFilePath( const QString& path ) {}
+
     virtual void updateMinMaxValues( RimRegularLegendConfig* legend, const QString& propertyName, int currentTimeStep ) const;
 
     virtual bool isMeshLinesEnabledDefault() const;

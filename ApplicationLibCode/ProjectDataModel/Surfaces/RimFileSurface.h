@@ -32,11 +32,13 @@ public:
     RimFileSurface();
     ~RimFileSurface() override;
 
-    void    setSurfaceFilePath( const QString& filePath );
-    QString surfaceFilePath();
-
     bool        onLoadData() override;
     RimSurface* createCopy() override;
+
+    // File-based surface interface
+    bool    isFileBased() const override { return true; }
+    QString filePath() const override;
+    void    setFilePath( const QString& path ) override;
 
 protected:
     bool updateSurfaceData() override;

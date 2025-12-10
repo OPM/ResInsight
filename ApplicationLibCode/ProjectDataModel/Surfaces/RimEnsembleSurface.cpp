@@ -89,18 +89,14 @@ void RimEnsembleSurface::addSurface( RimSurface* surface )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileSurface*> RimEnsembleSurface::sourceFileSurfaces() const
+std::vector<RimSurface*> RimEnsembleSurface::sourceFileSurfaces() const
 {
-    std::vector<RimFileSurface*> fileSurfs;
+    std::vector<RimSurface*> fileSurfs;
     for ( auto& w : sourceFileSurfaceCollection()->surfaces() )
     {
-        if ( auto fsurf = dynamic_cast<RimFileSurface*>( w ) )
+        if ( w->isFileBased() )
         {
-            fileSurfs.push_back( fsurf );
-        }
-        else
-        {
-            RiaLogging::warning( QString( "Detected unknown surface type in File Surface collection" ) );
+            fileSurfs.push_back( w );
         }
     }
 
@@ -123,7 +119,7 @@ void RimEnsembleSurface::loadDataAndUpdate()
         }
     }
 
-    std::vector<RimFileSurface*> sourceSurfaceForStatistics = sourceFileSurfaces();
+    std::vector<RimSurface*> sourceSurfaceForStatistics = sourceFileSurfaces();
     if ( m_ensembleCurveSet != nullptr )
     {
         sourceSurfaceForStatistics = filterByEnsembleCurveSet( sourceSurfaceForStatistics );
@@ -172,9 +168,9 @@ void RimEnsembleSurface::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileSurface*> RimEnsembleSurface::filterByEnsembleCurveSet( const std::vector<RimFileSurface*>& fileSurfaces ) const
+std::vector<RimSurface*> RimEnsembleSurface::filterByEnsembleCurveSet( const std::vector<RimSurface*>& fileSurfaces ) const
 {
-    std::vector<RimFileSurface*> filteredCases;
+    std::vector<RimSurface*> filteredCases;
 
     if ( m_ensembleCurveSet != nullptr )
     {
@@ -205,10 +201,10 @@ std::vector<RimFileSurface*> RimEnsembleSurface::filterByEnsembleCurveSet( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleSurface::isSameRealization( RimSummaryCase* summaryCase, RimFileSurface* fileSurface ) const
+bool RimEnsembleSurface::isSameRealization( RimSummaryCase* summaryCase, RimSurface* fileSurface ) const
 {
     // TODO: duplication with RimEnsembleWellLogCurveSet::isSameRealization
-    QString fileSurfaceName = fileSurface->surfaceFilePath();
+    QString fileSurfaceName = fileSurface->filePath();
     if ( summaryCase->hasCaseRealizationParameters() )
     {
         // TODO: make less naive..

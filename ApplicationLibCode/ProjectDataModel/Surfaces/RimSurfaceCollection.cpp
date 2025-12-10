@@ -156,7 +156,7 @@ RimSurface* RimSurfaceCollection::createSurfaceFromFile( const QString& fileName
     else
     {
         RimFileSurface* fileSurface = new RimFileSurface;
-        fileSurface->setSurfaceFilePath( fileName );
+        fileSurface->setFilePath( fileName );
         newSurface = fileSurface;
     }
 
@@ -446,7 +446,7 @@ void RimSurfaceCollection::removeMissingFileSurfaces()
         RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
         if ( fileSurface == nullptr ) continue;
 
-        QString filename = fileSurface->surfaceFilePath();
+        QString filename = fileSurface->filePath();
         if ( !QFile::exists( filename ) )
         {
             missingSurfaces.push_back( fileSurface );
@@ -579,7 +579,7 @@ bool RimSurfaceCollection::containsFileSurface( QString filename )
     {
         RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
         if ( fileSurface == nullptr ) continue;
-        if ( fileSurface->surfaceFilePath() == filename ) return true;
+        if ( fileSurface->filePath() == filename ) return true;
     }
 
     return false;

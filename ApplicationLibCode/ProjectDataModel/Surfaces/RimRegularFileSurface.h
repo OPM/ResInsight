@@ -26,9 +26,13 @@ class RimRegularFileSurface : public RimRegularSurface
 
 public:
     RimRegularFileSurface();
-    void setFilePath( const QString& filePath );
 
     bool onLoadData() override;
+
+    // File-based surface interface (from RimSurface)
+    bool    isFileBased() const override { return true; }
+    QString filePath() const override;
+    void    setFilePath( const QString& path ) override;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

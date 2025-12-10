@@ -57,7 +57,7 @@ RimFileSurface::~RimFileSurface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSurface::setSurfaceFilePath( const QString& filePath )
+void RimFileSurface::setFilePath( const QString& filePath )
 {
     m_surfaceDefinitionFilePath = filePath;
 
@@ -67,7 +67,7 @@ void RimFileSurface::setSurfaceFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFileSurface::surfaceFilePath()
+QString RimFileSurface::filePath() const
 {
     return m_surfaceDefinitionFilePath().path();
 }
@@ -167,24 +167,24 @@ bool RimFileSurface::loadDataFromFile()
 {
     m_triangleMeshData = std::make_unique<RigTriangleMeshData>();
 
-    QString filePath = surfaceFilePath();
-    if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
+    QString path = filePath();
+    if ( path.endsWith( "ptl", Qt::CaseInsensitive ) )
     {
-        auto surface = RifSurfaceImporter::readPetrelFile( filePath );
+        auto surface = RifSurfaceImporter::readPetrelFile( path );
         m_triangleMeshData->setGeometryData( surface.first, surface.second );
     }
-    else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
+    else if ( path.endsWith( "ts", Qt::CaseInsensitive ) )
     {
-        RifSurfaceImporter::readGocadFile( filePath, m_triangleMeshData.get() );
+        RifSurfaceImporter::readGocadFile( path, m_triangleMeshData.get() );
     }
-    else if ( filePath.endsWith( "vtu", Qt::CaseInsensitive ) )
+    else if ( path.endsWith( "vtu", Qt::CaseInsensitive ) )
     {
-        m_triangleMeshData = RifVtkSurfaceImporter::importFromFile( filePath.toStdString() );
+        m_triangleMeshData = RifVtkSurfaceImporter::importFromFile( path.toStdString() );
     }
-    else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) || filePath.endsWith( "xyz", Qt::CaseInsensitive ) )
+    else if ( path.endsWith( "dat", Qt::CaseInsensitive ) || path.endsWith( "xyz", Qt::CaseInsensitive ) )
     {
         double resamplingDistance = RiaPreferences::current()->surfaceImportResamplingDistance();
-        auto   surface            = RifSurfaceImporter::readOpenWorksXyzFile( filePath, resamplingDistance );
+        auto   surface            = RifSurfaceImporter::readOpenWorksXyzFile( path, resamplingDistance );
         m_triangleMeshData->setGeometryData( surface.first, surface.second );
     }
 
