@@ -179,14 +179,10 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_InvalidRecord )
     caf::VecIjk0 sectorMax( 9, 9, 9 );
     cvf::Vec3st  refinement( 1, 1, 1 );
 
-    // Create a record with only 5 items (insufficient)
+    // Create a record with only 1 item (field name, missing value)
     std::vector<Opm::DeckItem> items;
     items.push_back( RifOpmDeckTools::item( "FIELD", std::string( "FIPNUM" ) ) );
-    items.push_back( RifOpmDeckTools::item( "VALUE", 1 ) );
-    items.push_back( RifOpmDeckTools::item( "I1", 1 ) );
-    items.push_back( RifOpmDeckTools::item( "I2", 10 ) );
-    items.push_back( RifOpmDeckTools::item( "J1", 1 ) );
-    // Missing J2, K1, K2
+    // Missing VALUE and box coordinates
 
     Opm::DeckRecord record{ std::move( items ) };
 
@@ -194,6 +190,30 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_InvalidRecord )
 
     EXPECT_FALSE( result.has_value() );
     EXPECT_TRUE( result.error().contains( "insufficient items" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test EQUALS record without box definition (only field and value)
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessEqualsRecord_NoBoxDefinition )
+{
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    caf::VecIjk0 sectorMax( 9, 9, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // Create a record with only field name and value (no box coordinates)
+    std::vector<Opm::DeckItem> items;
+    items.push_back( RifOpmDeckTools::item( "FIELD", std::string( "FIPNUM" ) ) );
+    items.push_back( RifOpmDeckTools::item( "VALUE", 1 ) );
+
+    Opm::DeckRecord record{ std::move( items ) };
+
+    auto result = RigSimulationInputTool::processEqualsRecord( record, sectorMin, sectorMax, refinement );
+
+    EXPECT_TRUE( result.has_value() );
+    EXPECT_EQ( result->size(), 2U );
+    EXPECT_EQ( result->getItem( 0 ).get<std::string>( 0 ), "FIPNUM" );
+    EXPECT_EQ( result->getItem( 1 ).get<int>( 0 ), 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
