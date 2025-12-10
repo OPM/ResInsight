@@ -528,17 +528,17 @@ Opm::DeckKeyword bcconKeyword( const std::vector<RigEclipseResultTools::BorderCe
         switch ( faceType )
         {
             case cvf::StructGridInterface::POS_I:
-                return "X";
-            case cvf::StructGridInterface::NEG_I:
                 return "X-";
+            case cvf::StructGridInterface::NEG_I:
+                return "X";
             case cvf::StructGridInterface::POS_J:
-                return "Y";
-            case cvf::StructGridInterface::NEG_J:
                 return "Y-";
+            case cvf::StructGridInterface::NEG_J:
+                return "Y";
             case cvf::StructGridInterface::POS_K:
-                return "Z";
-            case cvf::StructGridInterface::NEG_K:
                 return "Z-";
+            case cvf::StructGridInterface::NEG_K:
+                return "Z";
             default:
                 return "";
         }
