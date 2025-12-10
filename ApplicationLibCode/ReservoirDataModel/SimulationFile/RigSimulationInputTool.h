@@ -34,6 +34,7 @@ class RimEclipseCase;
 class RigSimulationInputSettings;
 class RifOpmFlowDeckFile;
 class RigSimWellData;
+class RigBoundingBoxIjk;
 
 namespace Opm
 {
@@ -137,4 +138,13 @@ private:
                                                                       const RigSimulationInputSettings& settings,
                                                                       RifOpmFlowDeckFile&               deckFile,
                                                                       RecordProcessorFunc               processorFunc );
+
+    // Helper function to transform bounding box from global to sector coordinates
+    // Returns bounding box with 0-based sector-relative coordinates
+    static std::expected<RigBoundingBoxIjk, QString> transformBoxToSectorCoordinates( const RigBoundingBoxIjk& inputBox,
+                                                                                      const caf::VecIjk0&      sectorMin,
+                                                                                      const caf::VecIjk0&      sectorMax,
+                                                                                      const cvf::Vec3st&       refinement,
+                                                                                      const QString&           keywordName,
+                                                                                      const QString&           recordIdentifier );
 };
