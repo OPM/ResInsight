@@ -192,6 +192,9 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
 
     RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
 
+    // Remove ACTNUM to handle deck where it appears more than once.
+    deckFile.removeKeywords( "ACTNUM" );
+
     auto keywords = deckFile.keywords( false );
 
     // Sector dimensions (after refinement)
