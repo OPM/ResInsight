@@ -196,7 +196,9 @@ void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     {
         auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
         if ( hasEnsembleParent )
+        {
             generateEnsembleStatistics();
+        }
         else if ( auto eclipseCase = firstCase() )
         {
             generateCandidates( eclipseCase );
@@ -205,6 +207,7 @@ void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                 auto eclipseView = views.front();
                 eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
                 eclipseView->cellResult()->setResultVariable( RigWellTargetMapping::wellTargetResultName() );
+                eclipseView->cellResult()->updateConnectedEditors();
 
                 if ( eclipseView->eclipsePropertyFilterCollection()->propertyFilters().empty() )
                 {
@@ -216,6 +219,7 @@ void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                 {
                     RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
                 }
+                // eclipseView->setCurrentTimeStepAndUpdate( m_timeStep() );
             }
         }
     }
@@ -433,7 +437,6 @@ void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase )
                                               floodingSettings,
                                               limits,
                                               true );
-    // TODO - switch to the selected time step in the active 3D view
 }
 
 //--------------------------------------------------------------------------------------------------

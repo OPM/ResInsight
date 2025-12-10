@@ -199,18 +199,6 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     QString resultName = RigWellTargetMapping::wellTargetResultName();
     createResultVector( *eclipseCase, resultName, clusters, timeStepIdx );
 
-    // Update views and property filters
-    RimProject* proj = RimProject::current();
-    proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    for ( auto view : eclipseCase->reservoirViews() )
-    {
-        if ( auto eclipseView = dynamic_cast<RimEclipseView*>( view ) )
-        {
-            eclipseView->scheduleReservoirGridGeometryRegen();
-            eclipseView->propertyFilterCollection()->updateConnectedEditors();
-        }
-    }
-
     std::vector<ClusterStatistics> statistics =
         generateStatistics( eclipseCase, data.pressure, data.permeabilityX, numClustersFound, timeStepIdx, resultName );
     std::vector<double> totalPorvSoil( clusters.size(), std::numeric_limits<double>::infinity() );
@@ -291,6 +279,20 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         createResultVector( *eclipseCase, "TOTAL_RFIPGAS", totalRfipGas, timeStepIdx );
         createResultVector( *eclipseCase, "TOTAL_SFIPOIL", totalSfipOil, timeStepIdx );
         createResultVector( *eclipseCase, "TOTAL_SFIPGAS", totalSfipGas, timeStepIdx );
+    }
+    eclipseCase->updateResultAddressCollection();
+
+    // Update views and property filters
+    RimProject* proj = RimProject::current();
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    for ( auto view : eclipseCase->reservoirViews() )
+    {
+        if ( auto eclipseView = dynamic_cast<RimEclipseView*>( view ) )
+        {
+            eclipseView->setCurrentTimeStep( timeStepIdx );
+            eclipseView->scheduleReservoirGridGeometryRegen();
+            eclipseView->propertyFilterCollection()->updateConnectedEditors();
+        }
     }
 }
 
