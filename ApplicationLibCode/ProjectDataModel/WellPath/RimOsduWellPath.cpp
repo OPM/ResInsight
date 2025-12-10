@@ -21,6 +21,9 @@ RimOsduWellPath::RimOsduWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellboreTrajectoryId, "WellboreTrajectoryId", "Wellbore Trajectory Id" );
     m_wellboreTrajectoryId.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_existenceKind, "ExistenceKind", "Existence Kind" );
+    m_existenceKind.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitField( &m_datumElevationFromOsdu, "DatumElevationFromOsdu", 0.0, "Datum Elevation From OSDU" );
     m_datumElevationFromOsdu.uiCapability()->setUiReadOnly( true );
 }
@@ -99,12 +102,29 @@ double RimOsduWellPath::datumElevationFromOsdu() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimOsduWellPath::setExistenceKind( const QString& existenceKind )
+{
+    m_existenceKind = existenceKind;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOsduWellPath::existenceKind() const
+{
+    return m_existenceKind;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOsduWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* osduGroup = uiOrdering.addNewGroup( "OSDU" );
     osduGroup->add( &m_wellId );
     osduGroup->add( &m_wellboreId );
     osduGroup->add( &m_wellboreTrajectoryId );
+    osduGroup->add( &m_existenceKind );
     osduGroup->add( &m_datumElevationFromOsdu );
 
     RimWellPath::defineUiOrdering( uiConfigName, uiOrdering );

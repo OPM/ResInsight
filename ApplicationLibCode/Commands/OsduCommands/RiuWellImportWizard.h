@@ -370,6 +370,7 @@ public:
         QString wellId;
         QString wellboreId;
         QString wellboreTrajectoryId;
+        QString existenceKind;
         double  datumElevation;
     };
 

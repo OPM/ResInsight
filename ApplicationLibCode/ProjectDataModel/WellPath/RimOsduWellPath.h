@@ -39,6 +39,9 @@ public:
     void   setDatumElevationFromOsdu( double datumElevationFromOsdu );
     double datumElevationFromOsdu() const;
 
+    void    setExistenceKind( const QString& existenceKind );
+    QString existenceKind() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -46,5 +49,6 @@ private:
     caf::PdmField<QString> m_wellId;
     caf::PdmField<QString> m_wellboreId;
     caf::PdmField<QString> m_wellboreTrajectoryId;
+    caf::PdmField<QString> m_existenceKind;
     caf::PdmField<double>  m_datumElevationFromOsdu;
 };

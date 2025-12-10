@@ -50,6 +50,7 @@ struct OsduWellboreTrajectory
     QString id;
     QString kind;
     QString wellboreId;
+    QString existenceKind;
 };
 
 struct OsduWellLogChannel

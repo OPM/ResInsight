@@ -91,6 +91,7 @@ void RicWellPathsImportOsduFeature::onActionTriggered( bool isChecked )
             wellPath->setWellId( w.wellId );
             wellPath->setWellboreId( w.wellboreId );
             wellPath->setWellboreTrajectoryId( w.wellboreTrajectoryId );
+            wellPath->setExistenceKind( w.existenceKind );
             wellPath->setDatumElevationFromOsdu( w.datumElevation );
             wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( colorIndex++ ) );
 

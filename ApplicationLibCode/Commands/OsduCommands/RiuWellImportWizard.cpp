@@ -508,6 +508,8 @@ void WellSummaryPage::initializePage()
 {
     RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>( wizard() );
 
+    m_textEdit->clear();
+
     QMutexLocker lock( &m_mutex );
     m_pendingWellboreIds.clear();
     for ( const QString& wellboreId : wiz->selectedWellboreIds() )
@@ -544,6 +546,10 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId, int
             {
                 m_textEdit->append( QString( "Wellbore '%1': No trajectory found." ).arg( wellbore.value().name ) );
             }
+            else
+            {
+                m_textEdit->append( QString( "Wellbore '%1': Found %2 trajectory(ies)." ).arg( wellbore.value().name ).arg( numTrajectories ) );
+            }
 
             for ( auto w : wellboreTrajectories )
             {
@@ -552,6 +558,7 @@ void WellSummaryPage::wellboreTrajectoryFinished( const QString& wellboreId, int
                                     .wellId               = wellbore.value().wellId,
                                     .wellboreId           = w.wellboreId,
                                     .wellboreTrajectoryId = wellboreTrajectoryId,
+                                    .existenceKind        = w.existenceKind,
                                     .datumElevation       = wellbore.value().datumElevation } );
             }
         }
