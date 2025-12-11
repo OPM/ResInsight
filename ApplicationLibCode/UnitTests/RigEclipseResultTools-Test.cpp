@@ -29,6 +29,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
 #include "RigSimulationInputTool.h"
 #include "RimEclipseResultCase.h"
@@ -111,35 +112,49 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
         }
     }
 
-    // Step 3: Generate BORDNUM result (returns vector, doesn't store)
-    auto borderResult = RigEclipseResultTools::generateBorderResult( testCase.get(), customVisibility );
+    // Step 3: Create grid adapter and generate refined border result
+    caf::VecIjk0         min( startI, startJ, startK );
+    caf::VecIjk0         max( endI - 1, endJ - 1, endK - 1 );
+    cvf::Vec3st          refinement( 1, 1, 1 ); // No refinement for this test
+    RigGridExportAdapter gridAdapter( caseData.p(), min, max, refinement, customVisibility.p() );
+
+    // Create refined visibility (same as original since refinement=1)
+    size_t           refinedCells = gridAdapter.totalCells();
+    std::vector<int> refinedVisibility( refinedCells );
+    for ( size_t i = 0; i < refinedCells; ++i )
+    {
+        refinedVisibility[i] =
+            customVisibility->get( grid->cellIndexFromIJK( min.x() + i % gridAdapter.cellCountI(),
+                                                           min.y() + ( i / gridAdapter.cellCountI() ) % gridAdapter.cellCountJ(),
+                                                           min.z() + i / ( gridAdapter.cellCountI() * gridAdapter.cellCountJ() ) ) );
+    }
+
+    auto borderResult = RigEclipseResultTools::generateBorderResult( gridAdapter, refinedVisibility );
 
     // Verify border result values
-    EXPECT_EQ( borderResult.size(), cellCount );
+    EXPECT_EQ( borderResult.size(), refinedCells );
 
     // Step 4: Generate BCCON result (takes border result as input, returns vector)
-    caf::VecIjk0 min( startI, startJ, startK );
-    caf::VecIjk0 max( endI - 1, endJ - 1, endK - 1 );
-    auto         bcconResult = RigEclipseResultTools::generateBcconResult( testCase.get(), borderResult, min, max );
+    auto bcconResult = RigEclipseResultTools::generateBcconResult( gridAdapter, borderResult );
 
     // Verify BCCON values
-    EXPECT_EQ( bcconResult.size(), cellCount );
+    EXPECT_EQ( bcconResult.size(), refinedCells );
 
     // Step 5: Generate border cell faces using in-memory results
-    auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( testCase.get(), borderResult, bcconResult );
+    auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( gridAdapter, borderResult, bcconResult );
 
     // Step 6: Verify results
     EXPECT_GT( borderCellFaces.size(), 0 ) << "No border cell faces generated";
 
-    // Verify that all faces are within the visible region boundaries
+    // Verify that all faces are within the refined region boundaries (0-based sector-relative)
     for ( const auto& face : borderCellFaces )
     {
-        EXPECT_GE( face.ijk[0], startI );
-        EXPECT_LT( face.ijk[0], endI );
-        EXPECT_GE( face.ijk[1], startJ );
-        EXPECT_LT( face.ijk[1], endJ );
-        EXPECT_GE( face.ijk[2], startK );
-        EXPECT_LT( face.ijk[2], endK );
+        EXPECT_GE( face.ijk[0], 0 );
+        EXPECT_LT( face.ijk[0], gridAdapter.cellCountI() );
+        EXPECT_GE( face.ijk[1], 0 );
+        EXPECT_LT( face.ijk[1], gridAdapter.cellCountJ() );
+        EXPECT_GE( face.ijk[2], 0 );
+        EXPECT_LT( face.ijk[2], gridAdapter.cellCountK() );
 
         // Verify face type is valid
         EXPECT_GE( static_cast<int>( face.faceType ), static_cast<int>( cvf::StructGridInterface::POS_I ) );
@@ -271,66 +286,72 @@ TEST( RigEclipseResultToolsTest, BcconResultWithFaceNumbering )
         }
     }
 
-    // Step 3: Generate BORDNUM result (returns vector)
-    auto borderResult = RigEclipseResultTools::generateBorderResult( testCase.get(), customVisibility );
+    // Step 3: Create grid adapter and generate refined border result
+    cvf::Vec3st          refinement( 1, 1, 1 ); // No refinement for this test
+    RigGridExportAdapter gridAdapter( caseData.p(), min, max, refinement, customVisibility.p() );
+
+    // Create refined visibility (same as original since refinement=1)
+    std::vector<int> refinedVisibility = RigSimulationInputTool::createRefinedVisibility( gridAdapter );
+
+    auto borderResult = RigEclipseResultTools::generateBorderResult( gridAdapter, refinedVisibility );
 
     ASSERT_FALSE( borderResult.empty() ) << "Border result is empty";
 
     // Step 4: Generate BCCON result (returns vector)
-    auto bcconResult = RigEclipseResultTools::generateBcconResult( testCase.get(), borderResult, min, max );
+    auto bcconResult = RigEclipseResultTools::generateBcconResult( gridAdapter, borderResult );
 
     ASSERT_FALSE( bcconResult.empty() ) << "BCCON result is empty";
 
-    // Step 5: Verify BCCON values are correct
+    // Step 5: Verify BCCON values are correct using refined grid indices
     int countI_minus = 0, countI_plus = 0;
     int countJ_minus = 0, countJ_plus = 0;
     int countK_minus = 0, countK_plus = 0;
 
-    for ( size_t i = startI; i < endI; ++i )
+    for ( size_t k = 0; k < gridAdapter.cellCountK(); ++k )
     {
-        for ( size_t j = startJ; j < endJ; ++j )
+        for ( size_t j = 0; j < gridAdapter.cellCountJ(); ++j )
         {
-            for ( size_t k = startK; k < endK; ++k )
+            for ( size_t i = 0; i < gridAdapter.cellCountI(); ++i )
             {
-                size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
+                size_t refinedIdx = k * gridAdapter.cellCountI() * gridAdapter.cellCountJ() + j * gridAdapter.cellCountI() + i;
 
-                int borderValue = borderResult[cellIndex];
-                int bcconValue  = bcconResult[cellIndex];
+                int borderValue = borderResult[refinedIdx];
+                int bcconValue  = bcconResult[refinedIdx];
 
                 // Only check border cells
                 if ( borderValue == RigEclipseResultTools::BorderType::BORDER_CELL )
                 {
                     // Verify BCCON value is in valid range 1-6
-                    EXPECT_GE( bcconValue, 1 ) << "BCCON value out of range at (" << i << "," << j << "," << k << ")";
-                    EXPECT_LE( bcconValue, 6 ) << "BCCON value out of range at (" << i << "," << j << "," << k << ")";
+                    EXPECT_GE( bcconValue, 1 ) << "BCCON value out of range at refined (" << i << "," << j << "," << k << ")";
+                    EXPECT_LE( bcconValue, 6 ) << "BCCON value out of range at refined (" << i << "," << j << "," << k << ")";
 
-                    // Check specific face values
-                    if ( i == min.x() )
+                    // Check specific face values (refined grid is 0-indexed, faces are at boundaries)
+                    if ( i == 0 )
                     {
-                        EXPECT_EQ( bcconValue, 1 ) << "I- face should have BCCON=1 at (" << i << "," << j << "," << k << ")";
+                        EXPECT_EQ( bcconValue, 1 ) << "I- face should have BCCON=1 at refined (" << i << "," << j << "," << k << ")";
                         countI_minus++;
                     }
-                    else if ( i == max.x() )
+                    else if ( i == gridAdapter.cellCountI() - 1 )
                     {
-                        EXPECT_EQ( bcconValue, 2 ) << "I+ face should have BCCON=2 at (" << i << "," << j << "," << k << ")";
+                        EXPECT_EQ( bcconValue, 2 ) << "I+ face should have BCCON=2 at refined (" << i << "," << j << "," << k << ")";
                         countI_plus++;
                     }
-                    else if ( j == min.y() )
+                    else if ( j == 0 )
                     {
-                        EXPECT_EQ( bcconValue, 3 ) << "J- face should have BCCON=3 at (" << i << "," << j << "," << k << ")";
+                        EXPECT_EQ( bcconValue, 3 ) << "J- face should have BCCON=3 at refined (" << i << "," << j << "," << k << ")";
                         countJ_minus++;
                     }
-                    else if ( j == max.y() )
+                    else if ( j == gridAdapter.cellCountJ() - 1 )
                     {
-                        EXPECT_EQ( bcconValue, 4 ) << "J+ face should have BCCON=4 at (" << i << "," << j << "," << k << ")";
+                        EXPECT_EQ( bcconValue, 4 ) << "J+ face should have BCCON=4 at refined (" << i << "," << j << "," << k << ")";
                         countJ_plus++;
                     }
-                    else if ( k == min.z() )
+                    else if ( k == 0 )
                     {
-                        EXPECT_EQ( bcconValue, 5 ) << "K- face should have BCCON=5 at (" << i << "," << j << "," << k << ")";
+                        EXPECT_EQ( bcconValue, 5 ) << "K- face should have BCCON=5 at refined (" << i << "," << j << "," << k << ")";
                         countK_minus++;
                     }
-                    else if ( k == max.z() )
+                    else if ( k == gridAdapter.cellCountK() - 1 )
                     {
                         EXPECT_EQ( bcconValue, 6 ) << "K+ face should have BCCON=6 at (" << i << "," << j << "," << k << ")";
                         countK_plus++;

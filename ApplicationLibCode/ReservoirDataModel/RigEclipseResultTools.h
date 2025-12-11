@@ -27,6 +27,7 @@
 
 class RimEclipseCase;
 class RimEclipseView;
+class RigGridExportAdapter;
 
 namespace RigEclipseResultTools
 {
@@ -46,21 +47,23 @@ struct BorderCellFace
 
 void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& intValues );
 
-std::vector<int> generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility );
+// Border detection and boundary condition functions - work with RigGridExportAdapter for refinement support
+std::vector<int> generateBorderResult( const RigGridExportAdapter& gridAdapter, const std::vector<int>& visibility );
 
-std::vector<int> generateOperNumResult( RimEclipseCase* eclipseCase, const std::vector<int>& borderResult, int borderCellValue = -1 );
+std::pair<std::vector<int>, int> generateOperNumResult( RimEclipseCase*             eclipseCase,
+                                                        const RigGridExportAdapter& gridAdapter,
+                                                        const std::vector<int>&     borderResult,
+                                                        int                         maxOperNum,
+                                                        int                         borderCellValue = -1 );
 
 int findMaxOperNumValue( RimEclipseCase* eclipseCase );
 
 int findMaxBcconValue( RimEclipseCase* eclipseCase );
 
-std::vector<int> generateBcconResult( RimEclipseCase*        eclipseCase,
-                                      const std::vector<int>& borderResult,
-                                      const caf::VecIjk0&     min,
-                                      const caf::VecIjk0&     max );
+std::vector<int> generateBcconResult( const RigGridExportAdapter& gridAdapter, const std::vector<int>& borderResult );
 
-std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase*         eclipseCase,
-                                                      const std::vector<int>& borderResult,
-                                                      const std::vector<int>& bcconResult );
+std::vector<BorderCellFace> generateBorderCellFaces( const RigGridExportAdapter& gridAdapter,
+                                                     const std::vector<int>&     borderResult,
+                                                     const std::vector<int>&     bcconResult );
 
 } // namespace RigEclipseResultTools

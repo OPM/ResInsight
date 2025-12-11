@@ -35,6 +35,7 @@ class RigSimulationInputSettings;
 class RifOpmFlowDeckFile;
 class RigSimWellData;
 class RigBoundingBoxIjk;
+class RigGridExportAdapter;
 
 namespace Opm
 {
@@ -70,6 +71,8 @@ public:
 
     static std::expected<Opm::DeckRecord, QString>
         processAquconRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+
+    static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
 
 private:
     static std::expected<void, QString> updateCornerPointGridInDeckFile( RimEclipseCase*                   eclipseCase,
@@ -112,12 +115,11 @@ private:
     static std::expected<void, QString>
         filterAndUpdateWellKeywords( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
-    static std::expected<void, QString> addOperNumRegionAndOperater( RimEclipseCase*                   eclipseCase,
-                                                                     const RigSimulationInputSettings& settings,
-                                                                     RifOpmFlowDeckFile&               deckFile,
-                                                                     const std::vector<int>&           operNumResult,
-                                                                     int                               operNumRegion,
-                                                                     double                            porvMultiplier );
+    static std::expected<void, QString> addOperNumRegionAndOperater( RifOpmFlowDeckFile&         deckFile,
+                                                                     const RigGridExportAdapter& gridAdapter,
+                                                                     const std::vector<int>&     operNumResult,
+                                                                     int                         operNumRegion,
+                                                                     double                      porvMultiplier );
 
     static std::vector<RigSimWellData*> findIntersectingWells( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max );
 

@@ -27,6 +27,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
 
 #include "RigTypeSafeIndex.h"
@@ -105,45 +106,60 @@ void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName,
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Generate border result for refined grid
+/// Returns a vector sized for the refined grid with BorderType values
+/// visibility: vector with 1 for visible cells, 0 for invisible cells
 //--------------------------------------------------------------------------------------------------
-std::vector<int> generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility )
+std::vector<int> generateBorderResult( const RigGridExportAdapter& gridAdapter, const std::vector<int>& visibility )
 {
-    if ( eclipseCase == nullptr || customVisibility.isNull() ) return {};
+    if ( visibility.empty() ) return {};
 
-    auto activeReservoirCellIdxs =
-        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
-    int numActiveCells = static_cast<int>( activeReservoirCellIdxs.size() );
+    size_t refinedNI  = gridAdapter.cellCountI();
+    size_t refinedNJ  = gridAdapter.cellCountJ();
+    size_t refinedNK  = gridAdapter.cellCountK();
+    size_t totalCells = refinedNI * refinedNJ * refinedNK;
 
-    size_t reservoirCellCount =
-        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirCellCount();
-    std::vector<int> result( reservoirCellCount, BorderType::INVISIBLE_CELL );
+    std::vector<int> result( totalCells, BorderType::INVISIBLE_CELL );
 
-    auto grid = eclipseCase->eclipseCaseData()->mainGrid();
+    // Lambda to calculate linear index from IJK coordinates
+    auto linearIndex = [refinedNI, refinedNJ]( size_t i, size_t j, size_t k ) { return k * refinedNI * refinedNJ + j * refinedNI + i; };
 
-    // go through all cells, only check those visible
+    // Iterate through all refined cells
 #pragma omp parallel for
-    for ( int i = 0; i < numActiveCells; i++ )
+    for ( int idx = 0; idx < static_cast<int>( totalCells ); ++idx )
     {
-        auto cellIdx = activeReservoirCellIdxs[i];
-        if ( customVisibility->val( cellIdx.value() ) )
+        size_t i = idx % refinedNI;
+        size_t j = ( idx / refinedNI ) % refinedNJ;
+        size_t k = idx / ( refinedNI * refinedNJ );
+
+        size_t linearIdx = linearIndex( i, j, k );
+
+        // Check if this cell is visible
+        if ( !visibility[linearIdx] ) continue;
+
+        // Check all 6 neighbors
+        int visibleNeighbors = 0;
+
+        // I- neighbor
+        if ( i > 0 && visibility[linearIndex( i - 1, j, k )] ) visibleNeighbors++;
+        // I+ neighbor
+        if ( i < refinedNI - 1 && visibility[linearIndex( i + 1, j, k )] ) visibleNeighbors++;
+        // J- neighbor
+        if ( j > 0 && visibility[linearIndex( i, j - 1, k )] ) visibleNeighbors++;
+        // J+ neighbor
+        if ( j < refinedNJ - 1 && visibility[linearIndex( i, j + 1, k )] ) visibleNeighbors++;
+        // K- neighbor
+        if ( k > 0 && visibility[linearIndex( i, j, k - 1 )] ) visibleNeighbors++;
+        // K+ neighbor
+        if ( k < refinedNK - 1 && visibility[linearIndex( i, j, k + 1 )] ) visibleNeighbors++;
+
+        if ( visibleNeighbors == 6 )
         {
-            auto neighbors = grid->neighborCells( cellIdx.value(), true /*ignore invalid k layers*/ );
-
-            int nVisibleNeighbors = 0;
-            for ( auto nIdx : neighbors )
-            {
-                if ( customVisibility->val( nIdx ) ) nVisibleNeighbors++;
-            }
-
-            if ( nVisibleNeighbors == 6 )
-            {
-                result[cellIdx.value()] = BorderType::INTERIOR_CELL;
-            }
-            else
-            {
-                result[cellIdx.value()] = BorderType::BORDER_CELL;
-            }
+            result[linearIdx] = BorderType::INTERIOR_CELL;
+        }
+        else
+        {
+            result[linearIdx] = BorderType::BORDER_CELL;
         }
     }
 
@@ -153,77 +169,129 @@ std::vector<int> generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> generateOperNumResult( RimEclipseCase* eclipseCase, const std::vector<int>& borderResult, int borderCellValue )
+/// Generate OPERNUM result for grid (supports refinement)
+/// Returns a pair: first is a vector sized for the grid with OPERNUM values, second is the new opernumRegion value
+/// If existing OPERNUM data is available in the eclipse case, it will be refined to match the grid dimensions
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<int>, int> generateOperNumResult( RimEclipseCase*             eclipseCase,
+                                                        const RigGridExportAdapter& gridAdapter,
+                                                        const std::vector<int>&     borderResult,
+                                                        int                         maxOperNum,
+                                                        int                         borderCellValue )
 {
-    if ( eclipseCase == nullptr ) return {};
+    CAF_ASSERT( gridAdapter.totalCells() == borderResult.size() );
 
     // Auto-determine border cell value if not specified
     if ( borderCellValue == -1 )
     {
-        int maxOperNum = findMaxOperNumValue( eclipseCase );
         RiaLogging::info( QString( "Found max OPERNUM: %1" ).arg( maxOperNum ) );
-        borderCellValue = maxOperNum + 1;
-    }
-
-    auto activeReservoirCellIdxs =
-        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
-
-    // Check if OPERNUM already exists - if so, keep existing values.
-    RigEclipseResultAddress operNumAddrNative( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                               RiaDefines::ResultDataType::INTEGER,
-                                               RiaResultNames::opernum() );
-    RigEclipseResultAddress operNumAddrGenerated( RiaDefines::ResultCatType::GENERATED,
-                                                  RiaDefines::ResultDataType::INTEGER,
-                                                  RiaResultNames::opernum() );
-    auto                    resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-    RigEclipseResultAddress operNumAddr;
-    bool                    hasExistingOperNum = false;
-
-    if ( resultsData->hasResultEntry( operNumAddrNative ) )
-    {
-        operNumAddr        = operNumAddrNative;
-        hasExistingOperNum = true;
-    }
-    else if ( resultsData->hasResultEntry( operNumAddrGenerated ) )
-    {
-        operNumAddr        = operNumAddrGenerated;
-        hasExistingOperNum = true;
-    }
-
-    std::vector<int> result;
-
-    if ( hasExistingOperNum )
-    {
-        resultsData->ensureKnownResultLoaded( operNumAddr );
-        auto existingValues = resultsData->cellScalarResults( operNumAddr, 0 );
-        result.resize( existingValues.size() );
-
-        for ( size_t i = 0; i < existingValues.size(); i++ )
+        // If no existing OPERNUM found (maxOperNum == 0), use default value of 2
+        if ( maxOperNum == 0 )
         {
-            result[i] = static_cast<int>( existingValues[i] );
+            borderCellValue = 2;
+        }
+        else
+        {
+            borderCellValue = maxOperNum + 1;
         }
     }
-    else
-    {
-        borderCellValue = 2;
-    }
 
-    if ( !borderResult.empty() )
-    {
-        result.resize( borderResult.size(), 1 );
+    size_t totalCells = gridAdapter.totalCells();
 
-        for ( auto activeCellIdx : activeReservoirCellIdxs )
+    std::vector<int> result( totalCells, 1 ); // Default OPERNUM value is 1
+
+    // Try to load existing OPERNUM data from eclipse case if available
+    if ( eclipseCase != nullptr )
+    {
+        auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        if ( resultsData )
         {
-            // If BORDNUM = 1 (BORDER_CELL), assign the border cell value
-            if ( borderResult[activeCellIdx.value()] == BorderType::BORDER_CELL )
+            // Try to find OPERNUM in both STATIC_NATIVE and GENERATED categories
+            RigEclipseResultAddress resultAddr;
+            bool                    hasResult = false;
+
+            std::vector<RiaDefines::ResultCatType> categories = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                  RiaDefines::ResultCatType::GENERATED };
+            for ( const auto& category : categories )
             {
-                result[activeCellIdx.value()] = borderCellValue;
+                RigEclipseResultAddress addr( category, RiaDefines::ResultDataType::INTEGER, RiaResultNames::opernum() );
+                if ( resultsData->hasResultEntry( addr ) )
+                {
+                    resultAddr = addr;
+                    hasResult  = true;
+                    break;
+                }
+            }
+
+            if ( hasResult )
+            {
+                resultsData->ensureKnownResultLoaded( resultAddr );
+                auto resultValues = resultsData->cellScalarResults( resultAddr, 0 );
+
+                if ( !resultValues.empty() )
+                {
+                    RiaLogging::info(
+                        QString( "Using existing OPERNUM data (%1 values) and refining to match grid" ).arg( resultValues.size() ) );
+
+                    // Get the main grid to access cells
+                    auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
+                    if ( mainGrid )
+                    {
+                        cvf::Vec3st originalMin = gridAdapter.originalMin();
+                        cvf::Vec3st refinement  = gridAdapter.refinement();
+
+                        // Refine the OPERNUM data to match the refined grid
+                        // Each original cell is subdivided into refinement.x * refinement.y * refinement.z subcells
+                        size_t refinedNI = gridAdapter.cellCountI();
+                        size_t refinedNJ = gridAdapter.cellCountJ();
+                        size_t refinedNK = gridAdapter.cellCountK();
+
+                        for ( size_t rk = 0; rk < refinedNK; ++rk )
+                        {
+                            for ( size_t rj = 0; rj < refinedNJ; ++rj )
+                            {
+                                for ( size_t ri = 0; ri < refinedNI; ++ri )
+                                {
+                                    // Calculate which original cell this refined cell belongs to
+                                    size_t origI = originalMin.x() + ri / refinement.x();
+                                    size_t origJ = originalMin.y() + rj / refinement.y();
+                                    size_t origK = originalMin.z() + rk / refinement.z();
+
+                                    // Get the OPERNUM value from the original grid
+                                    size_t origCellIdx = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+
+                                    if ( origCellIdx < resultValues.size() )
+                                    {
+                                        size_t refinedIdx  = rk * refinedNI * refinedNJ + rj * refinedNI + ri;
+                                        result[refinedIdx] = static_cast<int>( resultValues[origCellIdx] );
+                                    }
+                                }
+                            }
+                        }
+
+                        RiaLogging::info( QString( "Refined OPERNUM data from %1x%2x%3 to %4x%5x%6" )
+                                              .arg( gridAdapter.originalMax().x() - gridAdapter.originalMin().x() + 1 )
+                                              .arg( gridAdapter.originalMax().y() - gridAdapter.originalMin().y() + 1 )
+                                              .arg( gridAdapter.originalMax().z() - gridAdapter.originalMin().z() + 1 )
+                                              .arg( refinedNI )
+                                              .arg( refinedNJ )
+                                              .arg( refinedNK ) );
+                    }
+                }
             }
         }
     }
 
-    return result;
+    // Overwrite border cells with the border cell value
+    for ( size_t i = 0; i < totalCells; ++i )
+    {
+        if ( borderResult[i] == BorderType::BORDER_CELL )
+        {
+            result[i] = borderCellValue;
+        }
+    }
+
+    return { result, borderCellValue };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,10 +317,8 @@ int findMaxBcconValue( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> generateBcconResult( RimEclipseCase*         eclipseCase,
-                                      const std::vector<int>& borderResult,
-                                      const caf::VecIjk0&     min,
-                                      const caf::VecIjk0&     max )
+std::vector<int>
+    generateBcconResult( RimEclipseCase* eclipseCase, const std::vector<int>& borderResult, const caf::VecIjk0& min, const caf::VecIjk0& max )
 {
     if ( eclipseCase == nullptr ) return {};
 
@@ -321,9 +387,8 @@ std::vector<int> generateBcconResult( RimEclipseCase*         eclipseCase,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase*         eclipseCase,
-                                                      const std::vector<int>& borderResult,
-                                                      const std::vector<int>& bcconResult )
+std::vector<BorderCellFace>
+    generateBorderCellFaces( RimEclipseCase* eclipseCase, const std::vector<int>& borderResult, const std::vector<int>& bcconResult )
 {
     if ( eclipseCase == nullptr ) return {};
 
@@ -377,6 +442,133 @@ std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase*         ecl
                     {
                         // Add this face to the result
                         borderCellFaces.push_back( { *ijk, faceType, boundaryCondition } );
+                    }
+                }
+            }
+        }
+    }
+
+    return borderCellFaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Generate BCCON result for refined grid
+/// Returns a vector sized for the refined grid with BCCON values (1-6 for faces, 0 for non-border)
+//--------------------------------------------------------------------------------------------------
+std::vector<int> generateBcconResult( const RigGridExportAdapter& gridAdapter, const std::vector<int>& borderResult )
+{
+    CAF_ASSERT( gridAdapter.totalCells() == borderResult.size() );
+
+    size_t refinedNI  = gridAdapter.cellCountI();
+    size_t refinedNJ  = gridAdapter.cellCountJ();
+    size_t refinedNK  = gridAdapter.cellCountK();
+    size_t totalCells = refinedNI * refinedNJ * refinedNK;
+
+    std::vector<int> result( totalCells, 0 );
+
+    // Iterate through all refined cells
+    for ( size_t k = 0; k < refinedNK; ++k )
+    {
+        for ( size_t j = 0; j < refinedNJ; ++j )
+        {
+            for ( size_t i = 0; i < refinedNI; ++i )
+            {
+                size_t linearIdx = k * refinedNI * refinedNJ + j * refinedNI + i;
+
+                // Check if this cell is a border cell
+                if ( borderResult[linearIdx] != BorderType::BORDER_CELL ) continue;
+
+                // Determine which face of the box this cell is on
+                // Priority: I faces, then J faces, then K faces (for corner/edge cells)
+                int bcconValue = 0;
+
+                if ( i == 0 )
+                {
+                    bcconValue = 1; // I- face
+                }
+                else if ( i == refinedNI - 1 )
+                {
+                    bcconValue = 2; // I+ face
+                }
+                else if ( j == 0 )
+                {
+                    bcconValue = 3; // J- face
+                }
+                else if ( j == refinedNJ - 1 )
+                {
+                    bcconValue = 4; // J+ face
+                }
+                else if ( k == 0 )
+                {
+                    bcconValue = 5; // K- face
+                }
+                else if ( k == refinedNK - 1 )
+                {
+                    bcconValue = 6; // K+ face
+                }
+
+                result[linearIdx] = bcconValue;
+            }
+        }
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Generate border cell faces for refined grid
+/// Returns border cells that have at least one face connecting to an interior cell
+//--------------------------------------------------------------------------------------------------
+std::vector<BorderCellFace> generateBorderCellFaces( const RigGridExportAdapter& gridAdapter,
+                                                     const std::vector<int>&     borderResult,
+                                                     const std::vector<int>&     bcconResult )
+{
+    CAF_ASSERT( borderResult.size() == gridAdapter.totalCells() );
+    CAF_ASSERT( bcconResult.size() == gridAdapter.totalCells() );
+
+    size_t refinedNI = gridAdapter.cellCountI();
+    size_t refinedNJ = gridAdapter.cellCountJ();
+    size_t refinedNK = gridAdapter.cellCountK();
+
+    std::vector<BorderCellFace> borderCellFaces;
+
+    // Lambda to calculate linear index from IJK coordinates
+    auto linearIndex = [refinedNI, refinedNJ]( size_t i, size_t j, size_t k ) { return k * refinedNI * refinedNJ + j * refinedNI + i; };
+
+    // Iterate through all refined cells
+    for ( size_t k = 0; k < refinedNK; ++k )
+    {
+        for ( size_t j = 0; j < refinedNJ; ++j )
+        {
+            for ( size_t i = 0; i < refinedNI; ++i )
+            {
+                size_t linearIdx = linearIndex( i, j, k );
+
+                // Check if this cell is a border cell
+                if ( borderResult[linearIdx] != BorderType::BORDER_CELL ) continue;
+
+                // Get boundary condition value
+                int boundaryCondition = bcconResult[linearIdx];
+                if ( boundaryCondition == 0 ) continue;
+
+                // Check all 6 faces to find which face(s) connect to interior cells
+                std::vector<std::pair<cvf::StructGridInterface::FaceType, size_t>> facesToCheck =
+                    { { cvf::StructGridInterface::NEG_I, i > 0 ? linearIndex( i - 1, j, k ) : SIZE_MAX },
+                      { cvf::StructGridInterface::POS_I, i < refinedNI - 1 ? linearIndex( i + 1, j, k ) : SIZE_MAX },
+                      { cvf::StructGridInterface::NEG_J, j > 0 ? linearIndex( i, j - 1, k ) : SIZE_MAX },
+                      { cvf::StructGridInterface::POS_J, j < refinedNJ - 1 ? linearIndex( i, j + 1, k ) : SIZE_MAX },
+                      { cvf::StructGridInterface::NEG_K, k > 0 ? linearIndex( i, j, k - 1 ) : SIZE_MAX },
+                      { cvf::StructGridInterface::POS_K, k < refinedNK - 1 ? linearIndex( i, j, k + 1 ) : SIZE_MAX } };
+
+                for ( const auto& [faceType, neighborIdx] : facesToCheck )
+                {
+                    if ( neighborIdx == SIZE_MAX ) continue;
+
+                    // Check if neighbor is an interior cell
+                    if ( borderResult[neighborIdx] == BorderType::INTERIOR_CELL )
+                    {
+                        caf::VecIjk0 ijk( i, j, k );
+                        borderCellFaces.push_back( { ijk, faceType, boundaryCondition } );
                     }
                 }
             }

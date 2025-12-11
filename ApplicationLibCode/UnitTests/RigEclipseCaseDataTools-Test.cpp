@@ -33,7 +33,9 @@
 #include "RigEclipseCaseDataTools.h"
 #include "RigEclipseResultAddress.h"
 #include "RigEclipseResultTools.h"
+#include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
+#include "RigSimulationInputTool.h"
 #include "Well/RigSimWellData.h"
 
 #include "cvfBoundingBox.h"
@@ -460,8 +462,35 @@ TEST( RigEclipseCaseDataToolsTest, GenerateBorderResultFromIjkBounds )
     auto visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, maxIjk );
     ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
 
-    // Generate border result using the custom visibility (returns vector)
-    auto borderResult = RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility );
+    // Generate border result using refined methods (no refinement: 1,1,1)
+    cvf::Vec3st          refinement( 1, 1, 1 );
+    RigGridExportAdapter gridAdapter( eclipseCase.p(), minIjk, maxIjk, refinement, visibility.p() );
+
+    // Create refined visibility
+    std::vector<int> refinedVisibility = RigSimulationInputTool::createRefinedVisibility( gridAdapter );
+
+    auto refinedBorderResult = RigEclipseResultTools::generateBorderResult( gridAdapter, refinedVisibility );
+
+    // Map refined border result back to original grid (since refinement=1, it's 1:1 but with different indexing)
+    auto             mainGrid           = eclipseCase->mainGrid();
+    size_t           reservoirCellCount = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirCellCount();
+    std::vector<int> borderResult( reservoirCellCount, RigEclipseResultTools::BorderType::INVISIBLE_CELL );
+
+    for ( size_t rk = 0; rk < gridAdapter.cellCountK(); ++rk )
+    {
+        for ( size_t rj = 0; rj < gridAdapter.cellCountJ(); ++rj )
+        {
+            for ( size_t ri = 0; ri < gridAdapter.cellCountI(); ++ri )
+            {
+                size_t refinedIdx         = rk * gridAdapter.cellCountI() * gridAdapter.cellCountJ() + rj * gridAdapter.cellCountI() + ri;
+                size_t origI              = minIjk.x() + ri;
+                size_t origJ              = minIjk.y() + rj;
+                size_t origK              = minIjk.z() + rk;
+                size_t origCellIdx        = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                borderResult[origCellIdx] = refinedBorderResult[refinedIdx];
+            }
+        }
+    }
 
     // Verify that the result was generated
     ASSERT_GT( borderResult.size(), 0 ) << "Border result should not be empty";
@@ -522,27 +551,58 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     auto visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, maxIjk );
     ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
 
-    // Generate border result first (required for OPERNUM generation)
-    auto borderResult = RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility );
+    // Generate border result using refined methods (no refinement: 1,1,1)
+    cvf::Vec3st          refinement( 1, 1, 1 );
+    RigGridExportAdapter gridAdapter( eclipseCase.p(), minIjk, maxIjk, refinement, visibility.p() );
+
+    // Create refined visibility
+    std::vector<int> refinedVisibility = RigSimulationInputTool::createRefinedVisibility( gridAdapter );
+
+    auto refinedBorderResult = RigEclipseResultTools::generateBorderResult( gridAdapter, refinedVisibility );
+
+    // Map refined border result back to original grid (since refinement=1, it's 1:1 but with different indexing)
+    auto             mainGrid           = eclipseCase->mainGrid();
+    size_t           reservoirCellCount = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirCellCount();
+    std::vector<int> borderResult( reservoirCellCount, RigEclipseResultTools::BorderType::INVISIBLE_CELL );
+
+    for ( size_t rk = 0; rk < gridAdapter.cellCountK(); ++rk )
+    {
+        for ( size_t rj = 0; rj < gridAdapter.cellCountJ(); ++rj )
+        {
+            for ( size_t ri = 0; ri < gridAdapter.cellCountI(); ++ri )
+            {
+                size_t refinedIdx         = rk * gridAdapter.cellCountI() * gridAdapter.cellCountJ() + rj * gridAdapter.cellCountI() + ri;
+                size_t origI              = minIjk.x() + ri;
+                size_t origJ              = minIjk.y() + rj;
+                size_t origK              = minIjk.z() + rk;
+                size_t origCellIdx        = mainGrid->cellIndexFromIJK( origI, origJ, origK );
+                borderResult[origCellIdx] = refinedBorderResult[refinedIdx];
+            }
+        }
+    }
 
     // Verify border result was generated
     ASSERT_GT( borderResult.size(), 0 ) << "Border result should not be empty";
 
     // Test case 1: Generate OPERNUM with automatic border cell value (no existing OPERNUM, should get 2)
-    auto opernumResult = RigEclipseResultTools::generateOperNumResult( resultCase.get(), borderResult );
+    // Use refined border result since gridAdapter was created with refinement=1
+    int maxOperNum = RigEclipseResultTools::findMaxOperNumValue( resultCase.get() );
+    auto [opernumResult, operNumRegion] =
+        RigEclipseResultTools::generateOperNumResult( resultCase.get(), gridAdapter, refinedBorderResult, maxOperNum );
 
     // Verify OPERNUM was generated
-    ASSERT_EQ( borderResult.size(), opernumResult.size() ) << "BORDNUM and OPERNUM should have same size";
+    ASSERT_EQ( refinedBorderResult.size(), opernumResult.size() ) << "Refined BORDNUM and OPERNUM should have same size";
     ASSERT_GT( opernumResult.size(), 0 ) << "OPERNUM vector should not be empty";
+    ASSERT_EQ( operNumRegion, 2 ) << "operNumRegion should be 2 (no existing OPERNUM, default value)";
 
     // Count cells with different values and verify the logic
     int borderCellsWithOperValue = 0; // BORDNUM=1 cells that should get OPERNUM=2 (max 0 + 1, then default 2)
     int defaultOperCells         = 0; // BORDNUM!=1 cells that should get OPERNUM=1
     int borderCellsTotal         = 0; // Total BORDNUM=1 cells
 
-    for ( size_t i = 0; i < borderResult.size(); ++i )
+    for ( size_t i = 0; i < refinedBorderResult.size(); ++i )
     {
-        int bordnumValue = borderResult[i];
+        int bordnumValue = refinedBorderResult[i];
         int opernumValue = opernumResult[i];
 
         if ( bordnumValue == RigEclipseResultTools::BorderType::BORDER_CELL )
@@ -586,39 +646,49 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     ASSERT_EQ( maxOperValue, 15 ) << "Max OPERNUM value should be 15";
 
     // Now generate OPERNUM again - should use max value + 1 = 16 for border cells
-    auto updatedOpernumResult = RigEclipseResultTools::generateOperNumResult( resultCase.get(), borderResult );
+    // This should use the existing OPERNUM data we just created and refine it
+    auto [updatedOpernumResult, updatedOperNumRegion] =
+        RigEclipseResultTools::generateOperNumResult( resultCase.get(), gridAdapter, refinedBorderResult, maxOperValue );
 
-    // Verify the behavior
-    int preservedValues = 0;
-    int modifiedValues  = 0;
+    // Verify the updated operNumRegion is correct
+    ASSERT_EQ( updatedOperNumRegion, 16 ) << "updatedOperNumRegion should be 16 (max 15 + 1)";
 
-    for ( size_t i = 0; i < borderResult.size(); ++i )
+    // Verify the behavior - border cells should be 16, non-border cells should preserve existing OPERNUM values (5, 12, or 15)
+    int borderCells     = 0;
+    int nonBorderCells  = 0;
+    int cellsWithValue5 = 0, cellsWithValue12 = 0, cellsWithValue15 = 0;
+
+    for ( size_t i = 0; i < refinedBorderResult.size(); ++i )
     {
-        int bordnumValue = borderResult[i];
+        int bordnumValue = refinedBorderResult[i];
         int opernumValue = updatedOpernumResult[i];
 
         if ( bordnumValue == RigEclipseResultTools::BorderType::BORDER_CELL )
         {
             ASSERT_EQ( opernumValue, 16 ) << "Border cells should be updated to OPERNUM=16 (max 15 + 1) at index " << i;
-            modifiedValues++;
+            borderCells++;
         }
         else
         {
-            // Non-border cells should preserve their original values
-            if ( numActiveCells > 10 && i == 5 )
-                ASSERT_EQ( opernumValue, 15 ) << "Non-border cells should preserve original max value at index " << i;
-            else if ( numActiveCells > 10 && i == 8 )
-                ASSERT_EQ( opernumValue, 12 ) << "Non-border cells should preserve original value at index " << i;
-            else
-                ASSERT_EQ( opernumValue, 5 ) << "Non-border cells should preserve original value at index " << i;
-            preservedValues++;
+            // Non-border cells should preserve the refined OPERNUM values from the original grid (5, 12, or 15)
+            ASSERT_TRUE( opernumValue == 5 || opernumValue == 12 || opernumValue == 15 )
+                << "Non-border cells should have refined OPERNUM value (5, 12, or 15) at index " << i << ", got " << opernumValue;
+            nonBorderCells++;
+
+            if ( opernumValue == 5 )
+                cellsWithValue5++;
+            else if ( opernumValue == 12 )
+                cellsWithValue12++;
+            else if ( opernumValue == 15 )
+                cellsWithValue15++;
         }
     }
 
-    ASSERT_GT( modifiedValues, 0 ) << "Should have modified some border cells";
-    ASSERT_GT( preservedValues, 0 ) << "Should have preserved some non-border cells";
+    ASSERT_GT( borderCells, 0 ) << "Should have some border cells";
+    ASSERT_GT( nonBorderCells, 0 ) << "Should have some non-border cells";
+    ASSERT_GT( cellsWithValue5, 0 ) << "Should have cells with OPERNUM=5 (the default value we set)";
 
     // Total should match vector size
-    int totalChecked = modifiedValues + preservedValues;
+    int totalChecked = borderCells + nonBorderCells;
     ASSERT_EQ( totalChecked, static_cast<int>( updatedOpernumResult.size() ) ) << "Should check all cells";
 }

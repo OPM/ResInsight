@@ -297,54 +297,38 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
         return {};
     }
 
-    // Generate border result (BORDNUM) in memory
-    auto borderResult = RigEclipseResultTools::generateBorderResult( eclipseCase, visibility );
+    // Create grid adapter for refined grid operations
+    RigGridExportAdapter gridAdapter( eclipseCase->eclipseCaseData(), settings.min(), settings.max(), settings.refinement(), visibility.p() );
 
-    if ( borderResult.empty() )
+    // Create refined visibility array matching refined grid dimensions
+    std::vector<int> refinedVisibility = createRefinedVisibility( gridAdapter );
+
+    // Generate refined border result
+    auto borderResult = RigEclipseResultTools::generateBorderResult( gridAdapter, refinedVisibility );
+
+    if ( borderResult.empty() || borderResult.size() != gridAdapter.totalCells() )
     {
-        RiaLogging::warning( "Failed to generate border result - skipping boundary conditions" );
+        RiaLogging::warning( "Failed to generate refined border result - skipping boundary conditions" );
         return {};
     }
 
     // Handle boundary condition based on settings
     if ( settings.boundaryCondition() == RiaModelExportDefines::BoundaryCondition::BCCON_BCPROP )
     {
-        // Generate BCCON result in memory
-        auto bcconResult = RigEclipseResultTools::generateBcconResult( eclipseCase, borderResult, settings.min(), settings.max() );
+        // Generate BCCON result for refined grid in memory
+        auto bcconResult = RigEclipseResultTools::generateBcconResult( gridAdapter, borderResult );
 
-        if ( bcconResult.empty() )
+        if ( bcconResult.empty() || bcconResult.size() != gridAdapter.totalCells() )
         {
-            RiaLogging::warning( "Failed to generate BCCON result - skipping boundary conditions" );
+            RiaLogging::warning( "Failed to generate refined BCCON result - skipping boundary conditions" );
             return {};
         }
 
-        // Generate border cell faces using in-memory results
-        auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( eclipseCase, borderResult, bcconResult );
+        // Generate border cell faces using refined in-memory results
+        auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( gridAdapter, borderResult, bcconResult );
 
         if ( !borderCellFaces.empty() )
         {
-            // Transform border cell face coordinates to sector-relative coordinates
-            for ( auto& face : borderCellFaces )
-            {
-                auto transformResult =
-                    RigGridExportAdapter::transformIjkToSectorCoordinates( face.ijk, settings.min(), settings.max(), settings.refinement(), true );
-
-                if ( !transformResult )
-                {
-                    RiaLogging::warning( QString( "Failed to transform border cell face at (%1, %2, %3): %4" )
-                                             .arg( face.ijk.x() )
-                                             .arg( face.ijk.y() )
-                                             .arg( face.ijk.z() )
-                                             .arg( transformResult.error() ) );
-                    continue;
-                }
-
-                // Update the IJK coordinates to sector-relative (1-based Eclipse coordinates)
-                // Note: RigGridExportAdapter::transformIjkToSectorCoordinates returns 1-based coordinates, but we need to convert back to
-                // 0-based for the BorderCellFace struct
-                face.ijk = transformResult->toZeroBased();
-            }
-
             // Create BCCON keyword using the factory
             Opm::DeckKeyword bcconKw = RimKeywordFactory::bcconKeyword( borderCellFaces );
 
@@ -373,24 +357,21 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
     }
     else if ( settings.boundaryCondition() == RiaModelExportDefines::BoundaryCondition::OPERNUM_OPERATER )
     {
-        // Generate OPERNUM result based on border result (border cells get max existing OPERNUM + 1)
-        auto operNumResult = RigEclipseResultTools::generateOperNumResult( eclipseCase, borderResult );
+        // Find max OPERNUM value from the original grid
+        int maxOperNum = RigEclipseResultTools::findMaxOperNumValue( eclipseCase );
 
-        // Find the border cell value used
-        int operNumRegion = -1;
-        for ( size_t i = 0; i < operNumResult.size(); i++ )
-        {
-            if ( borderResult[i] == RigEclipseResultTools::BorderType::BORDER_CELL )
-            {
-                operNumRegion = operNumResult[i];
-                break;
-            }
-        }
+        // Generate OPERNUM result directly on refined grid - border cells get max existing OPERNUM + 1
+        // Returns a pair: [vector of OPERNUM values, operNumRegion value]
+        // Uses existing OPERNUM data from eclipse case if available, refined to match the grid dimensions
+        auto [refinedOperNumResult, operNumRegion] =
+            RigEclipseResultTools::generateOperNumResult( eclipseCase, gridAdapter, borderResult, maxOperNum );
+
+        CAF_ASSERT( borderResult.size() == refinedOperNumResult.size() );
 
         if ( operNumRegion != -1 )
         {
             if ( auto result =
-                     addOperNumRegionAndOperater( eclipseCase, settings, deckFile, operNumResult, operNumRegion, settings.porvMultiplier() );
+                     addOperNumRegionAndOperater( deckFile, gridAdapter, refinedOperNumResult, operNumRegion, settings.porvMultiplier() );
                  !result )
             {
                 return result;
@@ -399,6 +380,38 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create refined visibility array matching refined grid dimensions
+/// Returns a vector with 1 for visible cells, 0 for invisible cells
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigSimulationInputTool::createRefinedVisibility( const RigGridExportAdapter& gridAdapter )
+{
+    size_t refinedNI  = gridAdapter.cellCountI();
+    size_t refinedNJ  = gridAdapter.cellCountJ();
+    size_t refinedNK  = gridAdapter.cellCountK();
+    size_t totalCells = refinedNI * refinedNJ * refinedNK;
+
+    std::vector<int> refinedVisibility( totalCells, 0 );
+
+    // Lambda to calculate linear index from IJK coordinates
+    auto linearIndex = [refinedNI, refinedNJ]( size_t i, size_t j, size_t k ) { return k * refinedNI * refinedNJ + j * refinedNI + i; };
+
+    // Fill refined visibility array
+    for ( size_t k = 0; k < refinedNK; ++k )
+    {
+        for ( size_t j = 0; j < refinedNJ; ++j )
+        {
+            for ( size_t i = 0; i < refinedNI; ++i )
+            {
+                size_t linearIdx             = linearIndex( i, j, k );
+                refinedVisibility[linearIdx] = gridAdapter.isCellActive( i, j, k ) ? 1 : 0;
+            }
+        }
+    }
+
+    return refinedVisibility;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1460,17 +1473,14 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater( RimEclipseCase*                   eclipseCase,
-                                                                                  const RigSimulationInputSettings& settings,
-                                                                                  RifOpmFlowDeckFile&               deckFile,
-                                                                                  const std::vector<int>&           operNumResult,
-                                                                                  int                               operNumRegion,
-                                                                                  double                            porvMultiplier )
+std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater( RifOpmFlowDeckFile&         deckFile,
+                                                                                  const RigGridExportAdapter& gridAdapter,
+                                                                                  const std::vector<int>&     operNumResult,
+                                                                                  int                         operNumRegion,
+                                                                                  double                      porvMultiplier )
 {
-    // Update REGDIMS and add OPERATER keyword for OPERNUM regions
-    // Get the OPERNUM region number that was assigned to border cells
-
-    RiaLogging::info( QString( "Using OPERNUM region %1 for border cells" ).arg( operNumRegion ) );
+    RiaLogging::info(
+        QString( "Adding OPERNUM region %1 with PORV multiplier %2 using refined grid" ).arg( operNumRegion ).arg( porvMultiplier ) );
 
     // Ensure REGDIMS keyword exists
     if ( !deckFile.ensureRegdimsKeyword() )
@@ -1482,7 +1492,6 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
     auto regdimsValues = deckFile.regdims();
     if ( regdimsValues.empty() )
     {
-        // TODO: improve this?
         // Use defaults if reading failed
         regdimsValues = { 1, 1, 0, 0, 0, 1, 0 }; // NTFIP NMFIPR NRFREG NTFREG MAX_ETRACK NTCREG MAX_OPERNUM
     }
@@ -1518,59 +1527,20 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
         }
     }
 
-    // Export OPERNUM data for the sector (with refinement)
-    auto mainGrid    = eclipseCase->eclipseCaseData()->mainGrid();
-    auto activeCells = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    auto refinementV = settings.refinement();
-    auto min         = settings.min();
-    auto max         = settings.max();
-
-    std::vector<double> exportedData;
-    cvf::Vec3st         refinedMin( min.x() * refinementV.x(), min.y() * refinementV.y(), min.z() * refinementV.z() );
-    cvf::Vec3st refinedMax( ( max.x() + 1 ) * refinementV.x(), ( max.y() + 1 ) * refinementV.y(), ( max.z() + 1 ) * refinementV.z() );
-
-    for ( size_t k = refinedMin.z(); k < refinedMax.z(); ++k )
+    // Replace keyword values in deck with refined exported data
+    if ( deckFile.replaceKeywordData( "OPERNUM", operNumResult ) )
     {
-        size_t mainK = k / refinementV.z();
-        for ( size_t j = refinedMin.y(); j < refinedMax.y(); ++j )
-        {
-            size_t mainJ = j / refinementV.y();
-            for ( size_t i = refinedMin.x(); i < refinedMax.x(); ++i )
-            {
-                size_t mainI              = i / refinementV.x();
-                size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
-                size_t resIndex           = activeCells->cellResultIndex( reservoirCellIndex );
-
-                if ( resIndex != cvf::UNDEFINED_SIZE_T && reservoirCellIndex < operNumResult.size() )
-                {
-                    exportedData.push_back( static_cast<double>( operNumResult[reservoirCellIndex] ) );
-                }
-                else
-                {
-                    exportedData.push_back( 1.0 ); // Default value for inactive cells
-                }
-            }
-        }
-    }
-
-    if ( exportedData.empty() )
-    {
-        return std::unexpected( "Failed to export OPERNUM data for sector" );
-    }
-
-    // Replace keyword values in deck with exported data
-    if ( deckFile.replaceKeywordData( "OPERNUM", exportedData ) )
-    {
-        RiaLogging::info( "Added replaced opernum value in existing position." );
+        RiaLogging::info( QString( "Replaced OPERNUM values for refined grid with dimensions %1x%2x%3" )
+                              .arg( gridAdapter.cellCountI() )
+                              .arg( gridAdapter.cellCountJ() )
+                              .arg( gridAdapter.cellCountK() ) );
     }
     else
     {
-        return std::unexpected( "Unable to replace OPERNUM values" );
+        return std::unexpected( "Unable to replace OPERNUM values for refined grid" );
     }
 
     // Create OPERATER keyword to multiply pore volume in border region
-    // OPERATER format: TARGET_ARRAY REGION_NUMBER OPERATION ARRAY_PARAMETER PARAM1 PARAM2 REGION_NAME
-    // Example: OPERATER / PORV 1 MULTX PORV 1.0e6 1* 1* /
     Opm::DeckKeyword operaterKw =
         RimKeywordFactory::operaterKeyword( "PORV", operNumRegion, "MULTX", "PORV", static_cast<float>( porvMultiplier ) );
 
