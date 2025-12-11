@@ -27,11 +27,10 @@
 
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
 
-#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigSimulationInputTool.h"
 #include "RimEclipseResultCase.h"
 
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
@@ -108,32 +107,28 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
             {
                 size_t cellIndex                 = grid->cellIndexFromIJK( i, j, k );
                 ( *customVisibility )[cellIndex] = 1;
-
-                // Set bccon==1 for half of the cells
-                if ( i > grid->cellCountI() / 2 )
-                {
-                    bcconValues[cellIndex] = 1;
-                }
             }
         }
     }
 
-    // Step 3: Generate BORDNUM result
-    RigEclipseResultTools::generateBorderResult( testCase.get(), customVisibility, "BORDNUM" );
+    // Step 3: Generate BORDNUM result (returns vector, doesn't store)
+    auto borderResult = RigEclipseResultTools::generateBorderResult( testCase.get(), customVisibility );
 
-    // Verify BORDNUM was created
-    auto resultsData = testCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    ASSERT_NE( resultsData, nullptr );
+    // Verify border result values
+    EXPECT_EQ( borderResult.size(), cellCount );
 
-    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BORDNUM" );
-    ASSERT_TRUE( resultsData->hasResultEntry( bordNumAddr ) ) << "BORDNUM result not created";
+    // Step 4: Generate BCCON result (takes border result as input, returns vector)
+    caf::VecIjk0 min( startI, startJ, startK );
+    caf::VecIjk0 max( endI - 1, endJ - 1, endK - 1 );
+    auto         bcconResult = RigEclipseResultTools::generateBcconResult( testCase.get(), borderResult, min, max );
 
-    RigEclipseResultTools::createResultVector( *testCase, "BCCON", bcconValues );
+    // Verify BCCON values
+    EXPECT_EQ( bcconResult.size(), cellCount );
 
-    // Step 4: Generate border cell faces
-    auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( testCase.get() );
+    // Step 5: Generate border cell faces using in-memory results
+    auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( testCase.get(), borderResult, bcconResult );
 
-    // Step 5: Verify results
+    // Step 6: Verify results
     EXPECT_GT( borderCellFaces.size(), 0 ) << "No border cell faces generated";
 
     // Verify that all faces are within the visible region boundaries
@@ -150,11 +145,11 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
         EXPECT_GE( static_cast<int>( face.faceType ), static_cast<int>( cvf::StructGridInterface::POS_I ) );
         EXPECT_LT( static_cast<int>( face.faceType ), static_cast<int>( cvf::StructGridInterface::NO_FACE ) );
 
-        // Verify boundary condition (should be 1 if no BCCON grid property exists)
-        EXPECT_EQ( face.boundaryCondition, 1 );
+        // Verify boundary condition value is set
+        EXPECT_GT( face.boundaryCondition, 0 );
     }
 
-    // Step 6: Create OPM deck file and add BCCON keyword
+    // Step 7: Create OPM deck file and add BCCON keyword
     QTemporaryDir tempDir;
     ASSERT_TRUE( tempDir.isValid() ) << "Failed to create temporary directory";
 
@@ -184,7 +179,7 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
     bool             bcconAdded = deckFile.replaceKeyword( "GRID", bcconKw );
     ASSERT_TRUE( bcconAdded ) << "Failed to replace BCCON keyword";
 
-    // Step 7: Save deck and verify format
+    // Step 8: Save deck and verify format
     QString outputDeckPath = tempDir.filePath( "output_bccon.DATA" );
     bool    deckSaved      = deckFile.saveDeck( tempDir.path().toStdString(), "output_bccon.DATA" );
     ASSERT_TRUE( deckSaved ) << "Failed to save deck file";
@@ -276,32 +271,15 @@ TEST( RigEclipseResultToolsTest, BcconResultWithFaceNumbering )
         }
     }
 
-    // Step 3: Generate BORDNUM result
-    RigEclipseResultTools::generateBorderResult( testCase.get(), customVisibility, "BORDNUM" );
+    // Step 3: Generate BORDNUM result (returns vector)
+    auto borderResult = RigEclipseResultTools::generateBorderResult( testCase.get(), customVisibility );
 
-    // Verify BORDNUM was created
-    auto resultsData = testCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    ASSERT_NE( resultsData, nullptr );
+    ASSERT_FALSE( borderResult.empty() ) << "Border result is empty";
 
-    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BORDNUM" );
-    ASSERT_TRUE( resultsData->hasResultEntry( bordNumAddr ) ) << "BORDNUM result not created";
+    // Step 4: Generate BCCON result (returns vector)
+    auto bcconResult = RigEclipseResultTools::generateBcconResult( testCase.get(), borderResult, min, max );
 
-    // Step 4: Generate BCCON result
-    RigEclipseResultTools::generateBcconResult( testCase.get(), min, max );
-
-    // Verify BCCON was created
-    RigEclipseResultAddress bcconAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BCCON" );
-    ASSERT_TRUE( resultsData->hasResultEntry( bcconAddr ) ) << "BCCON result not created";
-
-    // Get BCCON and BORDNUM values
-    resultsData->ensureKnownResultLoaded( bcconAddr );
-    resultsData->ensureKnownResultLoaded( bordNumAddr );
-
-    auto bcconValues   = resultsData->cellScalarResults( bcconAddr, 0 );
-    auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
-
-    ASSERT_FALSE( bcconValues.empty() ) << "BCCON values are empty";
-    ASSERT_FALSE( bordNumValues.empty() ) << "BORDNUM values are empty";
+    ASSERT_FALSE( bcconResult.empty() ) << "BCCON result is empty";
 
     // Step 5: Verify BCCON values are correct
     int countI_minus = 0, countI_plus = 0;
@@ -316,8 +294,8 @@ TEST( RigEclipseResultToolsTest, BcconResultWithFaceNumbering )
             {
                 size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
 
-                int borderValue = static_cast<int>( bordNumValues[cellIndex] );
-                int bcconValue  = static_cast<int>( bcconValues[cellIndex] );
+                int borderValue = borderResult[cellIndex];
+                int bcconValue  = bcconResult[cellIndex];
 
                 // Only check border cells
                 if ( borderValue == RigEclipseResultTools::BorderType::BORDER_CELL )

@@ -460,33 +460,24 @@ TEST( RigEclipseCaseDataToolsTest, GenerateBorderResultFromIjkBounds )
     auto visibility = RigEclipseCaseDataTools::createVisibilityFromIjkBounds( eclipseCase.p(), minIjk, maxIjk );
     ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
 
-    // Generate border result using the custom visibility
-    RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility, RiaResultNames::bordnum() );
+    // Generate border result using the custom visibility (returns vector)
+    auto borderResult = RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility );
 
-    // Verify that the result was created
-    auto resultsData = resultCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    ASSERT_NE( resultsData, nullptr ) << "Results data should not be null";
-
-    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, RiaResultNames::bordnum() );
-    ASSERT_TRUE( resultsData->hasResultEntry( resultAddress ) ) << "BORDNUM result should exist";
-
-    // Get the result data and verify it contains expected values
-    const std::vector<double>& resultVector = resultsData->cellScalarResults( resultAddress, 0 );
-    ASSERT_GT( resultVector.size(), 0 ) << "Result vector should not be empty";
+    // Verify that the result was generated
+    ASSERT_GT( borderResult.size(), 0 ) << "Border result should not be empty";
 
     // Count cells with different values
     int invisibleCells = 0;
     int borderCells    = 0;
     int interiorCells  = 0;
 
-    for ( double value : resultVector )
+    for ( int value : borderResult )
     {
-        int intValue = static_cast<int>( value );
-        if ( intValue == RigEclipseResultTools::BorderType::INVISIBLE_CELL )
+        if ( value == RigEclipseResultTools::BorderType::INVISIBLE_CELL )
             invisibleCells++;
-        else if ( intValue == RigEclipseResultTools::BorderType::BORDER_CELL )
+        else if ( value == RigEclipseResultTools::BorderType::BORDER_CELL )
             borderCells++;
-        else if ( intValue == RigEclipseResultTools::BorderType::INTERIOR_CELL )
+        else if ( value == RigEclipseResultTools::BorderType::INTERIOR_CELL )
             interiorCells++;
     }
 
@@ -495,9 +486,9 @@ TEST( RigEclipseCaseDataToolsTest, GenerateBorderResultFromIjkBounds )
     ASSERT_GT( borderCells, 0 ) << "Should have border cells (value 1)";
     ASSERT_GE( interiorCells, 0 ) << "May have interior cells (value 2)";
 
-    // The total should match the number of active cells
+    // The total should match the result vector size
     int totalCells = invisibleCells + borderCells + interiorCells;
-    ASSERT_EQ( totalCells, static_cast<int>( resultVector.size() ) ) << "Total should match result vector size";
+    ASSERT_EQ( totalCells, static_cast<int>( borderResult.size() ) ) << "Total should match result vector size";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -532,42 +523,27 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
 
     // Generate border result first (required for OPERNUM generation)
-    RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility, RiaResultNames::bordnum() );
+    auto borderResult = RigEclipseResultTools::generateBorderResult( resultCase.get(), visibility );
 
-    // Verify BORDNUM was created
-    auto resultsData = resultCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    ASSERT_NE( resultsData, nullptr ) << "Results data should not be null";
+    // Verify border result was generated
+    ASSERT_GT( borderResult.size(), 0 ) << "Border result should not be empty";
 
-    RigEclipseResultAddress bordnumAddress( RiaDefines::ResultCatType::GENERATED,
-                                            RiaDefines::ResultDataType::INTEGER,
-                                            RiaResultNames::bordnum() );
-    ASSERT_TRUE( resultsData->hasResultEntry( bordnumAddress ) ) << "BORDNUM result should exist";
+    // Test case 1: Generate OPERNUM with automatic border cell value (no existing OPERNUM, should get 2)
+    auto opernumResult = RigEclipseResultTools::generateOperNumResult( resultCase.get(), borderResult );
 
-    // Test case 1: Generate OPERNUM with automatic border cell value (no existing OPERNUM, should get 1)
-    RigEclipseResultTools::generateOperNumResult( resultCase.get() );
-
-    // Verify OPERNUM was created
-    RigEclipseResultAddress opernumAddress( RiaDefines::ResultCatType::GENERATED,
-                                            RiaDefines::ResultDataType::INTEGER,
-                                            RiaResultNames::opernum() );
-    ASSERT_TRUE( resultsData->hasResultEntry( opernumAddress ) ) << "OPERNUM result should exist";
-
-    // Get the result data
-    const std::vector<double>& bordnumVector = resultsData->cellScalarResults( bordnumAddress, 0 );
-    const std::vector<double>& opernumVector = resultsData->cellScalarResults( opernumAddress, 0 );
-
-    ASSERT_EQ( bordnumVector.size(), opernumVector.size() ) << "BORDNUM and OPERNUM should have same size";
-    ASSERT_GT( opernumVector.size(), 0 ) << "OPERNUM vector should not be empty";
+    // Verify OPERNUM was generated
+    ASSERT_EQ( borderResult.size(), opernumResult.size() ) << "BORDNUM and OPERNUM should have same size";
+    ASSERT_GT( opernumResult.size(), 0 ) << "OPERNUM vector should not be empty";
 
     // Count cells with different values and verify the logic
-    int borderCellsWithOperValue = 0; // BORDNUM=1 cells that should get OPERNUM=1 (max 0 + 1)
-    int defaultOperCells         = 0; // BORDNUM!=1 cells that should get OPERNUM=0
+    int borderCellsWithOperValue = 0; // BORDNUM=1 cells that should get OPERNUM=2 (max 0 + 1, then default 2)
+    int defaultOperCells         = 0; // BORDNUM!=1 cells that should get OPERNUM=1
     int borderCellsTotal         = 0; // Total BORDNUM=1 cells
 
-    for ( size_t i = 0; i < bordnumVector.size(); ++i )
+    for ( size_t i = 0; i < borderResult.size(); ++i )
     {
-        int bordnumValue = static_cast<int>( bordnumVector[i] );
-        int opernumValue = static_cast<int>( opernumVector[i] );
+        int bordnumValue = borderResult[i];
+        int opernumValue = opernumResult[i];
 
         if ( bordnumValue == RigEclipseResultTools::BorderType::BORDER_CELL )
         {
@@ -610,19 +586,16 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     ASSERT_EQ( maxOperValue, 15 ) << "Max OPERNUM value should be 15";
 
     // Now generate OPERNUM again - should use max value + 1 = 16 for border cells
-    RigEclipseResultTools::generateOperNumResult( resultCase.get() );
-
-    // Get updated result
-    const std::vector<double>& updatedOpernumVector = resultsData->cellScalarResults( opernumAddress, 0 );
+    auto updatedOpernumResult = RigEclipseResultTools::generateOperNumResult( resultCase.get(), borderResult );
 
     // Verify the behavior
     int preservedValues = 0;
     int modifiedValues  = 0;
 
-    for ( size_t i = 0; i < bordnumVector.size(); ++i )
+    for ( size_t i = 0; i < borderResult.size(); ++i )
     {
-        int bordnumValue = static_cast<int>( bordnumVector[i] );
-        int opernumValue = static_cast<int>( updatedOpernumVector[i] );
+        int bordnumValue = borderResult[i];
+        int opernumValue = updatedOpernumResult[i];
 
         if ( bordnumValue == RigEclipseResultTools::BorderType::BORDER_CELL )
         {
@@ -647,5 +620,5 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
 
     // Total should match vector size
     int totalChecked = modifiedValues + preservedValues;
-    ASSERT_EQ( totalChecked, static_cast<int>( updatedOpernumVector.size() ) ) << "Should check all cells";
+    ASSERT_EQ( totalChecked, static_cast<int>( updatedOpernumResult.size() ) ) << "Should check all cells";
 }

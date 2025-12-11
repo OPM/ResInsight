@@ -83,8 +83,10 @@ private:
     static std::expected<void, QString>
         updateWelldimsKeyword( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
-    static std::expected<void, QString>
-        addBorderBoundaryConditions( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+    static std::expected<void, QString> addBorderBoundaryConditions( RimEclipseCase*                   eclipseCase,
+                                                                     const RigSimulationInputSettings& settings,
+                                                                     cvf::ref<cvf::UByteArray>         visibility,
+                                                                     RifOpmFlowDeckFile&               deckFile );
 
     static std::expected<void, QString>
         replaceEqualsKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
@@ -113,6 +115,7 @@ private:
     static std::expected<void, QString> addOperNumRegionAndOperater( RimEclipseCase*                   eclipseCase,
                                                                      const RigSimulationInputSettings& settings,
                                                                      RifOpmFlowDeckFile&               deckFile,
+                                                                     const std::vector<int>&           operNumResult,
                                                                      int                               operNumRegion,
                                                                      double                            porvMultiplier );
 

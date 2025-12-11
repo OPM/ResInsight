@@ -46,16 +46,21 @@ struct BorderCellFace
 
 void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& intValues );
 
-void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility, const QString& resultName = "BORDER" );
+std::vector<int> generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility );
 
-int generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue = -1 );
+std::vector<int> generateOperNumResult( RimEclipseCase* eclipseCase, const std::vector<int>& borderResult, int borderCellValue = -1 );
 
 int findMaxOperNumValue( RimEclipseCase* eclipseCase );
 
 int findMaxBcconValue( RimEclipseCase* eclipseCase );
 
-void generateBcconResult( RimEclipseCase* eclipseCase, const caf::VecIjk0& min, const caf::VecIjk0& max );
+std::vector<int> generateBcconResult( RimEclipseCase*        eclipseCase,
+                                      const std::vector<int>& borderResult,
+                                      const caf::VecIjk0&     min,
+                                      const caf::VecIjk0&     max );
 
-std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase );
+std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase*         eclipseCase,
+                                                      const std::vector<int>& borderResult,
+                                                      const std::vector<int>& bcconResult );
 
 } // namespace RigEclipseResultTools

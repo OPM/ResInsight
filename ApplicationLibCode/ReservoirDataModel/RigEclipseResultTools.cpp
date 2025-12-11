@@ -107,9 +107,9 @@ void createResultVector( RimEclipseCase& eclipseCase, const QString& resultName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility, const QString& resultName )
+std::vector<int> generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray> customVisibility )
 {
-    if ( eclipseCase == nullptr || customVisibility.isNull() ) return;
+    if ( eclipseCase == nullptr || customVisibility.isNull() ) return {};
 
     auto activeReservoirCellIdxs =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
@@ -147,17 +147,15 @@ void generateBorderResult( RimEclipseCase* eclipseCase, cvf::ref<cvf::UByteArray
         }
     }
 
-    RigEclipseResultTools::createResultVector( *eclipseCase, resultName, result );
-
-    eclipseCase->updateConnectedEditors();
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
+std::vector<int> generateOperNumResult( RimEclipseCase* eclipseCase, const std::vector<int>& borderResult, int borderCellValue )
 {
-    if ( eclipseCase == nullptr ) return 0;
+    if ( eclipseCase == nullptr ) return {};
 
     // Auto-determine border cell value if not specified
     if ( borderCellValue == -1 )
@@ -211,32 +209,21 @@ int generateOperNumResult( RimEclipseCase* eclipseCase, int borderCellValue )
         borderCellValue = 2;
     }
 
-    // Check if BORDNUM exists to modify border cells
-    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, RiaResultNames::bordnum() );
-    if ( resultsData->hasResultEntry( bordNumAddr ) )
+    if ( !borderResult.empty() )
     {
-        resultsData->ensureKnownResultLoaded( bordNumAddr );
-        auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
-        if ( !bordNumValues.empty() )
-        {
-            result.resize( bordNumValues.size(), 1 );
+        result.resize( borderResult.size(), 1 );
 
-            for ( auto activeCellIdx : activeReservoirCellIdxs )
+        for ( auto activeCellIdx : activeReservoirCellIdxs )
+        {
+            // If BORDNUM = 1 (BORDER_CELL), assign the border cell value
+            if ( borderResult[activeCellIdx.value()] == BorderType::BORDER_CELL )
             {
-                // If BORDNUM = 1 (BORDER_CELL), assign the border cell value
-                if ( static_cast<int>( bordNumValues[activeCellIdx.value()] ) == BorderType::BORDER_CELL )
-                {
-                    result[activeCellIdx.value()] = borderCellValue;
-                }
+                result[activeCellIdx.value()] = borderCellValue;
             }
         }
     }
 
-    RigEclipseResultTools::createResultVector( *eclipseCase, RiaResultNames::opernum(), result );
-
-    eclipseCase->updateConnectedEditors();
-
-    return borderCellValue;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,27 +249,21 @@ int findMaxBcconValue( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void generateBcconResult( RimEclipseCase* eclipseCase, const caf::VecIjk0& min, const caf::VecIjk0& max )
+std::vector<int> generateBcconResult( RimEclipseCase*         eclipseCase,
+                                      const std::vector<int>& borderResult,
+                                      const caf::VecIjk0&     min,
+                                      const caf::VecIjk0&     max )
 {
-    if ( eclipseCase == nullptr ) return;
-
-    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    if ( !resultsData ) return;
+    if ( eclipseCase == nullptr ) return {};
 
     auto grid = eclipseCase->eclipseCaseData()->mainGrid();
-    if ( !grid ) return;
+    if ( !grid ) return {};
 
-    // Check if BORDNUM result exists
-    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, RiaResultNames::bordnum() );
-    if ( !resultsData->hasResultEntry( bordNumAddr ) )
+    if ( borderResult.empty() )
     {
-        RiaLogging::warning( "BORDNUM result not found - cannot generate BCCON result" );
-        return;
+        RiaLogging::warning( "Border result is empty - cannot generate BCCON result" );
+        return {};
     }
-
-    resultsData->ensureKnownResultLoaded( bordNumAddr );
-    auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
-    if ( bordNumValues.empty() ) return;
 
     auto activeReservoirCellIdxs =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
@@ -295,7 +276,7 @@ void generateBcconResult( RimEclipseCase* eclipseCase, const caf::VecIjk0& min, 
     for ( auto activeCellIdx : activeReservoirCellIdxs )
     {
         // Check if this cell is a border cell
-        int borderValue = static_cast<int>( bordNumValues[activeCellIdx.value()] );
+        int borderValue = borderResult[activeCellIdx.value()];
         if ( borderValue != BorderType::BORDER_CELL ) continue;
 
         // Get IJK indices for this cell
@@ -334,38 +315,22 @@ void generateBcconResult( RimEclipseCase* eclipseCase, const caf::VecIjk0& min, 
         result[activeCellIdx.value()] = bcconValue;
     }
 
-    RigEclipseResultTools::createResultVector( *eclipseCase, "BCCON", result );
-
-    eclipseCase->updateConnectedEditors();
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase )
+std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase*         eclipseCase,
+                                                      const std::vector<int>& borderResult,
+                                                      const std::vector<int>& bcconResult )
 {
     if ( eclipseCase == nullptr ) return {};
-
-    auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    if ( !resultsData ) return {};
 
     auto grid = eclipseCase->eclipseCaseData()->mainGrid();
     if ( !grid ) return {};
 
-    // Check if BORDNUM result exists
-    RigEclipseResultAddress bordNumAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, RiaResultNames::bordnum() );
-    if ( !resultsData->hasResultEntry( bordNumAddr ) ) return {}; // BORDNUM not generated yet
-
-    resultsData->ensureKnownResultLoaded( bordNumAddr );
-    auto bordNumValues = resultsData->cellScalarResults( bordNumAddr, 0 );
-    if ( bordNumValues.empty() ) return {};
-
-    // Check if BCCON result exists to get boundary condition values
-    RigEclipseResultAddress bcconAddr( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, "BCCON" );
-    if ( !resultsData->hasResultEntry( bcconAddr ) ) return {};
-
-    resultsData->ensureKnownResultLoaded( bcconAddr );
-    std::vector<double> bcconValues = resultsData->cellScalarResults( bcconAddr, 0 );
+    if ( borderResult.empty() || bcconResult.empty() ) return {};
 
     auto activeReservoirCellIdxs =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
@@ -376,7 +341,7 @@ std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase
     for ( auto activeCellIdx : activeReservoirCellIdxs )
     {
         // Check if this cell is a border cell
-        int borderValue = static_cast<int>( bordNumValues[activeCellIdx.value()] );
+        int borderValue = borderResult[activeCellIdx.value()];
         if ( borderValue != BorderType::BORDER_CELL ) continue;
 
         // Get IJK indices for this cell
@@ -403,11 +368,11 @@ std::vector<BorderCellFace> generateBorderCellFaces( RimEclipseCase* eclipseCase
                 if ( it == activeReservoirCellIdxs.end() ) continue; // Neighbor not active
 
                 // Check if neighbor is an interior cell
-                int neighborBorderValue = static_cast<int>( bordNumValues[neighborReservoirIdx] );
+                int neighborBorderValue = borderResult[neighborReservoirIdx];
                 if ( neighborBorderValue == BorderType::INTERIOR_CELL )
                 {
                     // Get boundary condition value from BCCON grid property
-                    int boundaryCondition = static_cast<int>( bcconValues[activeCellIdx.value()] );
+                    int boundaryCondition = bcconResult[activeCellIdx.value()];
                     if ( boundaryCondition > 0 )
                     {
                         // Add this face to the result

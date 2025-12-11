@@ -20,9 +20,6 @@
 
 #include "RiaLogging.h"
 
-#include "RiaResultNames.h"
-#include "RigSimulationInputSettings.h"
-
 #include "RifEclipseInputFileTools.h"
 #include "RifOpmDeckTools.h"
 #include "RifOpmFlowDeckFile.h"
@@ -35,6 +32,7 @@
 #include "RigEclipseResultTools.h"
 #include "RigGridExportAdapter.h"
 #include "RigResdataGridConverter.h"
+#include "RigSimulationInputSettings.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
@@ -82,28 +80,6 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
-    // Generate BORDNUM result based on visibility
-    if ( visibility && visibility->size() > 0 )
-    {
-        RigEclipseResultTools::generateBorderResult( &eclipseCase, visibility, RiaResultNames::bordnum() );
-        if ( settings.boundaryCondition() == RiaModelExportDefines::BoundaryCondition::BCCON_BCPROP )
-        {
-            // Generate BCCON result to assign values 1-6 based on which face of the box the border cells are on
-            RigEclipseResultTools::generateBcconResult( &eclipseCase, settings.min(), settings.max() );
-        }
-        else if ( settings.boundaryCondition() == RiaModelExportDefines::BoundaryCondition::OPERNUM_OPERATER )
-        {
-            // Generate OPERNUM result based on BORDNUM (border cells get max existing OPERNUM + 1)
-            int operNumRegion = RigEclipseResultTools::generateOperNumResult( &eclipseCase );
-
-            if ( auto result = addOperNumRegionAndOperater( &eclipseCase, settings, deckFile, operNumRegion, settings.porvMultiplier() );
-                 !result )
-            {
-                return result;
-            }
-        }
-    }
-
     if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
@@ -144,7 +120,7 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
-    if ( auto result = addBorderBoundaryConditions( &eclipseCase, settings, deckFile ); !result )
+    if ( auto result = addBorderBoundaryConditions( &eclipseCase, settings, visibility, deckFile ); !result )
     {
         return result;
     }
@@ -311,59 +287,115 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions( RimEclipseCase*                   eclipseCase,
                                                                                   const RigSimulationInputSettings& settings,
+                                                                                  cvf::ref<cvf::UByteArray>         visibility,
                                                                                   RifOpmFlowDeckFile&               deckFile )
 {
-    // Generate border cell faces
-    auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( eclipseCase );
-
-    if ( !borderCellFaces.empty() )
+    // Return early if no visibility
+    if ( visibility.isNull() || visibility->size() == 0 )
     {
-        // Transform border cell face coordinates to sector-relative coordinates
-        for ( auto& face : borderCellFaces )
-        {
-            auto transformResult =
-                RigGridExportAdapter::transformIjkToSectorCoordinates( face.ijk, settings.min(), settings.max(), settings.refinement(), true );
+        RiaLogging::info( "No visibility provided - skipping boundary conditions" );
+        return {};
+    }
 
-            if ( !transformResult )
+    // Generate border result (BORDNUM) in memory
+    auto borderResult = RigEclipseResultTools::generateBorderResult( eclipseCase, visibility );
+
+    if ( borderResult.empty() )
+    {
+        RiaLogging::warning( "Failed to generate border result - skipping boundary conditions" );
+        return {};
+    }
+
+    // Handle boundary condition based on settings
+    if ( settings.boundaryCondition() == RiaModelExportDefines::BoundaryCondition::BCCON_BCPROP )
+    {
+        // Generate BCCON result in memory
+        auto bcconResult = RigEclipseResultTools::generateBcconResult( eclipseCase, borderResult, settings.min(), settings.max() );
+
+        if ( bcconResult.empty() )
+        {
+            RiaLogging::warning( "Failed to generate BCCON result - skipping boundary conditions" );
+            return {};
+        }
+
+        // Generate border cell faces using in-memory results
+        auto borderCellFaces = RigEclipseResultTools::generateBorderCellFaces( eclipseCase, borderResult, bcconResult );
+
+        if ( !borderCellFaces.empty() )
+        {
+            // Transform border cell face coordinates to sector-relative coordinates
+            for ( auto& face : borderCellFaces )
             {
-                RiaLogging::warning( QString( "Failed to transform border cell face at (%1, %2, %3): %4" )
-                                         .arg( face.ijk.x() )
-                                         .arg( face.ijk.y() )
-                                         .arg( face.ijk.z() )
-                                         .arg( transformResult.error() ) );
-                continue;
+                auto transformResult =
+                    RigGridExportAdapter::transformIjkToSectorCoordinates( face.ijk, settings.min(), settings.max(), settings.refinement(), true );
+
+                if ( !transformResult )
+                {
+                    RiaLogging::warning( QString( "Failed to transform border cell face at (%1, %2, %3): %4" )
+                                             .arg( face.ijk.x() )
+                                             .arg( face.ijk.y() )
+                                             .arg( face.ijk.z() )
+                                             .arg( transformResult.error() ) );
+                    continue;
+                }
+
+                // Update the IJK coordinates to sector-relative (1-based Eclipse coordinates)
+                // Note: RigGridExportAdapter::transformIjkToSectorCoordinates returns 1-based coordinates, but we need to convert back to
+                // 0-based for the BorderCellFace struct
+                face.ijk = transformResult->toZeroBased();
             }
 
-            // Update the IJK coordinates to sector-relative (1-based Eclipse coordinates)
-            // Note: RigGridExportAdapter::transformIjkToSectorCoordinates returns 1-based coordinates, but we need to convert back to
-            // 0-based for the BorderCellFace struct
-            face.ijk = transformResult->toZeroBased();
+            // Create BCCON keyword using the factory
+            Opm::DeckKeyword bcconKw = RimKeywordFactory::bcconKeyword( borderCellFaces );
+
+            // Replace BCCON keyword in GRID section
+            if ( !deckFile.replaceKeyword( "GRID", bcconKw ) )
+            {
+                return std::unexpected( "Failed to replace BCCON keyword in deck file" );
+            }
+
+            // Build BCPROP records from the settings configuration
+            std::vector<Opm::DeckRecord> bcpropRecords = settings.bcpropKeywords();
+
+            // Create BCPROP keyword using the factory
+            Opm::DeckKeyword bcpropKw = RimKeywordFactory::bcpropKeyword( borderCellFaces, bcpropRecords );
+
+            // Replace BCPROP keyword in GRID section
+            if ( !deckFile.replaceKeyword( Opm::ParserKeywords::SCHEDULE::keywordName, bcpropKw ) )
+            {
+                return std::unexpected( "Failed to replace BCPROP keyword in deck file" );
+            }
         }
-
-        // Create BCCON keyword using the factory
-        Opm::DeckKeyword bcconKw = RimKeywordFactory::bcconKeyword( borderCellFaces );
-
-        // Replace BCCON keyword in GRID section
-        if ( !deckFile.replaceKeyword( "GRID", bcconKw ) )
+        else
         {
-            return std::unexpected( "Failed to replace BCCON keyword in deck file" );
-        }
-
-        // Build BCPROP records from the settings configuration
-        std::vector<Opm::DeckRecord> bcpropRecords = settings.bcpropKeywords();
-
-        // Create BCPROP keyword using the factory
-        Opm::DeckKeyword bcpropKw = RimKeywordFactory::bcpropKeyword( borderCellFaces, bcpropRecords );
-
-        // Replace BCPROP keyword in GRID section
-        if ( !deckFile.replaceKeyword( Opm::ParserKeywords::SCHEDULE::keywordName, bcpropKw ) )
-        {
-            return std::unexpected( "Failed to replace BCPROP keyword in deck file" );
+            RiaLogging::warning( "No border cells found - skipping BCCON/BCPROP keyword generation" );
         }
     }
-    else
+    else if ( settings.boundaryCondition() == RiaModelExportDefines::BoundaryCondition::OPERNUM_OPERATER )
     {
-        RiaLogging::warning( "No border cells found - skipping BCCON/BCPROP keyword generation" );
+        // Generate OPERNUM result based on border result (border cells get max existing OPERNUM + 1)
+        auto operNumResult = RigEclipseResultTools::generateOperNumResult( eclipseCase, borderResult );
+
+        // Find the border cell value used
+        int operNumRegion = -1;
+        for ( size_t i = 0; i < operNumResult.size(); i++ )
+        {
+            if ( borderResult[i] == RigEclipseResultTools::BorderType::BORDER_CELL )
+            {
+                operNumRegion = operNumResult[i];
+                break;
+            }
+        }
+
+        if ( operNumRegion != -1 )
+        {
+            if ( auto result =
+                     addOperNumRegionAndOperater( eclipseCase, settings, deckFile, operNumResult, operNumRegion, settings.porvMultiplier() );
+                 !result )
+            {
+                return result;
+            }
+        }
     }
 
     return {};
@@ -1431,6 +1463,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
 std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater( RimEclipseCase*                   eclipseCase,
                                                                                   const RigSimulationInputSettings& settings,
                                                                                   RifOpmFlowDeckFile&               deckFile,
+                                                                                  const std::vector<int>&           operNumResult,
                                                                                   int                               operNumRegion,
                                                                                   double                            porvMultiplier )
 {
@@ -1483,33 +1516,56 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
             Opm::DeckKeyword newKw( ( Opm::ParserKeywords::OPERNUM() ) );
             deckFile.addKeyword( "GRID", newKw );
         }
+    }
 
-        // Try to extract keyword data
-        auto result = RifEclipseInputFileTools::extractKeywordData( eclipseCase->eclipseCaseData(),
-                                                                    "OPERNUM",
-                                                                    settings.min(),
-                                                                    settings.max(),
-                                                                    settings.refinement() );
-        if ( result )
+    // Export OPERNUM data for the sector (with refinement)
+    auto mainGrid    = eclipseCase->eclipseCaseData()->mainGrid();
+    auto activeCells = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    auto refinementV = settings.refinement();
+    auto min         = settings.min();
+    auto max         = settings.max();
+
+    std::vector<double> exportedData;
+    cvf::Vec3st         refinedMin( min.x() * refinementV.x(), min.y() * refinementV.y(), min.z() * refinementV.z() );
+    cvf::Vec3st refinedMax( ( max.x() + 1 ) * refinementV.x(), ( max.y() + 1 ) * refinementV.y(), ( max.z() + 1 ) * refinementV.z() );
+
+    for ( size_t k = refinedMin.z(); k < refinedMax.z(); ++k )
+    {
+        size_t mainK = k / refinementV.z();
+        for ( size_t j = refinedMin.y(); j < refinedMax.y(); ++j )
         {
-            // Replace keyword values in deck with extracted data
-            if ( deckFile.replaceKeywordData( "OPERNUM", result.value() ) )
+            size_t mainJ = j / refinementV.y();
+            for ( size_t i = refinedMin.x(); i < refinedMax.x(); ++i )
             {
-                RiaLogging::info( "Added replaced opernum value in existing position." );
-            }
-            else
-            {
-                return std::unexpected( "Unable to replace OPERNUM values" );
+                size_t mainI              = i / refinementV.x();
+                size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
+                size_t resIndex           = activeCells->cellResultIndex( reservoirCellIndex );
+
+                if ( resIndex != cvf::UNDEFINED_SIZE_T && reservoirCellIndex < operNumResult.size() )
+                {
+                    exportedData.push_back( static_cast<double>( operNumResult[reservoirCellIndex] ) );
+                }
+                else
+                {
+                    exportedData.push_back( 1.0 ); // Default value for inactive cells
+                }
             }
         }
-        else
-        {
-            return std::unexpected( "No OPERNUM result found." );
-        }
+    }
+
+    if ( exportedData.empty() )
+    {
+        return std::unexpected( "Failed to export OPERNUM data for sector" );
+    }
+
+    // Replace keyword values in deck with exported data
+    if ( deckFile.replaceKeywordData( "OPERNUM", exportedData ) )
+    {
+        RiaLogging::info( "Added replaced opernum value in existing position." );
     }
     else
     {
-        RiaLogging::info( "OPERNUM keyword already exists in deck, skipping INCLUDE" );
+        return std::unexpected( "Unable to replace OPERNUM values" );
     }
 
     // Create OPERATER keyword to multiply pore volume in border region
