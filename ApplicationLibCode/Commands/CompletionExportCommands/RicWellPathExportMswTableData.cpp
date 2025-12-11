@@ -974,6 +974,17 @@ void RicWellPathExportMswTableData::createValveCompletions( gsl::not_null<RicMsw
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Aggregates individual valve parameters from perforation intervals into segment-level "super"
+/// valves (ICDs or AICDs) for MSW export. Calculates weighted averages based on overlap with
+/// active reservoir cells.
+///
+/// Key steps:
+/// 1. Setup Phase: Creates accumulator objects (ICD or AICD) for each segment containing a super valve
+/// 2. First Pass: Calculates total perforation length overlapping with active cells for each valve
+/// 3. Second Pass: For each valve, calculates overlap with segments and accumulates parameters
+///    weighted by overlap length. Only considers overlaps with active cells.
+/// 4. Apply Phase: Applies accumulated weighted averages to super valve parameters
+/// 5. Label Update: Appends contributor valve names to super valve labels for documentation
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswTableData::assignValveContributionsToSuperICDsOrAICDs(

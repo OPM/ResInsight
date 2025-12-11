@@ -34,7 +34,12 @@ RicMswICDAccumulator::RicMswICDAccumulator( RicMswValve* valve, RiaDefines::Ecli
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Accumulates weighted ICD valve parameters based on the overlap between valve locations and
+/// perforation segments. Calculates area contributions weighted by overlap length for later
+/// aggregation into a "super" ICD valve.
 ///
+/// overlapLength               Length of overlap between valve and perforation segment
+/// perforationCompsegsLength   Total length of perforation COMPSEGS for weighting
 //--------------------------------------------------------------------------------------------------
 bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength )
 {
@@ -91,7 +96,18 @@ RicMswAICDAccumulator::RicMswAICDAccumulator( RicMswValve* valve, RiaDefines::Ec
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Accumulates weighted AICD (Autonomous Inflow Control Device) valve parameters based on the
+/// overlap between valve locations and perforation segments. Calculates length-weighted means
+/// of AICD parameters and flow scaling factors for later aggregation into a "super" AICD valve.
 ///
+/// Only processes open AICD devices with valid parameters. All AICD parameters (strength,
+/// exponents, viscosity function parameters, etc.) are accumulated using weighted means based
+/// on overlap length. Flow scaling factor is computed according to issue #6126:
+/// flowScalingFactor = 1 / (lengthFraction * aicdCount).
+///
+/// wellPathValve              The valve to process (must be AICD type with valid parameters)
+/// overlapLength              Length of overlap between valve and perforation segment
+/// perforationCompsegsLength  Total length of perforation COMPSEGS for weighting
 //--------------------------------------------------------------------------------------------------
 bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength )
 {
