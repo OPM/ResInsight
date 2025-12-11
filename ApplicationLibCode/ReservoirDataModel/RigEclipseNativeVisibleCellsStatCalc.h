@@ -56,6 +56,7 @@ private:
     template <typename StatisticsAccumulator>
     void traverseCells( StatisticsAccumulator& accumulator, size_t timeStepIndex )
     {
+        if ( !m_caseData ) return;
         if ( !m_caseData->hasResultEntry( m_resultAddress ) ) return;
         if ( m_caseData->timeStepCount( m_resultAddress ) == 0 ) return;
 

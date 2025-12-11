@@ -129,6 +129,8 @@ void RigEclipseNativeVisibleCellsStatCalc::uniqueValues( size_t timeStepIndex, s
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 {
+    if ( !m_caseData ) return 0;
+
     return m_caseData->timeStepCount( m_resultAddress );
 }
 
@@ -137,6 +139,8 @@ size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& result )
 {
+    if ( !m_caseData ) return;
+
     RigEclipseResultAddress mobPorvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName() );
 
     // For statistics result cases, the pore volume is not available, as
