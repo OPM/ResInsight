@@ -21,6 +21,7 @@
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
+#include <memory>
 #include <vector>
 
 class RigMainGrid;
@@ -33,7 +34,7 @@ public:
 
     void removeCase( RigEclipseCaseData* eclipseCase );
 
-    RigMainGrid* findEqualGrid( RigMainGrid* candidateGrid );
+    std::shared_ptr<RigMainGrid> findEqualGrid( RigMainGrid* candidateGrid );
 
     void clear();
 
@@ -46,10 +47,10 @@ private:
     class CaseToGridMap : public cvf::Object
     {
     public:
-        CaseToGridMap( RigEclipseCaseData* eclipseCase, RigMainGrid* mainGrid );
+        CaseToGridMap( RigEclipseCaseData* eclipseCase, std::shared_ptr<RigMainGrid> mainGrid );
 
-        RigEclipseCaseData* m_eclipseCase;
-        RigMainGrid*        m_mainGrid;
+        RigEclipseCaseData*          m_eclipseCase;
+        std::shared_ptr<RigMainGrid> m_mainGrid;
     };
 
 private:

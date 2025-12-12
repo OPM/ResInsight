@@ -28,6 +28,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <memory>
+
 class RigMainGrid;
 class RigSimWellData;
 class RimEclipseResultDefinition;
@@ -62,7 +64,7 @@ public:
     RimEclipseStatisticsCase();
     ~RimEclipseStatisticsCase() override;
 
-    void setMainGrid( RigMainGrid* mainGrid );
+    void setMainGrid( std::shared_ptr<RigMainGrid> mainGrid );
 
     void computeStatistics();
     bool hasComputedStatistics() const;

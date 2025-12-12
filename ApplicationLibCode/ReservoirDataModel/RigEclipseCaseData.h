@@ -31,6 +31,7 @@
 #include "cvfVector3.h"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -61,9 +62,11 @@ public:
 
     RimEclipseCase* ownerCase() const { return m_ownerCase; }
 
-    RigMainGrid*       mainGrid();
-    const RigMainGrid* mainGrid() const;
-    void               setMainGrid( RigMainGrid* mainGrid );
+    RigMainGrid*                         mainGrid();
+    const RigMainGrid*                   mainGrid() const;
+    std::shared_ptr<RigMainGrid>         mainGridShared() { return m_mainGrid; }
+    std::shared_ptr<const RigMainGrid>   mainGridShared() const { return m_mainGrid; }
+    void                                 setMainGrid( std::shared_ptr<RigMainGrid> mainGrid );
 
     void               allGrids( std::vector<RigGridBase*>* grids ); // To be removed
     void               allGrids( std::vector<const RigGridBase*>* grids ) const; // To be removed
@@ -134,8 +137,8 @@ private:
     const RigFormationNames* activeFormationNames() const;
 
 private:
-    cvf::ref<RigMainGrid> m_mainGrid;
-    RimEclipseCase*       m_ownerCase;
+    std::shared_ptr<RigMainGrid> m_mainGrid;
+    RimEclipseCase*              m_ownerCase;
 
     cvf::ref<RigActiveCellInfo> m_activeCellInfo;
     cvf::ref<RigActiveCellInfo> m_fractureActiveCellInfo;

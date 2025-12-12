@@ -28,6 +28,8 @@
 
 #include "cvfObject.h"
 
+#include <memory>
+
 class RigActiveCellInfo;
 class RigMainGrid;
 
@@ -64,7 +66,9 @@ public:
     RimEclipseCase* mainCase();
     void            loadMainCaseAndActiveCellInfo();
 
-    RigMainGrid* mainGrid();
+    RigMainGrid*                       mainGrid();
+    std::shared_ptr<RigMainGrid>       mainGridShared() { return m_mainGrid; }
+    std::shared_ptr<const RigMainGrid> mainGridShared() const { return m_mainGrid; }
 
     RigActiveCellInfo* unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
     void               computeUnionOfActiveCells();
@@ -82,7 +86,7 @@ private:
     RimEclipseStatisticsCase* createStatisticsCase( bool selectDefaultResults );
 
 private:
-    RigMainGrid* m_mainGrid;
+    std::shared_ptr<RigMainGrid> m_mainGrid;
 
     cvf::ref<RigActiveCellInfo> m_unionOfMatrixActiveCells;
     cvf::ref<RigActiveCellInfo> m_unionOfFractureActiveCells;
