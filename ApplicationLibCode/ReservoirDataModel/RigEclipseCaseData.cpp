@@ -47,7 +47,7 @@
 RigEclipseCaseData::RigEclipseCaseData( RimEclipseCase* ownerCase )
     : m_hasParsedDeckForEquilData( false )
 {
-    m_mainGrid  = new RigMainGrid();
+    m_mainGrid  = std::make_shared<RigMainGrid>();
     m_ownerCase = ownerCase;
 
     m_matrixModelResults   = new RigCaseCellResultsData( this, RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -74,7 +74,7 @@ RigEclipseCaseData::~RigEclipseCaseData()
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RigEclipseCaseData::mainGrid()
 {
-    return m_mainGrid.p();
+    return m_mainGrid.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,18 +82,18 @@ RigMainGrid* RigEclipseCaseData::mainGrid()
 //--------------------------------------------------------------------------------------------------
 const RigMainGrid* RigEclipseCaseData::mainGrid() const
 {
-    return m_mainGrid.p();
+    return m_mainGrid.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setMainGrid( RigMainGrid* mainGrid )
+void RigEclipseCaseData::setMainGrid( std::shared_ptr<RigMainGrid> mainGrid )
 {
     m_mainGrid = mainGrid;
 
-    m_matrixModelResults->setMainGrid( m_mainGrid.p() );
-    m_fractureModelResults->setMainGrid( m_mainGrid.p() );
+    m_matrixModelResults->setMainGrid( m_mainGrid.get() );
+    m_fractureModelResults->setMainGrid( m_mainGrid.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void RigEclipseCaseData::allGrids( std::vector<RigGridBase*>* grids )
 {
     CVF_ASSERT( grids );
 
-    if ( m_mainGrid.isNull() )
+    if ( !m_mainGrid )
     {
         return;
     }
@@ -122,7 +122,7 @@ void RigEclipseCaseData::allGrids( std::vector<const RigGridBase*>* grids ) cons
 {
     CVF_ASSERT( grids );
 
-    if ( m_mainGrid.isNull() )
+    if ( !m_mainGrid )
     {
         return;
     }
@@ -139,7 +139,7 @@ void RigEclipseCaseData::allGrids( std::vector<const RigGridBase*>* grids ) cons
 //--------------------------------------------------------------------------------------------------
 const RigGridBase* RigEclipseCaseData::grid( size_t index ) const
 {
-    CVF_ASSERT( m_mainGrid.notNull() );
+    CVF_ASSERT( m_mainGrid != nullptr );
     return m_mainGrid->gridByIndex( index );
 }
 
@@ -148,7 +148,7 @@ const RigGridBase* RigEclipseCaseData::grid( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigEclipseCaseData::grid( size_t index )
 {
-    CVF_ASSERT( m_mainGrid.notNull() );
+    CVF_ASSERT( m_mainGrid != nullptr );
     return m_mainGrid->gridByIndex( index );
 }
 
@@ -157,14 +157,14 @@ RigGridBase* RigEclipseCaseData::grid( size_t index )
 //--------------------------------------------------------------------------------------------------
 const RigGridBase* RigEclipseCaseData::grid( const QString& gridName ) const
 {
-    if ( m_mainGrid.isNull() )
+    if ( !m_mainGrid )
     {
         return nullptr;
     }
 
     if ( gridName.isEmpty() )
     {
-        return m_mainGrid.p();
+        return m_mainGrid.get();
     }
 
     size_t i;
@@ -181,7 +181,7 @@ const RigGridBase* RigEclipseCaseData::grid( const QString& gridName ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseCaseData::gridCount() const
 {
-    CVF_ASSERT( m_mainGrid.notNull() );
+    CVF_ASSERT( m_mainGrid != nullptr );
     return m_mainGrid->gridCount();
 }
 
@@ -426,7 +426,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::computeActiveCellIJKBBox()
 {
-    if ( m_mainGrid.notNull() && m_activeCellInfo.notNull() && m_fractureActiveCellInfo.notNull() )
+    if ( m_mainGrid != nullptr && m_activeCellInfo.notNull() && m_fractureActiveCellInfo.notNull() )
     {
         CellRangeBB matrixModelActiveBB;
         CellRangeBB fractureModelActiveBB;
@@ -641,7 +641,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
         return;
     }
 
-    if ( m_mainGrid.isNull() )
+    if ( !m_mainGrid )
     {
         cvf::BoundingBox bb;
         m_activeCellInfo->setGeometryBoundingBox( bb );
@@ -694,7 +694,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
         return;
     }
 
-    if ( m_mainGrid.isNull() )
+    if ( !m_mainGrid )
     {
         cvf::BoundingBox bb;
         m_activeCellInfo->setGeometryBoundingBox( bb );

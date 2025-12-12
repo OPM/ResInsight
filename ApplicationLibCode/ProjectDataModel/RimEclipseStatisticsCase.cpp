@@ -155,7 +155,7 @@ RimEclipseStatisticsCase::~RimEclipseStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::setMainGrid( RigMainGrid* mainGrid )
+void RimEclipseStatisticsCase::setMainGrid( std::shared_ptr<RigMainGrid> mainGrid )
 {
     CVF_ASSERT( mainGrid );
     CVF_ASSERT( eclipseCaseData() );
@@ -177,9 +177,7 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
     RimIdenticalGridCaseGroup* gridCaseGroup = parentStatisticsCaseCollection()->parentCaseGroup();
     CVF_ASSERT( gridCaseGroup );
 
-    RigMainGrid* mainGrid = gridCaseGroup->mainGrid();
-
-    eclipseCase->setMainGrid( mainGrid );
+    eclipseCase->setMainGrid( gridCaseGroup->mainGridShared() );
 
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                     gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) );

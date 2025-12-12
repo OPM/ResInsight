@@ -24,27 +24,29 @@
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
 
+#include <memory>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RigGridManager, BasicTest )
 {
-    cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
+    auto mainGridA = std::make_shared<RigMainGrid>();
 
     cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( nullptr );
-    eclipseCase->setMainGrid( mainGridA.p() );
+    eclipseCase->setMainGrid( mainGridA );
 
-    EXPECT_EQ( mainGridA->refCount(), 2 );
+    EXPECT_EQ( mainGridA.use_count(), 2 );
 
     RigGridManager gridCollection;
     gridCollection.addCase( eclipseCase.p() );
-    EXPECT_EQ( mainGridA->refCount(), 2 );
+    EXPECT_EQ( mainGridA.use_count(), 3 );
 
-    cvf::ref<RigMainGrid> mainGridB = mainGridA;
-    EXPECT_EQ( mainGridA->refCount(), 3 );
+    auto mainGridB = mainGridA;
+    EXPECT_EQ( mainGridA.use_count(), 4 );
 
-    cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid( mainGridB.p() );
-    EXPECT_TRUE( existingGrid.notNull() );
+    auto existingGrid = gridCollection.findEqualGrid( mainGridB.get() );
+    EXPECT_TRUE( existingGrid != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,36 +54,36 @@ TEST( RigGridManager, BasicTest )
 //--------------------------------------------------------------------------------------------------
 TEST( RigGridManager, EqualTests )
 {
-    cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
+    auto mainGridA = std::make_shared<RigMainGrid>();
     mainGridA->nodes().push_back( cvf::Vec3d( 0, 0, 0 ) );
     mainGridA->nodes().push_back( cvf::Vec3d( 0, 0, 1 ) );
     mainGridA->nodes().push_back( cvf::Vec3d( 0, 0, 2 ) );
 
     cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( nullptr );
-    eclipseCase->setMainGrid( mainGridA.p() );
+    eclipseCase->setMainGrid( mainGridA );
 
     RigGridManager gridCollection;
     gridCollection.addCase( eclipseCase.p() );
 
-    cvf::ref<RigMainGrid> mainGridB    = new RigMainGrid;
-    cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid( mainGridB.p() );
-    EXPECT_TRUE( existingGrid.isNull() );
+    auto mainGridB    = std::make_shared<RigMainGrid>();
+    auto existingGrid = gridCollection.findEqualGrid( mainGridB.get() );
+    EXPECT_TRUE( existingGrid == nullptr );
 
     mainGridB->nodes().push_back( cvf::Vec3d( 0, 0, 0 ) );
-    existingGrid = gridCollection.findEqualGrid( mainGridB.p() );
-    EXPECT_TRUE( existingGrid.isNull() );
+    existingGrid = gridCollection.findEqualGrid( mainGridB.get() );
+    EXPECT_TRUE( existingGrid == nullptr );
 
     // Insert nodes in opposite direction
     mainGridB->nodes().push_back( cvf::Vec3d( 0, 0, 2 ) );
     mainGridB->nodes().push_back( cvf::Vec3d( 0, 0, 1 ) );
-    existingGrid = gridCollection.findEqualGrid( mainGridB.p() );
-    EXPECT_TRUE( existingGrid.isNull() );
+    existingGrid = gridCollection.findEqualGrid( mainGridB.get() );
+    EXPECT_TRUE( existingGrid == nullptr );
 
     // Overwrite to match the node structure of mainGridA
     mainGridB->nodes()[1] = cvf::Vec3d( 0, 0, 1 );
     mainGridB->nodes()[2] = cvf::Vec3d( 0, 0, 2 );
-    existingGrid          = gridCollection.findEqualGrid( mainGridB.p() );
-    EXPECT_TRUE( existingGrid.notNull() );
+    existingGrid          = gridCollection.findEqualGrid( mainGridB.get() );
+    EXPECT_TRUE( existingGrid != nullptr );
 }
 
 /*

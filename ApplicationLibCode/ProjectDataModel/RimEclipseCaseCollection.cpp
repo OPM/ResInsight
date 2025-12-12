@@ -131,7 +131,7 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseC
     CVF_ASSERT( rimEclipseCase && rimEclipseCase->eclipseCaseData() );
     RigEclipseCaseData* rigEclipseCase = rimEclipseCase->eclipseCaseData();
 
-    RigMainGrid* equalGrid = m_gridCollection->findEqualGrid( rigEclipseCase->mainGrid() );
+    auto equalGrid = m_gridCollection->findEqualGrid( rigEclipseCase->mainGrid() );
 
     if ( equalGrid )
     {
@@ -145,12 +145,12 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseC
 
         rimEclipseCase->ensureFaultDataIsComputed();
 
-        equalGrid = rigEclipseCase->mainGrid();
+        equalGrid = rigEclipseCase->mainGridShared();
     }
 
     m_gridCollection->addCase( rigEclipseCase );
 
-    return equalGrid;
+    return equalGrid.get();
 }
 
 //--------------------------------------------------------------------------------------------------
