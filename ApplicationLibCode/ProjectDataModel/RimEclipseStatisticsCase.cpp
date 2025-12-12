@@ -26,6 +26,7 @@
 #include "RicNewViewFeature.h"
 #include "RicfCommandObject.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -180,9 +181,9 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
     eclipseCase->setMainGrid( gridCaseGroup->mainGridShared() );
 
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                    gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+                                    std::shared_ptr<RigActiveCellInfo>( gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) ) );
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                    gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
+                                    std::shared_ptr<RigActiveCellInfo>( gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) ) );
 
     setReservoirData( eclipseCase.p() );
 

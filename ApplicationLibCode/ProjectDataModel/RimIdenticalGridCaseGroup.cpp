@@ -77,8 +77,8 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 
     m_mainGrid = nullptr;
 
-    m_unionOfMatrixActiveCells   = new RigActiveCellInfo;
-    m_unionOfFractureActiveCells = new RigActiveCellInfo;
+    m_unionOfMatrixActiveCells   = std::make_shared<RigActiveCellInfo>();
+    m_unionOfFractureActiveCells = std::make_shared<RigActiveCellInfo>();
 
     setDeletable( true );
 }
@@ -471,11 +471,11 @@ RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells( RiaDefines::Po
 {
     if ( porosityType == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_unionOfMatrixActiveCells.p();
+        return m_unionOfMatrixActiveCells.get();
     }
     else
     {
-        return m_unionOfFractureActiveCells.p();
+        return m_unionOfFractureActiveCells.get();
     }
 }
 
