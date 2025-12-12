@@ -48,6 +48,18 @@ void RigStatisticsDataCache::clearAllStatistics()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::setUniqueCellScalarValues( const std::set<int>& uniqueValuesOverride )
+{
+    m_statsAllTimesteps.m_uniqueValues.assign( uniqueValuesOverride.begin(), uniqueValuesOverride.end() );
+    for ( size_t i = 0; i < m_statsPrTs.size(); i++ )
+    {
+        m_statsPrTs[i].m_uniqueValues = m_statsAllTimesteps.m_uniqueValues;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RigStatisticsDataCache::defaultNumBins()
 {
     return 100;

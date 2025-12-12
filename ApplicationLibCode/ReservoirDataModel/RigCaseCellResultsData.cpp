@@ -497,12 +497,16 @@ const RigActiveCellInfo* RigCaseCellResultsData::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::recalculateStatistics( const RigEclipseResultAddress& resVarAddr )
+void RigCaseCellResultsData::recalculateStatistics( const RigEclipseResultAddress& resVarAddr, const std::set<int>& uniqueValuesOverride )
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
     if ( scalarResultIndex < m_cellScalarResults.size() )
     {
         m_statisticsDataCache[scalarResultIndex]->clearAllStatistics();
+        if ( !uniqueValuesOverride.empty() )
+        {
+            m_statisticsDataCache[scalarResultIndex]->setUniqueCellScalarValues( uniqueValuesOverride );
+        }
     }
 }
 

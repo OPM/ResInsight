@@ -193,22 +193,21 @@ private:
 
     static std::optional<size_t> getActiveCellCount( RimEclipseCase* eclipseCase );
 
+    static void createDynamicResultEntry( RigCaseCellResultsData* resultsData, const RigEclipseResultAddress& address );
+
     static void
         createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& clusterIds, size_t timeStepIdx );
 
     static void
         createResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values, size_t timeStepIdx );
 
-    static void createResultVector( RimEclipseCase&         eclipseCase,
-                                    const QString&          resultName,
-                                    const std::vector<int>& clusterIds,
-                                    double                  value,
-                                    size_t                  timeStepIdx );
+    static void createStaticResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<int>& intValues );
+    static void createStaticResultVector( RimEclipseCase& eclipseCase, const QString& resultName, const std::vector<double>& values );
 
     static void createResultVectorIfDefined( RimEclipseCase&            eclipseCase,
                                              const QString&             resultName,
                                              const std::vector<double>& values,
-                                             size_t                     timeStepIdx );
+                                             int                        timeStepIdx = -1 );
 
     static double getValueForFace( const std::vector<double>& x,
                                    const std::vector<double>& y,
@@ -237,7 +236,8 @@ private:
     static void accumulateResultsForSingleCase( RimEclipseCase&                                      eclipseCase,
                                                 RimEclipseCase&                                      targetCase,
                                                 std::map<QString, std::vector<std::vector<double>>>& resultNamesAndSamples,
-                                                std::vector<int>&                                    occupancy );
+                                                std::vector<int>&                                    occupancy,
+                                                size_t                                               timeStepIdx );
 
     static cvf::BoundingBox computeBoundingBoxForResult( RimEclipseCase& eclipseCase, const QString& resultName, size_t timeStepIndex );
 

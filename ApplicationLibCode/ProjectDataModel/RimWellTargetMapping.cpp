@@ -219,7 +219,6 @@ void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                 {
                     RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
                 }
-                // eclipseView->setCurrentTimeStepAndUpdate( m_timeStep() );
             }
         }
     }
@@ -577,7 +576,7 @@ std::vector<double> RimWellTargetMapping::getVisibilityFilter() const
     if ( !hasEnsembleParent )
     {
         auto fc = firstCase();
-        if ( m_filterView() && fc )
+        if ( m_filterView() && fc && fc->eclipseCaseData() )
         {
             cvf::ref<cvf::UByteArray> visibility = m_filterView->currentTotalCellVisibility();
 

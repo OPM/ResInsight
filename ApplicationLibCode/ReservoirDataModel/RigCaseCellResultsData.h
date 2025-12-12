@@ -81,7 +81,7 @@ public:
                                                                       std::vector<double>&    activeCellsResultsTempContainer );
     // Statistic values of the results
 
-    void recalculateStatistics( const RigEclipseResultAddress& resVarAddr );
+    void recalculateStatistics( const RigEclipseResultAddress& resVarAddr, const std::set<int>& uniqueValuesOverride = {} );
     void minMaxCellScalarValues( const RigEclipseResultAddress& resVarAddr, double& min, double& max );
     void minMaxCellScalarValues( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& min, double& max );
     void posNegClosestToZero( const RigEclipseResultAddress& resVarAddr, double& pos, double& neg );

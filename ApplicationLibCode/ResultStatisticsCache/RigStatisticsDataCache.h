@@ -63,6 +63,8 @@ public:
     void mobileVolumeWeightedMean( double& mean );
     void mobileVolumeWeightedMean( size_t timeStepIndex, double& mean );
 
+    void setUniqueCellScalarValues( const std::set<int>& uniqueValuesOverride );
+
 private:
     void computeHistogramStatisticsIfNeeded();
     void computeHistogramStatisticsIfNeeded( size_t timeStepIndex );
