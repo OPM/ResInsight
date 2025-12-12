@@ -88,6 +88,6 @@ private:
 private:
     std::shared_ptr<RigMainGrid> m_mainGrid;
 
-    cvf::ref<RigActiveCellInfo> m_unionOfMatrixActiveCells;
-    cvf::ref<RigActiveCellInfo> m_unionOfFractureActiveCells;
+    std::shared_ptr<RigActiveCellInfo> m_unionOfMatrixActiveCells;
+    std::shared_ptr<RigActiveCellInfo> m_unionOfFractureActiveCells;
 };
