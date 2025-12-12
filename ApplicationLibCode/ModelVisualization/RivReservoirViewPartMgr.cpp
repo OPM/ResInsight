@@ -266,8 +266,7 @@ void RivReservoirViewPartMgr::createGeometry( RivCellSetEnum geometryType )
     m_geometries[geometryType].clearAndSetReservoir( geometryType, m_reservoirView->eclipseCase(), m_reservoirView );
     m_geometries[geometryType].setTransform( m_scaleTransform.p() );
 
-    std::vector<RigGridBase*> grids;
-    res->allGrids( &grids );
+    auto grids = res->allGrids();
 
     for ( size_t i = 0; i < grids.size(); ++i )
     {
@@ -431,8 +430,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry( size_t
     m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir( PROPERTY_FILTERED, m_reservoirView->eclipseCase(), m_reservoirView );
     m_propFilteredGeometryFrames[frameIndex]->setTransform( m_scaleTransform.p() );
 
-    std::vector<RigGridBase*> grids;
-    res->allGrids( &grids );
+    auto grids = res->allGrids();
 
     bool hasActiveCellFilters = m_reservoirView->cellFilterCollection()->hasActiveFilters();
     bool hasVisibleWellCells  = m_reservoirView->wellCollection()->hasVisibleWellCells();
@@ -513,8 +511,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry( size_t frameIn
                                                                         m_reservoirView );
     m_propFilteredWellGeometryFrames[frameIndex]->setTransform( m_scaleTransform.p() );
 
-    std::vector<RigGridBase*> grids;
-    res->allGrids( &grids );
+    auto grids = res->allGrids();
 
     bool hasActiveCellFilters = m_reservoirView->cellFilterCollection()->hasActiveFilters();
     bool hasVisibleWellCells  = m_reservoirView->wellCollection()->hasVisibleWellCells();

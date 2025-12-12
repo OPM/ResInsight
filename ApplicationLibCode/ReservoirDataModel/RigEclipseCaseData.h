@@ -62,33 +62,33 @@ public:
 
     RimEclipseCase* ownerCase() const { return m_ownerCase; }
 
-    RigMainGrid*                         mainGrid();
-    const RigMainGrid*                   mainGrid() const;
-    std::shared_ptr<RigMainGrid>         mainGridShared() { return m_mainGrid; }
-    std::shared_ptr<const RigMainGrid>   mainGridShared() const { return m_mainGrid; }
-    void                                 setMainGrid( std::shared_ptr<RigMainGrid> mainGrid );
+    RigMainGrid*                       mainGrid();
+    const RigMainGrid*                 mainGrid() const;
+    std::shared_ptr<RigMainGrid>       mainGridShared() { return m_mainGrid; }
+    std::shared_ptr<const RigMainGrid> mainGridShared() const { return m_mainGrid; }
+    void                               setMainGrid( std::shared_ptr<RigMainGrid> mainGrid );
 
-    void               allGrids( std::vector<RigGridBase*>* grids ); // To be removed
-    void               allGrids( std::vector<const RigGridBase*>* grids ) const; // To be removed
-    const RigGridBase* grid( size_t index ) const;
-    RigGridBase*       grid( size_t index );
-    size_t             gridCount() const;
-    const RigGridBase* grid( const QString& gridName ) const;
+    [[nodiscard]] std::vector<RigGridBase*>       allGrids();
+    [[nodiscard]] std::vector<const RigGridBase*> allGrids() const;
+    const RigGridBase*                            grid( size_t index ) const;
+    RigGridBase*                                  grid( size_t index );
+    size_t                                        gridCount() const;
+    const RigGridBase*                            grid( const QString& gridName ) const;
 
-    RigCaseCellResultsData*                              results( RiaDefines::PorosityModelType porosityModel );
-    const RigCaseCellResultsData*                        results( RiaDefines::PorosityModelType porosityModel ) const;
-    std::shared_ptr<RigCaseCellResultsData>             resultsShared( RiaDefines::PorosityModelType porosityModel );
-    std::shared_ptr<const RigCaseCellResultsData>       resultsShared( RiaDefines::PorosityModelType porosityModel ) const;
-    const std::vector<double>*    resultValues( RiaDefines::PorosityModelType porosityModel,
-                                                RiaDefines::ResultCatType     type,
-                                                const QString&                resultName,
-                                                size_t                        timeStepIndex );
+    RigCaseCellResultsData*                       results( RiaDefines::PorosityModelType porosityModel );
+    const RigCaseCellResultsData*                 results( RiaDefines::PorosityModelType porosityModel ) const;
+    std::shared_ptr<RigCaseCellResultsData>       resultsShared( RiaDefines::PorosityModelType porosityModel );
+    std::shared_ptr<const RigCaseCellResultsData> resultsShared( RiaDefines::PorosityModelType porosityModel ) const;
+    const std::vector<double>*                    resultValues( RiaDefines::PorosityModelType porosityModel,
+                                                                RiaDefines::ResultCatType     type,
+                                                                const QString&                resultName,
+                                                                size_t                        timeStepIndex );
 
-    RigActiveCellInfo*                            activeCellInfo( RiaDefines::PorosityModelType porosityModel );
-    const RigActiveCellInfo*                      activeCellInfo( RiaDefines::PorosityModelType porosityModel ) const;
-    std::shared_ptr<RigActiveCellInfo>            activeCellInfoShared( RiaDefines::PorosityModelType porosityModel );
-    std::shared_ptr<const RigActiveCellInfo>      activeCellInfoShared( RiaDefines::PorosityModelType porosityModel ) const;
-    void                                          setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::shared_ptr<RigActiveCellInfo> activeCellInfo );
+    RigActiveCellInfo*                       activeCellInfo( RiaDefines::PorosityModelType porosityModel );
+    const RigActiveCellInfo*                 activeCellInfo( RiaDefines::PorosityModelType porosityModel ) const;
+    std::shared_ptr<RigActiveCellInfo>       activeCellInfoShared( RiaDefines::PorosityModelType porosityModel );
+    std::shared_ptr<const RigActiveCellInfo> activeCellInfoShared( RiaDefines::PorosityModelType porosityModel ) const;
+    void setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::shared_ptr<RigActiveCellInfo> activeCellInfo );
 
     bool hasFractureResults() const;
 
@@ -124,8 +124,8 @@ public:
         simulationWellBranches( const QString& simWellName, bool includeAllCellCenters, bool useAutoDetectionOfBranches ) const;
 
     void setVirtualPerforationTransmissibilities( std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilities );
-    const RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities() const;
-    std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilitiesShared();
+    const RigVirtualPerforationTransmissibilities*                 virtualPerforationTransmissibilities() const;
+    std::shared_ptr<RigVirtualPerforationTransmissibilities>       virtualPerforationTransmissibilitiesShared();
     std::shared_ptr<const RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilitiesShared() const;
 
     void clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
@@ -143,14 +143,14 @@ private:
     const RigFormationNames* activeFormationNames() const;
 
 private:
-    std::shared_ptr<RigMainGrid>        m_mainGrid;
-    RimEclipseCase*                     m_ownerCase;
+    std::shared_ptr<RigMainGrid> m_mainGrid;
+    RimEclipseCase*              m_ownerCase;
 
-    std::shared_ptr<RigActiveCellInfo>       m_activeCellInfo;
-    std::shared_ptr<RigActiveCellInfo>       m_fractureActiveCellInfo;
+    std::shared_ptr<RigActiveCellInfo> m_activeCellInfo;
+    std::shared_ptr<RigActiveCellInfo> m_fractureActiveCellInfo;
 
-    std::shared_ptr<RigCaseCellResultsData>  m_matrixModelResults;
-    std::shared_ptr<RigCaseCellResultsData>  m_fractureModelResults;
+    std::shared_ptr<RigCaseCellResultsData> m_matrixModelResults;
+    std::shared_ptr<RigCaseCellResultsData> m_fractureModelResults;
 
     std::shared_ptr<RigVirtualPerforationTransmissibilities> m_virtualPerforationTransmissibilities;
 

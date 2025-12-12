@@ -41,8 +41,7 @@ void RivReservoirPartMgr::clearAndSetReservoir( RivCellSetEnum cellSetType, RimE
     {
         RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-        std::vector<const RigGridBase*> grids;
-        eclipseCaseData->allGrids( &grids );
+        auto grids = eclipseCaseData->allGrids();
         for ( size_t i = 0; i < grids.size(); ++i )
         {
             m_allGrids.push_back( new RivGridPartMgr( cellSetType, eclipseCase, grids[i], i ) );
