@@ -5,43 +5,35 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
     <meta name="generator" content="Relearn 7.3.2+7b470298046df2c96c0da9da07a54572b7c4e1b0">
-    <meta name="description" content="Configuration Install flow, minimum supported version is 2025.04.
-https://opm-project.org/?page_id=245
-Preferences Linux
-In Preferences, set the full path to the flow executable. Windows and WSL
-In Preferences, set the full path to the flow executable as displayed in the Linux environment when executing which flow. Enable Use WSL to run Opm Flow. Select the WSL instance to use Job Description Import a simulation grid Create a well path with completions In the Project Tree, right-click a Grid Case, and select “New Opm Flow Simulation”">
+    <meta name="description" content="ResInsight supports radial grids, enabling visualization and analysis of reservoir models that use radial coordinate systems. This is particularly useful for well-centric models and near-wellbore analysis.
+Example of a radial grid model displayed in ResInsight showing pressure distribution around a well
+Overview Radial grids use a cylindrical coordinate system (r, θ, z) instead of the traditional Cartesian (x, y, z) system. This allows for more accurate representation of phenomena around wells and other cylindrical geometries.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Management of Simulation Runs :: ResInsight">
-    <meta name="twitter:description" content="Configuration Install flow, minimum supported version is 2025.04.
-https://opm-project.org/?page_id=245
-Preferences Linux
-In Preferences, set the full path to the flow executable. Windows and WSL
-In Preferences, set the full path to the flow executable as displayed in the Linux environment when executing which flow. Enable Use WSL to run Opm Flow. Select the WSL instance to use Job Description Import a simulation grid Create a well path with completions In the Project Tree, right-click a Grid Case, and select “New Opm Flow Simulation”">
-    <meta property="og:url" content="https://resinsight.org/workflows/opmflowjob/index.html">
+    <meta name="twitter:title" content=" Radial Grid :: ResInsight">
+    <meta name="twitter:description" content="ResInsight supports radial grids, enabling visualization and analysis of reservoir models that use radial coordinate systems. This is particularly useful for well-centric models and near-wellbore analysis.
+Example of a radial grid model displayed in ResInsight showing pressure distribution around a well
+Overview Radial grids use a cylindrical coordinate system (r, θ, z) instead of the traditional Cartesian (x, y, z) system. This allows for more accurate representation of phenomena around wells and other cylindrical geometries.">
+    <meta property="og:url" content="https://resinsight.org/import/radialgrid/index.html">
     <meta property="og:site_name" content="ResInsight">
-    <meta property="og:title" content="Management of Simulation Runs :: ResInsight">
-    <meta property="og:description" content="Configuration Install flow, minimum supported version is 2025.04.
-https://opm-project.org/?page_id=245
-Preferences Linux
-In Preferences, set the full path to the flow executable. Windows and WSL
-In Preferences, set the full path to the flow executable as displayed in the Linux environment when executing which flow. Enable Use WSL to run Opm Flow. Select the WSL instance to use Job Description Import a simulation grid Create a well path with completions In the Project Tree, right-click a Grid Case, and select “New Opm Flow Simulation”">
+    <meta property="og:title" content=" Radial Grid :: ResInsight">
+    <meta property="og:description" content="ResInsight supports radial grids, enabling visualization and analysis of reservoir models that use radial coordinate systems. This is particularly useful for well-centric models and near-wellbore analysis.
+Example of a radial grid model displayed in ResInsight showing pressure distribution around a well
+Overview Radial grids use a cylindrical coordinate system (r, θ, z) instead of the traditional Cartesian (x, y, z) system. This allows for more accurate representation of phenomena around wells and other cylindrical geometries.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
-    <meta property="article:section" content="Workflows">
-    <meta itemprop="name" content="Management of Simulation Runs :: ResInsight">
-    <meta itemprop="description" content="Configuration Install flow, minimum supported version is 2025.04.
-https://opm-project.org/?page_id=245
-Preferences Linux
-In Preferences, set the full path to the flow executable. Windows and WSL
-In Preferences, set the full path to the flow executable as displayed in the Linux environment when executing which flow. Enable Use WSL to run Opm Flow. Select the WSL instance to use Job Description Import a simulation grid Create a well path with completions In the Project Tree, right-click a Grid Case, and select “New Opm Flow Simulation”">
-    <meta itemprop="wordCount" content="151">
-    <title>Management of Simulation Runs :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1761197963" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1761197963" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1761197963" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1761197963" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1761197963" rel="stylesheet">
-    <link href="/css/theme.min.css?1761197963" rel="stylesheet">
-    <link href="/css/format-html.min.css?1761197963" rel="stylesheet" id="R-format-style">
+    <meta property="article:section" content="Import">
+    <meta itemprop="name" content=" Radial Grid :: ResInsight">
+    <meta itemprop="description" content="ResInsight supports radial grids, enabling visualization and analysis of reservoir models that use radial coordinate systems. This is particularly useful for well-centric models and near-wellbore analysis.
+Example of a radial grid model displayed in ResInsight showing pressure distribution around a well
+Overview Radial grids use a cylindrical coordinate system (r, θ, z) instead of the traditional Cartesian (x, y, z) system. This allows for more accurate representation of phenomena around wells and other cylindrical geometries.">
+    <meta itemprop="wordCount" content="388">
+    <title> Radial Grid :: ResInsight</title>
+    <link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1765525474" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1765525474" rel="stylesheet">
+    <link href="/css/theme.min.css?1765525474" rel="stylesheet">
+    <link href="/css/format-html.min.css?1765525474" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -121,7 +113,7 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
 </script>
 
   </head>
-  <body class="mobile-support html" data-url="/workflows/opmflowjob/index.html">
+  <body class="mobile-support html" data-url="/import/radialgrid/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
       <nav id="R-topbar">
@@ -137,12 +129,12 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
   <ul>
     <li>
       <ul>
-        <li><a href="#configuration">Configuration</a>
-          <ul>
-            <li><a href="#preferences">Preferences</a></li>
-          </ul>
-        </li>
-        <li><a href="#job-description">Job Description</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#importing-radial-grid-models">Importing Radial Grid Models</a></li>
+        <li><a href="#visualization-features">Visualization Features</a></li>
+        <li><a href="#preferences-settings">Preferences Settings</a></li>
+        <li><a href="#key-considerations">Key Considerations</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
       </ul>
     </li>
   </ul>
@@ -153,13 +145,13 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
           </div>
           <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
             itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/workflows/index.html"><span itemprop="name">Workflows</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Management of Simulation Runs</span><meta itemprop="position" content="3"></li>
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/import/index.html"><span itemprop="name">Import</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name"> Radial Grid</span><meta itemprop="position" content="3"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/workflows/ensemblewelllog/index.html" title="Ensemble Well Log (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/import/soursimrlresults/index.html" title="SourSimRL Results (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/workflows/welltargetmapping/index.html" title="Well Target Mapping (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/import/elementpropertytable/index.html" title="Element Property Table (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
             </div>
             <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
               <div class="topbar-content">
@@ -173,50 +165,62 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
         </div>
       </nav>
       <div id="R-main-overlay"></div>
-      <main id="R-body-inner" class="highlightable workflows" tabindex="-1">
+      <main id="R-body-inner" class="highlightable import" tabindex="-1">
         <div class="flex-block-wrapper">
 <article class="default">
   <header class="headline">
   </header>
 
-<h1 id="management-of-simulation-runs">Management of Simulation Runs</h1>
+<h1 id="radial-grid"> Radial Grid</h1>
 
-<h2 id="configuration">Configuration</h2>
-<p>Install <strong>flow</strong>, minimum supported version is 2025.04.</p>
-<p><a href="https://opm-project.org/?page_id=245" rel="external" target="_blank">https://opm-project.org/?page_id=245</a></p>
-<h3 id="preferences">Preferences</h3>
-<p><a href="#R-image-95d8b2c5c3103bc07ef9b738813e91f4" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/workflows/opm-flow-preferences.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-95d8b2c5c3103bc07ef9b738813e91f4"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/workflows/opm-flow-preferences.png"></a></p>
-<p><strong>Linux</strong></p>
-<ul>
-<li>In <strong>Preferences</strong>, set the full path to the flow executable.</li>
-</ul>
-<p><strong>Windows and WSL</strong></p>
-<ul>
-<li>In <strong>Preferences</strong>, set the full path to the flow executable as displayed in the Linux environment when executing <strong>which flow</strong>.</li>
-<li>Enable <strong>Use WSL to run Opm Flow</strong>.</li>
-<li>Select the WSL instance to use</li>
-</ul>
-<h2 id="job-description">Job Description</h2>
+<p>ResInsight supports radial grids, enabling visualization and analysis of reservoir models that use radial coordinate systems. This is particularly useful for well-centric models and near-wellbore analysis.</p>
+<p><a href="#R-image-3f4c2eeccae245b9c6d328cff80e4483" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/import/radial-grid-overview.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3f4c2eeccae245b9c6d328cff80e4483"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/import/radial-grid-overview.png"></a>
+<em>Example of a radial grid model displayed in ResInsight showing pressure distribution around a well</em></p>
+<h2 id="overview">Overview</h2>
+<p>Radial grids use a cylindrical coordinate system (r, θ, z) instead of the traditional Cartesian (x, y, z) system. This allows for more accurate representation of phenomena around wells and other cylindrical geometries.</p>
+<h2 id="importing-radial-grid-models">Importing Radial Grid Models</h2>
+<p>Radial grid models can be imported into ResInsight through the standard import workflow:</p>
 <ol>
-<li>Import a simulation grid</li>
-<li>Create a well path with completions</li>
-<li>In the <strong>Project Tree</strong>, right-click a <strong>Grid Case</strong>, and select <em>&ldquo;New Opm Flow Simulation&rdquo;</em></li>
+<li><strong>File → Import → Eclipse Files</strong></li>
+<li>Select your radial grid files (.EGRID, .INIT, .UNRST, etc.)</li>
+<li>ResInsight will automatically detect if the grid uses radial coordinates</li>
+<li>The model will be loaded and converted for visualization. Choose file reader and how to handle radial grids from <strong>Preferences</strong>.</li>
+<li>If the radial grid has a low number of angular cells, ResInsight will automatically create a temporary Local Grid Refinement (LGR) with higher angular refinement for improved visualization. This LGR can be seen in the project tree as &ldquo;Radial LGR&rdquo;.</li>
 </ol>
-<p><a href="#R-image-b14a25274d7705a73ba7e53a7e55aed5" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/workflows/opm-flow-job-definition.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-b14a25274d7705a73ba7e53a7e55aed5"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/workflows/opm-flow-job-definition.png"></a>
-<a href="#R-image-08163b4bf3fa1cf38c680928520faa05" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/workflows/opm-flow-job-properties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-08163b4bf3fa1cf38c680928520faa05"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/workflows/opm-flow-job-properties.png"></a></p>
-<ol start="4">
-<li>Define the settings for the new well</li>
-<li>Click the <strong>Run Simulation</strong> button</li>
-<li>A simulation run is started, and the text output is displayed in the <strong>Messages</strong> panel</li>
-</ol>
-<p><a href="#R-image-cc19a943b3ea2f9f91093055d7a142c3" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/workflows/opm-flow-messages.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-cc19a943b3ea2f9f91093055d7a142c3"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/workflows/opm-flow-messages.png"></a></p>
-<ol start="7">
-<li>A simulation run is created in a new folder with an autogenerated index. If <strong>Add Runs to Ensemble</strong> is checked, the generated case is added to a grid model ensemble. Otherwise a single grid model is displayed in the 3D view.</li>
-</ol>
+<h2 id="visualization-features">Visualization Features</h2>
+<p>When working with radial grids, ResInsight provides:</p>
+<ul>
+<li><strong>3D Visualization</strong>: Automatic conversion from radial to Cartesian coordinates for display</li>
+<li><strong>Property Mapping</strong>: All standard property visualization features work with radial grids</li>
+<li><strong>Well Trajectories</strong>: Enhanced visualization of wells in radial coordinate systems</li>
+<li><strong>Cross Sections</strong>: Support for radial and angular cross-sections</li>
+<li><strong>Hex Element Approximation</strong>: Radial grid cells can be approximated using hexahedral elements for improved visualization. This setting can be controlled from <strong>Preferences</strong></li>
+</ul>
+<h2 id="preferences-settings">Preferences Settings</h2>
+<p>Radial grid behavior can be controlled through <strong>Edit → Preferences → EGRID Settings</strong>:</p>
+<ul>
+<li><strong>Radial Grid Display Mode</strong>: Choose between:
+<ul>
+<li><strong>Cylindrical</strong>: Uses cylindrical coordinates for radial grids (default behavior). No support for local grid refinement (LGR)</li>
+<li><strong>Cartesian</strong>: Forces Cartesian coordinate interpretation. This mode enstimates the cylindrical cells by hex element, and supports visualization of radial LGR.</li>
+</ul>
+</li>
+</ul>
+<h2 id="key-considerations">Key Considerations</h2>
+<ul>
+<li><strong>Coordinate Conversion</strong>: ResInsight handles the conversion between radial and Cartesian coordinates internally</li>
+<li><strong>Property Interpolation</strong>: Properties are correctly interpolated considering the radial grid geometry</li>
+<li><strong>Export Functions</strong>: Exported data maintains the original radial grid structure when appropriate</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If you encounter issues with radial grid imports:</p>
+<ul>
+<li>Verify that your grid files contain proper radial coordinate definitions</li>
+<li>Consider using a different reader for EGRID files</li>
+<li>Ensure all required grid files (.EGRID, .INIT) are present</li>
+<li>Review the ResInsight log for any import warnings or errors</li>
+</ul>
 
   <footer class="footline">
   </footer>
@@ -234,7 +238,7 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1761197963";
+          window.index_js_url="/searchindex.en.js?1765525474";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -247,12 +251,12 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1761197963" defer></script>
-        <script src="/js/search.js?1761197963" defer></script>
+        <script src="/js/auto-complete.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1765525474" defer></script>
+        <script src="/js/search.js?1765525474" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -274,6 +278,7 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2024_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2024_12/index.html">What&#39;s New in 2024.12</a></li>
@@ -380,7 +385,7 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
             <li class="" data-nav-id="/wells-and-completions/ensemblefracturestatistics/index.html"><a class="padding" href="/wells-and-completions/ensemblefracturestatistics/index.html">Ensemble Fracture Statistics</a></li>
             <li class="" data-nav-id="/wells-and-completions/completionslgr/index.html"><a class="padding" href="/wells-and-completions/completionslgr/index.html">Completions LGR</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellmeasurements/index.html"><a class="padding" href="/wells-and-completions/wellmeasurements/index.html">Well Measurements</a></li></ul></li>
-            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="parent " data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" checked><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
             <li class="" data-nav-id="/import/cloudservices/index.html"><a class="padding" href="/import/cloudservices/index.html">Cloud Services</a></li>
             <li class="" data-nav-id="/import/cloudservicesauthorization/index.html"><a class="padding" href="/import/cloudservicesauthorization/index.html">Cloud Services - Authorization</a></li>
             <li class="" data-nav-id="/import/eclipsecases/index.html"><a class="padding" href="/import/eclipsecases/index.html">Eclipse Cases</a></li>
@@ -391,6 +396,7 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
             <li class="" data-nav-id="/import/lasfile/index.html"><a class="padding" href="/import/lasfile/index.html">Log ASCII Standard File</a></li>
             <li class="" data-nav-id="/import/geomechanicaldata/index.html"><a class="padding" href="/import/geomechanicaldata/index.html">Geomechanical Data</a></li>
             <li class="" data-nav-id="/import/soursimrlresults/index.html"><a class="padding" href="/import/soursimrlresults/index.html">SourSimRL Results</a></li>
+            <li class="active " data-nav-id="/import/radialgrid/index.html"><a class="padding" href="/import/radialgrid/index.html"> Radial Grid</a></li>
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
@@ -423,11 +429,16 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
             <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
             <li class="" data-nav-id="/best-practices/performancehints/index.html"><a class="padding" href="/best-practices/performancehints/index.html">Performance Hints</a></li>
             <li class="" data-nav-id="/best-practices/summarydata/index.html"><a class="padding" href="/best-practices/summarydata/index.html">Summary Data Import</a></li></ul></li>
-            <li class="parent " data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" checked><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/opmflowpreferences/index.html"><a class="padding" href="/opm-flow-integration/opmflowpreferences/index.html">Initial Configuration</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
+            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
-            <li class="active " data-nav-id="/workflows/opmflowjob/index.html"><a class="padding" href="/workflows/opmflowjob/index.html">Management of Simulation Runs</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
@@ -451,7 +462,7 @@ In Preferences, set the full path to the flow executable as displayed in the Lin
                   <div class="control-style">
                     <label class="a11y-only" for="R-select-language">Language</label>
                     <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
-                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/workflows/opmflowjob/index.html" lang="en-us" selected></option>
+                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/import/radialgrid/index.html" lang="en-us" selected></option>
                     </select>
                   </div>
                   <div class="clear"></div>
@@ -493,8 +504,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1761197963" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1761197963" defer></script>
-    <script src="/js/theme.js?1761197963" defer></script>
+    <script src="/js/clipboard.min.js?1765525474" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1765525474" defer></script>
+    <script src="/js/theme.js?1765525474" defer></script>
   </body>
 </html>

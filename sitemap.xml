@@ -40,6 +40,9 @@
     <loc>https://resinsight.org/calculated-data/grid-property-calculations/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/opm-flow-integration/opmflowpreferences/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/releases/linux-installation/index.html</loc>
   </url>
   <url>
@@ -109,6 +112,9 @@
     <loc>https://resinsight.org/scripting/commandlineinterface/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/opm-flow-integration/createnewjob/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/calculated-data/curvecalculator/index.html</loc>
   </url>
   <url>
@@ -142,6 +148,9 @@
     <loc>https://resinsight.org/import/soursimrlresults/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/import/radialgrid/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/misc/advancedtextinput/index.html</loc>
   </url>
   <url>
@@ -170,6 +179,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/import/observeddata/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/opm-flow-integration/jobproperties/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/plot-window/index.html</loc>
@@ -209,6 +221,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/wells-and-completions/3dwelllogcurves/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/opm-flow-integration/addnewwell/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/import/appendingadditionalproperties/index.html</loc>
@@ -263,6 +278,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/scripting/octaveinterface/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/opm-flow-integration/runningopmflowjobs/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/export/exportwellpaths/index.html</loc>
@@ -352,7 +370,7 @@
     <loc>https://resinsight.org/3d-main-window/faults/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/workflows/opmflowjob/index.html</loc>
+    <loc>https://resinsight.org/opm-flow-integration/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/plot-window/rftplot/index.html</loc>
@@ -377,6 +395,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/workflows/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/releases/release-notes/releasenotes_2025_12/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/releases/release-notes/releasenotes_2025_09/index.html</loc>

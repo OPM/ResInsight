@@ -19,13 +19,13 @@
     <meta property="article:section" content="Export">
     <meta itemprop="name" content="Completions :: ResInsight">
     <meta itemprop="description" content="The completions defined in ResInsight can be exported to Eclipse for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.">
-    <meta itemprop="wordCount" content="3154">
+    <meta itemprop="wordCount" content="3156">
     <title>Completions :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1761197963" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1761197963" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1761197963" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1761197963" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1761197963" rel="stylesheet">
-    <link href="/css/theme.min.css?1761197963" rel="stylesheet">
-    <link href="/css/format-html.min.css?1761197963" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1765525474" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1765525474" rel="stylesheet">
+    <link href="/css/theme.min.css?1765525474" rel="stylesheet">
+    <link href="/css/format-html.min.css?1765525474" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -175,8 +175,8 @@
 <h1 id="completions">Completions</h1>
 
 <p>The completions defined in ResInsight can be exported to Eclipse for use in new simulation runs. The commands <strong>Export Completion Data For Visible Wells</strong> and <strong>Export Completion Data For Selected Wells</strong> can be used to invoke the export. The commands are available by right clicking Well Paths in the <strong>Project Tree</strong>. The first command is available from the <strong>File-&gt;Import</strong> menu as well.</p>
-<p><a href="#R-image-3859ecb298fd9c696f31d2b5e43fac87" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-3859ecb298fd9c696f31d2b5e43fac87"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png"></a></p>
+<p><a href="#R-image-0bb189bba505b7223f94eb06154b1b8b" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-0bb189bba505b7223f94eb06154b1b8b"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png"></a></p>
 <ul>
 <li><strong>Export Settings</strong>
 <ul>
@@ -193,16 +193,16 @@
 <ul>
 <li><strong>Unified File</strong> &ndash; One file with all the completions.</li>
 <li><strong>Split on Well</strong> &ndash; One file for each well</li>
-<li><strong>Split on Well and Completion Type</strong> &ndash; One file for each well and completion type (Perforation Interval, Fishbone, &hellip;)</li>
+<li><del><strong>[Deprecated]</strong> Split on Well and Completion Type &ndash; One file for each well and completion type (Perforation Interval, Fishbone, &hellip;)</del></li>
 </ul>
 </li>
-<li><strong>Export Completion Types</strong> &ndash; Control how several completions of different type in the same cell are handled
+<li><del><strong>[Deprecated]</strong> Export Completion Types &ndash; Control how several completions of different type in the same cell are handled</del>
 <ul>
-<li><strong>Individually</strong> &ndash; Completions of each type are exported to separate sections in the file and not combined in any way.</li>
-<li><strong>Combined</strong> &ndash; Connection factors from different completion types are added together producing one number for each cell.</li>
+<li><del><strong>Individually</strong> &ndash; Completions of each type are exported to separate sections in the file and not combined in any way.</del></li>
+<li><del><strong>Combined</strong> &ndash; Connection factors from different completion types are added together producing one number for each cell.</del></li>
 </ul>
 </li>
-<li><strong>Export Folder</strong> &ndash; Folder for the exported COMPDAT file(s). The folder will be created when performing the export and the names of the exported file(s) will be auto generated.</li>
+<li><strong>Export Folder</strong> &ndash; Folder for the exported COMPDAT file(s). The folder will be created when performing the export and the names of the exported file(s) will be auto generated.~~</li>
 </ul>
 </li>
 <li><strong>Completions Export Selection</strong>
@@ -228,30 +228,30 @@
 <h3 id="transmissibility-calculations">Transmissibility Calculations</h3>
 <p>The transmissibility calculation is performed for each direction, X, Y and Z, in an orthogonal coordinate system local to the cell.</p>
 <p>Taking the X direction as an example, we first calculate the relevant permeability <em>K</em> from the Eclipse properties <em>PERMY</em> (K<sub>y</sub>) and PERMZ (K<sub>z</sub>):</p>
-<p><a href="#R-image-cc4917f1a95e200b5367917b09f28e69" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-cc4917f1a95e200b5367917b09f28e69"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png"></a></p>
+<p><a href="#R-image-a929df8cb43ec022698559d44cc4aab5" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-a929df8cb43ec022698559d44cc4aab5"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png"></a></p>
 <p>The Peacman radius (pressure equivalent radius) for the cell is then calculated, using permeabilities and cell sizes (D<sub>y</sub> and D<sub>z</sub>):</p>
-<p><a href="#R-image-052655b819502a584acd30c3175b6d85" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-052655b819502a584acd30c3175b6d85"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png"></a></p>
+<p><a href="#R-image-37728315cbe288d1da177455e4e212b2" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-37728315cbe288d1da177455e4e212b2"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png"></a></p>
 <p>The x-component of the transmissibility vector is calculated, using the length of the perforation in the x direction (l<sub>x</sub>), the well radius (r<sub>w</sub>) and skin factor (S):</p>
-<p><a href="#R-image-04bdf62743a5258c75a4c02160a43219" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-04bdf62743a5258c75a4c02160a43219"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png"></a></p>
+<p><a href="#R-image-91543c93979c3f5932315925127b0822" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-91543c93979c3f5932315925127b0822"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png"></a></p>
 <p>The y and z component of the transmissibility are calculated in the same manner, and the total transmissibility is then calculated as:</p>
-<p><a href="#R-image-d7e8248c1ee307315c668b0011aea3c1" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-d7e8248c1ee307315c668b0011aea3c1"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png"></a></p>
+<p><a href="#R-image-0c2801acc1343575cd14c700f282617e" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-0c2801acc1343575cd14c700f282617e"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png"></a></p>
 <p>If the <em>Export Calculated Transmissibilities</em> is chosen in the export setting (see <a href="/export/completionexport/index.html#exporting-completion-data-to-eclipse">Exporting Completion Data to Eclipse</a>), this value is exported in the COMPDAT/COMPDATL keywords directly. If the <em>Export Default Connection Factors and WPIMULT</em> the transmissibility is chosen, the transmissibility is calculated as above, and in addition the transmissibility is calculated as Eclipse would do it using values other than transmissibility in the COMPDAT/COMPDATL keywords (perforation length, well radius etc). The ratio between these transmissibilities is then exported as the WPIMULT value.</p>
 <p>For an example of <em>COMPDAT</em> files exported with calculated transmissibilities and with defaults and WPIMULT values, see export of fishbones completion data below.</p>
 <h3 id="fracture-export">Fracture Export</h3>
 <h4 id="pressure-differential-depletion-scaling">Pressure Differential Depletion Scaling</h4>
 <p>For cases with high differential depletion, it is possible to scale the transmissibilities from the grid cells into the well (via the fracture) by the well drawdown. This enables the simulation to take into account that the flow will take different paths into the well as the pressure differential between the surrounding grid cells increases. If enabled, a time step for the grid pressures have to be selected. The list of time steps will also show the time step in which the wells first show a <strong>Well Bore Hole Pressure</strong> (<strong>WBHP</strong>) larger than zero in the Summary Case information.</p>
-<p><a href="#R-image-087fa7296b2356edb40f9a0a3b88f6b7" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-087fa7296b2356edb40f9a0a3b88f6b7"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png"></a></p>
+<p><a href="#R-image-28cd7f5adee7313e33a4d75b9ed049d1" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-28cd7f5adee7313e33a4d75b9ed049d1"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png"></a></p>
 <p>Having chosen a time step for differential depletion scaling a source for the well pressures can be chosen. If <strong>WBHP From Summary Case</strong> is picked, the <strong>WBHP</strong> value in the summary case for the chosen time step is used. However, if the chosen time step precedes the production start of a well, the value set in <strong>WBHP Before Production Start</strong> is used.</p>
-<p><a href="#R-image-d9a8b5548aced3458e9483032e489b9a" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-d9a8b5548aced3458e9483032e489b9a"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png"></a></p>
+<p><a href="#R-image-2f2a0131b323b3e6b6d10acb2143db9f" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-2f2a0131b323b3e6b6d10acb2143db9f"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png"></a></p>
 <p>If, however, a <strong>Fixed User Defined WBHP</strong> is chosen, the provided <strong>WBHP</strong> value is used for all wells.</p>
-<p><a href="#R-image-d9a4e7fa28d8ade0030e9e2637f1c894" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-d9a4e7fa28d8ade0030e9e2637f1c894"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png"></a></p>
+<p><a href="#R-image-f467db5773196f6ca1831aef2245111d" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-f467db5773196f6ca1831aef2245111d"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png"></a></p>
 <h4 id="fracture-report-header">Fracture Report Header</h4>
 <p>At the top of the exported transmissibilities for fractures, a fracture report summary is displayed. This section displays the different properties for the fractures used to compute the transmissibility values.</p>
 <h5 id="description-of-derived-data">Description of Derived Data</h5>
@@ -495,7 +495,7 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1761197963";
+          window.index_js_url="/searchindex.en.js?1765525474";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -508,12 +508,12 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1761197963" defer></script>
-        <script src="/js/search.js?1761197963" defer></script>
+        <script src="/js/auto-complete.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1765525474" defer></script>
+        <script src="/js/search.js?1765525474" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -535,6 +535,7 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2024_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2024_12/index.html">What&#39;s New in 2024.12</a></li>
@@ -652,6 +653,7 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/import/lasfile/index.html"><a class="padding" href="/import/lasfile/index.html">Log ASCII Standard File</a></li>
             <li class="" data-nav-id="/import/geomechanicaldata/index.html"><a class="padding" href="/import/geomechanicaldata/index.html">Geomechanical Data</a></li>
             <li class="" data-nav-id="/import/soursimrlresults/index.html"><a class="padding" href="/import/soursimrlresults/index.html">SourSimRL Results</a></li>
+            <li class="" data-nav-id="/import/radialgrid/index.html"><a class="padding" href="/import/radialgrid/index.html"> Radial Grid</a></li>
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
@@ -684,11 +686,16 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
             <li class="" data-nav-id="/best-practices/performancehints/index.html"><a class="padding" href="/best-practices/performancehints/index.html">Performance Hints</a></li>
             <li class="" data-nav-id="/best-practices/summarydata/index.html"><a class="padding" href="/best-practices/summarydata/index.html">Summary Data Import</a></li></ul></li>
+            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/opmflowpreferences/index.html"><a class="padding" href="/opm-flow-integration/opmflowpreferences/index.html">Initial Configuration</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
             <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
-            <li class="" data-nav-id="/workflows/opmflowjob/index.html"><a class="padding" href="/workflows/opmflowjob/index.html">Management of Simulation Runs</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
@@ -754,8 +761,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1761197963" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1761197963" defer></script>
-    <script src="/js/theme.js?1761197963" defer></script>
+    <script src="/js/clipboard.min.js?1765525474" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1765525474" defer></script>
+    <script src="/js/theme.js?1765525474" defer></script>
   </body>
 </html>

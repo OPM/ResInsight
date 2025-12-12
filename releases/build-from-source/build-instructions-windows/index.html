@@ -23,13 +23,13 @@ Clone and update sub modules git clone https://github.com/OPM/ResInsightcd ResI
     <meta itemprop="name" content="Build Instructions Windows :: ResInsight">
     <meta itemprop="description" content="Dependencies and Prerequisites Configuration and build Tool Minimum version Recommended Visual Studio 2019 2022 python 3.8 3.10 Qt 6.5 6.6 It is possible to use Qt 6.4 for to build ResInsight, but some install features introduced in Qt 6.5 are not available. Qt 6.7 has some changes related to theming that is causing some unwanted visual effects. This is currently investigated.
 Clone and update sub modules git clone https://github.com/OPM/ResInsightcd ResInsightgit submodule update --initBuild and install required dependencies using vcpkg Open a command prompt using “Run as Administrator” for Visual Studio x64.">
-    <meta itemprop="wordCount" content="288">
+    <meta itemprop="wordCount" content="287">
     <title>Build Instructions Windows :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1761197963" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1761197963" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1761197963" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1761197963" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1761197963" rel="stylesheet">
-    <link href="/css/theme.min.css?1761197963" rel="stylesheet">
-    <link href="/css/format-html.min.css?1761197963" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1765525474" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1765525474" rel="stylesheet">
+    <link href="/css/theme.min.css?1765525474" rel="stylesheet">
+    <link href="/css/format-html.min.css?1765525474" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..\/..';
@@ -215,15 +215,15 @@ git submodule update --init
 <h3 id="qt">Qt</h3>
 <p><strong>Official install tools</strong></p>
 <p>Qt can be installed using the <code>MaintenanceTool.exe</code>, and select the following modules:</p>
-<p><a href="#R-image-49ee13599904a93686877873aa288de0" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/getting-started/qtmaintenancetool.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-49ee13599904a93686877873aa288de0"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/getting-started/qtmaintenancetool.png"></a></p>
+<p><a href="#R-image-c943b05d451361aebc97cdf590c48cdf" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/getting-started/qtmaintenancetool.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-c943b05d451361aebc97cdf590c48cdf"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/getting-started/qtmaintenancetool.png"></a></p>
 <p><strong>aqtinstall</strong></p>
 <p><a href="https://github.com/miurahr/aqtinstall" rel="external" target="_blank">aqtinstall</a> is a Python tool used to install Qt directly from Qt distribution sites, and does not require a user account for Qt sites. Other ways to install Qt is described <a href="https://www.qt.io/download-qt-installer-oss" rel="external" target="_blank">official Qt documentation</a></p>
 <p>Create a root folder for Qt installations. In this folder, create a virtual environment for <strong>aqtinstall</strong>:</p>
 <pre><code>python3 -m venv myvenv
 myvenv/Scripts/activate
 pip3 install aqtinstall
-aqt install-qt linux desktop 6.6.3 -m qtcharts qt5compat qtnetworkauth
+aqt install-qt windows desktop 6.6.3 win64_msvc2019_64 -m qtnetworkauth
 </code></pre>
 <h3 id="build-resinsight">Build ResInsight</h3>
 <p>The configuration flags for a basic build is given in <code>CMakePresets.json</code> in the root of the repository. Configuration flags specific for the system to build on can be specified in <code>CMakeUserPresets.json</code>. This file is ignored by git.</p>
@@ -251,7 +251,7 @@ aqt install-qt linux desktop 6.6.3 -m qtcharts qt5compat qtnetworkauth
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1761197963";
+          window.index_js_url="/searchindex.en.js?1765525474";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -264,12 +264,12 @@ aqt install-qt linux desktop 6.6.3 -m qtcharts qt5compat qtnetworkauth
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1761197963" defer></script>
-        <script src="/js/search.js?1761197963" defer></script>
+        <script src="/js/auto-complete.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1765525474" defer></script>
+        <script src="/js/search.js?1765525474" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -291,6 +291,7 @@ aqt install-qt linux desktop 6.6.3 -m qtcharts qt5compat qtnetworkauth
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2024_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2024_12/index.html">What&#39;s New in 2024.12</a></li>
@@ -408,6 +409,7 @@ aqt install-qt linux desktop 6.6.3 -m qtcharts qt5compat qtnetworkauth
             <li class="" data-nav-id="/import/lasfile/index.html"><a class="padding" href="/import/lasfile/index.html">Log ASCII Standard File</a></li>
             <li class="" data-nav-id="/import/geomechanicaldata/index.html"><a class="padding" href="/import/geomechanicaldata/index.html">Geomechanical Data</a></li>
             <li class="" data-nav-id="/import/soursimrlresults/index.html"><a class="padding" href="/import/soursimrlresults/index.html">SourSimRL Results</a></li>
+            <li class="" data-nav-id="/import/radialgrid/index.html"><a class="padding" href="/import/radialgrid/index.html"> Radial Grid</a></li>
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
@@ -440,11 +442,16 @@ aqt install-qt linux desktop 6.6.3 -m qtcharts qt5compat qtnetworkauth
             <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
             <li class="" data-nav-id="/best-practices/performancehints/index.html"><a class="padding" href="/best-practices/performancehints/index.html">Performance Hints</a></li>
             <li class="" data-nav-id="/best-practices/summarydata/index.html"><a class="padding" href="/best-practices/summarydata/index.html">Summary Data Import</a></li></ul></li>
+            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/opmflowpreferences/index.html"><a class="padding" href="/opm-flow-integration/opmflowpreferences/index.html">Initial Configuration</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
             <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
-            <li class="" data-nav-id="/workflows/opmflowjob/index.html"><a class="padding" href="/workflows/opmflowjob/index.html">Management of Simulation Runs</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
@@ -510,8 +517,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1761197963" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1761197963" defer></script>
-    <script src="/js/theme.js?1761197963" defer></script>
+    <script src="/js/clipboard.min.js?1765525474" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1765525474" defer></script>
+    <script src="/js/theme.js?1765525474" defer></script>
   </body>
 </html>

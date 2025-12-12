@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>OPM Flow Integration :: ResInsight</title>
+    <link>https://resinsight.org/opm-flow-integration/index.html</link>
+    <description>ResInsight has support for close integration with the OPM Flow simulator. This section shows how you can set up and use OPM Flow with ResInsight.&#xA;ResInsight handle OPM Flow simulation runs as “Jobs”, allowing you to:&#xA;use input data either from existing grid cases or from data files on disk add a new simulation well to an existing simulation add more dates to an existing simulation control when and how to open the new well and more Both grid results and summary results from a simulation job could be automatically loaded and displayed in ResInsight after a run.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://resinsight.org/opm-flow-integration/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Initial Configuration</title>
+      <link>https://resinsight.org/opm-flow-integration/opmflowpreferences/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/opm-flow-integration/opmflowpreferences/index.html</guid>
+      <description>Install OPM Flow You need at least version 2025.04 of OPM Flow installed to use it with ResInsight.&#xA;Follow the OPM Flow installation instructions here.&#xA;Windows support To be able to run OPM Flow on your Windows computer, you need to first install WSL.&#xA;A guide for installing WSL and OPM Flow can be found here.&#xA;ResInsight setup ResInsight needs to know where to find the OPM Flow executable. To do this, open the ResInsight preferences:</description>
+    </item>
+    <item>
+      <title>Create an OPM Flow Job</title>
+      <link>https://resinsight.org/opm-flow-integration/createnewjob/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/opm-flow-integration/createnewjob/index.html</guid>
+      <description>Overview ResInsight refers to OPM Flow Simulations as OPM Flow Jobs. They are located in the Scripts/Jobs tree, shown in both the 3D Main Window and the Plot Main Window.&#xA;You can create a new job in two ways: From an already loaded grid case or from a .DATA file located on a local or network disk drive. In both cases, ResInsight works on a copy of the provided input in the selected working folder, keeping the original files unmodified.</description>
+    </item>
+    <item>
+      <title>OPM Flow Job Properties</title>
+      <link>https://resinsight.org/opm-flow-integration/jobproperties/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/opm-flow-integration/jobproperties/index.html</guid>
+      <description>Overview When you select an OPM Flow Job in the Scripts/Jobs project tree, the property editor allows you adjust the job settings.&#xA;General Group Name: The name of the job. The name will also be used for the generated DATA file that is sent to OPM Flow when you start the job.</description>
+    </item>
+    <item>
+      <title>Add a New Well</title>
+      <link>https://resinsight.org/opm-flow-integration/addnewwell/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/opm-flow-integration/addnewwell/index.html</guid>
+      <description>Preparations ResInsight can be used to create a well path with completions and add a new simulation well based on this to the OPM Flow Job.&#xA;To be able to do this you need a grid case loaded that can be used to define the well path as well as read grid results from.&#xA;If you start with just a DATA file, you need to first run the OPM Flow Job without adding any wells to create the grid.</description>
+    </item>
+    <item>
+      <title>Running an OPM Flow Job</title>
+      <link>https://resinsight.org/opm-flow-integration/runningopmflowjobs/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/opm-flow-integration/runningopmflowjobs/index.html</guid>
+      <description>Start the job Once a job has been properly configured, you can start the job in two ways:&#xA;Right click the job in the Scripts/Jobs tree and choose “Run…” Click the “Run”-button in the OPM Flow group in the job properties ResInsight will now write the necessary input data for OPM Flow to the selected working directory. The user interface will be blocked while this is done.&#xA;Once the input data has been written, ResInsight will launch OPM Flow as specified in the OPM Flow preferences.</description>
+    </item>
+  </channel>
+</rss>

@@ -92,6 +92,13 @@
       <description>ResInsight is used in many different ways. This section will describe some selected workflows describing how to solve specific tasks.</description>
     </item>
     <item>
+      <title>OPM Flow Integration</title>
+      <link>https://resinsight.org/opm-flow-integration/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/opm-flow-integration/index.html</guid>
+      <description>ResInsight has support for close integration with the OPM Flow simulator. This section shows how you can set up and use OPM Flow with ResInsight.&#xA;ResInsight handle OPM Flow simulation runs as “Jobs”, allowing you to:&#xA;use input data either from existing grid cases or from data files on disk add a new simulation well to an existing simulation add more dates to an existing simulation control when and how to open the new well and more Both grid results and summary results from a simulation job could be automatically loaded and displayed in ResInsight after a run.</description>
+    </item>
+    <item>
       <title>Workflows</title>
       <link>https://resinsight.org/workflows/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

@@ -27,13 +27,13 @@ sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add
     <meta itemprop="description" content="Install From Binary Packages on Linux InfoPlease not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.
 Ubuntu (no Python support) The apt-get package does not contain Python support due to build server issues.
 sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add-repository ppa:opm/ppasudo apt-get updatesudo apt-get install resinsightsudo apt-get install octave-resinsightLaunch the application using the command ResInsight">
-    <meta itemprop="wordCount" content="339">
+    <meta itemprop="wordCount" content="356">
     <title>Linux Installation :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1761197963" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1761197963" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1761197963" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1761197963" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1761197963" rel="stylesheet">
-    <link href="/css/theme.min.css?1761197963" rel="stylesheet">
-    <link href="/css/format-html.min.css?1761197963" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1765525474" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1765525474" rel="stylesheet">
+    <link href="/css/theme.min.css?1765525474" rel="stylesheet">
+    <link href="/css/format-html.min.css?1765525474" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -203,19 +203,26 @@ sudo apt-get install octave-resinsight
 <p>Launch the application using the command <code>ResInsight</code></p>
 <h3 id="ubuntu-nightly-build-with-python-support">Ubuntu (nightly build with Python support)</h3>
 <p>The <strong>apt-get</strong> package does not contain <strong>Python</strong> support due to build server issues. Consider using the latest nightly build for Ubuntu from the development branch for Python support. Please note that this is a development version, and is not as stable as the public release.</p>
-<pre><code>curl -L -O &quot;https://nightly.link/OPM/ResInsight/workflows/ResInsightWithCache/dev/ResInsight-Ubuntu%2024.04%20gcc.zip&quot;
-unzip &quot;ResInsight-Ubuntu 24.04 gcc.zip&quot;
-</code></pre>
-
-<details open class=" box cstyle notices info">
-  <summary class="box-label" tabindex="-1">
-    <i class="fa-fw fas fa-info-circle"></i> 
-    Info
-  </summary>
-  <div class="box-content">
-<p>For further installation details, see the ResInsight distribution on <a href="http://opm-project.org/?page_id=36" rel="external" target="_blank">Opm Project Downloading and Installing</a>.</p>
-  </div>
-</details>
+<ol>
+<li>Download the binary file</li>
+</ol>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>curl -L -O &#34;https://nightly.link/OPM/ResInsight/workflows/ResInsightWithCache/dev/ResInsight-Ubuntu%2024.04%20gcc.zip&#34;</span></span></code></pre></div>
+<ol start="2">
+<li>Unzip the binary</li>
+</ol>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>unzip &#34;ResInsight-Ubuntu%2024.04%20gcc.zip”</span></span></code></pre></div>
+<ol start="3">
+<li>Launch ResInsight from the bin folder</li>
+</ol>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>./bin/ResInsight</span></span></code></pre></div>
+<ol start="4">
+<li>
+<p>The installation of the Python package is described here <a href="https://api.resinsight.org/en/main/Installation.html" rel="external" target="_blank">https://api.resinsight.org/en/main/Installation.html</a></p>
+</li>
+<li>
+<p>Some examples on how to use ResInsight from Python <a href="https://api.resinsight.org/en/main/PythonExamples_instance_and_project_management.html" rel="external" target="_blank">https://api.resinsight.org/en/main/PythonExamples_instance_and_project_management.html</a></p>
+</li>
+</ol>
 <h2 id="custom-qt-configuration">Custom Qt configuration</h2>
 <p>If you are using a version of Qt that is not available in system path, you need to do the following to make runtime Qt paths available to ResInsight</p>
 <pre><code>export LD_LIBRARY_PATH=/path_to_qt
@@ -253,7 +260,7 @@ export QT_PLUGIN_PATH=/path_to_qt/plugins:$QT_PLUGIN_PATH
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1761197963";
+          window.index_js_url="/searchindex.en.js?1765525474";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -266,12 +273,12 @@ export QT_PLUGIN_PATH=/path_to_qt/plugins:$QT_PLUGIN_PATH
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1761197963" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1761197963" defer></script>
-        <script src="/js/search.js?1761197963" defer></script>
+        <script src="/js/auto-complete.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1765525474" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1765525474" defer></script>
+        <script src="/js/search.js?1765525474" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -293,6 +300,7 @@ export QT_PLUGIN_PATH=/path_to_qt/plugins:$QT_PLUGIN_PATH
             <li class="active " data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2024_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2024_12/index.html">What&#39;s New in 2024.12</a></li>
@@ -410,6 +418,7 @@ export QT_PLUGIN_PATH=/path_to_qt/plugins:$QT_PLUGIN_PATH
             <li class="" data-nav-id="/import/lasfile/index.html"><a class="padding" href="/import/lasfile/index.html">Log ASCII Standard File</a></li>
             <li class="" data-nav-id="/import/geomechanicaldata/index.html"><a class="padding" href="/import/geomechanicaldata/index.html">Geomechanical Data</a></li>
             <li class="" data-nav-id="/import/soursimrlresults/index.html"><a class="padding" href="/import/soursimrlresults/index.html">SourSimRL Results</a></li>
+            <li class="" data-nav-id="/import/radialgrid/index.html"><a class="padding" href="/import/radialgrid/index.html"> Radial Grid</a></li>
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
@@ -442,11 +451,16 @@ export QT_PLUGIN_PATH=/path_to_qt/plugins:$QT_PLUGIN_PATH
             <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
             <li class="" data-nav-id="/best-practices/performancehints/index.html"><a class="padding" href="/best-practices/performancehints/index.html">Performance Hints</a></li>
             <li class="" data-nav-id="/best-practices/summarydata/index.html"><a class="padding" href="/best-practices/summarydata/index.html">Summary Data Import</a></li></ul></li>
+            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/opmflowpreferences/index.html"><a class="padding" href="/opm-flow-integration/opmflowpreferences/index.html">Initial Configuration</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
             <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
-            <li class="" data-nav-id="/workflows/opmflowjob/index.html"><a class="padding" href="/workflows/opmflowjob/index.html">Management of Simulation Runs</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
@@ -512,8 +526,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1761197963" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1761197963" defer></script>
-    <script src="/js/theme.js?1761197963" defer></script>
+    <script src="/js/clipboard.min.js?1765525474" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1765525474" defer></script>
+    <script src="/js/theme.js?1765525474" defer></script>
   </body>
 </html>

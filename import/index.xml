@@ -78,6 +78,13 @@
       <description>ResInsight is able to import transient results from the simulation software SourSimRL to combine reservoir souring simulation data with an Eclipse case for analysis and visualization. Results from SourSimRL in its sourres binary format can be imported using the SourSim File Name field as shown below:&#xA;Importing such a file will enable result type called SourSimRL as explained in Eclipse Result Types</description>
     </item>
     <item>
+      <title> Radial Grid</title>
+      <link>https://resinsight.org/import/radialgrid/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/import/radialgrid/index.html</guid>
+      <description>ResInsight supports radial grids, enabling visualization and analysis of reservoir models that use radial coordinate systems. This is particularly useful for well-centric models and near-wellbore analysis.&#xA;Example of a radial grid model displayed in ResInsight showing pressure distribution around a well&#xA;Overview Radial grids use a cylindrical coordinate system (r, θ, z) instead of the traditional Cartesian (x, y, z) system. This allows for more accurate representation of phenomena around wells and other cylindrical geometries.</description>
+    </item>
+    <item>
       <title>Element Property Table</title>
       <link>https://resinsight.org/import/elementpropertytable/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
