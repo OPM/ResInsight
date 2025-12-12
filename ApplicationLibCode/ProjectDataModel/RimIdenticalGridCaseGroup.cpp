@@ -108,7 +108,7 @@ void RimIdenticalGridCaseGroup::addCase( RimEclipseCase* reservoir )
 
     if ( !m_mainGrid )
     {
-        m_mainGrid = reservoir->eclipseCaseData()->mainGrid();
+        m_mainGrid = reservoir->eclipseCaseData()->mainGridShared();
     }
     else
     {
@@ -149,7 +149,7 @@ void RimIdenticalGridCaseGroup::removeCase( RimEclipseCase* reservoir )
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
 {
-    if ( m_mainGrid ) return m_mainGrid;
+    if ( m_mainGrid ) return m_mainGrid.get();
 
     return nullptr;
 }
@@ -211,7 +211,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         info.incrementProgress();
     }
 
-    m_mainGrid = rigCaseData->mainGrid();
+    m_mainGrid = rigCaseData->mainGridShared();
 
     // Check if we need to calculate the union of the active cells
 
@@ -370,7 +370,7 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 
         if ( rimStaticsCase->eclipseCaseData() )
         {
-            rimStaticsCase->eclipseCaseData()->setMainGrid( mainGrid() );
+            rimStaticsCase->eclipseCaseData()->setMainGrid( mainGridShared() );
 
             if ( i == 0 )
             {

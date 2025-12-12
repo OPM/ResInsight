@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 void RigGridManager::addCase( RigEclipseCaseData* eclipseCase )
 {
-    cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap( eclipseCase, eclipseCase->mainGrid() );
+    cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap( eclipseCase, eclipseCase->mainGridShared() );
     m_caseToGrid.push_back( caseAndGrid.p() );
 }
 
@@ -48,12 +48,12 @@ void RigGridManager::removeCase( RigEclipseCaseData* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RigGridManager::findEqualGrid( RigMainGrid* candidateGrid )
+std::shared_ptr<RigMainGrid> RigGridManager::findEqualGrid( RigMainGrid* candidateGrid )
 {
     for ( size_t i = 0; i < m_caseToGrid.size(); i++ )
     {
-        RigMainGrid* mainGrid = m_caseToGrid.at( i )->m_mainGrid;
-        if ( RigGridManager::isEqual( mainGrid, candidateGrid ) )
+        auto mainGrid = m_caseToGrid.at( i )->m_mainGrid;
+        if ( RigGridManager::isEqual( mainGrid.get(), candidateGrid ) )
         {
             return mainGrid;
         }
@@ -136,7 +136,7 @@ bool RigGridManager::isMainGridDimensionsEqual( const RigMainGrid* gridA, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGridManager::CaseToGridMap::CaseToGridMap( RigEclipseCaseData* eclipseCase, RigMainGrid* mainGrid )
+RigGridManager::CaseToGridMap::CaseToGridMap( RigEclipseCaseData* eclipseCase, std::shared_ptr<RigMainGrid> mainGrid )
     : m_eclipseCase( eclipseCase )
     , m_mainGrid( mainGrid )
 {
