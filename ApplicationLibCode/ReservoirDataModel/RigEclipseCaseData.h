@@ -123,8 +123,10 @@ public:
     std::vector<const RigWellPath*>
         simulationWellBranches( const QString& simWellName, bool includeAllCellCenters, bool useAutoDetectionOfBranches ) const;
 
-    void setVirtualPerforationTransmissibilities( RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities );
+    void setVirtualPerforationTransmissibilities( std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilities );
     const RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities() const;
+    std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilitiesShared();
+    std::shared_ptr<const RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilitiesShared() const;
 
     void clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
 
@@ -150,7 +152,7 @@ private:
     std::shared_ptr<RigCaseCellResultsData>  m_matrixModelResults;
     std::shared_ptr<RigCaseCellResultsData>  m_fractureModelResults;
 
-    cvf::ref<RigVirtualPerforationTransmissibilities> m_virtualPerforationTransmissibilities;
+    std::shared_ptr<RigVirtualPerforationTransmissibilities> m_virtualPerforationTransmissibilities;
 
     cvf::Collection<RigSimWellData>  m_simWellData; //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray> m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling whether
