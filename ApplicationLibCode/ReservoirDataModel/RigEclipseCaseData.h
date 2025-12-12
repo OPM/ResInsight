@@ -75,8 +75,10 @@ public:
     size_t             gridCount() const;
     const RigGridBase* grid( const QString& gridName ) const;
 
-    RigCaseCellResultsData*       results( RiaDefines::PorosityModelType porosityModel );
-    const RigCaseCellResultsData* results( RiaDefines::PorosityModelType porosityModel ) const;
+    RigCaseCellResultsData*                              results( RiaDefines::PorosityModelType porosityModel );
+    const RigCaseCellResultsData*                        results( RiaDefines::PorosityModelType porosityModel ) const;
+    std::shared_ptr<RigCaseCellResultsData>             resultsShared( RiaDefines::PorosityModelType porosityModel );
+    std::shared_ptr<const RigCaseCellResultsData>       resultsShared( RiaDefines::PorosityModelType porosityModel ) const;
     const std::vector<double>*    resultValues( RiaDefines::PorosityModelType porosityModel,
                                                 RiaDefines::ResultCatType     type,
                                                 const QString&                resultName,
@@ -142,11 +144,11 @@ private:
     std::shared_ptr<RigMainGrid>        m_mainGrid;
     RimEclipseCase*                     m_ownerCase;
 
-    std::shared_ptr<RigActiveCellInfo>  m_activeCellInfo;
-    std::shared_ptr<RigActiveCellInfo>  m_fractureActiveCellInfo;
+    std::shared_ptr<RigActiveCellInfo>       m_activeCellInfo;
+    std::shared_ptr<RigActiveCellInfo>       m_fractureActiveCellInfo;
 
-    cvf::ref<RigCaseCellResultsData> m_matrixModelResults;
-    cvf::ref<RigCaseCellResultsData> m_fractureModelResults;
+    std::shared_ptr<RigCaseCellResultsData>  m_matrixModelResults;
+    std::shared_ptr<RigCaseCellResultsData>  m_fractureModelResults;
 
     cvf::ref<RigVirtualPerforationTransmissibilities> m_virtualPerforationTransmissibilities;
 
