@@ -53,11 +53,11 @@ RigEclipseCaseData::RigEclipseCaseData( RimEclipseCase* ownerCase )
     m_matrixModelResults   = new RigCaseCellResultsData( this, RiaDefines::PorosityModelType::MATRIX_MODEL );
     m_fractureModelResults = new RigCaseCellResultsData( this, RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
-    m_activeCellInfo         = new RigActiveCellInfo;
-    m_fractureActiveCellInfo = new RigActiveCellInfo;
+    m_activeCellInfo         = std::make_shared<RigActiveCellInfo>();
+    m_fractureActiveCellInfo = std::make_shared<RigActiveCellInfo>();
 
-    m_matrixModelResults->setActiveCellInfo( m_activeCellInfo.p() );
-    m_fractureModelResults->setActiveCellInfo( m_fractureActiveCellInfo.p() );
+    m_matrixModelResults->setActiveCellInfo( m_activeCellInfo.get() );
+    m_fractureModelResults->setActiveCellInfo( m_fractureActiveCellInfo.get() );
 
     m_unitsType = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
 }
@@ -426,7 +426,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::computeActiveCellIJKBBox()
 {
-    if ( m_mainGrid != nullptr && m_activeCellInfo.notNull() && m_fractureActiveCellInfo.notNull() )
+    if ( m_mainGrid != nullptr && m_activeCellInfo != nullptr && m_fractureActiveCellInfo != nullptr )
     {
         CellRangeBB matrixModelActiveBB;
         CellRangeBB fractureModelActiveBB;
@@ -586,10 +586,10 @@ RigActiveCellInfo* RigEclipseCaseData::activeCellInfo( RiaDefines::PorosityModel
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_activeCellInfo.p();
+        return m_activeCellInfo.get();
     }
 
-    return m_fractureActiveCellInfo.p();
+    return m_fractureActiveCellInfo.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -599,26 +599,52 @@ const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo( RiaDefines::Porosit
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_activeCellInfo.p();
+        return m_activeCellInfo.get();
     }
 
-    return m_fractureActiveCellInfo.p();
+    return m_fractureActiveCellInfo.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo )
+std::shared_ptr<RigActiveCellInfo> RigEclipseCaseData::activeCellInfoShared( RiaDefines::PorosityModelType porosityModel )
+{
+    if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
+    {
+        return m_activeCellInfo;
+    }
+
+    return m_fractureActiveCellInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<const RigActiveCellInfo> RigEclipseCaseData::activeCellInfoShared( RiaDefines::PorosityModelType porosityModel ) const
+{
+    if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
+    {
+        return m_activeCellInfo;
+    }
+
+    return m_fractureActiveCellInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::shared_ptr<RigActiveCellInfo> activeCellInfo )
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
         m_activeCellInfo = activeCellInfo;
-        m_matrixModelResults->setActiveCellInfo( m_activeCellInfo.p() );
+        m_matrixModelResults->setActiveCellInfo( m_activeCellInfo.get() );
     }
     else
     {
         m_fractureActiveCellInfo = activeCellInfo;
-        m_fractureModelResults->setActiveCellInfo( m_fractureActiveCellInfo.p() );
+        m_fractureModelResults->setActiveCellInfo( m_fractureActiveCellInfo.get() );
     }
 }
 
@@ -636,7 +662,7 @@ bool RigEclipseCaseData::hasFractureResults() const
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
 {
-    if ( m_activeCellInfo.isNull() || m_fractureActiveCellInfo.isNull() )
+    if ( !m_activeCellInfo || !m_fractureActiveCellInfo )
     {
         return;
     }
@@ -650,8 +676,8 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
     }
 
     RigActiveCellInfo* activeInfos[2];
-    activeInfos[0] = m_fractureActiveCellInfo.p();
-    activeInfos[1] = m_activeCellInfo.p(); // Last, to make this bb.min become display offset
+    activeInfos[0] = m_fractureActiveCellInfo.get();
+    activeInfos[1] = m_activeCellInfo.get(); // Last, to make this bb.min become display offset
 
     cvf::BoundingBox bb;
     for ( int acIdx = 0; acIdx < 2; ++acIdx )
@@ -689,7 +715,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
 {
-    if ( m_activeCellInfo.isNull() || m_fractureActiveCellInfo.isNull() )
+    if ( !m_activeCellInfo || !m_fractureActiveCellInfo )
     {
         return;
     }
@@ -703,8 +729,8 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
     }
 
     RigActiveCellInfo* activeInfos[2];
-    activeInfos[0] = m_fractureActiveCellInfo.p();
-    activeInfos[1] = m_activeCellInfo.p();
+    activeInfos[0] = m_fractureActiveCellInfo.get();
+    activeInfos[1] = m_activeCellInfo.get();
 
     cvf::BoundingBox bb;
     for ( int acIdx = 0; acIdx < 2; ++acIdx )
