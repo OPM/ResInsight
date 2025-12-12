@@ -24,6 +24,8 @@
 #include "RiaPorosityModel.h"
 
 #include "RigStatisticsDataCache.h"
+#include "RigEclipseResultInfo.h"
+#include "RigAllanDiagramData.h"
 
 #include <QDateTime>
 
@@ -35,7 +37,6 @@
 class RifReaderInterface;
 class RigActiveCellInfo;
 class RigMainGrid;
-class RigEclipseResultInfo;
 class RigEclipseTimeStepInfo;
 class RigEclipseCaseData;
 class RigFormationNames;
