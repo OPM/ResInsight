@@ -795,8 +795,8 @@ void RimEclipseCase::setReservoirData( RigEclipseCaseData* eclipseCase )
     m_rigEclipseCase = eclipseCase;
     if ( eclipseCaseData() )
     {
-        m_fractureModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
-        m_matrixModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+        m_fractureModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ).get() );
+        m_matrixModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ).get() );
     }
     else
     {
@@ -875,7 +875,7 @@ RigCaseCellResultsData* RimEclipseCase::results( RiaDefines::PorosityModelType p
 {
     if ( m_rigEclipseCase.notNull() )
     {
-        return m_rigEclipseCase->results( porosityModel );
+        return m_rigEclipseCase->results( porosityModel ).get();
     }
 
     return nullptr;
@@ -888,7 +888,7 @@ const RigCaseCellResultsData* RimEclipseCase::results( RiaDefines::PorosityModel
 {
     if ( m_rigEclipseCase.notNull() )
     {
-        return m_rigEclipseCase->results( porosityModel );
+        return m_rigEclipseCase->results( porosityModel ).get();
     }
 
     return nullptr;

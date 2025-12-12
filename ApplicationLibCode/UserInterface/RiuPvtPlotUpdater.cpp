@@ -87,7 +87,7 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
         // cvf::Trace::show("Update PVT plot for active cell index: %d", static_cast<int>(activeCellIndex));
 
         // The following calls will read results from file in preparation for the queries below
-        RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( porosityModel );
+        std::shared_ptr<RigCaseCellResultsData> cellResultsData = eclipseCaseData->results( porosityModel );
 
         cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RS" ) );
         cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RV" ) );

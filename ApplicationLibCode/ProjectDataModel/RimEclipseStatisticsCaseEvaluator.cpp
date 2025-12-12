@@ -352,7 +352,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& r
         size_t activeCellCount = m_destinationCase->activeCellInfo( poroModel )->reservoirActiveCellCount();
         if ( activeCellCount == 0 ) continue;
 
-        RigCaseCellResultsData* destCellResultsData = m_destinationCase->results( poroModel );
+        std::shared_ptr<RigCaseCellResultsData> destCellResultsData = m_destinationCase->results( poroModel );
 
         // Placeholder data used to be created here,
         // this is now moved to RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
@@ -376,7 +376,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& r
 
         for ( const auto& statisticalResultName : statisticalResultNames )
         {
-            addNamedResult( destCellResultsData, resultType, statisticalResultName, activeCellCount );
+            addNamedResult( destCellResultsData.get(), resultType, statisticalResultName, activeCellCount );
         }
     }
 }

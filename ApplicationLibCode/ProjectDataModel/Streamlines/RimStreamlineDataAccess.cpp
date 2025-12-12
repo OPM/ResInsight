@@ -105,7 +105,7 @@ cvf::ref<RigResultAccessor>
 {
     RiaDefines::PorosityModelType porModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
-    RigCaseCellResultsData* data = m_data->results( porModel );
+    std::shared_ptr<RigCaseCellResultsData> data = m_data->results( porModel );
 
     QString resultname = gridResultNameFromPhase( phase, faceIdx );
     int     gridIdx    = 0;

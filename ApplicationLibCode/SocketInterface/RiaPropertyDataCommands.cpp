@@ -1098,7 +1098,7 @@ public:
         std::vector<QString> propNames;
         std::vector<QString> propTypes;
 
-        RigCaseCellResultsData* results = rimCase->eclipseCaseData()->results( porosityModelEnum );
+        std::shared_ptr<RigCaseCellResultsData> results = rimCase->eclipseCaseData()->results( porosityModelEnum );
 
         std::vector<RiaDefines::ResultCatType> resTypes;
         std::vector<QString>                   resTypeNames;

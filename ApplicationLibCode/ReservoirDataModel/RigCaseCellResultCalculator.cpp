@@ -94,8 +94,8 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
         return false;
     }
 
-    RigCaseCellResultsData* baseCaseResults   = baseCase->results( porosityModel );
-    RigCaseCellResultsData* sourceCaseResults = sourceCase->results( porosityModel );
+    std::shared_ptr<RigCaseCellResultsData> baseCaseResults   = baseCase->results( porosityModel );
+    std::shared_ptr<RigCaseCellResultsData> sourceCaseResults = sourceCase->results( porosityModel );
 
     if ( !baseCaseResults || !sourceCaseResults )
     {
@@ -220,7 +220,7 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
     CVF_ASSERT( address.isValid() );
     CVF_ASSERT( address.isDivideByCellFaceAreaActive() );
 
-    RigCaseCellResultsData* baseCaseResults = destination->results( porosityModel );
+    std::shared_ptr<RigCaseCellResultsData> baseCaseResults = destination->results( porosityModel );
     if ( !baseCaseResults )
     {
         RiaLogging::error( "Missing result data for divide by area calculator" );

@@ -50,8 +50,8 @@ RigEclipseCaseData::RigEclipseCaseData( RimEclipseCase* ownerCase )
     m_mainGrid  = std::make_shared<RigMainGrid>();
     m_ownerCase = ownerCase;
 
-    m_matrixModelResults   = new RigCaseCellResultsData( this, RiaDefines::PorosityModelType::MATRIX_MODEL );
-    m_fractureModelResults = new RigCaseCellResultsData( this, RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    m_matrixModelResults   = std::make_shared<RigCaseCellResultsData>( this, RiaDefines::PorosityModelType::MATRIX_MODEL );
+    m_fractureModelResults = std::make_shared<RigCaseCellResultsData>( this, RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
     m_activeCellInfo         = std::make_shared<RigActiveCellInfo>();
     m_fractureActiveCellInfo = std::make_shared<RigActiveCellInfo>();
@@ -840,27 +840,27 @@ RigAllanDiagramData* RigEclipseCaseData::allanDiagramData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData* RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel )
+std::shared_ptr<RigCaseCellResultsData> RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel )
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_matrixModelResults.p();
+        return m_matrixModelResults;
     }
 
-    return m_fractureModelResults.p();
+    return m_fractureModelResults;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigCaseCellResultsData* RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel ) const
+std::shared_ptr<const RigCaseCellResultsData> RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel ) const
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_matrixModelResults.p();
+        return m_matrixModelResults;
     }
 
-    return m_fractureModelResults.p();
+    return m_fractureModelResults;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -871,7 +871,7 @@ const std::vector<double>* RigEclipseCaseData::resultValues( RiaDefines::Porosit
                                                              const QString&                resultName,
                                                              size_t                        timeStepIndex )
 {
-    RigCaseCellResultsData* gridCellResults = results( porosityModel );
+    std::shared_ptr<RigCaseCellResultsData> gridCellResults = results( porosityModel );
 
     const std::vector<double>* swatResults = nullptr;
     if ( gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( type, resultName ) ) )

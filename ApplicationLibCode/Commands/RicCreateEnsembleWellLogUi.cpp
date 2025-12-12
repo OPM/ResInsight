@@ -116,12 +116,13 @@ QList<caf::PdmOptionItemInfo> RicCreateEnsembleWellLogUi::calculateValueOptions(
 
     if ( fieldNeedingOptions == &m_selectedKeywords )
     {
-        RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        std::shared_ptr<RigCaseCellResultsData> resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
         std::vector<RiaDefines::ResultCatType> resultCategories = validResultCategories();
         for ( auto catType : resultCategories )
         {
-            QList<caf::PdmOptionItemInfo> allOptions = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
+            QList<caf::PdmOptionItemInfo> allOptions =
+                RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData.get() );
 
             bool isFirstOfCategory = true;
             for ( caf::PdmOptionItemInfo option : allOptions )
@@ -278,9 +279,9 @@ void RicCreateEnsembleWellLogUi::setCaseData( RigEclipseCaseData* caseData )
 
     if ( m_selectedKeywords().empty() )
     {
-        RigCaseCellResultsData*                resultData      = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        std::vector<QString>                   defaultKeywords = { "INDEX_K", "PORO", "PERMX", "PRESSURE" };
-        std::vector<RiaDefines::ResultCatType> categories      = validResultCategories();
+        std::shared_ptr<RigCaseCellResultsData> resultData      = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        std::vector<QString>                    defaultKeywords = { "INDEX_K", "PORO", "PERMX", "PRESSURE" };
+        std::vector<RiaDefines::ResultCatType>  categories      = validResultCategories();
 
         for ( auto keyword : defaultKeywords )
         {

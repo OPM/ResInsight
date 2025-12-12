@@ -1494,7 +1494,7 @@ void RimEclipseView::onUpdateLegends()
     RigEclipseCaseData* eclipseCaseData = eclipseCase()->eclipseCaseData();
     CVF_ASSERT( eclipseCaseData );
 
-    RigCaseCellResultsData* results = eclipseCaseData->results( cellResult()->porosityModel() );
+    std::shared_ptr<RigCaseCellResultsData> results = eclipseCaseData->results( cellResult()->porosityModel() );
     CVF_ASSERT( results );
 
     updateLegendRangesTextAndVisibility( cellResult()->legendConfig(),

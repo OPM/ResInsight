@@ -48,13 +48,13 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseC
 
     if ( xAddress.eclipseResultAddress().isValid() && yAddress.eclipseResultAddress().isValid() )
     {
-        RigCaseCellResultsData* xResultData = caseData->results( xAddress.porosityModel() );
+        std::shared_ptr<RigCaseCellResultsData> xResultData = caseData->results( xAddress.porosityModel() );
         if ( !xResultData->ensureKnownResultLoaded( xAddress.eclipseResultAddress() ) )
         {
             return result;
         }
 
-        RigCaseCellResultsData* yResultData = caseData->results( yAddress.porosityModel() );
+        std::shared_ptr<RigCaseCellResultsData> yResultData = caseData->results( yAddress.porosityModel() );
         if ( !yResultData->ensureKnownResultLoaded( yAddress.eclipseResultAddress() ) )
         {
             return result;
@@ -63,7 +63,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseC
         const std::vector<std::vector<double>>& xValuesForAllSteps = xResultData->cellScalarResults( xAddress.eclipseResultAddress() );
         const std::vector<std::vector<double>>& yValuesForAllSteps = yResultData->cellScalarResults( yAddress.eclipseResultAddress() );
 
-        RigCaseCellResultsData*                 groupResultData      = nullptr;
+        std::shared_ptr<RigCaseCellResultsData> groupResultData      = nullptr;
         const std::vector<std::vector<double>>* catValuesForAllSteps = nullptr;
 
         if ( groupingType == GROUP_BY_RESULT && groupAddress.eclipseResultAddress().isValid() )

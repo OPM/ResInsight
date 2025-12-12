@@ -407,7 +407,7 @@ QList<caf::PdmOptionItemInfo> RicExportEclipseSectorModelUi::calculateValueOptio
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &selectedKeywords )
     {
-        RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        std::shared_ptr<RigCaseCellResultsData> resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
         std::vector<RiaDefines::ResultCatType> exportTypes = { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                RiaDefines::ResultCatType::GENERATED,
@@ -417,7 +417,7 @@ QList<caf::PdmOptionItemInfo> RicExportEclipseSectorModelUi::calculateValueOptio
 
         for ( const auto resultCategory : exportTypes )
         {
-            auto options = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( resultCategory, resultData );
+            auto options = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( resultCategory, resultData.get() );
             allOptions.append( options );
         }
 
@@ -561,7 +561,7 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::removeInvalidKeywords()
 {
-    RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    std::shared_ptr<RigCaseCellResultsData> resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     std::vector<QString> validKeywords;
     for ( const QString& keyword : selectedKeywords() )

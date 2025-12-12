@@ -85,7 +85,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
 
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    std::shared_ptr<RigCaseCellResultsData> cellResultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     if ( !cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( m_propertyName ) ) )
     {
