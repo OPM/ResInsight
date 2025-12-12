@@ -393,8 +393,7 @@ void RimStreamlineInViewCollection::findStartCells( int                         
     // get the simulation wells
     const cvf::Collection<RigSimWellData>& simWellData = eclipseCase()->eclipseCaseData()->wellResults();
 
-    std::vector<const RigGridBase*> grids;
-    eclipseCase()->eclipseCaseData()->allGrids( &grids );
+    auto grids = eclipseCase()->eclipseCaseData()->allGrids();
 
     // go through all sim wells and find all open producer and injector cells for the given timestep
     for ( auto& swdata : simWellData )

@@ -37,8 +37,6 @@
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
-#include <QDebug>
-
 #include <array>
 
 //--------------------------------------------------------------------------------------------------
@@ -99,39 +97,33 @@ void RigEclipseCaseData::setMainGrid( std::shared_ptr<RigMainGrid> mainGrid )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::allGrids( std::vector<RigGridBase*>* grids )
+std::vector<RigGridBase*> RigEclipseCaseData::allGrids()
 {
-    CVF_ASSERT( grids );
+    if ( !m_mainGrid ) return {};
 
-    if ( !m_mainGrid )
+    std::vector<RigGridBase*> grids;
+    for ( size_t i = 0; i < m_mainGrid->gridCount(); i++ )
     {
-        return;
+        grids.push_back( m_mainGrid->gridByIndex( i ) );
     }
 
-    size_t i;
-    for ( i = 0; i < m_mainGrid->gridCount(); i++ )
-    {
-        grids->push_back( m_mainGrid->gridByIndex( i ) );
-    }
+    return grids;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::allGrids( std::vector<const RigGridBase*>* grids ) const
+std::vector<const RigGridBase*> RigEclipseCaseData::allGrids() const
 {
-    CVF_ASSERT( grids );
+    if ( !m_mainGrid ) return {};
 
-    if ( !m_mainGrid )
+    std::vector<const RigGridBase*> grids;
+    for ( size_t i = 0; i < m_mainGrid->gridCount(); i++ )
     {
-        return;
+        grids.push_back( m_mainGrid->gridByIndex( i ) );
     }
 
-    size_t i;
-    for ( i = 0; i < m_mainGrid->gridCount(); i++ )
-    {
-        grids->push_back( m_mainGrid->gridByIndex( i ) );
-    }
+    return grids;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,12 +159,12 @@ const RigGridBase* RigEclipseCaseData::grid( const QString& gridName ) const
         return m_mainGrid.get();
     }
 
-    size_t i;
-    for ( i = 0; i < m_mainGrid->gridCount(); i++ )
+    for ( size_t i = 0; i < m_mainGrid->gridCount(); i++ )
     {
         const RigGridBase* grid = m_mainGrid->gridByIndex( i );
         if ( QString::fromStdString( grid->gridName() ) == gridName ) return grid;
     }
+
     return nullptr;
 }
 
@@ -193,35 +185,13 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
     // If we have computed this already, return
     if ( !m_wellCellsInGrid.empty() ) return;
 
-    std::vector<RigGridBase*> grids;
-    allGrids( &grids );
-
-    // Debug code used to display grid names and grid sizes
-    /*
-        size_t totCellCount = 0;
-        for (auto g : grids)
-        {
-            qDebug() << g->gridName().data();
-            qDebug() << g->cellCountI() << " " << g->cellCountJ() << " " << g->cellCountK() << " ";
-
-            size_t cellCount = g->cellCount();
-            totCellCount += cellCount;
-            qDebug() << cellCount;
-
-            qDebug() << "\n";
-        }
-
-        qDebug() << "\nTotal cell count " << totCellCount;
-    */
-
-    size_t gIdx;
+    auto grids = allGrids();
 
     //  Allocate and initialize the arrays
-
     m_wellCellsInGrid.resize( grids.size() );
     m_gridCellToResultWellIndex.resize( grids.size() );
 
-    for ( gIdx = 0; gIdx < grids.size(); ++gIdx )
+    for ( size_t gIdx = 0; gIdx < grids.size(); ++gIdx )
     {
         if ( m_wellCellsInGrid[gIdx].isNull() || m_wellCellsInGrid[gIdx]->size() != grids[gIdx]->cellCount() )
         {
@@ -236,14 +206,10 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
     }
 
     // Fill arrays with data
-    size_t wIdx;
-    for ( wIdx = 0; wIdx < m_simWellData.size(); ++wIdx )
+    for ( size_t wIdx = 0; wIdx < m_simWellData.size(); ++wIdx )
     {
-        size_t tIdx;
-        for ( tIdx = 0; tIdx < m_simWellData[wIdx]->m_wellCellsTimeSteps.size(); ++tIdx )
+        for ( const RigWellResultFrame& wellCells : m_simWellData[wIdx]->m_wellCellsTimeSteps )
         {
-            RigWellResultFrame& wellCells = m_simWellData[wIdx]->m_wellCellsTimeSteps[tIdx];
-
             // Well result branches
             for ( const auto& wellSegment : wellCells.wellResultBranches() )
             {
@@ -342,10 +308,7 @@ const RigCell& RigEclipseCaseData::cellFromWellResultCell( const RigWellResultPo
     size_t gridIndex     = wellResultPoint.gridIndex();
     size_t gridCellIndex = wellResultPoint.cellIndex();
 
-    std::vector<const RigGridBase*> grids;
-    allGrids( &grids );
-
-    return grids[gridIndex]->cell( gridCellIndex );
+    return grid( gridIndex )->cell( gridCellIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -363,18 +326,12 @@ bool RigEclipseCaseData::findSharedSourceFace( cvf::StructGridInterface::FaceTyp
 
     if ( gridIndex != otherGridIndex ) return false;
 
-    std::vector<const RigGridBase*> grids;
-    allGrids( &grids );
-
-    const RigGridBase* grid = grids[gridIndex];
+    const RigGridBase* grid = this->grid( gridIndex );
     size_t             i, j, k;
     grid->ijkFromCellIndex( gridCellIndex, &i, &j, &k );
 
-    size_t faceIdx;
-    for ( faceIdx = 0; faceIdx < 6; faceIdx++ )
+    for ( cvf::StructGridInterface::FaceType sourceFace : cvf::StructGridInterface::validFaceTypes() )
     {
-        cvf::StructGridInterface::FaceType sourceFace = static_cast<cvf::StructGridInterface::FaceType>( faceIdx );
-
         size_t ni, nj, nk;
         RigGridBase::neighborIJKAtCellFace( i, j, k, sourceFace, &ni, &nj, &nk );
 
@@ -537,7 +494,8 @@ std::vector<const RigWellPath*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setVirtualPerforationTransmissibilities( std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilities )
+void RigEclipseCaseData::setVirtualPerforationTransmissibilities(
+    std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilities )
 {
     m_virtualPerforationTransmissibilities = virtualPerforationTransmissibilities;
 }

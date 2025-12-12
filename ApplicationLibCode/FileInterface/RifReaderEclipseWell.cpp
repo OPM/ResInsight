@@ -474,8 +474,7 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
         sameCount = true;
     }
 
-    std::vector<RigGridBase*> grids;
-    eclipseCaseData->allGrids( &grids );
+    auto grids = eclipseCaseData->allGrids();
 
     cvf::Collection<RigSimWellData> wells;
     caf::ProgressInfo               progress( well_info_get_num_wells( ert_well_info ), "" );
