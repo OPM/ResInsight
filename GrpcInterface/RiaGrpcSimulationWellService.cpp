@@ -113,8 +113,7 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
     {
         // Fetch results
         const RigWellResultFrame* wellResFrame = currentWellResult->wellResultFrame( tsIdx );
-        std::vector<RigGridBase*> grids;
-        eclipseCase->eclipseCaseData()->allGrids( &grids );
+        auto                      grids        = eclipseCase->eclipseCaseData()->allGrids();
 
         for ( size_t bIdx = 0; bIdx < wellResFrame->wellResultBranches().size(); ++bIdx )
         {

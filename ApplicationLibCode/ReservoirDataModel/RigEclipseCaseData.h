@@ -68,12 +68,12 @@ public:
     std::shared_ptr<const RigMainGrid> mainGridShared() const { return m_mainGrid; }
     void                               setMainGrid( std::shared_ptr<RigMainGrid> mainGrid );
 
-    void               allGrids( std::vector<RigGridBase*>* grids ); // To be removed
-    void               allGrids( std::vector<const RigGridBase*>* grids ) const; // To be removed
-    const RigGridBase* grid( size_t index ) const;
-    RigGridBase*       grid( size_t index );
-    size_t             gridCount() const;
-    const RigGridBase* grid( const QString& gridName ) const;
+    [[nodiscard]] std::vector<RigGridBase*>       allGrids();
+    [[nodiscard]] std::vector<const RigGridBase*> allGrids() const;
+    const RigGridBase*                            grid( size_t index ) const;
+    RigGridBase*                                  grid( size_t index );
+    size_t                                        gridCount() const;
+    const RigGridBase*                            grid( const QString& gridName ) const;
 
     std::shared_ptr<RigCaseCellResultsData>       results( RiaDefines::PorosityModelType porosityModel );
     std::shared_ptr<const RigCaseCellResultsData> results( RiaDefines::PorosityModelType porosityModel ) const;
@@ -122,8 +122,8 @@ public:
         simulationWellBranches( const QString& simWellName, bool includeAllCellCenters, bool useAutoDetectionOfBranches ) const;
 
     void setVirtualPerforationTransmissibilities( std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilities );
-    const RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities() const;
-    std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilitiesShared();
+    const RigVirtualPerforationTransmissibilities*                 virtualPerforationTransmissibilities() const;
+    std::shared_ptr<RigVirtualPerforationTransmissibilities>       virtualPerforationTransmissibilitiesShared();
     std::shared_ptr<const RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilitiesShared() const;
 
     void clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }

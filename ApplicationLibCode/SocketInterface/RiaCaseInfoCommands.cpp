@@ -369,8 +369,7 @@ public:
 
         if ( rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid() )
         {
-            std::vector<RigGridBase*> grids;
-            rimCase->eclipseCaseData()->allGrids( &grids );
+            auto grids = rimCase->eclipseCaseData()->allGrids();
 
             quint64 byteCount = grids.size() * 3 * sizeof( quint64 );
             socketStream << byteCount;
