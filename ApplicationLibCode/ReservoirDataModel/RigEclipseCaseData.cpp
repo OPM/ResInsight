@@ -537,7 +537,7 @@ std::vector<const RigWellPath*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setVirtualPerforationTransmissibilities( RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities )
+void RigEclipseCaseData::setVirtualPerforationTransmissibilities( std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilities )
 {
     m_virtualPerforationTransmissibilities = virtualPerforationTransmissibilities;
 }
@@ -547,7 +547,23 @@ void RigEclipseCaseData::setVirtualPerforationTransmissibilities( RigVirtualPerf
 //--------------------------------------------------------------------------------------------------
 const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerforationTransmissibilities() const
 {
-    return m_virtualPerforationTransmissibilities.p();
+    return m_virtualPerforationTransmissibilities.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RigVirtualPerforationTransmissibilities> RigEclipseCaseData::virtualPerforationTransmissibilitiesShared()
+{
+    return m_virtualPerforationTransmissibilities;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<const RigVirtualPerforationTransmissibilities> RigEclipseCaseData::virtualPerforationTransmissibilitiesShared() const
+{
+    return m_virtualPerforationTransmissibilities;
 }
 
 //--------------------------------------------------------------------------------------------------

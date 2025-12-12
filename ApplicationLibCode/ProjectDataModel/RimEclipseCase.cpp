@@ -352,7 +352,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
 
     if ( rigEclipseCase->virtualPerforationTransmissibilities() == nullptr )
     {
-        cvf::ref<RigVirtualPerforationTransmissibilities> perfTrans = new RigVirtualPerforationTransmissibilities;
+        std::shared_ptr<RigVirtualPerforationTransmissibilities> perfTrans = std::make_shared<RigVirtualPerforationTransmissibilities>();
 
         std::vector<RimWellPath*> visibleWellPaths;
         bool                      anyPerforationsPresent = false;
@@ -440,7 +440,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
             }
         }
 
-        rigEclipseCase->setVirtualPerforationTransmissibilities( perfTrans.p() );
+        rigEclipseCase->setVirtualPerforationTransmissibilities( perfTrans );
     }
 
     return rigEclipseCase->virtualPerforationTransmissibilities();
