@@ -65,7 +65,7 @@ bool ExpressionParser::evaluate(const QString& expressionText, QString* errorTex
 //--------------------------------------------------------------------------------------------------
 bool ExpressionParser::expandIfStatementsAndEvaluate(const QString& expressionText, QString* errorText /*= nullptr*/)
 {
-    if (expressionText.contains("if"))
+    if (expressionText.contains("if", Qt::CaseInsensitive))
     {
         QString expandedExpressionText = ExpressionParserImpl::expandIfStatements(expressionText);
 
