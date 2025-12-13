@@ -102,7 +102,8 @@ public:
                                     VolumeResultType           volumeResultType,
                                     const RigFloodingSettings& floodingSettings,
                                     const ClusteringLimits&    limits,
-                                    bool                       skipUndefinedResults );
+                                    bool                       skipUndefinedResults,
+                                    bool                       setTimeStepInView );
 
     static std::vector<double> getVolumeVector( RigCaseCellResultsData&       resultsData,
                                                 RiaDefines::EclipseUnitSystem unitsType,

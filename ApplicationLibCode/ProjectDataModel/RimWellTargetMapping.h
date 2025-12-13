@@ -58,7 +58,7 @@ protected:
     void                          initAfterRead() override;
 
 private:
-    void        generateCandidates( RimEclipseCase* eclipseCase );
+    void        generateCandidates( RimEclipseCase* eclipseCase, bool setTimeStepInView = true );
     void        updateAllBoundaries();
     void        generateEnsembleStatistics();
     cvf::Vec3st getResultGridCellCount() const;

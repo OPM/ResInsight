@@ -423,11 +423,12 @@ cvf::Vec3st RimWellTargetMapping::getResultGridCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase )
+void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase, bool setTimeStepInView )
 {
     RigWellTargetMapping::ClusteringLimits limits = getClusteringLimits();
     RigFloodingSettings floodingSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
 
+    bool skipUndefinedResults = true;
     RigWellTargetMapping::generateCandidates( eclipseCase,
                                               m_timeStep(),
                                               m_volumeType(),
@@ -435,7 +436,8 @@ void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase )
                                               m_volumeResultType(),
                                               floodingSettings,
                                               limits,
-                                              true );
+                                              skipUndefinedResults,
+                                              setTimeStepInView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -622,7 +624,8 @@ void RimWellTargetMapping::initAfterRead()
 
         // Automatically generate results on project load
         // Consider to also do this for ensemble cases, but this will be more expensive
-        generateCandidates( eclipseCase );
+        bool setTimeStepInView = false;
+        generateCandidates( eclipseCase, setTimeStepInView );
     }
 }
 

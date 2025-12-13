@@ -64,7 +64,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
                                                VolumeResultType           volumeResultType,
                                                const RigFloodingSettings& floodingSettings,
                                                const ClusteringLimits&    limits,
-                                               bool                       skipUndefinedResults )
+                                               bool                       skipUndefinedResults,
+                                               bool                       setTimeStepInView = true )
 {
     if ( !eclipseCase->ensureReservoirCaseIsOpen() ) return;
 
@@ -290,7 +291,10 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     {
         if ( auto eclipseView = dynamic_cast<RimEclipseView*>( view ) )
         {
-            eclipseView->setCurrentTimeStep( (int)timeStepIdx );
+            if ( setTimeStepInView )
+            {
+                eclipseView->setCurrentTimeStep( (int)timeStepIdx );
+            }
             eclipseView->scheduleReservoirGridGeometryRegen();
             eclipseView->propertyFilterCollection()->updateConnectedEditors();
         }
