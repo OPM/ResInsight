@@ -664,8 +664,8 @@ TEST( BaseTest, FieldValidation )
             this->addField( &m_normalField, "normalField" );
         }
 
-        PositiveDoubleField                 m_validatedField;
-        caf::PdmDataValueField<double>      m_normalField;
+        PositiveDoubleField            m_validatedField;
+        caf::PdmDataValueField<double> m_normalField;
     };
 
     TestObject* obj = new TestObject;
