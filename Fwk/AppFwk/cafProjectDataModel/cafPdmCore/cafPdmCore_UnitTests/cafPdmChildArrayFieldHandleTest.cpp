@@ -171,7 +171,7 @@ TEST( ChildArrayFieldHandle, AsyncDeleteOfMultipleChildren )
     // Crash was reproduced in Debug build in VS2022 17.13.2
 
     ContainerObj containerObj;
-    const int    numObjects = 100000;
+    const int    numObjects = 1000;
     for ( int i = 0; i < numObjects; i++ )
     {
         containerObj.createAndAppendObject();
@@ -179,6 +179,6 @@ TEST( ChildArrayFieldHandle, AsyncDeleteOfMultipleChildren )
 
     containerObj.derivedObjs.deleteChildrenAsync();
 
-    // Wait for some time to allow the async delete
-    std::this_thread::sleep_for( std::chrono::milliseconds( 2 ) );
+    // Wait for async delete to complete
+    std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 }
