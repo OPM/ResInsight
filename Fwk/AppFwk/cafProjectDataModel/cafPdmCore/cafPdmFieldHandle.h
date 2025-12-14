@@ -58,6 +58,10 @@ public:
     PdmUiFieldHandle*  uiCapability();
     PdmXmlFieldHandle* xmlCapability();
 
+    // Validation
+    virtual QString validate() const;
+    bool            isValid() const;
+
 protected:
     bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
 

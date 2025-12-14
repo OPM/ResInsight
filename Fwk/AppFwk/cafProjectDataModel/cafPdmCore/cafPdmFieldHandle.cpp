@@ -129,6 +129,23 @@ std::vector<QString> PdmFieldHandle::keywordAliases() const
     return m_keywordAliases;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Default validation returns empty string (valid). Override in derived classes to implement
+/// custom validation logic. Empty QString means valid, non-empty QString contains error message.
+//--------------------------------------------------------------------------------------------------
+QString PdmFieldHandle::validate() const
+{
+    return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Convenience method to check if field is valid.
+//--------------------------------------------------------------------------------------------------
+bool PdmFieldHandle::isValid() const
+{
+    return validate().isEmpty();
+}
+
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
 /*
 PdmUiFieldHandle* PdmFieldHandle::uiCapability()
