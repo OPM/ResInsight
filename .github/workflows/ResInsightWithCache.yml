@@ -125,7 +125,7 @@ jobs:
 
       - name: Cache Buildcache
         id: cache-buildcache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.BUILDCACHE_DIR }}
           key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-${{ matrix.config.qt-version }}-cache-v03-${{ steps.current-time.outputs.formattedTime }}
