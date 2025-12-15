@@ -620,7 +620,10 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 set(ADS_VERSION "4.4.1")
 set(QT_VERSION_MAJOR 6)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/qtadvanceddocking/cmake/modules ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH
+    ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/qtadvanceddocking/cmake/modules
+    ${CMAKE_MODULE_PATH}
+)
 
 add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
