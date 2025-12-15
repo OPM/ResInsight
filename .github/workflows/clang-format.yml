@@ -41,7 +41,7 @@ jobs:
           cd GrpcInterface
           find -name '*.h' -o -name '*.cpp' -o -name '*.inl' -o -name '*.proto' | grep -v gtest | xargs clang-format-19 -i
           git diff
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Fixes by clang-format"

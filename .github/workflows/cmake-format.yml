@@ -35,7 +35,7 @@ jobs:
           ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i ThirdParty/custom-opm-common/CMakeLists.txt
 
           git diff
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Fixes by cmake-format"
