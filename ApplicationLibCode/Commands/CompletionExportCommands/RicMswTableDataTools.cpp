@@ -81,8 +81,8 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
                                                           gsl::not_null<int*>                           segmentNumber,
                                                           double                                        maxSegmentLength,
                                                           const std::vector<std::pair<double, double>>& customSegmentIntervals,
-                                                          bool                                          exportCompletionSegmentsAfterMainBore,
-                                                          RicMswSegment*                                connectedToSegment )
+                                                          bool           exportCompletionSegmentsAfterMainBore,
+                                                          RicMswSegment* connectedToSegment )
 {
     auto         outletSegment = connectedToSegment;
     RicMswValve* outletValve   = nullptr;
@@ -119,7 +119,14 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
 
         if ( !exportCompletionSegmentsAfterMainBore )
         {
-            collectCompletionsForSegment( tableData, outletSegment, segment, &outletValve, exportInfo, maxSegmentLength, customSegmentIntervals, segmentNumber );
+            collectCompletionsForSegment( tableData,
+                                          outletSegment,
+                                          segment,
+                                          &outletValve,
+                                          exportInfo,
+                                          maxSegmentLength,
+                                          customSegmentIntervals,
+                                          segmentNumber );
         }
     }
 
@@ -130,7 +137,14 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
         for ( ; it != branchSegments.end(); ++it )
         {
             auto segment = *it;
-            collectCompletionsForSegment( tableData, outletSegment, segment, &outletValve, exportInfo, maxSegmentLength, customSegmentIntervals, segmentNumber );
+            collectCompletionsForSegment( tableData,
+                                          outletSegment,
+                                          segment,
+                                          &outletValve,
+                                          exportInfo,
+                                          maxSegmentLength,
+                                          customSegmentIntervals,
+                                          segmentNumber );
         }
     }
 
@@ -170,7 +184,8 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&              
     double startMD = segment->startMD();
     double endMD   = segment->endMD();
 
-    std::vector<std::pair<double, double>> segments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
+    std::vector<std::pair<double, double>> segments =
+        RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
 
     CVF_ASSERT( branch->wellPath() );
 
@@ -378,7 +393,13 @@ void RicMswTableDataTools::collectCompletionsForSegment( RigMswTableData&       
             // Special handling for Tie-in ICVs
             RicMswSegment* outletSegmentForCompletion =
                 *outletValve && ( *outletValve )->segmentCount() > 0 ? ( *outletValve )->segments().front() : segment.get();
-            collectCompletionWelsegsSegments( tableData, outletSegmentForCompletion, completion, exportInfo, maxSegmentLength, customSegmentIntervals, segmentNumber );
+            collectCompletionWelsegsSegments( tableData,
+                                              outletSegmentForCompletion,
+                                              completion,
+                                              exportInfo,
+                                              maxSegmentLength,
+                                              customSegmentIntervals,
+                                              segmentNumber );
         }
         else
         {

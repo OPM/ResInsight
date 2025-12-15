@@ -914,10 +914,11 @@ void RicMswTableFormatterTools::writeCompletionsForSegment( gsl::not_null<const 
 /// Custom intervals define exact segment boundaries where specified
 /// Areas without custom intervals use max segment length subdivision (if maxSegmentLength > 0)
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>> RicMswTableFormatterTools::createSubSegmentMDPairs( double                                        startMD,
-                                                                                           double                                        endMD,
-                                                                                           double                                        maxSegmentLength,
-                                                                                           const std::vector<std::pair<double, double>>& customSegmentIntervals )
+std::vector<std::pair<double, double>>
+    RicMswTableFormatterTools::createSubSegmentMDPairs( double                                        startMD,
+                                                        double                                        endMD,
+                                                        double                                        maxSegmentLength,
+                                                        const std::vector<std::pair<double, double>>& customSegmentIntervals )
 {
     std::vector<std::pair<double, double>> subSegmentMDPairs;
 
@@ -981,7 +982,8 @@ std::vector<std::pair<double, double>> RicMswTableFormatterTools::createSubSegme
             double clippedEnd   = std::min( customEnd, endMD );
 
             // If the gap is fully within a custom interval, use exact boundaries
-            if ( gapStart >= clippedStart && gapEnd <= clippedEnd && std::abs( gapStart - clippedStart ) < 1e-6 && std::abs( gapEnd - clippedEnd ) < 1e-6 )
+            if ( gapStart >= clippedStart && gapEnd <= clippedEnd && std::abs( gapStart - clippedStart ) < 1e-6 &&
+                 std::abs( gapEnd - clippedEnd ) < 1e-6 )
             {
                 coveredByCustomInterval = true;
                 subSegmentMDPairs.push_back( std::make_pair( gapStart, gapEnd ) );

@@ -74,11 +74,11 @@ public:
 };
 
 // New data collection functions (replace formatter versions)
-void collectWelsegsData( RigMswTableData&                                  tableData,
-                         RicMswExportInfo&                                 exportInfo,
-                         double                                            maxSegmentLength,
-                         const std::vector<std::pair<double, double>>&     customSegmentIntervals,
-                         bool                                              exportCompletionSegmentsAfterMainBore );
+void collectWelsegsData( RigMswTableData&                              tableData,
+                         RicMswExportInfo&                             exportInfo,
+                         double                                        maxSegmentLength,
+                         const std::vector<std::pair<double, double>>& customSegmentIntervals,
+                         bool                                          exportCompletionSegmentsAfterMainBore );
 
 void collectWelsegsDataRecursively( RigMswTableData&                              tableData,
                                     RicMswExportInfo&                             exportInfo,

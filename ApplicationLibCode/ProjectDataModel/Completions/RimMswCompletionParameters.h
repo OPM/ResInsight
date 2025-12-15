@@ -95,9 +95,9 @@ public:
     RimDiameterRoughnessIntervalCollection* diameterRoughnessIntervals() const;
 
     // Custom segment intervals
-    RimCustomSegmentIntervalCollection*         customSegmentIntervals() const;
-    std::vector<std::pair<double, double>>      getSegmentIntervals() const;
-    bool                                        hasCustomSegmentIntervals() const;
+    RimCustomSegmentIntervalCollection*    customSegmentIntervals() const;
+    std::vector<std::pair<double, double>> getSegmentIntervals() const;
+    bool                                   hasCustomSegmentIntervals() const;
 
     void setUnitSystemSpecificDefaults();
 

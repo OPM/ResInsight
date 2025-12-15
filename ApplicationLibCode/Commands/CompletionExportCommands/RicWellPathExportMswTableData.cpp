@@ -123,7 +123,11 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
     std::vector<std::pair<double, double>> customSegmentIntervals = mswParameters->getSegmentIntervals();
 
     // Use the new collection functions to populate the table data
-    RicMswTableDataTools::collectWelsegsData( tableData, exportInfo, mswParameters->maxSegmentLength(), customSegmentIntervals, exportCompletionsAfterMainBoreSegments );
+    RicMswTableDataTools::collectWelsegsData( tableData,
+                                              exportInfo,
+                                              mswParameters->maxSegmentLength(),
+                                              customSegmentIntervals,
+                                              exportCompletionsAfterMainBoreSegments );
 
     {
         // Get COMPSEGS for main grid
