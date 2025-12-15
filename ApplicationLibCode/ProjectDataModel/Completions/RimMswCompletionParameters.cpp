@@ -19,6 +19,8 @@
 #include "RimMswCompletionParameters.h"
 
 #include "RiaEclipseUnitTools.h"
+#include "RimCustomSegmentInterval.h"
+#include "RimCustomSegmentIntervalCollection.h"
 #include "RimDiameterRoughnessIntervalCollection.h"
 
 #include "RimWellPath.h"
@@ -113,6 +115,12 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitScriptableField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length" );
     CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
     m_maxSegmentLength.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_customSegmentIntervals, "CustomSegmentIntervals", "Custom Segment Intervals" );
+    m_customSegmentIntervals = new RimCustomSegmentIntervalCollection();
+    m_customSegmentIntervals->intervalsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_customSegmentIntervals->intervalsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_customSegmentIntervals->intervalsField().uiCapability()->setCustomContextMenuEnabled( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,6 +391,44 @@ void RimMswCompletionParameters::setLengthAndDepth( LengthAndDepthType lengthAnd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCustomSegmentIntervalCollection* RimMswCompletionParameters::customSegmentIntervals() const
+{
+    return m_customSegmentIntervals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<double, double>> RimMswCompletionParameters::getSegmentIntervals() const
+{
+    std::vector<std::pair<double, double>> result;
+
+    if ( m_customSegmentIntervals() && !m_customSegmentIntervals()->isEmpty() )
+    {
+        auto intervals = m_customSegmentIntervals()->intervals();
+        for ( auto* interval : intervals )
+        {
+            if ( interval && interval->isValidInterval() )
+            {
+                result.push_back( { interval->startMD(), interval->endMD() } );
+            }
+        }
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMswCompletionParameters::hasCustomSegmentIntervals() const
+{
+    return m_customSegmentIntervals() && !m_customSegmentIntervals()->isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_refMDType )
@@ -450,8 +496,12 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
 
             uiOrdering.add( &m_pressureDrop );
             uiOrdering.add( &m_lengthAndDepth );
-            uiOrdering.add( &m_enforceMaxSegmentLength );
-            uiOrdering.add( &m_maxSegmentLength );
+
+            // Custom Segment Configuration section
+            auto* segmentConfigGroup = uiOrdering.addNewGroup( "Custom Segment Configuration" );
+            segmentConfigGroup->add( &m_enforceMaxSegmentLength );
+            segmentConfigGroup->add( &m_maxSegmentLength );
+            segmentConfigGroup->add( &m_customSegmentIntervals->intervalsField() );
         }
         else
         {
@@ -542,6 +592,17 @@ void RimMswCompletionParameters::defineCustomContextMenu( const caf::PdmFieldHan
         menuBuilder << "RicNewDiameterRoughnessIntervalFeature";
         menuBuilder << "Separator";
         menuBuilder << "RicDeleteDiameterRoughnessIntervalFeature";
+
+        menuBuilder.appendToMenu( menu );
+    }
+
+    if ( fieldNeedingMenu == &m_customSegmentIntervals )
+    {
+        caf::CmdFeatureMenuBuilder menuBuilder;
+
+        menuBuilder << "RicNewCustomSegmentIntervalFeature";
+        menuBuilder << "Separator";
+        menuBuilder << "RicDeleteCustomSegmentIntervalFeature";
 
         menuBuilder.appendToMenu( menu );
     }
