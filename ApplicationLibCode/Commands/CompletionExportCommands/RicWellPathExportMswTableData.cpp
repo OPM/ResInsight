@@ -119,8 +119,15 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
     // Create table data container and extract data
     RigMswTableData tableData( wellPath->completionSettings()->wellNameForExport().toStdString(), unitSystem );
 
+    // Extract custom segment intervals from MSW parameters
+    std::vector<std::pair<double, double>> customSegmentIntervals = mswParameters->getSegmentIntervals();
+
     // Use the new collection functions to populate the table data
-    RicMswTableDataTools::collectWelsegsData( tableData, exportInfo, mswParameters->maxSegmentLength(), exportCompletionsAfterMainBoreSegments );
+    RicMswTableDataTools::collectWelsegsData( tableData,
+                                              exportInfo,
+                                              mswParameters->maxSegmentLength(),
+                                              customSegmentIntervals,
+                                              exportCompletionsAfterMainBoreSegments );
 
     {
         // Get COMPSEGS for main grid

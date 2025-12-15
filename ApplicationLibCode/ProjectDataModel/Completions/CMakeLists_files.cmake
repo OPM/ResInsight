@@ -34,6 +34,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDiameterRoughnessInterval.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDiameterRoughnessIntervalCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomSegmentInterval.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomSegmentIntervalCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatistics.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.h
 )
@@ -71,6 +73,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDiameterRoughnessInterval.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDiameterRoughnessIntervalCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomSegmentInterval.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomSegmentIntervalCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatistics.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.cpp
 )

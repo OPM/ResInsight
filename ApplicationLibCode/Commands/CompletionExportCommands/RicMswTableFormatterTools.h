@@ -122,7 +122,10 @@ void generateWsegvalvTableRecursively( gsl::not_null<RicMswBranch*>             
 
 void generateWsegAicdTable( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo );
 
-std::vector<std::pair<double, double>> createSubSegmentMDPairs( double startMD, double endMD, double maxSegmentLength );
+std::vector<std::pair<double, double>> createSubSegmentMDPairs( double                                        startMD,
+                                                                double                                        endMD,
+                                                                double                                        maxSegmentLength,
+                                                                const std::vector<std::pair<double, double>>& customSegmentIntervals = {} );
 
 double tvdFromMeasuredDepth( gsl::not_null<const RimWellPath*> wellPath, double measuredDepth );
 

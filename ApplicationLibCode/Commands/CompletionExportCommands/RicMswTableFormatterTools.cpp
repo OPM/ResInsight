@@ -910,24 +910,109 @@ void RicMswTableFormatterTools::writeCompletionsForSegment( gsl::not_null<const 
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Creates sub-segment MD pairs by combining custom intervals with max segment length subdivision
+/// Custom intervals define exact segment boundaries where specified
+/// Areas without custom intervals use max segment length subdivision (if maxSegmentLength > 0)
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>> RicMswTableFormatterTools::createSubSegmentMDPairs( double startMD, double endMD, double maxSegmentLength )
+std::vector<std::pair<double, double>>
+    RicMswTableFormatterTools::createSubSegmentMDPairs( double                                        startMD,
+                                                        double                                        endMD,
+                                                        double                                        maxSegmentLength,
+                                                        const std::vector<std::pair<double, double>>& customSegmentIntervals )
 {
-    int subSegmentCount = (int)( std::trunc( ( endMD - startMD ) / maxSegmentLength ) + 1 );
-
-    double subSegmentLength = ( endMD - startMD ) / subSegmentCount;
-
     std::vector<std::pair<double, double>> subSegmentMDPairs;
 
-    double subStartMD = startMD;
-    double subEndMD   = startMD + subSegmentLength;
-    for ( int i = 0; i < subSegmentCount; ++i )
+    // If no custom intervals, use original logic with maxSegmentLength subdivision
+    if ( customSegmentIntervals.empty() || maxSegmentLength <= 0.0 )
     {
-        subSegmentMDPairs.push_back( std::make_pair( subStartMD, subEndMD ) );
-        subStartMD += subSegmentLength;
-        subEndMD += std::min( subSegmentLength, endMD );
+        int    subSegmentCount  = maxSegmentLength > 0.0 ? (int)( std::trunc( ( endMD - startMD ) / maxSegmentLength ) + 1 ) : 1;
+        double subSegmentLength = ( endMD - startMD ) / subSegmentCount;
+
+        double subStartMD = startMD;
+        double subEndMD   = startMD + subSegmentLength;
+        for ( int i = 0; i < subSegmentCount; ++i )
+        {
+            subSegmentMDPairs.push_back( std::make_pair( subStartMD, subEndMD ) );
+            subStartMD += subSegmentLength;
+            subEndMD = std::min( subEndMD + subSegmentLength, endMD );
+        }
+        return subSegmentMDPairs;
     }
+
+    // Combine custom intervals with maxSegmentLength subdivision
+    // Collect all boundaries (start, end, custom interval boundaries) and sort them
+    std::set<double> boundaries;
+    boundaries.insert( startMD );
+    boundaries.insert( endMD );
+
+    // Add custom interval boundaries that overlap with [startMD, endMD]
+    for ( const auto& [customStart, customEnd] : customSegmentIntervals )
+    {
+        // Check if custom interval overlaps with [startMD, endMD]
+        if ( customEnd > startMD && customStart < endMD )
+        {
+            // Clip custom interval to [startMD, endMD] range
+            double clippedStart = std::max( customStart, startMD );
+            double clippedEnd   = std::min( customEnd, endMD );
+
+            if ( clippedStart < clippedEnd )
+            {
+                boundaries.insert( clippedStart );
+                boundaries.insert( clippedEnd );
+            }
+        }
+    }
+
+    // Convert boundaries to sorted vector
+    std::vector<double> sortedBoundaries( boundaries.begin(), boundaries.end() );
+
+    // For each gap between boundaries, either:
+    // - Use exact boundary if it's from a custom interval
+    // - Subdivide using maxSegmentLength if it's a gap
+    for ( size_t i = 0; i + 1 < sortedBoundaries.size(); ++i )
+    {
+        double gapStart = sortedBoundaries[i];
+        double gapEnd   = sortedBoundaries[i + 1];
+
+        // Check if this gap is covered by a custom interval
+        bool coveredByCustomInterval = false;
+        for ( const auto& [customStart, customEnd] : customSegmentIntervals )
+        {
+            double clippedStart = std::max( customStart, startMD );
+            double clippedEnd   = std::min( customEnd, endMD );
+
+            // If the gap is fully within a custom interval, use exact boundaries
+            if ( gapStart >= clippedStart && gapEnd <= clippedEnd && std::abs( gapStart - clippedStart ) < 1e-6 &&
+                 std::abs( gapEnd - clippedEnd ) < 1e-6 )
+            {
+                coveredByCustomInterval = true;
+                subSegmentMDPairs.push_back( std::make_pair( gapStart, gapEnd ) );
+                break;
+            }
+        }
+
+        // If not covered by custom interval, subdivide using maxSegmentLength
+        if ( !coveredByCustomInterval && maxSegmentLength > 0.0 )
+        {
+            double gapLength = gapEnd - gapStart;
+            int    subCount  = (int)( std::trunc( gapLength / maxSegmentLength ) + 1 );
+            double subLength = gapLength / subCount;
+
+            double subStart = gapStart;
+            for ( int j = 0; j < subCount; ++j )
+            {
+                double subEnd = ( j == subCount - 1 ) ? gapEnd : subStart + subLength;
+                subSegmentMDPairs.push_back( std::make_pair( subStart, subEnd ) );
+                subStart = subEnd;
+            }
+        }
+        else if ( !coveredByCustomInterval )
+        {
+            // No maxSegmentLength, use gap as-is
+            subSegmentMDPairs.push_back( std::make_pair( gapStart, gapEnd ) );
+        }
+    }
+
     return subSegmentMDPairs;
 }
 

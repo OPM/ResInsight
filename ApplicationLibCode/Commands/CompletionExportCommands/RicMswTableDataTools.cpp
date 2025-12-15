@@ -38,10 +38,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectWelsegsData( RigMswTableData&  tableData,
-                                               RicMswExportInfo& exportInfo,
-                                               double            maxSegmentLength,
-                                               bool              exportCompletionSegmentsAfterMainBore )
+void RicMswTableDataTools::collectWelsegsData( RigMswTableData&                              tableData,
+                                               RicMswExportInfo&                             exportInfo,
+                                               double                                        maxSegmentLength,
+                                               const std::vector<std::pair<double, double>>& customSegmentIntervals,
+                                               bool                                          exportCompletionSegmentsAfterMainBore )
 {
     // Set up WELSEGS header
     WelsegsHeader header;
@@ -66,6 +67,7 @@ void RicMswTableDataTools::collectWelsegsData( RigMswTableData&  tableData,
                                    exportInfo.mainBoreBranch(),
                                    &segmentNumber,
                                    maxSegmentLength,
+                                   customSegmentIntervals,
                                    exportCompletionSegmentsAfterMainBore,
                                    nullptr );
 }
@@ -73,13 +75,14 @@ void RicMswTableDataTools::collectWelsegsData( RigMswTableData&  tableData,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&             tableData,
-                                                          RicMswExportInfo&            exportInfo,
-                                                          gsl::not_null<RicMswBranch*> branch,
-                                                          gsl::not_null<int*>          segmentNumber,
-                                                          double                       maxSegmentLength,
-                                                          bool                         exportCompletionSegmentsAfterMainBore,
-                                                          RicMswSegment*               connectedToSegment )
+void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&                              tableData,
+                                                          RicMswExportInfo&                             exportInfo,
+                                                          gsl::not_null<RicMswBranch*>                  branch,
+                                                          gsl::not_null<int*>                           segmentNumber,
+                                                          double                                        maxSegmentLength,
+                                                          const std::vector<std::pair<double, double>>& customSegmentIntervals,
+                                                          bool           exportCompletionSegmentsAfterMainBore,
+                                                          RicMswSegment* connectedToSegment )
 {
     auto         outletSegment = connectedToSegment;
     RicMswValve* outletValve   = nullptr;
@@ -90,7 +93,7 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
     // Handle tie-in ICV at the beginning of branch
     if ( outletValve = dynamic_cast<RicMswTieInICV*>( branch.get() ); outletValve != nullptr )
     {
-        collectValveWelsegsSegment( tableData, outletSegment, outletValve, exportInfo, maxSegmentLength, segmentNumber );
+        collectValveWelsegsSegment( tableData, outletSegment, outletValve, exportInfo, maxSegmentLength, customSegmentIntervals, segmentNumber );
 
         auto valveSegments = outletValve->segments();
         outletSegment      = valveSegments.front();
@@ -111,12 +114,19 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
             branchDescription = QString( "Segments on branch %1" ).arg( branch->label() );
         }
 
-        collectWelsegsSegment( tableData, segment, outletSegment, exportInfo, maxSegmentLength, branch, segmentNumber, branchDescription );
+        collectWelsegsSegment( tableData, segment, outletSegment, exportInfo, maxSegmentLength, customSegmentIntervals, branch, segmentNumber, branchDescription );
         outletSegment = segment;
 
         if ( !exportCompletionSegmentsAfterMainBore )
         {
-            collectCompletionsForSegment( tableData, outletSegment, segment, &outletValve, exportInfo, maxSegmentLength, segmentNumber );
+            collectCompletionsForSegment( tableData,
+                                          outletSegment,
+                                          segment,
+                                          &outletValve,
+                                          exportInfo,
+                                          maxSegmentLength,
+                                          customSegmentIntervals,
+                                          segmentNumber );
         }
     }
 
@@ -127,7 +137,14 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
         for ( ; it != branchSegments.end(); ++it )
         {
             auto segment = *it;
-            collectCompletionsForSegment( tableData, outletSegment, segment, &outletValve, exportInfo, maxSegmentLength, segmentNumber );
+            collectCompletionsForSegment( tableData,
+                                          outletSegment,
+                                          segment,
+                                          &outletValve,
+                                          exportInfo,
+                                          maxSegmentLength,
+                                          customSegmentIntervals,
+                                          segmentNumber );
         }
     }
 
@@ -143,6 +160,7 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
                                        childBranch,
                                        segmentNumber,
                                        maxSegmentLength,
+                                       customSegmentIntervals,
                                        exportCompletionSegmentsAfterMainBore,
                                        outletSegmentForChildBranch );
     }
@@ -151,21 +169,23 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
 //--------------------------------------------------------------------------------------------------
 /// Helper function to collect WELSEGS data for a single segment with sub-segmentation
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&             tableData,
-                                                  RicMswSegment*               segment,
-                                                  const RicMswSegment*         previousSegment,
-                                                  RicMswExportInfo&            exportInfo,
-                                                  double                       maxSegmentLength,
-                                                  gsl::not_null<RicMswBranch*> branch,
-                                                  int*                         segmentNumber,
-                                                  QString                      branchDescription )
+void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&                              tableData,
+                                                  RicMswSegment*                                segment,
+                                                  const RicMswSegment*                          previousSegment,
+                                                  RicMswExportInfo&                             exportInfo,
+                                                  double                                        maxSegmentLength,
+                                                  const std::vector<std::pair<double, double>>& customSegmentIntervals,
+                                                  gsl::not_null<RicMswBranch*>                  branch,
+                                                  int*                                          segmentNumber,
+                                                  QString                                       branchDescription )
 {
     CVF_ASSERT( segment && segmentNumber );
 
     double startMD = segment->startMD();
     double endMD   = segment->endMD();
 
-    std::vector<std::pair<double, double>> segments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
+    std::vector<std::pair<double, double>> segments =
+        RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
 
     CVF_ASSERT( branch->wellPath() );
 
@@ -252,12 +272,13 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&             t
 /// Helper function to collect WELSEGS data for valve completions
 /// Ported from RicMswTableFormatterTools::writeValveWelsegsSegment()
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&     tableData,
-                                                       const RicMswSegment* outletSegment,
-                                                       RicMswValve*         valve,
-                                                       RicMswExportInfo&    exportInfo,
-                                                       double               maxSegmentLength,
-                                                       int*                 segmentNumber )
+void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&                              tableData,
+                                                       const RicMswSegment*                          outletSegment,
+                                                       RicMswValve*                                  valve,
+                                                       RicMswExportInfo&                             exportInfo,
+                                                       double                                        maxSegmentLength,
+                                                       const std::vector<std::pair<double, double>>& customSegmentIntervals,
+                                                       int*                                          segmentNumber )
 {
     if ( !valve ) return;
     if ( !valve->isValid() ) return;
@@ -290,7 +311,7 @@ void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&     tabl
         endMD   = subSegment->endMD();
     }
 
-    auto splitSegments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
+    auto splitSegments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
 
     int        outletSegmentNumber = outletSegment ? outletSegment->segmentNumber() : 1;
     const auto linerDiameter       = valve->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
@@ -344,13 +365,14 @@ void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&     tabl
 //--------------------------------------------------------------------------------------------------
 /// Helper function to collect WELSEGS data for completions on a segment
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectCompletionsForSegment( RigMswTableData&                    tableData,
-                                                         gsl::not_null<const RicMswSegment*> outletSegment,
-                                                         gsl::not_null<RicMswSegment*>       segment,
-                                                         RicMswValve**                       outletValve,
-                                                         RicMswExportInfo&                   exportInfo,
-                                                         double                              maxSegmentLength,
-                                                         int*                                segmentNumber )
+void RicMswTableDataTools::collectCompletionsForSegment( RigMswTableData&                              tableData,
+                                                         gsl::not_null<const RicMswSegment*>           outletSegment,
+                                                         gsl::not_null<RicMswSegment*>                 segment,
+                                                         RicMswValve**                                 outletValve,
+                                                         RicMswExportInfo&                             exportInfo,
+                                                         double                                        maxSegmentLength,
+                                                         const std::vector<std::pair<double, double>>& customSegmentIntervals,
+                                                         int*                                          segmentNumber )
 {
     for ( auto& completion : segment->completions() )
     {
@@ -363,7 +385,7 @@ void RicMswTableDataTools::collectCompletionsForSegment( RigMswTableData&       
         auto fishboneIcd  = dynamic_cast<RicMswFishbonesICD*>( completion );
         if ( !fishboneIcd && segmentValve != nullptr )
         {
-            collectValveWelsegsSegment( tableData, segment, segmentValve, exportInfo, maxSegmentLength, segmentNumber );
+            collectValveWelsegsSegment( tableData, segment, segmentValve, exportInfo, maxSegmentLength, customSegmentIntervals, segmentNumber );
             *outletValve = segmentValve;
         }
         else if ( dynamic_cast<RicMswTieInICV*>( completion ) )
@@ -371,12 +393,18 @@ void RicMswTableDataTools::collectCompletionsForSegment( RigMswTableData&       
             // Special handling for Tie-in ICVs
             RicMswSegment* outletSegmentForCompletion =
                 *outletValve && ( *outletValve )->segmentCount() > 0 ? ( *outletValve )->segments().front() : segment.get();
-            collectCompletionWelsegsSegments( tableData, outletSegmentForCompletion, completion, exportInfo, maxSegmentLength, segmentNumber );
+            collectCompletionWelsegsSegments( tableData,
+                                              outletSegmentForCompletion,
+                                              completion,
+                                              exportInfo,
+                                              maxSegmentLength,
+                                              customSegmentIntervals,
+                                              segmentNumber );
         }
         else
         {
             // This is the default case for completions that are not valves
-            collectCompletionWelsegsSegments( tableData, segment, completion, exportInfo, maxSegmentLength, segmentNumber );
+            collectCompletionWelsegsSegments( tableData, segment, completion, exportInfo, maxSegmentLength, customSegmentIntervals, segmentNumber );
         }
     }
 }
@@ -385,12 +413,13 @@ void RicMswTableDataTools::collectCompletionsForSegment( RigMswTableData&       
 /// Helper function to collect WELSEGS data for a completion's segments
 /// Porting of RicMswTableFormatterTools::writeCompletionWelsegsSegments()
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&                    tableData,
-                                                             gsl::not_null<const RicMswSegment*> outletSegment,
-                                                             gsl::not_null<RicMswCompletion*>    completion,
-                                                             RicMswExportInfo&                   exportInfo,
-                                                             double                              maxSegmentLength,
-                                                             int*                                segmentNumber )
+void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&                              tableData,
+                                                             gsl::not_null<const RicMswSegment*>           outletSegment,
+                                                             gsl::not_null<RicMswCompletion*>              completion,
+                                                             RicMswExportInfo&                             exportInfo,
+                                                             double                                        maxSegmentLength,
+                                                             const std::vector<std::pair<double, double>>& customSegmentIntervals,
+                                                             int*                                          segmentNumber )
 {
     bool isDescriptionAdded = false;
 
@@ -405,7 +434,7 @@ void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&   
         double startTVD = segment->startTVD();
         double endTVD   = segment->endTVD();
 
-        auto splitSegments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
+        auto splitSegments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
         for ( const auto& [subStartMD, subEndMD] : splitSegments )
         {
             int subSegmentNumber = ( *segmentNumber )++;
@@ -469,7 +498,7 @@ void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&   
 
         for ( auto comp : segment->completions() )
         {
-            collectCompletionWelsegsSegments( tableData, segment, comp, exportInfo, maxSegmentLength, segmentNumber );
+            collectCompletionWelsegsSegments( tableData, segment, comp, exportInfo, maxSegmentLength, customSegmentIntervals, segmentNumber );
         }
     }
 }
