@@ -49,7 +49,12 @@ RMSWell::RMSWell(const std::string& filename)
   SetWellName(wellName);
   xpos0_ = ReadNext<double>(file, line);
   ypos0_ = ReadNext<double>(file, line);      // read wellname and positions
- // getline(file,dummy);// Line may contain a dummy number
+  try {
+    rkb_ = ReadNext<double>(file, line);
+  } catch (std::exception &) {
+    // Ignore errors: not guaranteed to get rkb
+  }
+  // getline(file,dummy);// Line may contain a dummy number
   //-----line shift
   DiscardRestOfLine(file, line, false);
   nlog = ReadNext<int>(file, line);          // read number of logs

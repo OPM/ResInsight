@@ -75,6 +75,7 @@ RifWellPathImporter::WellData RifRmsWellPathReader::readWellData( const QString&
 
                 wellData.m_name             = QString::fromStdString( well->GetWellName() );
                 wellData.m_wellPathGeometry = new RigWellPath;
+                wellData.m_wellPathGeometry->setDatumElevation( well->GetRkb() );
                 for ( size_t i = 0; i < x.size(); i++ )
                 {
                     cvf::Vec3d position( x[i], y[i], -z[i] );

@@ -36,6 +36,8 @@ TEST( RifRmsWellPathReader, ReadFromFile )
     auto wellPath = wellData.m_wellPathGeometry;
     ASSERT_TRUE( wellPath.notNull() );
 
+    ASSERT_TRUE( wellPath->hasDatumElevation() );
+    EXPECT_DOUBLE_EQ( 25.0, wellPath->datumElevation() );
     EXPECT_EQ( 4647u, wellPath->wellPathPoints().size() );
     EXPECT_EQ( 4647u, wellPath->measuredDepths().size() );
 }

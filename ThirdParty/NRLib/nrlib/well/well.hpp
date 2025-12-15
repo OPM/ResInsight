@@ -149,6 +149,7 @@ namespace NRLib {
 
     double GetXPos0() { return x_pos0_ ;}
     double GetYPos0() { return y_pos0_ ;}
+    double GetRkb() { return rkb_; }
 
     /// Set number of non-missing data
     void SetNumberOfNonMissingData(int n_data_nonmissing) { n_data_nonmissing_ = n_data_nonmissing ;}
@@ -186,6 +187,9 @@ namespace NRLib {
 
     // Number of data excluding WELLMISSING values
     unsigned int              n_data_nonmissing_;
+
+    // rig-kelly-bushing
+    double                    rkb_;
 
   private:
     /// Continuous logs

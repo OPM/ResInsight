@@ -40,6 +40,7 @@ Well::Well()
 {
   well_rmissing_ = -999.0;
   well_imissing_ = -999;
+  rkb_ = 0.0;
 }
 
 
@@ -50,6 +51,7 @@ Well::Well(const std::string & name,
   well_name_ = name;
   well_rmissing_ = rmissing;
   well_imissing_ = imissing;
+  rkb_ = 0.0;
 }
 
 
@@ -62,6 +64,7 @@ Well::Well(const std::map<std::string,std::vector<double> > & cont_log,
   well_name_      = well_name;
   well_rmissing_  = -999.0;
   well_imissing_  = -999;
+  rkb_ = 0.0;
 }
 
 Well::~Well()
