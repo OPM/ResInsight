@@ -66,6 +66,9 @@ void PdmUiEditorHandle::updateUi( const QString& uiConfigName )
     this->configureAndUpdateUi( uiConfigName );
     m_isConfiguringUi = false;
 
+    // Allow derived classes to update additional state (e.g., validation)
+    this->updateEditorState();
+
     emit uiUpdated();
 }
 
@@ -78,6 +81,9 @@ void PdmUiEditorHandle::updateUi()
     m_isConfiguringUi = true;
     this->configureAndUpdateUi( m_currentConfigName );
     m_isConfiguringUi = false;
+
+    // Allow derived classes to update additional state (e.g., validation)
+    this->updateEditorState();
 
     emit uiUpdated();
 }
@@ -103,6 +109,39 @@ void PdmUiEditorHandle::bindToPdmItem( PdmUiItem* item )
     if ( m_pdmItem ) m_pdmItem->removeFieldEditor( this );
     m_pdmItem = item;
     if ( m_pdmItem ) m_pdmItem->addFieldEditor( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiEditorHandle::updateEditorState()
+{
+    // Default implementation does nothing
+    // Override in derived classes to perform additional updates
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiItem* PdmUiEditorHandle::pdmItem()
+{
+    return m_pdmItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const PdmUiItem* PdmUiEditorHandle::pdmItem() const
+{
+    return m_pdmItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiEditorHandle::setContainingEditor( PdmUiEditorHandle* containingEditor )
+{
+    m_containingEditor = containingEditor;
 }
 
 } // End of namespace caf

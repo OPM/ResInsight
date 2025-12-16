@@ -57,7 +57,6 @@ public:
 
 public:
     void updateUi( const QString& uiConfigName );
-    ;
     void updateUi();
 
     PdmUiEditorHandle* topMostContainingEditor();
@@ -72,14 +71,17 @@ protected:
     /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
     virtual void configureAndUpdateUi( const QString& uiConfigName ) = 0;
 
+    /// Called after configureAndUpdateUi(). Override to perform additional updates (e.g., validation state)
+    virtual void updateEditorState();
+
 protected:
     /// This needs to be called from subclass when connecting to a PdmField or Object
     void             bindToPdmItem( PdmUiItem* item );
-    PdmUiItem*       pdmItem() { return m_pdmItem; }
-    const PdmUiItem* pdmItem() const { return m_pdmItem; }
+    PdmUiItem*       pdmItem();
+    const PdmUiItem* pdmItem() const;
 
 public: // PDM Internal
-    void setContainingEditor( PdmUiEditorHandle* containingEditor ) { m_containingEditor = containingEditor; }
+    void setContainingEditor( PdmUiEditorHandle* containingEditor );
 
 private:
     friend PdmUiItem::~PdmUiItem();

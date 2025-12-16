@@ -299,4 +299,57 @@ void PdmUiFieldEditorHandle::customMenuRequested( QPoint pos )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldEditorHandle::updateEditorState()
+{
+    updateValidationState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldEditorHandle::updateValidationState()
+{
+    PdmUiFieldHandle* field = uiField();
+    if ( !field || !field->fieldHandle() ) return;
+
+    QString errorMessage = field->fieldHandle()->validate();
+
+    QWidget* widget = editorWidget();
+    if ( !widget ) widget = combinedWidget();
+
+    applyValidationStyling( widget, errorMessage );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldEditorHandle::applyValidationStyling( QWidget* widget, const QString& errorMessage )
+{
+    if ( !widget ) return;
+
+    if ( errorMessage.isEmpty() )
+    {
+        // Valid - remove error styling
+        widget->setStyleSheet( "" );
+        if ( !m_originalTooltip.isNull() )
+        {
+            widget->setToolTip( m_originalTooltip );
+        }
+    }
+    else
+    {
+        // Invalid - save original tooltip and apply error styling
+        if ( m_originalTooltip.isNull() )
+        {
+            m_originalTooltip = widget->toolTip();
+        }
+
+        widget->setStyleSheet( "border: 2px solid red;" );
+        widget->setToolTip( errorMessage );
+    }
+}
+
 } // End of namespace caf

@@ -98,6 +98,8 @@ public:
     QMargins labelContentMargins() const;
     int      rowStretchFactor() const;
 
+    void updateValidationState();
+
 protected: // Virtual interface to override
     /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to
     /// being "Label" Editor" or a single combined widget.
@@ -112,6 +114,9 @@ protected: // Virtual interface to override
     virtual QMargins calculateLabelContentMargins() const;
     virtual bool     isMultiRowEditor() const;
 
+    void updateEditorState() override;
+    void applyValidationStyling( QWidget* widget, const QString& errorMessage );
+
 private:
     void updateContextMenuPolicy();
 
@@ -122,6 +127,7 @@ private:
     QPointer<QWidget> m_combinedWidget;
     QPointer<QWidget> m_editorWidget;
     QPointer<QWidget> m_labelWidget;
+    QString           m_originalTooltip;
 };
 
 //==================================================================================================
