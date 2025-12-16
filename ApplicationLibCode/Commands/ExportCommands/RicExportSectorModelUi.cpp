@@ -660,6 +660,11 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
             {
                 fieldErrors[m_simulationJobFolder.keyword()] = "Simulation job working folder cannot be the same as the export folder.";
             }
+            if ( m_simulationJobFolder().path() == m_eclipseCase->locationOnDisc() )
+            {
+                fieldErrors[m_simulationJobFolder.keyword()] =
+                    "Simulation job working folder cannot be the same as the source case folder.";
+            }
         }
     }
 
