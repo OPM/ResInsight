@@ -74,6 +74,7 @@ public:
     ~PdmUiPropertyView() override;
 
     void             setUiConfigurationName( QString uiConfigName );
+    QString          uiConfigurationName() const;
     PdmObjectHandle* currentObject();
 
     QSize sizeHint() const override;

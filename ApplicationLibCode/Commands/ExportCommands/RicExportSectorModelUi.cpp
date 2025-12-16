@@ -61,24 +61,36 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     m_gridBoxSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_visibleWellsPadding, "VisibleWellsPadding", 2, "Well Padding", "", "Number of cells to add around visible wells", "" );
+    m_visibleWellsPadding.setRange( 0, 100 );
 
-    CAF_PDM_InitField( &m_minI, "MinI", std::numeric_limits<int>::max(), "Min I, J, K" );
-    CAF_PDM_InitField( &m_minJ, "MinJ", std::numeric_limits<int>::max(), "" );
+    CAF_PDM_InitField( &m_minI, "MinI", 1, "Min I, J, K" );
+    CAF_PDM_InitField( &m_minJ, "MinJ", 1, "" );
     m_minJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    CAF_PDM_InitField( &m_minK, "MinK", std::numeric_limits<int>::max(), "" );
+    CAF_PDM_InitField( &m_minK, "MinK", 1, "" );
     m_minK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_minI.setMinValue( 1 );
+    m_minJ.setMinValue( 1 );
+    m_minK.setMinValue( 1 );
 
-    CAF_PDM_InitField( &m_maxI, "MaxI", -std::numeric_limits<int>::max(), "Max I, J, K" );
-    CAF_PDM_InitField( &m_maxJ, "MaxJ", -std::numeric_limits<int>::max(), "" );
+    CAF_PDM_InitField( &m_maxI, "MaxI", 1, "Max I, J, K" );
+    CAF_PDM_InitField( &m_maxJ, "MaxJ", 1, "" );
     m_maxJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    CAF_PDM_InitField( &m_maxK, "MaxK", -std::numeric_limits<int>::max(), "" );
+    CAF_PDM_InitField( &m_maxK, "MaxK", 1, "" );
     m_maxK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    m_maxI.setMinValue( 1 );
+    m_maxJ.setMinValue( 1 );
+    m_maxK.setMinValue( 1 );
 
     CAF_PDM_InitField( &m_refineGrid, "RefineGrid", false, "Enable Grid Refinement" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_refineGrid );
     CAF_PDM_InitField( &m_refinementCountI, "RefinementCountI", 1, "Cell Count I, J, K" );
     CAF_PDM_InitField( &m_refinementCountJ, "RefinementCountJ", 1, "" );
     CAF_PDM_InitField( &m_refinementCountK, "RefinementCountK", 1, "" );
+
+    m_refinementCountI.setRange( 1, 10 );
+    m_refinementCountJ.setRange( 1, 10 );
+    m_refinementCountK.setRange( 1, 10 );
 
     CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
     m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -134,7 +146,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     // must be kept in sync with the page names defined in the constructor
     CAF_ASSERT( m_pageNames.size() == 5 );
 
-    if ( uiConfigName == m_pageNames[0] )
+    if ( uiConfigName == m_pageNames[0] ) // source data
     {
         uiOrdering.add( &m_exportDeckName );
         uiOrdering.add( &m_exportFolder );
@@ -143,7 +155,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         infoGrp->addNewLabel( QString( "Source Folder: " ) + m_eclipseCase->locationOnDisc() );
         infoGrp->addNewLabel( QString( "Source Case Name: " ) + m_eclipseCase->caseUserDescription() );
     }
-    else if ( uiConfigName == m_pageNames[1] )
+    else if ( uiConfigName == m_pageNames[1] ) // grid box selection
     {
         uiOrdering.add( &m_gridBoxSelection, { .newRow = true, .totalColumnSpan = 4, .leftLabelColumnSpan = 1 } );
 
@@ -177,7 +189,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
             uiOrdering.addNewLabel( QString( "Total cells to export: %1" ).arg( m_totalCells ) );
         }
     }
-    else if ( uiConfigName == m_pageNames[2] )
+    else if ( uiConfigName == m_pageNames[2] ) // refinement
     {
         uiOrdering.add( &m_refineGrid );
         uiOrdering.addNewLabel( "" );
@@ -190,7 +202,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         m_refinementCountJ.uiCapability()->setUiReadOnly( !m_refineGrid() );
         m_refinementCountK.uiCapability()->setUiReadOnly( !m_refineGrid() );
     }
-    else if ( uiConfigName == m_pageNames[3] )
+    else if ( uiConfigName == m_pageNames[3] ) // border conditions
     {
         uiOrdering.add( &m_boundaryCondition );
         uiOrdering.addNewLabel( "", { .newRow = false } ); // needed to get proper visual layout in BCCON/BCPROP case
@@ -205,7 +217,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
             uiOrdering.add( &m_bcpropKeywords );
         }
     }
-    else if ( uiConfigName == m_pageNames[4] )
+    else if ( uiConfigName == m_pageNames[4] ) // simulation job
     {
         auto simGrp = uiOrdering.addNewGroup( "OPM Flow Simulation" );
         simGrp->add( &m_createSimulationJob );
@@ -285,13 +297,6 @@ void RicExportSectorModelUi::setEclipseView( RimEclipseView* view )
 //--------------------------------------------------------------------------------------------------
 void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( ( m_eclipseCase == nullptr ) || ( m_eclipseCase->eclipseCaseData() == nullptr ) ||
-         ( m_eclipseCase->eclipseCaseData()->mainGrid() == nullptr ) )
-        return;
-
-    const RigMainGrid* mainGrid       = m_eclipseCase->eclipseCaseData()->mainGrid();
-    const cvf::Vec3st  gridDimensions = mainGrid->cellCounts();
-
     if ( field == &m_bcpropKeywords )
     {
         auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
@@ -299,43 +304,6 @@ void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* f
         {
             tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
             tvAttr->alwaysEnforceResizePolicy = true;
-        }
-    }
-    else if ( field == &m_visibleWellsPadding )
-    {
-        if ( auto lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            // Wells padding should be between 0 and 100 cells
-            lineEditorAttr->validator = new QIntValidator( 0, 100, nullptr );
-        }
-    }
-    else if ( field == &m_refinementCountI || field == &m_refinementCountJ || field == &m_refinementCountK )
-    {
-        if ( auto lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            auto* validator           = new QIntValidator( 1, 10, nullptr );
-            lineEditorAttr->validator = validator;
-        }
-    }
-    else if ( field == &m_minI || field == &m_maxI )
-    {
-        if ( auto lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            lineEditorAttr->validator = new QIntValidator( 1, (int)gridDimensions.x(), nullptr );
-        }
-    }
-    else if ( field == &m_minJ || field == &m_maxJ )
-    {
-        if ( auto lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            lineEditorAttr->validator = new QIntValidator( 1, (int)gridDimensions.y(), nullptr );
-        }
-    }
-    else if ( field == &m_minK || field == &m_maxK )
-    {
-        if ( auto lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            lineEditorAttr->validator = new QIntValidator( 1, (int)gridDimensions.z(), nullptr );
         }
     }
 
@@ -580,4 +548,120 @@ QString RicExportSectorModelUi::newSimulationJobFolder() const
 QString RicExportSectorModelUi::newSimulationJobName() const
 {
     return m_simulationJobName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RicExportSectorModelUi::validate( const QString& configName ) const
+{
+    std::map<QString, QString> fieldErrors;
+
+    if ( configName == m_pageNames[0] ) // source data
+    {
+        if ( m_exportDeckName().trimmed().isEmpty() )
+        {
+            fieldErrors[m_exportDeckName.keyword()] = "Output sector model name cannot be empty.";
+        }
+        if ( m_exportFolder().path().trimmed().isEmpty() )
+        {
+            fieldErrors[m_exportFolder.keyword()] = "Export folder cannot be empty.";
+        }
+        if ( m_exportFolder().path() == m_eclipseCase->locationOnDisc() )
+        {
+            fieldErrors[m_exportFolder.keyword()] = "Export folder cannot be the same as the source case folder.";
+        }
+    }
+    else if ( configName == m_pageNames[1] ) // grid box selection
+    {
+        if ( ( m_eclipseCase == nullptr ) || ( m_eclipseCase->eclipseCaseData() == nullptr ) ||
+             ( m_eclipseCase->eclipseCaseData()->mainGrid() == nullptr ) )
+            return {};
+
+        const RigMainGrid* mainGrid       = m_eclipseCase->eclipseCaseData()->mainGrid();
+        const cvf::Vec3st  gridDimensions = mainGrid->cellCounts();
+
+        for ( auto& field : { &m_minI, &m_minJ, &m_minK, &m_maxI, &m_maxJ, &m_maxK } )
+        {
+            auto errStr = field->validate();
+            if ( !errStr.isEmpty() )
+            {
+                fieldErrors[field->keyword()] = errStr;
+            }
+        }
+
+        if ( m_gridBoxSelection() == RiaModelExportDefines::MANUAL_SELECTION )
+        {
+            if ( m_minI() > m_maxI() )
+            {
+                fieldErrors[m_minI.keyword()] = "Min I cannot be larger than Max I.";
+            }
+            if ( m_minJ() > m_maxJ() )
+            {
+                fieldErrors[m_minJ.keyword()] = "Min J cannot be larger than Max J.";
+            }
+            if ( m_minK() > m_maxK() )
+            {
+                fieldErrors[m_minK.keyword()] = "Min K cannot be larger than Max K.";
+            }
+            if ( m_maxI() > (int)gridDimensions.x() )
+            {
+                fieldErrors[m_maxI.keyword()] = QString( "Max I cannot be larger than %1." ).arg( gridDimensions.x() );
+            }
+            if ( m_maxJ() > (int)gridDimensions.y() )
+            {
+                fieldErrors[m_maxJ.keyword()] = QString( "Max J cannot be larger than %1." ).arg( gridDimensions.y() );
+            }
+            if ( m_maxK() > (int)gridDimensions.z() )
+            {
+                fieldErrors[m_maxK.keyword()] = QString( "Max K cannot be larger than %1." ).arg( gridDimensions.z() );
+            }
+        }
+        else if ( m_gridBoxSelection() == RiaModelExportDefines::VISIBLE_WELLS_BOX )
+        {
+            auto errStr = m_visibleWellsPadding.validate();
+            if ( !errStr.isEmpty() )
+            {
+                fieldErrors[m_visibleWellsPadding.keyword()] = errStr;
+            }
+        }
+    }
+    else if ( configName == m_pageNames[2] ) // refinement
+    {
+        if ( m_refineGrid() )
+        {
+            for ( auto& field : { &m_refinementCountI, &m_refinementCountJ, &m_refinementCountK } )
+            {
+                auto errStr = field->validate();
+                if ( !errStr.isEmpty() )
+                {
+                    fieldErrors[field->keyword()] = errStr;
+                }
+            }
+        }
+    }
+    else if ( configName == m_pageNames[3] ) // border conditions
+    {
+        // no validation needed
+    }
+    else if ( configName == m_pageNames[4] ) // simulation job
+    {
+        if ( m_createSimulationJob() )
+        {
+            if ( m_simulationJobName().trimmed().isEmpty() )
+            {
+                fieldErrors[m_simulationJobName.keyword()] = "Simulation job name cannot be empty.";
+            }
+            if ( m_simulationJobFolder().path().trimmed().isEmpty() )
+            {
+                fieldErrors[m_simulationJobFolder.keyword()] = "Simulation job working folder cannot be empty.";
+            }
+            if ( m_simulationJobFolder().path() == m_exportFolder().path() )
+            {
+                fieldErrors[m_simulationJobFolder.keyword()] = "Simulation job working folder cannot be the same as the export folder.";
+            }
+        }
+    }
+
+    return fieldErrors;
 }

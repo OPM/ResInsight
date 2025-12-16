@@ -42,6 +42,9 @@ public:
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
+protected:
+    bool validateCurrentPage() override;
+
 private:
     std::vector<caf::PdmUiPropertyView*> m_pageWidgets;
 };

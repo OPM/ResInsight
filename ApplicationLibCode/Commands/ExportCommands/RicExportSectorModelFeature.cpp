@@ -83,7 +83,9 @@ void RicExportSectorModelFeature::onActionTriggered( bool isChecked )
 
     if ( wizard.exec() == QDialog::Accepted )
     {
+        QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
         doExport( exportSettings, view );
+        QApplication::restoreOverrideCursor();
     }
 }
 

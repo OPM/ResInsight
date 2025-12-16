@@ -141,6 +141,14 @@ void PdmUiPropertyView::setUiConfigurationName( QString uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString PdmUiPropertyView::uiConfigurationName(  ) const
+{
+    return m_uiConfigName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
 {
     // Find specialized object view handle

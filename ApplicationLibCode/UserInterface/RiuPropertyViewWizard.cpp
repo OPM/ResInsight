@@ -22,6 +22,7 @@
 #include "cafPdmUiPropertyView.h"
 
 #include <QBoxLayout>
+#include <QMessageBox>
 #include <QStringList>
 #include <QWidget>
 
@@ -105,4 +106,34 @@ QSize RiuPropertyViewWizard::sizeHint() const
     }
 
     return maxSizeHint;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPropertyViewWizard::validateCurrentPage()
+{
+    int currentPageId = currentId();
+    if ( currentPageId < 0 || currentPageId >= (int)m_pageWidgets.size() )
+    {
+        return QWizard::validateCurrentPage();
+    }
+
+    caf::PdmUiPropertyView* pageWidget = m_pageWidgets[currentPageId];
+    auto                    object     = pageWidget->currentObject();
+
+    auto resultMap = object->validate( pageWidget->uiConfigurationName() );
+
+    if ( !resultMap.empty() )
+    {
+        QString errorMessages;
+        for ( const auto& [fieldName, message] : resultMap )
+        {
+            errorMessages += QString( "Field '%1': %2\n" ).arg( fieldName, message );
+        }
+        QMessageBox::critical( this, "Input Error", errorMessages );
+        return false;
+    }
+
+    return QWizard::validateCurrentPage();
 }
