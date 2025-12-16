@@ -141,7 +141,7 @@ void PdmUiPropertyView::setUiConfigurationName( QString uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmUiPropertyView::uiConfigurationName(  ) const
+QString PdmUiPropertyView::uiConfigurationName() const
 {
     return m_uiConfigName;
 }
