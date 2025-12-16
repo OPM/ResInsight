@@ -259,6 +259,34 @@ void PdmObjectHandle::onChildDeleted( PdmChildArrayFieldHandle*           childA
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Default validation validates all fields in the object.
+/// Derived classes can override to add custom object-level validation.
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> PdmObjectHandle::validate( const QString& configName ) const
+{
+    std::map<QString, QString> fieldErrors;
+
+    for ( PdmFieldHandle* field : m_fields )
+    {
+        QString error = field->validate();
+        if ( !error.isEmpty() )
+        {
+            fieldErrors[field->keyword()] = error;
+        }
+    }
+
+    return fieldErrors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Convenience method to check if object is valid.
+//--------------------------------------------------------------------------------------------------
+bool PdmObjectHandle::isValid( const QString& configName ) const
+{
+    return validate( configName ).empty();
+}
+
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
 /*
 PdmUiObjectHandle* PdmObjectHandle::uiCapability()

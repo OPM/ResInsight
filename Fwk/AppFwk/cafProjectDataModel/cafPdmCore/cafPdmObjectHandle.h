@@ -6,6 +6,7 @@
 
 #include <QString>
 
+#include <map>
 #include <set>
 #include <vector>
 
@@ -95,6 +96,10 @@ public:
 
     PdmUiObjectHandle*  uiCapability() const; // Implementation is in cafPdmUiObjectHandle.cpp
     PdmXmlObjectHandle* xmlCapability() const; // Implementation is in cafPdmXmlObjectHandle.cpp
+
+    // Validation
+    [[nodiscard]] virtual std::map<QString, QString> validate( const QString& configName = "" ) const;
+    [[nodiscard]] bool                               isValid( const QString& configName = "" ) const;
 
     virtual void setDeletable( bool isDeletable );
     virtual bool isDeletable() const;

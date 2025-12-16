@@ -45,6 +45,8 @@
 
 #include <QVariant>
 
+#include <optional>
+#include <type_traits>
 #include <typeinfo>
 #include <vector>
 
@@ -131,6 +133,48 @@ public:
     bool operator==( const DataType& fieldValue ) const { return m_fieldValue == fieldValue; }
     bool operator!=( const DataType& fieldValue ) const { return m_fieldValue != fieldValue; }
 
+    // Range validation - only available for arithmetic types
+    template <typename T = DataType>
+    typename std::enable_if<std::is_arithmetic<T>::value>::type setRange( const DataType& minValue, const DataType& maxValue )
+    {
+        m_minValue = std::min( minValue, maxValue );
+        m_maxValue = std::max( minValue, maxValue );
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<std::is_arithmetic<T>::value>::type clearRange()
+    {
+        m_minValue.reset();
+        m_maxValue.reset();
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<std::is_arithmetic<T>::value>::type setMinValue( const DataType& minValue )
+    {
+        m_minValue = minValue;
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<std::is_arithmetic<T>::value>::type setMaxValue( const DataType& maxValue )
+    {
+        m_maxValue = maxValue;
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<std::is_arithmetic<T>::value>::type clearMinValue()
+    {
+        m_minValue.reset();
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<std::is_arithmetic<T>::value>::type clearMaxValue()
+    {
+        m_maxValue.reset();
+    }
+
+    // Override validate from PdmFieldHandle
+    QString validate() const override;
+
 protected:
     DataType m_fieldValue;
 
@@ -144,6 +188,10 @@ public:
 
 protected:
     DataType m_defaultFieldValue;
+
+    // Range validation members
+    std::optional<DataType> m_minValue;
+    std::optional<DataType> m_maxValue;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -169,6 +217,27 @@ void caf::PdmDataValueField<DataType>::setValueWithFieldChanged( const DataType&
     {
         m_fieldValue = fieldValue;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Validates the field value against optional range constraints.
+/// Empty QString means valid, non-empty QString contains error message.
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+QString caf::PdmDataValueField<DataType>::validate() const
+{
+    if constexpr ( std::is_arithmetic<DataType>::value )
+    {
+        if ( m_minValue.has_value() && m_fieldValue < m_minValue.value() )
+        {
+            return QString( "Value %1 is below minimum %2" ).arg( m_fieldValue ).arg( m_minValue.value() );
+        }
+        if ( m_maxValue.has_value() && m_fieldValue > m_maxValue.value() )
+        {
+            return QString( "Value %1 exceeds maximum %2" ).arg( m_fieldValue ).arg( m_maxValue.value() );
+        }
+    }
+    return QString();
 }
 
 } // End of namespace caf
