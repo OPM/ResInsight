@@ -48,6 +48,8 @@ set(PROJECT_FILES
     ApplicationEnum.cpp
     OptionalFields.h
     OptionalFields.cpp
+    ValidationTest.h
+    ValidationTest.cpp
 )
 
 qt_add_executable(

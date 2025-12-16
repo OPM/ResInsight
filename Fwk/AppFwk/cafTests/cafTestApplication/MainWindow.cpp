@@ -11,6 +11,7 @@
 #include "MenuItemProducer.h"
 #include "OptionalFields.h"
 #include "TamComboBox.h"
+#include "ValidationTest.h"
 #include "WidgetLayoutTest.h"
 
 #include "cafAppEnum.h"
@@ -1347,6 +1348,10 @@ void MainWindow::buildTestModel()
     delete smallObj3;
 
     m_testRoot->objects.push_back( new ApplicationEnum );
+
+    // Add validation test object
+    ValidationTestObject* validationTest = new ValidationTestObject;
+    m_testRoot->objects.push_back( validationTest );
 }
 
 //--------------------------------------------------------------------------------------------------
