@@ -377,3 +377,14 @@ void RimFishbonesCollection::computeStartAndEndLocation()
         m_endMD = calculateEndMD();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimProject* proj = RimProject::current();
+    proj->reloadCompletionTypeResultsInAllViews();
+
+    updateConnectedEditors();
+}
