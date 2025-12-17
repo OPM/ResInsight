@@ -24,6 +24,10 @@
 #include "RiaSocketCommand.h"
 #include "RiaVersionInfo.h"
 
+#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
+#include "RiaOpenTelemetryManager.h"
+#endif
+
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmDefaultObjectFactory.h"
@@ -77,6 +81,16 @@ void manageSegFailure( int signalCode )
             fileLogger->flush();
         }
     }
+
+#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
+    // Report crash to OpenTelemetry if enabled and initialized
+    auto& otelManager = RiaOpenTelemetryManager::instance();
+    if ( otelManager.isEnabled() )
+    {
+        auto st = std::stacktrace::current();
+        otelManager.reportCrash( signalCode, st );
+    }
+#endif
 
     exit( 1 );
 }
