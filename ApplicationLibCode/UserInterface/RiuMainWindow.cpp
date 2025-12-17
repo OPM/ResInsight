@@ -22,6 +22,7 @@
 
 #include "RiaBaseDefs.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTest.h"
@@ -91,6 +92,12 @@
 
 #include "DockAreaWidget.h"
 #include "DockManager.h"
+
+#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
+#include "RiaOpenTelemetryManager.h"
+#include <QDateTime>
+#include <stacktrace>
+#endif
 
 #include <QAction>
 #include <QActionGroup>
@@ -377,6 +384,8 @@ void RiuMainWindow::createActions()
 
     m_showRegressionTestDialog         = new QAction( "Regression Test Dialog", this );
     m_executePaintEventPerformanceTest = new QAction( "&Paint Event Performance Test", this );
+    m_sendTestTelemetryAction          = new QAction( "&Send Test Telemetry", this );
+    m_sendTestTelemetryAction->setToolTip( "Send test logging and stack trace to OpenTelemetry endpoint" );
 
     connect( m_mockModelAction, SIGNAL( triggered() ), SLOT( slotMockModel() ) );
     connect( m_mockResultsModelAction, SIGNAL( triggered() ), SLOT( slotMockResultsModel() ) );
@@ -388,6 +397,7 @@ void RiuMainWindow::createActions()
 
     connect( m_showRegressionTestDialog, SIGNAL( triggered() ), SLOT( slotShowRegressionTestDialog() ) );
     connect( m_executePaintEventPerformanceTest, SIGNAL( triggered() ), SLOT( slotExecutePaintEventPerformanceTest() ) );
+    connect( m_sendTestTelemetryAction, SIGNAL( triggered() ), SLOT( slotSendTestTelemetry() ) );
 
     // View actions
     m_viewFullScreen = new QAction( QIcon( ":/Fullscreen.png" ), "Full Screen", this );
@@ -553,6 +563,7 @@ void RiuMainWindow::createMenus()
     testMenu->addSeparator();
     testMenu->addAction( m_showRegressionTestDialog );
     testMenu->addAction( m_executePaintEventPerformanceTest );
+    testMenu->addAction( m_sendTestTelemetryAction );
     testMenu->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectNoGlobalPathsFeature" ) );
@@ -1996,6 +2007,38 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
             QString( "Total time '%1 ms' for %2 number of redraws, frame time '%3 ms'" ).arg( totalTimeMS ).arg( redrawCount ).arg( msPerFrame );
         setResultInfo( resultInfo );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotSendTestTelemetry()
+{
+#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
+    auto& otelManager = RiaOpenTelemetryManager::instance();
+    if ( !otelManager.isEnabled() )
+    {
+        RiaLogging::warning( "OpenTelemetry is not enabled or configured" );
+        return;
+    }
+
+    // Send test logging events
+    std::map<std::string, std::string> attributes;
+    attributes["test_type"]    = "manual_test";
+    attributes["timestamp"]    = QDateTime::currentDateTime().toString( Qt::ISODate ).toStdString();
+    attributes["user_action"]  = "test_menu_triggered";
+    attributes["service.name"] = "ResInsight";
+
+    otelManager.reportEventAsync( "test.logging", attributes );
+
+    // Generate and send test stack trace
+    auto testStackTrace = std::stacktrace::current();
+    otelManager.reportTestCrash( testStackTrace );
+
+    RiaLogging::info( "Test telemetry data sent to OpenTelemetry endpoint" );
+#else
+    RiaLogging::warning( "OpenTelemetry not enabled at compile time" );
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
