@@ -812,6 +812,28 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace( size_t reservoir
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::tuple<double, cvf::StructGridInterface::FaceType, QString> RigMainGrid::minimumDistanceFaultToPoint( const cvf::Vec3d& point ) const
+{
+    double                             minDistance = std::numeric_limits<double>::max();
+    cvf::StructGridInterface::FaceType minFace     = cvf::StructGridInterface::FaceType::NO_FACE;
+    QString                            minFaultName;
+    for ( const auto& fault : m_faults )
+    {
+        auto [faultMinDistance, faultMinFace] = fault->minimumDistanceToPoint( point, this );
+
+        if ( faultMinDistance < minDistance )
+        {
+            minDistance  = faultMinDistance;
+            minFace      = faultMinFace;
+            minFaultName = fault->name();
+        }
+    }
+    return { minDistance, minFace, minFaultName };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& inputBB ) const
 {
     if ( m_cellSearchTree.isNull() )

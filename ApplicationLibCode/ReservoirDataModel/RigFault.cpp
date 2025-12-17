@@ -231,3 +231,26 @@ void RigFaultsPrCellAccumulator::setFaultIdx( size_t reservoirCellIndex, cvf::St
 {
     m_faultIdxForCellFace[reservoirCellIndex][face] = faultIdx;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, cvf::StructGridInterface::FaceType> RigFault::minimumDistanceToPoint( const cvf::Vec3d& point, const RigMainGrid* mainGrid ) const
+{
+    double                             minDistance = std::numeric_limits<double>::max();
+    cvf::StructGridInterface::FaceType minFace     = cvf::StructGridInterface::NO_FACE;
+    for ( const FaultFace& ff : m_faultFaces )
+    {
+        const RigCell& cell = mainGrid->cell( ff.m_nativeReservoirCellIndex );
+        if ( cell.isInvalid() ) continue;
+
+        auto   faceCenter = cell.faceCenter( ff.m_nativeFace );
+        double distance   = ( faceCenter - point ).length();
+        if ( distance < minDistance )
+        {
+            minDistance = distance;
+            minFace     = ff.m_nativeFace;
+        }
+    }
+    return std::make_pair( minDistance, minFace );
+}
