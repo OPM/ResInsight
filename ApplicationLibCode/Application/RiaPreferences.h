@@ -47,6 +47,7 @@ class RiaPreferencesOsdu;
 class RiaPreferencesGrid;
 class RiaPreferencesSumo;
 class RiaPreferencesOpm;
+class RiaPreferencesOpenTelemetry;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -122,13 +123,14 @@ public:
 
     bool storeBackupOfProjectFiles() const;
 
-    RiaPreferencesGeoMech* geoMechPreferences() const;
-    RiaPreferencesSummary* summaryPreferences() const;
-    RiaPreferencesSystem*  systemPreferences() const;
-    RiaPreferencesOsdu*    osduPreferences() const;
-    RiaPreferencesSumo*    sumoPreferences() const;
-    RiaPreferencesGrid*    gridPreferences() const;
-    RiaPreferencesOpm*     opmPreferences() const;
+    RiaPreferencesGeoMech*       geoMechPreferences() const;
+    RiaPreferencesSummary*       summaryPreferences() const;
+    RiaPreferencesSystem*        systemPreferences() const;
+    RiaPreferencesOsdu*          osduPreferences() const;
+    RiaPreferencesSumo*          sumoPreferences() const;
+    RiaPreferencesGrid*          gridPreferences() const;
+    RiaPreferencesOpm*           opmPreferences() const;
+    RiaPreferencesOpenTelemetry* openTelemetryPreferences() const;
 
     void importPreferenceValuesFromFile( const QString& fileName );
     void exportPreferenceValuesToFile( const QString& fileName );
@@ -240,6 +242,9 @@ private:
     // sumo settings
     caf::PdmChildField<RiaPreferencesSumo*> m_sumoPreferences;
     caf::PdmField<bool>                     m_deleteSumoToken;
+
+    // OpenTelemetry settings
+    caf::PdmChildField<RiaPreferencesOpenTelemetry*> m_openTelemetryPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

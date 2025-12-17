@@ -214,6 +214,28 @@ if(RESINSIGHT_FOUND_HDF5)
   endif() # MSVC
 endif()
 
+#
+# OpenTelemetry
+#
+option(RESINSIGHT_ENABLE_OPENTELEMETRY "Enable OpenTelemetry integration" OFF)
+if(RESINSIGHT_ENABLE_OPENTELEMETRY)
+  message(STATUS "OpenTelemetry support enabled")
+  add_definitions(-DRESINSIGHT_OPENTELEMETRY_ENABLED)
+
+  # Create telemetry source files list
+  set(OPENTELEMETRY_FILES
+      Application/Tools/Telemetry/RiaOpenTelemetryManager.h
+      Application/Tools/Telemetry/RiaOpenTelemetryManager.cpp
+  )
+
+  list(APPEND CPP_SOURCES ${OPENTELEMETRY_FILES})
+endif()
+
+# Always include OpenTelemetry preferences
+list(APPEND CPP_SOURCES Application/RiaPreferencesOpenTelemetry.h
+     Application/RiaPreferencesOpenTelemetry.cpp
+)
+
 qt_add_resources(QRC_FILES Application/Resources/ApplicationLibCode.qrc)
 
 list(APPEND ALL_SOURCE_FILES ${CPP_SOURCES} ${MOC_SOURCE_FILES}
@@ -353,6 +375,7 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
          ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/WellPathTools
          ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/KeyValueStore
+         ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/Telemetry
          ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
          ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
          ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface

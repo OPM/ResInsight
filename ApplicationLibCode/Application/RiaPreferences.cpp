@@ -27,6 +27,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaPreferencesOpenTelemetry.h"
 #include "RiaPreferencesOpm.h"
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSummary.h"
@@ -284,6 +285,9 @@ RiaPreferences::RiaPreferences()
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteSumoToken );
     m_deleteSumoToken.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_openTelemetryPreferences, "openTelemetryPreferences", "openTelemetryPreferences" );
+    m_openTelemetryPreferences = new RiaPreferencesOpenTelemetry;
+
     CAF_PDM_InitFieldNoDefault( &m_importPreferences, "importPreferences", "Import From File" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_importPreferences );
 
@@ -522,6 +526,14 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         sumoGroup->setCollapsedByDefault();
         m_sumoPreferences()->uiOrdering( uiConfigName, *sumoGroup );
         sumoGroup->add( &m_deleteSumoToken );
+
+        caf::PdmUiGroup* openTelemetryGroup = uiOrdering.addNewGroup( "OpenTelemetry" );
+        openTelemetryGroup->setCollapsedByDefault();
+#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
+        m_openTelemetryPreferences()->uiOrdering( uiConfigName, *openTelemetryGroup );
+#else
+        openTelemetryGroup->addNewLabel( "OpenTelemetry support is not enabled in this build of ResInsight. " );
+#endif
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -1076,6 +1088,14 @@ RiaPreferencesOsdu* RiaPreferences::osduPreferences() const
 RiaPreferencesSumo* RiaPreferences::sumoPreferences() const
 {
     return m_sumoPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesOpenTelemetry* RiaPreferences::openTelemetryPreferences() const
+{
+    return m_openTelemetryPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------
