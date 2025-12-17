@@ -199,7 +199,8 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&              
 
     bool setDescription = true;
 
-    auto outletSegment = previousSegment;
+    auto outletSegment         = previousSegment;
+    int  previousSegmentNumber = outletSegment ? outletSegment->segmentNumber() : 1;
     for ( const auto& [subStartMD, subEndMD] : segments )
     {
         double depth  = 0;
@@ -233,7 +234,7 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&              
         WelsegsRow row;
         row.segment1    = segment->segmentNumber();
         row.segment2    = segment->segmentNumber();
-        row.joinSegment = outletSegment ? outletSegment->segmentNumber() : 1;
+        row.joinSegment = previousSegmentNumber;
         row.branch      = branch->branchNumber();
         row.length      = length;
         row.depth       = depth;
@@ -246,6 +247,8 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&              
         }
 
         tableData.addWelsegsRow( row );
+
+        previousSegmentNumber++;
 
         if ( segments.size() > 1 )
         {
