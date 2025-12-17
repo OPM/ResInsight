@@ -1,4 +1,6 @@
 set(SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimPdmObjectCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPdmObjectCollection.inl
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCaseCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfigChangeType.h

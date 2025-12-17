@@ -1,4 +1,6 @@
 set(SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntervalCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntervalCollection.inl
     ${CMAKE_CURRENT_LIST_DIR}/RimCompletionCellIntersectionCalc.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFishbones.h

@@ -23,6 +23,8 @@ set(PROJECT_FILES
     cafPdmObjectGroup.h
     cafPdmObject.cpp
     cafPdmObject.h
+    cafPdmObjectCollection.h
+    cafPdmObjectCollection.inl
 )
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})
