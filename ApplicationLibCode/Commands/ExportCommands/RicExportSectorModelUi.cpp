@@ -144,9 +144,9 @@ RicExportSectorModelUi::~RicExportSectorModelUi()
 void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // must be kept in sync with the page names defined in the constructor
-    CAF_ASSERT( m_pageNames.size() == 5 );
+    CAF_ASSERT( m_pageNames.size() == (size_t)WizardPageEnum::TotalPages );
 
-    if ( uiConfigName == m_pageNames[0] ) // source data
+    if ( uiConfigName == m_pageNames[WizardPageEnum::ExportSettings] )
     {
         uiOrdering.add( &m_exportDeckName );
         uiOrdering.add( &m_exportFolder );
@@ -155,7 +155,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         infoGrp->addNewLabel( QString( "Source Folder: " ) + m_eclipseCase->locationOnDisc() );
         infoGrp->addNewLabel( QString( "Source Case Name: " ) + m_eclipseCase->caseUserDescription() );
     }
-    else if ( uiConfigName == m_pageNames[1] ) // grid box selection
+    else if ( uiConfigName == m_pageNames[WizardPageEnum::GridBoxSelection] )
     {
         uiOrdering.add( &m_gridBoxSelection, { .newRow = true, .totalColumnSpan = 4, .leftLabelColumnSpan = 1 } );
 
@@ -189,7 +189,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
             uiOrdering.addNewLabel( QString( "Total cells to export: %1" ).arg( m_totalCells ) );
         }
     }
-    else if ( uiConfigName == m_pageNames[2] ) // refinement
+    else if ( uiConfigName == m_pageNames[WizardPageEnum::GridRefinement] )
     {
         uiOrdering.add( &m_refineGrid );
         uiOrdering.addNewLabel( "" );
@@ -202,7 +202,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         m_refinementCountJ.uiCapability()->setUiReadOnly( !m_refineGrid() );
         m_refinementCountK.uiCapability()->setUiReadOnly( !m_refineGrid() );
     }
-    else if ( uiConfigName == m_pageNames[3] ) // border conditions
+    else if ( uiConfigName == m_pageNames[WizardPageEnum::BoundaryConditions] )
     {
         uiOrdering.add( &m_boundaryCondition );
         uiOrdering.addNewLabel( "", { .newRow = false } ); // needed to get proper visual layout in BCCON/BCPROP case
@@ -217,7 +217,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
             uiOrdering.add( &m_bcpropKeywords );
         }
     }
-    else if ( uiConfigName == m_pageNames[4] ) // simulation job
+    else if ( uiConfigName == m_pageNames[WizardPageEnum::SimulationJob] )
     {
         auto simGrp = uiOrdering.addNewGroup( "OPM Flow Simulation" );
         simGrp->add( &m_createSimulationJob );
@@ -557,7 +557,7 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
 {
     std::map<QString, QString> fieldErrors;
 
-    if ( configName == m_pageNames[0] ) // source data
+    if ( configName == m_pageNames[WizardPageEnum::ExportSettings] )
     {
         if ( m_exportDeckName().trimmed().isEmpty() )
         {
@@ -572,7 +572,7 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
             fieldErrors[m_exportFolder.keyword()] = "Export folder cannot be the same as the source case folder.";
         }
     }
-    else if ( configName == m_pageNames[1] ) // grid box selection
+    else if ( configName == m_pageNames[WizardPageEnum::GridBoxSelection] )
     {
         if ( ( m_eclipseCase == nullptr ) || ( m_eclipseCase->eclipseCaseData() == nullptr ) ||
              ( m_eclipseCase->eclipseCaseData()->mainGrid() == nullptr ) )
@@ -626,7 +626,7 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
             }
         }
     }
-    else if ( configName == m_pageNames[2] ) // refinement
+    else if ( configName == m_pageNames[WizardPageEnum::GridRefinement] )
     {
         if ( m_refineGrid() )
         {
@@ -640,11 +640,11 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
             }
         }
     }
-    else if ( configName == m_pageNames[3] ) // border conditions
+    else if ( configName == m_pageNames[WizardPageEnum::BoundaryConditions] )
     {
         // no validation needed
     }
-    else if ( configName == m_pageNames[4] ) // simulation job
+    else if ( configName == m_pageNames[WizardPageEnum::SimulationJob] )
     {
         if ( m_createSimulationJob() )
         {

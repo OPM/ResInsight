@@ -82,6 +82,16 @@ protected:
     std::map<QString, QString> validate( const QString& configName ) const override;
 
 private:
+    enum WizardPageEnum : unsigned int
+    {
+        ExportSettings     = 0,
+        GridBoxSelection   = 1,
+        GridRefinement     = 2,
+        BoundaryConditions = 3,
+        SimulationJob      = 4,
+        TotalPages         = 5
+    };
+
     void           applyBoundaryDefaults();
     static QString defaultFolder();
 
