@@ -146,8 +146,6 @@ void RiaOpenTelemetryManager::shutdown( std::chrono::seconds timeout )
         return;
     }
 
-    RiaLogging::info( "Shutting down OpenTelemetry" );
-
     m_isShuttingDown = true;
     m_enabled        = false;
 
@@ -165,7 +163,6 @@ void RiaOpenTelemetryManager::shutdown( std::chrono::seconds timeout )
     flushPendingEvents();
 
     m_initialized = false;
-    RiaLogging::info( "OpenTelemetry shutdown complete" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,6 +189,19 @@ void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, co
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Helper function to extract the relevant part of the file path starting from "ResInsight"
+//--------------------------------------------------------------------------------------------------
+static std::string extractRelevantPath( const std::string& fullPath )
+{
+    size_t pos = fullPath.find( "ResInsight" );
+    if ( pos != std::string::npos )
+    {
+        return fullPath.substr( pos );
+    }
+    return fullPath;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace& trace )
@@ -206,7 +216,8 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     int               frame = 0;
     for ( const auto& entry : trace )
     {
-        ss << "  [" << frame++ << "] " << entry.description() << " at " << entry.source_file() << ":" << entry.source_line() << "\n";
+        std::string relevantPath = extractRelevantPath( entry.source_file() );
+        ss << "  [" << frame++ << "] " << entry.description() << " at " << relevantPath << ":" << entry.source_line() << "\n";
     }
 
     std::string rawStackTrace = ss.str();
@@ -242,7 +253,8 @@ void RiaOpenTelemetryManager::reportTestCrash( const std::stacktrace& trace )
     int               frame = 0;
     for ( const auto& entry : trace )
     {
-        ss << "  [" << frame++ << "] " << entry.description() << " at " << entry.source_file() << ":" << entry.source_line() << "\n";
+        std::string relevantPath = extractRelevantPath( entry.source_file() );
+        ss << "  [" << frame++ << "] " << entry.description() << " at " << relevantPath << ":" << entry.source_line() << "\n";
     }
 
     std::string rawStackTrace = ss.str();
@@ -524,17 +536,8 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
         }
 
         // Format timestamp - must match Application Insights format exactly
-        auto time_t = std::chrono::system_clock::to_time_t( event.timestamp );
-        auto ms     = std::chrono::duration_cast<std::chrono::milliseconds>( event.timestamp.time_since_epoch() ) % 1000;
-
-        char timeBuffer[100];
-        std::strftime( timeBuffer, sizeof( timeBuffer ), "%Y-%m-%dT%H:%M:%S", std::gmtime( &time_t ) );
-
-        // Pad milliseconds to 3 digits
-        char msBuffer[8];
-        std::snprintf( msBuffer, sizeof( msBuffer ), ".%03dZ", static_cast<int>( ms.count() ) );
-
-        std::string timestamp = std::string( timeBuffer ) + msBuffer;
+        const auto        timestampUtc = std::chrono::floor<std::chrono::milliseconds>( event.timestamp );
+        const std::string timestamp    = std::format( "{:%Y-%m-%dT%H:%M:%SZ}", timestampUtc );
 
         // Convert attributes to JSON properties
         QMap<QString, QVariant> properties;

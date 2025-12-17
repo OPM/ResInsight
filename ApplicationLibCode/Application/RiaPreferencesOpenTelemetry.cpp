@@ -124,11 +124,10 @@ void RiaPreferencesOpenTelemetry::setFieldsReadOnly()
     for ( auto field : fields )
     {
         // Keep logging state editable
-        if ( field == &m_loggingState )
+        if ( field != &m_loggingState )
         {
-            continue;
+            field->uiCapability()->setUiReadOnly( true );
         }
-        field->uiCapability()->setUiReadOnly( true );
     }
 }
 
