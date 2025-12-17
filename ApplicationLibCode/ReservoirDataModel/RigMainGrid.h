@@ -27,6 +27,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfCollection.h"
 
+#include <QString>
+
 #include <vector>
 
 class RigActiveCellInfo;
@@ -115,6 +117,8 @@ public:
 
     // invalidate all cells with I > iLimit (0 based index)
     void invalidateCellsAboveI( size_t iLimit );
+
+    std::tuple<double, cvf::StructGridInterface::FaceType, QString> minimumDistanceFaultToPoint( const cvf::Vec3d& point ) const;
 
 protected: // only for use by file readers and internal services. TODO: replace with a better API
     friend class RigGridBase;

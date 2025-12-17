@@ -97,6 +97,8 @@ public:
 
     static bool ordering( CellAndFace first, CellAndFace second );
 
+    std::pair<double, cvf::StructGridInterface::FaceType> minimumDistanceToPoint( const cvf::Vec3d& point, const RigMainGrid* mainGrid ) const;
+
 private:
     QString m_name;
 
