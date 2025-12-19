@@ -300,13 +300,12 @@ def reservoir_boundingbox(self):
     """
     return self.__case_stub.GetReservoirBoundingBox(self.__request())
 
+
 @add_method(Case)
 def distance_to_closest_fault(self, x: float, y: float, z: float):
-    """Find the closest fault to the given point and return the distance, fault name and fault face
-    """
+    """Find the closest fault to the given point and return the distance, fault name and fault face"""
     request = Case_pb2.ClosestFaultRequest(
-        case_request=self.__request(),
-        point=Definitions_pb2.Vec3d(x=x, y=y, z=z)
+        case_request=self.__request(), point=Definitions_pb2.Vec3d(x=x, y=y, z=z)
     )
     reply = self.__case_stub.GetDistanceToClosestFault(request)
 
