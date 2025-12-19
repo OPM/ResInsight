@@ -9,23 +9,9 @@
 #include <QStringList>
 
 #include <iostream>
-#include <type_traits>
 
 namespace caf
 {
-// SFINAE helper to detect if a field type has a clampValue method
-template <typename T, typename DataType>
-class has_clamp_value
-{
-    template <typename U>
-    static auto test( int ) -> decltype( std::declval<U>().clampValue( std::declval<DataType>() ), std::true_type{} );
-
-    template <typename>
-    static std::false_type test( ... );
-
-public:
-    static constexpr bool value = decltype( test<T>( 0 ) )::value;
-};
 //==================================================================================================
 /// XML Implementation for PdmFieldXmlCap<> methods
 ///
@@ -53,7 +39,7 @@ std::vector<QString> caf::PdmFieldXmlCap<FieldType>::readFieldData( QXmlStreamRe
     PdmFieldReader<typename FieldType::FieldDataType>::readFieldData( value, xmlStream, m_field );
 
     // Clamp value if the field has a clampValue method
-    if constexpr ( has_clamp_value<FieldType, typename FieldType::FieldDataType>::value )
+    if constexpr ( requires { m_field->clampValue( value ); } )
     {
         value = m_field->clampValue( value );
     }
