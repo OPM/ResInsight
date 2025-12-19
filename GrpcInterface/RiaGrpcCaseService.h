@@ -28,77 +28,15 @@ namespace rips
 {
 class CaseRequest;
 class PdmObject;
+class CaseInfo;
 } // namespace rips
 
 class RiaGrpcCallbackInterface;
 class RigCell;
 class RigActiveCellInfo;
 class RimEclipseCase;
-class RiuEclipseSelectionItem;
-
-//==================================================================================================
-//
-// State handler for streaming of active cell info
-//
-//==================================================================================================
-class RiaActiveCellInfoStateHandler
-{
-    using Status = grpc::Status;
-
-public:
-    RiaActiveCellInfoStateHandler();
-
-    Status init( const rips::CellInfoRequest* request );
-
-    RigActiveCellInfo*          activeCellInfo() const;
-    const std::vector<RigCell>& reservoirCells() const;
-
-    // For cell info:
-    Status assignNextActiveCellInfoData( rips::CellInfo* cellInfo );
-    void   assignCellInfoData( rips::CellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx );
-    Status assignReply( rips::CellInfoArray* reply );
-
-    // For cell centers:
-    Status assignNextActiveCellCenter( rips::Vec3d* cellCenter );
-    void   assignCellCenter( rips::Vec3d* cellCenter, const std::vector<RigCell>& reservoirCells, size_t cellIdx );
-    Status assignCellCentersReply( rips::CellCenters* reply );
-
-    // For cell corners:
-    Status assignNextActiveCellCorners( rips::CellCorners* cellCorners );
-    void assignCellCorners( rips::CellCorners* cellCorners, const std::vector<RigCell>& reservoirCells, size_t cellIdx );
-    Status assignCellCornersReply( rips::CellCornersArray* reply );
-
-protected:
-    const rips::CellInfoRequest*  m_request;
-    RimEclipseCase*               m_eclipseCase;
-    RiaDefines::PorosityModelType m_porosityModel;
-    RigActiveCellInfo*            m_activeCellInfo;
-    std::vector<size_t>           m_globalCoarseningBoxIndexStart;
-    size_t                        m_currentCellIdx;
-};
-
-//==================================================================================================
-//
-// State handler for streaming of selected cells
-//
-//==================================================================================================
-class RiaSelectedCellsStateHandler
-{
-    using Status = grpc::Status;
-
-public:
-    RiaSelectedCellsStateHandler();
-
-    Status init( const rips::CaseRequest* request );
-    Status assignReply( rips::SelectedCells* reply );
-    void   assignSelectedCell( rips::SelectedCell* cell, const RiuEclipseSelectionItem* item );
-    Status assignNextSelectedCell( rips::SelectedCell* cell, const std::vector<RiuEclipseSelectionItem*>& items );
-
-protected:
-    const rips::CaseRequest* m_request;
-    RimEclipseCase*          m_eclipseCase;
-    size_t                   m_currentItem;
-};
+class RiaGrpcActiveCellInfoStateHandler;
+class RiaGrpcSelectedCellsStateHandler;
 
 //==================================================================================================
 //
@@ -122,28 +60,32 @@ public:
     grpc::Status GetCaseInfo( grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply ) override;
     grpc::Status
         GetPdmObject( grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply ) override;
-    grpc::Status GetCellInfoForActiveCells( grpc::ServerContext*           context,
-                                            const rips::CellInfoRequest*   request,
-                                            rips::CellInfoArray*           reply,
-                                            RiaActiveCellInfoStateHandler* stateHandler );
-    grpc::Status GetCellCenterForActiveCells( grpc::ServerContext*           context,
-                                              const rips::CellInfoRequest*   request,
-                                              rips::CellCenters*             reply,
-                                              RiaActiveCellInfoStateHandler* stateHandler );
-    grpc::Status GetCellCornersForActiveCells( grpc::ServerContext*           context,
-                                               const rips::CellInfoRequest*   request,
-                                               rips::CellCornersArray*        reply,
-                                               RiaActiveCellInfoStateHandler* stateHandler );
-    grpc::Status GetSelectedCells( grpc::ServerContext*          context,
-                                   const rips::CaseRequest*      request,
-                                   rips::SelectedCells*          reply,
-                                   RiaSelectedCellsStateHandler* stateHandler );
+    grpc::Status GetCellInfoForActiveCells( grpc::ServerContext*               context,
+                                            const rips::CellInfoRequest*       request,
+                                            rips::CellInfoArray*               reply,
+                                            RiaGrpcActiveCellInfoStateHandler* stateHandler );
+    grpc::Status GetCellCenterForActiveCells( grpc::ServerContext*               context,
+                                              const rips::CellInfoRequest*       request,
+                                              rips::CellCenters*                 reply,
+                                              RiaGrpcActiveCellInfoStateHandler* stateHandler );
+    grpc::Status GetCellCornersForActiveCells( grpc::ServerContext*               context,
+                                               const rips::CellInfoRequest*       request,
+                                               rips::CellCornersArray*            reply,
+                                               RiaGrpcActiveCellInfoStateHandler* stateHandler );
+    grpc::Status GetSelectedCells( grpc::ServerContext*              context,
+                                   const rips::CaseRequest*          request,
+                                   rips::SelectedCells*              reply,
+                                   RiaGrpcSelectedCellsStateHandler* stateHandler );
     grpc::Status GetReservoirBoundingBox( grpc::ServerContext*     context,
                                           const rips::CaseRequest* request,
                                           rips::BoundingBox*       reply ) override;
     grpc::Status GetCoarseningInfoArray( grpc::ServerContext*       context,
                                          const rips::CaseRequest*   request,
                                          rips::CoarseningInfoArray* reply ) override;
+
+    grpc::Status GetDistanceToClosestFault( grpc::ServerContext*             context,
+                                            const rips::ClosestFaultRequest* request,
+                                            rips::ClosestFault*              reply ) override;
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

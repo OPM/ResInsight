@@ -128,7 +128,7 @@ protected: // only for use by file readers and internal services. TODO: replace 
     friend class RifReaderEclipseOutput;
     friend class RifReaderOpmCommon;
     friend class RiaGrpcCaseService;
-    friend class RiaActiveCellInfoStateHandler;
+    friend class RiaGrpcActiveCellInfoStateHandler;
     friend class RicCreateTemporaryLgrFeature;
     friend class RimCornerPointCase;
     std::vector<RigCell>&       reservoirCells();

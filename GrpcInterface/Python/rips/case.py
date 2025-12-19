@@ -43,6 +43,7 @@ import Case_pb2
 import Case_pb2_grpc
 import Commands_pb2 as Cmd
 import PdmObject_pb2 as PdmObject_pb2
+import Definitions_pb2
 
 import Properties_pb2
 import Properties_pb2_grpc
@@ -298,6 +299,18 @@ def reservoir_boundingbox(self):
 
     """
     return self.__case_stub.GetReservoirBoundingBox(self.__request())
+
+@add_method(Case)
+def distance_to_closest_fault(self, x: float, y: float, z: float):
+    """Find the closest fault to the given point and return the distance, fault name and fault face
+    """
+    request = Case_pb2.ClosestFaultRequest(
+        case_request=self.__request(),
+        point=Definitions_pb2.Vec3d(x=x, y=y, z=z)
+    )
+    reply = self.__case_stub.GetDistanceToClosestFault(request)
+
+    return (reply.distance, reply.fault_name, reply.face_name)
 
 
 @add_method(Case)

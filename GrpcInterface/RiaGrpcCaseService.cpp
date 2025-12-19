@@ -17,8 +17,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcCaseService.h"
 
+#include "RiaGrpcActiveCellInfoStateHandler.h"
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcHelper.h"
+#include "RiaGrpcSelectedCellsStateHandler.h"
 #include "RiaSocketTools.h"
 
 #include "RigActiveCellInfo.h"
@@ -35,327 +37,6 @@
 #include <array>
 
 using namespace rips;
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaActiveCellInfoStateHandler::RiaActiveCellInfoStateHandler()
-    : m_request( nullptr )
-    , m_eclipseCase( nullptr )
-    , m_activeCellInfo( nullptr )
-    , m_currentCellIdx( 0u )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfoStateHandler::init( const rips::CellInfoRequest* request )
-{
-    CAF_ASSERT( request );
-    m_request = request;
-
-    m_porosityModel  = RiaDefines::PorosityModelType( m_request->porosity_model() );
-    RimCase* rimCase = RiaGrpcHelper::findCase( m_request->case_request().id() );
-    m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
-
-    if ( !m_eclipseCase )
-    {
-        return grpc::Status( grpc::NOT_FOUND, "Eclipse Case not found" );
-    }
-
-    if ( !m_eclipseCase->eclipseCaseData() || !m_eclipseCase->eclipseCaseData()->mainGrid() )
-    {
-        return grpc::Status( grpc::NOT_FOUND, "Eclipse Case Data not found" );
-    }
-
-    m_activeCellInfo = m_eclipseCase->eclipseCaseData()->activeCellInfo( m_porosityModel );
-
-    if ( !m_activeCellInfo )
-    {
-        return grpc::Status( grpc::NOT_FOUND, "Active Cell Info not found" );
-    }
-
-    size_t globalCoarseningBoxCount = 0;
-
-    for ( size_t gridIdx = 0; gridIdx < m_eclipseCase->eclipseCaseData()->gridCount(); gridIdx++ )
-    {
-        m_globalCoarseningBoxIndexStart.push_back( globalCoarseningBoxCount );
-
-        RigGridBase* grid = m_eclipseCase->eclipseCaseData()->grid( gridIdx );
-
-        size_t localCoarseningBoxCount = grid->coarseningBoxCount();
-        globalCoarseningBoxCount += localCoarseningBoxCount;
-    }
-
-    return grpc::Status::OK;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellInfoData( rips::CellInfo* cellInfo )
-{
-    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->reservoirCells();
-
-    while ( m_currentCellIdx < reservoirCells.size() )
-    {
-        size_t cellIdxToTry = m_currentCellIdx++;
-        if ( m_activeCellInfo->isActive( cellIdxToTry ) )
-        {
-            assignCellInfoData( cellInfo, reservoirCells, cellIdxToTry );
-            return grpc::Status::OK;
-        }
-    }
-    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaActiveCellInfoStateHandler::assignCellInfoData( rips::CellInfo*             cellInfo,
-                                                        const std::vector<RigCell>& reservoirCells,
-                                                        size_t                      cellIdx )
-{
-    RigGridBase* grid = reservoirCells[cellIdx].hostGrid();
-    CVF_ASSERT( grid != nullptr );
-    size_t cellIndex = reservoirCells[cellIdx].gridLocalCellIndex();
-
-    size_t i, j, k;
-    grid->ijkFromCellIndex( cellIndex, &i, &j, &k );
-
-    size_t       pi, pj, pk;
-    RigGridBase* parentGrid = nullptr;
-
-    if ( grid->isMainGrid() )
-    {
-        pi         = i;
-        pj         = j;
-        pk         = k;
-        parentGrid = grid;
-    }
-    else
-    {
-        size_t parentCellIdx = reservoirCells[cellIdx].parentCellIndex();
-        parentGrid           = ( static_cast<RigLocalGrid*>( grid ) )->parentGrid();
-        CVF_ASSERT( parentGrid != nullptr );
-        parentGrid->ijkFromCellIndex( parentCellIdx, &pi, &pj, &pk );
-    }
-
-    cellInfo->set_grid_index( (int)grid->gridIndex() );
-    cellInfo->set_parent_grid_index( (int)parentGrid->gridIndex() );
-
-    size_t coarseningIdx = reservoirCells[cellIdx].coarseningBoxIndex();
-    if ( coarseningIdx != cvf::UNDEFINED_SIZE_T )
-    {
-        size_t globalCoarseningIdx = m_globalCoarseningBoxIndexStart[grid->gridIndex()] + coarseningIdx;
-        cellInfo->set_coarsening_box_index( (int)globalCoarseningIdx );
-    }
-    else
-    {
-        cellInfo->set_coarsening_box_index( -1 );
-    }
-    {
-        rips::Vec3i* local_ijk = new rips::Vec3i;
-        local_ijk->set_i( (int)i );
-        local_ijk->set_j( (int)j );
-        local_ijk->set_k( (int)k );
-        cellInfo->set_allocated_local_ijk( local_ijk );
-    }
-    {
-        rips::Vec3i* parent_ijk = new rips::Vec3i;
-        parent_ijk->set_i( (int)pi );
-        parent_ijk->set_j( (int)pj );
-        parent_ijk->set_k( (int)pk );
-        cellInfo->set_allocated_parent_ijk( parent_ijk );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RiaActiveCellInfoStateHandler::activeCellInfo() const
-{
-    return m_activeCellInfo;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<RigCell>& RiaActiveCellInfoStateHandler::reservoirCells() const
-{
-    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->reservoirCells();
-    return reservoirCells;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfoStateHandler::assignReply( rips::CellInfoArray* reply )
-{
-    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::CellInfo ) );
-    size_t       indexInPackage = 0u;
-    reply->mutable_data()->Reserve( (int)packageSize );
-
-    // Stream until you've reached the package size or total cell count. Whatever comes first.
-    // If you've reached the package size you'll come back for another round.
-    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
-    {
-        rips::CellInfo singleCellInfo;
-        grpc::Status   singleCellInfoStatus = assignNextActiveCellInfoData( &singleCellInfo );
-        if ( singleCellInfoStatus.ok() )
-        {
-            rips::CellInfo* allocCellInfo = reply->add_data();
-            *allocCellInfo                = singleCellInfo;
-        }
-        else
-        {
-            break;
-        }
-    }
-    if ( indexInPackage > 0u )
-    {
-        return Status::OK;
-    }
-    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellCenter( rips::Vec3d* cellCenter )
-{
-    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->reservoirCells();
-
-    while ( m_currentCellIdx < reservoirCells.size() )
-    {
-        size_t cellIdxToTry = m_currentCellIdx++;
-        if ( m_activeCellInfo->isActive( cellIdxToTry ) )
-        {
-            assignCellCenter( cellCenter, reservoirCells, cellIdxToTry );
-            return grpc::Status::OK;
-        }
-    }
-    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaActiveCellInfoStateHandler::assignCellCenter( rips::Vec3d*                cellCenter,
-                                                      const std::vector<RigCell>& reservoirCells,
-                                                      size_t                      cellIdx )
-
-{
-    cvf::Vec3d center = reservoirCells[cellIdx].center();
-
-    RiaGrpcHelper::convertVec3dToPositiveDepth( &center );
-
-    cellCenter->set_x( center.x() );
-    cellCenter->set_y( center.y() );
-    cellCenter->set_z( center.z() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfoStateHandler::assignCellCentersReply( rips::CellCenters* reply )
-{
-    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
-    size_t       indexInPackage = 0u;
-    reply->mutable_centers()->Reserve( (int)packageSize );
-    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
-    {
-        rips::Vec3d  singleCellCenter;
-        grpc::Status singleCellCenterStatus = assignNextActiveCellCenter( &singleCellCenter );
-        if ( singleCellCenterStatus.ok() )
-        {
-            rips::Vec3d* allocCellCenter = reply->add_centers();
-            *allocCellCenter             = singleCellCenter;
-        }
-        else
-        {
-            break;
-        }
-    }
-    if ( indexInPackage > 0u )
-    {
-        return Status::OK;
-    }
-    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Status RiaActiveCellInfoStateHandler::assignNextActiveCellCorners( rips::CellCorners* cellCorners )
-{
-    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->reservoirCells();
-
-    while ( m_currentCellIdx < reservoirCells.size() )
-    {
-        size_t cellIdxToTry = m_currentCellIdx++;
-        if ( m_activeCellInfo->isActive( cellIdxToTry ) )
-        {
-            assignCellCorners( cellCorners, reservoirCells, cellIdxToTry );
-            return grpc::Status::OK;
-        }
-    }
-    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaActiveCellInfoStateHandler::assignCellCorners( rips::CellCorners*          corners,
-                                                       const std::vector<RigCell>& reservoirCells,
-                                                       size_t                      cellIdx )
-{
-    RigGridBase*              grid        = m_eclipseCase->eclipseCaseData()->mainGrid();
-    std::array<cvf::Vec3d, 8> cornerVerts = grid->cellCornerVertices( cellIdx );
-    for ( cvf::Vec3d& corner : cornerVerts )
-    {
-        RiaGrpcHelper::convertVec3dToPositiveDepth( &corner );
-    }
-
-    RiaGrpcHelper::setCornerValues( corners->mutable_c0(), cornerVerts[0] );
-    RiaGrpcHelper::setCornerValues( corners->mutable_c1(), cornerVerts[1] );
-    RiaGrpcHelper::setCornerValues( corners->mutable_c2(), cornerVerts[2] );
-    RiaGrpcHelper::setCornerValues( corners->mutable_c3(), cornerVerts[3] );
-    RiaGrpcHelper::setCornerValues( corners->mutable_c4(), cornerVerts[4] );
-    RiaGrpcHelper::setCornerValues( corners->mutable_c5(), cornerVerts[5] );
-    RiaGrpcHelper::setCornerValues( corners->mutable_c6(), cornerVerts[6] );
-    RiaGrpcHelper::setCornerValues( corners->mutable_c7(), cornerVerts[7] );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Status RiaActiveCellInfoStateHandler::assignCellCornersReply( rips::CellCornersArray* reply )
-{
-    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
-    size_t       indexInPackage = 0u;
-    reply->mutable_cells()->Reserve( (int)packageSize );
-    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
-    {
-        rips::CellCorners singleCellCorners;
-        grpc::Status      singleCellCornersStatus = assignNextActiveCellCorners( &singleCellCorners );
-        if ( singleCellCornersStatus.ok() )
-        {
-            rips::CellCorners* allocCellCorners = reply->add_cells();
-            *allocCellCorners                   = singleCellCorners;
-        }
-        else
-        {
-            break;
-        }
-    }
-    if ( indexInPackage > 0u )
-    {
-        return Status::OK;
-    }
-    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -502,10 +183,10 @@ grpc::Status RiaGrpcCaseService::GetPdmObject( grpc::ServerContext*     context,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells( grpc::ServerContext*           context,
-                                                            const rips::CellInfoRequest*   request,
-                                                            rips::CellInfoArray*           reply,
-                                                            RiaActiveCellInfoStateHandler* stateHandler )
+grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells( grpc::ServerContext*               context,
+                                                            const rips::CellInfoRequest*       request,
+                                                            rips::CellInfoArray*               reply,
+                                                            RiaGrpcActiveCellInfoStateHandler* stateHandler )
 {
     return stateHandler->assignReply( reply );
 }
@@ -513,10 +194,10 @@ grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells( grpc::ServerContext*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCaseService::GetCellCenterForActiveCells( grpc::ServerContext*           context,
-                                                              const rips::CellInfoRequest*   request,
-                                                              rips::CellCenters*             reply,
-                                                              RiaActiveCellInfoStateHandler* stateHandler )
+grpc::Status RiaGrpcCaseService::GetCellCenterForActiveCells( grpc::ServerContext*               context,
+                                                              const rips::CellInfoRequest*       request,
+                                                              rips::CellCenters*                 reply,
+                                                              RiaGrpcActiveCellInfoStateHandler* stateHandler )
 {
     return stateHandler->assignCellCentersReply( reply );
 }
@@ -524,10 +205,10 @@ grpc::Status RiaGrpcCaseService::GetCellCenterForActiveCells( grpc::ServerContex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCaseService::GetCellCornersForActiveCells( grpc::ServerContext*           context,
-                                                               const rips::CellInfoRequest*   request,
-                                                               rips::CellCornersArray*        reply,
-                                                               RiaActiveCellInfoStateHandler* stateHandler )
+grpc::Status RiaGrpcCaseService::GetCellCornersForActiveCells( grpc::ServerContext*               context,
+                                                               const rips::CellInfoRequest*       request,
+                                                               rips::CellCornersArray*            reply,
+                                                               RiaGrpcActiveCellInfoStateHandler* stateHandler )
 {
     return stateHandler->assignCellCornersReply( reply );
 }
@@ -535,128 +216,10 @@ grpc::Status RiaGrpcCaseService::GetCellCornersForActiveCells( grpc::ServerConte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSelectedCellsStateHandler::RiaSelectedCellsStateHandler()
-    : m_request( nullptr )
-    , m_eclipseCase( nullptr )
-    , m_currentItem( 0u )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Status RiaSelectedCellsStateHandler::init( const rips::CaseRequest* request )
-{
-    CAF_ASSERT( request );
-    m_request = request;
-
-    RimCase* rimCase = RiaGrpcHelper::findCase( m_request->id() );
-    m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
-
-    if ( !m_eclipseCase )
-    {
-        return grpc::Status( grpc::NOT_FOUND, "Eclipse Case not found" );
-    }
-
-    if ( !m_eclipseCase->eclipseCaseData() || !m_eclipseCase->eclipseCaseData()->mainGrid() )
-    {
-        return grpc::Status( grpc::NOT_FOUND, "Eclipse Case Data not found" );
-    }
-
-    return grpc::Status::OK;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Status RiaSelectedCellsStateHandler::assignNextSelectedCell( rips::SelectedCell*                          cell,
-                                                             const std::vector<RiuEclipseSelectionItem*>& items )
-{
-    while ( m_currentItem < items.size() )
-    {
-        size_t itemToTry = m_currentItem++;
-
-        const RiuEclipseSelectionItem* item = items[itemToTry];
-        CVF_ASSERT( item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT );
-        assignSelectedCell( cell, item );
-        return grpc::Status::OK;
-    }
-    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSelectedCellsStateHandler::assignSelectedCell( rips::SelectedCell* cell, const RiuEclipseSelectionItem* item )
-{
-    CVF_ASSERT( item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT );
-    size_t i = -1;
-    size_t j = -1;
-    size_t k = -1;
-    item->m_resultDefinition->eclipseCase()
-        ->eclipseCaseData()
-        ->grid( item->m_gridIndex )
-        ->ijkFromCellIndex( item->m_gridLocalCellIndex, &i, &j, &k );
-
-    cell->set_grid_index( item->m_gridIndex );
-    rips::Vec3i* ijk = new rips::Vec3i;
-    ijk->set_i( (int)i );
-    ijk->set_j( (int)j );
-    ijk->set_k( (int)k );
-    cell->set_allocated_ijk( ijk );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaSelectedCellsStateHandler::assignReply( rips::SelectedCells* reply )
-{
-    std::vector<RiuSelectionItem*> items;
-    Riu3dSelectionManager::instance()->selectedItems( items );
-
-    // Only eclipse cases are currently supported. Also filter by case.
-    std::vector<RiuEclipseSelectionItem*> eclipseItems;
-    for ( auto item : items )
-    {
-        RiuEclipseSelectionItem* eclipseItem = dynamic_cast<RiuEclipseSelectionItem*>( item );
-        if ( eclipseItem && eclipseItem->m_resultDefinition->eclipseCase()->caseId() == m_request->id() )
-        {
-            eclipseItems.push_back( eclipseItem );
-        }
-    }
-
-    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::SelectedCell ) );
-    size_t       indexInPackage = 0u;
-    reply->mutable_cells()->Reserve( (int)packageSize );
-    for ( ; indexInPackage < packageSize && m_currentItem < eclipseItems.size(); ++indexInPackage )
-    {
-        rips::SelectedCell singleSelectedCell;
-        grpc::Status       singleSelectedCellStatus = assignNextSelectedCell( &singleSelectedCell, eclipseItems );
-        if ( singleSelectedCellStatus.ok() )
-        {
-            rips::SelectedCell* allocSelectedCell = reply->add_cells();
-            *allocSelectedCell                    = singleSelectedCell;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    if ( indexInPackage > 0u )
-    {
-        return Status::OK;
-    }
-    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCaseService::GetSelectedCells( grpc::ServerContext*          context,
-                                                   const rips::CaseRequest*      request,
-                                                   rips::SelectedCells*          reply,
-                                                   RiaSelectedCellsStateHandler* stateHandler )
+grpc::Status RiaGrpcCaseService::GetSelectedCells( grpc::ServerContext*              context,
+                                                   const rips::CaseRequest*          request,
+                                                   rips::SelectedCells*              reply,
+                                                   RiaGrpcSelectedCellsStateHandler* stateHandler )
 {
     return stateHandler->assignReply( reply );
 }
@@ -723,6 +286,31 @@ grpc::Status RiaGrpcCaseService::GetCoarseningInfoArray( grpc::ServerContext*   
     return Status( grpc::NOT_FOUND, "Case not found" );
 }
 
+grpc::Status RiaGrpcCaseService::GetDistanceToClosestFault( grpc::ServerContext*             context,
+                                                            const rips::ClosestFaultRequest* request,
+                                                            rips::ClosestFault*              reply )
+{
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->case_request().id() );
+    if ( auto eCase = dynamic_cast<RimEclipseCase*>( rimCase ) )
+    {
+        cvf::Vec3d point( request->point() );
+        point.z() = -point.z(); // Convert to internal coordinate system
+
+        double                             distance = 0.0;
+        cvf::StructGridInterface::FaceType faceType;
+        QString                            faultName;
+
+        std::tie( distance, faceType, faultName ) = eCase->mainGrid()->minimumDistanceFaultToPoint( point );
+
+        reply->set_distance( distance );
+        reply->set_face_name( RiaGrpcHelper::faceTypeToString( faceType ) );
+        reply->set_fault_name( faultName.toStdString() );
+
+        return grpc::Status::OK;
+    }
+    return Status( grpc::NOT_FOUND, "Case not found" );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -741,38 +329,42 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
              new RiaGrpcServerToClientStreamCallback<Self,
                                                      CellInfoRequest,
                                                      CellInfoArray,
-                                                     RiaActiveCellInfoStateHandler>( this,
-                                                                                     &Self::GetCellInfoForActiveCells,
-                                                                                     &Self::RequestGetCellInfoForActiveCells,
-                                                                                     new RiaActiveCellInfoStateHandler ),
+                                                     RiaGrpcActiveCellInfoStateHandler>( this,
+                                                                                         &Self::GetCellInfoForActiveCells,
+                                                                                         &Self::RequestGetCellInfoForActiveCells,
+                                                                                         new RiaGrpcActiveCellInfoStateHandler ),
              new RiaGrpcServerToClientStreamCallback<Self,
                                                      CellInfoRequest,
                                                      CellCenters,
-                                                     RiaActiveCellInfoStateHandler>( this,
-                                                                                     &Self::GetCellCenterForActiveCells,
-                                                                                     &Self::RequestGetCellCenterForActiveCells,
-                                                                                     new RiaActiveCellInfoStateHandler ),
+                                                     RiaGrpcActiveCellInfoStateHandler>( this,
+                                                                                         &Self::GetCellCenterForActiveCells,
+                                                                                         &Self::RequestGetCellCenterForActiveCells,
+                                                                                         new RiaGrpcActiveCellInfoStateHandler ),
              new RiaGrpcServerToClientStreamCallback<Self,
                                                      CellInfoRequest,
                                                      CellCornersArray,
-                                                     RiaActiveCellInfoStateHandler>( this,
-                                                                                     &Self::GetCellCornersForActiveCells,
-                                                                                     &Self::RequestGetCellCornersForActiveCells,
-                                                                                     new RiaActiveCellInfoStateHandler ),
+                                                     RiaGrpcActiveCellInfoStateHandler>( this,
+                                                                                         &Self::GetCellCornersForActiveCells,
+                                                                                         &Self::RequestGetCellCornersForActiveCells,
+                                                                                         new RiaGrpcActiveCellInfoStateHandler ),
              new RiaGrpcServerToClientStreamCallback<Self,
                                                      CaseRequest,
                                                      SelectedCells,
-                                                     RiaSelectedCellsStateHandler>( this,
-                                                                                    &Self::GetSelectedCells,
-                                                                                    &Self::RequestGetSelectedCells,
-                                                                                    new RiaSelectedCellsStateHandler ),
+                                                     RiaGrpcSelectedCellsStateHandler>( this,
+                                                                                        &Self::GetSelectedCells,
+                                                                                        &Self::RequestGetSelectedCells,
+                                                                                        new RiaGrpcSelectedCellsStateHandler ),
              new RiaGrpcUnaryCallback<Self, CaseRequest, BoundingBox>( this,
                                                                        &Self::GetReservoirBoundingBox,
                                                                        &Self::RequestGetReservoirBoundingBox ),
 
              new RiaGrpcUnaryCallback<Self, CaseRequest, CoarseningInfoArray>( this,
                                                                                &Self::GetCoarseningInfoArray,
-                                                                               &Self::RequestGetCoarseningInfoArray ) };
+                                                                               &Self::RequestGetCoarseningInfoArray ),
+
+             new RiaGrpcUnaryCallback<Self, ClosestFaultRequest, ClosestFault>( this,
+                                                                                &Self::GetDistanceToClosestFault,
+                                                                                &Self::RequestGetDistanceToClosestFault ) };
 }
 
 static bool RiaGrpcCaseService_init =

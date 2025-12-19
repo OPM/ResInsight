@@ -244,12 +244,14 @@ std::pair<double, cvf::StructGridInterface::FaceType> RigFault::minimumDistanceT
         const RigCell& cell = mainGrid->cell( ff.m_nativeReservoirCellIndex );
         if ( cell.isInvalid() ) continue;
 
-        auto   faceCenter = cell.faceCenter( ff.m_nativeFace );
-        double distance   = ( faceCenter - point ).length();
-        if ( distance < minDistance )
+        for ( auto& c : cell.faceCorners( ff.m_nativeFace ) )
         {
-            minDistance = distance;
-            minFace     = ff.m_nativeFace;
+            double distance = ( c - point ).length();
+            if ( distance < minDistance )
+            {
+                minDistance = distance;
+                minFace     = ff.m_nativeFace;
+            }
         }
     }
     return std::make_pair( minDistance, minFace );
