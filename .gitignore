@@ -69,6 +69,7 @@ CMakeUserPresets.json
 # Tool files
 .vscode
 .claude
+nul
 
 # Temp files
 *.temp
