@@ -39,9 +39,9 @@ RimWellMeasurementCollection::RimWellMeasurementCollection()
 {
     CAF_PDM_InitObject( "Well Measurements", ":/WellMeasurement16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_measurements, "Measurements", "Well Measurements" );
-    m_measurements.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_measurements.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    CAF_PDM_InitFieldNoDefault( &m_items, "Measurements", "Measurements" );
+    this->itemsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    this->itemsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_importedFiles, "ImportedFiles", "Imported Files" );
 }
@@ -51,6 +51,14 @@ RimWellMeasurementCollection::RimWellMeasurementCollection()
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementCollection::~RimWellMeasurementCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellMeasurement*> RimWellMeasurementCollection::measurements() const
+{
+    return this->items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,101 +99,6 @@ void RimWellMeasurementCollection::deleteAllEmptyCurves()
             track->updateLayout();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellMeasurement*> RimWellMeasurementCollection::measurements() const
-{
-    std::vector<RimWellMeasurement*> attrs;
-
-    for ( auto attr : m_measurements )
-    {
-        attrs.push_back( attr.p() );
-    }
-    return attrs;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimWellMeasurementCollection::isEmpty() const
-{
-    return m_measurements.empty();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insertBefore, RimWellMeasurement* measurement )
-{
-    size_t index = m_measurements.indexOf( insertBefore );
-    if ( index < m_measurements.size() )
-        m_measurements.insert( index, measurement );
-    else
-        m_measurements.push_back( measurement );
-
-    addFilePath( measurement->filePath() );
-    updateAllCurves();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::appendMeasurement( RimWellMeasurement* measurement )
-{
-    m_measurements.push_back( measurement );
-    addFilePath( measurement->filePath() );
-    updateAllCurves();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measurementToDelete )
-{
-    m_measurements.removeChild( measurementToDelete );
-    delete measurementToDelete;
-
-    updateAllCurves();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::deleteAllMeasurements()
-{
-    m_measurements.deleteChildren();
-    updateAllCurves();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                          QString                    uiConfigName,
-                                                          caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_measurements )
-    {
-        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttribute )
-        {
-            tvAttribute->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
-            tvAttribute->alwaysEnforceResizePolicy = true;
-            tvAttribute->minimumHeight             = 300;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    uiOrdering.add( &m_measurements );
-    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,19 +157,18 @@ void RimWellMeasurementCollection::removeMeasurementsForFilePath( RimWellMeasure
 {
     // Find all measurements for this file path
     std::vector<RimWellMeasurement*> measurementsToRemove;
-    for ( auto attr : m_measurements )
+    for ( auto* measurement : this->items() )
     {
-        if ( attr->filePath() == measurementFilePath->filePath() )
+        if ( measurement->filePath() == measurementFilePath->filePath() )
         {
-            measurementsToRemove.push_back( attr );
+            measurementsToRemove.push_back( measurement );
         }
     }
 
-    // Remove then remove them without invalidating the iterator
-    for ( unsigned int i = 0; i < measurementsToRemove.size(); i++ )
+    // Remove them without invalidating the iterator
+    for ( auto* measurement : measurementsToRemove )
     {
-        m_measurements.removeChild( measurementsToRemove[i] );
-        delete measurementsToRemove[i];
+        this->deleteItem( measurement );
     }
 
     RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
