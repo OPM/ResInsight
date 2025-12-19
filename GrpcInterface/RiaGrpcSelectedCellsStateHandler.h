@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2025     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,41 +17,39 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "Definitions.grpc.pb.h"
+#include "Case.grpc.pb.h"
 
-#include "cvfStructGrid.h"
-#include "cvfVector3.h"
+#include "RiaGrpcServiceInterface.h"
 
-#include <QString>
-
-class RimCase;
-
-namespace caf
-{
-class PdmObject;
-}
+#include <vector>
 
 namespace rips
 {
-class PdmObject;
-}
+class CaseRequest;
+} // namespace rips
+
+class RimEclipseCase;
+class RiuEclipseSelectionItem;
 
 //==================================================================================================
 //
-// Various gRPC helper methods
+// State handler for streaming of selected cells
 //
 //==================================================================================================
-class RiaGrpcHelper
+class RiaGrpcSelectedCellsStateHandler
 {
+    using Status = grpc::Status;
+
 public:
-    static void convertVec3dToPositiveDepth( cvf::Vec3d* vec );
-    static void setCornerValues( rips::Vec3d* out, const cvf::Vec3d& in );
+    RiaGrpcSelectedCellsStateHandler();
 
-    static caf::PdmObject* findCafObjectFromRipsObject( const rips::PdmObject& ripsObject );
-    static caf::PdmObject* findCafObjectFromScriptNameAndAddress( const QString& scriptClassName, uint64_t address );
+    Status init( const rips::CaseRequest* request );
+    Status assignReply( rips::SelectedCells* reply );
+    void   assignSelectedCell( rips::SelectedCell* cell, const RiuEclipseSelectionItem* item );
+    Status assignNextSelectedCell( rips::SelectedCell* cell, const std::vector<RiuEclipseSelectionItem*>& items );
 
-    static size_t   numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount = 64 * 1024u );
-    static RimCase* findCase( int caseId );
-
-    static std::string faceTypeToString( cvf::StructGridInterface::FaceType );
+protected:
+    const rips::CaseRequest* m_request;
+    RimEclipseCase*          m_eclipseCase;
+    size_t                   m_currentItem;
 };

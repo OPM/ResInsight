@@ -39,6 +39,8 @@ set(SOURCE_GROUP_HEADER_FILES
     RiaGrpcApplicationInterface.h
     RiaGrpcWellPathService.h
     RiaWellPathDataToGrpcConverter.h
+    RiaGrpcActiveCellInfoStateHandler.h
+    RiaGrpcSelectedCellsStateHandler.h
     )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -58,6 +60,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     RiaGrpcApplicationInterface.cpp
     RiaGrpcWellPathService.cpp
     RiaWellPathDataToGrpcConverter.cpp
+    RiaGrpcActiveCellInfoStateHandler.cpp
+    RiaGrpcSelectedCellsStateHandler.cpp
 )
 
 # Find Protobuf installation Looks for protobuf-config.cmake file installed by

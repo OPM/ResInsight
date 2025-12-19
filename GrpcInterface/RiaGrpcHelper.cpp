@@ -105,3 +105,25 @@ RimCase* RiaGrpcHelper::findCase( int caseId )
     }
     return nullptr;
 }
+
+std::string RiaGrpcHelper::faceTypeToString( cvf::StructGridInterface::FaceType faceType )
+{
+    switch ( faceType )
+    {
+        case cvf::StructGridInterface::POS_I:
+            return "I+";
+        case cvf::StructGridInterface::NEG_I:
+            return "I-";
+        case cvf::StructGridInterface::POS_J:
+            return "J+";
+        case cvf::StructGridInterface::NEG_J:
+            return "J-";
+        case cvf::StructGridInterface::POS_K:
+            return "K+";
+        case cvf::StructGridInterface::NEG_K:
+            return "K-";
+        default:
+            break;
+    }
+    return "";
+}
