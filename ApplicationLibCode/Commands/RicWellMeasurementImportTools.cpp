@@ -94,9 +94,11 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStri
             wellMeasurement->setValue( 0.0 );
         }
 
-        wellPathCollection->measurementCollection()->appendMeasurement( wellMeasurement );
+        wellPathCollection->measurementCollection()->addItem( wellMeasurement );
+        wellPathCollection->measurementCollection()->addFilePath( wellMeasurement->filePath() );
         lastWellMeasurement = wellMeasurement;
     }
+    wellPathCollection->measurementCollection()->updateAllCurves();
     wellPathCollection->uiCapability()->updateConnectedEditors();
 
     auto proj = RimProject::current();

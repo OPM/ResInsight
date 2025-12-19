@@ -17,18 +17,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimPdmObjectCollection.h"
+#include "RimWellMeasurement.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
-class RimWellMeasurement;
+#include <set>
+
 class RimWellMeasurementFilePath;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimWellMeasurementCollection : public caf::PdmObject
+class RimWellMeasurementCollection : public RimPdmObjectCollection<RimWellMeasurement>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -36,15 +39,12 @@ public:
     RimWellMeasurementCollection();
     ~RimWellMeasurementCollection() override;
 
+    // Convenience accessor (delegates to base class items())
     std::vector<RimWellMeasurement*> measurements() const;
 
+    // Domain-specific methods
     void updateAllCurves();
     void deleteAllEmptyCurves();
-    void insertMeasurement( RimWellMeasurement* insertBefore, RimWellMeasurement* measurement );
-    void appendMeasurement( RimWellMeasurement* measurement );
-    void deleteMeasurement( RimWellMeasurement* measurementToDelete );
-    void deleteAllMeasurements();
-    bool isEmpty() const;
 
     std::set<QString> importedFiles() const;
 
@@ -53,11 +53,8 @@ public:
     void removeMeasurementsForFilePath( RimWellMeasurementFilePath* measurementFilePath );
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
-    caf::PdmChildArrayField<RimWellMeasurement*>         m_measurements;
     caf::PdmChildArrayField<RimWellMeasurementFilePath*> m_importedFiles;
 };
