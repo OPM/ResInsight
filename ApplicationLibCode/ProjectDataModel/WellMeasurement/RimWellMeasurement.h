@@ -29,6 +29,18 @@
 
 class RimWellPath;
 
+// Forward declare to allow traits specialization
+template <typename T>
+struct RimPdmObjectCollectionTraits;
+
+// Traits specialization for RimWellMeasurement collections
+template <>
+struct RimPdmObjectCollectionTraits<class RimWellMeasurement>
+{
+    static constexpr char fieldName[]   = "Measurements";
+    static constexpr char displayName[] = "Well Measurements";
+};
+
 //==================================================================================================
 ///
 //==================================================================================================
