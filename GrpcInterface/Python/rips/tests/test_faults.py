@@ -8,6 +8,7 @@ import rips
 
 import dataroot
 
+
 def test_faultDistance(rips_instance, initialize_test):
     case = rips_instance.project.load_case(
         dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
@@ -18,7 +19,9 @@ def test_faultDistance(rips_instance, initialize_test):
     point_y = 6303.76
     point_z = 4144.21
 
-    distance, faultname, facename = case.distance_to_closest_fault( point_x, point_y, point_z)
+    distance, faultname, facename = case.distance_to_closest_fault(
+        point_x, point_y, point_z
+    )
 
     assert faultname == "Undefined Grid Faults"
     assert facename == "J+"
@@ -29,7 +32,9 @@ def test_faultDistance(rips_instance, initialize_test):
     point_y = 4713.60
     point_z = 4147.21
 
-    distance, faultname, facename = case.distance_to_closest_fault( point_x, point_y, point_z)
+    distance, faultname, facename = case.distance_to_closest_fault(
+        point_x, point_y, point_z
+    )
 
     assert faultname == "Undefined Grid Faults"
     assert facename == "J+"
