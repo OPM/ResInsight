@@ -16,6 +16,8 @@
 #include <QStringList>
 #include <QXmlStreamWriter>
 
+#include <memory>
+
 class DemoPdmObject : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
 {
     CAF_PDM_XML_HEADER_INIT;
@@ -468,5 +470,120 @@ TEST( BaseTest, AppEnumAlias )
 
         obj2->readObjectFromXmlString( xmlText, caf::PdmDefaultObjectFactory::instance() );
         EXPECT_TRUE( obj2->m_appEnumField() == DemoPdmObject::TestEnumType::T2 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test object with clamped fields
+//--------------------------------------------------------------------------------------------------
+class ClampedFieldObject : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
+{
+    CAF_PDM_XML_HEADER_INIT;
+
+public:
+    ClampedFieldObject()
+        : PdmObjectHandle()
+        , PdmXmlObjectHandle( this, false )
+    {
+        CAF_PDM_XML_InitField( &m_temperature, "Temperature" );
+        m_temperature.setRange( -273.15, 1000.0 );
+
+        CAF_PDM_XML_InitField( &m_age, "Age" );
+        m_age.setRange( 0, 150 );
+
+        CAF_PDM_XML_InitField( &m_percentage, "Percentage" );
+        m_percentage.setRange( 0.0, 100.0 );
+
+        CAF_PDM_XML_InitField( &m_minOnlyField, "MinOnlyField" );
+        m_minOnlyField.setMinValue( 0.0 );
+
+        CAF_PDM_XML_InitField( &m_maxOnlyField, "MaxOnlyField" );
+        m_maxOnlyField.setMaxValue( 100 );
+
+        CAF_PDM_XML_InitField( &m_unclampedField, "UnclampedField" );
+    }
+
+    caf::PdmDataValueField<double> m_temperature;
+    caf::PdmDataValueField<int>    m_age;
+    caf::PdmDataValueField<double> m_percentage;
+    caf::PdmDataValueField<double> m_minOnlyField;
+    caf::PdmDataValueField<int>    m_maxOnlyField;
+    caf::PdmDataValueField<double> m_unclampedField;
+};
+
+CAF_PDM_XML_SOURCE_INIT( ClampedFieldObject, "ClampedFieldObject" );
+
+//--------------------------------------------------------------------------------------------------
+/// Test that values from XML are clamped to valid ranges
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, XmlImportClamping )
+{
+    // Test clamping of values that exceed maximum
+    {
+        auto obj = std::make_unique<ClampedFieldObject>();
+
+        QString xmlText = "<ClampedFieldObject>"
+                          "<Temperature>5000.0</Temperature>"
+                          "<Age>200</Age>"
+                          "<Percentage>150.0</Percentage>"
+                          "<MinOnlyField>50.0</MinOnlyField>"
+                          "<MaxOnlyField>50</MaxOnlyField>"
+                          "<UnclampedField>9999.0</UnclampedField>"
+                          "</ClampedFieldObject>";
+
+        obj->readObjectFromXmlString( xmlText, caf::PdmDefaultObjectFactory::instance() );
+
+        EXPECT_DOUBLE_EQ( 1000.0, obj->m_temperature() ); // Clamped to max
+        EXPECT_EQ( 150, obj->m_age() ); // Clamped to max
+        EXPECT_DOUBLE_EQ( 100.0, obj->m_percentage() ); // Clamped to max
+        EXPECT_DOUBLE_EQ( 50.0, obj->m_minOnlyField() ); // Within range
+        EXPECT_EQ( 50, obj->m_maxOnlyField() ); // Within range
+        EXPECT_DOUBLE_EQ( 9999.0, obj->m_unclampedField() ); // No clamping
+    }
+
+    // Test clamping of values that are below minimum
+    {
+        auto obj = std::make_unique<ClampedFieldObject>();
+
+        QString xmlText = "<ClampedFieldObject>"
+                          "<Temperature>-500.0</Temperature>"
+                          "<Age>-10</Age>"
+                          "<Percentage>-50.0</Percentage>"
+                          "<MinOnlyField>-100.0</MinOnlyField>"
+                          "<MaxOnlyField>200</MaxOnlyField>"
+                          "<UnclampedField>-9999.0</UnclampedField>"
+                          "</ClampedFieldObject>";
+
+        obj->readObjectFromXmlString( xmlText, caf::PdmDefaultObjectFactory::instance() );
+
+        EXPECT_DOUBLE_EQ( -273.15, obj->m_temperature() ); // Clamped to min
+        EXPECT_EQ( 0, obj->m_age() ); // Clamped to min
+        EXPECT_DOUBLE_EQ( 0.0, obj->m_percentage() ); // Clamped to min
+        EXPECT_DOUBLE_EQ( 0.0, obj->m_minOnlyField() ); // Clamped to min
+        EXPECT_EQ( 100, obj->m_maxOnlyField() ); // Clamped to max
+        EXPECT_DOUBLE_EQ( -9999.0, obj->m_unclampedField() ); // No clamping
+    }
+
+    // Test that values within range are not modified
+    {
+        auto obj = std::make_unique<ClampedFieldObject>();
+
+        QString xmlText = "<ClampedFieldObject>"
+                          "<Temperature>25.5</Temperature>"
+                          "<Age>42</Age>"
+                          "<Percentage>67.3</Percentage>"
+                          "<MinOnlyField>123.45</MinOnlyField>"
+                          "<MaxOnlyField>75</MaxOnlyField>"
+                          "<UnclampedField>-123.456</UnclampedField>"
+                          "</ClampedFieldObject>";
+
+        obj->readObjectFromXmlString( xmlText, caf::PdmDefaultObjectFactory::instance() );
+
+        EXPECT_DOUBLE_EQ( 25.5, obj->m_temperature() );
+        EXPECT_EQ( 42, obj->m_age() );
+        EXPECT_DOUBLE_EQ( 67.3, obj->m_percentage() );
+        EXPECT_DOUBLE_EQ( 123.45, obj->m_minOnlyField() );
+        EXPECT_EQ( 75, obj->m_maxOnlyField() );
+        EXPECT_DOUBLE_EQ( -123.456, obj->m_unclampedField() );
     }
 }

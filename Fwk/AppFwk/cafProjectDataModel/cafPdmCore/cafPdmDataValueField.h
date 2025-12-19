@@ -175,6 +175,28 @@ public:
     // Override validate from PdmFieldHandle
     QString validate() const override;
 
+    // Clamp value to range if defined
+    DataType clampValue( const DataType& value ) const
+    {
+        if constexpr ( std::is_arithmetic<DataType>::value )
+        {
+            DataType clampedValue = value;
+            if ( m_minValue.has_value() && clampedValue < m_minValue.value() )
+            {
+                clampedValue = m_minValue.value();
+            }
+            if ( m_maxValue.has_value() && clampedValue > m_maxValue.value() )
+            {
+                clampedValue = m_maxValue.value();
+            }
+            return clampedValue;
+        }
+        else
+        {
+            return value;
+        }
+    }
+
 protected:
     DataType m_fieldValue;
 
