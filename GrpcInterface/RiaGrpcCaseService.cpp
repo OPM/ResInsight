@@ -307,7 +307,7 @@ grpc::Status RiaGrpcCaseService::GetDistanceToClosestFault( grpc::ServerContext*
 
         return grpc::Status::OK;
     }
-    return Status( grpc::NOT_FOUND, "Case not found" );
+    return Status( grpc::NOT_FOUND, "Eclipse Case not found" );
 }
 
 //--------------------------------------------------------------------------------------------------

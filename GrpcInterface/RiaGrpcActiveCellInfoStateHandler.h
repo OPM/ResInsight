@@ -19,22 +19,13 @@
 
 #include "Case.grpc.pb.h"
 
-// #include "RiaGrpcServiceInterface.h"
 #include "RiaPorosityModel.h"
 
 #include <vector>
 
-// namespace rips
-//{
-// class CaseRequest;
-// class PdmObject;
-// } // namespace rips
-
-// class RiaGrpcCallbackInterface;
 class RigCell;
 class RigActiveCellInfo;
 class RimEclipseCase;
-// class RiuEclipseSelectionItem;
 
 //==================================================================================================
 //
