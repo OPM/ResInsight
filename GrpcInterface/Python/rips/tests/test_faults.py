@@ -19,7 +19,7 @@ def test_faultDistance(rips_instance, initialize_test):
     point_y = 6303.76
     point_z = 4144.21
 
-    distance, faultname, facename = case.distance_to_closest_fault(
+    faultname, distance, facename = case.distance_to_closest_fault(
         point_x, point_y, point_z
     )
 
@@ -32,7 +32,7 @@ def test_faultDistance(rips_instance, initialize_test):
     point_y = 4713.60
     point_z = 4147.21
 
-    distance, faultname, facename = case.distance_to_closest_fault(
+    faultname, distance, facename = case.distance_to_closest_fault(
         point_x, point_y, point_z
     )
 

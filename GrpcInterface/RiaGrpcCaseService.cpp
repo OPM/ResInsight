@@ -286,6 +286,9 @@ grpc::Status RiaGrpcCaseService::GetCoarseningInfoArray( grpc::ServerContext*   
     return Status( grpc::NOT_FOUND, "Case not found" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcCaseService::GetDistanceToClosestFault( grpc::ServerContext*             context,
                                                             const rips::ClosestFaultRequest* request,
                                                             rips::ClosestFault*              reply )
@@ -296,11 +299,7 @@ grpc::Status RiaGrpcCaseService::GetDistanceToClosestFault( grpc::ServerContext*
         cvf::Vec3d point( request->point() );
         point.z() = -point.z(); // Convert to internal coordinate system
 
-        double                             distance = 0.0;
-        cvf::StructGridInterface::FaceType faceType;
-        QString                            faultName;
-
-        std::tie( distance, faceType, faultName ) = eCase->mainGrid()->minimumDistanceFaultToPoint( point );
+        auto [faultName, distance, faceType] = eCase->mainGrid()->minimumDistanceFaultToPoint( point );
 
         reply->set_distance( distance );
         reply->set_face_name( RiaGrpcHelper::faceTypeToString( faceType ) );

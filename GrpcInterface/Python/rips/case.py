@@ -309,7 +309,7 @@ def distance_to_closest_fault(self, x: float, y: float, z: float):
     )
     reply = self.__case_stub.GetDistanceToClosestFault(request)
 
-    return (reply.distance, reply.fault_name, reply.face_name)
+    return (reply.fault_name, reply.distance, reply.face_name)
 
 
 @add_method(Case)

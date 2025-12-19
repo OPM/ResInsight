@@ -22,7 +22,7 @@ point_z = 4144.21
 
 print("Looking for closest fault to point %f, %f, %f:" % (point_x, point_y, point_z))
 
-distance, faultname, facename = case.distance_to_closest_fault(
+faultname, distance, facename = case.distance_to_closest_fault(
     point_x, point_y, point_z
 )
 
