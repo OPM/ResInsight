@@ -22,9 +22,14 @@ point_z = 4144.21
 
 print("Looking for closest fault to point %f, %f, %f:" % (point_x, point_y, point_z))
 
-distance, faultname, facename = case.distance_to_closest_fault(point_x, point_y, point_z)
+distance, faultname, facename = case.distance_to_closest_fault(
+    point_x, point_y, point_z
+)
 
 if facename == "":
     print("- No fault found!")
 else:
-    print("- Distance to closest fault %s is %f, closest face direction is %s" % (faultname, distance, facename))
+    print(
+        "- Distance to closest fault %s is %f, closest face direction is %s"
+        % (faultname, distance, facename)
+    )
