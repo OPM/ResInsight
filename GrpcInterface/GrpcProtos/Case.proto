@@ -111,7 +111,7 @@ message ClosestFaultRequest {
 }
 
 message ClosestFault {
-    string fault_name = 1;
-    double distance = 2;
-    string face_name = 3;
+  string fault_name = 1;
+  double distance = 2;
+  string face_name = 3;
 }
