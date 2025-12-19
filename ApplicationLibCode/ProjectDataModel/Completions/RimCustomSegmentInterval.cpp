@@ -18,8 +18,8 @@
 
 #include "RimCustomSegmentInterval.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
+
 #include "RimCustomSegmentIntervalCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -76,6 +76,23 @@ void RimCustomSegmentInterval::setStartMD( double startMD )
 void RimCustomSegmentInterval::setEndMD( double endMD )
 {
     m_endMD = endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RimCustomSegmentInterval::validate( const QString& configName ) const
+{
+    // First validate all fields using base implementation
+    auto errors = PdmObject::validate( configName );
+
+    // Validate that end MD is greater than start MD
+    if ( m_endMD <= m_startMD )
+    {
+        errors["EndMd"] = "End MD must be greater than Start MD";
+    }
+
+    return errors;
 }
 
 //--------------------------------------------------------------------------------------------------

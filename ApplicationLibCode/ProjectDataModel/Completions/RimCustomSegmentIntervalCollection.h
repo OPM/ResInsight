@@ -54,9 +54,9 @@ public:
     RimCustomSegmentInterval* findIntervalAtMD( double md ) const;
 
     // Validation
-    bool                 hasValidIntervals() const;
-    bool                 hasOverlappingIntervals() const;
-    std::vector<QString> validateIntervals() const;
+    std::map<QString, QString> validate( const QString& configName = "" ) const override;
+    bool                       hasValidIntervals() const;
+    bool                       hasOverlappingIntervals() const;
 
     // Sorting and organization
     void sortIntervalsByMD();

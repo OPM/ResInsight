@@ -167,45 +167,50 @@ bool RimCustomSegmentIntervalCollection::hasOverlappingIntervals() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimCustomSegmentIntervalCollection::validateIntervals() const
+std::map<QString, QString> RimCustomSegmentIntervalCollection::validate( const QString& configName ) const
 {
-    std::vector<QString> issues;
+    // First validate all fields using base implementation
+    auto errors = PdmObject::validate( configName );
 
-    if ( isEmpty() )
+    QStringList validationIssues;
+
+    // Validate each child interval
+    for ( const auto* interval : intervals() )
     {
-        issues.push_back( "No intervals defined" );
-        return issues;
-    }
-
-    auto intervalList = intervals();
-
-    // Check for invalid intervals
-    for ( auto* interval : intervalList )
-    {
-        if ( !interval->isValidInterval() )
+        if ( interval )
         {
-            issues.push_back(
-                QString( "Invalid interval: MD %.1f-%.1f (Start MD must be less than End MD)" ).arg( interval->startMD() ).arg( interval->endMD() ) );
-        }
-    }
-
-    // Check for overlaps
-    for ( size_t i = 0; i < intervalList.size(); ++i )
-    {
-        for ( size_t j = i + 1; j < intervalList.size(); ++j )
-        {
-            if ( intervalList[i]->overlaps( intervalList[j] ) )
+            // Get validation errors from the interval itself
+            auto intervalErrors = interval->validate( configName );
+            for ( const auto& [field, errorMsg] : intervalErrors )
             {
-                issues.push_back( QString( "Overlapping intervals: MD %.1f-%.1f and MD %.1f-%.1f" )
-                                      .arg( intervalList[i]->startMD() )
-                                      .arg( intervalList[i]->endMD() )
-                                      .arg( intervalList[j]->startMD() )
-                                      .arg( intervalList[j]->endMD() ) );
+                validationIssues.append( QString( "Interval (%1): %2." ).arg( interval->generateDisplayLabel() ).arg( errorMsg ) );
             }
         }
     }
 
-    return issues;
+    // Check for overlaps between intervals
+    for ( size_t i = 0; i < intervals().size(); ++i )
+    {
+        for ( size_t j = i + 1; j < intervals().size(); ++j )
+        {
+            RimCustomSegmentInterval* intervalI = intervals()[i];
+            RimCustomSegmentInterval* intervalJ = intervals()[j];
+            if ( intervalI && intervalJ && intervalI->overlaps( intervalJ ) )
+            {
+                validationIssues.append( QString( "Interval (%1) overlaps with another interval (%2)." )
+                                             .arg( intervalI->generateDisplayLabel() )
+                                             .arg( intervalJ->generateDisplayLabel() ) );
+            }
+        }
+    }
+
+    // If there are any validation issues, combine them into a single error message
+    if ( !validationIssues.isEmpty() )
+    {
+        errors["Intervals"] = validationIssues.join( "\n" );
+    }
+
+    return errors;
 }
 
 //--------------------------------------------------------------------------------------------------

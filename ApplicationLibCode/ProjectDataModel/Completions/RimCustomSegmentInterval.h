@@ -49,9 +49,10 @@ public:
     void setEndMD( double endMD );
 
     // Validation
-    bool isValidInterval() const;
-    bool overlaps( const RimCustomSegmentInterval* other ) const;
-    bool containsMD( double md ) const;
+    std::map<QString, QString> validate( const QString& configName = "" ) const override;
+    bool                       isValidInterval() const;
+    bool                       overlaps( const RimCustomSegmentInterval* other ) const;
+    bool                       containsMD( double md ) const;
 
     // Comparison for sorting
     bool operator<( const RimCustomSegmentInterval& rhs ) const;
@@ -67,13 +68,14 @@ public:
     // Visual feedback for overlapping intervals
     void updateOverlapVisualFeedback( bool hasOverlap );
 
+    QString generateDisplayLabel() const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    void    updateConnectedEditors();
-    QString generateDisplayLabel() const;
+    void updateConnectedEditors();
 
 private:
     caf::PdmField<double> m_startMD;
