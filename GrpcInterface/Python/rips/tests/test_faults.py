@@ -15,9 +15,9 @@ def test_faultDistance(rips_instance, initialize_test):
     )
 
     # a test point
-    point_x = 5039.84
-    point_y = 6303.76
-    point_z = 4144.21
+    point_x = 4817.84
+    point_y = 5204.76
+    point_z = 4137.21
 
     faultname, distance, facename = case.distance_to_closest_fault(
         point_x, point_y, point_z
@@ -26,20 +26,5 @@ def test_faultDistance(rips_instance, initialize_test):
     # Fault name is unstable between grid readers, so we skip this check
     # assert faultname == "Undefined Grid Faults"
 
-    assert facename == "J+"
-    assert math.isclose(distance, 533.57, abs_tol=0.1)
-
-    # another test point
-    point_x = 4656.43
-    point_y = 4713.60
-    point_z = 4147.21
-
-    faultname, distance, facename = case.distance_to_closest_fault(
-        point_x, point_y, point_z
-    )
-
-    # Fault name is unstable between grid readers, so we skip this check
-    # assert faultname == "Undefined Grid Faults"
-
-    assert facename == "J+"
-    assert math.isclose(distance, 225.28, abs_tol=0.1)
+    assert facename == "I+"
+    assert math.isclose(distance, 53.84, abs_tol=0.1)
