@@ -172,9 +172,7 @@ void RimPdmObjectCollection<T>::onItemsChanged()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimPdmObjectCollection<T>::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                          const QVariant&            oldValue,
-                                                          const QVariant&            newValue )
+void RimPdmObjectCollection<T>::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_items )
     {
@@ -197,9 +195,7 @@ void RimPdmObjectCollection<T>::defineUiOrdering( QString uiConfigName, caf::Pdm
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimPdmObjectCollection<T>::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                               QString                    uiConfigName,
-                                                               caf::PdmUiEditorAttribute* attribute )
+void RimPdmObjectCollection<T>::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_items )
     {
@@ -217,8 +213,7 @@ void RimPdmObjectCollection<T>::defineEditorAttribute( const caf::PdmFieldHandle
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimPdmObjectCollection<T>::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                                        std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimPdmObjectCollection<T>::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateConnectedEditors();
 }
