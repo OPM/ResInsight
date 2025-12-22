@@ -108,15 +108,13 @@ void RimIdenticalGridCaseGroup::addCase( RimEclipseCase* reservoir )
 
     if ( !m_mainGrid )
     {
-        // Transfer grid from first case to the group's shared ownership
-        RigMainGrid* grid = reservoir->eclipseCaseData()->mainGrid();
-        m_mainGrid        = std::shared_ptr<RigMainGrid>( grid, []( RigMainGrid* ) {} );  // Non-owning shared_ptr
-        // The first case retains ownership
+        // Get the shared_ptr from the first case - this establishes shared ownership
+        m_mainGrid = reservoir->eclipseCaseData()->mainGridShared();
     }
     else
     {
-        // Set borrowed reference for subsequent cases
-        reservoir->eclipseCaseData()->setMainGrid( m_mainGrid.get() );
+        // Share the grid with subsequent cases
+        reservoir->eclipseCaseData()->setMainGrid( m_mainGrid );
     }
 
     caseCollection()->reservoirs().push_back( reservoir );
@@ -156,6 +154,14 @@ RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
     if ( m_mainGrid ) return m_mainGrid.get();
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RigMainGrid> RimIdenticalGridCaseGroup::mainGridShared()
+{
+    return m_mainGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -376,7 +382,7 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 
         if ( rimStaticsCase->eclipseCaseData() )
         {
-            rimStaticsCase->eclipseCaseData()->setMainGrid( mainGrid() );
+            rimStaticsCase->eclipseCaseData()->setMainGrid( mainGridShared() );
 
             if ( i == 0 )
             {
@@ -482,6 +488,21 @@ RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells( RiaDefines::Po
     else
     {
         return m_unionOfFractureActiveCells.get();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RigActiveCellInfo> RimIdenticalGridCaseGroup::unionOfActiveCellsShared( RiaDefines::PorosityModelType porosityType )
+{
+    if ( porosityType == RiaDefines::PorosityModelType::MATRIX_MODEL )
+    {
+        return m_unionOfMatrixActiveCells;
+    }
+    else
+    {
+        return m_unionOfFractureActiveCells;
     }
 }
 

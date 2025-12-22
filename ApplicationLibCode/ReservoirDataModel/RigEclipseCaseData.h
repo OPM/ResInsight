@@ -62,10 +62,10 @@ public:
 
     RimEclipseCase* ownerCase() const { return m_ownerCase; }
 
-    RigMainGrid*       mainGrid();
-    const RigMainGrid* mainGrid() const;
-    void               setMainGrid( std::unique_ptr<RigMainGrid> mainGrid );
-    void               setMainGrid( RigMainGrid* mainGrid );
+    RigMainGrid*                 mainGrid();
+    const RigMainGrid*           mainGrid() const;
+    std::shared_ptr<RigMainGrid> mainGridShared();
+    void                         setMainGrid( std::shared_ptr<RigMainGrid> mainGrid );
 
     [[nodiscard]] std::vector<RigGridBase*>       allGrids();
     [[nodiscard]] std::vector<const RigGridBase*> allGrids() const;
@@ -83,8 +83,7 @@ public:
 
     RigActiveCellInfo*       activeCellInfo( RiaDefines::PorosityModelType porosityModel );
     const RigActiveCellInfo* activeCellInfo( RiaDefines::PorosityModelType porosityModel ) const;
-    void                     setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::unique_ptr<RigActiveCellInfo> activeCellInfo );
-    void                     setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo );
+    void                     setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::shared_ptr<RigActiveCellInfo> activeCellInfo );
 
     bool hasFractureResults() const;
 
@@ -137,18 +136,13 @@ private:
     const RigFormationNames* activeFormationNames() const;
 
 private:
-    std::unique_ptr<RigMainGrid> m_mainGrid;        // Owned grid
-    RigMainGrid*                 m_mainGridRef;      // Borrowed grid (when owned by group)
-    RimEclipseCase*              m_ownerCase;
+    std::shared_ptr<RigMainGrid>        m_mainGrid;
+    RimEclipseCase*                     m_ownerCase;
+    std::shared_ptr<RigActiveCellInfo>  m_activeCellInfo;
+    std::shared_ptr<RigActiveCellInfo>  m_fractureActiveCellInfo;
 
-    std::unique_ptr<RigActiveCellInfo> m_activeCellInfo;           // Owned matrix active cell info
-    RigActiveCellInfo*                 m_activeCellInfoRef;        // Borrowed matrix active cell info
-    std::unique_ptr<RigActiveCellInfo> m_fractureActiveCellInfo;   // Owned fracture active cell info
-    RigActiveCellInfo*                 m_fractureActiveCellInfoRef; // Borrowed fracture active cell info
-
-    std::unique_ptr<RigCaseCellResultsData> m_matrixModelResults;
-    std::unique_ptr<RigCaseCellResultsData> m_fractureModelResults;
-
+    std::unique_ptr<RigCaseCellResultsData>                  m_matrixModelResults;
+    std::unique_ptr<RigCaseCellResultsData>                  m_fractureModelResults;
     std::unique_ptr<RigVirtualPerforationTransmissibilities> m_virtualPerforationTransmissibilities;
 
     cvf::Collection<RigSimWellData>  m_simWellData; //< A WellResults object for each well in the reservoir

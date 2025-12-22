@@ -136,8 +136,8 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseC
     RigMainGrid* resultGrid = nullptr;
     if ( equalGrid )
     {
-        // Replace the grid with an already registered grid (borrowed reference)
-        rigEclipseCase->setMainGrid( equalGrid.get() );
+        // Share the grid with this case
+        rigEclipseCase->setMainGrid( equalGrid );
         resultGrid = equalGrid.get();
     }
     else

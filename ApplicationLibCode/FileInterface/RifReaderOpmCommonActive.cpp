@@ -56,7 +56,7 @@ RifReaderOpmCommonActive::~RifReaderOpmCommonActive()
 bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclipseCaseData* eclipseCaseData )
 {
     RigActiveCellGrid* activeGrid = new RigActiveCellGrid();
-    eclipseCaseData->setMainGrid( std::unique_ptr<RigMainGrid>( activeGrid ) );
+    eclipseCaseData->setMainGrid( std::shared_ptr<RigMainGrid>( activeGrid ) );
 
     caf::ProgressInfo progInfo( 4, "Importing Eclipse Grid" );
 

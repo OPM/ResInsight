@@ -66,10 +66,12 @@ public:
     RimEclipseCase* mainCase();
     void            loadMainCaseAndActiveCellInfo();
 
-    RigMainGrid* mainGrid();
+    RigMainGrid*                 mainGrid();
+    std::shared_ptr<RigMainGrid> mainGridShared();
 
-    RigActiveCellInfo* unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
-    void               computeUnionOfActiveCells();
+    RigActiveCellInfo*                 unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
+    std::shared_ptr<RigActiveCellInfo> unionOfActiveCellsShared( RiaDefines::PorosityModelType porosityType );
+    void                               computeUnionOfActiveCells();
 
     static bool isStatisticsCaseCollection( RimCaseCollection* rimCaseCollection );
 
