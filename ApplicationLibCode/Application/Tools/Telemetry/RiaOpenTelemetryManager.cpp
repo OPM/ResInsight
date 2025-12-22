@@ -22,6 +22,8 @@
 #include "RiaPreferencesOpenTelemetry.h"
 #include "RifJsonEncodeDecode.h"
 
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -29,6 +31,7 @@
 #include <QString>
 #include <QSysInfo>
 #include <QTimer>
+#include <QVariantList>
 
 #include <algorithm>
 #include <random>
@@ -219,6 +222,7 @@ void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, co
 
 //--------------------------------------------------------------------------------------------------
 /// Helper function to extract the relevant part of the file path starting from "ResInsight"
+/// Returns empty string if "ResInsight" is not found in the path
 //--------------------------------------------------------------------------------------------------
 static std::string extractRelevantPath( const std::string& fullPath )
 {
@@ -240,7 +244,7 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
         return;
     }
 
-    // Format stack trace using existing ResInsight formatter
+    // Format stack trace as string for logging
     std::stringstream ss;
     int               frame = 0;
     for ( const auto& entry : trace )
@@ -248,53 +252,41 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
         std::string relevantPath = extractRelevantPath( entry.source_file() );
         ss << "  [" << frame++ << "] " << entry.description() << " at " << relevantPath << ":" << entry.source_line() << "\n";
     }
-
     std::string rawStackTrace = ss.str();
 
+    // Store structured stack trace data for Application Insights parsedStack
+    std::stringstream jsonFrames;
+    jsonFrames << "[";
+    int frameIndex = 0;
+    for ( const auto& entry : trace )
+    {
+        if ( frameIndex > 0 ) jsonFrames << ",";
+
+        std::string relevantPath = extractRelevantPath( entry.source_file() );
+        std::string methodName   = entry.description();
+        int         lineNumber   = static_cast<int>( entry.source_line() );
+
+        jsonFrames << "{"
+                   << "\"level\":" << frameIndex << ","
+                   << "\"method\":\"" << methodName << "\","
+                   << "\"fileName\":\"" << relevantPath << "\","
+                   << "\"line\":" << lineNumber << "}";
+        frameIndex++;
+    }
+    jsonFrames << "]";
+
     std::map<std::string, std::string> attributes;
-    attributes["crash.signal"]      = std::to_string( signalCode );
-    attributes["crash.thread_id"]   = std::to_string( std::hash<std::thread::id>{}( std::this_thread::get_id() ) );
-    attributes["crash.stack_trace"] = rawStackTrace;
-    attributes["service.name"]      = RiaPreferencesOpenTelemetry::current()->serviceName().toStdString();
-    attributes["service.version"]   = RiaPreferencesOpenTelemetry::current()->serviceVersion().toStdString();
+    attributes["crash.signal"]            = std::to_string( signalCode );
+    attributes["crash.thread_id"]         = std::to_string( std::hash<std::thread::id>{}( std::this_thread::get_id() ) );
+    attributes["crash.stack_trace"]       = rawStackTrace;
+    attributes["crash.parsed_stack_json"] = jsonFrames.str();
+    attributes["service.name"]            = RiaPreferencesOpenTelemetry::current()->serviceName().toStdString();
+    attributes["service.version"]         = RiaPreferencesOpenTelemetry::current()->serviceVersion().toStdString();
 
     reportEventAsync( "crash.signal_handler", attributes );
     flushPendingEvents();
 
     RiaLogging::error( QString( "Crash reported to OpenTelemetry (signal: %1)" ).arg( signalCode ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaOpenTelemetryManager::reportTestCrash( const std::stacktrace& trace )
-{
-    if ( !isEnabled() )
-    {
-        return;
-    }
-
-    // Format stack trace
-    std::stringstream ss;
-    int               frame = 0;
-    for ( const auto& entry : trace )
-    {
-        std::string relevantPath = extractRelevantPath( entry.source_file() );
-        ss << "  [" << frame++ << "] " << entry.description() << " at " << relevantPath << ":" << entry.source_line() << "\n";
-    }
-
-    std::string rawStackTrace = ss.str();
-
-    std::map<std::string, std::string> attributes;
-    attributes["test.type"]        = "manual_stack_trace";
-    attributes["test.thread_id"]   = std::to_string( std::hash<std::thread::id>{}( std::this_thread::get_id() ) );
-    attributes["test.stack_trace"] = rawStackTrace;
-    attributes["service.name"]     = RiaPreferencesOpenTelemetry::current()->serviceName().toStdString();
-    attributes["service.version"]  = RiaPreferencesOpenTelemetry::current()->serviceVersion().toStdString();
-
-    reportEventAsync( "crash.signal_handler", attributes );
-
-    RiaLogging::info( "Test stack trace reported to OpenTelemetry" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -602,12 +594,26 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
             exception["hasFullStack"] = true;
             exception["stack"]        = properties["crash.stack_trace"];
 
+            // Parse structured stack trace for Application Insights
+            QString parsedStackJson = properties["crash.parsed_stack_json"].toString();
+            if ( !parsedStackJson.isEmpty() )
+            {
+                // Parse the JSON array of stack frames
+                QJsonDocument doc = QJsonDocument::fromJson( parsedStackJson.toUtf8() );
+                if ( doc.isArray() )
+                {
+                    exception["parsedStack"] = doc.array().toVariantList();
+                }
+            }
+
             QList<QVariant> exceptions;
             exceptions.append( exception );
 
-            // Remove stack trace from properties as it's now in the exception
+            // Remove stack trace data from properties as it's now in the exception
             properties.remove( "crash.stack_trace" );
+            properties.remove( "crash.parsed_stack_json" );
 
+            baseData["ver"]        = 2;
             baseData["exceptions"] = exceptions;
             baseData["properties"] = properties;
 
@@ -619,6 +625,7 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
         else
         {
             // Create EventData for regular events
+            baseData["ver"]        = 2;
             baseData["name"]       = QString::fromStdString( event.name );
             baseData["properties"] = properties;
 
@@ -633,10 +640,12 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
         telemetryItem["data"] = data;
 
         // Convert to JSON string
-        QString jsonPayload = ResInsightInternalJson::Json::encode( telemetryItem, false );
+        QVariantList envelope;
+        envelope.append( telemetryItem );
+        QString jsonPayload = ResInsightInternalJson::Json::encode( envelope, false );
 
         // Send to Application Insights using QNetworkAccessManager
-        QString url = connectionParams["IngestionEndpoint"] + "/v2/track";
+        QString url = connectionParams["IngestionEndpoint"] + "v2/track";
 
         QNetworkRequest request;
         request.setUrl( QUrl( url ) );
@@ -652,6 +661,8 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
                  this,
                  [this, reply]()
                  {
+                     const int     statusCode   = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
+                     const QString responseBody = QString::fromUtf8( reply->readAll() );
                      if ( reply->error() == QNetworkReply::NoError )
                      {
                          updateHealthMetrics( true );
@@ -659,9 +670,8 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
                      }
                      else
                      {
-                         QString errorMsg = QString( "HTTP %1: %2" )
-                                                .arg( reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt() )
-                                                .arg( reply->errorString() );
+                         const QString errorMsg =
+                             QString( "HTTP %1: %2 (%3)" ).arg( statusCode ).arg( reply->errorString() ).arg( responseBody );
                          handleError( TelemetryError::NetworkError, QString( "Failed to send telemetry: %1" ).arg( errorMsg ) );
                          updateHealthMetrics( false );
                      }

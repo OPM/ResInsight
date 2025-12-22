@@ -2029,7 +2029,7 @@ void RiuMainWindow::slotSendTestTelemetry()
 
     // Generate and send test stack trace
     auto testStackTrace = std::stacktrace::current();
-    otelManager.reportTestCrash( testStackTrace );
+    otelManager.reportCrash( 1, testStackTrace );
 
     RiaLogging::info( "Test telemetry data sent to OpenTelemetry endpoint" );
 }

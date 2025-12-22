@@ -52,6 +52,7 @@ class Json
 {
 public:
     static QString                 encode( const QMap<QString, QVariant>& map, bool prettify );
+    static QString                 encode( const QVariantList& list, bool prettify );
     static QMap<QString, QVariant> decode( const QString& jsonStr );
     static QMap<QString, QVariant> decode( const QByteArray& byteArray );
 };

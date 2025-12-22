@@ -91,6 +91,17 @@ QString Json::encode( const QMap<QString, QVariant>& map, bool prettify )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString Json::encode( const QVariantList& list, bool prettify )
+{
+    QJsonDocument doc( QJsonArray::fromVariantList( list ) );
+
+    QJsonDocument::JsonFormat format = prettify ? QJsonDocument::JsonFormat::Indented : QJsonDocument::JsonFormat::Compact;
+    return doc.toJson( format );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMap<QString, QVariant> Json::decode( const QString& jsonStr )
 {
     return Json::decode( jsonStr.toUtf8() );
