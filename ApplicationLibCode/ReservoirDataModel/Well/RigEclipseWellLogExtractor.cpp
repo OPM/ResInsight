@@ -215,8 +215,7 @@ double RigEclipseWellLogExtractor::computeLengthThreshold() const
     // If not, the intersection will be considered as non-valid cell edge intersection and discarded
     // https://github.com/OPM/ResInsight/issues/9244
 
-    auto gridCellResultSharedPtr = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    auto gridCellResult          = const_cast<RigCaseCellResultsData*>( gridCellResultSharedPtr.get() );
+    auto gridCellResult = const_cast<RigCaseCellResultsData*>( m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
 
     auto resultAdr = RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" );
     if ( gridCellResult && gridCellResult->hasResultEntry( resultAdr ) )

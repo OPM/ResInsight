@@ -114,13 +114,13 @@ void RimReloadCaseTools::clearAllGridData( RigEclipseCaseData* eclipseCaseData )
 {
     if ( !eclipseCaseData ) return;
 
-    std::shared_ptr<RigCaseCellResultsData> matrixModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* matrixModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( matrixModelResults )
     {
         matrixModelResults->clearAllResults();
     }
 
-    std::shared_ptr<RigCaseCellResultsData> stimPlanModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    RigCaseCellResultsData* stimPlanModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
     if ( stimPlanModelResults )
     {
         stimPlanModelResults->clearAllResults();

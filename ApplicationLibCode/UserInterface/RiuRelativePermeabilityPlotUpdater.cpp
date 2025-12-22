@@ -186,7 +186,7 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
             // cvf::Trace::show("Updating RelPerm plot for active cell index: %d", static_cast<int>(activeCellIndex));
 
             // Make sure we load the results that we'll query below
-            std::shared_ptr<RigCaseCellResultsData> cellResultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             cellResultsData->ensureKnownResultLoaded(
                 RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ) );
             cellResultsData->ensureKnownResultLoaded(

@@ -304,8 +304,8 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                 RigEclipseResultAddress resVarAddr = resVarAddresses.at( index + dir );
                 if ( !resVarAddr.isValid() ) return;
 
-                RimEclipseView*                         eclipseView = dynamic_cast<RimEclipseView*>( view );
-                std::shared_ptr<RigCaseCellResultsData> resultsData =
+                RimEclipseView*         eclipseView = dynamic_cast<RimEclipseView*>( view );
+                RigCaseCellResultsData* resultsData =
                     eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
                 {

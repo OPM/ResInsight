@@ -66,9 +66,7 @@ public:
     RimEclipseCase* mainCase();
     void            loadMainCaseAndActiveCellInfo();
 
-    RigMainGrid*                       mainGrid();
-    std::shared_ptr<RigMainGrid>       mainGridShared() { return m_mainGrid; }
-    std::shared_ptr<const RigMainGrid> mainGridShared() const { return m_mainGrid; }
+    RigMainGrid* mainGrid();
 
     RigActiveCellInfo* unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
     void               computeUnionOfActiveCells();

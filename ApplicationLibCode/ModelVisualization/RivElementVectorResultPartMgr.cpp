@@ -110,7 +110,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
     std::vector<RigEclipseResultAddress>            resultAddresses;
     std::vector<cvf::StructGridInterface::FaceType> directions;
-    std::shared_ptr<RigCaseCellResultsData>         resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData*                         resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     {
         std::vector<RigEclipseResultAddress> addresses;
         result->resultAddressesIJK( addresses );

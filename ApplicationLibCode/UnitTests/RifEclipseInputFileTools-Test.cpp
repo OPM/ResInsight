@@ -551,7 +551,7 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywords )
 
     ASSERT_TRUE( success ) << "Failed to load test grid file: " << errorMessages.toStdString();
 
-    std::shared_ptr<RigCaseCellResultsData> cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( nullptr, cellResultsData );
 
     auto allResults = cellResultsData->existingResults();
@@ -610,7 +610,7 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithSubset )
 
     ASSERT_TRUE( success ) << "Failed to load test grid file: " << errorMessages.toStdString();
 
-    std::shared_ptr<RigCaseCellResultsData> cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( nullptr, cellResultsData );
 
     auto allResults = cellResultsData->existingResults();
@@ -662,7 +662,7 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
 
     ASSERT_TRUE( success ) << "Failed to load test grid file: " << errorMessages.toStdString();
 
-    std::shared_ptr<RigCaseCellResultsData> cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( nullptr, cellResultsData );
 
     // Look specifically for PORO property in the results system
@@ -737,8 +737,8 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
     EXPECT_TRUE( propertyMap.find( "PORO" ) != propertyMap.end() ) << "Should have imported PORO property";
 
     // Get the imported PORO data from both original and refined cases
-    std::shared_ptr<RigCaseCellResultsData> originalResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    std::shared_ptr<RigCaseCellResultsData> refinedResultsData = refinedEclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* originalResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* refinedResultsData  = refinedEclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     RigEclipseResultAddress poroAddress( RiaDefines::ResultCatType::INPUT_PROPERTY, "PORO" );
 
@@ -764,8 +764,7 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
     EXPECT_EQ( refinedGrid->cellCount(), refinedData.size() ) << "Refined PORO data size should match refined cell count";
 
     // Find an active cell to test the refinement mapping principle
-    auto findActiveCell =
-        []( RigMainGrid* originalGrid, std::shared_ptr<RigCaseCellResultsData> originalResultsData, const std::vector<double>& originalData )
+    auto findActiveCell = []( RigMainGrid* originalGrid, RigCaseCellResultsData* originalResultsData, const std::vector<double>& originalData )
     {
         // Search for an active cell to test with
         for ( size_t k = 0; k < originalGrid->cellCountK(); ++k )

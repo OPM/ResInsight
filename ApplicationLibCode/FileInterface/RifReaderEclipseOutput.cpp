@@ -547,7 +547,7 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
 {
     CVF_ASSERT( m_eclipseCaseData );
 
-    std::shared_ptr<RigCaseCellResultsData> matrixModelResults = m_eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* matrixModelResults = m_eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     CVF_ASSERT( matrixModelResults );
 
     if ( fileName.isEmpty() )

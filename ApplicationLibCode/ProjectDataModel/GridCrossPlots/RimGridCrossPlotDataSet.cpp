@@ -973,7 +973,7 @@ std::map<int, cvf::UByteArray> RimGridCrossPlotDataSet::calculateCellVisibility(
         {
             RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
-            std::shared_ptr<RigCaseCellResultsData> cellResultsData = eclipseCaseData->results( porosityModel );
+            RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( porosityModel );
             if ( cellResultsData )
             {
                 const RigActiveCellInfo* actCellInfo = cellResultsData->activeCellInfo();

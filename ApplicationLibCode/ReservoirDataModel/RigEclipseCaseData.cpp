@@ -44,18 +44,21 @@
 //--------------------------------------------------------------------------------------------------
 RigEclipseCaseData::RigEclipseCaseData( RimEclipseCase* ownerCase )
     : m_hasParsedDeckForEquilData( false )
+    , m_mainGridRef( nullptr )
+    , m_activeCellInfoRef( nullptr )
+    , m_fractureActiveCellInfoRef( nullptr )
 {
-    m_mainGrid  = std::make_shared<RigMainGrid>();
+    m_mainGrid  = std::make_unique<RigMainGrid>();
     m_ownerCase = ownerCase;
 
-    m_matrixModelResults   = std::make_shared<RigCaseCellResultsData>( this, RiaDefines::PorosityModelType::MATRIX_MODEL );
-    m_fractureModelResults = std::make_shared<RigCaseCellResultsData>( this, RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    m_matrixModelResults   = std::make_unique<RigCaseCellResultsData>( this, RiaDefines::PorosityModelType::MATRIX_MODEL );
+    m_fractureModelResults = std::make_unique<RigCaseCellResultsData>( this, RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
-    m_activeCellInfo         = std::make_shared<RigActiveCellInfo>();
-    m_fractureActiveCellInfo = std::make_shared<RigActiveCellInfo>();
+    m_activeCellInfo         = std::make_unique<RigActiveCellInfo>();
+    m_fractureActiveCellInfo = std::make_unique<RigActiveCellInfo>();
 
-    m_matrixModelResults->setActiveCellInfo( m_activeCellInfo.get() );
-    m_fractureModelResults->setActiveCellInfo( m_fractureActiveCellInfo.get() );
+    m_matrixModelResults->setActiveCellInfo( activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+    m_fractureModelResults->setActiveCellInfo( activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
 
     m_unitsType = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
 }
@@ -72,7 +75,7 @@ RigEclipseCaseData::~RigEclipseCaseData()
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RigEclipseCaseData::mainGrid()
 {
-    return m_mainGrid.get();
+    return m_mainGrid ? m_mainGrid.get() : m_mainGridRef;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,18 +83,31 @@ RigMainGrid* RigEclipseCaseData::mainGrid()
 //--------------------------------------------------------------------------------------------------
 const RigMainGrid* RigEclipseCaseData::mainGrid() const
 {
-    return m_mainGrid.get();
+    return m_mainGrid ? m_mainGrid.get() : m_mainGridRef;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setMainGrid( std::shared_ptr<RigMainGrid> mainGrid )
+void RigEclipseCaseData::setMainGrid( std::unique_ptr<RigMainGrid> mainGrid )
 {
-    m_mainGrid = mainGrid;
+    m_mainGrid    = std::move( mainGrid );
+    m_mainGridRef = nullptr;  // Clear borrowed reference when taking ownership
 
-    m_matrixModelResults->setMainGrid( m_mainGrid.get() );
-    m_fractureModelResults->setMainGrid( m_mainGrid.get() );
+    m_matrixModelResults->setMainGrid( this->mainGrid() );
+    m_fractureModelResults->setMainGrid( this->mainGrid() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::setMainGrid( RigMainGrid* mainGrid )
+{
+    m_mainGrid.reset();       // Release ownership when borrowing
+    m_mainGridRef = mainGrid;
+
+    m_matrixModelResults->setMainGrid( this->mainGrid() );
+    m_fractureModelResults->setMainGrid( this->mainGrid() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -495,9 +511,9 @@ std::vector<const RigWellPath*>
 ///
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::setVirtualPerforationTransmissibilities(
-    std::shared_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilities )
+    std::unique_ptr<RigVirtualPerforationTransmissibilities> virtualPerforationTransmissibilities )
 {
-    m_virtualPerforationTransmissibilities = virtualPerforationTransmissibilities;
+    m_virtualPerforationTransmissibilities = std::move( virtualPerforationTransmissibilities );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -506,22 +522,6 @@ void RigEclipseCaseData::setVirtualPerforationTransmissibilities(
 const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerforationTransmissibilities() const
 {
     return m_virtualPerforationTransmissibilities.get();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<RigVirtualPerforationTransmissibilities> RigEclipseCaseData::virtualPerforationTransmissibilitiesShared()
-{
-    return m_virtualPerforationTransmissibilities;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<const RigVirtualPerforationTransmissibilities> RigEclipseCaseData::virtualPerforationTransmissibilitiesShared() const
-{
-    return m_virtualPerforationTransmissibilities;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -560,10 +560,10 @@ RigActiveCellInfo* RigEclipseCaseData::activeCellInfo( RiaDefines::PorosityModel
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_activeCellInfo.get();
+        return m_activeCellInfo ? m_activeCellInfo.get() : m_activeCellInfoRef;
     }
 
-    return m_fractureActiveCellInfo.get();
+    return m_fractureActiveCellInfo ? m_fractureActiveCellInfo.get() : m_fractureActiveCellInfoRef;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -573,52 +573,47 @@ const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo( RiaDefines::Porosit
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_activeCellInfo.get();
+        return m_activeCellInfo ? m_activeCellInfo.get() : m_activeCellInfoRef;
     }
 
-    return m_fractureActiveCellInfo.get();
+    return m_fractureActiveCellInfo ? m_fractureActiveCellInfo.get() : m_fractureActiveCellInfoRef;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<RigActiveCellInfo> RigEclipseCaseData::activeCellInfoShared( RiaDefines::PorosityModelType porosityModel )
+void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::unique_ptr<RigActiveCellInfo> activeCellInfo )
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_activeCellInfo;
-    }
-
-    return m_fractureActiveCellInfo;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<const RigActiveCellInfo> RigEclipseCaseData::activeCellInfoShared( RiaDefines::PorosityModelType porosityModel ) const
-{
-    if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
-    {
-        return m_activeCellInfo;
-    }
-
-    return m_fractureActiveCellInfo;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::shared_ptr<RigActiveCellInfo> activeCellInfo )
-{
-    if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
-    {
-        m_activeCellInfo = activeCellInfo;
-        m_matrixModelResults->setActiveCellInfo( m_activeCellInfo.get() );
+        m_activeCellInfo    = std::move( activeCellInfo );
+        m_activeCellInfoRef = nullptr;  // Clear borrowed reference when taking ownership
+        m_matrixModelResults->setActiveCellInfo( this->activeCellInfo( porosityModel ) );
     }
     else
     {
-        m_fractureActiveCellInfo = activeCellInfo;
-        m_fractureModelResults->setActiveCellInfo( m_fractureActiveCellInfo.get() );
+        m_fractureActiveCellInfo    = std::move( activeCellInfo );
+        m_fractureActiveCellInfoRef = nullptr;  // Clear borrowed reference when taking ownership
+        m_fractureModelResults->setActiveCellInfo( this->activeCellInfo( porosityModel ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo )
+{
+    if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
+    {
+        m_activeCellInfo.reset();       // Release ownership when borrowing
+        m_activeCellInfoRef = activeCellInfo;
+        m_matrixModelResults->setActiveCellInfo( this->activeCellInfo( porosityModel ) );
+    }
+    else
+    {
+        m_fractureActiveCellInfo.reset();  // Release ownership when borrowing
+        m_fractureActiveCellInfoRef = activeCellInfo;
+        m_fractureModelResults->setActiveCellInfo( this->activeCellInfo( porosityModel ) );
     }
 }
 
@@ -814,27 +809,27 @@ RigAllanDiagramData* RigEclipseCaseData::allanDiagramData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<RigCaseCellResultsData> RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel )
+RigCaseCellResultsData* RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel )
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_matrixModelResults;
+        return m_matrixModelResults.get();
     }
 
-    return m_fractureModelResults;
+    return m_fractureModelResults.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<const RigCaseCellResultsData> RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel ) const
+const RigCaseCellResultsData* RigEclipseCaseData::results( RiaDefines::PorosityModelType porosityModel ) const
 {
     if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
-        return m_matrixModelResults;
+        return m_matrixModelResults.get();
     }
 
-    return m_fractureModelResults;
+    return m_fractureModelResults.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -845,7 +840,7 @@ const std::vector<double>* RigEclipseCaseData::resultValues( RiaDefines::Porosit
                                                              const QString&                resultName,
                                                              size_t                        timeStepIndex )
 {
-    std::shared_ptr<RigCaseCellResultsData> gridCellResults = results( porosityModel );
+    RigCaseCellResultsData* gridCellResults = results( porosityModel );
 
     const std::vector<double>* swatResults = nullptr;
     if ( gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( type, resultName ) ) )

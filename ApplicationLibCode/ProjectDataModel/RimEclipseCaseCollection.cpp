@@ -133,10 +133,12 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseC
 
     auto equalGrid = m_gridCollection->findEqualGrid( rigEclipseCase->mainGrid() );
 
+    RigMainGrid* resultGrid = nullptr;
     if ( equalGrid )
     {
-        // Replace the grid with an already registered grid
-        rigEclipseCase->setMainGrid( equalGrid );
+        // Replace the grid with an already registered grid (borrowed reference)
+        rigEclipseCase->setMainGrid( equalGrid.get() );
+        resultGrid = equalGrid.get();
     }
     else
     {
@@ -145,12 +147,12 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseC
 
         rimEclipseCase->ensureFaultDataIsComputed();
 
-        equalGrid = rigEclipseCase->mainGridShared();
+        resultGrid = rigEclipseCase->mainGrid();
     }
 
     m_gridCollection->addCase( rigEclipseCase );
 
-    return equalGrid.get();
+    return resultGrid;
 }
 
 //--------------------------------------------------------------------------------------------------

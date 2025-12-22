@@ -23,6 +23,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"

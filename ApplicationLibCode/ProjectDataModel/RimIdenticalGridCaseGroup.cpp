@@ -108,11 +108,15 @@ void RimIdenticalGridCaseGroup::addCase( RimEclipseCase* reservoir )
 
     if ( !m_mainGrid )
     {
-        m_mainGrid = reservoir->eclipseCaseData()->mainGridShared();
+        // Transfer grid from first case to the group's shared ownership
+        RigMainGrid* grid = reservoir->eclipseCaseData()->mainGrid();
+        m_mainGrid        = std::shared_ptr<RigMainGrid>( grid, []( RigMainGrid* ) {} );  // Non-owning shared_ptr
+        // The first case retains ownership
     }
     else
     {
-        reservoir->eclipseCaseData()->setMainGrid( m_mainGrid );
+        // Set borrowed reference for subsequent cases
+        reservoir->eclipseCaseData()->setMainGrid( m_mainGrid.get() );
     }
 
     caseCollection()->reservoirs().push_back( reservoir );
@@ -211,7 +215,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         info.incrementProgress();
     }
 
-    m_mainGrid = rigCaseData->mainGridShared();
+    // Create non-owning shared_ptr to main case's grid
+    RigMainGrid* grid = rigCaseData->mainGrid();
+    m_mainGrid        = std::shared_ptr<RigMainGrid>( grid, []( RigMainGrid* ) {} );
 
     // Check if we need to calculate the union of the active cells
 
@@ -370,7 +376,7 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 
         if ( rimStaticsCase->eclipseCaseData() )
         {
-            rimStaticsCase->eclipseCaseData()->setMainGrid( mainGridShared() );
+            rimStaticsCase->eclipseCaseData()->setMainGrid( mainGrid() );
 
             if ( i == 0 )
             {

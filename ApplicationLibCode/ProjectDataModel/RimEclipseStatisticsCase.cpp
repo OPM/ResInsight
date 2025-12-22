@@ -161,7 +161,7 @@ void RimEclipseStatisticsCase::setMainGrid( std::shared_ptr<RigMainGrid> mainGri
     CVF_ASSERT( mainGrid );
     CVF_ASSERT( eclipseCaseData() );
 
-    eclipseCaseData()->setMainGrid( mainGrid );
+    eclipseCaseData()->setMainGrid( mainGrid.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,14 +178,12 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
     RimIdenticalGridCaseGroup* gridCaseGroup = parentStatisticsCaseCollection()->parentCaseGroup();
     CVF_ASSERT( gridCaseGroup );
 
-    eclipseCase->setMainGrid( gridCaseGroup->mainGridShared() );
+    eclipseCase->setMainGrid( gridCaseGroup->mainGrid() );
 
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                    std::shared_ptr<RigActiveCellInfo>(
-                                        gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) ) );
+                                    gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                    std::shared_ptr<RigActiveCellInfo>(
-                                        gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) ) );
+                                    gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
 
     setReservoirData( eclipseCase.p() );
 

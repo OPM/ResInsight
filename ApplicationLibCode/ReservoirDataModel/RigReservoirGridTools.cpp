@@ -25,6 +25,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"

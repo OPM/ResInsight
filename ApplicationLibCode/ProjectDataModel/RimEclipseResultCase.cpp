@@ -375,7 +375,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( this );
 
         CVF_ASSERT( mainEclipseCase && mainEclipseCase->mainGrid() );
-        eclipseCase->setMainGrid( mainEclipseCase->mainGridShared() );
+        eclipseCase->setMainGrid( mainEclipseCase->mainGrid() );
 
         std::vector<QDateTime> timeStepDates = mainEclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;

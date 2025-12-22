@@ -26,7 +26,10 @@
 //--------------------------------------------------------------------------------------------------
 void RigGridManager::addCase( RigEclipseCaseData* eclipseCase )
 {
-    cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap( eclipseCase, eclipseCase->mainGridShared() );
+    // Create non-owning shared_ptr for grid comparison
+    RigMainGrid*            grid        = eclipseCase->mainGrid();
+    std::shared_ptr<RigMainGrid> gridPtr = std::shared_ptr<RigMainGrid>( grid, []( RigMainGrid* ) {} );
+    cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap( eclipseCase, gridPtr );
     m_caseToGrid.push_back( caseAndGrid.p() );
 }
 

@@ -74,7 +74,7 @@ std::vector<RimSaturationPressurePlot*> RicCreateSaturationPressurePlotsFeature:
 
         if ( eclipseCaseData && eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
         {
-            std::shared_ptr<RigCaseCellResultsData> resultData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
             if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) ) )
             {

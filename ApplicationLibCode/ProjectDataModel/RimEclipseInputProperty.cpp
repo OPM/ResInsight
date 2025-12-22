@@ -90,7 +90,7 @@ void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* chang
             QString oldName = oldValue.toString();
             QString newName = newValue.toString();
 
-            std::shared_ptr<RigCaseCellResultsData> matrixResults =
+            RigCaseCellResultsData* matrixResults =
                 rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             if ( matrixResults )
             {
@@ -100,7 +100,7 @@ void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* chang
                 }
             }
 
-            std::shared_ptr<RigCaseCellResultsData> fracResults =
+            RigCaseCellResultsData* fracResults =
                 rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
             if ( fracResults )
             {

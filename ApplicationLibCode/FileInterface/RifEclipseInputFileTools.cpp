@@ -243,7 +243,7 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
                                                                                               const cvf::Vec3st&  maxIn,
                                                                                               const cvf::Vec3st&  refinement )
 {
-    std::shared_ptr<RigCaseCellResultsData> cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo*                      activeCells     = cellResultsData->activeCellInfo();
     RigMainGrid*                            mainGrid        = eclipseCase->mainGrid();
 
