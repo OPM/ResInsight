@@ -46,6 +46,8 @@ public:
 
     static std::string formatThousandGrouping( long value );
 
+    static constexpr std::string_view boolToString( bool b ) { return b ? "true" : "false"; }
+
     // Conversion using fastest known approach
     static bool toDouble( std::string_view s, double& value );
     static bool toInt( std::string_view s, int& value );

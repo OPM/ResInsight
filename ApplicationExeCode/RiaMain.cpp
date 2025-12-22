@@ -16,10 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RiaApplication.h"
 #include "RiaArgumentParser.h"
 #include "RiaMainTools.h"
+#include "RiaOpenTelemetryManager.h"
 #include "RiaPreferences.h"
 #include "RiaQuantityInfoTools.h"
+#include "RiaStdStringTools.h"
 
 #ifdef ENABLE_GRPC
 #include "RiaGrpcConsoleApplication.h"
@@ -101,6 +104,15 @@ int main( int argc, char* argv[] )
     const cvf::String usageText = progOpt.usageText( 110, 30 );
     app->initialize();
     app->setCommandLineHelpText( cvfqt::Utils::toQString( usageText ) );
+
+    // Report application startup to OpenTelemetry
+    {
+        std::map<std::string, std::string> attributes;
+        bool                               isConsoleMode = ( dynamic_cast<RiaGuiApplication*>( app.get() ) == nullptr );
+        attributes["app.console_mode"]                   = RiaStdStringTools::boolToString( isConsoleMode );
+        attributes["app.version"]                        = RiaApplication::getVersionStringApp( false );
+        RiaOpenTelemetryManager::instance().reportEventAsync( "app.started", attributes );
+    }
 
     if ( !result )
     {
