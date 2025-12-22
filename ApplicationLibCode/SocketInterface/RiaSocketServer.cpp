@@ -23,7 +23,9 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaOpenTelemetryManager.h"
 #include "RiaPreferences.h"
+#include "RiaStdStringTools.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -227,6 +229,16 @@ bool RiaSocketServer::readCommandFromOctave()
     if ( m_currentCommand )
     {
         bool finished = m_currentCommand->interpretCommand( this, args, socketStream );
+
+        QString logMsg = QString( "Executed command: %1" ).arg( args[0].data() );
+        RiaLogging::info( logMsg );
+
+        // Report command execution to OpenTelemetry
+        std::map<std::string, std::string> attributes;
+        attributes["command.name"]     = args[0].toStdString();
+        attributes["command.finished"] = RiaStdStringTools::boolToString( finished );
+        RiaOpenTelemetryManager::instance().reportEventAsync( "octave.command.executed", attributes );
+
         return finished;
     }
     else
