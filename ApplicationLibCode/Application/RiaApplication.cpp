@@ -31,6 +31,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaOpenMPTools.h"
+#include "RiaOpenTelemetryManager.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesOsdu.h"
@@ -1452,6 +1453,9 @@ void RiaApplication::applyPreferences()
     }
 
     caf::ProgressInfoStatic::setEnabled( RiaPreferencesSystem::current()->showProgressBar() );
+
+    // Reinitialize OpenTelemetry based on current preferences
+    RiaOpenTelemetryManager::instance().reinitialize();
 
     if ( m_preferencesFileName.isEmpty() )
     {

@@ -18,7 +18,9 @@
 
 #include "RiaConnectorTools.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaOpenTelemetryManager.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesOpenTelemetry.h"
 #include "RiaPreferencesOsdu.h"
@@ -208,5 +210,33 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
             RiaPreferencesOpenTelemetry::current()->setFieldsReadOnly();
             break;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaConnectorTools::configureCloudServices()
+{
+    if ( auto preferences = RiaApplication::instance()->preferences() )
+    {
+        RiaConnectorTools::readCloudConfigFiles( preferences );
+    }
+
+    // Initialize OpenTelemetry after configuration is loaded
+    auto& otelManager = RiaOpenTelemetryManager::instance();
+    if ( otelManager.initialize() )
+    {
+        // Set system username for telemetry tracking
+        QString username = RiaOpenTelemetryManager::getSystemUsername();
+        if ( !username.isEmpty() )
+        {
+            otelManager.setUsername( username.toStdString() );
+        }
+        RiaLogging::info( "OpenTelemetry initialized successfully" );
+    }
+    else
+    {
+        RiaLogging::debug( "OpenTelemetry initialization failed or not configured" );
     }
 }

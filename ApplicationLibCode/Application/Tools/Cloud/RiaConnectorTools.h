@@ -35,4 +35,6 @@ std::map<QString, QString> readKeyValuePairs( const QString& filePath );
 
 void readCloudConfigFiles( RiaPreferences* preferences );
 
+void configureCloudServices();
+
 } // namespace RiaConnectorTools

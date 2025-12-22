@@ -80,9 +80,11 @@ public:
     };
 
     static RiaOpenTelemetryManager& instance();
+    static QString                  getSystemUsername();
 
     bool initialize();
-    void shutdown( std::chrono::seconds timeout = std::chrono::seconds( 30 ) );
+    void shutdown();
+    bool reinitialize();
 
     // Event reporting
     void reportEventAsync( const std::string& eventName, const std::map<std::string, std::string>& attributes );
@@ -93,12 +95,12 @@ public:
     bool isEnabled() const;
     bool isInitialized() const;
     void setErrorCallback( ErrorCallback callback );
+    void setUsername( const std::string& username );
 
     // Performance and memory management
     void   setMaxQueueSize( size_t maxEvents );
     void   enableBackpressure( bool enable );
     void   setMemoryThreshold( size_t maxMemoryMB );
-    void   setSamplingRate( double rate );
     size_t getCurrentQueueSize() const;
 
     // Health monitoring
@@ -135,10 +137,8 @@ private:
     // Event processing
     void processEvents();
     void processEvent( const Event& event );
-    bool shouldSampleEvent() const;
     void flushPendingEvents();
     void onProcessEventTimer();
-    void onNetworkReplyFinished();
 
     // Circuit breaker and resilience
     void handleError( TelemetryError error, const QString& context );
@@ -167,10 +167,10 @@ private:
     QTimer*                m_healthTimer{ nullptr };
 
     // Configuration
-    size_t m_maxQueueSize{ 10000 };
-    bool   m_backpressureEnabled{ true };
-    size_t m_memoryThresholdMB{ 50 };
-    double m_samplingRate{ 1.0 };
+    size_t      m_maxQueueSize{ 10000 };
+    bool        m_backpressureEnabled{ true };
+    size_t      m_memoryThresholdMB{ 50 };
+    std::string m_username;
 
     // Error handling
     ErrorCallback                         m_errorCallback;
@@ -179,5 +179,5 @@ private:
 
     // Health monitoring
     mutable HealthMetrics m_healthMetrics;
-    bool                  m_healthMonitoringEnabled{ true };
+    bool                  m_healthMonitoringEnabled{ false };
 };

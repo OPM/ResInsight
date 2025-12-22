@@ -23,6 +23,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaOpenTelemetryManager.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTest.h"
@@ -93,16 +94,11 @@
 #include "DockAreaWidget.h"
 #include "DockManager.h"
 
-#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
-#include "RiaOpenTelemetryManager.h"
-#include <QDateTime>
-#include <stacktrace>
-#endif
-
 #include <QAction>
 #include <QActionGroup>
 #include <QCloseEvent>
 #include <QComboBox>
+#include <QDateTime>
 #include <QDir>
 #include <QLabel>
 #include <QLayout>
@@ -121,6 +117,7 @@
 #include <QDebug>
 
 #include <algorithm>
+#include <stacktrace>
 
 //==================================================================================================
 ///
@@ -2014,7 +2011,6 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotSendTestTelemetry()
 {
-#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
     auto& otelManager = RiaOpenTelemetryManager::instance();
     if ( !otelManager.isEnabled() )
     {
@@ -2036,9 +2032,6 @@ void RiuMainWindow::slotSendTestTelemetry()
     otelManager.reportTestCrash( testStackTrace );
 
     RiaLogging::info( "Test telemetry data sent to OpenTelemetry endpoint" );
-#else
-    RiaLogging::warning( "OpenTelemetry not enabled at compile time" );
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

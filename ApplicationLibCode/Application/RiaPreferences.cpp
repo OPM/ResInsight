@@ -529,11 +529,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* openTelemetryGroup = uiOrdering.addNewGroup( "OpenTelemetry" );
         openTelemetryGroup->setCollapsedByDefault();
-#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
         m_openTelemetryPreferences()->uiOrdering( uiConfigName, *openTelemetryGroup );
-#else
-        openTelemetryGroup->addNewLabel( "OpenTelemetry support is not enabled in this build of ResInsight. " );
-#endif
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {

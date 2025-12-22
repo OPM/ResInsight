@@ -111,7 +111,8 @@ void RiaConsoleApplication::initialize()
 
     m_socketServer = new RiaSocketServer( this );
 
-    RiaConnectorTools::readCloudConfigFiles( m_preferences.get() );
+    // Configure cloud services after logger is created
+    RiaConnectorTools::configureCloudServices();
 }
 
 //--------------------------------------------------------------------------------------------------

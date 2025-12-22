@@ -217,24 +217,13 @@ endif()
 #
 # OpenTelemetry
 #
-option(RESINSIGHT_ENABLE_OPENTELEMETRY "Enable OpenTelemetry integration" OFF)
-if(RESINSIGHT_ENABLE_OPENTELEMETRY)
-  message(STATUS "OpenTelemetry support enabled")
-  add_definitions(-DRESINSIGHT_OPENTELEMETRY_ENABLED)
-
-  # Create telemetry source files list
-  set(OPENTELEMETRY_FILES
-      Application/Tools/Telemetry/RiaOpenTelemetryManager.h
-      Application/Tools/Telemetry/RiaOpenTelemetryManager.cpp
-  )
-
-  list(APPEND CPP_SOURCES ${OPENTELEMETRY_FILES})
-endif()
-
-# Always include OpenTelemetry preferences
-list(APPEND CPP_SOURCES Application/RiaPreferencesOpenTelemetry.h
-     Application/RiaPreferencesOpenTelemetry.cpp
+set(OPENTELEMETRY_FILES
+    Application/RiaPreferencesOpenTelemetry.h
+    Application/RiaPreferencesOpenTelemetry.cpp
+    Application/Tools/Telemetry/RiaOpenTelemetryManager.h
+    Application/Tools/Telemetry/RiaOpenTelemetryManager.cpp
 )
+list(APPEND CPP_SOURCES ${OPENTELEMETRY_FILES})
 
 qt_add_resources(QRC_FILES Application/Resources/ApplicationLibCode.qrc)
 

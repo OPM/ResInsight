@@ -29,6 +29,7 @@
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaOpenTelemetryManager.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesGrid.h"
@@ -39,10 +40,6 @@
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 #include "Summary/RiaSummaryTools.h"
-
-#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
-#include "RiaOpenTelemetryManager.h"
-#endif
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
@@ -479,20 +476,8 @@ void RiaGuiApplication::initialize()
     }
     m_socketServer = new RiaSocketServer( this );
 
-    RiaConnectorTools::readCloudConfigFiles( m_preferences.get() );
-
-#ifdef RESINSIGHT_OPENTELEMETRY_ENABLED
-    // Initialize OpenTelemetry after configuration is loaded
-    auto& otelManager = RiaOpenTelemetryManager::instance();
-    if ( otelManager.initialize() )
-    {
-        RiaLogging::info( "OpenTelemetry initialized successfully" );
-    }
-    else
-    {
-        RiaLogging::debug( "OpenTelemetry initialization failed or not configured" );
-    }
-#endif
+    // Configure cloud services after logger is created
+    RiaConnectorTools::configureCloudServices();
 }
 
 //--------------------------------------------------------------------------------------------------
