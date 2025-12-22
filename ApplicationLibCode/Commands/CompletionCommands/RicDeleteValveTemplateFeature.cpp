@@ -57,7 +57,7 @@ void RicDeleteValveTemplateFeature::onActionTriggered( bool isChecked )
         }
 
         RimValveTemplateCollection* collection = valveTemplate->firstAncestorOrThisOfTypeAsserted<RimValveTemplateCollection>();
-        collection->removeAndDeleteValveTemplate( valveTemplate );
+        collection->deleteItem( valveTemplate );
         collection->updateAllRequiredEditors();
 
         project->scheduleCreateDisplayModelAndRedrawAllViews();

@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimValveTemplateCollection, "ValveTemplateCollection" );
 RimValveTemplateCollection::RimValveTemplateCollection()
 {
     CAF_PDM_InitScriptableObject( "Valve Templates", ":/ICDValve16x16.png" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_valveDefinitions, "ValveDefinitions", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "ValveDefinitions", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_defaultUnitsForValveTemplates, "ValveUnits", "Default unit system for valve templates" );
     m_defaultUnitsForValveTemplates = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     addDefaultValveTemplates();
@@ -43,36 +43,6 @@ RimValveTemplateCollection::RimValveTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 RimValveTemplateCollection::~RimValveTemplateCollection()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimValveTemplate*> RimValveTemplateCollection::valveTemplates() const
-{
-    std::vector<RimValveTemplate*> templates;
-    for ( auto& templ : m_valveDefinitions )
-    {
-        templates.push_back( templ );
-    }
-    return templates;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimValveTemplateCollection::addValveTemplate( RimValveTemplate* valveTemplate )
-{
-    m_valveDefinitions.push_back( valveTemplate );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimValveTemplateCollection::removeAndDeleteValveTemplate( RimValveTemplate* valveTemplate )
-{
-    m_valveDefinitions.removeChild( valveTemplate );
-    delete valveTemplate;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +84,7 @@ void RimValveTemplateCollection::addDefaultValveTemplates()
     icv->setType( RiaDefines::WellPathComponentType::ICV );
     icv->setUserLabel( "Valve Template #3" );
 
-    addValveTemplate( aicd );
-    addValveTemplate( icd );
-    addValveTemplate( icv );
+    addItem( aicd );
+    addItem( icd );
+    addItem( icv );
 }

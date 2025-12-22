@@ -110,7 +110,7 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
         for ( const auto& aicdValue : aicdTemplates )
         {
             auto newTemplate = RimValveTemplate::createAicdTemplate( aicdValue, number++ );
-            templateColl->addValveTemplate( newTemplate );
+            templateColl->addItem( newTemplate );
         }
     }
 

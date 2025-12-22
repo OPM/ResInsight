@@ -95,9 +95,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcValveTemplateCollection_add_te
     if ( userLabel.isEmpty() )
     {
         // Generate default label based on type and count
-        auto templates = valveTemplateCollection->valveTemplates();
-        int  count     = static_cast<int>( templates.size() ) + 1;
-        userLabel      = QString( "Template %1" ).arg( count );
+        int count = static_cast<int>( valveTemplateCollection->count() ) + 1;
+        userLabel = QString( "Template %1" ).arg( count );
     }
     newTemplate->setUserLabel( userLabel );
 
@@ -110,7 +109,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcValveTemplateCollection_add_te
     newTemplate->setFlowCoefficient( m_flowCoefficient() );
 
     // Add to collection
-    valveTemplateCollection->addValveTemplate( newTemplate );
+    valveTemplateCollection->addItem( newTemplate );
     valveTemplateCollection->updateAllRequiredEditors();
 
     return newTemplate;

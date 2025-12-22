@@ -1301,7 +1301,7 @@ std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
     std::vector<RimValveTemplate*> templates;
     for ( RimValveTemplateCollection* templColl : allValveTemplateCollections() )
     {
-        for ( RimValveTemplate* templ : templColl->valveTemplates() )
+        for ( RimValveTemplate* templ : templColl->items() )
         {
             templates.push_back( templ );
         }

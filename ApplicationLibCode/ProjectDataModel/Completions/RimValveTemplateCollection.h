@@ -20,17 +20,16 @@
 
 #include "RiaDefines.h"
 
-#include "cafPdmChildArrayField.h"
+#include "RimValveTemplate.h"
+
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-class RimValveTemplate;
+#include "cafPdmObjectCollection.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimValveTemplateCollection : public caf::PdmObject
+class RimValveTemplateCollection : public caf::PdmObjectCollection<RimValveTemplate>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -38,15 +37,12 @@ public:
     RimValveTemplateCollection();
     ~RimValveTemplateCollection() override;
 
-    std::vector<RimValveTemplate*> valveTemplates() const;
-    void                           addValveTemplate( RimValveTemplate* valveTemplate );
-    void                           removeAndDeleteValveTemplate( RimValveTemplate* valveTemplate );
-    void                           addDefaultValveTemplates();
+    // Domain-specific methods
+    void addDefaultValveTemplates();
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> defaultUnitSystemType() const;
     void                                        setDefaultUnitSystemBasedOnLoadedCases();
 
 private:
-    caf::PdmChildArrayField<RimValveTemplate*>                 m_valveDefinitions;
     caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_defaultUnitsForValveTemplates;
 };
