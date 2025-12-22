@@ -33,8 +33,8 @@ RimSummaryTableCollection::RimSummaryTableCollection()
 {
     CAF_PDM_InitObject( "Summary Tables", ":/CorrelationMatrixPlot16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryTables, "SummaryTables", "Summary Tables" );
-    caf::PdmFieldReorderCapability::addToField( &m_summaryTables );
+    CAF_PDM_InitFieldNoDefault( &m_items, "SummaryTables", "Summary Tables" );
+    caf::PdmFieldReorderCapability::addToField( &m_items );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ RimSummaryTableCollection::~RimSummaryTableCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTableCollection::deleteAllPlots()
 {
-    m_summaryTables.deleteChildren();
+    deleteAllItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ void RimSummaryTableCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTableCollection::loadDataAndUpdateAllPlots()
 {
-    for ( RimSummaryTable* table : m_summaryTables )
+    for ( RimSummaryTable* table : items() )
     {
         if ( !table ) continue;
 
@@ -70,7 +70,7 @@ void RimSummaryTableCollection::loadDataAndUpdateAllPlots()
 //--------------------------------------------------------------------------------------------------
 size_t RimSummaryTableCollection::plotCount() const
 {
-    return tableCount();
+    return count();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,28 +78,15 @@ size_t RimSummaryTableCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryTable*> RimSummaryTableCollection::tables() const
 {
-    return m_summaryTables.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimSummaryTableCollection::tableCount() const
-{
-    return m_summaryTables.size();
-}
-
 void RimSummaryTableCollection::addTable( RimSummaryTable* table )
 {
-    insertTable( table, tableCount() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryTableCollection::insertTable( RimSummaryTable* table, size_t index )
-{
-    m_summaryTables.insert( index, table );
+    addItem( table );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,8 +94,7 @@ void RimSummaryTableCollection::insertTable( RimSummaryTable* table, size_t inde
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTableCollection::removeTable( RimSummaryTable* table )
 {
-    m_summaryTables.removeChild( table );
-    updateAllRequiredEditors();
+    deleteItem( table );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,16 +23,16 @@
 #include "RimAbstractPlotCollection.h"
 #include "RimSummaryTable.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafPdmObjectCollection.h"
 
 class RimSummaryCase;
 
 //==================================================================================================
 ///
+/// Collection for managing summary tables
 ///
 //==================================================================================================
-class RimSummaryTableCollection : public caf::PdmObject, public RimPlotCollection
+class RimSummaryTableCollection : public caf::PdmObjectCollection<RimSummaryTable>, public RimPlotCollection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -40,21 +40,19 @@ public:
     RimSummaryTableCollection();
     ~RimSummaryTableCollection() override;
 
+    // RimPlotCollection interface
     void   deleteAllPlots() override;
     void   loadDataAndUpdateAllPlots() override;
     size_t plotCount() const override;
 
+    // Convenience accessors (delegate to base class)
     std::vector<RimSummaryTable*> tables() const;
-    size_t                        tableCount() const;
     void                          addTable( RimSummaryTable* table );
-    void                          insertTable( RimSummaryTable* table, size_t index );
     void                          removeTable( RimSummaryTable* table );
 
+    // Domain-specific creation methods
     RimSummaryTable* createDefaultSummaryTable();
     RimSummaryTable* createSummaryTableFromCategoryAndVectorName( RimSummaryCase*                                  summaryCase,
                                                                   RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                                   const QString&                                   vectorName );
-
-private:
-    caf::PdmChildArrayField<RimSummaryTable*> m_summaryTables;
 };
