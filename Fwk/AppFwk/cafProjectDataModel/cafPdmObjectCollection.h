@@ -47,9 +47,9 @@ class PdmObjectCollection : public PdmObject
 
 public:
     // Collection access
-    std::vector<T*>              items() const;
-    size_t                       count() const;
-    bool                         isEmpty() const;
+    std::vector<T*>               items() const;
+    size_t                        count() const;
+    bool                          isEmpty() const;
     PdmChildArrayField<T*>&       itemsField();
     const PdmChildArrayField<T*>& itemsField() const;
 

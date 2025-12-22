@@ -176,8 +176,8 @@ void PdmObjectCollection<T>::onItemsChanged()
 //--------------------------------------------------------------------------------------------------
 template <typename T>
 void PdmObjectCollection<T>::fieldChangedByUi( const PdmFieldHandle* changedField,
-                                                          const QVariant&            oldValue,
-                                                          const QVariant&            newValue )
+                                               const QVariant&       oldValue,
+                                               const QVariant&       newValue )
 {
     if ( changedField == &m_items )
     {
@@ -201,8 +201,8 @@ void PdmObjectCollection<T>::defineUiOrdering( QString uiConfigName, PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 template <typename T>
 void PdmObjectCollection<T>::defineEditorAttribute( const PdmFieldHandle* field,
-                                                               QString                    uiConfigName,
-                                                               PdmUiEditorAttribute* attribute )
+                                                    QString               uiConfigName,
+                                                    PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_items )
     {
@@ -221,7 +221,7 @@ void PdmObjectCollection<T>::defineEditorAttribute( const PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 template <typename T>
 void PdmObjectCollection<T>::onChildDeleted( PdmChildArrayFieldHandle*      childArray,
-                                              std::vector<PdmObjectHandle*>& referringObjects )
+                                             std::vector<PdmObjectHandle*>& referringObjects )
 {
     updateConnectedEditors();
 }
