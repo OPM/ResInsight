@@ -39,6 +39,7 @@
 #include "cafFactory.h"
 #include "cafPdmUiEditorHandle.h"
 
+class QAction;
 class QLabel;
 
 namespace caf
@@ -127,7 +128,7 @@ private:
     QPointer<QWidget> m_combinedWidget;
     QPointer<QWidget> m_editorWidget;
     QPointer<QWidget> m_labelWidget;
-    QString           m_originalTooltip;
+    QPointer<QAction> m_validationErrorAction;
 };
 
 //==================================================================================================

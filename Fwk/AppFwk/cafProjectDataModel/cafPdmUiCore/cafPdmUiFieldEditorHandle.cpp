@@ -43,8 +43,11 @@
 #include "cafQShortenedLabel.h"
 
 #include <QAbstractScrollArea>
+#include <QApplication>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
+#include <QStyle>
 
 namespace caf
 {
@@ -332,23 +335,40 @@ void PdmUiFieldEditorHandle::applyValidationStyling( QWidget* widget, const QStr
 
     if ( errorMessage.isEmpty() )
     {
-        // Valid - remove error styling
-        widget->setStyleSheet( "" );
-        if ( !m_originalTooltip.isNull() )
+        // Valid - remove error icon if present
+        if ( m_validationErrorAction )
         {
-            widget->setToolTip( m_originalTooltip );
+            widget->removeAction( m_validationErrorAction );
+            delete m_validationErrorAction;
         }
     }
     else
     {
-        // Invalid - save original tooltip and apply error styling
-        if ( m_originalTooltip.isNull() )
+        // Invalid - add error icon similar to information icon for optional fields
+        if ( !m_validationErrorAction )
         {
-            m_originalTooltip = widget->toolTip();
-        }
+            // Use Qt's standard warning icon
+            QStyle* style       = QApplication::style();
+            QIcon   warningIcon = style->standardIcon( QStyle::SP_MessageBoxWarning );
 
-        widget->setStyleSheet( "border: 2px solid red;" );
-        widget->setToolTip( errorMessage );
+            // For QLineEdit, use TrailingPosition to show icon inside the widget
+            QLineEdit* lineEdit = qobject_cast<QLineEdit*>( widget );
+            if ( lineEdit )
+            {
+                m_validationErrorAction = lineEdit->addAction( warningIcon, QLineEdit::TrailingPosition );
+            }
+            else
+            {
+                m_validationErrorAction = new QAction( warningIcon, "", widget );
+                widget->addAction( m_validationErrorAction );
+            }
+            m_validationErrorAction->setToolTip( errorMessage );
+        }
+        else
+        {
+            // Update tooltip if error message changed
+            m_validationErrorAction->setToolTip( errorMessage );
+        }
     }
 }
 
