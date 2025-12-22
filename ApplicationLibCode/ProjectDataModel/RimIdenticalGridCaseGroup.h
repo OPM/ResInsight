@@ -63,11 +63,11 @@ public:
     RimEclipseStatisticsCase* createAndAppendStatisticsCase();
     RimEclipseStatisticsCase* createAndAppendEmptyStatisticsCase();
 
-    RimEclipseCase*                  mainCase();
-    void                             loadMainCaseAndActiveCellInfo();
+    RimEclipseCase* mainCase();
+    void            loadMainCaseAndActiveCellInfo();
 
-    RigMainGrid*                     mainGrid();
-    std::shared_ptr<RigMainGrid>     mainGridShared() { return m_mainGrid; }
+    RigMainGrid*                       mainGrid();
+    std::shared_ptr<RigMainGrid>       mainGridShared() { return m_mainGrid; }
     std::shared_ptr<const RigMainGrid> mainGridShared() const { return m_mainGrid; }
 
     RigActiveCellInfo* unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
@@ -86,7 +86,7 @@ private:
     RimEclipseStatisticsCase* createStatisticsCase( bool selectDefaultResults );
 
 private:
-    std::shared_ptr<RigMainGrid>       m_mainGrid;
+    std::shared_ptr<RigMainGrid> m_mainGrid;
 
     std::shared_ptr<RigActiveCellInfo> m_unionOfMatrixActiveCells;
     std::shared_ptr<RigActiveCellInfo> m_unionOfFractureActiveCells;

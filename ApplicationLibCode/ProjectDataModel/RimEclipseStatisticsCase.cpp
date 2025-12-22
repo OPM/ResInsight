@@ -181,9 +181,11 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
     eclipseCase->setMainGrid( gridCaseGroup->mainGridShared() );
 
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                    std::shared_ptr<RigActiveCellInfo>( gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) ) );
+                                    std::shared_ptr<RigActiveCellInfo>(
+                                        gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) ) );
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                    std::shared_ptr<RigActiveCellInfo>( gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) ) );
+                                    std::shared_ptr<RigActiveCellInfo>(
+                                        gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) ) );
 
     setReservoirData( eclipseCase.p() );
 

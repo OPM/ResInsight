@@ -281,7 +281,7 @@ public:
 
         // Fetch results
         const RigWellResultFrame* wellResFrame = currentWellResult->wellResultFrame( timeStepIdx );
-        auto grids = rimCase->eclipseCaseData()->allGrids();
+        auto                      grids        = rimCase->eclipseCaseData()->allGrids();
 
         for ( const auto& wellResultBranch : wellResFrame->wellResultBranches() )
         {

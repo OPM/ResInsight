@@ -23,9 +23,9 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
-#include "RigStatisticsDataCache.h"
-#include "RigEclipseResultInfo.h"
 #include "RigAllanDiagramData.h"
+#include "RigEclipseResultInfo.h"
+#include "RigStatisticsDataCache.h"
 
 #include <QDateTime>
 
