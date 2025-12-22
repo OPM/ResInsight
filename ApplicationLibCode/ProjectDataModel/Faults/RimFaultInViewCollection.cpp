@@ -71,6 +71,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters for Faults" );
     CAF_PDM_InitField( &m_meshLineThickness, "MeshLineThickness", 1, "Mesh Line Thickness [1..10]" );
+    m_meshLineThickness.setRange( 1, 10 );
 
     CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Show Only Faces with Juxtaposition" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyShowWithNeighbor );
@@ -221,20 +222,6 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
 caf::PdmFieldHandle* RimFaultInViewCollection::objectToggleField()
 {
     return &m_showFaultCollection;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_meshLineThickness )
-    {
-        if ( auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            lineEditorAttr->validator = new QIntValidator( 1, 10, nullptr );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

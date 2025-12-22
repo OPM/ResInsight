@@ -52,7 +52,6 @@
 #include <QBitmap>
 #include <QCompleter>
 #include <QDebug>
-#include <QIntValidator>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMainWindow>

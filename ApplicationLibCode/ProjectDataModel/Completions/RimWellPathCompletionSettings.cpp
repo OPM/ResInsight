@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimWellPathCompletionSettings.h"
 
 #include "RiaStdStringTools.h"
@@ -101,6 +102,8 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
                                                   "WellBoreFluidPvtTable",
                                                   0,
                                                   "Wellbore Fluid PVT table" );
+    m_wellBoreFluidPVTTable.setMinValue( 0 );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_hydrostaticDensity, "HydrostaticDensity", "Hydrostatic Density" );
     CAF_PDM_InitScriptableField( &m_fluidInPlaceRegion, "FluidInPlaceRegion", 0, "Fluid In-Place Region" );
 
@@ -407,28 +410,6 @@ void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf:
 void RimWellPathCompletionSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     m_mswParameters->fieldChangedByUi( changedField, oldValue, newValue );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionSettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                           QString                    uiConfigName,
-                                                           caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-    if ( field == &m_wellBoreFluidPVTTable && lineEditorAttr )
-    {
-        // Positive integer
-        QIntValidator* validator  = new QIntValidator( 0, std::numeric_limits<int>::max(), nullptr );
-        lineEditorAttr->validator = validator;
-    }
-    else if ( field == &m_fluidInPlaceRegion && lineEditorAttr )
-    {
-        // Any integer
-        QIntValidator* validator  = new QIntValidator( -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), nullptr );
-        lineEditorAttr->validator = validator;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

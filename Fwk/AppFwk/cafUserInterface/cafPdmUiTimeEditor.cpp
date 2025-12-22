@@ -45,7 +45,6 @@
 
 #include <QApplication>
 #include <QGridLayout>
-#include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMainWindow>

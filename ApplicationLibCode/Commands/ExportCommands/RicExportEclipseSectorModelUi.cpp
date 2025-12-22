@@ -46,7 +46,6 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QIntValidator>
 
 #include <set>
 
@@ -92,6 +91,7 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
                        "",
                        "Number of cells to add around visible wells",
                        "" );
+    m_visibleWellsPadding.setRange( 0, 100 );
 
     QString minIJKLabel = "Min I, J, K";
     CAF_PDM_InitField( &minI, "MinI", std::numeric_limits<int>::max(), minIJKLabel );
@@ -113,8 +113,11 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 
     QString ijkLabel = "Cell Count I, J, K";
     CAF_PDM_InitField( &refinementCountI, "RefinementCountI", 1, ijkLabel );
+    refinementCountI.setRange( 1, 10 );
     CAF_PDM_InitField( &refinementCountJ, "RefinementCountJ", 1, "" );
+    refinementCountJ.setRange( 1, 10 );
     CAF_PDM_InitField( &refinementCountK, "RefinementCountK", 1, "" );
+    refinementCountK.setRange( 1, 10 );
 
     CAF_PDM_InitFieldNoDefault( &exportParameters, "ExportParams", "Export Parameters" );
     CAF_PDM_InitField( &m_exportParametersFilename, "ExportParamsFilename", QString(), "File Name" );
@@ -247,17 +250,9 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
                                                            QString                    uiConfigName,
                                                            caf::PdmUiEditorAttribute* attribute )
 {
-    if ( !m_caseData ) return;
-
-    const RigMainGrid* mainGrid       = m_caseData->mainGrid();
-    const cvf::Vec3st  gridDimensions = mainGrid->cellCounts();
-
-    auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-
     if ( field == &m_exportParametersFilename || field == &m_exportGridFilename || field == &m_exportFaultsFilename )
     {
-        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
         {
             myAttr->m_selectSaveFileName  = true;
             myAttr->m_fileSelectionFilter = "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)";
@@ -265,54 +260,15 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
     }
     else if ( field == &selectedKeywords )
     {
-        auto myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
-        if ( myAttr )
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute ) )
         {
             myAttr->heightHint = 280;
-        }
-    }
-    else if ( field == &m_visibleWellsPadding )
-    {
-        if ( lineEditorAttr )
-        {
-            // Wells padding should be between 0 and 100 cells
-            lineEditorAttr->validator = new QIntValidator( 0, 100, nullptr );
-        }
-    }
-    else if ( field == &refinementCountI || field == &refinementCountJ || field == &refinementCountK )
-    {
-        if ( lineEditorAttr )
-        {
-            auto* validator           = new QIntValidator( 1, 10, nullptr );
-            lineEditorAttr->validator = validator;
-        }
-    }
-    else if ( field == &minI || field == &maxI )
-    {
-        if ( lineEditorAttr )
-        {
-            lineEditorAttr->validator = new QIntValidator( 1, (int)gridDimensions.x(), nullptr );
-        }
-    }
-    else if ( field == &minJ || field == &maxJ )
-    {
-        if ( lineEditorAttr )
-        {
-            lineEditorAttr->validator = new QIntValidator( 1, (int)gridDimensions.y(), nullptr );
-        }
-    }
-    else if ( field == &minK || field == &maxK )
-    {
-        if ( lineEditorAttr )
-        {
-            lineEditorAttr->validator = new QIntValidator( 1, (int)gridDimensions.z(), nullptr );
         }
     }
 
     if ( field == &m_exportFolder )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
         {
             myAttr->m_selectDirectory = true;
         }
@@ -324,6 +280,20 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    // Update dynamic range limits before defining UI ordering
+    if ( m_caseData && m_caseData->mainGrid() )
+    {
+        const cvf::Vec3st gridDimensions = m_caseData->mainGrid()->cellCounts();
+
+        minI.setRange( 1, (int)gridDimensions.x() );
+        minJ.setRange( 1, (int)gridDimensions.y() );
+        minK.setRange( 1, (int)gridDimensions.z() );
+
+        maxI.setRange( 1, (int)gridDimensions.x() );
+        maxJ.setRange( 1, (int)gridDimensions.y() );
+        maxK.setRange( 1, (int)gridDimensions.z() );
+    }
+
     if ( uiConfigName == m_tabNames[0] )
     {
         uiOrdering.add( &m_exportFolder );

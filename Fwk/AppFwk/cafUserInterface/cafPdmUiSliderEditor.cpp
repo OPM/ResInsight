@@ -43,7 +43,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QHBoxLayout>
-#include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
 

@@ -45,7 +45,6 @@
 #include "FractureCommands/RicNewStimPlanFractureTemplateFeature.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -54,7 +53,6 @@
 
 #include <QDir>
 #include <QFile>
-#include <QIntValidator>
 
 namespace caf
 {
@@ -140,12 +138,16 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 
     // Uniform sampling
     CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X" );
+    m_numSamplesX.setMinValue( 1 );
+
     CAF_PDM_InitField( &m_numSamplesY, "NumberOfSamplesY", 200, "Y" );
+    m_numSamplesY.setMinValue( 1 );
 
     // Adaptive sampling
     CAF_PDM_InitFieldNoDefault( &m_adaptiveMeanType, "AdaptiveMeanType", "Mean Type" );
     CAF_PDM_InitFieldNoDefault( &m_adaptiveNumLayersType, "AdaptiveNumLayersType", "Number of Layers" );
     CAF_PDM_InitField( &m_adaptiveNumLayers, "AdaptiveNumLayers", 30, "Number of Layers Y" );
+    m_adaptiveNumLayers.setMinValue( 1 );
 
     std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>> defaultStatisticsTypes = {
         caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>( RimEnsembleFractureStatistics::StatisticsType::MEAN ) };
@@ -244,16 +246,6 @@ void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHa
         {
             myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
-    else if ( field == &m_adaptiveNumLayers || field == &m_numSamplesX || field == &m_numSamplesY )
-    {
-        caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( lineEditorAttr )
-        {
-            // Positive integer
-            QIntValidator* validator  = new QIntValidator( 1, std::numeric_limits<int>::max(), nullptr );
-            lineEditorAttr->validator = validator;
         }
     }
 }

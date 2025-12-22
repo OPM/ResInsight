@@ -76,6 +76,7 @@ RimGridCrossPlotRegressionCurve::RimGridCrossPlotRegressionCurve()
     m_maxExtrapolationRangeX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_polynomialDegree, "PolynomialDegree", 3, "Degree" );
+    m_polynomialDegree.setRange( 1, 50 );
 
     CAF_PDM_InitFieldNoDefault( &m_minRangeX, "MinRangeX", "Min X" );
     m_minRangeX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -362,15 +363,7 @@ void RimGridCrossPlotRegressionCurve::defineEditorAttribute( const caf::PdmField
                                                              QString                    uiConfigName,
                                                              caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_polynomialDegree )
-    {
-        if ( auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            // Polynomial degree should be a positive number.
-            lineEditorAttr->validator = new QIntValidator( 1, 50, nullptr );
-        }
-    }
-    else if ( field == &m_minRangeX || field == &m_maxRangeX )
+    if ( field == &m_minRangeX || field == &m_maxRangeX )
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {

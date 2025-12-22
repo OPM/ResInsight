@@ -57,7 +57,10 @@ RimSummaryDeclineCurve::RimSummaryDeclineCurve()
     CAF_PDM_InitObject( "Decline Curve", ":/decline-curve.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_declineCurveType, "DeclineCurveType", "Type" );
+
     CAF_PDM_InitField( &m_predictionYears, "PredictionYears", 5, "Years" );
+    m_predictionYears.setRange( 1, 50 );
+
     CAF_PDM_InitField( &m_hyperbolicDeclineConstant, "HyperbolicDeclineConstant", 0.5, "Decline Constant" );
     m_hyperbolicDeclineConstant.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -394,15 +397,6 @@ void RimSummaryDeclineCurve::fieldChangedByUi( const caf::PdmFieldHandle* change
 void RimSummaryDeclineCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     RimSummaryCurve::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_predictionYears )
-    {
-        if ( auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            // Predict into the future should be a positive number.
-            lineEditorAttr->validator = new QIntValidator( 1, 50, nullptr );
-        }
-    }
 
     if ( field == &m_hyperbolicDeclineConstant )
     {

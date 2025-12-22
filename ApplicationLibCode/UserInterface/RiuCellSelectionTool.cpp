@@ -34,7 +34,6 @@
 #include <QDialog>
 #include <QDoubleValidator>
 #include <QHBoxLayout>
-#include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>

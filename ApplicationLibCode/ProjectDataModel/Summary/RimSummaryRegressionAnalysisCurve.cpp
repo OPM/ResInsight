@@ -103,10 +103,17 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsType, "EnsembleStatisticsType", "Ensemble Statistics Type" );
 
     CAF_PDM_InitFieldNoDefault( &m_regressionType, "RegressionType", "Type" );
+
     CAF_PDM_InitField( &m_forecastForward, "ForecastForward", 0, "Forward" );
+    m_forecastForward.setRange( 0, 50 );
+
     CAF_PDM_InitField( &m_forecastBackward, "ForecastBackward", 0, "Backward" );
+    m_forecastBackward.setRange( 0, 50 );
+
     CAF_PDM_InitFieldNoDefault( &m_forecastUnit, "ForecastUnit", "Unit" );
+
     CAF_PDM_InitField( &m_polynomialDegree, "PolynomialDegree", 3, "Degree" );
+    m_polynomialDegree.setRange( 1, 50 );
 
     CAF_PDM_InitFieldNoDefault( &m_timeRangeSelection, "TimeRangeSelection", "Time Range" );
     CAF_PDM_InitFieldNoDefault( &m_minTimeSliderPosition, "MinTimeSliderPosition", "From" );
@@ -546,23 +553,7 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
 {
     RimSummaryCurve::defineEditorAttribute( field, uiConfigName, attribute );
 
-    if ( field == &m_polynomialDegree )
-    {
-        if ( auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            // Polynomial degree should be a positive number.
-            lineEditorAttr->validator = new QIntValidator( 1, 50, nullptr );
-        }
-    }
-    else if ( field == &m_forecastForward || field == &m_forecastBackward )
-    {
-        if ( auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            // Block negative forecast
-            lineEditorAttr->validator = new QIntValidator( 0, 50, nullptr );
-        }
-    }
-    else if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
+    if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
         {

@@ -48,7 +48,6 @@
 #include <QClipboard>
 #include <QDir>
 #include <QFileDialog>
-#include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
 

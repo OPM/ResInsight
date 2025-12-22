@@ -46,7 +46,6 @@
 #include <QApplication>
 #include <QDate>
 #include <QGridLayout>
-#include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMainWindow>

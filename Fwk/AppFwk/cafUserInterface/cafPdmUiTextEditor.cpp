@@ -41,7 +41,6 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QIntValidator>
 #include <QLabel>
 #include <QMimeData>
 #include <QTextEdit>
