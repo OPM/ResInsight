@@ -59,7 +59,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcElasticProperties_addPropertyS
     property.setFromText( m_property() );
     propertyScaling->setProperty( property );
 
-    scalingColl->addElasticPropertyScaling( propertyScaling );
+    scalingColl->addItem( propertyScaling );
     scalingColl->updateConnectedEditors();
 
     return propertyScaling;

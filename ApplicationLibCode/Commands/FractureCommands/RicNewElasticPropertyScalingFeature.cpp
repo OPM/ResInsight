@@ -46,7 +46,7 @@ void RicNewElasticPropertyScalingFeature::onActionTriggered( bool isChecked )
     RimElasticPropertyScaling* elasticPropertyScaling = new RimElasticPropertyScaling;
     elasticPropertyScaling->ensureDefaultFormationAndFacies();
 
-    scalingColl->addElasticPropertyScaling( elasticPropertyScaling );
+    scalingColl->addItem( elasticPropertyScaling );
 
     scalingColl->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( elasticPropertyScaling );

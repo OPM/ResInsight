@@ -34,29 +34,7 @@ RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
 {
     CAF_PDM_InitScriptableObject( "Elastic Property Scalings" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertyScalings, "ElasticPropertyScalings", "Elastic Property Scalings" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimElasticPropertyScaling*> RimElasticPropertyScalingCollection::elasticPropertyScalings() const
-{
-    std::vector<RimElasticPropertyScaling*> templates;
-    for ( auto& templ : m_elasticPropertyScalings )
-    {
-        templates.push_back( templ );
-    }
-    return templates;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimElasticPropertyScalingCollection::addElasticPropertyScaling( RimElasticPropertyScaling* scaling )
-{
-    scaling->changed.connect( this, &RimElasticPropertyScalingCollection::elasticPropertyScalingChanged );
-    m_elasticPropertyScalings.push_back( scaling );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "ElasticPropertyScalings", "Elastic Property Scalings" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,9 +48,9 @@ void RimElasticPropertyScalingCollection::elasticPropertyScalingChanged( const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertyScalingCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                                          std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimElasticPropertyScalingCollection::onItemsChanged()
 {
+    connectSignals();
     changed.send();
 }
 
@@ -83,7 +61,7 @@ double RimElasticPropertyScalingCollection::getScaling( const QString&          
                                                         const QString&            faciesName,
                                                         RiaDefines::CurveProperty property ) const
 {
-    for ( const RimElasticPropertyScaling* scaling : m_elasticPropertyScalings )
+    for ( const RimElasticPropertyScaling* scaling : items() )
     {
         if ( scaling->property() == property && ( scaling->formation().compare( formationName, Qt::CaseInsensitive ) == 0 ) &&
              ( scaling->facies().compare( faciesName, Qt::CaseInsensitive ) == 0 ) && scaling->isChecked() )
@@ -101,7 +79,15 @@ double RimElasticPropertyScalingCollection::getScaling( const QString&          
 //--------------------------------------------------------------------------------------------------
 void RimElasticPropertyScalingCollection::initAfterRead()
 {
-    for ( auto& scaling : m_elasticPropertyScalings )
+    connectSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimElasticPropertyScalingCollection::connectSignals()
+{
+    for ( auto& scaling : items() )
     {
         scaling->changed.connect( this, &RimElasticPropertyScalingCollection::elasticPropertyScalingChanged );
     }

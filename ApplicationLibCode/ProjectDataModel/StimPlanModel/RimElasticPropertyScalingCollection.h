@@ -18,19 +18,17 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
 #include "RiaStimPlanModelDefines.h"
 
-class RimElasticPropertyScaling;
+#include "RimElasticPropertyScaling.h"
+
+#include "cafPdmObjectCollection.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimElasticPropertyScalingCollection : public caf::PdmObject
+class RimElasticPropertyScalingCollection : public caf::PdmObjectCollection<RimElasticPropertyScaling>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -39,17 +37,14 @@ public:
 
     caf::Signal<> changed;
 
-    std::vector<RimElasticPropertyScaling*> elasticPropertyScalings() const;
-    void                                    addElasticPropertyScaling( RimElasticPropertyScaling* templ );
-
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
-
+    // Domain-specific methods
     double getScaling( const QString& formationName, const QString& faciesName, RiaDefines::CurveProperty property ) const;
 
 protected:
     void initAfterRead() override;
+    void onItemsChanged() override;
 
 private:
-    void                                                elasticPropertyScalingChanged( const caf::SignalEmitter* emitter );
-    caf::PdmChildArrayField<RimElasticPropertyScaling*> m_elasticPropertyScalings;
+    void connectSignals();
+    void elasticPropertyScalingChanged( const caf::SignalEmitter* emitter );
 };
