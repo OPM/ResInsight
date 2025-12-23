@@ -544,7 +544,14 @@ void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&   
 
         for ( auto comp : segment->completions() )
         {
-            collectCompletionWelsegsSegments( tableData, segment, comp, exportInfo, minSegmentLength, maxSegmentLength, customSegmentIntervals, segmentNumber );
+            collectCompletionWelsegsSegments( tableData,
+                                              segment,
+                                              comp,
+                                              exportInfo,
+                                              minSegmentLength,
+                                              maxSegmentLength,
+                                              customSegmentIntervals,
+                                              segmentNumber );
         }
     }
 }
