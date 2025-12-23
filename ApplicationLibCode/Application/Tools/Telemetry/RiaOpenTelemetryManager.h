@@ -109,7 +109,7 @@ public:
 
 private:
     RiaOpenTelemetryManager();
-    ~RiaOpenTelemetryManager();
+    ~RiaOpenTelemetryManager() override;
 
     RiaOpenTelemetryManager( const RiaOpenTelemetryManager& )            = delete;
     RiaOpenTelemetryManager& operator=( const RiaOpenTelemetryManager& ) = delete;
