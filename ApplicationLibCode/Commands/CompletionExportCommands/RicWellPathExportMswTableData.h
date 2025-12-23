@@ -147,7 +147,6 @@ private:
                                                      const RimFishbones*           fishbonesSubs,
                                                      gsl::not_null<RicMswSegment*> segment,
                                                      bool*                         foundSubGridIntersections,
-                                                     double                        maxSegmentLength,
                                                      RiaDefines::EclipseUnitSystem unitSystem );
 
     static void assignFractureCompletionsToCellSegment( const RimEclipseCase*                 eclipseCase,

@@ -342,8 +342,6 @@ void RicWellPathExportMswTableData::appendFishbonesMswExportInfo( const RimEclip
 
     bool foundSubGridIntersections = false;
 
-    double maxSegmentLength = mswParameters->maxSegmentLength();
-
     auto unitSystem = exportInfo->unitSystem();
 
     auto fishbonesSubs = wellPath->completions()->fishbonesCollection()->activeFishbonesSubs();
@@ -412,13 +410,7 @@ void RicWellPathExportMswTableData::appendFishbonesMswExportInfo( const RimEclip
                     icdSegment->addCompletion( std::make_unique<RicMswFishbones>( label, wellPath, subEndMd, subEndTvd, lateralIndex ) );
                 }
 
-                assignFishbonesLateralIntersections( eclipseCase,
-                                                     branch->wellPath(),
-                                                     subs,
-                                                     icdSegment.get(),
-                                                     &foundSubGridIntersections,
-                                                     maxSegmentLength,
-                                                     unitSystem );
+                assignFishbonesLateralIntersections( eclipseCase, branch->wellPath(), subs, icdSegment.get(), &foundSubGridIntersections, unitSystem );
 
                 auto icdCompletion = std::make_unique<RicMswFishbonesICD>( QString( "ICD" ), wellPath, subEndMd, subEndTvd, nullptr );
                 icdCompletion->setFlowCoefficient( subs->icdFlowCoefficient() );
@@ -1254,7 +1246,6 @@ void RicWellPathExportMswTableData::assignFishbonesLateralIntersections( const R
                                                                          const RimFishbones*           fishbonesSubs,
                                                                          gsl::not_null<RicMswSegment*> segment,
                                                                          bool*                         foundSubGridIntersections,
-                                                                         double                        maxSegmentLength,
                                                                          RiaDefines::EclipseUnitSystem unitSystem )
 {
     CVF_ASSERT( foundSubGridIntersections != nullptr );
