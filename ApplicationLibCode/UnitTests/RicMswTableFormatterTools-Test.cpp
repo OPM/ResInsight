@@ -47,7 +47,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_NoSubdivision )
     double endMD            = 200.0;
     double maxSegmentLength = 0.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{};
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
     auto   expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 200.0 } };
 
     expectPairsEqual( result, expectedSegments );
@@ -62,7 +62,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_NegativeMaxSegmentLengt
     double endMD            = 200.0;
     double maxSegmentLength = -10.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{};
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
     auto   expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 200.0 } };
 
     expectPairsEqual( result, expectedSegments );
@@ -77,7 +77,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_EvenSubdivision )
     double endMD            = 200.0;
     double maxSegmentLength = 50.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{};
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // ceil(100/50) = ceil(2.0) = 2 segments of 50 units each
     auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 150.0 }, { 150.0, 200.0 } };
@@ -94,7 +94,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_UnevenSubdivision )
     double endMD            = 270.0;
     double maxSegmentLength = 50.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{};
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // ceil(170 / 50) = ceil(3.4) = 4 segments
     // Each segment should be 170/4 = 42.5 units
@@ -112,7 +112,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MaxSegmentLargerThanInt
     double endMD            = 150.0;
     double maxSegmentLength = 200.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{};
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
     auto   expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 150.0 } };
 
     expectPairsEqual( result, expectedSegments );
@@ -127,7 +127,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_CustomIntervalExactMatc
     double endMD            = 200.0;
     double maxSegmentLength = 50.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 100.0, 200.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
     auto   expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 200.0 } };
 
     expectPairsEqual( result, expectedSegments );
@@ -142,7 +142,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_CustomIntervalInside )
     double endMD            = 200.0;
     double maxSegmentLength = 30.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 130.0, 170.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // Expected: [100-130] subdivided, [130-170] custom interval, [170-200] subdivided
     // [100-130] = 30 units: ceil(30/30) = 1 segment
@@ -162,7 +162,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MultipleCustomIntervals
     double endMD            = 300.0;
     double maxSegmentLength = 40.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 120.0, 140.0 }, { 180.0, 200.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // Expected:
     // [100-120] = 20 units: ceil(20/40) = 1 segment
@@ -192,7 +192,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_CustomIntervalOverlapBe
     double endMD            = 200.0;
     double maxSegmentLength = 30.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 80.0, 130.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // Custom interval [80-130] clipped to [100-130]
     // [100-130] = custom interval (clipped)
@@ -216,7 +216,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_CustomIntervalOverlapAf
     double endMD            = 200.0;
     double maxSegmentLength = 30.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 170.0, 230.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // [100-170] = 70 units: trunc(70/30) + 1 = 3 segments of 23.333... units each
     // Custom interval [170-230] clipped to [170-200]
@@ -239,7 +239,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_CustomIntervalOutsideBe
     double endMD            = 200.0;
     double maxSegmentLength = 50.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 50.0, 80.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // Custom interval doesn't overlap, so standard subdivision applies
     // ceil(100/50) = 2 segments
@@ -257,7 +257,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_CustomIntervalOutsideAf
     double endMD            = 200.0;
     double maxSegmentLength = 50.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 250.0, 300.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // Custom interval doesn't overlap, so standard subdivision applies
     // ceil(100/50) = 2 segments
@@ -275,7 +275,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_CustomIntervalEngulfsSe
     double endMD            = 200.0;
     double maxSegmentLength = 30.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 50.0, 250.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // Custom interval [50-250] clipped to [100-200], which matches the entire segment
     auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 200.0 } };
@@ -292,7 +292,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_ZeroLengthSegment )
     double endMD            = 100.0;
     double maxSegmentLength = 50.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{};
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // ceil(0/50) = 0, so no segments created
     auto expectedSegments = std::vector<std::pair<double, double>>{};
@@ -309,7 +309,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_ManySubdivisions )
     double endMD            = 110.0;
     double maxSegmentLength = 2.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{};
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // ceil(10 / 2) = ceil(5.0) = 5 segments of 2.0 units each
     auto expectedSegments = std::vector<std::pair<double, double>>{
@@ -332,7 +332,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_AdjacentCustomIntervals
     double endMD            = 300.0;
     double maxSegmentLength = 40.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 140.0, 180.0 }, { 180.0, 220.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // [100-140] = 40 units: ceil(40/40) = 1 segment
     // [140-180] = custom interval
@@ -358,7 +358,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_ZeroLengthCustomInterva
     double endMD            = 200.0;
     double maxSegmentLength = 50.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 150.0, 150.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // Zero-length custom interval should be ignored (clippedStart < clippedEnd check fails)
     // ceil(100/50) = 2 segments
@@ -376,7 +376,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_CustomIntervalsNoMaxLen
     double endMD            = 200.0;
     double maxSegmentLength = 0.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 130.0, 170.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // With maxSegmentLength = 0 but customIntervals specified, custom intervals should be honored
     // Gaps not covered by custom intervals are used as-is (no subdivision)
@@ -397,7 +397,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_OverlappingCustomInterv
     double endMD            = 200.0;
     double maxSegmentLength = 30.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 120.0, 160.0 }, { 140.0, 180.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // Boundaries: 100, 120, 140, 160, 180, 200
     // Gaps to check: [100-120], [120-140], [140-160], [160-180], [180-200]
@@ -429,7 +429,7 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_TinyCustomInterval )
     double endMD            = 200.0;
     double maxSegmentLength = 40.0;
     auto   customIntervals  = std::vector<std::pair<double, double>>{ { 149.0, 151.0 } };
-    auto   result           = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customIntervals );
+    auto   result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customIntervals );
 
     // [100-149] = 49 units: trunc(49/40) + 1 = 2 segments of 24.5 units each
     // [149-151] = custom interval
@@ -443,4 +443,193 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_TinyCustomInterval )
     };
 
     expectPairsEqual( result, expectedSegments, 1e-6 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength prevents segments smaller than minimum
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_PreventsTooSmallSegments )
+{
+    double startMD          = 100.0;
+    double endMD            = 200.0;
+    double minSegmentLength = 30.0;
+    double maxSegmentLength = 50.0;
+    auto   customIntervals  = std::vector<std::pair<double, double>>{};
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // Without minSegmentLength: ceil(100/50) = 2 segments of 50 units each
+    // With minSegmentLength=30: segments would be 50 units each, which is >= 30, so stays the same
+    auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 150.0 }, { 150.0, 200.0 } };
+
+    expectPairsEqual( result, expectedSegments );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength reduces segment count when subdivisions would be too small
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_ReducesSegmentCount )
+{
+    double startMD          = 100.0;
+    double endMD            = 250.0;
+    double minSegmentLength = 40.0;
+    double maxSegmentLength = 50.0;
+    auto   customIntervals  = std::vector<std::pair<double, double>>{};
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // Without minSegmentLength: ceil(150/50) = 3 segments of 50 units each
+    // With minSegmentLength=40: segments would be 50 units each, which is >= 40, so stays as 3 segments
+    auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 150.0 }, { 150.0, 200.0 }, { 200.0, 250.0 } };
+
+    expectPairsEqual( result, expectedSegments );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength with uneven division
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_UnevenDivision )
+{
+    double startMD          = 100.0;
+    double endMD            = 220.0;
+    double minSegmentLength = 30.0;
+    double maxSegmentLength = 35.0;
+    auto   customIntervals  = std::vector<std::pair<double, double>>{};
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // Without minSegmentLength: ceil(120/35) = ceil(3.43) = 4 segments of 30 units each
+    // With minSegmentLength=30: segments would be 30 units each, which is exactly 30, so stays as 4 segments
+    auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 130.0 }, { 130.0, 160.0 }, { 160.0, 190.0 }, { 190.0, 220.0 } };
+
+    expectPairsEqual( result, expectedSegments );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength forces fewer, larger segments
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_ForcesFewerSegments )
+{
+    double startMD          = 100.0;
+    double endMD            = 180.0;
+    double minSegmentLength = 35.0;
+    double maxSegmentLength = 45.0;
+    auto   customIntervals  = std::vector<std::pair<double, double>>{};
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // Without minSegmentLength: ceil(80/45) = 2 segments of 40 units each
+    // With minSegmentLength=35: segments would be 40 units each, which is >= 35, so stays as 2 segments
+    auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 140.0 }, { 140.0, 180.0 } };
+
+    expectPairsEqual( result, expectedSegments );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength with custom intervals - gaps between custom intervals respect minSegmentLength
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_WithCustomIntervals )
+{
+    double startMD          = 100.0;
+    double endMD            = 300.0;
+    double minSegmentLength = 35.0;
+    double maxSegmentLength = 40.0;
+    auto   customIntervals  = std::vector<std::pair<double, double>>{ { 140.0, 160.0 }, { 200.0, 220.0 } };
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // [100-140] = 40 units: ceil(40/40) = 1 segment >= 35
+    // [140-160] = custom interval (20 units - OK to be smaller than minSegmentLength)
+    // [160-200] = 40 units: ceil(40/40) = 1 segment >= 35
+    // [200-220] = custom interval (20 units - OK to be smaller than minSegmentLength)
+    // [220-300] = 80 units: ceil(80/40) = 2 segments of 40 units each >= 35
+    auto expectedSegments = std::vector<std::pair<double, double>>{
+        { 100.0, 140.0 },
+        { 140.0, 160.0 },
+        { 160.0, 200.0 },
+        { 200.0, 220.0 },
+        { 220.0, 260.0 },
+        { 260.0, 300.0 },
+    };
+
+    expectPairsEqual( result, expectedSegments );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength allows custom intervals to be smaller
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_AllowsSmallCustomIntervals )
+{
+    double startMD          = 100.0;
+    double endMD            = 300.0;
+    double minSegmentLength = 50.0;
+    double maxSegmentLength = 60.0;
+    auto   customIntervals  = std::vector<std::pair<double, double>>{ { 145.0, 155.0 } };
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // [100-145] = 45 units: would be 1 segment of 45 units, but that's < 50, so no subdivision
+    //             floor(45/50) = 0, so 1 segment of 45 units
+    // [145-155] = custom interval (10 units - OK to be smaller than minSegmentLength)
+    // [155-300] = 145 units: ceil(145/60) = 3 segments of 48.33 units each
+    //             but 48.33 < 50, so floor(145/50) = 2 segments of 72.5 units each
+    auto expectedSegments = std::vector<std::pair<double, double>>{
+        { 100.0, 145.0 },
+        { 145.0, 155.0 },
+        { 155.0, 227.5 },
+        { 227.5, 300.0 },
+    };
+
+    expectPairsEqual( result, expectedSegments );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength with very small gap that becomes one segment
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_SmallGapBecomesOneSegment )
+{
+    double startMD          = 100.0;
+    double endMD            = 155.0;
+    double minSegmentLength = 30.0;
+    double maxSegmentLength = 40.0;
+    auto   customIntervals  = std::vector<std::pair<double, double>>{};
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // Without minSegmentLength: ceil(55/40) = 2 segments of 27.5 units each
+    // With minSegmentLength=30: floor(55/30) = 1 segment of 55 units (since 27.5 < 30)
+    auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 155.0 } };
+
+    expectPairsEqual( result, expectedSegments );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength = 0 (ignored)
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_Zero )
+{
+    double startMD          = 100.0;
+    double endMD            = 200.0;
+    double minSegmentLength = 0.0;
+    double maxSegmentLength = 50.0;
+    auto   customIntervals  = std::vector<std::pair<double, double>>{};
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // minSegmentLength = 0 is ignored, so normal behavior
+    // ceil(100/50) = 2 segments
+    auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 150.0 }, { 150.0, 200.0 } };
+
+    expectPairsEqual( result, expectedSegments );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength with no maxSegmentLength and no custom intervals
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_NoMaxLengthNoCustomIntervals )
+{
+    double startMD          = 100.0;
+    double endMD            = 200.0;
+    double minSegmentLength = 30.0;
+    double maxSegmentLength = 0.0; // No max segment length
+    auto   customIntervals  = std::vector<std::pair<double, double>>{};
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // When maxSegmentLength = 0, the function creates 1 segment regardless of minSegmentLength
+    // This is because maxSegmentLength <= 0 triggers the "no subdivision" path
+    auto expectedSegments = std::vector<std::pair<double, double>>{ { 100.0, 200.0 } };
+
+    expectPairsEqual( result, expectedSegments );
 }

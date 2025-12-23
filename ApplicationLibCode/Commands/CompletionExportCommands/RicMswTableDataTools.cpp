@@ -185,7 +185,7 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&              
     double endMD   = segment->endMD();
 
     std::vector<std::pair<double, double>> segments =
-        RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
+        RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customSegmentIntervals );
 
     CVF_ASSERT( branch->wellPath() );
 
@@ -314,7 +314,8 @@ void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&         
         endMD   = subSegment->endMD();
     }
 
-    auto splitSegments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
+    auto splitSegments =
+        RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customSegmentIntervals );
 
     int        outletSegmentNumber = outletSegment ? outletSegment->segmentNumber() : 1;
     const auto linerDiameter       = valve->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
@@ -437,7 +438,8 @@ void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&   
         double startTVD = segment->startTVD();
         double endTVD   = segment->endTVD();
 
-        auto splitSegments = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
+        auto splitSegments =
+            RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength, customSegmentIntervals );
         for ( const auto& [subStartMD, subEndMD] : splitSegments )
         {
             int subSegmentNumber = ( *segmentNumber )++;
