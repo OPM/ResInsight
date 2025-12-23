@@ -125,6 +125,7 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
     // Use the new collection functions to populate the table data
     RicMswTableDataTools::collectWelsegsData( tableData,
                                               exportInfo,
+                                              mswParameters->minSegmentLength(),
                                               mswParameters->maxSegmentLength(),
                                               customSegmentIntervals,
                                               exportCompletionsAfterMainBoreSegments );

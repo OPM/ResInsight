@@ -67,15 +67,16 @@ public:
 
     RimMswCompletionParameters& operator=( const RimMswCompletionParameters& rhs );
 
-    ReferenceMDType    referenceMDType() const;
-    double             manualReferenceMD() const;
-    double             linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    double             linerDiameter() const;
-    double             roughnessFactor() const;
-    double             roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    PressureDropEnum   pressureDrop() const;
-    LengthAndDepthEnum lengthAndDepth() const;
-    double             maxSegmentLength() const;
+    ReferenceMDType       referenceMDType() const;
+    double                manualReferenceMD() const;
+    double                linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double                linerDiameter() const;
+    double                roughnessFactor() const;
+    double                roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    PressureDropEnum      pressureDrop() const;
+    LengthAndDepthEnum    lengthAndDepth() const;
+    std::optional<double> minSegmentLength() const;
+    std::optional<double> maxSegmentLength() const;
 
     void setReferenceMDType( ReferenceMDType refType );
     void setManualReferenceMD( double manualRefMD );
@@ -131,6 +132,9 @@ private:
 
     caf::PdmField<bool>   m_enforceMaxSegmentLength;
     caf::PdmField<double> m_maxSegmentLength;
+
+    caf::PdmField<std::optional<double>> m_minimumSegmentLength;
+    caf::PdmField<std::optional<double>> m_maximumSegmentLength;
 
     caf::PdmChildField<RimCustomSegmentIntervalCollection*> m_customSegmentIntervals;
 };

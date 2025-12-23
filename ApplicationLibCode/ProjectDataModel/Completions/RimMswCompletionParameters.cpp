@@ -116,6 +116,9 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
     m_maxSegmentLength.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_minimumSegmentLength, "MinimumSegmentLength", "Minimum Segment Length" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_maximumSegmentLength, "MaximumSegmentLength", "Maximum Segment Length" );
+
     CAF_PDM_InitFieldNoDefault( &m_customSegmentIntervals, "CustomSegmentIntervals", "Custom Segment Intervals" );
     m_customSegmentIntervals = new RimCustomSegmentIntervalCollection();
     m_customSegmentIntervals->intervalsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -335,9 +338,17 @@ RimMswCompletionParameters::LengthAndDepthEnum RimMswCompletionParameters::lengt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimMswCompletionParameters::maxSegmentLength() const
+std::optional<double> RimMswCompletionParameters::minSegmentLength() const
 {
-    return m_enforceMaxSegmentLength ? m_maxSegmentLength : std::numeric_limits<double>::infinity();
+    return m_minimumSegmentLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimMswCompletionParameters::maxSegmentLength() const
+{
+    return m_maximumSegmentLength;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -499,8 +510,8 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
 
             // Custom Segment Configuration section
             auto* segmentConfigGroup = uiOrdering.addNewGroup( "Custom Segment Configuration" );
-            segmentConfigGroup->add( &m_enforceMaxSegmentLength );
-            segmentConfigGroup->add( &m_maxSegmentLength );
+            segmentConfigGroup->add( &m_minimumSegmentLength );
+            segmentConfigGroup->add( &m_maximumSegmentLength );
             segmentConfigGroup->add( &m_customSegmentIntervals->intervalsField() );
         }
         else
