@@ -122,6 +122,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRmsWellPathReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaAngleUtils-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafVecIjk-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicMswTableFormatterTools-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

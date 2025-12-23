@@ -925,7 +925,7 @@ std::vector<std::pair<double, double>>
     // If no custom intervals, use original logic with maxSegmentLength subdivision
     if ( customSegmentIntervals.empty() || maxSegmentLength <= 0.0 )
     {
-        int    subSegmentCount  = maxSegmentLength > 0.0 ? (int)( std::trunc( ( endMD - startMD ) / maxSegmentLength ) + 1 ) : 1;
+        int    subSegmentCount  = maxSegmentLength > 0.0 ? static_cast<int>( std::ceil( ( endMD - startMD ) / maxSegmentLength ) ) : 1;
         double subSegmentLength = ( endMD - startMD ) / subSegmentCount;
 
         double subStartMD = startMD;
@@ -995,7 +995,7 @@ std::vector<std::pair<double, double>>
         if ( !coveredByCustomInterval && maxSegmentLength > 0.0 )
         {
             double gapLength = gapEnd - gapStart;
-            int    subCount  = (int)( std::trunc( gapLength / maxSegmentLength ) + 1 );
+            int    subCount  = static_cast<int>( std::ceil( gapLength / maxSegmentLength ) );
             double subLength = gapLength / subCount;
 
             double subStart = gapStart;
