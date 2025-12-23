@@ -610,7 +610,8 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
     double startMD = segment->startMD();
     double endMD   = segment->endMD();
 
-    std::vector<std::pair<double, double>> segments = createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength );
+    std::vector<std::pair<double, double>> segments =
+        createSubSegmentMDPairs( startMD, endMD, std::nullopt, std::optional<double>( maxSegmentLength ) );
 
     CVF_ASSERT( branch->wellPath() );
 
@@ -731,7 +732,8 @@ void RicMswTableFormatterTools::writeValveWelsegsSegment( const RicMswSegment*  
         subSegment->setOutputTVD( midPointTVD );
     }
 
-    std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength );
+    std::vector<std::pair<double, double>> splitSegments =
+        createSubSegmentMDPairs( startMD, endMD, std::nullopt, std::optional<double>( maxSegmentLength ) );
 
     const auto linerDiameter   = valve->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
     const auto roughnessFactor = valve->wellPath()->mswCompletionParameters()->roughnessFactor( exportInfo.unitSystem() );
@@ -803,7 +805,8 @@ void RicMswTableFormatterTools::writeCompletionWelsegsSegments( gsl::not_null<co
         double startTVD = segment->startTVD();
         double endTVD   = segment->endTVD();
 
-        std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, std::nullopt, maxSegmentLength );
+        std::vector<std::pair<double, double>> splitSegments =
+            createSubSegmentMDPairs( startMD, endMD, std::nullopt, std::optional<double>( maxSegmentLength ) );
 
         for ( const auto& [subStartMD, subEndMD] : splitSegments )
         {
@@ -918,21 +921,23 @@ std::vector<std::pair<double, double>>
     RicMswTableFormatterTools::createSubSegmentMDPairs( double                                        startMD,
                                                         double                                        endMD,
                                                         std::optional<double>                         minSegmentLength,
-                                                        double                                        maxSegmentLength,
+                                                        std::optional<double>                         maxSegmentLength,
                                                         const std::vector<std::pair<double, double>>& customSegmentIntervals )
 {
-    // Validate minSegmentLength < maxSegmentLength when both are specified and maxSegmentLength is active
-    if ( minSegmentLength.has_value() && minSegmentLength.value() > 0.0 && maxSegmentLength > 0.0 )
+    // Validate minSegmentLength < maxSegmentLength when both are specified
+    if ( minSegmentLength.has_value() && minSegmentLength.value() > 0.0 && maxSegmentLength.has_value() && maxSegmentLength.value() > 0.0 )
     {
-        CVF_ASSERT( minSegmentLength.value() < maxSegmentLength );
+        CVF_ASSERT( minSegmentLength.value() < maxSegmentLength.value() );
     }
 
     std::vector<std::pair<double, double>> subSegmentMDPairs;
 
-    // If no custom intervals, use original logic with maxSegmentLength subdivision
-    if ( customSegmentIntervals.empty() || maxSegmentLength <= 0.0 )
+    // If no custom intervals, use simple subdivision logic
+    if ( customSegmentIntervals.empty() )
     {
-        int    subSegmentCount  = maxSegmentLength > 0.0 ? static_cast<int>( std::ceil( ( endMD - startMD ) / maxSegmentLength ) ) : 1;
+        int    subSegmentCount  = ( maxSegmentLength.has_value() && maxSegmentLength.value() > 0.0 )
+                                      ? static_cast<int>( std::ceil( ( endMD - startMD ) / maxSegmentLength.value() ) )
+                                      : 1;
         double subSegmentLength = ( endMD - startMD ) / subSegmentCount;
 
         // If minSegmentLength is specified and segments would be too small, reduce segment count
@@ -1007,10 +1012,10 @@ std::vector<std::pair<double, double>>
         }
 
         // If not covered by custom interval, subdivide using maxSegmentLength
-        if ( !coveredByCustomInterval && maxSegmentLength > 0.0 )
+        if ( !coveredByCustomInterval && maxSegmentLength.has_value() && maxSegmentLength.value() > 0.0 )
         {
             double gapLength = gapEnd - gapStart;
-            int    subCount  = static_cast<int>( std::ceil( gapLength / maxSegmentLength ) );
+            int    subCount  = static_cast<int>( std::ceil( gapLength / maxSegmentLength.value() ) );
             double subLength = gapLength / subCount;
 
             // If minSegmentLength is specified and segments would be too small, reduce segment count

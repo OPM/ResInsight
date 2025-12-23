@@ -125,7 +125,7 @@ void generateWsegAicdTable( RifTextDataTableFormatter& formatter, RicMswExportIn
 std::vector<std::pair<double, double>> createSubSegmentMDPairs( double                                        startMD,
                                                                 double                                        endMD,
                                                                 std::optional<double>                         minSegmentLength,
-                                                                double                                        maxSegmentLength,
+                                                                std::optional<double>                         maxSegmentLength,
                                                                 const std::vector<std::pair<double, double>>& customSegmentIntervals = {} );
 
 double tvdFromMeasuredDepth( gsl::not_null<const RimWellPath*> wellPath, double measuredDepth );
