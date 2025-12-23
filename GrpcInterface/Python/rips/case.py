@@ -1435,3 +1435,56 @@ def export_corner_point_grid(
         return (zcorn, coord, actnum, nx, ny, nz)
     else:
         return ([], [], [], 0, 0, 0)
+
+
+@add_method(Case)
+def replace_corner_point_grid(
+    self,
+    nx: int,
+    ny: int,
+    nz: int,
+    coord: List[float],
+    zcorn: List[float],
+    actnum: List[int],
+):
+    """Replace the current case grid with new corner point grid geometry
+
+    This method modifies the geometry of an existing case by replacing it with
+    new grid parameters. All existing properties will be cleared.
+
+    Arguments:
+        nx(int): Number of cells in x direction
+        ny(int): Number of cells in y direction
+        nz(int): Number of cells in z direction
+        coord(list[float]): Coordinate lines as COORD keyword in Eclipse.
+          Each coordinate line is defined by two points (top and bottom).
+          Size: (nx+1) * (ny+1) * 2 * 3. Points are ordered as in Eclipse.
+        zcorn(list[float]): Corner depths as defined by the Eclipse keyword ZCORN.
+          Size: nx * ny * nz * 8
+        actnum(list[int]): Active cell info: cells with values > 0 are active.
+          Size: nx * ny * nz
+    """
+    # Generate unique keys for three arrays
+    coord_key = "{}_{}".format(uuid.uuid4(), "coord")
+    zcorn_key = "{}_{}".format(uuid.uuid4(), "zcorn")
+    actnum_key = "{}_{}".format(uuid.uuid4(), "actnum")
+
+    # Get project to access key-value store
+    project = self.ancestor(rips.project.Project)
+    if not project:
+        raise RuntimeError("Unable to get project from case")
+
+    # Store arrays in key-value store
+    project.set_key_values(coord_key, coord)
+    project.set_key_values(zcorn_key, zcorn)
+    project.set_key_values(actnum_key, actnum)
+
+    # Call internal C++ method to replace the grid
+    self.replace_corner_point_grid_internal(
+        nx=nx,
+        ny=ny,
+        nz=nz,
+        coord_key=coord_key,
+        zcorn_key=zcorn_key,
+        actnum_key=actnum_key,
+    )

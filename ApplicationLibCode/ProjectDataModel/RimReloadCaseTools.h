@@ -40,10 +40,10 @@ public:
     static RimEclipseCase* gridModelFromSummaryCase( const RimSummaryCase* summaryCase );
     static RimSummaryCase* findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclResCase );
     static bool            openOrImportGridModelFromSummaryCase( const RimSummaryCase* summaryCase );
+    static void            clearAllGridData( RigEclipseCaseData* eclipseCaseData );
 
 private:
     static void reloadEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData );
-    static void clearAllGridData( RigEclipseCaseData* eclipseCaseData );
     static void updateAllPlots();
 
     static bool findGridModelAndActivateFirstView( const RimSummaryCase* summaryCase );

@@ -29,6 +29,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RimReloadCaseTools.h"
 
 #include "RimEclipseInputProperty.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -106,6 +107,40 @@ std::expected<RimCornerPointCase*, QString> RimCornerPointCase::createFromCoordi
     cornerPointCase->computeCachedData();
 
     return cornerPointCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RimCornerPointCase::replaceGridFromCoordinatesArray( RimCornerPointCase&       cornerPointCase,
+                                                                                  const int                 nx,
+                                                                                  const int                 ny,
+                                                                                  const int                 nz,
+                                                                                  const std::vector<float>& coord,
+                                                                                  const std::vector<float>& zcorn,
+                                                                                  const std::vector<float>& actnum )
+{
+    RigActiveCellInfo* activeCellInfo = cornerPointCase.eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    CVF_ASSERT( activeCellInfo );
+    activeCellInfo->clear();
+
+    RigActiveCellInfo* fractureActiveCellInfo =
+        cornerPointCase.eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    CVF_ASSERT( fractureActiveCellInfo );
+    fractureActiveCellInfo->clear();
+
+    RimReloadCaseTools::clearAllGridData( cornerPointCase.eclipseCaseData() );
+
+    // Clear the existing grid geometry before building the new grid
+    RigMainGrid* mainGrid = cornerPointCase.eclipseCaseData()->mainGrid();
+    CVF_ASSERT( mainGrid );
+    mainGrid->reservoirCells().clear();
+    mainGrid->nodes().clear();
+
+    buildGrid( *cornerPointCase.eclipseCaseData(), nx, ny, nz, coord, zcorn, actnum );
+    cornerPointCase.computeCachedData();
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

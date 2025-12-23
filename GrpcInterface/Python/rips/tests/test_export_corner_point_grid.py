@@ -172,3 +172,119 @@ def test_export_corner_point_grid_roundtrip(rips_instance, initialize_test):
 
             max_diff = max(diff_x, diff_y, diff_z)
             assert max_diff < 1e-3
+
+
+def test_replace_corner_point_grid_basic(rips_instance, initialize_test):
+    """Test the replace_corner_point_grid method by creating a grid and replacing it with a larger one"""
+
+    # Create initial grid with 2x2x2 cells
+    nx_init, ny_init, nz_init = 2, 2, 2
+
+    # Generate simple coordinate data for initial grid
+    coord_init = []
+    for j in range(ny_init + 1):
+        for i in range(nx_init + 1):
+            x = i * 100.0
+            y = j * 100.0
+            # Top point
+            coord_init.extend([x, y, 1000.0])
+            # Bottom point
+            coord_init.extend([x, y, 1100.0])
+
+    # Generate simple ZCORN data for initial grid
+    zcorn_init = []
+    for k in range(nz_init):
+        for j in range(ny_init):
+            for i in range(nx_init):
+                base_depth = 1000.0 + k * 100.0
+                # 8 corner depths for each cell
+                zcorn_init.extend(
+                    [
+                        base_depth,
+                        base_depth,
+                        base_depth,
+                        base_depth,
+                        base_depth + 100.0,
+                        base_depth + 100.0,
+                        base_depth + 100.0,
+                        base_depth + 100.0,
+                    ]
+                )
+
+    # Generate ACTNUM for initial grid (all cells active)
+    actnum_init = [1] * (nx_init * ny_init * nz_init)
+
+    # Create the initial grid case
+    case = rips_instance.project.create_corner_point_grid(
+        "InitialGrid", nx_init, ny_init, nz_init, coord_init, zcorn_init, actnum_init
+    )
+
+    # Verify initial grid dimensions
+    initial_cell_count = case.cell_count()
+    assert initial_cell_count.reservoir_cell_count == nx_init * ny_init * nz_init
+
+    # Now create replacement grid with more cells (3x3x3)
+    nx_new, ny_new, nz_new = 3, 3, 3
+
+    # Generate coordinate data for new grid
+    coord_new = []
+    for j in range(ny_new + 1):
+        for i in range(nx_new + 1):
+            x = i * 100.0
+            y = j * 100.0
+            # Top point
+            coord_new.extend([x, y, 1000.0])
+            # Bottom point
+            coord_new.extend([x, y, 1200.0])
+
+    # Generate ZCORN data for new grid
+    zcorn_new = []
+    for k in range(nz_new):
+        for j in range(ny_new):
+            for i in range(nx_new):
+                base_depth = 1000.0 + k * 100.0
+                # 8 corner depths for each cell
+                zcorn_new.extend(
+                    [
+                        base_depth,
+                        base_depth,
+                        base_depth,
+                        base_depth,
+                        base_depth + 100.0,
+                        base_depth + 100.0,
+                        base_depth + 100.0,
+                        base_depth + 100.0,
+                    ]
+                )
+
+    # Generate ACTNUM for new grid (all cells active)
+    actnum_new = [1] * (nx_new * ny_new * nz_new)
+
+    # Replace the grid geometry
+    case.replace_corner_point_grid(
+        nx_new, ny_new, nz_new, coord_new, zcorn_new, actnum_new
+    )
+
+    # Verify that the grid now has the new dimensions
+    new_cell_count = case.cell_count()
+    assert new_cell_count.reservoir_cell_count == nx_new * ny_new * nz_new
+    assert new_cell_count.reservoir_cell_count == 27  # 3x3x3
+
+    # Verify the grid has more cells than before
+    assert new_cell_count.reservoir_cell_count > initial_cell_count.reservoir_cell_count
+
+    # Export the replaced grid and verify dimensions
+    exported_zcorn, exported_coord, exported_actnum, export_nx, export_ny, export_nz = (
+        case.export_corner_point_grid()
+    )
+
+    # Verify dimensions match
+    assert export_nx == nx_new
+    assert export_ny == ny_new
+    assert export_nz == nz_new
+
+    # Verify array sizes
+    print(exported_actnum)
+    assert len(exported_actnum) == nx_new * ny_new * nz_new
+    # All cells should be active
+    assert sum(1 for x in exported_actnum if x > 0) == len(actnum_new)

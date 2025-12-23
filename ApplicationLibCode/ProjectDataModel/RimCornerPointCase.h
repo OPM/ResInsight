@@ -50,6 +50,14 @@ public:
                                                                                    const std::vector<float>& zcorn,
                                                                                    const std::vector<float>& actnum );
 
+    static std::expected<void, QString> replaceGridFromCoordinatesArray( RimCornerPointCase&       cornerPointCase,
+                                                                         const int                 nx,
+                                                                         const int                 ny,
+                                                                         const int                 nz,
+                                                                         const std::vector<float>& coord,
+                                                                         const std::vector<float>& zcorn,
+                                                                         const std::vector<float>& actnum );
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
