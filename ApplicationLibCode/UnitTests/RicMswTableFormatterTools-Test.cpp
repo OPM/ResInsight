@@ -633,3 +633,31 @@ TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_NoMaxL
 
     expectPairsEqual( result, expectedSegments );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Test minSegmentLength with custom intervals but no maxSegmentLength
+/// Gaps between custom intervals should respect minSegmentLength even without maxSegmentLength
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswTableFormatterTools, createSubSegmentMDPairs_MinSegmentLength_CustomIntervalsNoMaxLength )
+{
+    double startMD          = 100.0;
+    double endMD            = 300.0;
+    double minSegmentLength = 40.0;
+    double maxSegmentLength = 0.0; // No max segment length
+    auto   customIntervals  = std::vector<std::pair<double, double>>{ { 150.0, 170.0 } };
+    auto result = RicMswTableFormatterTools::createSubSegmentMDPairs( startMD, endMD, minSegmentLength, maxSegmentLength, customIntervals );
+
+    // [100-150] = 50 units gap: should become 1 segment (since 50 >= 40)
+    // [150-170] = custom interval (stays as-is)
+    // [170-300] = 130 units gap: should subdivide to respect minSegmentLength
+    //   floor(130/40) = 3 segments of 130/3 = 43.33 units each (all >= 40)
+    auto expectedSegments = std::vector<std::pair<double, double>>{
+        { 100.0, 150.0 },           // Gap before custom interval
+        { 150.0, 170.0 },           // Custom interval
+        { 170.0, 213.333333333 },   // First segment of subdivided gap
+        { 213.333333333, 256.666666667 }, // Second segment
+        { 256.666666667, 300.0 }    // Third segment
+    };
+
+    expectPairsEqual( result, expectedSegments );
+}

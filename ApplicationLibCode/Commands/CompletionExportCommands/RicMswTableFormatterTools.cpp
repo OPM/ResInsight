@@ -1011,11 +1011,27 @@ std::vector<std::pair<double, double>>
             }
         }
 
-        // If not covered by custom interval, subdivide using maxSegmentLength
-        if ( !coveredByCustomInterval && maxSegmentLength.has_value() && maxSegmentLength.value() > 0.0 )
+        // If not covered by custom interval, subdivide the gap
+        if ( !coveredByCustomInterval )
         {
             double gapLength = gapEnd - gapStart;
-            int    subCount  = static_cast<int>( std::ceil( gapLength / maxSegmentLength.value() ) );
+            int    subCount  = 1;
+
+            // If maxSegmentLength is specified, subdivide based on it
+            if ( maxSegmentLength.has_value() && maxSegmentLength.value() > 0.0 )
+            {
+                subCount = static_cast<int>( std::ceil( gapLength / maxSegmentLength.value() ) );
+            }
+            // If only minSegmentLength is specified (no maxSegmentLength), use it as a guide to subdivide
+            // We want segments to be at least minSegmentLength, but also not too large
+            // Use a heuristic: subdivide if gap is significantly larger than minSegmentLength
+            // else if ( minSegmentLength.has_value() && minSegmentLength.value() > 0.0 && gapLength > minSegmentLength.value() )
+            // {
+            //     // Subdivide so each segment is approximately minSegmentLength (but not smaller)
+            //     subCount = static_cast<int>( std::floor( gapLength / minSegmentLength.value() ) );
+            //     if ( subCount < 1 ) subCount = 1;
+            // }
+
             double subLength = gapLength / subCount;
 
             // If minSegmentLength is specified and segments would be too small, reduce segment count
@@ -1033,11 +1049,6 @@ std::vector<std::pair<double, double>>
                 subSegmentMDPairs.push_back( std::make_pair( subStart, subEnd ) );
                 subStart = subEnd;
             }
-        }
-        else if ( !coveredByCustomInterval )
-        {
-            // No maxSegmentLength, use gap as-is
-            subSegmentMDPairs.push_back( std::make_pair( gapStart, gapEnd ) );
         }
     }
 
