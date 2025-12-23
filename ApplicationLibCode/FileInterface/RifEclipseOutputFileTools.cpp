@@ -86,7 +86,7 @@ void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifEclips
 {
     if ( !eclipseCaseData ) return;
 
-    RigCaseCellResultsData* matrixModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* matrixModelResults   = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigCaseCellResultsData* fractureModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
     {

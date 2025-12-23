@@ -76,14 +76,14 @@ public:
 
     RigCaseCellResultsData*       results( RiaDefines::PorosityModelType porosityModel );
     const RigCaseCellResultsData* results( RiaDefines::PorosityModelType porosityModel ) const;
-    const std::vector<double>*                    resultValues( RiaDefines::PorosityModelType porosityModel,
-                                                                RiaDefines::ResultCatType     type,
-                                                                const QString&                resultName,
-                                                                size_t                        timeStepIndex );
+    const std::vector<double>*    resultValues( RiaDefines::PorosityModelType porosityModel,
+                                                RiaDefines::ResultCatType     type,
+                                                const QString&                resultName,
+                                                size_t                        timeStepIndex );
 
     RigActiveCellInfo*       activeCellInfo( RiaDefines::PorosityModelType porosityModel );
     const RigActiveCellInfo* activeCellInfo( RiaDefines::PorosityModelType porosityModel ) const;
-    void                     setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::shared_ptr<RigActiveCellInfo> activeCellInfo );
+    void setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, std::shared_ptr<RigActiveCellInfo> activeCellInfo );
 
     bool hasFractureResults() const;
 
@@ -136,10 +136,10 @@ private:
     const RigFormationNames* activeFormationNames() const;
 
 private:
-    std::shared_ptr<RigMainGrid>        m_mainGrid;
-    RimEclipseCase*                     m_ownerCase;
-    std::shared_ptr<RigActiveCellInfo>  m_activeCellInfo;
-    std::shared_ptr<RigActiveCellInfo>  m_fractureActiveCellInfo;
+    std::shared_ptr<RigMainGrid>       m_mainGrid;
+    RimEclipseCase*                    m_ownerCase;
+    std::shared_ptr<RigActiveCellInfo> m_activeCellInfo;
+    std::shared_ptr<RigActiveCellInfo> m_fractureActiveCellInfo;
 
     std::unique_ptr<RigCaseCellResultsData>                  m_matrixModelResults;
     std::unique_ptr<RigCaseCellResultsData>                  m_fractureModelResults;
