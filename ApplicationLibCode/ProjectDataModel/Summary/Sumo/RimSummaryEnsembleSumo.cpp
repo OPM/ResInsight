@@ -159,10 +159,11 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
 
     std::shared_ptr<arrow::io::RandomAccessFile> input = std::make_shared<RifByteArrayArrowRandomAccessFile>( contents );
 
-    std::shared_ptr<arrow::Table>               table;
-    std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
-    if ( auto openResult = parquet::arrow::OpenFile( input, pool, &arrow_reader ); openResult.ok() )
+    std::shared_ptr<arrow::Table> table;
+    auto                          openResult = parquet::arrow::OpenFile( input, pool );
+    if ( openResult.ok() )
     {
+        std::unique_ptr<parquet::arrow::FileReader> arrow_reader = std::move( openResult ).ValueOrDie();
         if ( auto readResult = arrow_reader->ReadTable( &table ); readResult.ok() )
         {
             RiaLogging::info( QString( "Parquet: Read table successfully for %1" ).arg( messageTag ) );
@@ -176,7 +177,7 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
     else
     {
         RiaLogging::warning(
-            QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.ToString() ) ) );
+            QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.status().ToString() ) ) );
     }
 
     return table;

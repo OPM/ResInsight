@@ -31,8 +31,9 @@ TEST( RifParquetReaderTest, ReadValidFile )
     std::shared_ptr<arrow::io::RandomAccessFile> input = std::move( openResult ).ValueOrDie();
 
     // Open Parquet file reader
-    std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
-    EXPECT_TRUE( parquet::arrow::OpenFile( input, pool, &arrow_reader ).ok() );
+    auto readerResult = parquet::arrow::OpenFile( input, pool );
+    EXPECT_TRUE( readerResult.ok() );
+    std::unique_ptr<parquet::arrow::FileReader> arrow_reader = std::move( readerResult ).ValueOrDie();
 
     // Read entire file as a single Arrow table
     std::shared_ptr<arrow::Table> table;
