@@ -80,7 +80,6 @@ jobs:
       BUILD_TYPE: Release
       BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
       BUILDCACHE_ACCURACY: SLOPPY
-      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
     steps:
       - name: Checkout
@@ -169,13 +168,6 @@ jobs:
         run: |
           ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
 
-      - name: Restore vcpkg cache
-        id: vcpkg-cache
-        uses: TAServers/vcpkg-cache@e5c219f91ccf7908fc284fb64f4d928715f4a154
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prefix: vcpkg-${{ matrix.config.cxx}}/
-          
       - name: Print CMake version
         shell: bash
         run: |
@@ -190,8 +182,8 @@ jobs:
       - name: Configure
         shell: bash
         env:
-          VCPKG_FEATURE_FLAGS: "binarycaching" # Possibly redundant, but explicitly sets the binary caching feature flag
-          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+          VCPKG_FEATURE_FLAGS: "binarycaching"
+          VCPKG_BINARY_SOURCES: "clear;x-azblob,https://${{ secrets.AZURE_VCPKG_STORAGE_ACCOUNT }}.blob.core.windows.net/vcpkg-binaries,${{ secrets.AZURE_VCPKG_SAS_TOKEN }},readwrite"
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
         run: >
