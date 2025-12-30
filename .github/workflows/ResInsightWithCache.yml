@@ -49,10 +49,10 @@ jobs:
               ri-unit-test-path: "ResInsight-tests",
             }
           - {
-              name: "Ubuntu 24.04 gcc",
+              name: "Ubuntu 24.04 gcc-14",
               os: ubuntu-24.04,
-              cc: "gcc",
-              cxx: "g++",
+              cc: "gcc-14",
+              cxx: "g++-14",
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: true,
@@ -154,6 +154,11 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
           sudo ./llvm.sh 19 all
+
+      - name: Install gcc-14
+        if: contains( matrix.config.cc, 'gcc-14')
+        run: |
+          sudo apt-get install --option="APT::Acquire::Retries=3" gcc-14 g++-14
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
