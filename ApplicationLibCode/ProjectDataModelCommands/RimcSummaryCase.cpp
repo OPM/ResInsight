@@ -261,7 +261,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_setSummaryVectorVal
             }
         }
 
-        fileSummaryCase->setSummaryData( m_addressString().toStdString(), m_unitString().toStdString(), m_values() );
+        auto result = fileSummaryCase->setSummaryData( m_addressString().toStdString(), m_unitString().toStdString(), m_values() );
+        if ( !result.has_value() )
+        {
+            return std::unexpected( result.error() );
+        }
 
         if ( rebuildUserInterface )
         {
