@@ -23,6 +23,7 @@
 
 #include "cafPdmField.h"
 
+#include <expected>
 #include <memory>
 
 class RifReaderRftInterface;
@@ -59,8 +60,8 @@ public:
 
     void setIncludeRestartFiles( bool includeRestartFiles );
 
-    void setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
-    void onProjectBeingSaved();
+    std::expected<void, QString> setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
+    void                         onProjectBeingSaved();
 
     static std::unique_ptr<RifSummaryReaderInterface> findRelatedFilesAndCreateReader( const QString&          headerFileName,
                                                                                        bool                    lookForRestartFiles,

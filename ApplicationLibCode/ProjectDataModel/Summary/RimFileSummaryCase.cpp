@@ -342,18 +342,32 @@ void RimFileSummaryCase::setIncludeRestartFiles( bool includeRestartFiles )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSummaryCase::setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values )
+std::expected<void, QString>
+    RimFileSummaryCase::setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values )
 {
+    // Validate keyword length (Eclipse SMSPEC format limitation)
+    constexpr size_t MAX_KEYWORD_LENGTH = 8;
+    if ( keyword.length() > MAX_KEYWORD_LENGTH )
+    {
+        QString errorMsg = QString( "Keyword '%1' exceeds the maximum length of %2 characters (SMSPEC format limitation). "
+                                    "Keyword has %3 characters. Please use a shorter keyword name." )
+                               .arg( QString::fromStdString( keyword ) )
+                               .arg( MAX_KEYWORD_LENGTH )
+                               .arg( keyword.length() );
+        RiaLogging::error( errorMsg );
+        return std::unexpected( errorMsg );
+    }
+
+    // Validate value count matches main summary file
     size_t mainSummaryFileValueCount = m_multiSummaryReader->timeSteps( RifEclipseSummaryAddress() ).size();
     if ( values.size() != mainSummaryFileValueCount )
     {
-        QString txt = QString( "Wrong size of summary data for keyword %1. Expected %2 values, received %3 values" )
-                          .arg( QString::fromStdString( keyword ) )
-                          .arg( mainSummaryFileValueCount )
-                          .arg( values.size() );
-        RiaLogging::error( txt );
-
-        return;
+        QString errorMsg = QString( "Wrong size of summary data for keyword %1. Expected %2 values, received %3 values" )
+                               .arg( QString::fromStdString( keyword ) )
+                               .arg( mainSummaryFileValueCount )
+                               .arg( values.size() );
+        RiaLogging::error( errorMsg );
+        return std::unexpected( errorMsg );
     }
 
     m_multiSummaryReader->removeReader( m_additionalSummaryReaderId );
@@ -385,14 +399,27 @@ void RimFileSummaryCase::setSummaryData( const std::string& keyword, const std::
     std::string outputFilePath = tmpAdditionalSummaryFilePath.toStdString();
     projectSummaryDataWriter.writeDataToFile( outputFilePath );
 
-    for ( const auto& txt : projectSummaryDataWriter.errorMessages() )
+    // Check for errors during write operation
+    auto errorMessages = projectSummaryDataWriter.errorMessages();
+    if ( !errorMessages.empty() )
     {
-        RiaLogging::error( QString::fromStdString( txt ) );
+        QString combinedErrors;
+        for ( const auto& txt : errorMessages )
+        {
+            QString errorMsg = QString::fromStdString( txt );
+            RiaLogging::error( errorMsg );
+            if ( !combinedErrors.isEmpty() ) combinedErrors += "; ";
+            combinedErrors += errorMsg;
+        }
+        projectSummaryDataWriter.clearErrorMessages();
+        return std::unexpected( combinedErrors );
     }
     projectSummaryDataWriter.clearErrorMessages();
 
     openAndAttachAdditionalReader();
     m_multiSummaryReader->createAndSetAddresses();
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
