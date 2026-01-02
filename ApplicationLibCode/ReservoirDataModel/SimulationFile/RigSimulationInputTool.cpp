@@ -561,6 +561,9 @@ std::expected<void, QString> RigSimulationInputTool::addFaultsToDeckFile( RimEcl
                                                                           const RigSimulationInputSettings& settings,
                                                                           RifOpmFlowDeckFile&               deckFile )
 {
+    // Remove FAULTS to handle deck where it appears more than once.
+    deckFile.removeKeywords( "FAULTS" );
+
     // Create FAULTS keyword using the factory
     Opm::DeckKeyword faultsKw =
         RimKeywordFactory::faultsKeyword( eclipseCase->mainGrid(), settings.min(), settings.max(), settings.refinement() );
