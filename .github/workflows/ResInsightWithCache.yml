@@ -184,6 +184,19 @@ jobs:
          echo "Executable path: $EXEC_PATH"
          "$EXEC_PATH" --version    
 
+      - name: Check vcpkg secrets
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.AZURE_VCPKG_STORAGE_ACCOUNT }}" ]; then
+            echo "Error: AZURE_VCPKG_STORAGE_ACCOUNT secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AZURE_VCPKG_SAS_TOKEN }}" ]; then
+            echo "Error: AZURE_VCPKG_SAS_TOKEN secret is not set"
+            exit 1
+          fi
+          echo "All required vcpkg secrets are present"
+
       - name: Configure
         shell: bash
         env:
