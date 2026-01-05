@@ -24,6 +24,7 @@
 
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -255,31 +256,36 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     std::string rawStackTrace = ss.str();
 
     // Store structured stack trace data for Application Insights parsedStack
-    std::stringstream jsonFrames;
-    jsonFrames << "[";
-    int frameIndex = 0;
+    QJsonArray jsonFrames;
+    int        frameIndex = 0;
     for ( const auto& entry : trace )
     {
-        if ( frameIndex > 0 ) jsonFrames << ",";
-
         std::string relevantPath = extractRelevantPath( entry.source_file() );
         std::string methodName   = entry.description();
-        int         lineNumber   = static_cast<int>( entry.source_line() );
 
-        jsonFrames << "{"
-                   << "\"level\":" << frameIndex << ","
-                   << "\"method\":\"" << methodName << "\","
-                   << "\"fileName\":\"" << relevantPath << "\","
-                   << "\"line\":" << lineNumber << "}";
+        // Ensure method name is never empty (Application Insights requirement)
+        if ( methodName.empty() )
+        {
+            methodName = "UnknownMethod";
+        }
+
+        int lineNumber = static_cast<int>( entry.source_line() );
+
+        QJsonObject frame;
+        frame["level"]    = frameIndex;
+        frame["method"]   = QString::fromStdString( methodName );
+        frame["fileName"] = QString::fromStdString( relevantPath );
+        frame["line"]     = lineNumber;
+
+        jsonFrames.append( frame );
         frameIndex++;
     }
-    jsonFrames << "]";
 
     std::map<std::string, std::string> attributes;
     attributes["crash.signal"]            = std::to_string( signalCode );
     attributes["crash.thread_id"]         = std::to_string( std::hash<std::thread::id>{}( std::this_thread::get_id() ) );
     attributes["crash.stack_trace"]       = rawStackTrace;
-    attributes["crash.parsed_stack_json"] = jsonFrames.str();
+    attributes["crash.parsed_stack_json"] = QString::fromUtf8( QJsonDocument( jsonFrames ).toJson( QJsonDocument::Compact ) ).toStdString();
     attributes["service.name"]            = RiaPreferencesOpenTelemetry::current()->serviceName().toStdString();
     attributes["service.version"]         = RiaPreferencesOpenTelemetry::current()->serviceVersion().toStdString();
 
