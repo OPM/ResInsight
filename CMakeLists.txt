@@ -663,16 +663,14 @@ endif()
 list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 
 # ##############################################################################
-# clipper
+# clipper2
 # ##############################################################################
 
-add_subdirectory(ThirdParty/clipper)
+find_package(Clipper2 CONFIG REQUIRED)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(clipper PUBLIC -Wno-deprecated-copy)
-endif()
-
-list(APPEND THIRD_PARTY_LIBRARIES clipper)
+# clipper2::clipper2 is an imported target, so we don't add it to
+# THIRD_PARTY_LIBRARIES which is used for setting folder properties on targets
+# we build
 
 # ##############################################################################
 # roffcpp

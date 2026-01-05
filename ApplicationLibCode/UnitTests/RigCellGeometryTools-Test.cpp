@@ -396,16 +396,30 @@ TEST( RigCellGeometryTools, polylinePolygonIntersectionTest )
             RigCellGeometryTools::clipPolylineByPolygon( polyLine, polygonExample, RigCellGeometryTools::USE_HUGEVAL );
 
         EXPECT_EQ( (size_t)2, clippedLines.size() );
-        EXPECT_EQ( (size_t)2, clippedLines.front().size() );
-        EXPECT_EQ( (size_t)3, clippedLines.back().size() );
 
-        EXPECT_EQ( 0.5, clippedLines.front()[0].x() );
-        EXPECT_EQ( 2.5, clippedLines.front()[0].y() );
-        EXPECT_EQ( HUGE_VAL, clippedLines.front()[0].z() );
+        // Find the path with 2 points and the path with 3 points (order may vary)
+        const std::vector<cvf::Vec3d>* pathWith2Points = nullptr;
+        const std::vector<cvf::Vec3d>* pathWith3Points = nullptr;
 
-        EXPECT_EQ( 0.0, clippedLines.front()[1].x() );
-        EXPECT_EQ( 2.0, clippedLines.front()[1].y() );
-        EXPECT_EQ( HUGE_VAL, clippedLines.front()[1].z() );
+        for ( const auto& path : clippedLines )
+        {
+            if ( path.size() == 2 )
+                pathWith2Points = &path;
+            else if ( path.size() == 3 )
+                pathWith3Points = &path;
+        }
+
+        ASSERT_NE( nullptr, pathWith2Points );
+        ASSERT_NE( nullptr, pathWith3Points );
+
+        // Verify the 2-point path (from segment crossing top of polygon)
+        EXPECT_EQ( 0.5, ( *pathWith2Points )[0].x() );
+        EXPECT_EQ( 2.5, ( *pathWith2Points )[0].y() );
+        EXPECT_EQ( HUGE_VAL, ( *pathWith2Points )[0].z() );
+
+        EXPECT_EQ( 0.0, ( *pathWith2Points )[1].x() );
+        EXPECT_EQ( 2.0, ( *pathWith2Points )[1].y() );
+        EXPECT_EQ( HUGE_VAL, ( *pathWith2Points )[1].z() );
     }
 }
 
@@ -561,75 +575,75 @@ TEST( RigWellPathStimplanIntersector, intersection )
 // processed by the callback if one of the edges is horizontal
 //
 
-#include "clipper/clipper.hpp"
+#include "clipper2/clipper.h"
 double clipperConversionFactor2 = 10000; // For transform to clipper int
 
-ClipperLib::IntPoint toClipperEdgePoint( const cvf::Vec3d& cvfPoint )
+Clipper2Lib::Point64 toClipperEdgePoint( const cvf::Vec3d& cvfPoint )
 {
-    ClipperLib::cInt xInt = cvfPoint.x() * clipperConversionFactor2;
-    ClipperLib::cInt yInt = cvfPoint.y() * clipperConversionFactor2;
-    ClipperLib::cInt zInt = cvfPoint.z();
-    return ClipperLib::IntPoint( xInt, yInt, zInt );
+    int64_t xInt = cvfPoint.x() * clipperConversionFactor2;
+    int64_t yInt = cvfPoint.y() * clipperConversionFactor2;
+    int64_t zInt = cvfPoint.z();
+    return Clipper2Lib::Point64( xInt, yInt, zInt );
 }
 
-cvf::Vec3d fromClipperEdgePoint( const ClipperLib::IntPoint& clipPoint )
+cvf::Vec3d fromClipperEdgePoint( const Clipper2Lib::Point64& clipPoint )
 {
     double zDValue;
 
-    if ( clipPoint.Z == std::numeric_limits<int>::max() )
+    if ( clipPoint.z == std::numeric_limits<int>::max() )
     {
         zDValue = HUGE_VAL;
     }
     else
     {
-        zDValue = clipPoint.Z;
+        zDValue = clipPoint.z;
     }
 
-    return cvf::Vec3d( clipPoint.X / clipperConversionFactor2, clipPoint.Y / clipperConversionFactor2, zDValue );
+    return cvf::Vec3d( clipPoint.x / clipperConversionFactor2, clipPoint.y / clipperConversionFactor2, zDValue );
 }
 
-void swapPointsIfNeedeed( ClipperLib::IntPoint*& p1, ClipperLib::IntPoint*& p2 )
+void swapPointsIfNeedeed( const Clipper2Lib::Point64*& p1, const Clipper2Lib::Point64*& p2 )
 {
-    if ( p1->Z > p2->Z )
+    if ( p1->z > p2->z )
     {
         std::swap( p1, p2 );
     }
 
-    if ( ( p2->Z - p1->Z ) > 1 ) // End edge of polygon
+    if ( ( p2->z - p1->z ) > 1 ) // End edge of polygon
     {
         std::swap( p1, p2 ); // Swap back
     }
 }
 
-void clipperEdgeIntersectCallback( ClipperLib::IntPoint& e1bot,
-                                   ClipperLib::IntPoint& e1top,
-                                   ClipperLib::IntPoint& e2bot,
-                                   ClipperLib::IntPoint& e2top,
-                                   ClipperLib::IntPoint& pt )
+void clipperEdgeIntersectCallback( const Clipper2Lib::Point64& e1bot,
+                                   const Clipper2Lib::Point64& e1top,
+                                   const Clipper2Lib::Point64& e2bot,
+                                   const Clipper2Lib::Point64& e2top,
+                                   Clipper2Lib::Point64&       pt )
 {
-    ClipperLib::IntPoint* e11 = &e1bot;
-    ClipperLib::IntPoint* e12 = &e1top;
-    ClipperLib::IntPoint* e21 = &e2bot;
-    ClipperLib::IntPoint* e22 = &e2top;
+    const Clipper2Lib::Point64* e11 = &e1bot;
+    const Clipper2Lib::Point64* e12 = &e1top;
+    const Clipper2Lib::Point64* e21 = &e2bot;
+    const Clipper2Lib::Point64* e22 = &e2top;
 
     swapPointsIfNeedeed( e11, e12 );
     swapPointsIfNeedeed( e21, e22 );
 
-    cvf::Vec3f e1( e12->X - e11->X, e12->Y - e11->Y, 0.0 );
-    cvf::Vec3f e2( e22->X - e21->X, e22->Y - e21->Y, 0.0 );
+    cvf::Vec3f e1( e12->x - e11->x, e12->y - e11->y, 0.0 );
+    cvf::Vec3f e2( e22->x - e21->x, e22->y - e21->y, 0.0 );
 
     cvf::Vec3f up = e1 ^ e2;
     if ( up.z() > 0 )
     {
-        pt.Z = e12->Z;
-        std::cout << "E1 :" << e11->Z << " " << e12->Z << std::endl;
-        std::cout << "E2 :" << e21->Z << " " << e22->Z << std::endl << std::endl;
+        pt.z = e12->z;
+        std::cout << "E1 :" << e11->z << " " << e12->z << std::endl;
+        std::cout << "E2 :" << e21->z << " " << e22->z << std::endl << std::endl;
     }
     else
     {
-        pt.Z = e22->Z;
-        std::cout << "E1 :" << e21->Z << " " << e22->Z << std::endl;
-        std::cout << "E2 :" << e11->Z << " " << e12->Z << std::endl << std::endl;
+        pt.z = e22->z;
+        std::cout << "E1 :" << e21->z << " " << e22->z << std::endl;
+        std::cout << "E2 :" << e11->z << " " << e12->z << std::endl << std::endl;
     }
 }
 
@@ -644,32 +658,38 @@ TEST( RigCellGeometryTools, ClipperEdgeTracking )
     std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
 
     // Convert to int for clipper library and store as clipper "path"
-    ClipperLib::Path polygon1path;
+    // Convert to clipper2 format
+    Clipper2Lib::Paths64 subject, clip;
+
+    Clipper2Lib::Path64 polygon1path;
     for ( const cvf::Vec3d& v : polygon1 )
     {
         polygon1path.push_back( toClipperEdgePoint( v ) );
     }
+    subject.push_back( polygon1path );
 
-    ClipperLib::Path polygon2path;
+    Clipper2Lib::Path64 polygon2path;
     for ( const cvf::Vec3d& v : polygon2 )
     {
         polygon2path.push_back( toClipperEdgePoint( v ) );
     }
+    clip.push_back( polygon2path );
 
-    ClipperLib::Clipper clpr;
-    clpr.AddPath( polygon1path, ClipperLib::ptSubject, true );
-    clpr.AddPath( polygon2path, ClipperLib::ptClip, true );
+    Clipper2Lib::Clipper64 clpr;
+    clpr.SetZCallback( &clipperEdgeIntersectCallback );
 
-    clpr.ZFillFunction( &clipperEdgeIntersectCallback );
+    clpr.AddSubject( subject );
+    clpr.AddClip( clip );
 
-    ClipperLib::Paths solution;
-    clpr.Execute( ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd );
+    Clipper2Lib::Paths64 solution;
+    Clipper2Lib::Paths64 solutionOpen;
+    clpr.Execute( Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::EvenOdd, solution, solutionOpen );
 
     // Convert back to std::vector<std::vector<cvf::Vec3d> >
-    for ( ClipperLib::Path pathInSol : solution )
+    for ( Clipper2Lib::Path64 pathInSol : solution )
     {
         std::vector<cvf::Vec3d> clippedPolygon;
-        for ( ClipperLib::IntPoint IntPosition : pathInSol )
+        for ( Clipper2Lib::Point64 IntPosition : pathInSol )
         {
             clippedPolygon.push_back( fromClipperEdgePoint( IntPosition ) );
         }
