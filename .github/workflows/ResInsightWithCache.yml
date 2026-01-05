@@ -168,7 +168,8 @@ jobs:
             clang-format-19 \
             clang-tools-19 \
             libc++-19-dev \
-            libc++abi-19-dev
+            libc++abi-19-dev \
+            libomp-19-dev
           
           # Verify installation
           clang-19 --version
