@@ -150,10 +150,30 @@ jobs:
       - name: Install clang-19
         if: contains( matrix.config.cc, 'clang')
         run: |
-          sudo apt-get upgrade
-          wget https://apt.llvm.org/llvm.sh
-          sudo chmod +x llvm.sh
-          sudo ./llvm.sh 19 all
+          set -e
+          
+          # Add LLVM repository
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main" | sudo tee /etc/apt/sources.list.d/llvm-19.list
+          echo "deb-src http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main" | sudo tee -a /etc/apt/sources.list.d/llvm-19.list
+          
+          # Update package list and install clang-19
+          sudo apt-get update --option="APT::Acquire::Retries=3"
+          sudo apt-get install --option="APT::Acquire::Retries=3" -y \
+            clang-19 \
+            lldb-19 \
+            lld-19 \
+            clangd-19 \
+            clang-tidy-19 \
+            clang-format-19 \
+            clang-tools-19 \
+            libc++-19-dev \
+            libc++abi-19-dev
+          
+          # Verify installation
+          clang-19 --version
+          clang++-19 --version
+          echo "clang-19 installation completed successfully"
 
       - name: Install gcc-14
         if: contains( matrix.config.cc, 'gcc-14')
