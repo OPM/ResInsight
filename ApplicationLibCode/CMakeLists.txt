@@ -306,6 +306,7 @@ endif()
 
 set(LINK_LIBRARIES
     Eigen3::Eigen
+    Clipper2::Clipper2Z
     ${THIRD_PARTY_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}

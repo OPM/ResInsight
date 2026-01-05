@@ -4,6 +4,7 @@
         "boost-filesystem",
         "boost-spirit",
         "boost-test",
+        "clipper2",
         "eigen3",
         "grpc",
         "type-lite",

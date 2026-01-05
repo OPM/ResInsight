@@ -25,7 +25,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfMatrix3.h"
 
-#include "clipper/clipper.hpp"
+#include "clipper2/clipper.h"
 
 #include <algorithm>
 #include <array>
@@ -362,29 +362,29 @@ double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea( const std::
 
 double clipperConversionFactor = 10000; // For transform to clipper int
 
-ClipperLib::IntPoint toClipperPoint( const cvf::Vec3d& cvfPoint )
+Clipper2Lib::Point64 toClipperPoint( const cvf::Vec3d& cvfPoint )
 {
-    ClipperLib::cInt xInt = cvfPoint.x() * clipperConversionFactor;
-    ClipperLib::cInt yInt = cvfPoint.y() * clipperConversionFactor;
-    ClipperLib::cInt zInt = cvfPoint.z() * clipperConversionFactor;
+    int64_t xInt = cvfPoint.x() * clipperConversionFactor;
+    int64_t yInt = cvfPoint.y() * clipperConversionFactor;
+    int64_t zInt = cvfPoint.z() * clipperConversionFactor;
 
-    return ClipperLib::IntPoint( xInt, yInt, zInt );
+    return Clipper2Lib::Point64( xInt, yInt, zInt );
 }
 
-cvf::Vec3d fromClipperPoint( const ClipperLib::IntPoint& clipPoint )
+cvf::Vec3d fromClipperPoint( const Clipper2Lib::Point64& clipPoint )
 {
     double zDValue;
 
-    if ( clipPoint.Z == std::numeric_limits<int>::max() )
+    if ( clipPoint.z == std::numeric_limits<int>::max() )
     {
         zDValue = HUGE_VAL;
     }
     else
     {
-        zDValue = clipPoint.Z;
+        zDValue = clipPoint.z;
     }
 
-    return cvf::Vec3d( clipPoint.X, clipPoint.Y, zDValue ) / clipperConversionFactor;
+    return cvf::Vec3d( clipPoint.x, clipPoint.y, zDValue ) / clipperConversionFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -396,36 +396,35 @@ std::vector<std::vector<cvf::Vec3d>>
 {
     std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
 
-    // Convert to int for clipper library and store as clipper "path"
-    ClipperLib::Clipper clpr;
+    // Convert to clipper2 format
+    Clipper2Lib::Paths64 subject, clip;
+
     {
-        ClipperLib::Path polygon1path;
+        Clipper2Lib::Path64 polygon1path;
         for ( const cvf::Vec3d& v : polygon1 )
         {
             polygon1path.push_back( toClipperPoint( v ) );
         }
-        clpr.AddPath( polygon1path, ClipperLib::ptSubject, true );
+        subject.push_back( polygon1path );
     }
 
     for ( const auto& path : polygonToIntersectWith )
     {
-        ClipperLib::Path polygon2path;
+        Clipper2Lib::Path64 polygon2path;
         for ( const auto& v : path )
         {
             polygon2path.push_back( toClipperPoint( v ) );
         }
-
-        clpr.AddPath( polygon2path, ClipperLib::ptClip, true );
+        clip.push_back( polygon2path );
     }
 
-    ClipperLib::Paths solution;
-    clpr.Execute( ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd );
+    Clipper2Lib::Paths64 solution = Clipper2Lib::Intersect( subject, clip, Clipper2Lib::FillRule::EvenOdd );
 
     // Convert back to std::vector<std::vector<cvf::Vec3d> >
-    for ( ClipperLib::Path pathInSol : solution )
+    for ( const Clipper2Lib::Path64& pathInSol : solution )
     {
         std::vector<cvf::Vec3d> clippedPolygon;
-        for ( ClipperLib::IntPoint IntPosition : pathInSol )
+        for ( const Clipper2Lib::Point64& IntPosition : pathInSol )
         {
             clippedPolygon.push_back( fromClipperPoint( IntPosition ) );
         }
@@ -450,39 +449,37 @@ std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::intersectionWithPolyg
 std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::subtractPolygons( const std::vector<cvf::Vec3d>& sourcePolygon,
                                                                              const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract )
 {
-    ClipperLib::Clipper clpr;
+    Clipper2Lib::Paths64 subject, clip;
 
     {
-        // Convert to int for clipper library and store as clipper "path"
-        ClipperLib::Path polygon1path;
+        // Convert to clipper2 format
+        Clipper2Lib::Path64 polygon1path;
         for ( const auto& v : sourcePolygon )
         {
             polygon1path.push_back( toClipperPoint( v ) );
         }
-        clpr.AddPath( polygon1path, ClipperLib::ptSubject, true );
+        subject.push_back( polygon1path );
     }
 
     for ( const auto& path : polygonsToSubtract )
     {
-        ClipperLib::Path polygon2path;
+        Clipper2Lib::Path64 polygon2path;
         for ( const auto& v : path )
         {
             polygon2path.push_back( toClipperPoint( v ) );
         }
-
-        clpr.AddPath( polygon2path, ClipperLib::ptClip, true );
+        clip.push_back( polygon2path );
     }
 
-    ClipperLib::Paths solution;
-    clpr.Execute( ClipperLib::ctDifference, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd );
+    Clipper2Lib::Paths64 solution = Clipper2Lib::Difference( subject, clip, Clipper2Lib::FillRule::EvenOdd );
 
     std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
 
     // Convert back to std::vector<std::vector<cvf::Vec3d> >
-    for ( ClipperLib::Path pathInSol : solution )
+    for ( const Clipper2Lib::Path64& pathInSol : solution )
     {
         std::vector<cvf::Vec3d> clippedPolygon;
-        for ( ClipperLib::IntPoint IntPosition : pathInSol )
+        for ( const Clipper2Lib::Point64& IntPosition : pathInSol )
         {
             clippedPolygon.push_back( fromClipperPoint( IntPosition ) );
         }
@@ -500,18 +497,18 @@ std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::subtractPolygon( cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Note for cppcheck : First four parameter cannot be const to match the signature of the receiver
+///
 //--------------------------------------------------------------------------------------------------
-void fillInterpolatedSubjectZ( ClipperLib::IntPoint& e1bot,
-                               ClipperLib::IntPoint& e1top,
-                               ClipperLib::IntPoint& e2bot,
-                               ClipperLib::IntPoint& e2top,
-                               ClipperLib::IntPoint& pt )
+void fillInterpolatedSubjectZ( const Clipper2Lib::Point64& e1bot,
+                               const Clipper2Lib::Point64& e1top,
+                               const Clipper2Lib::Point64& e2bot,
+                               const Clipper2Lib::Point64& e2top,
+                               Clipper2Lib::Point64&       pt )
 {
-    ClipperLib::IntPoint ePLbot;
-    ClipperLib::IntPoint ePLtop;
+    Clipper2Lib::Point64 ePLbot;
+    Clipper2Lib::Point64 ePLtop;
 
-    if ( e1top.Z == std::numeric_limits<int>::max() )
+    if ( e1top.z == std::numeric_limits<int>::max() )
     {
         ePLtop = e2top;
         ePLbot = e2bot;
@@ -522,37 +519,37 @@ void fillInterpolatedSubjectZ( ClipperLib::IntPoint& e1bot,
         ePLbot = e1bot;
     }
 
-    double ePLXRange = ( ePLtop.X - ePLbot.X );
-    double ePLYRange = ( ePLtop.Y - ePLbot.Y );
+    double ePLXRange = ( ePLtop.x - ePLbot.x );
+    double ePLYRange = ( ePLtop.y - ePLbot.y );
 
     double ePLLength = sqrt( ePLXRange * ePLXRange + ePLYRange * ePLYRange );
 
     if ( ePLLength <= 1 )
     {
-        pt.Z = ePLbot.Z;
+        pt.z = ePLbot.z;
         return;
     }
 
-    double ePLBotPtXRange = pt.X - ePLbot.X;
-    double ePLBotPtYRange = pt.Y - ePLbot.Y;
+    double ePLBotPtXRange = pt.x - ePLbot.x;
+    double ePLBotPtYRange = pt.y - ePLbot.y;
 
     double ePLBotPtLength = sqrt( ePLBotPtXRange * ePLBotPtXRange + ePLBotPtYRange * ePLBotPtYRange );
 
     double fraction = ePLBotPtLength / ePLLength;
 
-    pt.Z = std::nearbyint( ePLbot.Z + fraction * ( ePLtop.Z - ePLbot.Z ) );
+    pt.z = std::nearbyint( ePLbot.z + fraction * ( ePLtop.z - ePLbot.z ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void fillUndefinedZ( ClipperLib::IntPoint& e1bot,
-                     ClipperLib::IntPoint& e1top,
-                     ClipperLib::IntPoint& e2bot,
-                     ClipperLib::IntPoint& e2top,
-                     ClipperLib::IntPoint& pt )
+void fillUndefinedZ( const Clipper2Lib::Point64& e1bot,
+                     const Clipper2Lib::Point64& e1top,
+                     const Clipper2Lib::Point64& e2bot,
+                     const Clipper2Lib::Point64& e2top,
+                     Clipper2Lib::Point64&       pt )
 {
-    pt.Z = std::numeric_limits<int>::max();
+    pt.z = std::numeric_limits<int>::max();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,46 +565,48 @@ std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::clipPolylineByPolygon
     // Adjusting polygon to avoid clipper issue with interpolating z-values when lines crosses though polygon vertecies
     std::vector<cvf::Vec3d> adjustedPolygon = ajustPolygonToAvoidIntersectionsAtVertex( polyLine, polygon );
 
-    // Convert to int for clipper library and store as clipper "path"
-    ClipperLib::Path polyLinePath;
+    // Convert to clipper2 format
+    Clipper2Lib::Paths64 subject, clip;
+
+    Clipper2Lib::Path64 polyLinePath;
     for ( const cvf::Vec3d& v : polyLine )
     {
         polyLinePath.push_back( toClipperPoint( v ) );
     }
+    subject.push_back( polyLinePath );
 
-    ClipperLib::Path polygonPath;
+    Clipper2Lib::Path64 polygonPath;
     for ( const cvf::Vec3d& v : adjustedPolygon )
     {
-        ClipperLib::IntPoint intp = toClipperPoint( v );
-        intp.Z                    = std::numeric_limits<int>::max();
+        Clipper2Lib::Point64 intp = toClipperPoint( v );
+        intp.z                    = std::numeric_limits<int>::max();
         polygonPath.push_back( intp );
     }
+    clip.push_back( polygonPath );
 
-    ClipperLib::Clipper clpr;
-    clpr.AddPath( polyLinePath, ClipperLib::ptSubject, false );
-    clpr.AddPath( polygonPath, ClipperLib::ptClip, true );
-
+    Clipper2Lib::Clipper64 clpr;
     if ( interpolType == INTERPOLATE_LINE_Z )
     {
-        clpr.ZFillFunction( &fillInterpolatedSubjectZ );
+        clpr.SetZCallback( &fillInterpolatedSubjectZ );
     }
     else if ( interpolType == USE_HUGEVAL )
     {
-        clpr.ZFillFunction( &fillUndefinedZ );
+        clpr.SetZCallback( &fillUndefinedZ );
     }
 
-    ClipperLib::PolyTree solution;
-    clpr.Execute( ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd );
-
     // We only expect open paths from this method (unless the polyline is self intersecting, a condition we do not handle)
-    ClipperLib::Paths solutionPaths;
-    ClipperLib::OpenPathsFromPolyTree( solution, solutionPaths );
+    clpr.AddOpenSubject( subject );
+    clpr.AddClip( clip );
+
+    Clipper2Lib::Paths64 closedPaths;
+    Clipper2Lib::Paths64 openPaths;
+    clpr.Execute( Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::EvenOdd, closedPaths, openPaths );
 
     // Convert back to std::vector<std::vector<cvf::Vec3d> >
-    for ( ClipperLib::Path pathInSol : solutionPaths )
+    for ( const Clipper2Lib::Path64& pathInSol : openPaths )
     {
         std::vector<cvf::Vec3d> clippedPolygon;
-        for ( ClipperLib::IntPoint IntPosition : pathInSol )
+        for ( const Clipper2Lib::Point64& IntPosition : pathInSol )
         {
             clippedPolygon.push_back( fromClipperPoint( IntPosition ) );
         }
@@ -674,29 +673,25 @@ double RigCellGeometryTools::getLengthOfPolygonAlongLine( const std::pair<cvf::V
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons( const std::vector<std::vector<cvf::Vec3d>>& polygons )
 {
-    // Convert to int for clipper library and store as clipper "path"
-    std::vector<ClipperLib::Path> polygonPaths;
+    // Convert to clipper2 format
+    Clipper2Lib::Paths64 subject;
     for ( const std::vector<cvf::Vec3d>& polygon : polygons )
     {
-        polygonPaths.emplace_back();
-        auto& p = polygonPaths.back();
+        Clipper2Lib::Path64 polygonPath;
         for ( const cvf::Vec3d& pp : polygon )
         {
-            p.push_back( toClipperPoint( pp ) );
+            polygonPath.push_back( toClipperPoint( pp ) );
         }
+        subject.push_back( polygonPath );
     }
 
-    ClipperLib::Clipper clpr;
-    clpr.AddPaths( polygonPaths, ClipperLib::ptSubject, true );
+    Clipper2Lib::Paths64 solution = Clipper2Lib::Union( subject, Clipper2Lib::FillRule::EvenOdd );
 
-    ClipperLib::Paths solution;
-    clpr.Execute( ClipperLib::ctUnion, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd );
-
-    // Convert back to std::vector<std::vector<cvf::Vec3d> >
+    // Convert back to std::vector<cvf::Vec3d>
     std::vector<cvf::Vec3d> unionPolygon;
-    for ( ClipperLib::Path pathInSol : solution )
+    for ( const Clipper2Lib::Path64& pathInSol : solution )
     {
-        for ( ClipperLib::IntPoint IntPosition : pathInSol )
+        for ( const Clipper2Lib::Point64& IntPosition : pathInSol )
         {
             unionPolygon.push_back( fromClipperPoint( IntPosition ) );
         }
