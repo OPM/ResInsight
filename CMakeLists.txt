@@ -668,8 +668,9 @@ list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 
 find_package(Clipper2 CONFIG REQUIRED)
 
-# clipper2::clipper2 is an imported target, so we don't add it to THIRD_PARTY_LIBRARIES
-# which is used for setting folder properties on targets we build
+# clipper2::clipper2 is an imported target, so we don't add it to
+# THIRD_PARTY_LIBRARIES which is used for setting folder properties on targets
+# we build
 
 # ##############################################################################
 # roffcpp
