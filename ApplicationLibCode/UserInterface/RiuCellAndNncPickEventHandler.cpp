@@ -370,33 +370,40 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             // - If SHIFT is pressed, show mesh lines for the main grid cell
             // - If SHIFT is not pressed, show mesh lines for the LGR cells
             //
-            const bool isShiftPressed = ( keyboardModifiers & Qt::ShiftModifier ) != 0;
+            const bool isShiftPressed   = ( keyboardModifiers & Qt::ShiftModifier ) != 0;
+            bool       showLgrMeshLines = false;
 
-            bool showLgrMeshLines = false;
-            auto eclipseView      = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
-            auto mainGrid         = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid();
-            auto currentGrid      = mainGrid->gridByIndex( gridIndex );
-            if ( mainGrid && !currentGrid->isMainGrid() )
+            if ( auto eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView ) )
             {
-                bool selectMainGridCell = false;
-                if ( currentGrid->isRadial() )
+                if ( ( eclipseView->eclipseCase() != nullptr ) && ( eclipseView->eclipseCase()->eclipseCaseData() != nullptr ) )
                 {
-                    selectMainGridCell = !isShiftPressed;
-                    showLgrMeshLines   = !isShiftPressed;
-                }
-                else
-                {
-                    selectMainGridCell = isShiftPressed;
-                }
+                    if ( auto mainGrid = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid() )
+                    {
+                        auto currentGrid = mainGrid->gridByIndex( gridIndex );
+                        if ( currentGrid && !currentGrid->isMainGrid() )
+                        {
+                            bool selectMainGridCell = false;
+                            if ( currentGrid->isRadial() )
+                            {
+                                selectMainGridCell = !isShiftPressed;
+                                showLgrMeshLines   = !isShiftPressed;
+                            }
+                            else
+                            {
+                                selectMainGridCell = isShiftPressed;
+                            }
 
-                if ( selectMainGridCell )
-                {
-                    auto       currentGrid         = mainGrid->gridByIndex( gridIndex );
-                    const auto cellIndexInMainGrid = currentGrid->cell( gridLocalCellIndex ).parentCellIndex();
+                            if ( selectMainGridCell )
+                            {
+                                auto       currentGrid         = mainGrid->gridByIndex( gridIndex );
+                                const auto cellIndexInMainGrid = currentGrid->cell( gridLocalCellIndex ).parentCellIndex();
 
-                    // Change selection to main grid cell
-                    gridIndex          = mainGrid->gridIndex();
-                    gridLocalCellIndex = cellIndexInMainGrid;
+                                // Change selection to main grid cell
+                                gridIndex          = mainGrid->gridIndex();
+                                gridLocalCellIndex = cellIndexInMainGrid;
+                            }
+                        }
+                    }
                 }
             }
 
