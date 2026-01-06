@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -38,6 +38,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -157,6 +158,62 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
+            }
+
+            // Override with map-based attributes if present (new system takes precedence)
+            PdmUiItem* uiItem = uiField();
+            if ( uiItem )
+            {
+                // List of supported attributes for validation
+
+                if ( auto val = uiItem->attribute<int>( Keys::MAXIMUM_WIDTH, uiConfigName ) )
+                {
+                    leab.maximumWidth = val.value();
+                }
+
+                if ( auto val = uiItem->attribute<bool>( Keys::SELECT_ALL_ON_FOCUS_EVENT, uiConfigName ) )
+                {
+                    leab.selectAllOnFocusEvent = val.value();
+                }
+
+                if ( auto val = uiItem->attribute<QString>( Keys::PLACEHOLDER_TEXT, uiConfigName ) )
+                {
+                    leab.placeholderText = val.value();
+                }
+
+                if ( auto val = uiItem->attribute<bool>( Keys::AVOID_SENDING_ENTER_EVENT, uiConfigName ) )
+                {
+                    leab.avoidSendingEnterEventToParentWidget = val.value();
+                }
+
+                if ( auto val = uiItem->attribute<Qt::CaseSensitivity>( Keys::COMPLETER_CASE_SENSITIVITY, uiConfigName ) )
+                {
+                    leab.completerCaseSensitivity = val.value();
+                }
+
+                if ( auto val = uiItem->attribute<Qt::MatchFlags>( Keys::COMPLETER_FILTER_MODE, uiConfigName ) )
+                {
+                    leab.completerFilterMode = val.value();
+                }
+
+                if ( auto val = uiItem->attribute<bool>( Keys::NOTIFY_WHEN_TEXT_IS_EDITED, uiConfigName ) )
+                {
+                    leab.notifyWhenTextIsEdited = val.value();
+                }
+
+                // Validate: warn about unsupported attributes
+                auto allAttributeNames = uiItem->attributeNames( uiConfigName );
+                for ( const auto& key : allAttributeNames )
+                {
+                    if ( SUPPORTED_ATTRIBUTES.find( key ) == SUPPORTED_ATTRIBUTES.end() )
+                    {
+                        CAF_PDM_LOG_WARNING(
+                            QString( "PdmUiLineEditor: Unsupported attribute '%1' set on field. Supported "
+                                     "attributes are: %2" )
+                                .arg( key )
+                                .arg( QStringList( SUPPORTED_ATTRIBUTES.begin(), SUPPORTED_ATTRIBUTES.end() ).join( ", " ) ) );
+                    }
+                }
             }
 
             if ( uiField()->isAutoValueEnabled() )

@@ -127,6 +127,27 @@ public:
     }
     ~PdmUiLineEditor() override {}
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString MAXIMUM_WIDTH              = QStringLiteral( "maximumWidth" );
+        static inline const QString SELECT_ALL_ON_FOCUS_EVENT  = QStringLiteral( "selectAllOnFocusEvent" );
+        static inline const QString PLACEHOLDER_TEXT           = QStringLiteral( "placeholderText" );
+        static inline const QString AVOID_SENDING_ENTER_EVENT  = QStringLiteral( "avoidSendingEnterEvent" );
+        static inline const QString COMPLETER_CASE_SENSITIVITY = QStringLiteral( "completerCaseSensitivity" );
+        static inline const QString COMPLETER_FILTER_MODE      = QStringLiteral( "completerFilterMode" );
+        static inline const QString NOTIFY_WHEN_TEXT_IS_EDITED = QStringLiteral( "notifyWhenTextIsEdited" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::MAXIMUM_WIDTH,
+                                                                   Keys::SELECT_ALL_ON_FOCUS_EVENT,
+                                                                   Keys::PLACEHOLDER_TEXT,
+                                                                   Keys::AVOID_SENDING_ENTER_EVENT,
+                                                                   Keys::COMPLETER_CASE_SENSITIVITY,
+                                                                   Keys::COMPLETER_FILTER_MODE,
+                                                                   Keys::NOTIFY_WHEN_TEXT_IS_EDITED };
+
     static void updateLineEditFromReadOnlyState( QLineEdit* lineEdit, bool isReadOnly );
 
 protected:

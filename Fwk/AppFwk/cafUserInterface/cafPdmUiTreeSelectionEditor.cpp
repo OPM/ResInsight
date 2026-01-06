@@ -36,6 +36,7 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cafAssert.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiTreeSelectionQModel.h"
@@ -206,6 +207,55 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    PdmUiItem* uiItem = uiField();
+    if ( uiItem )
+    {
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_TEXT_FILTER, uiConfigName ) )
+        {
+            m_attributes.showTextFilter = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_TOGGLE_ALL_CHECKBOX, uiConfigName ) )
+        {
+            m_attributes.showToggleAllCheckbox = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SINGLE_SELECTION_MODE, uiConfigName ) )
+        {
+            m_attributes.singleSelectionMode = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_CHECK_BOXES, uiConfigName ) )
+        {
+            m_attributes.showCheckBoxes = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_CONTEXT_MENU, uiConfigName ) )
+        {
+            m_attributes.showContextMenu = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ) )
+        {
+            m_attributes.heightHint = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        auto allAttributeNames = uiItem->attributeNames( uiConfigName );
+        for ( const auto& key : allAttributeNames )
+        {
+            if ( SUPPORTED_ATTRIBUTES.find( key ) == SUPPORTED_ATTRIBUTES.end() )
+            {
+                CAF_PDM_LOG_WARNING(
+                    QString( "PdmUiTreeSelectionEditor: Unsupported attribute '%1' set on field. Supported "
+                             "attributes are: %2" )
+                        .arg( key )
+                        .arg( QStringList( SUPPORTED_ATTRIBUTES.begin(), SUPPORTED_ATTRIBUTES.end() ).join( ", " ) ) );
+            }
+        }
     }
 
     m_model->showCheckBoxes( m_attributes.showCheckBoxes );

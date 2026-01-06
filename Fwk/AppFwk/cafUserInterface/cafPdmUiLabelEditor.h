@@ -80,6 +80,22 @@ public:
     PdmUiLabelEditor();
     ~PdmUiLabelEditor() override;
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString USE_WORD_WRAP = QStringLiteral( "useWordWrap" );
+        static inline const QString USE_SINGLE_WIDGET_INSTEAD_OF_LABEL_AND_EDITOR_WIDGET =
+            QStringLiteral( "useSingleWidgetInsteadOfLabelAndEditorWidget" );
+        static inline const QString LINK_TEXT               = QStringLiteral( "linkText" );
+        static inline const QString LINK_ACTIVATED_CALLBACK = QStringLiteral( "linkActivatedCallback" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::USE_WORD_WRAP,
+                                                                   Keys::USE_SINGLE_WIDGET_INSTEAD_OF_LABEL_AND_EDITOR_WIDGET,
+                                                                   Keys::LINK_TEXT,
+                                                                   Keys::LINK_ACTIVATED_CALLBACK };
+
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;

@@ -36,6 +36,7 @@
 #include "cafPdmUiPickableLineEditor.h"
 
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -65,6 +66,30 @@ void caf::PdmUiPickableLineEditor::configureAndUpdateUi( const QString& uiConfig
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attribute );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    PdmUiItem* uiItem = uiField();
+    if ( uiItem )
+    {
+        if ( auto val = uiItem->attribute<bool>( Keys::ENABLE_PICKING, uiConfigName ) )
+        {
+            m_attribute.enablePicking = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        auto allAttributeNames = uiItem->attributeNames( uiConfigName );
+        for ( const auto& key : allAttributeNames )
+        {
+            if ( SUPPORTED_ATTRIBUTES.find( key ) == SUPPORTED_ATTRIBUTES.end() )
+            {
+                CAF_PDM_LOG_WARNING(
+                    QString( "PdmUiPickableLineEditor: Unsupported attribute '%1' set on field. Supported "
+                             "attributes are: %2" )
+                        .arg( key )
+                        .arg( QStringList( SUPPORTED_ATTRIBUTES.begin(), SUPPORTED_ATTRIBUTES.end() ).join( ", " ) ) );
+            }
+        }
     }
 
     if ( m_attribute.pickEventHandler )

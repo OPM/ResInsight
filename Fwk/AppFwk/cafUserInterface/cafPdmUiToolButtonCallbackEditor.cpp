@@ -63,10 +63,22 @@ void PdmUiToolButtonCallbackEditor::configureAndUpdateUi( const QString& uiConfi
     m_toolButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_toolButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    if ( auto pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() ) )
+    // First try to get callback from the map-based attribute system
+    auto uiItem = uiField()->fieldHandle()->uiCapability();
+
+    if ( auto callbackVariant = uiItem->attribute<std::function<void()>>( Keys::CALLBACK, uiConfigName ) )
     {
-        pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        m_attributes.m_onClickedCallback = callbackVariant.value();
     }
+    // Fall back to old defineEditorAttribute method if callback not set via map
+    else if ( !m_attributes.m_onClickedCallback )
+    {
+        if ( auto pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() ) )
+        {
+            pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        }
+    }
+
     m_toolButton->setCheckable( false );
 }
 

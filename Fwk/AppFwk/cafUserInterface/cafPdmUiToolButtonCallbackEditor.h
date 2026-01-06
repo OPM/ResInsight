@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2014 Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -70,6 +70,15 @@ class PdmUiToolButtonCallbackEditor : public PdmUiFieldEditorHandle
 public:
     PdmUiToolButtonCallbackEditor() {}
     ~PdmUiToolButtonCallbackEditor() override {}
+
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString CALLBACK = QStringLiteral( "callback" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::CALLBACK };
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;

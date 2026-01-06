@@ -37,6 +37,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
 
@@ -79,6 +80,50 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName 
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    PdmUiItem* uiItem = uiField();
+    if ( uiItem )
+    {
+        if ( auto val = uiItem->attribute<double>( Keys::MINIMUM, uiConfigName ) )
+        {
+            m_attributes.m_minimum = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<double>( Keys::MAXIMUM, uiConfigName ) )
+        {
+            m_attributes.m_maximum = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::DECIMALS, uiConfigName ) )
+        {
+            m_attributes.m_decimals = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::SLIDER_TICK_COUNT, uiConfigName ) )
+        {
+            m_attributes.m_sliderTickCount = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE, uiConfigName ) )
+        {
+            m_attributes.m_delaySliderUpdateUntilRelease = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        auto allAttributeNames = uiItem->attributeNames( uiConfigName );
+        for ( const auto& key : allAttributeNames )
+        {
+            if ( SUPPORTED_ATTRIBUTES.find( key ) == SUPPORTED_ATTRIBUTES.end() )
+            {
+                CAF_PDM_LOG_WARNING(
+                    QString( "PdmUiDoubleSliderEditor: Unsupported attribute '%1' set on field. Supported "
+                             "attributes are: %2" )
+                        .arg( key )
+                        .arg( QStringList( SUPPORTED_ATTRIBUTES.begin(), SUPPORTED_ATTRIBUTES.end() ).join( ", " ) ) );
+            }
+        }
     }
 
     double  doubleValue = uiField()->uiValue().toDouble();

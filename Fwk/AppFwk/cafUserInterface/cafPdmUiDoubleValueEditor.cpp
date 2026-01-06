@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -38,6 +38,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -83,6 +84,35 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
         if ( m_attributes.m_validator )
         {
             m_lineEdit->setValidator( m_attributes.m_validator );
+        }
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    PdmUiItem* uiItem = uiField();
+    if ( uiItem )
+    {
+        if ( auto val = uiItem->attribute<int>( Keys::DECIMALS, uiConfigName ) )
+        {
+            m_attributes.m_decimals = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::NUMBER_FORMAT, uiConfigName ) )
+        {
+            m_attributes.m_numberFormat = static_cast<PdmUiDoubleValueEditorAttribute::NumberFormat>( val.value() );
+        }
+
+        // Validate: warn about unsupported attributes
+        auto allAttributeNames = uiItem->attributeNames( uiConfigName );
+        for ( const auto& key : allAttributeNames )
+        {
+            if ( SUPPORTED_ATTRIBUTES.find( key ) == SUPPORTED_ATTRIBUTES.end() )
+            {
+                CAF_PDM_LOG_WARNING(
+                    QString( "PdmUiDoubleValueEditor: Unsupported attribute '%1' set on field. Supported "
+                             "attributes are: %2" )
+                        .arg( key )
+                        .arg( QStringList( SUPPORTED_ATTRIBUTES.begin(), SUPPORTED_ATTRIBUTES.end() ).join( ", " ) ) );
+            }
         }
     }
 

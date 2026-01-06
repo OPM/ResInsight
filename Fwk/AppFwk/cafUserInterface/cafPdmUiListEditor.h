@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -73,6 +73,21 @@ class PdmUiListEditor : public PdmUiFieldLabelEditorHandle
 public:
     PdmUiListEditor();
     ~PdmUiListEditor() override;
+
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString HEIGHT_HINT                 = QStringLiteral( "heightHint" );
+        static inline const QString BASE_COLOR                  = QStringLiteral( "baseColor" );
+        static inline const QString QSS_STATE                   = QStringLiteral( "qssState" );
+        static inline const QString ALLOW_HORIZONTAL_SCROLL_BAR = QStringLiteral( "allowHorizontalScrollBar" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::HEIGHT_HINT,
+                                                                   Keys::BASE_COLOR,
+                                                                   Keys::QSS_STATE,
+                                                                   Keys::ALLOW_HORIZONTAL_SCROLL_BAR };
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;

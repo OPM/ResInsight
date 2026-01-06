@@ -87,6 +87,26 @@ public:
     PdmUiFilePathEditor() {}
     ~PdmUiFilePathEditor() override {}
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString SELECT_SAVE_FILE_NAME = QStringLiteral( "selectSaveFileName" );
+        static inline const QString FILE_SELECTION_FILTER = QStringLiteral( "fileSelectionFilter" );
+        static inline const QString DEFAULT_PATH          = QStringLiteral( "defaultPath" );
+        static inline const QString SELECT_DIRECTORY      = QStringLiteral( "selectDirectory" );
+        static inline const QString APPEND_UI_SELECTED_FOLDER_TO_TEXT =
+            QStringLiteral( "appendUiSelectedFolderToText" );
+        static inline const QString MULTIPLE_ITEM_SEPARATOR = QStringLiteral( "multipleItemSeparator" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::SELECT_SAVE_FILE_NAME,
+                                                                   Keys::FILE_SELECTION_FILTER,
+                                                                   Keys::DEFAULT_PATH,
+                                                                   Keys::SELECT_DIRECTORY,
+                                                                   Keys::APPEND_UI_SELECTED_FOLDER_TO_TEXT,
+                                                                   Keys::MULTIPLE_ITEM_SEPARATOR };
+
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
