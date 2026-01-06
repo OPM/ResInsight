@@ -724,6 +724,7 @@ public:
         m_proxyEnumField.registerSetMethod( this, &SmallDemoPdmObjectA::setEnumMember );
         m_proxyEnumField.registerGetMethod( this, &SmallDemoPdmObjectA::enumMember );
         m_proxyEnumMember = TestEnumType::T2;
+        m_proxyEnumField.uiCapability()->setAttribute<bool>( "showPreviousAndNextButtons", true );
 
         CAF_PDM_InitFieldNoDefault( &m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "" );
         m_multipleAppEnum.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
@@ -870,22 +871,6 @@ protected:
                 attr->currentIndexFieldHandle = &m_highlightedEnum;
             }
         }
-        else if ( field == &m_proxyEnumField )
-        {
-            caf::PdmUiComboBoxEditorAttribute* attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-            if ( attr )
-            {
-                attr->showPreviousAndNextButtons = true;
-            }
-        }
-        else if ( field == &m_toggleField )
-        {
-            auto* attr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-            if ( attr )
-            {
-                attr->setWordWrap( true );
-            }
-        }
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -934,9 +919,13 @@ public:
 
         CAF_PDM_InitField( &m_applyAutoOnChildObjectFields, "ApplyAutoValue", false, "Apply Auto Values" );
         m_applyAutoOnChildObjectFields.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+        m_applyAutoOnChildObjectFields.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
+                                                                     QString( "Apply Auto Values" ) );
 
         CAF_PDM_InitField( &m_updateAutoValues, "UpdateAutoValue", false, "Update Auto Values" );
         m_updateAutoValues.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+        m_updateAutoValues.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
+                                                         QString( "Update Auto Values" ) );
 
         CAF_PDM_InitField( &m_doubleField,
                            "BigNumber",
@@ -1143,31 +1132,6 @@ protected:
         if ( fieldNeedingMenu == &m_objectListOfSameType )
         {
             caf::PdmUiTableView::addActionsToMenu( menu, &m_objectListOfSameType );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override
-    {
-        if ( field == &m_applyAutoOnChildObjectFields )
-        {
-            auto* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-            if ( attr )
-            {
-                attr->m_buttonText = "Apply Auto Values";
-            }
-        }
-        if ( field == &m_updateAutoValues )
-        {
-            auto* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-            if ( attr )
-            {
-                attr->m_buttonText = "Update Auto Values";
-            }
         }
     }
 };
