@@ -42,10 +42,10 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
-                              IconProvider   iconProvider /*= IconProvider() */,
-                              QString        toolTip /*= ""*/,
-                              QString        whatsThis /*= ""*/,
-                              QString        extraDebugText /*= ""*/ )
+                              IconProvider   iconProvider,
+                              QString        toolTip,
+                              QString        whatsThis,
+                              QString        extraDebugText )
     : m_uiName( uiName )
     , m_iconProvider( iconProvider )
     , m_toolTip( toolTip )
@@ -66,10 +66,10 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
-                              QString        iconResourceLocation /*= ""*/,
-                              QString        toolTip /*= ""*/,
-                              QString        whatsThis /*= ""*/,
-                              QString        extraDebugText /*= ""*/ )
+                              QString        iconResourceLocation,
+                              QString        toolTip,
+                              QString        whatsThis,
+                              QString        extraDebugText )
     : m_uiName( uiName )
     , m_iconProvider( iconResourceLocation )
     , m_toolTip( toolTip )
