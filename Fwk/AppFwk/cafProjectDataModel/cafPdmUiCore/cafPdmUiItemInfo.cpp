@@ -51,14 +51,7 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
     , m_toolTip( toolTip )
     , m_whatsThis( whatsThis )
     , m_extraDebugText( extraDebugText )
-    , m_editorTypeName( "" )
-    , m_isHidden( false )
-    , m_isTreeHidden( false )
-    , m_isTreeChildrenHidden( false )
-    , m_isReadOnly( false )
     , m_labelPosition( LabelPosition::LEFT )
-    , m_isCustomContextMenuEnabled( false )
-    , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
 {
 }
 
@@ -75,14 +68,7 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
     , m_toolTip( toolTip )
     , m_whatsThis( whatsThis )
     , m_extraDebugText( extraDebugText )
-    , m_editorTypeName( "" )
-    , m_isHidden( false )
-    , m_isTreeHidden( false )
-    , m_isTreeChildrenHidden( false )
-    , m_isReadOnly( false )
     , m_labelPosition( LabelPosition::LEFT )
-    , m_isCustomContextMenuEnabled( false )
-    , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
 {
 }
 

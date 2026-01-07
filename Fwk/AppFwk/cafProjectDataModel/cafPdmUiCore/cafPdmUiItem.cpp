@@ -228,9 +228,9 @@ bool PdmUiItem::isUiHidden( const QString& uiConfigName ) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_isHidden == -1 ) ) return conInfo->m_isHidden;
-    if ( defInfo && !( defInfo->m_isHidden == -1 ) ) return defInfo->m_isHidden;
-    if ( sttInfo && !( sttInfo->m_isHidden == -1 ) ) return sttInfo->m_isHidden;
+    if ( conInfo && conInfo->m_isHidden.has_value() ) return conInfo->m_isHidden.value();
+    if ( defInfo && defInfo->m_isHidden.has_value() ) return defInfo->m_isHidden.value();
+    if ( sttInfo && sttInfo->m_isHidden.has_value() ) return sttInfo->m_isHidden.value();
 
     return false;
 }
@@ -252,9 +252,9 @@ bool PdmUiItem::isUiTreeHidden( const QString& uiConfigName ) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_isTreeHidden == -1 ) ) return conInfo->m_isTreeHidden;
-    if ( defInfo && !( defInfo->m_isTreeHidden == -1 ) ) return defInfo->m_isTreeHidden;
-    if ( sttInfo && !( sttInfo->m_isTreeHidden == -1 ) ) return sttInfo->m_isTreeHidden;
+    if ( conInfo && conInfo->m_isTreeHidden.has_value() ) return conInfo->m_isTreeHidden.value();
+    if ( defInfo && defInfo->m_isTreeHidden.has_value() ) return defInfo->m_isTreeHidden.value();
+    if ( sttInfo && sttInfo->m_isTreeHidden.has_value() ) return sttInfo->m_isTreeHidden.value();
 
     return false;
 }
@@ -276,9 +276,9 @@ bool PdmUiItem::isUiTreeChildrenHidden( const QString& uiConfigName ) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_isTreeChildrenHidden == -1 ) ) return conInfo->m_isTreeChildrenHidden;
-    if ( defInfo && !( defInfo->m_isTreeChildrenHidden == -1 ) ) return defInfo->m_isTreeChildrenHidden;
-    if ( sttInfo && !( sttInfo->m_isTreeChildrenHidden == -1 ) ) return sttInfo->m_isTreeChildrenHidden;
+    if ( conInfo && conInfo->m_isTreeChildrenHidden.has_value() ) return conInfo->m_isTreeChildrenHidden.value();
+    if ( defInfo && defInfo->m_isTreeChildrenHidden.has_value() ) return defInfo->m_isTreeChildrenHidden.value();
+    if ( sttInfo && sttInfo->m_isTreeChildrenHidden.has_value() ) return sttInfo->m_isTreeChildrenHidden.value();
 
     return false;
 }
@@ -300,9 +300,9 @@ bool PdmUiItem::isUiReadOnly( const QString& uiConfigName /*= ""*/ ) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_isReadOnly == -1 ) ) return conInfo->m_isReadOnly;
-    if ( defInfo && !( defInfo->m_isReadOnly == -1 ) ) return defInfo->m_isReadOnly;
-    if ( sttInfo && !( sttInfo->m_isReadOnly == -1 ) ) return sttInfo->m_isReadOnly;
+    if ( conInfo && conInfo->m_isReadOnly.has_value() ) return conInfo->m_isReadOnly.value();
+    if ( defInfo && defInfo->m_isReadOnly.has_value() ) return defInfo->m_isReadOnly.value();
+    if ( sttInfo && sttInfo->m_isReadOnly.has_value() ) return sttInfo->m_isReadOnly.value();
 
     return false;
 }
@@ -324,12 +324,12 @@ bool PdmUiItem::notifyAllFieldsInMultiFieldChangedEvents( const QString& uiConfi
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_notifyAllFieldsInMultiFieldChangedEvents == -1 ) )
-        return conInfo->m_notifyAllFieldsInMultiFieldChangedEvents;
-    if ( defInfo && !( defInfo->m_notifyAllFieldsInMultiFieldChangedEvents == -1 ) )
-        return defInfo->m_notifyAllFieldsInMultiFieldChangedEvents;
-    if ( sttInfo && !( sttInfo->m_notifyAllFieldsInMultiFieldChangedEvents == -1 ) )
-        return sttInfo->m_notifyAllFieldsInMultiFieldChangedEvents;
+    if ( conInfo && conInfo->m_notifyAllFieldsInMultiFieldChangedEvents.has_value() )
+        return conInfo->m_notifyAllFieldsInMultiFieldChangedEvents.value();
+    if ( defInfo && defInfo->m_notifyAllFieldsInMultiFieldChangedEvents.has_value() )
+        return defInfo->m_notifyAllFieldsInMultiFieldChangedEvents.value();
+    if ( sttInfo && sttInfo->m_notifyAllFieldsInMultiFieldChangedEvents.has_value() )
+        return sttInfo->m_notifyAllFieldsInMultiFieldChangedEvents.value();
 
     return false;
 }
@@ -431,9 +431,12 @@ bool PdmUiItem::isCustomContextMenuEnabled( const QString& uiConfigName /*= ""*/
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && ( conInfo->m_isCustomContextMenuEnabled != -1 ) ) return conInfo->m_isCustomContextMenuEnabled;
-    if ( defInfo && ( defInfo->m_isCustomContextMenuEnabled != -1 ) ) return defInfo->m_isCustomContextMenuEnabled;
-    if ( sttInfo && ( sttInfo->m_isCustomContextMenuEnabled != -1 ) ) return sttInfo->m_isCustomContextMenuEnabled;
+    if ( conInfo && conInfo->m_isCustomContextMenuEnabled.has_value() )
+        return conInfo->m_isCustomContextMenuEnabled.value();
+    if ( defInfo && defInfo->m_isCustomContextMenuEnabled.has_value() )
+        return defInfo->m_isCustomContextMenuEnabled.value();
+    if ( sttInfo && sttInfo->m_isCustomContextMenuEnabled.has_value() )
+        return sttInfo->m_isCustomContextMenuEnabled.value();
 
     return false;
 }

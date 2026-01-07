@@ -39,6 +39,7 @@
 #include "cafIconProvider.h"
 
 #include <memory>
+#include <optional>
 
 class QIcon;
 
@@ -61,13 +62,7 @@ public:
 
     PdmUiItemInfo()
         : m_editorTypeName( "" )
-        , m_isHidden( -1 )
-        , m_isTreeHidden( -1 )
-        , m_isTreeChildrenHidden( -1 )
-        , m_isReadOnly( -1 )
         , m_labelPosition( LabelPosition::LEFT )
-        , m_isCustomContextMenuEnabled( -1 )
-        , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
     {
     }
 
@@ -88,21 +83,22 @@ public:
 
 private:
     friend class PdmUiItem;
-    QString      m_uiName;
-    IconProvider m_iconProvider;
-    QColor  m_contentTextColor; ///< Color of a fields value text. Invalid by default. An Invalid color is not used.
-    QString m_toolTip;
-    QString m_whatsThis;
-    QString m_extraDebugText;
-    QString m_editorTypeName; ///< Use this exact type of editor to edit this UiItem
-    QString m_3dEditorTypeName; ///< If set, use this editor type to edit this UiItem in 3D
-    int     m_isHidden; ///< UiItem should be hidden. -1 means not set
-    int     m_isTreeHidden; ///< UiItem should be hidden in tree. -1 means not set
-    int     m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
-    int     m_isReadOnly; ///< UiItem should be insensitive, or read only. -1 means not set.
+    QString       m_uiName;
+    IconProvider  m_iconProvider;
+    QColor        m_contentTextColor;
+    QString       m_toolTip;
+    QString       m_whatsThis;
+    QString       m_extraDebugText;
+    QString       m_editorTypeName;
+    QString       m_3dEditorTypeName;
     LabelPosition m_labelPosition;
-    int           m_isCustomContextMenuEnabled;
-    int           m_notifyAllFieldsInMultiFieldChangedEvents;
+
+    std::optional<int> m_isHidden;
+    std::optional<int> m_isTreeHidden;
+    std::optional<int> m_isTreeChildrenHidden;
+    std::optional<int> m_isReadOnly;
+    std::optional<int> m_isCustomContextMenuEnabled;
+    std::optional<int> m_notifyAllFieldsInMultiFieldChangedEvents;
 };
 
 } // End of namespace caf
