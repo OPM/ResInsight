@@ -45,6 +45,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <type_traits>
 
 #include <QVariant>
 
@@ -120,7 +121,15 @@ public:
     template <typename T>
     void setAttribute( const QString& key, const T& value, const QString& uiConfigName = "" )
     {
-        m_attributeMaps[uiConfigName][key] = QVariant::fromValue( value );
+        if constexpr ( std::is_same_v<T, const char*> || std::is_same_v<T, char*> )
+        {
+            // Convert C-style strings to QString before storing
+            m_attributeMaps[uiConfigName][key] = QString( value );
+        }
+        else
+        {
+            m_attributeMaps[uiConfigName][key] = QVariant::fromValue( value );
+        }
     }
 
     template <typename T>
