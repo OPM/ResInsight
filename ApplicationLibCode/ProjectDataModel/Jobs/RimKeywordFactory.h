@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "ReservoirDataModel/SimulationFile/RigSimulationInputTool.h"
+
 #include "cvfVector3.h"
 
 #include <optional>
@@ -71,5 +73,6 @@ Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
                                   std::string          inputProperty,
                                   std::optional<float> alpha = std::nullopt,
                                   std::optional<float> beta  = std::nullopt );
+Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputTool::TransformedNNCConnection>& connections );
 
 } // namespace RimKeywordFactory

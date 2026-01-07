@@ -37,6 +37,7 @@ class RigSimWellData;
 template <typename Vec>
 class RigBoundingBoxIjk;
 class RigGridExportAdapter;
+class RigMainGrid;
 
 namespace Opm
 {
@@ -52,6 +53,24 @@ class DeckKeyword;
 class RigSimulationInputTool
 {
 public:
+    // Data structures for NNC export
+
+    /// Raw NNC connection with global cell indices
+    struct NNCConnection
+    {
+        size_t c1GlobIdx; // Global cell index for cell 1
+        size_t c2GlobIdx; // Global cell index for cell 2
+        double transmissibility; // Transmissibility value
+    };
+
+    /// Transformed NNC connection with sector-relative 0-based IJK coordinates
+    struct TransformedNNCConnection
+    {
+        caf::VecIjk0 cell1            = caf::VecIjk0::ZERO; // 0-based sector IJK for cell 1
+        caf::VecIjk0 cell2            = caf::VecIjk0::ZERO; // 0-based sector IJK for cell 2
+        double       transmissibility = 0.0; // Transmissibility value
+    };
+
     static std::expected<void, QString>
         exportSimulationInput( RimEclipseCase& eclipseCase, const RigSimulationInputSettings& settings, cvf::UByteArray* visibility );
 
@@ -74,6 +93,21 @@ public:
         processAquconRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
 
     static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
+
+    // Public EDITNNC methods for testing
+    static std::vector<NNCConnection> extractDeckEditNncConnections( RifOpmFlowDeckFile& deckFile, const RigMainGrid& mainGrid );
+    static std::vector<NNCConnection> filterInternalSectorConnections( const std::vector<NNCConnection>& allConnections,
+                                                                       const RigMainGrid&                mainGrid,
+                                                                       const caf::VecIjk0&               min,
+                                                                       const caf::VecIjk0&               max );
+    static std::expected<TransformedNNCConnection, QString> transformNNCToSectorCoordinates( const NNCConnection& connection,
+                                                                                             const RigMainGrid&   mainGrid,
+                                                                                             const caf::VecIjk0&  min,
+                                                                                             const cvf::Vec3st&   refinement );
+    static std::vector<TransformedNNCConnection>            refineEditNncConnection( const NNCConnection& connection,
+                                                                                     const RigMainGrid&   mainGrid,
+                                                                                     const caf::VecIjk0&  min,
+                                                                                     const cvf::Vec3st&   refinement );
 
 private:
     static std::expected<void, QString> updateCornerPointGridInDeckFile( RimEclipseCase*                   eclipseCase,
@@ -115,6 +149,12 @@ private:
 
     static std::expected<void, QString>
         filterAndUpdateWellKeywords( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+
+    static std::expected<void, QString>
+        exportEditNncKeyword( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+
+    // Utility: Transform global IJK to sector-relative coordinates with refinement
+    static caf::VecIjk0 transformToSectorCoordinates( const caf::VecIjk0& globalIjk, const caf::VecIjk0& min, const cvf::Vec3st& refinement );
 
     static std::expected<void, QString> addOperNumRegionAndOperater( RifOpmFlowDeckFile&         deckFile,
                                                                      const RigGridExportAdapter& gridAdapter,

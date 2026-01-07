@@ -19,6 +19,7 @@
 #include "RigSimulationInputTool.h"
 
 #include "RiaLogging.h"
+#include "RiaNncDefines.h"
 
 #include "RifEclipseInputFileTools.h"
 #include "RifOpmDeckTools.h"
@@ -31,6 +32,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultTools.h"
 #include "RigGridExportAdapter.h"
+#include "RigMainGrid.h"
 #include "RigResdataGridConverter.h"
 #include "RigSimulationInputSettings.h"
 #include "Well/RigSimWellData.h"
@@ -141,6 +143,11 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     }
 
     if ( auto result = filterAndUpdateWellKeywords( &eclipseCase, settings, deckFile ); !result )
+    {
+        return result;
+    }
+
+    if ( auto result = exportEditNncKeyword( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
     }
@@ -865,8 +872,8 @@ std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
     }
 
     // Get the clamped coordinates from the intersection
-    cvf::Vec3st clampedMin = intersection->min();
-    cvf::Vec3st clampedMax = intersection->max();
+    caf::VecIjk0 clampedMin = intersection->min();
+    caf::VecIjk0 clampedMax = intersection->max();
 
     // Log if clamping occurred (partial overlap)
     const auto& origMin = inputBox.min();
@@ -893,20 +900,8 @@ std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
     }
 
     // Transform clamped coordinates to sector-relative coordinates
-    auto transformResult1 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( clampedMin.x(), clampedMin.y(), clampedMin.z() ),
-                                                               sectorMin,
-                                                               sectorMax,
-                                                               refinement,
-                                                               false,
-                                                               false );
-    auto transformResult2 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( clampedMax.x(), clampedMax.y(), clampedMax.z() ),
-                                                               sectorMin,
-                                                               sectorMax,
-                                                               refinement,
-                                                               false,
-                                                               true );
+    auto transformResult1 = RigGridExportAdapter::transformIjkToSectorCoordinates( clampedMin, sectorMin, sectorMax, refinement, false, false );
+    auto transformResult2 = RigGridExportAdapter::transformIjkToSectorCoordinates( clampedMax, sectorMin, sectorMax, refinement, false, true );
 
     if ( !transformResult1 )
     {
@@ -1544,6 +1539,256 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
     }
 
     RiaLogging::info( QString( "Added OPERATER keyword to multiply PORV in region %1 by %2" ).arg( operNumRegion ).arg( porvMultiplier ) );
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimulationInputTool::NNCConnection> RigSimulationInputTool::extractDeckEditNncConnections( RifOpmFlowDeckFile& deckFile,
+                                                                                                          const RigMainGrid&  mainGrid )
+{
+    std::vector<NNCConnection> connections;
+
+    // Find all EDITNNC keywords in deck (there may be multiple)
+    auto keywords = deckFile.findAllKeywordsWithIndices( "EDITNNC" );
+
+    for ( const auto& keywordPair : keywords )
+    {
+        const auto& keyword = keywordPair.second;
+
+        // Each keyword can have multiple records
+        for ( size_t recordIdx = 0; recordIdx < keyword.size(); ++recordIdx )
+        {
+            const auto& record = keyword.getRecord( recordIdx );
+
+            // Read IJK coordinates directly from deck (1-based) and convert to 0-based
+            caf::VecIjk1 ijk1( record.getItem( 0 ).get<int>( 0 ), record.getItem( 1 ).get<int>( 0 ), record.getItem( 2 ).get<int>( 0 ) );
+            caf::VecIjk1 ijk2( record.getItem( 3 ).get<int>( 0 ), record.getItem( 4 ).get<int>( 0 ), record.getItem( 5 ).get<int>( 0 ) );
+            double       transMult = record.getItem( 6 ).get<double>( 0 );
+
+            // Convert IJK to global cell indices
+            size_t c1Idx = mainGrid.cellIndexFromIJK( ijk1.toZeroBased() );
+            size_t c2Idx = mainGrid.cellIndexFromIJK( ijk2.toZeroBased() );
+
+            // Validate indices
+            if ( c1Idx == cvf::UNDEFINED_SIZE_T || c2Idx == cvf::UNDEFINED_SIZE_T )
+            {
+                RiaLogging::warning( QString( "Invalid EDITNNC connection in deck: (%1)-(%2)" )
+                                         .arg( QString::fromStdString( ijk1.toString() ) )
+                                         .arg( QString::fromStdString( ijk2.toString() ) ) );
+                continue;
+            }
+
+            connections.push_back( { c1Idx, c2Idx, transMult } );
+        }
+    }
+
+    return connections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimulationInputTool::NNCConnection>
+    RigSimulationInputTool::filterInternalSectorConnections( const std::vector<NNCConnection>& allConnections,
+                                                             const RigMainGrid&                mainGrid,
+                                                             const caf::VecIjk0&               min,
+                                                             const caf::VecIjk0&               max )
+{
+    std::vector<NNCConnection> filteredConnections;
+
+    RigBoundingBoxIjk sectorBounds( min, max );
+
+    for ( const auto& conn : allConnections )
+    {
+        // Get IJK for both cells
+        auto ijk1 = mainGrid.ijkFromCellIndex( conn.c1GlobIdx );
+        auto ijk2 = mainGrid.ijkFromCellIndex( conn.c2GlobIdx );
+
+        // Only keep if BOTH cells are inside sector bounds
+        if ( ijk1 && ijk2 && sectorBounds.contains( *ijk1 ) && sectorBounds.contains( *ijk2 ) )
+        {
+            filteredConnections.push_back( conn );
+        }
+    }
+
+    return filteredConnections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::VecIjk0 RigSimulationInputTool::transformToSectorCoordinates( const caf::VecIjk0& globalIjk,
+                                                                   const caf::VecIjk0& min,
+                                                                   const cvf::Vec3st&  refinement )
+{
+    // Transform global IJK to sector-relative coordinates with refinement
+    // Formula matches RigGridExportAdapter::transformIjkToSectorCoordinates for box minimum coordinates
+    // Returns 0-based sector coordinates
+    return caf::VecIjk0( ( globalIjk.i() - min.i() ) * refinement.x(),
+                         ( globalIjk.j() - min.j() ) * refinement.y(),
+                         ( globalIjk.k() - min.k() ) * refinement.z() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RigSimulationInputTool::TransformedNNCConnection, QString>
+    RigSimulationInputTool::transformNNCToSectorCoordinates( const NNCConnection& connection,
+                                                             const RigMainGrid&   mainGrid,
+                                                             const caf::VecIjk0&  min,
+                                                             const cvf::Vec3st&   refinement )
+{
+    // Get global IJK for both cells
+    auto gijk1 = mainGrid.ijkFromCellIndex( connection.c1GlobIdx );
+    if ( !gijk1 )
+    {
+        return std::unexpected( QString( "Invalid cell index: %1" ).arg( connection.c1GlobIdx ) );
+    }
+
+    auto gijk2 = mainGrid.ijkFromCellIndex( connection.c2GlobIdx );
+    if ( !gijk2 )
+    {
+        return std::unexpected( QString( "Invalid cell index: %1" ).arg( connection.c2GlobIdx ) );
+    }
+
+    // Transform to sector coordinates using utility method
+    TransformedNNCConnection transformed;
+    transformed.cell1            = transformToSectorCoordinates( *gijk1, min, refinement );
+    transformed.cell2            = transformToSectorCoordinates( *gijk2, min, refinement );
+    transformed.transmissibility = connection.transmissibility;
+
+    return transformed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimulationInputTool::TransformedNNCConnection> RigSimulationInputTool::refineEditNncConnection( const NNCConnection& connection,
+                                                                                                               const RigMainGrid&  mainGrid,
+                                                                                                               const caf::VecIjk0& min,
+                                                                                                               const cvf::Vec3st& refinement )
+{
+    // Get global IJK for both cells
+    auto gijk1 = mainGrid.ijkFromCellIndex( connection.c1GlobIdx );
+    auto gijk2 = mainGrid.ijkFromCellIndex( connection.c2GlobIdx );
+
+    if ( !gijk1 || !gijk2 )
+    {
+        return {}; // Return empty on error
+    }
+
+    // For EDITNNC: Connect subcells at same relative positions within coarse cells
+    // Example: refinement (2,2,1) creates 4 connections:
+    //   (0,0,0) → (0,0,0)
+    //   (0,1,0) → (0,1,0)
+    //   (1,0,0) → (1,0,0)
+    //   (1,1,0) → (1,1,0)
+    // Each connection gets the SAME TRANSMUL (no division)
+
+    // Get base sector coordinates for both cells (start of refined block)
+    caf::VecIjk0 baseCell1 = transformToSectorCoordinates( *gijk1, min, refinement );
+    caf::VecIjk0 baseCell2 = transformToSectorCoordinates( *gijk2, min, refinement );
+
+    std::vector<TransformedNNCConnection> refined;
+    for ( size_t subI = 0; subI < refinement.x(); ++subI )
+    {
+        for ( size_t subJ = 0; subJ < refinement.y(); ++subJ )
+        {
+            for ( size_t subK = 0; subK < refinement.z(); ++subK )
+            {
+                // Add subcell offset to base coordinates
+                TransformedNNCConnection conn;
+                conn.cell1 = caf::VecIjk0( baseCell1.i() + subI, baseCell1.j() + subJ, baseCell1.k() + subK );
+
+                // SAME relative position in cell2
+                conn.cell2 = caf::VecIjk0( baseCell2.i() + subI, baseCell2.j() + subJ, baseCell2.k() + subK );
+
+                conn.transmissibility = connection.transmissibility; // Same TRAN_MULT for all
+                refined.push_back( conn );
+            }
+        }
+    }
+
+    return refined;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEclipseCase*                   eclipseCase,
+                                                                           const RigSimulationInputSettings& settings,
+                                                                           RifOpmFlowDeckFile&               deckFile )
+{
+    RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
+    if ( !mainGrid ) return std::unexpected( "No main grid available" );
+
+    // Step 1: Extract EDITNNC from deck only
+    auto allConnections = extractDeckEditNncConnections( deckFile, *mainGrid );
+
+    if ( allConnections.empty() )
+    {
+        RiaLogging::info( "No EDITNNC keywords found in deck - skipping EDITNNC export" );
+        return {};
+    }
+
+    // Step 2: Filter for internal sector
+    auto sectorConnections = filterInternalSectorConnections( allConnections, *mainGrid, settings.min(), settings.max() );
+
+    if ( sectorConnections.empty() )
+    {
+        RiaLogging::info( "No internal EDITNNC connections in sector - skipping EDITNNC export" );
+        return {};
+    }
+
+    RiaLogging::info(
+        QString( "Found %1 internal EDITNNC connections in sector (out of %2 total)" ).arg( sectorConnections.size() ).arg( allConnections.size() ) );
+
+    // Step 3: Transform and refine
+    bool hasRefinement = ( settings.refinement().x() != 1 || settings.refinement().y() != 1 || settings.refinement().z() != 1 );
+
+    std::vector<TransformedNNCConnection> transformedConnections;
+
+    if ( hasRefinement )
+    {
+        // Refine to subcells with corresponding positions
+        for ( const auto& conn : sectorConnections )
+        {
+            auto refined = refineEditNncConnection( conn, *mainGrid, settings.min(), settings.refinement() );
+            transformedConnections.insert( transformedConnections.end(), refined.begin(), refined.end() );
+        }
+    }
+    else
+    {
+        // Simple coordinate transformation, no refinement
+        for ( const auto& conn : sectorConnections )
+        {
+            auto result = transformNNCToSectorCoordinates( conn, *mainGrid, settings.min(), settings.refinement() );
+            if ( result )
+            {
+                transformedConnections.push_back( *result );
+            }
+            else
+            {
+                RiaLogging::warning( result.error() );
+            }
+        }
+    }
+
+    if ( transformedConnections.empty() )
+    {
+        return std::unexpected( "Failed to transform any EDITNNC connections" );
+    }
+
+    RiaLogging::info( QString( "Exporting %1 EDITNNC connections to sector model" ).arg( transformedConnections.size() ) );
+
+    // Step 4: Create keyword
+    auto editnncKw = RimKeywordFactory::editnncKeyword( transformedConnections );
+
+    // Step 5: Replace/add to EDIT section (not GRID!)
+    deckFile.replaceKeyword( "EDIT", editnncKw );
 
     return {};
 }
