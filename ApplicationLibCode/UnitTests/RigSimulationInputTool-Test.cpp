@@ -1150,3 +1150,253 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement_3_5_1 )
     //   K1: (1-0)*1 + 1 = 1, K2: (6-0)*1 + 1 = 6
     EXPECT_TRUE( checkCompdatCoordinates( "B-2H", 1, 6 ) ) << "B-2H COMPDAT K coordinates not centered correctly";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Helper to load model5 test case
+//--------------------------------------------------------------------------------------------------
+static cvf::ref<RigEclipseCaseData> loadModel5TestCase()
+{
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    if ( !subFolderExists ) return nullptr;
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    if ( !QFile::exists( egridFilePath ) ) return nullptr;
+
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    if ( !loadResult ) return nullptr;
+
+    return caseData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test filterInternalSectorConnections - both cells inside
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, FilterNNCConnections_BothInside )
+{
+    // Load model5 test data (20x30x10 grid)
+    auto caseData = loadModel5TestCase();
+    ASSERT_TRUE( caseData.notNull() );
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    RigMainGrid* mainGrid = caseData->mainGrid();
+
+    // Create test connections using the real grid
+    std::vector<RigSimulationInputTool::NNCConnection> allConnections;
+
+    // Connection 1: (2,3,4) to (3,3,4) - both inside sector [1,5] x [1,5] x [1,5]
+    size_t c1Idx = mainGrid->cellIndexFromIJK( 2, 3, 4 );
+    size_t c2Idx = mainGrid->cellIndexFromIJK( 3, 3, 4 );
+    allConnections.push_back( { c1Idx, c2Idx, 1.5 } );
+
+    // Connection 2: (10,20,8) to (11,20,8) - both outside sector
+    c1Idx = mainGrid->cellIndexFromIJK( 10, 20, 8 );
+    c2Idx = mainGrid->cellIndexFromIJK( 11, 20, 8 );
+    allConnections.push_back( { c1Idx, c2Idx, 2.5 } );
+
+    // Connection 3: (1,2,3) to (15,15,8) - one inside, one outside
+    c1Idx = mainGrid->cellIndexFromIJK( 1, 2, 3 );
+    c2Idx = mainGrid->cellIndexFromIJK( 15, 15, 8 );
+    allConnections.push_back( { c1Idx, c2Idx, 3.5 } );
+
+    // Filter for sector [1,5] x [1,5] x [1,5]
+    caf::VecIjk0 sectorMin( 1, 1, 1 );
+    caf::VecIjk0 sectorMax( 5, 5, 5 );
+
+    auto filtered = RigSimulationInputTool::filterInternalSectorConnections( allConnections, mainGrid, sectorMin, sectorMax );
+
+    // Only connection 1 should remain
+    ASSERT_EQ( 1u, filtered.size() );
+    EXPECT_EQ( 1.5, filtered[0].transmissibility );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test transformNNCToSectorCoordinates - no refinement
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, TransformNNCToSectorCoordinates_NoRefinement )
+{
+    // Load model5 test data (20x30x10 grid)
+    auto caseData = loadModel5TestCase();
+    ASSERT_TRUE( caseData.notNull() );
+    RigMainGrid* mainGrid = caseData->mainGrid();
+
+    // Connection between (10,15,5) and (11,15,5) - I-face neighbors
+    size_t c1Idx = mainGrid->cellIndexFromIJK( 10, 15, 5 );
+    size_t c2Idx = mainGrid->cellIndexFromIJK( 11, 15, 5 );
+
+    RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 4.5 };
+
+    // Sector starts at (5,10,2)
+    caf::VecIjk0 sectorMin( 5, 10, 2 );
+    cvf::Vec3st refinement( 1, 1, 1 );
+
+    auto result = RigSimulationInputTool::transformNNCToSectorCoordinates( connection, mainGrid, sectorMin, refinement );
+
+    ASSERT_TRUE( result.has_value() );
+
+    // Cell 1: (10,15,5) - sector min (5,10,2) = (5,5,3) in 0-based sector coords
+    EXPECT_EQ( 5, result->cell1.i() );
+    EXPECT_EQ( 5, result->cell1.j() );
+    EXPECT_EQ( 3, result->cell1.k() );
+
+    // Cell 2: (11,15,5) - sector min (5,10,2) = (6,5,3) in 0-based sector coords
+    EXPECT_EQ( 6, result->cell2.i() );
+    EXPECT_EQ( 5, result->cell2.j() );
+    EXPECT_EQ( 3, result->cell2.k() );
+
+    EXPECT_EQ( 4.5, result->transmissibility );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test refineNNCConnection - I-face neighbor with refinement (2,2,1)
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, RefineNNCConnection_IFaceNeighbor )
+{
+    // Load model5 test data (20x30x10 grid)
+    auto caseData = loadModel5TestCase();
+    ASSERT_TRUE( caseData.notNull() );
+    RigMainGrid* mainGrid = caseData->mainGrid();
+
+    // I+ neighbor: (3,4,5) to (4,4,5)
+    size_t c1Idx = mainGrid->cellIndexFromIJK( 3, 4, 5 );
+    size_t c2Idx = mainGrid->cellIndexFromIJK( 4, 4, 5 );
+
+    RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 8.0 };
+
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    cvf::Vec3st refinement( 2, 2, 1 ); // Refine by 2x2x1
+
+    auto refined = RigSimulationInputTool::refineNNCConnection( connection, mainGrid, sectorMin, refinement );
+
+    // For I-face: should create rj * rk = 2 * 1 = 2 connections
+    ASSERT_EQ( 2u, refined.size() );
+
+    // Each connection should have T/2 transmissibility
+    for ( const auto& conn : refined )
+    {
+        EXPECT_DOUBLE_EQ( 4.0, conn.transmissibility );
+    }
+
+    // Check that connections are from last I-subcell of cell1 to first I-subcell of cell2
+    for ( const auto& conn : refined )
+    {
+        // Cell 1 I coordinate: (3-0)*2 + (2-1) = 7 (last subcell in I direction)
+        EXPECT_EQ( 7, conn.cell1.i() );
+        // Cell 2 I coordinate: (4-0)*2 + 0 = 8 (first subcell in I direction)
+        EXPECT_EQ( 8, conn.cell2.i() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test refineNNCConnection - J-face neighbor with refinement (3,2,1)
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, RefineNNCConnection_JFaceNeighbor )
+{
+    // Load model5 test data (20x30x10 grid)
+    auto caseData = loadModel5TestCase();
+    ASSERT_TRUE( caseData.notNull() );
+    RigMainGrid* mainGrid = caseData->mainGrid();
+
+    // J+ neighbor: (5,10,7) to (5,11,7)
+    size_t c1Idx = mainGrid->cellIndexFromIJK( 5, 10, 7 );
+    size_t c2Idx = mainGrid->cellIndexFromIJK( 5, 11, 7 );
+
+    RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 12.0 };
+
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    cvf::Vec3st refinement( 3, 2, 1 ); // Refine by 3x2x1
+
+    auto refined = RigSimulationInputTool::refineNNCConnection( connection, mainGrid, sectorMin, refinement );
+
+    // For J-face: should create ri * rk = 3 * 1 = 3 connections
+    ASSERT_EQ( 3u, refined.size() );
+
+    // Each connection should have T/3 transmissibility
+    for ( const auto& conn : refined )
+    {
+        EXPECT_DOUBLE_EQ( 4.0, conn.transmissibility );
+    }
+
+    // Check that connections are from last J-subcell of cell1 to first J-subcell of cell2
+    for ( const auto& conn : refined )
+    {
+        // Cell 1 J coordinate: (10-0)*2 + (2-1) = 21 (last subcell in J direction)
+        EXPECT_EQ( 21, conn.cell1.j() );
+        // Cell 2 J coordinate: (11-0)*2 + 0 = 22 (first subcell in J direction)
+        EXPECT_EQ( 22, conn.cell2.j() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test refineNNCConnection - K-face neighbor with refinement (1,1,3)
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, RefineNNCConnection_KFaceNeighbor )
+{
+    // Load model5 test data (20x30x10 grid)
+    auto caseData = loadModel5TestCase();
+    ASSERT_TRUE( caseData.notNull() );
+    RigMainGrid* mainGrid = caseData->mainGrid();
+
+    // K+ neighbor: (2,3,4) to (2,3,5)
+    size_t c1Idx = mainGrid->cellIndexFromIJK( 2, 3, 4 );
+    size_t c2Idx = mainGrid->cellIndexFromIJK( 2, 3, 5 );
+
+    RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 9.0 };
+
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    cvf::Vec3st refinement( 1, 1, 3 ); // Refine by 1x1x3
+
+    auto refined = RigSimulationInputTool::refineNNCConnection( connection, mainGrid, sectorMin, refinement );
+
+    // For K-face: should create ri * rj = 1 * 1 = 1 connection
+    ASSERT_EQ( 1u, refined.size() );
+
+    // Single connection should have full transmissibility
+    EXPECT_DOUBLE_EQ( 9.0, refined[0].transmissibility );
+
+    // Check that connection is from last K-subcell of cell1 to first K-subcell of cell2
+    // Cell 1 K coordinate: (4-0)*3 + (3-1) = 14 (last subcell in K direction)
+    EXPECT_EQ( 14, refined[0].cell1.k() );
+    // Cell 2 K coordinate: (5-0)*3 + 0 = 15 (first subcell in K direction)
+    EXPECT_EQ( 15, refined[0].cell2.k() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test refineNNCConnection - non-neighbor (diagonal) connection
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, RefineNNCConnection_NonNeighbor )
+{
+    // Load model5 test data (20x30x10 grid)
+    auto caseData = loadModel5TestCase();
+    ASSERT_TRUE( caseData.notNull() );
+    RigMainGrid* mainGrid = caseData->mainGrid();
+
+    // Non-neighbor: (2,2,2) to (5,5,5) - diagonal across multiple cells
+    size_t c1Idx = mainGrid->cellIndexFromIJK( 2, 2, 2 );
+    size_t c2Idx = mainGrid->cellIndexFromIJK( 5, 5, 5 );
+
+    RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 16.0 };
+
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    cvf::Vec3st refinement( 2, 2, 2 ); // Refine by 2x2x2
+
+    auto refined = RigSimulationInputTool::refineNNCConnection( connection, mainGrid, sectorMin, refinement );
+
+    // Non-neighbor: creates connections from all subcells in cell1 to all subcells in cell2
+    // Should create 2*2*2 * 2*2*2 = 8 * 8 = 64 connections
+    ASSERT_EQ( 64u, refined.size() );
+
+    // Each connection should have T/64 transmissibility
+    for ( const auto& conn : refined )
+    {
+        EXPECT_DOUBLE_EQ( 0.25, conn.transmissibility );
+    }
+}

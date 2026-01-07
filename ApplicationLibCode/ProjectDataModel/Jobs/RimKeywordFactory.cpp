@@ -29,6 +29,7 @@
 #include "RigEclipseResultTools.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
+#include "RigSimulationInputTool.h"
 
 #include "RimEclipseCase.h"
 #include "RimWellPath.h"
@@ -43,6 +44,7 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/F.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/N.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
@@ -654,6 +656,34 @@ Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
 
     operaterKw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
     return operaterKw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword nncKeyword( const std::vector<RigSimulationInputTool::TransformedNNCConnection>& connections )
+{
+    using N = Opm::ParserKeywords::NNC;
+
+    Opm::DeckKeyword kw{ Opm::ParserKeywords::NNC{} };
+
+    for ( const auto& conn : connections )
+    {
+        std::vector<Opm::DeckItem> items;
+
+        // Convert from 0-based sector coordinates to 1-based Eclipse convention
+        items.push_back( RifOpmDeckTools::item( N::I1::itemName, static_cast<int>( conn.cell1.i() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( N::J1::itemName, static_cast<int>( conn.cell1.j() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( N::K1::itemName, static_cast<int>( conn.cell1.k() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( N::I2::itemName, static_cast<int>( conn.cell2.i() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( N::J2::itemName, static_cast<int>( conn.cell2.j() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( N::K2::itemName, static_cast<int>( conn.cell2.k() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( N::TRAN::itemName, conn.transmissibility ) );
+
+        kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    return kw;
 }
 
 } // namespace RimKeywordFactory

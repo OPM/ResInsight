@@ -19,6 +19,7 @@
 #include "RigSimulationInputTool.h"
 
 #include "RiaLogging.h"
+#include "RiaNncDefines.h"
 
 #include "RifEclipseInputFileTools.h"
 #include "RifOpmDeckTools.h"
@@ -31,6 +32,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultTools.h"
 #include "RigGridExportAdapter.h"
+#include "RigMainGrid.h"
+#include "RigNNCData.h"
+#include "RigNncConnection.h"
 #include "RigResdataGridConverter.h"
 #include "RigSimulationInputSettings.h"
 #include "Well/RigSimWellData.h"
@@ -46,6 +50,7 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/M.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/N.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
@@ -131,6 +136,11 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     }
 
     if ( auto result = filterAndUpdateWellKeywords( &eclipseCase, settings, deckFile ); !result )
+    {
+        return result;
+    }
+
+    if ( auto result = exportNNCKeyword( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
     }
@@ -1554,6 +1564,438 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
     }
 
     RiaLogging::info( QString( "Added OPERATER keyword to multiply PORV in region %1 by %2" ).arg( operNumRegion ).arg( porvMultiplier ) );
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimulationInputTool::NNCConnection> RigSimulationInputTool::extractComputedNNCConnections( RigMainGrid* mainGrid )
+{
+    std::vector<NNCConnection> connections;
+
+    RigNNCData* nncData = mainGrid->nncData();
+    if ( !nncData ) return connections;
+
+    // Get native Eclipse connections (not generated ones)
+    const RigConnectionContainer& rigConnections   = nncData->availableConnections();
+    size_t                        eclipseConnCount = nncData->eclipseConnectionCount();
+
+    // Get transmissibility data
+    const std::vector<double>* transData = nncData->staticConnectionScalarResultByName( RiaDefines::propertyNameCombTrans() );
+
+    // Only export native Eclipse NNCs, not ResInsight-generated ones
+    for ( size_t i = 0; i < eclipseConnCount && i < rigConnections.size(); ++i )
+    {
+        const RigConnection& conn  = rigConnections[i];
+        double               trans = ( transData && i < transData->size() ) ? ( *transData )[i] : 0.0;
+
+        connections.push_back( { conn.c1GlobIdx(), conn.c2GlobIdx(), trans } );
+    }
+
+    return connections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimulationInputTool::NNCConnection> RigSimulationInputTool::extractDeckNNCConnections( RifOpmFlowDeckFile& deckFile,
+                                                                                                      RigMainGrid*        mainGrid )
+{
+    std::vector<NNCConnection> connections;
+
+    // Find all NNC keywords in deck (there may be multiple)
+    auto keywords = deckFile.findAllKeywordsWithIndices( "NNC" );
+
+    for ( const auto& keywordPair : keywords )
+    {
+        const auto& keyword = keywordPair.second;
+
+        // Each keyword can have multiple records
+        for ( size_t recordIdx = 0; recordIdx < keyword.size(); ++recordIdx )
+        {
+            const auto& record = keyword.getRecord( recordIdx );
+
+            // Read IJK coordinates directly from deck (1-based) and convert to 0-based
+            caf::VecIjk1 ijk1( record.getItem( 0 ).get<int>( 0 ), record.getItem( 1 ).get<int>( 0 ), record.getItem( 2 ).get<int>( 0 ) );
+            caf::VecIjk1 ijk2( record.getItem( 3 ).get<int>( 0 ), record.getItem( 4 ).get<int>( 0 ), record.getItem( 5 ).get<int>( 0 ) );
+            double       trans = record.getItem( 6 ).get<double>( 0 );
+
+            // Convert IJK to global cell indices
+            size_t c1Idx = mainGrid->cellIndexFromIJK( ijk1.toZeroBased() );
+            size_t c2Idx = mainGrid->cellIndexFromIJK( ijk2.toZeroBased() );
+
+            // Validate indices
+            if ( c1Idx == cvf::UNDEFINED_SIZE_T || c2Idx == cvf::UNDEFINED_SIZE_T )
+            {
+                RiaLogging::warning( QString( "Invalid NNC connection in deck: (%1)-(%2)" )
+                                         .arg( QString::fromStdString( ijk1.toString() ) )
+                                         .arg( QString::fromStdString( ijk2.toString() ) ) );
+                continue;
+            }
+
+            connections.push_back( { c1Idx, c2Idx, trans } );
+        }
+    }
+
+    return connections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimulationInputTool::NNCConnection>
+    RigSimulationInputTool::filterInternalSectorConnections( const std::vector<NNCConnection>& allConnections,
+                                                             RigMainGrid*                      mainGrid,
+                                                             const caf::VecIjk0&               min,
+                                                             const caf::VecIjk0&               max )
+{
+    std::vector<NNCConnection> filteredConnections;
+
+    RigBoundingBoxIjk sectorBounds( min, max );
+
+    for ( const auto& conn : allConnections )
+    {
+        // Get IJK for both cells
+        auto ijk1 = mainGrid->ijkFromCellIndex( conn.c1GlobIdx );
+        auto ijk2 = mainGrid->ijkFromCellIndex( conn.c2GlobIdx );
+
+        if ( !ijk1 || !ijk2 )
+        {
+            continue; // Invalid cell index
+        }
+
+        // Only keep if BOTH cells are inside sector bounds
+        if ( sectorBounds.contains( *ijk1 ) && sectorBounds.contains( *ijk2 ) )
+        {
+            filteredConnections.push_back( conn );
+        }
+    }
+
+    return filteredConnections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RigSimulationInputTool::TransformedNNCConnection, QString>
+    RigSimulationInputTool::transformNNCToSectorCoordinates( const NNCConnection& connection,
+                                                             RigMainGrid*         mainGrid,
+                                                             const caf::VecIjk0&  min,
+                                                             const cvf::Vec3st&   refinement )
+{
+    // Get global IJK for both cells
+    auto gijk1 = mainGrid->ijkFromCellIndex( connection.c1GlobIdx );
+    auto gijk2 = mainGrid->ijkFromCellIndex( connection.c2GlobIdx );
+
+    if ( !gijk1 )
+    {
+        return std::unexpected( QString( "Invalid cell index: %1" ).arg( connection.c1GlobIdx ) );
+    }
+
+    if ( !gijk2 )
+    {
+        return std::unexpected( QString( "Invalid cell index: %1" ).arg( connection.c2GlobIdx ) );
+    }
+
+    // Transform to sector coordinates (0-based)
+    int si1 = static_cast<int>( gijk1->i() - min.i() ) * static_cast<int>( refinement.x() );
+    int sj1 = static_cast<int>( gijk1->j() - min.j() ) * static_cast<int>( refinement.y() );
+    int sk1 = static_cast<int>( gijk1->k() - min.k() ) * static_cast<int>( refinement.z() );
+
+    int si2 = static_cast<int>( gijk2->i() - min.i() ) * static_cast<int>( refinement.x() );
+    int sj2 = static_cast<int>( gijk2->j() - min.j() ) * static_cast<int>( refinement.y() );
+    int sk2 = static_cast<int>( gijk2->k() - min.k() ) * static_cast<int>( refinement.z() );
+
+    // Keep as 0-based sector coordinates
+    TransformedNNCConnection transformed;
+    transformed.cell1            = caf::VecIjk0( si1, sj1, sk1 );
+    transformed.cell2            = caf::VecIjk0( si2, sj2, sk2 );
+    transformed.transmissibility = connection.transmissibility;
+
+    return transformed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimulationInputTool::TransformedNNCConnection> RigSimulationInputTool::refineNNCConnection( const NNCConnection& connection,
+                                                                                                           RigMainGrid*         mainGrid,
+                                                                                                           const caf::VecIjk0&  min,
+                                                                                                           const cvf::Vec3st&   refinement )
+{
+    std::vector<TransformedNNCConnection> refined;
+
+    // Get global IJK for both cells
+    auto gijk1 = mainGrid->ijkFromCellIndex( connection.c1GlobIdx );
+    auto gijk2 = mainGrid->ijkFromCellIndex( connection.c2GlobIdx );
+
+    if ( !gijk1 || !gijk2 )
+    {
+        return refined; // Return empty on error
+    }
+
+    // Extract individual components for frequent use
+    size_t gi1 = gijk1->i();
+    size_t gj1 = gijk1->j();
+    size_t gk1 = gijk1->k();
+    size_t gi2 = gijk2->i();
+    size_t gj2 = gijk2->j();
+    size_t gk2 = gijk2->k();
+
+    // Check if cells are direct neighbors in I, J, or K direction
+    bool isIPosNeighbor = ( gi2 == gi1 + 1 && gj2 == gj1 && gk2 == gk1 );
+    bool isINegNeighbor = ( gi2 + 1 == gi1 && gj2 == gj1 && gk2 == gk1 );
+    bool isJPosNeighbor = ( gj2 == gj1 + 1 && gi2 == gi1 && gk2 == gk1 );
+    bool isJNegNeighbor = ( gj2 + 1 == gj1 && gi2 == gi1 && gk2 == gk1 );
+    bool isKPosNeighbor = ( gk2 == gk1 + 1 && gi2 == gi1 && gj2 == gj1 );
+    bool isKNegNeighbor = ( gk2 + 1 == gk1 && gi2 == gi1 && gj2 == gj1 );
+
+    if ( isIPosNeighbor || isINegNeighbor )
+    {
+        // I-face neighbor: Create connections along I-face boundary
+        size_t numConnections     = refinement.y() * refinement.z(); // rj * rk
+        double transPerConnection = connection.transmissibility / numConnections;
+
+        for ( size_t subJ = 0; subJ < refinement.y(); ++subJ )
+        {
+            for ( size_t subK = 0; subK < refinement.z(); ++subK )
+            {
+                int si1, si2;
+                if ( isIPosNeighbor )
+                {
+                    // Last subcell of Cell1 in I-direction connects to first subcell of Cell2
+                    si1 = static_cast<int>( gi1 - min.i() ) * static_cast<int>( refinement.x() ) + static_cast<int>( refinement.x() - 1 );
+                    si2 = static_cast<int>( gi2 - min.i() ) * static_cast<int>( refinement.x() );
+                }
+                else
+                {
+                    // First subcell of Cell1 connects to last subcell of Cell2
+                    si1 = static_cast<int>( gi1 - min.i() ) * static_cast<int>( refinement.x() );
+                    si2 = static_cast<int>( gi2 - min.i() ) * static_cast<int>( refinement.x() ) + static_cast<int>( refinement.x() - 1 );
+                }
+
+                int sj1 = static_cast<int>( gj1 - min.j() ) * static_cast<int>( refinement.y() ) + static_cast<int>( subJ );
+                int sk1 = static_cast<int>( gk1 - min.k() ) * static_cast<int>( refinement.z() ) + static_cast<int>( subK );
+                int sj2 = static_cast<int>( gj2 - min.j() ) * static_cast<int>( refinement.y() ) + static_cast<int>( subJ );
+                int sk2 = static_cast<int>( gk2 - min.k() ) * static_cast<int>( refinement.z() ) + static_cast<int>( subK );
+
+                TransformedNNCConnection conn;
+                conn.cell1            = caf::VecIjk0( si1, sj1, sk1 );
+                conn.cell2            = caf::VecIjk0( si2, sj2, sk2 );
+                conn.transmissibility = transPerConnection;
+                refined.push_back( conn );
+            }
+        }
+    }
+    else if ( isJPosNeighbor || isJNegNeighbor )
+    {
+        // J-face neighbor: Create connections along J-face boundary
+        size_t numConnections     = refinement.x() * refinement.z(); // ri * rk
+        double transPerConnection = connection.transmissibility / numConnections;
+
+        for ( size_t subI = 0; subI < refinement.x(); ++subI )
+        {
+            for ( size_t subK = 0; subK < refinement.z(); ++subK )
+            {
+                int si1 = static_cast<int>( gi1 - min.i() ) * static_cast<int>( refinement.x() ) + static_cast<int>( subI );
+                int sk1 = static_cast<int>( gk1 - min.k() ) * static_cast<int>( refinement.z() ) + static_cast<int>( subK );
+                int si2 = static_cast<int>( gi2 - min.i() ) * static_cast<int>( refinement.x() ) + static_cast<int>( subI );
+                int sk2 = static_cast<int>( gk2 - min.k() ) * static_cast<int>( refinement.z() ) + static_cast<int>( subK );
+
+                int sj1, sj2;
+                if ( isJPosNeighbor )
+                {
+                    sj1 = static_cast<int>( gj1 - min.j() ) * static_cast<int>( refinement.y() ) + static_cast<int>( refinement.y() - 1 );
+                    sj2 = static_cast<int>( gj2 - min.j() ) * static_cast<int>( refinement.y() );
+                }
+                else
+                {
+                    sj1 = static_cast<int>( gj1 - min.j() ) * static_cast<int>( refinement.y() );
+                    sj2 = static_cast<int>( gj2 - min.j() ) * static_cast<int>( refinement.y() ) + static_cast<int>( refinement.y() - 1 );
+                }
+
+                TransformedNNCConnection conn;
+                conn.cell1            = caf::VecIjk0( si1, sj1, sk1 );
+                conn.cell2            = caf::VecIjk0( si2, sj2, sk2 );
+                conn.transmissibility = transPerConnection;
+                refined.push_back( conn );
+            }
+        }
+    }
+    else if ( isKPosNeighbor || isKNegNeighbor )
+    {
+        // K-face neighbor: Create connections along K-face boundary
+        size_t numConnections     = refinement.x() * refinement.y(); // ri * rj
+        double transPerConnection = connection.transmissibility / numConnections;
+
+        for ( size_t subI = 0; subI < refinement.x(); ++subI )
+        {
+            for ( size_t subJ = 0; subJ < refinement.y(); ++subJ )
+            {
+                int si1 = static_cast<int>( gi1 - min.i() ) * static_cast<int>( refinement.x() ) + static_cast<int>( subI );
+                int sj1 = static_cast<int>( gj1 - min.j() ) * static_cast<int>( refinement.y() ) + static_cast<int>( subJ );
+                int si2 = static_cast<int>( gi2 - min.i() ) * static_cast<int>( refinement.x() ) + static_cast<int>( subI );
+                int sj2 = static_cast<int>( gj2 - min.j() ) * static_cast<int>( refinement.y() ) + static_cast<int>( subJ );
+
+                int sk1, sk2;
+                if ( isKPosNeighbor )
+                {
+                    sk1 = static_cast<int>( gk1 - min.k() ) * static_cast<int>( refinement.z() ) + static_cast<int>( refinement.z() - 1 );
+                    sk2 = static_cast<int>( gk2 - min.k() ) * static_cast<int>( refinement.z() );
+                }
+                else
+                {
+                    sk1 = static_cast<int>( gk1 - min.k() ) * static_cast<int>( refinement.z() );
+                    sk2 = static_cast<int>( gk2 - min.k() ) * static_cast<int>( refinement.z() ) + static_cast<int>( refinement.z() - 1 );
+                }
+
+                TransformedNNCConnection conn;
+                conn.cell1            = caf::VecIjk0( si1, sj1, sk1 );
+                conn.cell2            = caf::VecIjk0( si2, sj2, sk2 );
+                conn.transmissibility = transPerConnection;
+                refined.push_back( conn );
+            }
+        }
+    }
+    else
+    {
+        // Non-neighbor connection: Use uniform distribution
+        // This creates connections from every subcell in Cell1 to every subcell in Cell2
+        size_t totalSubcells1     = refinement.x() * refinement.y() * refinement.z();
+        size_t totalSubcells2     = refinement.x() * refinement.y() * refinement.z();
+        size_t totalConnections   = totalSubcells1 * totalSubcells2;
+        double transPerConnection = connection.transmissibility / totalConnections;
+
+        for ( size_t sub1I = 0; sub1I < refinement.x(); ++sub1I )
+        {
+            for ( size_t sub1J = 0; sub1J < refinement.y(); ++sub1J )
+            {
+                for ( size_t sub1K = 0; sub1K < refinement.z(); ++sub1K )
+                {
+                    int si1 = static_cast<int>( gi1 - min.i() ) * static_cast<int>( refinement.x() ) + static_cast<int>( sub1I );
+                    int sj1 = static_cast<int>( gj1 - min.j() ) * static_cast<int>( refinement.y() ) + static_cast<int>( sub1J );
+                    int sk1 = static_cast<int>( gk1 - min.k() ) * static_cast<int>( refinement.z() ) + static_cast<int>( sub1K );
+
+                    for ( size_t sub2I = 0; sub2I < refinement.x(); ++sub2I )
+                    {
+                        for ( size_t sub2J = 0; sub2J < refinement.y(); ++sub2J )
+                        {
+                            for ( size_t sub2K = 0; sub2K < refinement.z(); ++sub2K )
+                            {
+                                int si2 = static_cast<int>( gi2 - min.i() ) * static_cast<int>( refinement.x() ) + static_cast<int>( sub2I );
+                                int sj2 = static_cast<int>( gj2 - min.j() ) * static_cast<int>( refinement.y() ) + static_cast<int>( sub2J );
+                                int sk2 = static_cast<int>( gk2 - min.k() ) * static_cast<int>( refinement.z() ) + static_cast<int>( sub2K );
+
+                                TransformedNNCConnection conn;
+                                conn.cell1            = caf::VecIjk0( si1, sj1, sk1 );
+                                conn.cell2            = caf::VecIjk0( si2, sj2, sk2 );
+                                conn.transmissibility = transPerConnection;
+                                refined.push_back( conn );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return refined;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::exportNNCKeyword( RimEclipseCase*                   eclipseCase,
+                                                                       const RigSimulationInputSettings& settings,
+                                                                       RifOpmFlowDeckFile&               deckFile )
+{
+    RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
+    if ( !mainGrid ) return std::unexpected( "No main grid available" );
+
+    // Step 1: Determine source
+    bool hasRefinement = ( settings.refinement().x() != 1 || settings.refinement().y() != 1 || settings.refinement().z() != 1 );
+
+    bool deckHasNNC = deckFile.findKeyword( "NNC" ).has_value();
+
+    std::vector<NNCConnection> allConnections;
+
+    if ( hasRefinement || !deckHasNNC )
+    {
+        // Use computed data
+        allConnections = extractComputedNNCConnections( mainGrid );
+        if ( allConnections.empty() && !deckHasNNC )
+        {
+            RiaLogging::info( "No NNC data available - skipping NNC export" );
+            return {};
+        }
+    }
+    else
+    {
+        // Use deck data
+        allConnections = extractDeckNNCConnections( deckFile, mainGrid );
+    }
+
+    if ( allConnections.empty() )
+    {
+        RiaLogging::info( "No NNC connections found - skipping NNC export" );
+        return {};
+    }
+
+    // Step 2: Filter for internal sector
+    auto sectorConnections = filterInternalSectorConnections( allConnections, mainGrid, settings.min(), settings.max() );
+
+    if ( sectorConnections.empty() )
+    {
+        RiaLogging::info( QString( "No internal NNC connections in sector - skipping NNC export" ) );
+        return {};
+    }
+
+    RiaLogging::info(
+        QString( "Found %1 internal NNC connections in sector (out of %2 total)" ).arg( sectorConnections.size() ).arg( allConnections.size() ) );
+
+    // Step 3: Transform and refine
+    std::vector<TransformedNNCConnection> transformedConnections;
+
+    if ( hasRefinement )
+    {
+        // Distribute to refined subcells
+        for ( const auto& conn : sectorConnections )
+        {
+            auto refined = refineNNCConnection( conn, mainGrid, settings.min(), settings.refinement() );
+            transformedConnections.insert( transformedConnections.end(), refined.begin(), refined.end() );
+        }
+    }
+    else
+    {
+        // Simple coordinate transformation
+        for ( const auto& conn : sectorConnections )
+        {
+            auto result = transformNNCToSectorCoordinates( conn, mainGrid, settings.min(), settings.refinement() );
+            if ( result )
+            {
+                transformedConnections.push_back( *result );
+            }
+            else
+            {
+                RiaLogging::warning( result.error() );
+            }
+        }
+    }
+
+    if ( transformedConnections.empty() )
+    {
+        return std::unexpected( "Failed to transform any NNC connections" );
+    }
+
+    RiaLogging::info( QString( "Exporting %1 NNC connections to sector model" ).arg( transformedConnections.size() ) );
+
+    // Step 4: Create keyword
+    auto nncKw = RimKeywordFactory::nncKeyword( transformedConnections );
+
+    // Step 5: Replace/add to deck
+    deckFile.replaceKeyword( "GRID", nncKw );
 
     return {};
 }
