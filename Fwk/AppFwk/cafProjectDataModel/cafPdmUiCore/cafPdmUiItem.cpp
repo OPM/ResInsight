@@ -35,6 +35,7 @@
 //##################################################################################################
 
 #include "cafPdmUiItem.h"
+#include "cafPdmLogging.h"
 #include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiItemInfo.h"
@@ -669,6 +670,28 @@ std::list<QString> PdmUiItem::attributeNames( const QString& uiConfigName ) cons
     }
 
     return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Validate that all attributes set on this item are in the supported set
+/// Logs warnings for unsupported attributes
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::validateAttributes( const QString&           contextName,
+                                    const std::set<QString>& supportedAttributes,
+                                    const QString&           uiConfigName ) const
+{
+    auto allAttributeNames = attributeNames( uiConfigName );
+    for ( const auto& key : allAttributeNames )
+    {
+        if ( supportedAttributes.find( key ) == supportedAttributes.end() )
+        {
+            CAF_PDM_LOG_WARNING(
+                QString( "%1: Unsupported attribute '%2' set on field. Supported attributes are: %3" )
+                    .arg( contextName )
+                    .arg( key )
+                    .arg( QStringList( supportedAttributes.begin(), supportedAttributes.end() ).join( ", " ) ) );
+        }
+    }
 }
 
 } // End of namespace caf

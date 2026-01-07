@@ -145,6 +145,11 @@ public:
 
     std::list<QString> attributeNames( const QString& uiConfigName = "" ) const;
 
+    // Helper function to validate attributes against a supported set
+    void validateAttributes( const QString&           contextName,
+                             const std::set<QString>& supportedAttributes,
+                             const QString&           uiConfigName = "" ) const;
+
     /// Intended to be called when fields in an object has been changed
     void updateConnectedEditors() const;
     void scheduleUpdateConnectedEditors() const;

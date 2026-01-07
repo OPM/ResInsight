@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2014 Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -77,6 +77,12 @@ void PdmUiToolButtonCallbackEditor::configureAndUpdateUi( const QString& uiConfi
         {
             pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
         }
+    }
+
+    // Validate: warn about unsupported attributes
+    if ( uiItem )
+    {
+        uiItem->validateAttributes( "PdmUiToolButtonCallbackEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     m_toolButton->setCheckable( false );

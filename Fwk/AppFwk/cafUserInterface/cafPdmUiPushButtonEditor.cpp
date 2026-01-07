@@ -89,18 +89,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
 
         // Validate: warn about unsupported attributes
-        auto allAttributeNames = uiItem->attributeNames( uiConfigName );
-        for ( const auto& key : allAttributeNames )
-        {
-            if ( SUPPORTED_ATTRIBUTES.find( key ) == SUPPORTED_ATTRIBUTES.end() )
-            {
-                CAF_PDM_LOG_WARNING(
-                    QString( "PdmUiPushButtonEditor: Unsupported attribute '%1' set on field. Supported "
-                             "attributes are: %2" )
-                        .arg( key )
-                        .arg( QStringList( SUPPORTED_ATTRIBUTES.begin(), SUPPORTED_ATTRIBUTES.end() ).join( ", " ) ) );
-            }
-        }
+        uiItem->validateAttributes( "PdmUiPushButtonEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     QVariant variantFieldValue = uiField()->uiValue();
