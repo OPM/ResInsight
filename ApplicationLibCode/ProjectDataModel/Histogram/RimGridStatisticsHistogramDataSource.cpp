@@ -46,7 +46,7 @@ RimGridStatisticsHistogramDataSource::RimGridStatisticsHistogramDataSource()
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
 
     CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property" );
-    m_property = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
+    m_property = new RimEclipseResultDefinition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_property.uiCapability()->setUiTreeChildrenHidden( true );
     m_property->setTernaryEnabled( false );
 

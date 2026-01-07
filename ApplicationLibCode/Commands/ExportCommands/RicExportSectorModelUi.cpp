@@ -65,18 +65,18 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     CAF_PDM_InitField( &m_minI, "MinI", 1, "Min I, J, K" );
     CAF_PDM_InitField( &m_minJ, "MinJ", 1, "" );
-    m_minJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_minJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     CAF_PDM_InitField( &m_minK, "MinK", 1, "" );
-    m_minK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_minK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_minI.setMinValue( 1 );
     m_minJ.setMinValue( 1 );
     m_minK.setMinValue( 1 );
 
     CAF_PDM_InitField( &m_maxI, "MaxI", 1, "Max I, J, K" );
     CAF_PDM_InitField( &m_maxJ, "MaxJ", 1, "" );
-    m_maxJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_maxJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     CAF_PDM_InitField( &m_maxK, "MaxK", 1, "" );
-    m_maxK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_maxK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     m_maxI.setMinValue( 1 );
     m_maxJ.setMinValue( 1 );
@@ -94,7 +94,7 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
     m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_bcpropKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_bcpropKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitField( &m_createSimulationJob, "CreateSimulationJob", false, "Create New Simulation Job" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSimulationJob );

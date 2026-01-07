@@ -40,7 +40,7 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_filters, "CurveFilters", "" );
     m_filters.uiCapability()->setUiTreeChildrenHidden( true );
-    m_filters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_filters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_newFilterButton, "NewEnsembleFilter", "New Filter" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_newFilterButton );

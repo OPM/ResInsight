@@ -185,7 +185,7 @@ RimDeltaSummaryCase::RimDeltaSummaryCase()
     CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step" );
     CAF_PDM_InitField( &m_inUse, "InUse", false, "In Use" );
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------

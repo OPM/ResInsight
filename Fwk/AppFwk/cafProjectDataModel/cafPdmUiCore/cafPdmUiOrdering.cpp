@@ -431,7 +431,7 @@ void PdmUiOrdering::nrOfColumnsRequiredForItem( const FieldAndLayout& fieldAndLa
     {
         *fieldColumnsRequired = 1;
         *labelColumnsRequired = 0;
-        if ( uiItem->uiLabelPosition() == PdmUiItemInfo::LEFT )
+        if ( uiItem->uiLabelPosition() == PdmUiItemInfo::LabelPosition::LEFT )
         {
             *labelColumnsRequired = 1;
             if ( layoutOption.leftLabelColumnSpan != MAX_COLUMN_SPAN )

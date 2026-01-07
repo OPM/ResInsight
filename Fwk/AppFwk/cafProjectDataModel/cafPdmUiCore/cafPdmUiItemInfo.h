@@ -52,7 +52,7 @@ namespace caf
 class PdmUiItemInfo
 {
 public:
-    enum LabelPosType
+    enum class LabelPosition
     {
         LEFT,
         TOP,
@@ -65,7 +65,7 @@ public:
         , m_isTreeHidden( -1 )
         , m_isTreeChildrenHidden( -1 )
         , m_isReadOnly( -1 )
-        , m_labelAlignment( LEFT )
+        , m_labelPosition( LabelPosition::LEFT )
         , m_isCustomContextMenuEnabled( -1 )
         , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
     {
@@ -100,9 +100,9 @@ private:
     int     m_isTreeHidden; ///< UiItem should be hidden in tree. -1 means not set
     int     m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
     int     m_isReadOnly; ///< UiItem should be insensitive, or read only. -1 means not set.
-    LabelPosType m_labelAlignment;
-    int          m_isCustomContextMenuEnabled;
-    int          m_notifyAllFieldsInMultiFieldChangedEvents;
+    LabelPosition m_labelPosition;
+    int           m_isCustomContextMenuEnabled;
+    int           m_notifyAllFieldsInMultiFieldChangedEvents;
 };
 
 } // End of namespace caf

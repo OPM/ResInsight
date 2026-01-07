@@ -50,13 +50,13 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_enablePicking );
-    m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+    m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     // m_targets.uiCapability()->setUiTreeHidden(true);
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
-    m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
 
     setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );

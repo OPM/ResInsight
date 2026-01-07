@@ -171,11 +171,11 @@ void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int      
                 }
                 else
                 {
-                    caf::PdmUiItemInfo::LabelPosType labelPos = field->uiLabelPosition( uiConfigName );
+                    caf::PdmUiItemInfo::LabelPosition labelPos = field->uiLabelPosition( uiConfigName );
 
                     QWidget* fieldEditorWidget = fieldEditor->editorWidget();
 
-                    if ( labelPos != caf::PdmUiItemInfo::HIDDEN )
+                    if ( labelPos != caf::PdmUiItemInfo::LabelPosition::HIDDEN )
                     {
                         QWidget* fieldLabelWidget = fieldEditor->labelWidget();
                         if ( fieldLabelWidget )

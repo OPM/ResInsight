@@ -420,7 +420,7 @@ public:
                            "",
                            "Enter some small number here",
                            "This is a place you can enter a small integer value if you want" );
-        m_intFieldLabelTop.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+        m_intFieldLabelTop.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
         CAF_PDM_InitField( &m_stringFieldLabelHidden,
                            "FieldLabelHidden",
                            QString( "Hidden Label Field" ),
@@ -428,7 +428,7 @@ public:
                            "",
                            "Enter some small number here",
                            "This is a place you can enter a small integer value if you want" );
-        m_stringFieldLabelHidden.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+        m_stringFieldLabelHidden.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
         CAF_PDM_InitField( &m_intFieldWideBothAuto,
                            "WideBothAuto",
@@ -465,7 +465,7 @@ public:
                            "",
                            "Enter some small number here",
                            "This is a place you can enter a small integer value if you want" );
-        m_intFieldLabelTopAuto.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+        m_intFieldLabelTopAuto.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
         CAF_PDM_InitField( &m_stringFieldLabelHiddenAuto,
                            "FieldLabelHiddenAuto",
                            QString( "Hidden Label Field" ),
@@ -473,7 +473,7 @@ public:
                            "",
                            "Enter some small number here",
                            "This is a place you can enter a small integer value if you want" );
-        m_stringFieldLabelHiddenAuto.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+        m_stringFieldLabelHiddenAuto.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
         CAF_PDM_InitField( &m_intFieldLeftOfGroup,
                            "FieldLeftOfGrp",
@@ -968,9 +968,9 @@ public:
         CAF_PDM_InitFieldNoDefault( &m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of PdmObjects" );
 
         m_filePath.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-        m_filePath.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+        m_filePath.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
         m_longText.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-        m_longText.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+        m_longText.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
         m_menuItemProducer = new MenuItemProducer;
     }

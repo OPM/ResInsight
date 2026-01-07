@@ -56,7 +56,7 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
     , m_isTreeHidden( false )
     , m_isTreeChildrenHidden( false )
     , m_isReadOnly( false )
-    , m_labelAlignment( LEFT )
+    , m_labelPosition( LabelPosition::LEFT )
     , m_isCustomContextMenuEnabled( false )
     , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
 {
@@ -80,7 +80,7 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
     , m_isTreeHidden( false )
     , m_isTreeChildrenHidden( false )
     , m_isReadOnly( false )
-    , m_labelAlignment( LEFT )
+    , m_labelPosition( LabelPosition::LEFT )
     , m_isCustomContextMenuEnabled( false )
     , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
 {

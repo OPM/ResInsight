@@ -97,15 +97,15 @@ RimFracture::RimFracture()
     CAF_PDM_InitFieldNoDefault( &m_fractureTemplate, "FractureDef", "Fracture Template" );
     CAF_PDM_InitField( &m_editFractureTemplate, "EditTemplate", false, "Edit" );
     m_editFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_editFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_editFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitField( &m_createEllipseFractureTemplate, "CreateEllipseTemplate", false, "No Fracture Templates Found." );
     m_createEllipseFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_createEllipseFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_createEllipseFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitField( &m_createStimPlanFractureTemplate, "CreateStimPlanTemplate", false, "Create New Template?" );
     m_createStimPlanFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitField( &m_autoUpdateWellPathDepthAtFractureFromTemplate,
                        "AutoUpdateWellPathDepthAtFractureFromTemplate",

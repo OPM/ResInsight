@@ -93,17 +93,17 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "" );
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_applyButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_applyButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_closeButtonField, "Close", "" );
     m_closeButtonField = false;
     m_closeButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_closeButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_closeButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_okButtonField, "OK", "" );
     m_okButtonField = false;
     m_okButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_okButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_okButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     m_summaryCurveSelectionEditor = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();
 

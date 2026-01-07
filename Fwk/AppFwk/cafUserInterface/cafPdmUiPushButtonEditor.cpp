@@ -126,7 +126,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
     }
 
-    if ( uiField()->uiLabelPosition( uiConfigName ) != PdmUiItemInfo::HIDDEN )
+    if ( uiField()->uiLabelPosition( uiConfigName ) != PdmUiItemInfo::LabelPosition::HIDDEN )
     {
         QSize defaultSize = m_pushButton->sizeHint();
         m_pushButton->setMinimumWidth( 10 * std::round( 0.1 * ( defaultSize.width() + 10 ) ) );
@@ -154,7 +154,7 @@ void PdmUiPushButtonEditor::configureEditorLabelLeft( PdmFieldHandle* fieldHandl
         if ( auto uiCap = fieldHandle->uiCapability() )
         {
             uiCap->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::LEFT );
         }
     }
 }
@@ -174,7 +174,7 @@ void PdmUiPushButtonEditor::configureEditorLabelHidden( PdmFieldHandle* fieldHan
         if ( auto uiCap = fieldHandle->uiCapability() )
         {
             uiCap->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
         }
     }
 }

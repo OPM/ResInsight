@@ -101,8 +101,8 @@ public:
     bool notifyAllFieldsInMultiFieldChangedEvents( const QString& uiConfigName = "" ) const;
     void setNotifyAllFieldsInMultiFieldChangedEvents( bool enable, const QString& uiConfigName = "" );
 
-    PdmUiItemInfo::LabelPosType uiLabelPosition( const QString& uiConfigName = "" ) const;
-    void setUiLabelPosition( PdmUiItemInfo::LabelPosType alignment, const QString& uiConfigName = "" );
+    PdmUiItemInfo::LabelPosition uiLabelPosition( const QString& uiConfigName = "" ) const;
+    void setUiLabelPosition( PdmUiItemInfo::LabelPosition position, const QString& uiConfigName = "" );
 
     bool isCustomContextMenuEnabled( const QString& uiConfigName = "" ) const;
     void setCustomContextMenuEnabled( bool enableCustomContextMenu, const QString& uiConfigName = "" );

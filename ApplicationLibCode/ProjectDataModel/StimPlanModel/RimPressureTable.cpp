@@ -38,7 +38,7 @@ RimPressureTable::RimPressureTable()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTableItems, "Items", "Pressure Table Items" );
     m_pressureTableItems.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_pressureTableItems.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_pressureTableItems.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_pressureTableItems.uiCapability()->setCustomContextMenuEnabled( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDate, "PressureDate", "Pressure Date" );

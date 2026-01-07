@@ -121,7 +121,7 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 
     CAF_PDM_InitFieldNoDefault( &m_filePathsTable, "FilePathsTable", "File Paths Table" );
     m_filePathsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    m_filePathsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_filePathsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
@@ -129,7 +129,7 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsTable, "StatisticsTable", "Statistics Table" );
     m_statisticsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    m_statisticsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_statisticsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_statisticsTable.uiCapability()->setUiReadOnly( true );
     m_statisticsTable.xmlCapability()->disableIO();
 
@@ -154,11 +154,11 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 
     CAF_PDM_InitField( &m_selectedStatisticsType, "SelectedStatisticsType", defaultStatisticsTypes, "Statistics Type" );
     m_selectedStatisticsType.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedStatisticsType.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedStatisticsType.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_computeStatistics, "ComputeStatistics", "Compute Templates" );
     m_computeStatistics.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_computeStatistics.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_computeStatistics.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     setDeletable( true );
 }

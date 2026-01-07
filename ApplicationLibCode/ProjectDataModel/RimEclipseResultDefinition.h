@@ -72,7 +72,7 @@ public:
     };
 
 public:
-    RimEclipseResultDefinition( caf::PdmUiItemInfo::LabelPosType labelPosition = caf::PdmUiItemInfo::LEFT );
+    RimEclipseResultDefinition( caf::PdmUiItemInfo::LabelPosition labelPosition = caf::PdmUiItemInfo::LabelPosition::LEFT );
     ~RimEclipseResultDefinition() override;
 
     void simpleCopy( const RimEclipseResultDefinition* other );
@@ -228,6 +228,6 @@ private:
 
 private:
     bool                             m_isDeltaResultEnabled;
-    caf::PdmUiItemInfo::LabelPosType m_labelPosition;
+    caf::PdmUiItemInfo::LabelPosition m_labelPosition;
     bool                             m_ternaryEnabled;
 };

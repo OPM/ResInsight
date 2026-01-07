@@ -34,7 +34,7 @@ RimFieldSelection::RimFieldSelection()
     m_objectName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_keywords, "Keywords", "Field Keywords" );
-    m_keywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_keywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_keywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 }
 

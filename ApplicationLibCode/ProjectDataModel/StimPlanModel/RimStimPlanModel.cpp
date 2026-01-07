@@ -137,7 +137,7 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "StimPlan Model Template" );
     CAF_PDM_InitField( &m_editStimPlanModelTemplate, "EditModelTemplate", false, "Edit" );
     m_editStimPlanModelTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_editStimPlanModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_editStimPlanModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Dynamic Case" );
     m_eclipseCase.uiCapability()->setUiReadOnly( true );
@@ -232,7 +232,7 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_showOnlyBarrierFault, "ShowOnlyBarrierFault", false, "Show Only Barrier Fault" );
     CAF_PDM_InitScriptableField( &m_showAllFaults, "ShowAllFaults", false, "Show All Faults" );
     m_showAllFaults.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_showAllFaults.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_showAllFaults.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault" );
     m_barrierFaultName.uiCapability()->setUiReadOnly( true );

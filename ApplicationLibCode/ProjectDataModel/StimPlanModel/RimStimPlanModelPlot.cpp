@@ -51,7 +51,7 @@ RimStimPlanModelPlot::RimStimPlanModelPlot()
 
     CAF_PDM_InitField( &m_editStimPlanModel, "EditModel", false, "Edit" );
     m_editStimPlanModel.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_editStimPlanModel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_editStimPlanModel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Case" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );

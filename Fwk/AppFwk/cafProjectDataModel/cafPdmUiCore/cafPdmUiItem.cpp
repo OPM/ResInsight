@@ -401,25 +401,25 @@ bool PdmUiItem::isUiGroup() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiItemInfo::LabelPosType PdmUiItem::uiLabelPosition( const QString& uiConfigName ) const
+PdmUiItemInfo::LabelPosition PdmUiItem::uiLabelPosition( const QString& uiConfigName ) const
 {
     const PdmUiItemInfo* conInfo = configInfo( uiConfigName );
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo ) return conInfo->m_labelAlignment;
-    if ( defInfo ) return defInfo->m_labelAlignment;
-    if ( sttInfo ) return sttInfo->m_labelAlignment;
+    if ( conInfo ) return conInfo->m_labelPosition;
+    if ( defInfo ) return defInfo->m_labelPosition;
+    if ( sttInfo ) return sttInfo->m_labelPosition;
 
-    return PdmUiItemInfo::LEFT;
+    return PdmUiItemInfo::LabelPosition::LEFT;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::setUiLabelPosition( PdmUiItemInfo::LabelPosType alignment, const QString& uiConfigName /*= ""*/ )
+void PdmUiItem::setUiLabelPosition( PdmUiItemInfo::LabelPosition position, const QString& uiConfigName /*= ""*/ )
 {
-    m_configItemInfos[uiConfigName].m_labelAlignment = alignment;
+    m_configItemInfos[uiConfigName].m_labelPosition = position;
 }
 
 //--------------------------------------------------------------------------------------------------

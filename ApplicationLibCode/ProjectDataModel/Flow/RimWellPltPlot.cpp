@@ -112,7 +112,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SourcesInternal", "Sources Internal" );
     m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
     m_selectedSources.xmlCapability()->disableIO();
 
@@ -120,7 +120,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitField( &m_useStandardConditionCurves, "UseStandardConditionCurves", true, "Standard Volume" );
@@ -131,7 +131,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_phases = std::vector<caf::AppEnum<RimWellPlotTools::FlowPhase>>( { RimWellPlotTools::FlowPhase::FLOW_PHASE_OIL,
                                                                          RimWellPlotTools::FlowPhase::FLOW_PHASE_GAS,
                                                                          RimWellPlotTools::FlowPhase::FLOW_PHASE_WATER } );
-    m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     m_nameConfig->setCustomName( "PLT Plot" );
     setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );

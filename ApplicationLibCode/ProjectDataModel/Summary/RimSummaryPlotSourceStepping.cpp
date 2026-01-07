@@ -89,7 +89,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
 
     CAF_PDM_InitFieldNoDefault( &m_placeholderForLabel, "Placeholder", "" );
     m_placeholderForLabel = "No common identifiers detected";
-    m_placeholderForLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_placeholderForLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_placeholderForLabel.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_indexLabel, "IndexLabel", QString( "Step By" ), "Step By" );

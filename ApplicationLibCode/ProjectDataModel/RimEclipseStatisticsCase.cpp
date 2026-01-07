@@ -89,7 +89,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.xmlCapability()->disableIO();
     m_selectionSummary.uiCapability()->setUiReadOnly( true );
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_dataSourceForStatistics, "DataSourceForStatistics", "Data Source" );
 
@@ -114,15 +114,15 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureGeneratedProperties, "FractureGeneratedPropertiesToCalculate", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureInputProperties, "FractureInputPropertiesToCalculate", "" );
 
-    m_selectedDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_selectedStaticProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_selectedGeneratedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_selectedInputProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_selectedStaticProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_selectedGeneratedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_selectedInputProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
-    m_selectedFractureDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_selectedFractureStaticProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_selectedFractureGeneratedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_selectedFractureInputProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedFractureDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_selectedFractureStaticProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_selectedFractureGeneratedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_selectedFractureInputProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitScriptableField( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method" );
