@@ -85,8 +85,8 @@ public:
 
     void setLevel( int level );
 
-    const QString          optionUiText() const;
-    const QVariant         value() const;
+    QString                optionUiText() const;
+    QVariant               value() const;
     bool                   isReadOnly() const;
     bool                   isHeading() const;
     std::unique_ptr<QIcon> icon() const;
@@ -139,12 +139,12 @@ bool PdmOptionItemInfo::findValues( const QList<PdmOptionItemInfo>& optionList,
                 optionVariantAndIndexPairs.push_back( std::make_pair( optionList[i].value(), i ) );
             }
 
-            for ( int i = 0; i < valuesSelectedInField.size(); ++i )
+            for ( const auto& value : valuesSelectedInField )
             {
                 std::list<std::pair<QVariant, unsigned int>>::iterator it;
                 for ( it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); ++it )
                 {
-                    if ( PdmUiFieldSpecialization<T>::isDataElementEqual( valuesSelectedInField[i], it->first ) )
+                    if ( PdmUiFieldSpecialization<T>::isDataElementEqual( value, it->first ) )
                     {
                         foundIndexes.push_back( it->second );
 

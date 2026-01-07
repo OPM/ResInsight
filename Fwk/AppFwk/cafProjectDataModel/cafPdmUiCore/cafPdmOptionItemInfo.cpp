@@ -46,8 +46,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo::PdmOptionItemInfo( const QString&      anOptionUiText,
                                       const QVariant&     aValue,
-                                      bool                isReadOnly /* = false */,
-                                      const IconProvider& anIcon /* = IconProvider()*/ )
+                                      bool                isReadOnly,
+                                      const IconProvider& anIcon )
     : m_optionUiText( anOptionUiText )
     , m_value( aValue )
     , m_isReadOnly( isReadOnly )
@@ -61,8 +61,8 @@ PdmOptionItemInfo::PdmOptionItemInfo( const QString&      anOptionUiText,
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo::PdmOptionItemInfo( const QString&        anOptionUiText,
                                       caf::PdmObjectHandle* obj,
-                                      bool                  isReadOnly /*= false*/,
-                                      const IconProvider&   anIcon /*= IconProvider()*/ )
+                                      bool                  isReadOnly,
+                                      const IconProvider&   anIcon )
     : m_optionUiText( anOptionUiText )
     , m_isReadOnly( isReadOnly )
     , m_iconProvider( anIcon )
@@ -74,9 +74,7 @@ PdmOptionItemInfo::PdmOptionItemInfo( const QString&        anOptionUiText,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo PdmOptionItemInfo::createHeader( const QString&      anOptionUiText,
-                                                   bool                isReadOnly /*= false*/,
-                                                   const IconProvider& anIcon /*= IconProvider()*/ )
+PdmOptionItemInfo PdmOptionItemInfo::createHeader( const QString& anOptionUiText, bool isReadOnly, const IconProvider& anIcon )
 {
     PdmOptionItemInfo header( anOptionUiText, QVariant(), isReadOnly, anIcon );
 
@@ -94,7 +92,7 @@ void PdmOptionItemInfo::setLevel( int level )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString PdmOptionItemInfo::optionUiText() const
+QString PdmOptionItemInfo::optionUiText() const
 {
     return m_optionUiText;
 }
@@ -102,7 +100,7 @@ const QString PdmOptionItemInfo::optionUiText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QVariant PdmOptionItemInfo::value() const
+QVariant PdmOptionItemInfo::value() const
 {
     return m_value;
 }
