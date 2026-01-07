@@ -122,7 +122,7 @@ public:
     void setAttribute( const QString& key, const T& value, const QString& uiConfigName = "" )
     {
         using DecayedT = std::decay_t<T>;
-        
+
         if constexpr ( std::is_same_v<DecayedT, const char*> || std::is_same_v<DecayedT, char*> )
         {
             // Convert C-style strings to QString before storing

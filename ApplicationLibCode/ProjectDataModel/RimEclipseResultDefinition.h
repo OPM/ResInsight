@@ -227,7 +227,7 @@ private:
     bool addPerCellFaceOptionsForVariableUiField() const;
 
 private:
-    bool                             m_isDeltaResultEnabled;
+    bool                              m_isDeltaResultEnabled;
     caf::PdmUiItemInfo::LabelPosition m_labelPosition;
-    bool                             m_ternaryEnabled;
+    bool                              m_ternaryEnabled;
 };

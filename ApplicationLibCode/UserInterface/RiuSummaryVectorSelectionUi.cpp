@@ -292,8 +292,8 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
         {
             itemInputType->pdmField()->uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-            itemInputType->pdmField()->uiCapability()->setUiLabelPosition( itemTypes.second.size() > 2 ? caf::PdmUiItemInfo::LabelPosition::TOP
-                                                                                                       : caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+            itemInputType->pdmField()->uiCapability()->setUiLabelPosition(
+                itemTypes.second.size() > 2 ? caf::PdmUiItemInfo::LabelPosition::TOP : caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
             itemInputType->pdmField()->uiCapability()->setAutoAddingOptionFromValue( false );
         }
