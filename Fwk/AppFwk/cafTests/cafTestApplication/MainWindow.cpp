@@ -920,12 +920,12 @@ public:
         CAF_PDM_InitField( &m_applyAutoOnChildObjectFields, "ApplyAutoValue", false, "Apply Auto Values" );
         m_applyAutoOnChildObjectFields.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
         m_applyAutoOnChildObjectFields.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
-                                                                     QString( "Apply Auto Values" ) );
+                                                                     "Apply Auto Values" );
 
         CAF_PDM_InitField( &m_updateAutoValues, "UpdateAutoValue", false, "Update Auto Values" );
         m_updateAutoValues.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
         m_updateAutoValues.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
-                                                         QString( "Update Auto Values" ) );
+                                                         "Update Auto Values" );
 
         CAF_PDM_InitField( &m_doubleField,
                            "BigNumber",

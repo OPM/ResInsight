@@ -121,9 +121,16 @@ public:
     template <typename T>
     void setAttribute( const QString& key, const T& value, const QString& uiConfigName = "" )
     {
-        if constexpr ( std::is_same_v<T, const char*> || std::is_same_v<T, char*> )
+        using DecayedT = std::decay_t<T>;
+        
+        if constexpr ( std::is_same_v<DecayedT, const char*> || std::is_same_v<DecayedT, char*> )
         {
             // Convert C-style strings to QString before storing
+            m_attributeMaps[uiConfigName][key] = QString( value );
+        }
+        else if constexpr ( std::is_array_v<T> && std::is_same_v<std::remove_extent_t<T>, char> )
+        {
+            // Convert char arrays (string literals) to QString
             m_attributeMaps[uiConfigName][key] = QString( value );
         }
         else

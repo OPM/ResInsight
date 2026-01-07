@@ -25,8 +25,8 @@ LabelsAndHyperlinks::LabelsAndHyperlinks()
 
     // Set attributes using new map-based system
     m_hyperlinkTextField.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::LINK_TEXT,
-                                                       QString( "Click <a href=\"dummy\">link</a> to select the "
-                                                                "<b>Optional Field</b> object." ) );
+                                                       "Click <a href=\"dummy\">link</a> to select the "
+                                                       "<b>Optional Field</b> object." );
 
     std::function<void( const QString& )> callback = [this]( const QString& link )
     {

@@ -42,22 +42,21 @@ LineEditAndPushButtons::LineEditAndPushButtons()
 
     CAF_PDM_InitFieldNoDefault( &m_pushButton_a, "PushButtonA", "Rotate", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButton_a );
-    m_pushButton_a.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, QString( "&Push Me" ) );
+    m_pushButton_a.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "&Push Me" );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonReplace, "PushButtonB", "Replace (CTRL + Enter)", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonReplace );
     m_pushButtonReplace.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
-                                                      QString( "Replace (Ctrl + Enter)" ) );
+                                                      "Replace (Ctrl + Enter)" );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonClear, "PushButtonC", "Clear (Alt + Enter)", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonClear );
-    m_pushButtonClear.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
-                                                    QString( "Clear (Alt + Enter)" ) );
+    m_pushButtonClear.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "Clear (Alt + Enter)" );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonAppend, "PushButtonD", "Append (Shift + Enter)", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonAppend );
     m_pushButtonAppend.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
-                                                     QString( "Append (Shift + Enter)" ) );
+                                                     "Append (Shift + Enter)" );
 
     std::vector<QString> items;
     items.push_back( "sldkfj" );

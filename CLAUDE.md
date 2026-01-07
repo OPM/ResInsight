@@ -328,38 +328,13 @@ The CAF (Command Application Framework) PDM (Project Data Model) system has migr
 
 ### New Pattern: setAttribute with Keys Struct
 
-**Each UI editor defines a Keys struct containing attribute constants:**
-
-```cpp
-// Example from PdmUiComboBoxEditor.h
-struct Keys
-{
-    static inline const QString ADJUST_WIDTH_TO_CONTENTS            = "adjustWidthToContents";
-    static inline const QString SHOW_PREVIOUS_AND_NEXT_BUTTONS      = "showPreviousAndNextButtons";
-    static inline const QString MINIMUM_CONTENTS_LENGTH             = "minimumContentsLength";
-    static inline const QString ENABLE_EDITABLE_CONTENT             = "enableEditableContent";
-    static inline const QString ICON_SIZE                           = "iconSize";
-    // ... more keys
-};
-```
-
 **Setting attributes using the new pattern:**
 
 ```cpp
 // Modern approach - use Keys constants with implicit type deduction
 m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
 m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 15 );
-m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::BUTTON_TEXT, QString( "Click Me" ) );
-```
-
-**Important: String literals must be wrapped in QString():**
-
-```cpp
-// WRONG - causes template deduction errors with char arrays
-m_field.uiCapability()->setAttribute( Keys::BUTTON_TEXT, "Click Me" );
-
-// CORRECT - explicit QString construction
-m_field.uiCapability()->setAttribute( Keys::BUTTON_TEXT, QString( "Click Me" ) );
+m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::BUTTON_TEXT, "Click Me" );
 ```
 
 ### Benefits of the New Pattern
@@ -407,8 +382,7 @@ m_labelField.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::LINK_ACT
 m_listField.uiCapability()->setAttribute( caf::PdmUiListEditor::Keys::HEIGHT_HINT, 150 );
 
 // Push Button - set button text
-m_buttonField.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, 
-                                           QString( "Execute" ) );
+m_buttonField.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "Execute" );
 
 // Combo Box - enable previous/next buttons
 m_comboField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::SHOW_PREVIOUS_AND_NEXT_BUTTONS, true );
