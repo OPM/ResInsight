@@ -37,198 +37,21 @@
 #pragma once
 
 #include "cafIconProvider.h"
-#include "cafPdmUiFieldSpecialization.h"
+#include "cafPdmOptionItemInfo.h"
+#include "cafPdmUiItemInfo.h"
 
+#include <list>
+#include <map>
+#include <optional>
 #include <set>
+#include <string>
 #include <type_traits>
+
+#include <QVariant>
 
 namespace caf
 {
-//==================================================================================================
-/// Class to keep (principally static) gui presentation information
-/// of a data structure item (field or object) used by PdmUiItem
-//==================================================================================================
-
-class PdmUiItemInfo
-{
-public:
-    enum LabelPosType
-    {
-        LEFT,
-        TOP,
-        HIDDEN
-    };
-
-    PdmUiItemInfo()
-        : m_editorTypeName( "" )
-        , m_isHidden( -1 )
-        , m_isTreeHidden( -1 )
-        , m_isTreeChildrenHidden( -1 )
-        , m_isReadOnly( -1 )
-        , m_labelAlignment( LEFT )
-        , m_isCustomContextMenuEnabled( -1 )
-        , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
-    {
-    }
-
-    PdmUiItemInfo( const QString& uiName,
-                   QString        iconResourceLocation = "",
-                   QString        toolTip              = "",
-                   QString        whatsThis            = "",
-                   QString        extraDebugText       = "" );
-
-    PdmUiItemInfo( const QString& uiName,
-                   IconProvider   iconProvider   = IconProvider(),
-                   QString        toolTip        = "",
-                   QString        whatsThis      = "",
-                   QString        extraDebugText = "" );
-
-    std::unique_ptr<QIcon> icon() const;
-    const IconProvider&    iconProvider() const;
-
-private:
-    friend class PdmUiItem;
-    QString      m_uiName;
-    IconProvider m_iconProvider;
-    QColor  m_contentTextColor; ///< Color of a fields value text. Invalid by default. An Invalid color is not used.
-    QString m_toolTip;
-    QString m_whatsThis;
-    QString m_extraDebugText;
-    QString m_editorTypeName; ///< Use this exact type of editor to edit this UiItem
-    QString m_3dEditorTypeName; ///< If set, use this editor type to edit this UiItem in 3D
-    int     m_isHidden; ///< UiItem should be hidden. -1 means not set
-    int     m_isTreeHidden; ///< UiItem should be hidden in tree. -1 means not set
-    int     m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
-    int     m_isReadOnly; ///< UiItem should be insensitive, or read only. -1 means not set.
-    LabelPosType m_labelAlignment;
-    int          m_isCustomContextMenuEnabled;
-    int          m_notifyAllFieldsInMultiFieldChangedEvents;
-};
-
-//==================================================================================================
-/// Class to keep Ui information about an option /choice in a Combobox or similar.
-//==================================================================================================
-
-class PdmOptionItemInfo
-{
-public:
-    // Template pass-through for enum types, ensuring the T type gets cast to an int before storing in the QVariant
-    // Note the extra dummy parameter. This ensures compilation fails for non-enum types and these variants get removed
-    // due to SFINAE (https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error)
-    template <typename T>
-    PdmOptionItemInfo( const QString&      anOptionUiText,
-                       T                   aValue,
-                       bool                isReadOnly                         = false,
-                       const IconProvider& anIcon                             = IconProvider(),
-                       typename std::enable_if<std::is_enum<T>::value>::type* = 0 )
-        : PdmOptionItemInfo( anOptionUiText, QVariant( static_cast<int>( aValue ) ), isReadOnly, anIcon )
-    {
-    }
-    PdmOptionItemInfo( const QString&      anOptionUiText,
-                       const QVariant&     aValue,
-                       bool                isReadOnly = false,
-                       const IconProvider& anIcon     = IconProvider() );
-    PdmOptionItemInfo( const QString&        anOptionUiText,
-                       caf::PdmObjectHandle* obj,
-                       bool                  isReadOnly = false,
-                       const IconProvider&   anIcon     = IconProvider() );
-
-    static PdmOptionItemInfo createHeader( const QString&      anOptionUiText,
-                                           bool                isReadOnly = false,
-                                           const IconProvider& anIcon     = IconProvider() );
-
-    void setLevel( int level );
-
-    const QString          optionUiText() const;
-    const QVariant         value() const;
-    bool                   isReadOnly() const;
-    bool                   isHeading() const;
-    std::unique_ptr<QIcon> icon() const;
-    int                    level() const;
-
-    // Static utility methods to handle QList of PdmOptionItemInfo
-    // Please regard as private to the PDM system
-
-    static QStringList extractUiTexts( const QList<PdmOptionItemInfo>& optionList );
-    template <typename T>
-    static bool findValues( const QList<PdmOptionItemInfo>& optionList,
-                            QVariant                        fieldValue,
-                            std::vector<unsigned int>&      foundIndexes );
-
-private:
-    QString      m_optionUiText;
-    QVariant     m_value;
-    bool         m_isReadOnly;
-    IconProvider m_iconProvider;
-    int          m_level;
-};
-
 class PdmUiEditorHandle;
-
-//--------------------------------------------------------------------------------------------------
-/// Finds the indexes into the optionList that the field value(s) corresponds to.
-/// In the case where the field is some kind of array, several indexes might be returned
-/// The returned bool is true if all the fieldValues were found.
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-bool PdmOptionItemInfo::findValues( const QList<PdmOptionItemInfo>& optionList,
-                                    QVariant                        fieldValue,
-                                    std::vector<unsigned int>&      foundIndexes )
-{
-    foundIndexes.clear();
-
-    // Find this fieldvalue in the optionlist if present
-
-    // First handle lists/arrays of values
-    if ( fieldValue.metaType().id() == QMetaType::QVariantList )
-    {
-        QList<QVariant> valuesSelectedInField = fieldValue.toList();
-
-        if ( !valuesSelectedInField.empty() )
-        {
-            // Create a list to be able to remove items as they are matched with values
-            std::list<std::pair<QVariant, unsigned int>> optionVariantAndIndexPairs;
-
-            for ( int i = 0; i < optionList.size(); ++i )
-            {
-                optionVariantAndIndexPairs.push_back( std::make_pair( optionList[i].value(), i ) );
-            }
-
-            for ( int i = 0; i < valuesSelectedInField.size(); ++i )
-            {
-                std::list<std::pair<QVariant, unsigned int>>::iterator it;
-                for ( it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); ++it )
-                {
-                    if ( PdmUiFieldSpecialization<T>::isDataElementEqual( valuesSelectedInField[i], it->first ) )
-                    {
-                        foundIndexes.push_back( it->second );
-
-                        // Assuming that one option is referenced only once, the option is erased. Then break
-                        // out of the inner loop, as this operation can be costly for fields with many options and many
-                        // values
-
-                        optionVariantAndIndexPairs.erase( it );
-                        break;
-                    }
-                }
-            }
-        }
-
-        return ( static_cast<size_t>( valuesSelectedInField.size() ) <= foundIndexes.size() );
-    }
-    else // Then handle single value fields
-    {
-        for ( unsigned int opIdx = 0; opIdx < static_cast<unsigned int>( optionList.size() ); ++opIdx )
-        {
-            if ( PdmUiFieldSpecialization<T>::isDataElementEqual( optionList[opIdx].value(), fieldValue ) )
-            {
-                foundIndexes.push_back( opIdx );
-                break;
-            }
-        }
-        return ( !foundIndexes.empty() );
-    }
-}
 
 //==================================================================================================
 /// Base class for all datastructure items (fields or objects) to make them have information on
@@ -279,8 +102,8 @@ public:
     bool notifyAllFieldsInMultiFieldChangedEvents( const QString& uiConfigName = "" ) const;
     void setNotifyAllFieldsInMultiFieldChangedEvents( bool enable, const QString& uiConfigName = "" );
 
-    PdmUiItemInfo::LabelPosType uiLabelPosition( const QString& uiConfigName = "" ) const;
-    void setUiLabelPosition( PdmUiItemInfo::LabelPosType alignment, const QString& uiConfigName = "" );
+    PdmUiItemInfo::LabelPosition uiLabelPosition( const QString& uiConfigName = "" ) const;
+    void setUiLabelPosition( PdmUiItemInfo::LabelPosition position, const QString& uiConfigName = "" );
 
     bool isCustomContextMenuEnabled( const QString& uiConfigName = "" ) const;
     void setCustomContextMenuEnabled( bool enableCustomContextMenu, const QString& uiConfigName = "" );
@@ -292,6 +115,78 @@ public:
     void    setUi3dEditorTypeName( const QString& editorTypeName, const QString& uiConfigName = "" );
 
     virtual bool isUiGroup() const;
+
+    // Map-based attribute system
+
+    /// Sets an attribute value for this UI item.
+    ///
+    /// Attributes provide a flexible way to configure UI editor behavior without
+    /// modifying the editor classes themselves. Each attribute is stored as a key-value
+    /// pair and can be retrieved later by editors during configuration.
+    ///
+    /// String Type Handling:
+    /// ---------------------
+    /// The method automatically converts C-style strings to QString for Qt integration:
+    /// - String literals: "text" or char[N] arrays
+    /// - String pointers: const char* or char*
+    /// All other types are stored directly in QVariant.
+    ///
+    /// Usage Examples:
+    /// ---------------
+    /// @code
+    ///   // String literal (automatically converted to QString)
+    ///   field.uiCapability()->setAttribute("dateFormat", "yyyy-MM-dd");
+    ///
+    ///   // Lambda/function (stored in QVariant)
+    ///   field.uiCapability()->setAttribute("callback", myCallbackFunction);
+    ///
+    ///   // Numeric value (stored in QVariant)
+    ///   field.uiCapability()->setAttribute("maxLength", 100);
+    ///
+    /// @endcode
+    template <typename T>
+    void setAttribute( const QString& key, const T& value, const QString& uiConfigName = "" )
+    {
+        // Decay type removes references, const, and volatile qualifiers
+        // This helps us identify the true underlying type
+        using DecayedT = std::decay_t<T>;
+
+        // Check if value is a C-style string pointer (const char* or char*)
+        constexpr bool isCStringPointer = std::is_same_v<DecayedT, const char*> || std::is_same_v<DecayedT, char*>;
+
+        // Check if value is a character array (string literal like "text" or char[75])
+        constexpr bool isCharArray = std::is_array_v<T> && std::is_same_v<std::remove_extent_t<T>, char>;
+
+        if constexpr ( isCStringPointer || isCharArray )
+        {
+            // Convert C-style strings to QString for proper Qt string handling
+            m_attributeMaps[uiConfigName][key] = QString( value );
+        }
+        else
+        {
+            // Store all other types (int, double, function pointers, etc.) in QVariant
+            // QVariant handles type-safe storage and retrieval of various types
+            m_attributeMaps[uiConfigName][key] = QVariant::fromValue( value );
+        }
+    }
+
+    template <typename T>
+    std::optional<T> attribute( const QString& key, const QString& uiConfigName = "" ) const
+    {
+        QVariant value = attributeVariant( key, uiConfigName );
+        if ( value.isValid() && value.canConvert<T>() )
+        {
+            return value.value<T>();
+        }
+        return std::nullopt;
+    }
+
+    std::list<QString> attributeNames( const QString& uiConfigName = "" ) const;
+
+    // Helper function to validate attributes against a supported set
+    void validateAttributes( const QString&           contextName,
+                             const std::set<QString>& supportedAttributes,
+                             const QString&           uiConfigName = "" ) const;
 
     /// Intended to be called when fields in an object has been changed
     void updateConnectedEditors() const;
@@ -325,11 +220,17 @@ protected:
     std::set<PdmUiEditorHandle*> m_editors;
 
 private:
+    QVariant attributeVariant( const QString& key, const QString& uiConfigName = "" ) const;
+
+private:
     const PdmUiItemInfo* defaultInfo() const;
     const PdmUiItemInfo* configInfo( const QString& uiConfigName ) const;
 
     PdmUiItemInfo*                   m_staticItemInfo;
     std::map<QString, PdmUiItemInfo> m_configItemInfos;
+
+    // Map-based attributes: uiConfigName -> (attributeKey -> value)
+    std::map<QString, std::map<QString, QVariant>> m_attributeMaps;
 
     static bool sm_showExtraDebugText;
 };

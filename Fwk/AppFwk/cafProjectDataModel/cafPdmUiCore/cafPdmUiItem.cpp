@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -35,189 +35,15 @@
 //##################################################################################################
 
 #include "cafPdmUiItem.h"
+#include "cafPdmLogging.h"
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiEditorHandle.h"
+#include "cafPdmUiItemInfo.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafUpdateEditorsScheduler.h"
 
 namespace caf
 {
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
-                              IconProvider   iconProvider /*= IconProvider() */,
-                              QString        toolTip /*= ""*/,
-                              QString        whatsThis /*= ""*/,
-                              QString        extraDebugText /*= ""*/ )
-    : m_uiName( uiName )
-    , m_iconProvider( iconProvider )
-    , m_toolTip( toolTip )
-    , m_whatsThis( whatsThis )
-    , m_extraDebugText( extraDebugText )
-    , m_editorTypeName( "" )
-    , m_isHidden( false )
-    , m_isTreeHidden( false )
-    , m_isTreeChildrenHidden( false )
-    , m_isReadOnly( false )
-    , m_labelAlignment( LEFT )
-    , m_isCustomContextMenuEnabled( false )
-    , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
-                              QString        iconResourceLocation /*= ""*/,
-                              QString        toolTip /*= ""*/,
-                              QString        whatsThis /*= ""*/,
-                              QString        extraDebugText /*= ""*/ )
-    : m_uiName( uiName )
-    , m_iconProvider( iconResourceLocation )
-    , m_toolTip( toolTip )
-    , m_whatsThis( whatsThis )
-    , m_extraDebugText( extraDebugText )
-    , m_editorTypeName( "" )
-    , m_isHidden( false )
-    , m_isTreeHidden( false )
-    , m_isTreeChildrenHidden( false )
-    , m_isReadOnly( false )
-    , m_labelAlignment( LEFT )
-    , m_isCustomContextMenuEnabled( false )
-    , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> PdmUiItemInfo::icon() const
-{
-    return m_iconProvider.icon();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const IconProvider& PdmUiItemInfo::iconProvider() const
-{
-    return m_iconProvider;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo::PdmOptionItemInfo( const QString&      anOptionUiText,
-                                      const QVariant&     aValue,
-                                      bool                isReadOnly /* = false */,
-                                      const IconProvider& anIcon /* = IconProvider()*/ )
-    : m_optionUiText( anOptionUiText )
-    , m_value( aValue )
-    , m_isReadOnly( isReadOnly )
-    , m_iconProvider( anIcon )
-    , m_level( 0 )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo::PdmOptionItemInfo( const QString&        anOptionUiText,
-                                      caf::PdmObjectHandle* obj,
-                                      bool                  isReadOnly /*= false*/,
-                                      const IconProvider&   anIcon /*= IconProvider()*/ )
-    : m_optionUiText( anOptionUiText )
-    , m_isReadOnly( isReadOnly )
-    , m_iconProvider( anIcon )
-    , m_level( 0 )
-{
-    m_value = QVariant::fromValue( caf::PdmPointer<caf::PdmObjectHandle>( obj ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo PdmOptionItemInfo::createHeader( const QString&      anOptionUiText,
-                                                   bool                isReadOnly /*= false*/,
-                                                   const IconProvider& anIcon /*= IconProvider()*/ )
-{
-    PdmOptionItemInfo header( anOptionUiText, QVariant(), isReadOnly, anIcon );
-
-    return header;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmOptionItemInfo::setLevel( int level )
-{
-    m_level = level;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QString PdmOptionItemInfo::optionUiText() const
-{
-    return m_optionUiText;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QVariant PdmOptionItemInfo::value() const
-{
-    return m_value;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmOptionItemInfo::isReadOnly() const
-{
-    return m_isReadOnly;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmOptionItemInfo::isHeading() const
-{
-    return !m_value.isValid();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> PdmOptionItemInfo::icon() const
-{
-    return m_iconProvider.icon();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int PdmOptionItemInfo::level() const
-{
-    return m_level;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList PdmOptionItemInfo::extractUiTexts( const QList<PdmOptionItemInfo>& optionList )
-{
-    QStringList texts;
-
-    for ( const auto& option : optionList )
-    {
-        texts.push_back( option.optionUiText() );
-    }
-
-    return texts;
-}
-
 //==================================================================================================
 /// PdmUiItem
 //==================================================================================================
@@ -403,9 +229,9 @@ bool PdmUiItem::isUiHidden( const QString& uiConfigName ) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_isHidden == -1 ) ) return conInfo->m_isHidden;
-    if ( defInfo && !( defInfo->m_isHidden == -1 ) ) return defInfo->m_isHidden;
-    if ( sttInfo && !( sttInfo->m_isHidden == -1 ) ) return sttInfo->m_isHidden;
+    if ( conInfo && conInfo->m_isHidden.has_value() ) return conInfo->m_isHidden.value();
+    if ( defInfo && defInfo->m_isHidden.has_value() ) return defInfo->m_isHidden.value();
+    if ( sttInfo && sttInfo->m_isHidden.has_value() ) return sttInfo->m_isHidden.value();
 
     return false;
 }
@@ -427,9 +253,9 @@ bool PdmUiItem::isUiTreeHidden( const QString& uiConfigName ) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_isTreeHidden == -1 ) ) return conInfo->m_isTreeHidden;
-    if ( defInfo && !( defInfo->m_isTreeHidden == -1 ) ) return defInfo->m_isTreeHidden;
-    if ( sttInfo && !( sttInfo->m_isTreeHidden == -1 ) ) return sttInfo->m_isTreeHidden;
+    if ( conInfo && conInfo->m_isTreeHidden.has_value() ) return conInfo->m_isTreeHidden.value();
+    if ( defInfo && defInfo->m_isTreeHidden.has_value() ) return defInfo->m_isTreeHidden.value();
+    if ( sttInfo && sttInfo->m_isTreeHidden.has_value() ) return sttInfo->m_isTreeHidden.value();
 
     return false;
 }
@@ -451,9 +277,9 @@ bool PdmUiItem::isUiTreeChildrenHidden( const QString& uiConfigName ) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_isTreeChildrenHidden == -1 ) ) return conInfo->m_isTreeChildrenHidden;
-    if ( defInfo && !( defInfo->m_isTreeChildrenHidden == -1 ) ) return defInfo->m_isTreeChildrenHidden;
-    if ( sttInfo && !( sttInfo->m_isTreeChildrenHidden == -1 ) ) return sttInfo->m_isTreeChildrenHidden;
+    if ( conInfo && conInfo->m_isTreeChildrenHidden.has_value() ) return conInfo->m_isTreeChildrenHidden.value();
+    if ( defInfo && defInfo->m_isTreeChildrenHidden.has_value() ) return defInfo->m_isTreeChildrenHidden.value();
+    if ( sttInfo && sttInfo->m_isTreeChildrenHidden.has_value() ) return sttInfo->m_isTreeChildrenHidden.value();
 
     return false;
 }
@@ -475,9 +301,9 @@ bool PdmUiItem::isUiReadOnly( const QString& uiConfigName /*= ""*/ ) const
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_isReadOnly == -1 ) ) return conInfo->m_isReadOnly;
-    if ( defInfo && !( defInfo->m_isReadOnly == -1 ) ) return defInfo->m_isReadOnly;
-    if ( sttInfo && !( sttInfo->m_isReadOnly == -1 ) ) return sttInfo->m_isReadOnly;
+    if ( conInfo && conInfo->m_isReadOnly.has_value() ) return conInfo->m_isReadOnly.value();
+    if ( defInfo && defInfo->m_isReadOnly.has_value() ) return defInfo->m_isReadOnly.value();
+    if ( sttInfo && sttInfo->m_isReadOnly.has_value() ) return sttInfo->m_isReadOnly.value();
 
     return false;
 }
@@ -499,12 +325,12 @@ bool PdmUiItem::notifyAllFieldsInMultiFieldChangedEvents( const QString& uiConfi
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && !( conInfo->m_notifyAllFieldsInMultiFieldChangedEvents == -1 ) )
-        return conInfo->m_notifyAllFieldsInMultiFieldChangedEvents;
-    if ( defInfo && !( defInfo->m_notifyAllFieldsInMultiFieldChangedEvents == -1 ) )
-        return defInfo->m_notifyAllFieldsInMultiFieldChangedEvents;
-    if ( sttInfo && !( sttInfo->m_notifyAllFieldsInMultiFieldChangedEvents == -1 ) )
-        return sttInfo->m_notifyAllFieldsInMultiFieldChangedEvents;
+    if ( conInfo && conInfo->m_notifyAllFieldsInMultiFieldChangedEvents.has_value() )
+        return conInfo->m_notifyAllFieldsInMultiFieldChangedEvents.value();
+    if ( defInfo && defInfo->m_notifyAllFieldsInMultiFieldChangedEvents.has_value() )
+        return defInfo->m_notifyAllFieldsInMultiFieldChangedEvents.value();
+    if ( sttInfo && sttInfo->m_notifyAllFieldsInMultiFieldChangedEvents.has_value() )
+        return sttInfo->m_notifyAllFieldsInMultiFieldChangedEvents.value();
 
     return false;
 }
@@ -576,25 +402,25 @@ bool PdmUiItem::isUiGroup() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiItemInfo::LabelPosType PdmUiItem::uiLabelPosition( const QString& uiConfigName ) const
+PdmUiItemInfo::LabelPosition PdmUiItem::uiLabelPosition( const QString& uiConfigName ) const
 {
     const PdmUiItemInfo* conInfo = configInfo( uiConfigName );
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo ) return conInfo->m_labelAlignment;
-    if ( defInfo ) return defInfo->m_labelAlignment;
-    if ( sttInfo ) return sttInfo->m_labelAlignment;
+    if ( conInfo ) return conInfo->m_labelPosition;
+    if ( defInfo ) return defInfo->m_labelPosition;
+    if ( sttInfo ) return sttInfo->m_labelPosition;
 
-    return PdmUiItemInfo::LEFT;
+    return PdmUiItemInfo::LabelPosition::LEFT;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::setUiLabelPosition( PdmUiItemInfo::LabelPosType alignment, const QString& uiConfigName /*= ""*/ )
+void PdmUiItem::setUiLabelPosition( PdmUiItemInfo::LabelPosition position, const QString& uiConfigName /*= ""*/ )
 {
-    m_configItemInfos[uiConfigName].m_labelAlignment = alignment;
+    m_configItemInfos[uiConfigName].m_labelPosition = position;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -606,9 +432,12 @@ bool PdmUiItem::isCustomContextMenuEnabled( const QString& uiConfigName /*= ""*/
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if ( conInfo && ( conInfo->m_isCustomContextMenuEnabled != -1 ) ) return conInfo->m_isCustomContextMenuEnabled;
-    if ( defInfo && ( defInfo->m_isCustomContextMenuEnabled != -1 ) ) return defInfo->m_isCustomContextMenuEnabled;
-    if ( sttInfo && ( sttInfo->m_isCustomContextMenuEnabled != -1 ) ) return sttInfo->m_isCustomContextMenuEnabled;
+    if ( conInfo && conInfo->m_isCustomContextMenuEnabled.has_value() )
+        return conInfo->m_isCustomContextMenuEnabled.value();
+    if ( defInfo && defInfo->m_isCustomContextMenuEnabled.has_value() )
+        return defInfo->m_isCustomContextMenuEnabled.value();
+    if ( sttInfo && sttInfo->m_isCustomContextMenuEnabled.has_value() )
+        return sttInfo->m_isCustomContextMenuEnabled.value();
 
     return false;
 }
@@ -771,6 +600,98 @@ void PdmUiItem::removeFieldEditor( PdmUiEditorHandle* fieldView )
 void PdmUiItem::addFieldEditor( PdmUiEditorHandle* fieldView )
 {
     m_editors.insert( fieldView );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QVariant PdmUiItem::attributeVariant( const QString& key, const QString& uiConfigName ) const
+{
+    // Check config-specific attributes first
+    if ( !uiConfigName.isEmpty() )
+    {
+        auto configIt = m_attributeMaps.find( uiConfigName );
+        if ( configIt != m_attributeMaps.end() )
+        {
+            auto attrIt = configIt->second.find( key );
+            if ( attrIt != configIt->second.end() )
+            {
+                return attrIt->second;
+            }
+        }
+    }
+
+    // Fall back to default config ("")
+    auto defaultIt = m_attributeMaps.find( "" );
+    if ( defaultIt != m_attributeMaps.end() )
+    {
+        auto attrIt = defaultIt->second.find( key );
+        if ( attrIt != defaultIt->second.end() )
+        {
+            return attrIt->second;
+        }
+    }
+
+    return QVariant(); // Return invalid QVariant if not found
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<QString> PdmUiItem::attributeNames( const QString& uiConfigName ) const
+{
+    std::list<QString> result;
+
+    // Start with default config attributes
+    auto defaultIt = m_attributeMaps.find( "" );
+    if ( defaultIt != m_attributeMaps.end() )
+    {
+        for ( const auto& [key, value] : defaultIt->second )
+        {
+            result.push_back( key );
+        }
+    }
+
+    // Add config-specific attributes (avoid duplicates)
+    if ( !uiConfigName.isEmpty() )
+    {
+        auto configIt = m_attributeMaps.find( uiConfigName );
+        if ( configIt != m_attributeMaps.end() )
+        {
+            for ( const auto& [key, value] : configIt->second )
+            {
+                // Check if key already exists in result
+                if ( std::find( result.begin(), result.end(), key ) == result.end() )
+                {
+                    result.push_back( key );
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Validate that all attributes set on this item are in the supported set
+/// Logs warnings for unsupported attributes
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::validateAttributes( const QString&           contextName,
+                                    const std::set<QString>& supportedAttributes,
+                                    const QString&           uiConfigName ) const
+{
+    auto allAttributeNames = attributeNames( uiConfigName );
+    for ( const auto& key : allAttributeNames )
+    {
+        if ( supportedAttributes.find( key ) == supportedAttributes.end() )
+        {
+            CAF_PDM_LOG_WARNING(
+                QString( "%1: Unsupported attribute '%2' set on field. Supported attributes are: %3" )
+                    .arg( contextName )
+                    .arg( key )
+                    .arg( QStringList( supportedAttributes.begin(), supportedAttributes.end() ).join( ", " ) ) );
+        }
+    }
 }
 
 } // End of namespace caf
