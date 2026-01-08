@@ -36,7 +36,7 @@ RicUserDefinedCalculatorUi::RicUserDefinedCalculatorUi()
     CAF_PDM_InitObject( "RicUserDefinedCalculator" );
 
     CAF_PDM_InitFieldNoDefault( &m_currentCalculation, "CurrentCalculation", "" );
-    m_currentCalculation.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_currentCalculation.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_currentCalculation.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_newCalculation, "NewCalculation", "New Calculation" );

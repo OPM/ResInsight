@@ -36,19 +36,19 @@ RiaPreferencesGeoMech::RiaPreferencesGeoMech()
 {
     CAF_PDM_InitFieldNoDefault( &m_geomechWIADefaultXML, "geomechWIADefaultXML", "Default Parameter XML File" );
     m_geomechWIADefaultXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechWIADefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_geomechWIADefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_geomechWIACommand, "geomechWIACommand", "Command to run" );
     m_geomechWIACommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechWIACommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_geomechWIACommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_geomechFRMDefaultXML, "geomechFRMDefaultXML", "Default Parameter XML File" );
     m_geomechFRMDefaultXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechFRMDefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_geomechFRMDefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_geomechFRMCommand, "geomechFRMCommand", "Command to run" );
     m_geomechFRMCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechFRMCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_geomechFRMCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitField( &m_keepTemporaryFiles, "keepTemporaryFile", false, "Keep temporary parameter files (for debugging)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_keepTemporaryFiles );

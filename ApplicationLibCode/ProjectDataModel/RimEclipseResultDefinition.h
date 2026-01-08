@@ -72,7 +72,7 @@ public:
     };
 
 public:
-    RimEclipseResultDefinition( caf::PdmUiItemInfo::LabelPosType labelPosition = caf::PdmUiItemInfo::LEFT );
+    RimEclipseResultDefinition( caf::PdmUiItemInfo::LabelPosition labelPosition = caf::PdmUiItemInfo::LabelPosition::LEFT );
     ~RimEclipseResultDefinition() override;
 
     void simpleCopy( const RimEclipseResultDefinition* other );
@@ -227,7 +227,7 @@ private:
     bool addPerCellFaceOptionsForVariableUiField() const;
 
 private:
-    bool                             m_isDeltaResultEnabled;
-    caf::PdmUiItemInfo::LabelPosType m_labelPosition;
-    bool                             m_ternaryEnabled;
+    bool                              m_isDeltaResultEnabled;
+    caf::PdmUiItemInfo::LabelPosition m_labelPosition;
+    bool                              m_ternaryEnabled;
 };

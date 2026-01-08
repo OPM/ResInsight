@@ -108,14 +108,14 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "Sources", "Sources" );
     m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedSources.xmlCapability()->disableIO();
-    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "SourcesForIo", "SourcesForIo" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );

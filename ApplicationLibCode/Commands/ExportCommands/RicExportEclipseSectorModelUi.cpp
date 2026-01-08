@@ -96,15 +96,15 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     QString minIJKLabel = "Min I, J, K";
     CAF_PDM_InitField( &minI, "MinI", std::numeric_limits<int>::max(), minIJKLabel );
     CAF_PDM_InitField( &minJ, "MinJ", std::numeric_limits<int>::max(), "" );
-    minJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    minJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     CAF_PDM_InitField( &minK, "MinK", std::numeric_limits<int>::max(), "" );
-    minK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    minK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     QString maxIJKLabel = "Max I, J, K";
     CAF_PDM_InitField( &maxI, "MaxI", -std::numeric_limits<int>::max(), maxIJKLabel );
     CAF_PDM_InitField( &maxJ, "MaxJ", -std::numeric_limits<int>::max(), "" );
-    maxJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    maxJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     CAF_PDM_InitField( &maxK, "MaxK", -std::numeric_limits<int>::max(), "" );
-    maxK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    maxK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &exportFaults, "ExportFaults", "Export Fault Data" );
     exportFaults = EXPORT_TO_SINGLE_SEPARATE_FILE;

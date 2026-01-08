@@ -65,7 +65,7 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     CAF_PDM_InitField( &m_customColor, "CustomColorColor", false, "Custom Color" );
 
     m_warningLabel.xmlCapability()->disableIO();
-    m_warningLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_warningLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_warningLabel.uiCapability()->setUiReadOnly( true );
 
     if ( RimProject::current() && RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.1.0" ) )

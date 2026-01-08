@@ -136,11 +136,11 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitField( &m_enableFormationFilter, "EnableFormationFilter", false, "Enable Formation Filter" );
     CAF_PDM_InitFieldNoDefault( &m_selectedFormations, "Formations", "Select Formations" );
     m_selectedFormations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedFormations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedFormations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedPolygons, "Polygons", "Select Polygons" );
     m_selectedPolygons.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedPolygons.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedPolygons.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     setDeletable( true );
 }

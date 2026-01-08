@@ -165,7 +165,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     m_colorLegend = mapToColorLegend( ColorRangeEnum( ColorRangesType::NORMAL ) );
     CAF_PDM_InitField( &m_selectColorLegendButton, "selectColorLegendButton", false, "Edit" );
     m_selectColorLegendButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_selectColorLegendButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectColorLegendButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_selectColorLegendButton.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_mappingMode, "MappingMode", MappingEnum( MappingType::LINEAR_CONTINUOUS ), "Mapping" );

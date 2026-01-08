@@ -43,7 +43,7 @@ RimMultipleEclipseResults::RimMultipleEclipseResults()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showCornerCoordinates );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Properties" );
-    m_selectedKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 }
 
 //--------------------------------------------------------------------------------------------------

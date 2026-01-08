@@ -72,7 +72,7 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
 
     CAF_PDM_InitFieldNoDefault( &ternaryRangeSummary, "ternaryRangeSummary", "Range summary" );
     ternaryRangeSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    ternaryRangeSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    ternaryRangeSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitField( &userDefinedMaxValueSoil, "UserDefinedMaxSoil", 1.0, "Max", "", "Min value of the legend", "" );
     CAF_PDM_InitField( &userDefinedMinValueSoil, "UserDefinedMinSoil", 0.0, "Min", "", "Max value of the legend", "" );

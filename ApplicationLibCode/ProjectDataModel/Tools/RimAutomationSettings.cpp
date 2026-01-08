@@ -84,7 +84,7 @@ void RimAutomationSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     auto group = uiOrdering.addNewGroup( "Destination Plot for Cell Selection" );
 
     group->add( &m_cellSelectionDestination );
-    m_cellSelectionDestination.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_cellSelectionDestination.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     auto refreshGrp = uiOrdering.addNewGroup( "Plot Update" );
     refreshGrp->add( &m_caseReloadIntervalSeconds );

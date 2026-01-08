@@ -186,7 +186,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 
     CAF_PDM_InitFieldNoDefault( &m_previewText, "PreviewText", "Preview Text" );
     m_previewText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    m_previewText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_previewText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_previewText.uiCapability()->setUiReadOnly( true );
     m_previewText.xmlCapability()->disableIO();
 

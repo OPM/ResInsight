@@ -123,7 +123,7 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_additionalDataSources, "AdditionalDataSources", "Additional Data Sources" );
     m_additionalDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_additionalDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_additionalDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_rectAnnotations, "RectAnnotation", "Plot Rect Annotations" );
 

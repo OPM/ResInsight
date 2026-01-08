@@ -89,7 +89,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
                                                   "Use Pressure Table For Pressure" );
     CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit" );
     m_editPressureTable.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_editPressureTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_editPressureTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
 
@@ -135,7 +135,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesInitialPressureConfigs, "FaciesInitialPressureConfigs", "Facies Initial Pressure Configs" );
     m_faciesInitialPressureConfigs.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTable, "PressureTable", "Pressure Table" );

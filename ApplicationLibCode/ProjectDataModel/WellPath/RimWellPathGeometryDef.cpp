@@ -79,7 +79,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellTargets, "WellPathTargets", "Well Targets" );
     m_wellTargets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_wellTargets.uiCapability()->setUiTreeChildrenHidden( true );
-    m_wellTargets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_wellTargets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_wellTargets.uiCapability()->setCustomContextMenuEnabled( true );
 
     CAF_PDM_InitField( &m_showAbsolutePosForWellTargets, "ShowAbsolutePosForWellTargets", false, "Show UTM Coords" );

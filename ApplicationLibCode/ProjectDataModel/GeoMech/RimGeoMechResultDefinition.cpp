@@ -101,7 +101,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition()
     m_resultVariableUiField.xmlCapability()->disableIO();
 
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitField( &m_normalizeByHydrostaticPressure, "NormalizeByHSP", false, "Normalize by Hydrostatic Pressure" );
     CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", 0.0, "Air Gap" );

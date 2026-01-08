@@ -90,7 +90,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseResultDefinition, "ResultDefinition" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::LabelPosType labelPosition )
+RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::LabelPosition labelPosition )
     : m_isDeltaResultEnabled( false )
     , m_labelPosition( labelPosition )
     , m_ternaryEnabled( true )
@@ -164,11 +164,11 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 
     CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers" );
     m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
-    m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers" );
     m_selectedProducerTracersUiField.xmlCapability()->disableIO();
-    m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers" );
     m_selectedSouringTracersUiField.xmlCapability()->disableIO();

@@ -45,7 +45,7 @@ RimWellPathTieIn::RimWellPathTieIn()
     CAF_PDM_InitFieldNoDefault( &m_infoLabel, "InfoLabel", "Use right-click menu of well to set parent well." );
     m_infoLabel.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_infoLabel.xmlCapability()->disableIO();
-    m_infoLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_infoLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWellPath", "Parent Well Path" );
     m_parentWell.uiCapability()->setUiReadOnly( true );

@@ -82,7 +82,7 @@ RimTimeStepFilter::RimTimeStepFilter()
     m_filteredTimeSteps.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_filteredTimeStepsUi, "TimeStepIndicesUi", "Select From TimeSteps" );
-    m_filteredTimeStepsUi.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_filteredTimeStepsUi.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_filteredTimeStepsUi.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_readOnlyLastFrame, "OnlyLastFrame", false, "Load Only Last Frame Of Each Time Step" );

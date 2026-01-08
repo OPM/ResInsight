@@ -36,7 +36,7 @@ RimWellPathAttributeCollection::RimWellPathAttributeCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_attributes, "Attributes", "Casing Design Attributes" );
     m_attributes.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_attributes.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_attributes.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_attributes.uiCapability()->setCustomContextMenuEnabled( true );
     setName( "Casing Design" );
 }

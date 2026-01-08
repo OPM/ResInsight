@@ -94,7 +94,7 @@ RimGridCrossPlotRegressionCurve::RimGridCrossPlotRegressionCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_expressionText, "ExpressionText", "Expression" );
     m_expressionText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    m_expressionText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_expressionText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_expressionText.uiCapability()->setUiReadOnly( true );
     m_expressionText.xmlCapability()->disableIO();
 

@@ -55,7 +55,7 @@ RiaMemoryCleanup::RiaMemoryCleanup()
     m_case = nullptr;
 
     CAF_PDM_InitFieldNoDefault( &m_resultsToDelete, "ResultsToDelete", "Results In Memory" );
-    m_resultsToDelete.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_resultsToDelete.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_resultsToDelete.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_performDelete, "ClearSelectedData", "" );

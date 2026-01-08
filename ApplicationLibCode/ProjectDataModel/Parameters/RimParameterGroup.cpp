@@ -43,7 +43,7 @@ RimParameterGroup::RimParameterGroup()
 
     CAF_PDM_InitFieldNoDefault( &m_parameters, "Parameters", "Parameters" );
     m_parameters.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_parameters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_parameters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_parameters.uiCapability()->setCustomContextMenuEnabled( true );
     m_parameters.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -58,7 +58,7 @@ RimParameterGroup::RimParameterGroup()
     CAF_PDM_InitFieldNoDefault( &m_comment, "Comment", "Comment" );
     m_comment.uiCapability()->setUiHidden( true );
     m_comment.uiCapability()->setUiReadOnly( true );
-    m_comment.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_comment.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_showExpanded, "Expanded", "Expanded" );
     m_showExpanded.uiCapability()->setUiHidden( true );

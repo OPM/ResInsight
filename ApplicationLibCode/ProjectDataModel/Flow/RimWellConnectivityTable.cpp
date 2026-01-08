@@ -162,9 +162,9 @@ RimWellConnectivityTable::RimWellConnectivityTable()
 
     // Producer/Injector tracer configuration
     CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "SelectedProducerTracers", "Producer Tracers" );
-    m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "SelectedInjectorTracers", "Injector Tracers" );
-    m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     CAF_PDM_InitField( &m_syncSelectedInjectorsFromProducerSelection, "SyncSelectedProdInj", false, "Synch Communicators ->" );
     m_syncSelectedInjectorsFromProducerSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_syncSelectedProducersFromInjectorSelection, "SyncSelectedInjProd", false, "<- Synch Communicators" );

@@ -106,7 +106,7 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
 
     CAF_PDM_InitFieldNoDefault( &m_filterOperation, "FilterOperation", "is" );
     CAF_PDM_InitField( &m_topBottomN, "MinTopN", 20, "N" );
-    m_topBottomN.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_topBottomN.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitField( &m_max, "Max", m_upperLimit, "Max" );
     m_max.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -117,7 +117,7 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     CAF_PDM_InitFieldNoDefault( &m_consideredTimestepsType, "ConsideredTimestepsType", "at the" );
     CAF_PDM_InitFieldNoDefault( &m_explicitlySelectedTimeSteps, "ExplicitlySelectedTimeSteps", "TimeSteps" );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_explicitlySelectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_explicitlySelectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     setDeletable( true );
 }

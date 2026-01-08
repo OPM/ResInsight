@@ -70,7 +70,7 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
     CAF_PDM_InitField( &m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane" );
 
     m_annotationPlaneDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    m_annotationPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
+    m_annotationPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_globalTextAnnotations, "TextAnnotationsInView", "Global Text Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_globalReachCircleAnnotations, "ReachCircleAnnotationsInView", "Global Reach Circle Annotations" );

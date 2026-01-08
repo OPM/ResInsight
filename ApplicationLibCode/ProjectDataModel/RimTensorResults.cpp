@@ -92,7 +92,7 @@ RimTensorResults::RimTensorResults()
                        "" );
 
     m_resultFieldNameUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_resultFieldNameUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_resultFieldNameUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 }
 
 //--------------------------------------------------------------------------------------------------

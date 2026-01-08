@@ -292,20 +292,20 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
         {
             itemInputType->pdmField()->uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-            itemInputType->pdmField()->uiCapability()->setUiLabelPosition( itemTypes.second.size() > 2 ? caf::PdmUiItemInfo::TOP
-                                                                                                       : caf::PdmUiItemInfo::HIDDEN );
+            itemInputType->pdmField()->uiCapability()->setUiLabelPosition(
+                itemTypes.second.size() > 2 ? caf::PdmUiItemInfo::LabelPosition::TOP : caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
             itemInputType->pdmField()->uiCapability()->setAutoAddingOptionFromValue( false );
         }
-        itemTypes.second.back()->pdmField()->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+        itemTypes.second.back()->pdmField()->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     }
 
-    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     m_selectedSummaryCategories.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedSummaryCategories.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedSummaryCategories.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     m_currentSummaryCategory.uiCapability()->setUiHidden( true );
     m_multiSelectionMode = false;

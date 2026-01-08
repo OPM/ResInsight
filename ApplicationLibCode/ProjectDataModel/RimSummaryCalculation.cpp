@@ -202,8 +202,8 @@ void RimSummaryCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     // Adjust the layout to avoid a lot of unused white space in dialog
     m_description.uiCapability()->setUiHidden( true );
     m_expression.uiCapability()->setUiName( "Expression" );
-    m_expression.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_unit.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_expression.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+    m_unit.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 }
 
 //--------------------------------------------------------------------------------------------------

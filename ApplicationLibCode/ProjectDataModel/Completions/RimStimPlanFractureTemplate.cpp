@@ -74,7 +74,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 
     CAF_PDM_InitFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table" );
     m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
 

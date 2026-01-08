@@ -41,7 +41,7 @@ RimWellMeasurementCollection::RimWellMeasurementCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_items, "Measurements", "Measurements" );
     this->itemsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    this->itemsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    this->itemsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_importedFiles, "ImportedFiles", "Imported Files" );
 }

@@ -124,7 +124,7 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitField( &m_octaveExecutable, "octaveExecutable", QString( "octave" ), "Octave Executable Location" );
     m_octaveExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_octaveExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_octaveExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitField( &m_octaveShowHeaderInfoWhenExecutingScripts,
                        "octaveShowHeaderInfoWhenExecutingScripts",
@@ -137,7 +137,7 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location" );
     m_pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_pythonExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_pythonExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     CAF_PDM_InitField( &showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info" );
 
     auto defaultFilename = QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation );

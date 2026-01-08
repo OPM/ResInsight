@@ -42,7 +42,7 @@ RicSelectPlotTemplateUi::RicSelectPlotTemplateUi()
 
     CAF_PDM_InitFieldNoDefault( &m_selectedPlotTemplates, "SelectedPlotTemplates", "Plot Templates" );
     m_selectedPlotTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedPlotTemplates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedPlotTemplates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------

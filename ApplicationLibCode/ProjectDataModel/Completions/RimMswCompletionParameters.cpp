@@ -103,7 +103,7 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessIntervals, "DiameterRoughnessIntervals", "Diameter Roughness Intervals" );
     m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
     m_diameterRoughnessIntervals->intervalsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_diameterRoughnessIntervals->intervalsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_diameterRoughnessIntervals->intervalsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_diameterRoughnessIntervals->intervalsField().uiCapability()->setCustomContextMenuEnabled( true );
 
     // Enable custom context menu on this object as well
@@ -119,7 +119,7 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitFieldNoDefault( &m_customSegmentIntervals, "CustomSegmentIntervals", "Custom Segment Intervals" );
     m_customSegmentIntervals = new RimCustomSegmentIntervalCollection();
     m_customSegmentIntervals->intervalsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_customSegmentIntervals->intervalsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_customSegmentIntervals->intervalsField().uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_customSegmentIntervals->intervalsField().uiCapability()->setCustomContextMenuEnabled( true );
 }
 

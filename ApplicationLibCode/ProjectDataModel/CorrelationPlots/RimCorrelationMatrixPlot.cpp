@@ -126,7 +126,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 5, "Number rows/columns" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters" );
-    m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );

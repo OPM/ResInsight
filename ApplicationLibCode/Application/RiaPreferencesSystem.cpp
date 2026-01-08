@@ -65,7 +65,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeFractureDebugInfoFile );
 
     CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder" );
-    m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog" );

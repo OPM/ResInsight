@@ -106,7 +106,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     // Options
 
@@ -116,7 +116,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useAutoPlotTitle );
 
     CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Analysis Plot" ), "Title" );
-    m_description.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_description.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_barOrientation, "BarOrientation", "Bar Orientation" );
 
@@ -136,7 +136,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useTopBarsFilter );
 
     CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count" );
-    m_maxBarCount.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_maxBarCount.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     // Bar text
 

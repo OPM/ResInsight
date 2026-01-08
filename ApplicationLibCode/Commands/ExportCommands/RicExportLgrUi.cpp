@@ -67,8 +67,8 @@ RicExportLgrUi::RicExportLgrUi()
     CAF_PDM_InitField( &m_refinementJ, "CellCountJ", 2, "" );
     CAF_PDM_InitField( &m_refinementK, "CellCountK", 2, "" );
 
-    m_refinementJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_refinementK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_refinementJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_refinementK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitField( &m_splitType, "SplitType", Lgr::SplitTypeEnum(), "Split Type" );
 }

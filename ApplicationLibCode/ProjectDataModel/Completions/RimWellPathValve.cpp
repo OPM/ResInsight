@@ -57,9 +57,9 @@ RimWellPathValve::RimWellPathValve()
     m_measuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_multipleValveLocations = new RimMultipleValveLocations;
     m_multipleValveLocations.uiCapability()->setUiTreeChildrenHidden( true );
-    m_editValveTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_editValveTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_editValveTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_createValveTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_createValveTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_createValveTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
     nameField()->uiCapability()->setUiReadOnly( true );

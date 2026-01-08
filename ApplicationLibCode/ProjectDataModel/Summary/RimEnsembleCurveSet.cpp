@@ -214,7 +214,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
     m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
