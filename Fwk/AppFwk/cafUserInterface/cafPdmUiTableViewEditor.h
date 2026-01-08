@@ -134,6 +134,33 @@ public:
     PdmUiTableViewEditor();
     ~PdmUiTableViewEditor() override;
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString TABLE_SELECTION_LEVEL        = QStringLiteral( "tableSelectionLevel" );
+        static inline const QString ROW_SELECTION_LEVEL          = QStringLiteral( "rowSelectionLevel" );
+        static inline const QString ENABLE_HEADER_TEXT           = QStringLiteral( "enableHeaderText" );
+        static inline const QString MINIMUM_HEIGHT               = QStringLiteral( "minimumHeight" );
+        static inline const QString HEIGHT_HINT                  = QStringLiteral( "heightHint" );
+        static inline const QString ALWAYS_ENFORCE_RESIZE_POLICY = QStringLiteral( "alwaysEnforceResizePolicy" );
+        static inline const QString RESIZE_POLICY                = QStringLiteral( "resizePolicy" );
+        static inline const QString COLUMN_WIDTHS                = QStringLiteral( "columnWidths" );
+        static inline const QString BASE_COLOR                   = QStringLiteral( "baseColor" );
+        static inline const QString ENABLE_DROP_TARGET           = QStringLiteral( "enableDropTarget" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::TABLE_SELECTION_LEVEL,
+                                                                   Keys::ROW_SELECTION_LEVEL,
+                                                                   Keys::ENABLE_HEADER_TEXT,
+                                                                   Keys::MINIMUM_HEIGHT,
+                                                                   Keys::HEIGHT_HINT,
+                                                                   Keys::ALWAYS_ENFORCE_RESIZE_POLICY,
+                                                                   Keys::RESIZE_POLICY,
+                                                                   Keys::COLUMN_WIDTHS,
+                                                                   Keys::BASE_COLOR,
+                                                                   Keys::ENABLE_DROP_TARGET };
+
     void enableHeaderText( bool enable );
     void setTableSelectionLevel( int selectionLevel );
     void setRowSelectionLevel( int selectionLevel );

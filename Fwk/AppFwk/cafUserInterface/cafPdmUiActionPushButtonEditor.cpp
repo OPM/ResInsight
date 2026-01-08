@@ -101,7 +101,7 @@ void PdmUiActionPushButtonEditor::configureEditorForField( PdmFieldHandle* field
     }
 
     fieldHandle->uiCapability()->setUiEditorTypeName( caf::PdmUiActionPushButtonEditor::uiEditorTypeName() );
-    fieldHandle->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    fieldHandle->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -38,6 +38,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -84,6 +85,23 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
         {
             m_lineEdit->setValidator( m_attributes.m_validator );
         }
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<int>( Keys::DECIMALS, uiConfigName ) )
+        {
+            m_attributes.m_decimals = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::NUMBER_FORMAT, uiConfigName ) )
+        {
+            m_attributes.m_numberFormat = static_cast<PdmUiDoubleValueEditorAttribute::NumberFormat>( val.value() );
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiDoubleValueEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     bool    valueOk = false;

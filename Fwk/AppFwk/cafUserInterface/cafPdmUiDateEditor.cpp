@@ -38,6 +38,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -73,6 +74,18 @@ void PdmUiDateEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<QString>( Keys::DATE_FORMAT, uiConfigName ) )
+        {
+            m_attributes.dateFormat = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiDateEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     if ( !m_attributes.dateFormat.isEmpty() )

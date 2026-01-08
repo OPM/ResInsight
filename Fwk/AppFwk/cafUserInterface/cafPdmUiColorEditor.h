@@ -76,6 +76,16 @@ public:
     PdmUiColorEditor();
     ~PdmUiColorEditor() override {}
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString SHOW_ALPHA = QStringLiteral( "showAlpha" );
+        static inline const QString SHOW_LABEL = QStringLiteral( "showLabel" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::SHOW_ALPHA, Keys::SHOW_LABEL };
+
     static QColor getColor( const QColor& sourceColor );
 
 protected:

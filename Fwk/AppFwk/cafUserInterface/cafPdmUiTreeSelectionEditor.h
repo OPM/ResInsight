@@ -99,6 +99,25 @@ public:
     PdmUiTreeSelectionEditor();
     ~PdmUiTreeSelectionEditor() override;
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString SHOW_TEXT_FILTER         = QStringLiteral( "showTextFilter" );
+        static inline const QString SHOW_TOGGLE_ALL_CHECKBOX = QStringLiteral( "showToggleAllCheckbox" );
+        static inline const QString SINGLE_SELECTION_MODE    = QStringLiteral( "singleSelectionMode" );
+        static inline const QString SHOW_CHECK_BOXES         = QStringLiteral( "showCheckBoxes" );
+        static inline const QString SHOW_CONTEXT_MENU        = QStringLiteral( "showContextMenu" );
+        static inline const QString HEIGHT_HINT              = QStringLiteral( "heightHint" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::SHOW_TEXT_FILTER,
+                                                                   Keys::SHOW_TOGGLE_ALL_CHECKBOX,
+                                                                   Keys::SINGLE_SELECTION_MODE,
+                                                                   Keys::SHOW_CHECK_BOXES,
+                                                                   Keys::SHOW_CONTEXT_MENU,
+                                                                   Keys::HEIGHT_HINT };
+
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QWidget* createEditorWidget( QWidget* parent ) override;

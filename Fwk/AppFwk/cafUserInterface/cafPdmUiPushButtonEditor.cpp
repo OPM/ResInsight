@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -38,6 +38,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -73,6 +74,23 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
     }
 
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<QString>( Keys::BUTTON_TEXT, uiConfigName ) )
+        {
+            attributes.m_buttonText = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QIcon>( Keys::BUTTON_ICON, uiConfigName ) )
+        {
+            attributes.m_buttonIcon = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiPushButtonEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
+    }
+
     QVariant variantFieldValue = uiField()->uiValue();
 
     if ( !attributes.m_buttonIcon.isNull() )
@@ -96,7 +114,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
     }
 
-    if ( uiField()->uiLabelPosition( uiConfigName ) != PdmUiItemInfo::HIDDEN )
+    if ( uiField()->uiLabelPosition( uiConfigName ) != PdmUiItemInfo::LabelPosition::HIDDEN )
     {
         QSize defaultSize = m_pushButton->sizeHint();
         m_pushButton->setMinimumWidth( 10 * std::round( 0.1 * ( defaultSize.width() + 10 ) ) );
@@ -124,7 +142,7 @@ void PdmUiPushButtonEditor::configureEditorLabelLeft( PdmFieldHandle* fieldHandl
         if ( auto uiCap = fieldHandle->uiCapability() )
         {
             uiCap->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::LEFT );
         }
     }
 }
@@ -144,7 +162,7 @@ void PdmUiPushButtonEditor::configureEditorLabelHidden( PdmFieldHandle* fieldHan
         if ( auto uiCap = fieldHandle->uiCapability() )
         {
             uiCap->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
         }
     }
 }

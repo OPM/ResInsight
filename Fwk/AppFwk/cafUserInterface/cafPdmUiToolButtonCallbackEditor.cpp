@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2014 Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -63,10 +63,26 @@ void PdmUiToolButtonCallbackEditor::configureAndUpdateUi( const QString& uiConfi
     m_toolButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_toolButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    if ( auto pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() ) )
+    // First try to get callback from the map-based attribute system
+    if ( auto uiItem = uiField()->fieldHandle()->uiCapability(); uiItem )
     {
-        pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        if ( auto callbackVariant = uiItem->attribute<std::function<void()>>( Keys::CALLBACK, uiConfigName ) )
+        {
+            m_attributes.m_onClickedCallback = callbackVariant.value();
+        }
+        // Fall back to old defineEditorAttribute method if callback not set via map
+        else if ( !m_attributes.m_onClickedCallback )
+        {
+            if ( auto pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() ) )
+            {
+                pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+            }
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiToolButtonCallbackEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
+
     m_toolButton->setCheckable( false );
 }
 

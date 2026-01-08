@@ -16,10 +16,6 @@ public:
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
-
     void rotateContent();
     void appendText();
     void replaceText();

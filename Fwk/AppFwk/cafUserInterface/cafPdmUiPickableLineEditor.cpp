@@ -36,6 +36,7 @@
 #include "cafPdmUiPickableLineEditor.h"
 
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -65,6 +66,18 @@ void caf::PdmUiPickableLineEditor::configureAndUpdateUi( const QString& uiConfig
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attribute );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<bool>( Keys::ENABLE_PICKING, uiConfigName ) )
+        {
+            m_attribute.enablePicking = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiPickableLineEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     if ( m_attribute.pickEventHandler )

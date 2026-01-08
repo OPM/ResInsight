@@ -157,7 +157,7 @@ void PdmUiNativeCheckBoxEditor::configureFieldForEditor( caf::PdmFieldHandle* fi
         uiCap->setUiEditorTypeName( caf::PdmUiNativeCheckBoxEditor::uiEditorTypeName() );
 
         // Hide the editor label, as the label is managed by the native checkbox
-        uiCap->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+        uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     }
 }
 

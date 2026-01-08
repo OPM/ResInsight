@@ -38,6 +38,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafUiAppearanceSettings.h"
@@ -72,6 +73,83 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<bool>( Keys::ADJUST_WIDTH_TO_CONTENTS, uiConfigName ) )
+        {
+            m_attributes.adjustWidthToContents = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_PREVIOUS_AND_NEXT_BUTTONS, uiConfigName ) )
+        {
+            m_attributes.showPreviousAndNextButtons = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::MINIMUM_CONTENTS_LENGTH, uiConfigName ) )
+        {
+            m_attributes.minimumContentsLength = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::MAXIMUM_MENU_CONTENTS_LENGTH, uiConfigName ) )
+        {
+            m_attributes.maximumMenuContentsLength = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::ENABLE_EDITABLE_CONTENT, uiConfigName ) )
+        {
+            m_attributes.enableEditableContent = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::ENABLE_AUTO_COMPLETE, uiConfigName ) )
+        {
+            m_attributes.enableAutoComplete = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QSize>( Keys::ICON_SIZE, uiConfigName ) )
+        {
+            m_attributes.iconSize = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QString>( Keys::PLACEHOLDER_TEXT, uiConfigName ) )
+        {
+            m_attributes.placeholderText = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::NOTIFY_WHEN_TEXT_IS_EDITED, uiConfigName ) )
+        {
+            m_attributes.notifyWhenTextIsEdited = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::MINIMUM_WIDTH, uiConfigName ) )
+        {
+            m_attributes.minimumWidth = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QString>( Keys::NEXT_BUTTON_TEXT, uiConfigName ) )
+        {
+            m_attributes.nextButtonText = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QString>( Keys::PREV_BUTTON_TEXT, uiConfigName ) )
+        {
+            m_attributes.prevButtonText = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QIcon>( Keys::NEXT_ICON, uiConfigName ) )
+        {
+            m_attributes.nextIcon = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QIcon>( Keys::PREVIOUS_ICON, uiConfigName ) )
+        {
+            m_attributes.previousIcon = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiComboBoxEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     if ( !m_comboBox.isNull() )

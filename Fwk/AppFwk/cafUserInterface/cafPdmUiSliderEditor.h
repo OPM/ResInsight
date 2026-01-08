@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -77,6 +77,21 @@ class PdmUiSliderEditor : public PdmUiFieldLabelEditorHandle
 public:
     PdmUiSliderEditor() {}
     ~PdmUiSliderEditor() override {}
+
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString MINIMUM       = QStringLiteral( "minimum" );
+        static inline const QString MAXIMUM       = QStringLiteral( "maximum" );
+        static inline const QString SHOW_SPIN_BOX = QStringLiteral( "showSpinBox" );
+        static inline const QString STEP          = QStringLiteral( "step" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::MINIMUM,
+                                                                   Keys::MAXIMUM,
+                                                                   Keys::SHOW_SPIN_BOX,
+                                                                   Keys::STEP };
 
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;

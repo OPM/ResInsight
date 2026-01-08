@@ -37,6 +37,7 @@
 #include "cafPdmUiTextEditor.h"
 
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -125,6 +126,38 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<int>( Keys::TEXT_MODE, uiConfigName ) )
+        {
+            leab.textMode = static_cast<PdmUiTextEditorAttribute::TextMode>( val.value() );
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_SAVE_BUTTON, uiConfigName ) )
+        {
+            leab.showSaveButton = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::WRAP_MODE, uiConfigName ) )
+        {
+            leab.wrapMode = static_cast<PdmUiTextEditorAttribute::WrapMode>( val.value() );
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ) )
+        {
+            leab.heightHint = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QFont>( Keys::FONT, uiConfigName ) )
+        {
+            leab.font = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiTextEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     m_textMode = leab.textMode;

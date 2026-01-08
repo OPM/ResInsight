@@ -69,6 +69,16 @@ public:
     PdmUiPushButtonEditor() {}
     ~PdmUiPushButtonEditor() override {}
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString BUTTON_ICON = QStringLiteral( "buttonIcon" );
+        static inline const QString BUTTON_TEXT = QStringLiteral( "buttonText" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::BUTTON_ICON, Keys::BUTTON_TEXT };
+
     static void configureEditorLabelLeft( PdmFieldHandle* fieldHandle );
     static void configureEditorLabelHidden( PdmFieldHandle* fieldHandle );
 

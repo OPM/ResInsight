@@ -62,6 +62,24 @@ public:
     PdmUiDoubleSliderEditor();
     ~PdmUiDoubleSliderEditor() override;
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString MINIMUM           = QStringLiteral( "minimum" );
+        static inline const QString MAXIMUM           = QStringLiteral( "maximum" );
+        static inline const QString DECIMALS          = QStringLiteral( "decimals" );
+        static inline const QString SLIDER_TICK_COUNT = QStringLiteral( "sliderTickCount" );
+        static inline const QString DELAY_SLIDER_UPDATE_UNTIL_RELEASE =
+            QStringLiteral( "delaySliderUpdateUntilRelease" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::MINIMUM,
+                                                                   Keys::MAXIMUM,
+                                                                   Keys::DECIMALS,
+                                                                   Keys::SLIDER_TICK_COUNT,
+                                                                   Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE };
+
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QWidget* createEditorWidget( QWidget* parent ) override;

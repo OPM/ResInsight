@@ -231,18 +231,18 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
 
                         int fieldColumnSpan = minimumFieldColumnSpan;
 
-                        QWidget*                    fieldLabelWidget = fieldEditor->labelWidget();
-                        PdmUiItemInfo::LabelPosType labelPos         = PdmUiItemInfo::HIDDEN;
+                        QWidget*                     fieldLabelWidget = fieldEditor->labelWidget();
+                        PdmUiItemInfo::LabelPosition labelPos         = PdmUiItemInfo::LabelPosition::HIDDEN;
 
                         if ( fieldLabelWidget )
                         {
                             labelPos = field->uiLabelPosition( uiConfigName );
 
-                            if ( labelPos == PdmUiItemInfo::HIDDEN )
+                            if ( labelPos == PdmUiItemInfo::LabelPosition::HIDDEN )
                             {
                                 fieldLabelWidget->hide();
                             }
-                            else if ( labelPos == PdmUiItemInfo::TOP )
+                            else if ( labelPos == PdmUiItemInfo::LabelPosition::TOP )
                             {
                                 QVBoxLayout* labelAndFieldVerticalLayout = new QVBoxLayout();
                                 parentLayout->addLayout( labelAndFieldVerticalLayout,
@@ -260,7 +260,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                             }
                             else
                             {
-                                CAF_ASSERT( labelPos == PdmUiItemInfo::LEFT );
+                                CAF_ASSERT( labelPos == PdmUiItemInfo::LabelPosition::LEFT );
                                 int leftLabelColumnSpan = minimumLabelColumnSpan;
                                 if ( currentLayout.leftLabelColumnSpan == PdmUiOrdering::MAX_COLUMN_SPAN &&
                                      currentLayout.totalColumnSpan != PdmUiOrdering::MAX_COLUMN_SPAN )
@@ -287,7 +287,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                             }
                         }
 
-                        if ( labelPos != PdmUiItemInfo::TOP ) // Already added if TOP
+                        if ( labelPos != PdmUiItemInfo::LabelPosition::TOP ) // Already added if TOP
                         {
                             fieldColumnSpan += spareColumnsToAssign;
 

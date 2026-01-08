@@ -99,6 +99,41 @@ public:
     PdmUiComboBoxEditor();
     ~PdmUiComboBoxEditor() override {}
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString ADJUST_WIDTH_TO_CONTENTS       = QStringLiteral( "adjustWidthToContents" );
+        static inline const QString SHOW_PREVIOUS_AND_NEXT_BUTTONS = QStringLiteral( "showPreviousAndNextButtons" );
+        static inline const QString MINIMUM_CONTENTS_LENGTH        = QStringLiteral( "minimumContentsLength" );
+        static inline const QString MAXIMUM_MENU_CONTENTS_LENGTH   = QStringLiteral( "maximumMenuContentsLength" );
+        static inline const QString ENABLE_EDITABLE_CONTENT        = QStringLiteral( "enableEditableContent" );
+        static inline const QString ENABLE_AUTO_COMPLETE           = QStringLiteral( "enableAutoComplete" );
+        static inline const QString ICON_SIZE                      = QStringLiteral( "iconSize" );
+        static inline const QString MINIMUM_WIDTH                  = QStringLiteral( "minimumWidth" );
+        static inline const QString PLACEHOLDER_TEXT               = QStringLiteral( "placeholderText" );
+        static inline const QString NEXT_BUTTON_TEXT               = QStringLiteral( "nextButtonText" );
+        static inline const QString PREV_BUTTON_TEXT               = QStringLiteral( "prevButtonText" );
+        static inline const QString NEXT_ICON                      = QStringLiteral( "nextIcon" );
+        static inline const QString PREVIOUS_ICON                  = QStringLiteral( "previousIcon" );
+        static inline const QString NOTIFY_WHEN_TEXT_IS_EDITED     = QStringLiteral( "notifyWhenTextIsEdited" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::ADJUST_WIDTH_TO_CONTENTS,
+                                                                   Keys::SHOW_PREVIOUS_AND_NEXT_BUTTONS,
+                                                                   Keys::MINIMUM_CONTENTS_LENGTH,
+                                                                   Keys::MAXIMUM_MENU_CONTENTS_LENGTH,
+                                                                   Keys::ENABLE_EDITABLE_CONTENT,
+                                                                   Keys::ENABLE_AUTO_COMPLETE,
+                                                                   Keys::ICON_SIZE,
+                                                                   Keys::MINIMUM_WIDTH,
+                                                                   Keys::PLACEHOLDER_TEXT,
+                                                                   Keys::NEXT_BUTTON_TEXT,
+                                                                   Keys::PREV_BUTTON_TEXT,
+                                                                   Keys::NEXT_ICON,
+                                                                   Keys::PREVIOUS_ICON,
+                                                                   Keys::NOTIFY_WHEN_TEXT_IS_EDITED };
+
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;

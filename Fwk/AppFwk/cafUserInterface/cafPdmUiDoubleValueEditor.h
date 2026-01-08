@@ -3,7 +3,7 @@
 //   Custom Visualization Core library
 //   Copyright (C) Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
+//   This library may be used under the terms of the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
@@ -98,6 +98,16 @@ class PdmUiDoubleValueEditor : public PdmUiFieldLabelEditorHandle
 public:
     PdmUiDoubleValueEditor();
     ~PdmUiDoubleValueEditor() override;
+
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString DECIMALS      = QStringLiteral( "decimals" );
+        static inline const QString NUMBER_FORMAT = QStringLiteral( "numberFormat" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::DECIMALS, Keys::NUMBER_FORMAT };
 
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;

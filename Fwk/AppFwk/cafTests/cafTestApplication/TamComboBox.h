@@ -29,10 +29,6 @@ private:
 protected:
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    virtual void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                        QString                    uiConfigName,
-                                        caf::PdmUiEditorAttribute* attribute ) override;
-
 private:
     QStringList m_historyItems;
 };

@@ -37,6 +37,7 @@
 #include "cafPdmUiToolButtonEditor.h"
 
 #include "cafPdmFieldHandle.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
@@ -71,6 +72,24 @@ void PdmUiToolButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     {
         pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
     }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<bool>( Keys::CHECKABLE, uiConfigName ) )
+        {
+            attributes.m_checkable = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QSizePolicy>( Keys::SIZE_POLICY, uiConfigName ) )
+        {
+            attributes.m_sizePolicy = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiToolButtonEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
+    }
+
     bool isCheckable = attributes.m_checkable;
     m_toolButton->setCheckable( isCheckable );
     m_toolButton->setSizePolicy( attributes.m_sizePolicy );

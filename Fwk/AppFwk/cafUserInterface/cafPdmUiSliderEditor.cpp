@@ -38,6 +38,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -69,6 +70,33 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<int>( Keys::MINIMUM, uiConfigName ) )
+        {
+            m_attributes.m_minimum = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::MAXIMUM, uiConfigName ) )
+        {
+            m_attributes.m_maximum = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_SPIN_BOX, uiConfigName ) )
+        {
+            m_attributes.m_showSpinBox = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::STEP, uiConfigName ) )
+        {
+            m_attributes.m_step = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiSliderEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     {

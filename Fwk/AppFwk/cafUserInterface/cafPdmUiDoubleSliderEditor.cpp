@@ -37,6 +37,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
 
@@ -79,6 +80,38 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName 
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<double>( Keys::MINIMUM, uiConfigName ) )
+        {
+            m_attributes.m_minimum = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<double>( Keys::MAXIMUM, uiConfigName ) )
+        {
+            m_attributes.m_maximum = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::DECIMALS, uiConfigName ) )
+        {
+            m_attributes.m_decimals = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::SLIDER_TICK_COUNT, uiConfigName ) )
+        {
+            m_attributes.m_sliderTickCount = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE, uiConfigName ) )
+        {
+            m_attributes.m_delaySliderUpdateUntilRelease = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiDoubleSliderEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     double  doubleValue = uiField()->uiValue().toDouble();

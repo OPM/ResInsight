@@ -121,6 +121,23 @@ public:
     PdmUiTextEditor() { m_textMode = PdmUiTextEditorAttribute::PLAIN; }
     ~PdmUiTextEditor() override {}
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString TEXT_MODE        = QStringLiteral( "textMode" );
+        static inline const QString SHOW_SAVE_BUTTON = QStringLiteral( "showSaveButton" );
+        static inline const QString WRAP_MODE        = QStringLiteral( "wrapMode" );
+        static inline const QString FONT             = QStringLiteral( "font" );
+        static inline const QString HEIGHT_HINT      = QStringLiteral( "heightHint" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::TEXT_MODE,
+                                                                   Keys::SHOW_SAVE_BUTTON,
+                                                                   Keys::WRAP_MODE,
+                                                                   Keys::FONT,
+                                                                   Keys::HEIGHT_HINT };
+
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;

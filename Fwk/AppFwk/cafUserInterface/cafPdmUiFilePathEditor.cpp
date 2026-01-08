@@ -38,6 +38,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -74,6 +75,46 @@ void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<bool>( Keys::SELECT_SAVE_FILE_NAME, uiConfigName ) )
+        {
+            m_attributes.m_selectSaveFileName = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QString>( Keys::FILE_SELECTION_FILTER, uiConfigName ) )
+        {
+            m_attributes.m_fileSelectionFilter = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QString>( Keys::DEFAULT_PATH, uiConfigName ) )
+        {
+            m_attributes.m_defaultPath = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SELECT_DIRECTORY, uiConfigName ) )
+        {
+            m_attributes.m_selectDirectory = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::APPEND_UI_SELECTED_FOLDER_TO_TEXT, uiConfigName ) )
+        {
+            m_attributes.m_appendUiSelectedFolderToText = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QString>( Keys::MULTIPLE_ITEM_SEPARATOR, uiConfigName ) )
+        {
+            if ( !val.value().isEmpty() )
+            {
+                m_attributes.m_multipleItemSeparator = val.value().at( 0 );
+            }
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiFilePathEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     m_lineEdit->setText( uiField()->uiValue().toString() );

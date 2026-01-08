@@ -40,6 +40,7 @@
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
+#include "cafPdmLogging.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
@@ -89,15 +90,32 @@ void PdmUiColorEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+    }
 
-        if ( m_attributes.showLabel )
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_ALPHA, uiConfigName ) )
         {
-            m_colorTextLabel->show();
+            m_attributes.showAlpha = val.value();
         }
-        else
+
+        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_LABEL, uiConfigName ) )
         {
-            m_colorTextLabel->hide();
+            m_attributes.showLabel = val.value();
         }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiColorEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
+    }
+
+    if ( m_attributes.showLabel )
+    {
+        m_colorTextLabel->show();
+    }
+    else
+    {
+        m_colorTextLabel->hide();
     }
 
     bool isReadOnly = uiField()->isUiReadOnly( uiConfigName );

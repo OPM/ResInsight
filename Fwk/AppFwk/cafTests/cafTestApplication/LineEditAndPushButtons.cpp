@@ -1,4 +1,3 @@
-
 #include "LineEditAndPushButtons.h"
 
 #include "cafPdmUiLabelEditor.h"
@@ -20,6 +19,7 @@ LineEditAndPushButtons::LineEditAndPushButtons()
 
     CAF_PDM_InitFieldNoDefault( &m_statusTextField, "StatusTextField", "Status Text", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_textField, "TextField", "Text", "", "", "" );
+    m_textField.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::NOTIFY_WHEN_TEXT_IS_EDITED, true );
 
     CAF_PDM_InitFieldNoDefault( &m_labelField, "LabelField", "Medium length text in label", "", "", "" );
     m_labelField.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
@@ -32,21 +32,31 @@ LineEditAndPushButtons::LineEditAndPushButtons()
                                 "",
                                 "" );
     m_labelLongTextField.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_labelLongTextField.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::USE_WORD_WRAP, true );
+    m_labelLongTextField.uiCapability()
+        ->setAttribute( caf::PdmUiLabelEditor::Keys::USE_SINGLE_WIDGET_INSTEAD_OF_LABEL_AND_EDITOR_WIDGET, true );
 
     CAF_PDM_InitFieldNoDefault( &m_textListField, "TextListField", "Text List Field", "", "", "" );
     m_textListField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_textListField.uiCapability()->setAttribute( caf::PdmUiListEditor::Keys::HEIGHT_HINT, 150 );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButton_a, "PushButtonA", "Rotate", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButton_a );
+    m_pushButton_a.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "&Push Me" );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonReplace, "PushButtonB", "Replace (CTRL + Enter)", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonReplace );
+    m_pushButtonReplace.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
+                                                      "Replace (Ctrl + Enter)" );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonClear, "PushButtonC", "Clear (Alt + Enter)", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonClear );
+    m_pushButtonClear.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "Clear (Alt + Enter)" );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonAppend, "PushButtonD", "Append (Shift + Enter)", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonAppend );
+    m_pushButtonAppend.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
+                                                     "Append (Shift + Enter)" );
 
     std::vector<QString> items;
     items.push_back( "sldkfj" );
@@ -112,63 +122,6 @@ void LineEditAndPushButtons::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void LineEditAndPushButtons::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void LineEditAndPushButtons::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_textField )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->notifyWhenTextIsEdited = true;
-        }
-    }
-    else if ( field == &m_labelLongTextField )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_useWordWrap                                  = true;
-            myAttr->m_useSingleWidgetInsteadOfLabelAndEditorWidget = true;
-        }
-    }
-    else if ( field == &m_textListField )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->heightHint = 150;
-        }
-    }
-
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            if ( field == &m_pushButton_a )
-            {
-                myAttr->m_buttonText = "&Push Me";
-            }
-            if ( field == &m_pushButtonReplace )
-            {
-                myAttr->m_buttonText = "Replace (Ctrl + Enter)";
-            }
-            if ( field == &m_pushButtonClear )
-            {
-                myAttr->m_buttonText = "Clear (Alt + Enter)";
-            }
-            if ( field == &m_pushButtonAppend )
-            {
-                myAttr->m_buttonText = "Append (Shift + Enter)";
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

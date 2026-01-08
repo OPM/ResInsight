@@ -36,6 +36,7 @@
 
 #include "cafPdmUiLabelEditor.h"
 
+#include "cafPdmLogging.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
@@ -70,6 +71,34 @@ void PdmUiLabelEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( auto uiObject = uiObj( uiField()->fieldHandle()->ownerObject() ) )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+    }
+
+    // Override with map-based attributes if present (new system takes precedence)
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<bool>( Keys::USE_WORD_WRAP, uiConfigName ) )
+        {
+            attributes.m_useWordWrap = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<bool>( Keys::USE_SINGLE_WIDGET_INSTEAD_OF_LABEL_AND_EDITOR_WIDGET, uiConfigName ) )
+        {
+            attributes.m_useSingleWidgetInsteadOfLabelAndEditorWidget = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<QString>( Keys::LINK_TEXT, uiConfigName ) )
+        {
+            attributes.m_linkText = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<std::function<void( const QString& )>>( Keys::LINK_ACTIVATED_CALLBACK,
+                                                                                  uiConfigName ) )
+        {
+            attributes.m_linkActivatedCallback = val.value();
+        }
+
+        // Validate: warn about unsupported attributes
+        uiItem->validateAttributes( "PdmUiLabelEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     if ( !attributes.m_linkText.isEmpty() )

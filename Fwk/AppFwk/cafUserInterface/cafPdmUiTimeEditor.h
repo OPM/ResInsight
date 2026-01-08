@@ -69,6 +69,15 @@ public:
     PdmUiTimeEditor() {}
     ~PdmUiTimeEditor() override {}
 
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString TIME_FORMAT = QStringLiteral( "timeFormat" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::TIME_FORMAT };
+
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
