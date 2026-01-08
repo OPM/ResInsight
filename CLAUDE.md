@@ -322,6 +322,76 @@ interval = completions_settings.add_diameter_roughness_interval(start_md=100, en
 print(f"Start: {interval.start_md}, End: {interval.end_md}")
 ```
 
+## PDM UI Editor Attributes - Modern setAttribute Pattern
+
+The CAF (Command Application Framework) PDM (Project Data Model) system has migrated from the old `defineEditorAttribute` pattern to a modern `setAttribute` pattern using type-safe Keys structs.
+
+### New Pattern: setAttribute with Keys Struct
+
+**Setting attributes using the new pattern:**
+
+```cpp
+// Modern approach - use Keys constants with implicit type deduction
+m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
+m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 15 );
+m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::BUTTON_TEXT, "Click Me" );
+```
+
+### Benefits of the New Pattern
+
+1. **Type Safety**: Compile-time checking of attribute names prevents typos
+2. **IDE Support**: Auto-completion for attribute keys
+3. **Self-Documenting**: Keys struct clearly shows available attributes for each editor
+4. **Maintainable**: Single source of truth for attribute names
+5. **Validation**: Automatic warnings for unsupported attributes
+
+### Migration from Old Pattern
+
+**Old pattern (deprecated):**
+```cpp
+// In defineEditorAttribute() override
+auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+if ( myAttr )
+{
+    myAttr->adjustWidthToContents = true;
+    myAttr->minimumContentsLength = 15;
+}
+```
+
+**New pattern:**
+```cpp
+// In field initialization or elsewhere
+m_field.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
+m_field.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 15 );
+```
+
+### Common Attribute Examples
+
+```cpp
+// Line Editor - notify on text changes
+m_textField.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::NOTIFY_WHEN_TEXT_IS_EDITED, true );
+
+// Label Editor - hyperlink with callback
+m_labelField.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::LINK_TEXT, 
+                                           "Click <a href='link'>here</a>" );
+std::function<void(const QString&)> callback = [](const QString& link) { /* handler */ };
+m_labelField.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::LINK_ACTIVATED_CALLBACK,
+                                          QVariant::fromValue( callback ) );
+
+// List Editor - set height hint
+m_listField.uiCapability()->setAttribute( caf::PdmUiListEditor::Keys::HEIGHT_HINT, 150 );
+
+// Push Button - set button text
+m_buttonField.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "Execute" );
+
+// Combo Box - enable previous/next buttons
+m_comboField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::SHOW_PREVIOUS_AND_NEXT_BUTTONS, true );
+```
+
+### Backward Compatibility
+
+The old `defineEditorAttribute` pattern still works but is discouraged for new code. Both patterns can coexist during migration, with the new `setAttribute` pattern taking precedence when both are used.
+
 ## Development Notes
 
 - **Version**: Current version defined in `ResInsightVersion.cmake` (2025.04.4-dev)
