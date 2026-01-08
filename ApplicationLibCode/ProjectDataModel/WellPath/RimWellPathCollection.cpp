@@ -644,8 +644,16 @@ void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::setMswWellPattern( const QString& pattern )
 {
-    m_mswNameGrouping        = MswGroupingMode::CUSTOM;
-    m_mswNameGroupingPattern = pattern;
+    if ( pattern.isEmpty() )
+    {
+        m_mswNameGrouping        = MswGroupingMode::DISABLED;
+        m_mswNameGroupingPattern = "";
+    }
+    else
+    {
+        m_mswNameGrouping        = MswGroupingMode::CUSTOM;
+        m_mswNameGroupingPattern = pattern;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -182,3 +182,31 @@ QString RimcWellPathCollection_importWellPathFromPointsInternal::classKeywordRet
 {
     return RimPointBasedWellPath::classKeywordStatic();
 }
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection, RimcWellPathCollection_setMswNameGrouping, "setMswNameGrouping" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPathCollection_setMswNameGrouping::RimcWellPathCollection_setMswNameGrouping( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set MSW Name Grouping" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_mswNameGrouping, "MswNameGrouping", "MSW Name Grouping" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_setMswNameGrouping::execute()
+{
+    auto wellPathCollection = self<RimWellPathCollection>();
+    if ( !wellPathCollection )
+    {
+        return std::unexpected( QString( "Well path collection is null. Cannot add well path." ) );
+    }
+
+    wellPathCollection->setMswWellPattern( m_mswNameGrouping() );
+
+    return nullptr;
+}
