@@ -63,3 +63,19 @@ private:
     caf::PdmField<QString> m_coordinateYKey;
     caf::PdmField<QString> m_coordinateZKey;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPathCollection_setMswNameGrouping : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPathCollection_setMswNameGrouping( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString> m_mswNameGrouping;
+};
