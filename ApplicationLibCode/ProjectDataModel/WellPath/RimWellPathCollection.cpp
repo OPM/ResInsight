@@ -89,6 +89,16 @@ void RimWellPathCollection::WellVisibilityEnum::setUp()
     addItem( RimWellPathCollection::ALL_ON, "ALL_ON", "Individual" );
     addItem( RimWellPathCollection::FORCE_ALL_ON, "FORCE_ALL_ON", "On" );
 }
+
+template <>
+void RimWellPathCollection::MswGroupingEnum::setUp()
+{
+    addItem( RimWellPathCollection::MswGroupingMode::USE_PREFERENCES, "USE_PREFERENCES", "Use Preferences" );
+    addItem( RimWellPathCollection::MswGroupingMode::CUSTOM, "CUSTOM", "Custom" );
+    addItem( RimWellPathCollection::MswGroupingMode::DISABLED, "DISABLED", "Disabled" );
+    setDefault( RimWellPathCollection::MswGroupingMode::USE_PREFERENCES );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimWellPathCollection, "WellPaths" );
@@ -126,6 +136,9 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNodes, "WellPathNodes", "Well Path Nodes" );
     m_wellPathNodes.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_mswNameGrouping, "MswWellNameGrouping", "Grouping" );
+    CAF_PDM_InitFieldNoDefault( &m_mswNameGroupingPattern, "MswWellNameGroupingPattern", "Grouping Pattern" );
 
     m_wellPathImporter           = std::make_unique<RifWellPathImporter>();
     m_wellPathFormationsImporter = std::make_unique<RifWellPathFormationsImporter>();
@@ -500,6 +513,19 @@ void RimWellPathCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Clipping" );
     advancedGroup->add( &wellPathClip );
     advancedGroup->add( &wellPathClipZDistance );
+
+    caf::PdmUiGroup* mswGroupingGroup = uiOrdering.addNewGroup( "MSW Settings" );
+    mswGroupingGroup->add( &m_mswNameGrouping );
+    if ( m_mswNameGrouping() != MswGroupingMode::DISABLED )
+    {
+        if ( m_mswNameGrouping() == MswGroupingMode::USE_PREFERENCES )
+        {
+            m_mswNameGroupingPattern = RiaPreferences::current()->multiLateralWellNamePattern();
+        }
+        mswGroupingGroup->add( &m_mswNameGroupingPattern );
+        m_mswNameGroupingPattern.uiCapability()->setUiReadOnly( m_mswNameGrouping() == MswGroupingMode::USE_PREFERENCES );
+    }
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -611,6 +637,15 @@ void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
 
     m_wellPaths.removeChild( wellPath );
     delete wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::setMswWellPattern( const QString& pattern )
+{
+    m_mswNameGrouping        = MswGroupingMode::CUSTOM;
+    m_mswNameGroupingPattern = pattern;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -942,11 +977,27 @@ std::vector<RimWellPath*> RimWellPathCollection::connectedWellPathLaterals( cons
 std::map<QString, std::vector<RimWellPath*>>
     RimWellPathCollection::wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const
 {
-    std::map<QString, std::vector<RimWellPath*>> rootWells;
+    auto getMultiLateralWellPathPattern = [this]() -> QString
+    {
+        if ( m_mswNameGrouping() == MswGroupingMode::DISABLED )
+        {
+            return "";
+        }
+        else if ( m_mswNameGrouping() == MswGroupingMode::USE_PREFERENCES )
+        {
+            return RiaPreferences::current()->multiLateralWellNamePattern();
+        }
+        else
+        {
+            return m_mswNameGroupingPattern();
+        }
+    };
 
-    QString            multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
-    QString            regexPattern                = QRegularExpression::wildcardToRegularExpression( multiLateralWellPathPattern );
+    QString multiLateralWellPathPattern = getMultiLateralWellPathPattern();
+
+    QString            regexPattern = QRegularExpression::wildcardToRegularExpression( multiLateralWellPathPattern );
     QRegularExpression re( regexPattern, QRegularExpression::CaseInsensitiveOption );
+    std::map<QString, std::vector<RimWellPath*>> rootWells;
 
     for ( auto wellPath : sourceWellPaths )
     {
@@ -1071,6 +1122,17 @@ std::pair<cvf::ref<RigWellPath>, QString> RimWellPathCollection::loadWellPathGeo
     }
 
     return RifOsduWellPathReader::readWellPathData( fileContents, datumElevation );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::initAfterRead()
+{
+    if ( m_mswNameGrouping() == MswGroupingMode::USE_PREFERENCES )
+    {
+        m_mswNameGroupingPattern = RiaPreferences::current()->multiLateralWellNamePattern();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

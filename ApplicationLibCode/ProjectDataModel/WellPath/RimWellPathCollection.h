@@ -88,6 +88,14 @@ public:
     };
     using WellVisibilityEnum = caf::AppEnum<RimWellPathCollection::WellVisibilityType>;
 
+    enum class MswGroupingMode
+    {
+        USE_PREFERENCES,
+        CUSTOM,
+        DISABLED
+    };
+    using MswGroupingEnum = caf::AppEnum<RimWellPathCollection::MswGroupingMode>;
+
     caf::PdmField<bool> isActive;
 
     caf::PdmField<bool>         showWellPathLabel;
@@ -107,6 +115,7 @@ public:
     void deleteAllWellPaths();
     void deleteWell( RimWellPath* wellPath );
 
+    void setMswWellPattern( const QString& pattern );
     void groupWellPaths( const std::vector<RimWellPath*>& wellPaths );
     void rebuildWellPathNodes();
 
@@ -148,6 +157,7 @@ protected:
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void initAfterRead() override;
 
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -177,4 +187,7 @@ private:
     caf::PdmChildArrayField<RimWellPath*>             m_wellPaths;
 
     caf::PdmChildArrayField<cafTreeNode*> m_wellPathNodes;
+
+    caf::PdmField<MswGroupingEnum> m_mswNameGrouping;
+    caf::PdmField<QString>         m_mswNameGroupingPattern;
 };
