@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigBoundingBoxIjk.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -431,7 +432,8 @@ std::expected<caf::VecIjk0, QString> RigGridExportAdapter::transformIjkToSectorC
                                                                                             bool                isBoxMaxCoordinate )
 {
     // Check if original IJK is within the sector bounds
-    if ( ijk.x() < min.x() || ijk.x() > max.x() || ijk.y() < min.y() || ijk.y() > max.y() || ijk.z() < min.z() || ijk.z() > max.z() )
+    RigBoundingBoxIjk sectorBox( min, max );
+    if ( !sectorBox.contains( ijk ) )
     {
         return std::unexpected( QString( "IJK coordinates (%1) are outside sector bounds [(%2), (%3)]" )
                                     .arg( QString::fromStdString( ijk.toString() ) )
