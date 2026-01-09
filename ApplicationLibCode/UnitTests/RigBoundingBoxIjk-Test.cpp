@@ -179,3 +179,94 @@ TEST( RigBoundingBoxIjk, ClampBehavesLikeIntersection )
         EXPECT_EQ( clampResult->max(), intersectionResult->max() );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigBoundingBoxIjk, ContainsPoint )
+{
+    RigBoundingBoxIjk box( cvf::Vec3st( 10, 20, 30 ), cvf::Vec3st( 50, 60, 70 ) );
+
+    // Points inside the box
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 25, 40, 50 ) ) ); // Center
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 11, 21, 31 ) ) ); // Near min corner
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 49, 59, 69 ) ) ); // Near max corner
+
+    // Points at min corner (inclusive)
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 10, 20, 30 ) ) ); // Exact min corner
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 10, 40, 50 ) ) ); // Min X
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 25, 20, 50 ) ) ); // Min Y
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 25, 40, 30 ) ) ); // Min Z
+
+    // Points at max corner (inclusive)
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 50, 60, 70 ) ) ); // Exact max corner
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 50, 40, 50 ) ) ); // Max X
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 25, 60, 50 ) ) ); // Max Y
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 25, 40, 70 ) ) ); // Max Z
+
+    // Points on edges
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 10, 20, 50 ) ) ); // Min X and Y edge
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 50, 60, 50 ) ) ); // Max X and Y edge
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 10, 60, 70 ) ) ); // Min X, max Y and Z edge
+
+    // Points outside the box (below min)
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 9, 40, 50 ) ) ); // X too small
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 25, 19, 50 ) ) ); // Y too small
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 25, 40, 29 ) ) ); // Z too small
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 9, 19, 29 ) ) ); // All too small
+
+    // Points outside the box (above max)
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 51, 40, 50 ) ) ); // X too large
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 25, 61, 50 ) ) ); // Y too large
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 25, 40, 71 ) ) ); // Z too large
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 51, 61, 71 ) ) ); // All too large
+
+    // Points far outside
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 0, 0, 0 ) ) );
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 100, 100, 100 ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigBoundingBoxIjk, ContainsSinglePointBox )
+{
+    // Box that is a single point
+    RigBoundingBoxIjk pointBox( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 5, 5, 5 ) );
+
+    // Should contain exactly the point
+    EXPECT_TRUE( pointBox.contains( cvf::Vec3st( 5, 5, 5 ) ) );
+
+    // Should not contain anything else
+    EXPECT_FALSE( pointBox.contains( cvf::Vec3st( 4, 5, 5 ) ) );
+    EXPECT_FALSE( pointBox.contains( cvf::Vec3st( 5, 4, 5 ) ) );
+    EXPECT_FALSE( pointBox.contains( cvf::Vec3st( 5, 5, 4 ) ) );
+    EXPECT_FALSE( pointBox.contains( cvf::Vec3st( 6, 5, 5 ) ) );
+    EXPECT_FALSE( pointBox.contains( cvf::Vec3st( 5, 6, 5 ) ) );
+    EXPECT_FALSE( pointBox.contains( cvf::Vec3st( 5, 5, 6 ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigBoundingBoxIjk, ContainsZeroBasedBox )
+{
+    // Box starting at origin (common case in grid applications)
+    RigBoundingBoxIjk box( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
+
+    // Origin should be inside
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 0, 0, 0 ) ) );
+
+    // Points inside
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 5, 5, 5 ) ) );
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 10, 10, 10 ) ) );
+
+    // Points on faces
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 0, 5, 5 ) ) );
+    EXPECT_TRUE( box.contains( cvf::Vec3st( 10, 5, 5 ) ) );
+
+    // Points outside
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 11, 5, 5 ) ) );
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 5, 11, 5 ) ) );
+    EXPECT_FALSE( box.contains( cvf::Vec3st( 5, 5, 11 ) ) );
+}
