@@ -38,6 +38,9 @@ public:
 
     bool isValid() const;
 
+    // Check if a point is inside this bounding box (inclusive)
+    bool contains( const cvf::Vec3st& point ) const;
+
     // Check if this box overlaps with another box
     bool overlaps( const RigBoundingBoxIjk& other ) const;
 

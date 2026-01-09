@@ -49,6 +49,15 @@ bool RigBoundingBoxIjk::isValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigBoundingBoxIjk::contains( const cvf::Vec3st& point ) const
+{
+    return point.x() >= m_min.x() && point.x() <= m_max.x() && point.y() >= m_min.y() && point.y() <= m_max.y() && point.z() >= m_min.z() &&
+           point.z() <= m_max.z();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigBoundingBoxIjk::overlaps( const RigBoundingBoxIjk& other ) const
 {
     // Two boxes overlap if they overlap in all three dimensions
