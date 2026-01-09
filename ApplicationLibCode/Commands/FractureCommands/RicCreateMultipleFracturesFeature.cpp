@@ -66,14 +66,14 @@ void RicCreateMultipleFracturesFeature::replaceFractures()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3st, cvf::Vec3st> RicCreateMultipleFracturesFeature::ijkRangeForGrid( RimEclipseCase* gridCase ) const
+RigBoundingBoxIjk<caf::VecIjk0> RicCreateMultipleFracturesFeature::ijkRangeForGrid( RimEclipseCase* gridCase ) const
 {
     if ( gridCase && gridCase->eclipseCaseData() )
     {
         return gridCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->ijkBoundingBox();
     }
 
-    return {};
+    return RigBoundingBoxIjk<caf::VecIjk0>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,9 +182,9 @@ void RicCreateMultipleFracturesFeature::onActionTriggered( bool isChecked )
             {
                 firstSourceCase = proj->eclipseCases().front();
 
-                auto [top, base] = ijkRangeForGrid( firstSourceCase );
-                int topK         = static_cast<int>( top.z() );
-                int baseK        = static_cast<int>( base.z() );
+                auto ijkRange = ijkRangeForGrid( firstSourceCase );
+                int  topK     = static_cast<int>( ijkRange.min().z() );
+                int  baseK    = static_cast<int>( ijkRange.max().z() );
 
                 double minimumDistanceFromTip = 100.0;
                 int    maxFractureCount       = 100;

@@ -218,11 +218,11 @@ void RicCellRangeUi::setDefaultValues()
 
     if ( grid == mainGrid && actCellInfo )
     {
-        auto [min0, max0] = actCellInfo->ijkBoundingBox();
+        const auto& bbox = actCellInfo->ijkBoundingBox();
 
         // Adjust to Eclipse indexing
-        caf::VecIjk1 min1 = min0.toOneBased();
-        caf::VecIjk1 max1 = max0.toOneBased();
+        caf::VecIjk1 min1 = bbox.min().toOneBased();
+        caf::VecIjk1 max1 = bbox.max().toOneBased();
 
         m_startIndexI = static_cast<int>( min1.x() );
         m_startIndexJ = static_cast<int>( min1.y() );
@@ -267,18 +267,18 @@ void RicCellRangeUi::updateLegendText()
 
     if ( grid == mainGrid && actCellInfo )
     {
-        auto [min0, max0] = actCellInfo->ijkBoundingBox();
+        const auto& bbox = actCellInfo->ijkBoundingBox();
 
         // Adjust to Eclipse indexing
-        caf::VecIjk1 min1 = min0.toOneBased();
-        caf::VecIjk1 max1 = max0.toOneBased();
+        auto min = bbox.min().toOneBased();
+        auto max = bbox.max().toOneBased();
 
-        m_startIndexI.uiCapability()->setUiName( QString( "I Start (%1)" ).arg( min1.x() ) );
-        m_startIndexJ.uiCapability()->setUiName( QString( "J Start (%1)" ).arg( min1.y() ) );
-        m_startIndexK.uiCapability()->setUiName( QString( "K Start (%1)" ).arg( min1.z() ) );
-        m_cellCountI.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max1.x() - min1.x() + 1 ) );
-        m_cellCountJ.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max1.y() - min1.y() + 1 ) );
-        m_cellCountK.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max1.z() - min1.z() + 1 ) );
+        m_startIndexI.uiCapability()->setUiName( QString( "I Start (%1)" ).arg( min.x() ) );
+        m_startIndexJ.uiCapability()->setUiName( QString( "J Start (%1)" ).arg( min.y() ) );
+        m_startIndexK.uiCapability()->setUiName( QString( "K Start (%1)" ).arg( min.z() ) );
+        m_cellCountI.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max.x() - min.x() + 1 ) );
+        m_cellCountJ.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max.y() - min.y() + 1 ) );
+        m_cellCountK.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max.z() - min.z() + 1 ) );
     }
     else
     {

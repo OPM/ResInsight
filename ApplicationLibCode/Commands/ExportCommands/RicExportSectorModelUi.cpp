@@ -504,9 +504,9 @@ void RicExportSectorModelUi::applyBoundaryDefaults()
 
     if ( m_gridBoxSelection == RiaModelExportDefines::ACTIVE_CELLS_BOX )
     {
-        auto [minActive, maxActive] = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->ijkBoundingBox();
-        setMin( minActive );
-        setMax( maxActive );
+        const auto& bbox = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->ijkBoundingBox();
+        setMin( bbox.min() );
+        setMax( bbox.max() );
     }
     else if ( m_gridBoxSelection == RiaModelExportDefines::VISIBLE_CELLS_BOX )
     {

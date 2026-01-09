@@ -25,8 +25,6 @@
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::RigActiveCellInfo()
     : m_reservoirActiveCellCount( 0 )
-    , m_activeCellPositionMin( 0, 0, 0 )
-    , m_activeCellPositionMax( 0, 0, 0 )
 {
 }
 
@@ -139,18 +137,17 @@ size_t RigActiveCellInfo::reservoirActiveCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setIjkBoundingBox( const caf::VecIjk0& min, const caf::VecIjk0& max )
+void RigActiveCellInfo::setIjkBoundingBox( const RigBoundingBoxIjk<caf::VecIjk0>& boundingBox )
 {
-    m_activeCellPositionMin = min;
-    m_activeCellPositionMax = max;
+    m_ijkBoundingBox = boundingBox;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<caf::VecIjk0, caf::VecIjk0> RigActiveCellInfo::ijkBoundingBox() const
+const RigBoundingBoxIjk<caf::VecIjk0>& RigActiveCellInfo::ijkBoundingBox() const
 {
-    return std::make_pair( m_activeCellPositionMin, m_activeCellPositionMax );
+    return m_ijkBoundingBox;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,8 +182,7 @@ void RigActiveCellInfo::clear()
     m_perGridActiveCellInfo.clear();
     m_cellIndexToResultIndex.clear();
     m_reservoirActiveCellCount = 0;
-    m_activeCellPositionMin    = caf::VecIjk0( 0, 0, 0 );
-    m_activeCellPositionMax    = caf::VecIjk0( 0, 0, 0 );
+    m_ijkBoundingBox           = RigBoundingBoxIjk<caf::VecIjk0>();
     m_activeCellsBoundingBox.reset();
 }
 

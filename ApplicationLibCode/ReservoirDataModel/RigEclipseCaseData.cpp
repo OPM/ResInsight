@@ -448,8 +448,9 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
                 fractureModelActiveBB.add( i, j, k );
             }
         }
-        m_activeCellInfo->setIjkBoundingBox( matrixModelActiveBB.m_min, matrixModelActiveBB.m_max );
-        m_fractureActiveCellInfo->setIjkBoundingBox( fractureModelActiveBB.m_min, fractureModelActiveBB.m_max );
+        m_activeCellInfo->setIjkBoundingBox( RigBoundingBoxIjk<caf::VecIjk0>( matrixModelActiveBB.m_min, matrixModelActiveBB.m_max ) );
+        m_fractureActiveCellInfo->setIjkBoundingBox(
+            RigBoundingBoxIjk<caf::VecIjk0>( fractureModelActiveBB.m_min, fractureModelActiveBB.m_max ) );
     }
 }
 
@@ -718,7 +719,9 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
         {
             // Use the top and bottom layer of active cells to compute the bounding box
 
-            auto [minBB, maxBB] = activeInfos[acIdx]->ijkBoundingBox();
+            const auto& bbox  = activeInfos[acIdx]->ijkBoundingBox();
+            const auto& minBB = bbox.min();
+            const auto& maxBB = bbox.max();
 
             for ( auto k : { minBB.z(), maxBB.z() } )
             {

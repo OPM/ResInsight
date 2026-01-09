@@ -138,8 +138,8 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
     if ( feature && ( topLayer < 0 || baseLayer < 0 ) )
     {
         auto ijkRange = feature->ijkRangeForGrid( gridCase );
-        if ( topLayer < 0 ) topLayer = static_cast<int>( ijkRange.first.z() );
-        if ( baseLayer < 0 ) baseLayer = static_cast<int>( ijkRange.second.z() );
+        if ( topLayer < 0 ) topLayer = static_cast<int>( ijkRange.min().z() );
+        if ( baseLayer < 0 ) baseLayer = static_cast<int>( ijkRange.max().z() );
     }
     options->setValues( topLayer, baseLayer, fractureTemplate, m_spacing );
 
