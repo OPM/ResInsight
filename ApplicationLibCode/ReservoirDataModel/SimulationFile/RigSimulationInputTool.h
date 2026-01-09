@@ -34,6 +34,7 @@ class RimEclipseCase;
 class RigSimulationInputSettings;
 class RifOpmFlowDeckFile;
 class RigSimWellData;
+template <typename Vec>
 class RigBoundingBoxIjk;
 class RigGridExportAdapter;
 
@@ -121,7 +122,7 @@ private:
                                                                      int                         operNumRegion,
                                                                      double                      porvMultiplier );
 
-    static std::vector<RigSimWellData*> findIntersectingWells( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max );
+    static std::vector<RigSimWellData*> findIntersectingWells( RimEclipseCase* eclipseCase, const caf::VecIjk0& min, const caf::VecIjk0& max );
 
     static std::expected<Opm::DeckRecord, QString>
         processWelspecsRecord( const Opm::DeckRecord& record, const std::string& wellName, const RigSimulationInputSettings& settings );
@@ -146,12 +147,13 @@ private:
 
     // Helper function to transform bounding box from global to sector coordinates
     // Returns bounding box with 0-based sector-relative coordinates
-    static std::expected<RigBoundingBoxIjk, QString> transformBoxToSectorCoordinates( const RigBoundingBoxIjk& inputBox,
-                                                                                      const caf::VecIjk0&      sectorMin,
-                                                                                      const caf::VecIjk0&      sectorMax,
-                                                                                      const cvf::Vec3st&       refinement,
-                                                                                      const QString&           keywordName,
-                                                                                      const QString&           recordIdentifier );
+    static std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
+        transformBoxToSectorCoordinates( const RigBoundingBoxIjk<caf::VecIjk0>& inputBox,
+                                         const caf::VecIjk0&                    sectorMin,
+                                         const caf::VecIjk0&                    sectorMax,
+                                         const cvf::Vec3st&                     refinement,
+                                         const QString&                         keywordName,
+                                         const QString&                         recordIdentifier );
 
     // Helper function to extract IJK coordinates from a deck record
     // Returns a VecIjk1 (1-based) constructed from values at the specified item indices

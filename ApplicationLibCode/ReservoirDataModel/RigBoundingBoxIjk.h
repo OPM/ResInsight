@@ -20,26 +20,29 @@
 
 #include "cvfVector3.h"
 
+#include <algorithm>
 #include <optional>
 
 //==================================================================================================
 ///
 /// Value type representing an axis-aligned bounding box in IJK (integer) grid coordinates
+/// Template parameter T should be a 3D vector type with x(), y(), z() accessors (e.g., cvf::Vec3st, caf::VecIjk0)
 ///
 //==================================================================================================
+template <typename T>
 class RigBoundingBoxIjk
 {
 public:
     RigBoundingBoxIjk();
-    RigBoundingBoxIjk( const cvf::Vec3st& min, const cvf::Vec3st& max );
+    RigBoundingBoxIjk( const T& min, const T& max );
 
-    const cvf::Vec3st& min() const { return m_min; }
-    const cvf::Vec3st& max() const { return m_max; }
+    const T& min() const { return m_min; }
+    const T& max() const { return m_max; }
 
     bool isValid() const;
 
     // Check if a point is inside this bounding box (inclusive)
-    bool contains( const cvf::Vec3st& point ) const;
+    bool contains( const T& point ) const;
 
     // Check if this box overlaps with another box
     bool overlaps( const RigBoundingBoxIjk& other ) const;
@@ -53,6 +56,8 @@ public:
     std::optional<RigBoundingBoxIjk> clamp( const RigBoundingBoxIjk& bounds ) const;
 
 private:
-    cvf::Vec3st m_min;
-    cvf::Vec3st m_max;
+    T m_min;
+    T m_max;
 };
+
+#include "RigBoundingBoxIjk.inl"
