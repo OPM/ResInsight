@@ -103,6 +103,7 @@ public:
     virtual void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const;
 
     std::optional<caf::VecIjk0> ijkFromCellIndex( size_t cellIndex ) const;
+    size_t                      cellIndexFromIJK( const caf::VecIjk0& ijk ) const;
 
     bool cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override; // unused
     void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const override; // unused
