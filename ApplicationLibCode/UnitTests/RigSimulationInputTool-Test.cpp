@@ -1236,7 +1236,7 @@ TEST( RigSimulationInputTool, TransformNNCToSectorCoordinates_NoRefinement )
 
     // Sector starts at (5,10,2)
     caf::VecIjk0 sectorMin( 5, 10, 2 );
-    cvf::Vec3st refinement( 1, 1, 1 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
 
     auto result = RigSimulationInputTool::transformNNCToSectorCoordinates( connection, mainGrid, sectorMin, refinement );
 
@@ -1272,7 +1272,7 @@ TEST( RigSimulationInputTool, RefineNNCConnection_IFaceNeighbor )
     RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 8.0 };
 
     caf::VecIjk0 sectorMin( 0, 0, 0 );
-    cvf::Vec3st refinement( 2, 2, 1 ); // Refine by 2x2x1
+    cvf::Vec3st  refinement( 2, 2, 1 ); // Refine by 2x2x1
 
     auto refined = RigSimulationInputTool::refineNNCConnection( connection, mainGrid, sectorMin, refinement );
 
@@ -1312,7 +1312,7 @@ TEST( RigSimulationInputTool, RefineNNCConnection_JFaceNeighbor )
     RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 12.0 };
 
     caf::VecIjk0 sectorMin( 0, 0, 0 );
-    cvf::Vec3st refinement( 3, 2, 1 ); // Refine by 3x2x1
+    cvf::Vec3st  refinement( 3, 2, 1 ); // Refine by 3x2x1
 
     auto refined = RigSimulationInputTool::refineNNCConnection( connection, mainGrid, sectorMin, refinement );
 
@@ -1352,7 +1352,7 @@ TEST( RigSimulationInputTool, RefineNNCConnection_KFaceNeighbor )
     RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 9.0 };
 
     caf::VecIjk0 sectorMin( 0, 0, 0 );
-    cvf::Vec3st refinement( 1, 1, 3 ); // Refine by 1x1x3
+    cvf::Vec3st  refinement( 1, 1, 3 ); // Refine by 1x1x3
 
     auto refined = RigSimulationInputTool::refineNNCConnection( connection, mainGrid, sectorMin, refinement );
 
@@ -1386,7 +1386,7 @@ TEST( RigSimulationInputTool, RefineNNCConnection_NonNeighbor )
     RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 16.0 };
 
     caf::VecIjk0 sectorMin( 0, 0, 0 );
-    cvf::Vec3st refinement( 2, 2, 2 ); // Refine by 2x2x2
+    cvf::Vec3st  refinement( 2, 2, 2 ); // Refine by 2x2x2
 
     auto refined = RigSimulationInputTool::refineNNCConnection( connection, mainGrid, sectorMin, refinement );
 
