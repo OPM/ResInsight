@@ -72,3 +72,29 @@ TEST( RigActiveCellInfo, GridCellCounts )
         EXPECT_TRUE( rigActiveCellInfo.reservoirActiveCellCount() == 12 );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigActiveCellInfo, IJKBoundingBox )
+{
+    RigActiveCellInfo rigActiveCellInfo;
+
+    // Test initial state
+    const auto& bbox = rigActiveCellInfo.ijkBoundingBox();
+    EXPECT_EQ( caf::VecIjk0( 0, 0, 0 ), bbox.min() );
+    EXPECT_EQ( caf::VecIjk0( 0, 0, 0 ), bbox.max() );
+    EXPECT_TRUE( bbox.isValid() );
+
+    // Test setting bounding box
+    rigActiveCellInfo.setIjkBoundingBox( RigBoundingBoxIjk<caf::VecIjk0>( caf::VecIjk0( 5, 10, 15 ), caf::VecIjk0( 20, 30, 40 ) ) );
+    const auto& bbox2 = rigActiveCellInfo.ijkBoundingBox();
+    EXPECT_EQ( caf::VecIjk0( 5, 10, 15 ), bbox2.min() );
+    EXPECT_EQ( caf::VecIjk0( 20, 30, 40 ), bbox2.max() );
+
+    // Test clear resets bounding box
+    rigActiveCellInfo.clear();
+    const auto& bbox3 = rigActiveCellInfo.ijkBoundingBox();
+    EXPECT_EQ( caf::VecIjk0( 0, 0, 0 ), bbox3.min() );
+    EXPECT_EQ( caf::VecIjk0( 0, 0, 0 ), bbox3.max() );
+}

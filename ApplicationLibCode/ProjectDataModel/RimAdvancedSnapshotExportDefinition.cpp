@@ -196,16 +196,11 @@ void RimAdvancedSnapshotExportDefinition::fieldChangedByUi( const caf::PdmFieldH
 
         if ( mainGrid && actCellInfo )
         {
-            auto [min, max] = actCellInfo->ijkBoundingBox();
+            const auto& bbox = actCellInfo->ijkBoundingBox();
 
             // Adjust to Eclipse indexing
-            min.x() = min.x() + 1;
-            min.y() = min.y() + 1;
-            min.z() = min.z() + 1;
-
-            max.x() = max.x() + 1;
-            max.y() = max.y() + 1;
-            max.z() = max.z() + 1;
+            auto min = bbox.min().toOneBased();
+            auto max = bbox.max().toOneBased();
 
             int maxInt = 0;
             int minInt = 0;

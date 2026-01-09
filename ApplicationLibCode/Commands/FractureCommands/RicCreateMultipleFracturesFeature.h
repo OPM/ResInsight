@@ -20,6 +20,9 @@
 
 #include "cafCmdFeature.h"
 
+#include "RigBoundingBoxIjk.h"
+
+#include "cafVecIjk.h"
 #include "cvfAssert.h"
 #include "cvfVector3.h"
 
@@ -44,9 +47,9 @@ class RicCreateMultipleFracturesFeature : public caf::CmdFeature
 public:
     RicCreateMultipleFracturesFeature() {}
 
-    void                                appendFractures();
-    void                                replaceFractures();
-    std::pair<cvf::Vec3st, cvf::Vec3st> ijkRangeForGrid( RimEclipseCase* gridCase ) const;
+    void                            appendFractures();
+    void                            replaceFractures();
+    RigBoundingBoxIjk<caf::VecIjk0> ijkRangeForGrid( RimEclipseCase* gridCase ) const;
 
 private slots:
     void slotDeleteAndAppendFractures();
