@@ -794,13 +794,10 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsR
     std::vector<Opm::DeckItem> items;
 
     // Transform I, J, K (first three items)
-    int origI = record.getItem( 0 ).get<int>( 0 ) - 1; // Convert to 0-based
-    int origJ = record.getItem( 1 ).get<int>( 0 ) - 1;
-    int origK = record.getItem( 2 ).get<int>( 0 ) - 1;
+    caf::VecIjk1 origIjk = extractIjk( record, 0, 1, 2 );
 
-    caf::VecIjk0 origIjk( origI, origJ, origK );
-    auto         transformResult =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk, settings.min(), settings.max(), settings.refinement(), true );
+    auto transformResult =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk.toZeroBased(), settings.min(), settings.max(), settings.refinement(), true );
 
     if ( !transformResult )
     {
@@ -823,6 +820,15 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsR
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Helper function to extract IJK coordinates from a deck record
+/// Returns a VecIjk1 (1-based) constructed from values at the specified item indices
+//--------------------------------------------------------------------------------------------------
+caf::VecIjk1 RigSimulationInputTool::extractIjk( const Opm::DeckRecord& record, size_t indexI, size_t indexJ, size_t indexK )
+{
+    return caf::VecIjk1( record.getItem( indexI ).get<int>( 0 ), record.getItem( indexJ ).get<int>( 0 ), record.getItem( indexK ).get<int>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Helper function to transform bounding box from global to sector coordinates
 /// Performs intersection, clamping, and coordinate transformation
 /// Returns bounding box with 0-based sector-relative coordinates
@@ -836,8 +842,6 @@ std::expected<RigBoundingBoxIjk, QString> RigSimulationInputTool::transformBoxTo
 {
     // Create sector bounding box
     RigBoundingBoxIjk sectorBox( sectorMin, sectorMax );
-    // cvf::Vec3st( sectorMin.x(), sectorMin.y(), sectorMin.z() ),
-    //                              cvf::Vec3st( sectorMax.x(), sectorMax.y(), sectorMax.z() ) );
 
     // Check if boxes overlap and get intersection
     auto intersection = inputBox.intersection( sectorBox );
@@ -941,15 +945,11 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processEqualsRec
     {
         // Transform IJK box coordinates (items 2-7: I1, I2, J1, J2, K1, K2)
         // Note: EQUALS uses 1-based Eclipse coordinates
-        int origI1 = record.getItem( 2 ).get<int>( 0 ) - 1; // Convert to 0-based
-        int origI2 = record.getItem( 3 ).get<int>( 0 ) - 1;
-        int origJ1 = record.getItem( 4 ).get<int>( 0 ) - 1;
-        int origJ2 = record.getItem( 5 ).get<int>( 0 ) - 1;
-        int origK1 = record.getItem( 6 ).get<int>( 0 ) - 1;
-        int origK2 = record.getItem( 7 ).get<int>( 0 ) - 1;
+        caf::VecIjk1 origMin = extractIjk( record, 2, 4, 6 ); // I1, J1, K1
+        caf::VecIjk1 origMax = extractIjk( record, 3, 5, 7 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
+        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get field name for logging
         QString fieldName   = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
@@ -1000,15 +1000,11 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processMultiplyR
     {
         // Transform IJK box coordinates (items 2-7: I1, I2, J1, J2, K1, K2)
         // Note: MULTIPLY uses 1-based Eclipse coordinates
-        int origI1 = record.getItem( 2 ).get<int>( 0 ) - 1; // Convert to 0-based
-        int origI2 = record.getItem( 3 ).get<int>( 0 ) - 1;
-        int origJ1 = record.getItem( 4 ).get<int>( 0 ) - 1;
-        int origJ2 = record.getItem( 5 ).get<int>( 0 ) - 1;
-        int origK1 = record.getItem( 6 ).get<int>( 0 ) - 1;
-        int origK2 = record.getItem( 7 ).get<int>( 0 ) - 1;
+        caf::VecIjk1 origMin = extractIjk( record, 2, 4, 6 ); // I1, J1, K1
+        caf::VecIjk1 origMax = extractIjk( record, 3, 5, 7 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
+        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get field name for logging
         QString fieldName   = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
@@ -1059,15 +1055,11 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAddRecord
     {
         // Transform IJK box coordinates (items 2-7: I1, I2, J1, J2, K1, K2)
         // Note: ADD uses 1-based Eclipse coordinates
-        int origI1 = record.getItem( 2 ).get<int>( 0 ) - 1; // Convert to 0-based
-        int origI2 = record.getItem( 3 ).get<int>( 0 ) - 1;
-        int origJ1 = record.getItem( 4 ).get<int>( 0 ) - 1;
-        int origJ2 = record.getItem( 5 ).get<int>( 0 ) - 1;
-        int origK1 = record.getItem( 6 ).get<int>( 0 ) - 1;
-        int origK2 = record.getItem( 7 ).get<int>( 0 ) - 1;
+        caf::VecIjk1 origMin = extractIjk( record, 2, 4, 6 ); // I1, J1, K1
+        caf::VecIjk1 origMax = extractIjk( record, 3, 5, 7 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
+        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get field name for logging
         QString fieldName   = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
@@ -1117,15 +1109,11 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquconRec
     {
         // Transform IJK box coordinates (items 1-6: I1, I2, J1, J2, K1, K2)
         // Note: AQUCON uses 1-based Eclipse coordinates
-        int origI1 = record.getItem( 1 ).get<int>( 0 ) - 1; // Convert to 0-based
-        int origI2 = record.getItem( 2 ).get<int>( 0 ) - 1;
-        int origJ1 = record.getItem( 3 ).get<int>( 0 ) - 1;
-        int origJ2 = record.getItem( 4 ).get<int>( 0 ) - 1;
-        int origK1 = record.getItem( 5 ).get<int>( 0 ) - 1;
-        int origK2 = record.getItem( 6 ).get<int>( 0 ) - 1;
+        caf::VecIjk1 origMin = extractIjk( record, 1, 3, 5 ); // I1, J1, K1
+        caf::VecIjk1 origMax = extractIjk( record, 2, 4, 6 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
+        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get aquifer ID for logging
         int     aquiferId   = record.getItem( 0 ).get<int>( 0 );
@@ -1191,15 +1179,11 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCopyRecor
     {
         // Transform IJK box coordinates (items 2-7: I1, I2, J1, J2, K1, K2)
         // Note: COPY uses 1-based Eclipse coordinates
-        int origI1 = record.getItem( 2 ).get<int>( 0 ) - 1; // Convert to 0-based
-        int origI2 = record.getItem( 3 ).get<int>( 0 ) - 1;
-        int origJ1 = record.getItem( 4 ).get<int>( 0 ) - 1;
-        int origJ2 = record.getItem( 5 ).get<int>( 0 ) - 1;
-        int origK1 = record.getItem( 6 ).get<int>( 0 ) - 1;
-        int origK2 = record.getItem( 7 ).get<int>( 0 ) - 1;
+        caf::VecIjk1 origMin = extractIjk( record, 2, 4, 6 ); // I1, J1, K1
+        caf::VecIjk1 origMax = extractIjk( record, 3, 5, 7 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
+        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get array names for logging
         QString srcArray    = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
@@ -1253,15 +1237,11 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processBoxRecord
 
     // Transform IJK box coordinates (items 0-5: I1, I2, J1, J2, K1, K2)
     // Note: BOX uses 1-based Eclipse coordinates
-    int origI1 = record.getItem( 0 ).get<int>( 0 ) - 1; // Convert to 0-based
-    int origI2 = record.getItem( 1 ).get<int>( 0 ) - 1;
-    int origJ1 = record.getItem( 2 ).get<int>( 0 ) - 1;
-    int origJ2 = record.getItem( 3 ).get<int>( 0 ) - 1;
-    int origK1 = record.getItem( 4 ).get<int>( 0 ) - 1;
-    int origK2 = record.getItem( 5 ).get<int>( 0 ) - 1;
+    caf::VecIjk1 origMin = extractIjk( record, 0, 2, 4 ); // I1, J1, K1
+    caf::VecIjk1 origMax = extractIjk( record, 1, 3, 5 ); // I2, J2, K2
 
     // Create input bounding box (0-based, inclusive)
-    RigBoundingBoxIjk inputBox( cvf::Vec3st( origI1, origJ1, origK1 ), cvf::Vec3st( origI2, origJ2, origK2 ) );
+    RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
     // Transform box to sector coordinates
     auto transformResult = transformBoxToSectorCoordinates( inputBox, min, max, refinement, "BOX", "" );
