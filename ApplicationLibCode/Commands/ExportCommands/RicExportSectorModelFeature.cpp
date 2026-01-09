@@ -100,6 +100,13 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
     settings.setMax( exportSettings->max() );
     settings.setRefinement( exportSettings->refinement() );
 
+    std::vector<std::string> keywordsToRemove;
+    for ( auto& s : exportSettings->keywordsToRemove() )
+    {
+        keywordsToRemove.push_back( s.toStdString() );
+    }
+    settings.setKeywordsToRemove( keywordsToRemove );
+
     std::vector<Opm::DeckRecord> bcpropKeywords;
     for ( auto bcprop : exportSettings->bcpropKeywords() )
     {

@@ -932,11 +932,13 @@ bool RifOpmFlowDeckFile::replaceKeywordAtIndex( const Opm::FileDeck::Index& inde
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Returns number of removed keywords
 //--------------------------------------------------------------------------------------------------
-void RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
+int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
 {
-    if ( m_fileDeck.get() == nullptr ) return;
+    int nRemoved = 0;
+
+    if ( m_fileDeck.get() == nullptr ) return nRemoved;
 
     // Find all the matching keywords
     std::vector<Opm::FileDeck::Index> skipIndices;
@@ -953,7 +955,10 @@ void RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
     for ( auto it = skipIndices.rbegin(); it != skipIndices.rend(); ++it )
     {
         m_fileDeck->erase( *it );
+        nRemoved++;
     }
+
+    return nRemoved;
 }
 
 //--------------------------------------------------------------------------------------------------

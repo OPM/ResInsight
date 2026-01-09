@@ -83,6 +83,22 @@ void RigSimulationInputSettings::setRefinement( const cvf::Vec3st& refinement )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigSimulationInputSettings::setKeywordsToRemove( const std::vector<std::string>& keywords )
+{
+    m_keywordsToRemove = keywords;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::string>& RigSimulationInputSettings::keywordsToRemove() const
+{
+    return m_keywordsToRemove;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<Opm::DeckRecord> RigSimulationInputSettings::bcpropKeywords() const
 {
     return m_bcpropKeywords;

@@ -31,10 +31,12 @@
 #include "RimTools.h"
 #include "Tools/RimEclipseViewTools.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiListEditor.h"
 #include "cafPdmUiRadioButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
@@ -96,6 +98,10 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_bcpropKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
+    CAF_PDM_InitFieldNoDefault( &m_keywordsToRemove, "KeywordsToRemove", "Keywords to Remove from Output" );
+    m_keywordsToRemove.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    setDefaultKeywordsToRemove();
+
     CAF_PDM_InitField( &m_createSimulationJob, "CreateSimulationJob", false, "Create New Simulation Job" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSimulationJob );
     CAF_PDM_InitFieldNoDefault( &m_simulationJobFolder, "SimulationJobFolder", "Working Folder" );
@@ -126,6 +132,9 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     m_pageNames << "Boundary Conditions";
     m_pageSubtitles << "Set up the boundary conditions of the new sector model.";
+
+    m_pageNames << "Keyword Adjustments";
+    m_pageSubtitles << "Set up special handling of certain keywords.";
 
     m_pageNames << "Simulation Job Settings";
     m_pageSubtitles << "Optionally create and/or run a simulation job using the exported sector model.";
@@ -216,6 +225,17 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         {
             uiOrdering.add( &m_bcpropKeywords );
         }
+    }
+    else if ( uiConfigName == m_pageNames[WizardPageEnum::KeywordAdjustments] )
+    {
+        uiOrdering.add( &m_keywordsToRemove );
+        auto button = uiOrdering.addNewButton( "Reset to Default",
+                                               [this]()
+                                               {
+                                                   setDefaultKeywordsToRemove();
+                                                   updateConnectedEditors();
+                                               } );
+        button->setAlignment( Qt::AlignRight );
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::SimulationJob] )
     {
@@ -315,6 +335,22 @@ void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* f
             myAttr->m_selectDirectory = true;
         }
     }
+    else if ( field == &m_keywordsToRemove )
+    {
+        auto attrib = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->heightHint = 200;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportSectorModelUi::setDefaultKeywordsToRemove()
+{
+    m_keywordsToRemove.setValue( { "ACTION", "ACTIONX", "UDQ" } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -363,6 +399,14 @@ cvf::Vec3st RicExportSectorModelUi::refinement() const
         return cvf::Vec3st( 1, 1, 1 );
     }
     return cvf::Vec3st( m_refinementCountI(), m_refinementCountJ(), m_refinementCountK() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RicExportSectorModelUi::keywordsToRemove() const
+{
+    return m_keywordsToRemove.value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -643,6 +687,16 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
     else if ( configName == m_pageNames[WizardPageEnum::BoundaryConditions] )
     {
         // no validation needed
+    }
+    else if ( configName == m_pageNames[WizardPageEnum::KeywordAdjustments] )
+    {
+        for ( auto& kw : m_keywordsToRemove() )
+        {
+            if ( kw.contains( ' ' ) )
+            {
+                fieldErrors[m_keywordsToRemove.keyword()] = "Keywords to remove cannot contain spaces: " + kw;
+            }
+        }
     }
     else if ( configName == m_pageNames[WizardPageEnum::SimulationJob] )
     {

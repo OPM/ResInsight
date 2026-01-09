@@ -25,6 +25,7 @@
 #include "cvfVector3.h"
 
 #include <QString>
+#include <string>
 #include <vector>
 
 namespace Opm
@@ -54,6 +55,10 @@ public:
     cvf::Vec3st refinement() const;
     void        setRefinement( const cvf::Vec3st& refinement );
 
+    // Keyword handling
+    const std::vector<std::string>& keywordsToRemove() const;
+    void                            setKeywordsToRemove( const std::vector<std::string>& keywords );
+
     // Boundary conditions
     std::vector<Opm::DeckRecord> bcpropKeywords() const;
     void                         setBcpropKeywords( const std::vector<Opm::DeckRecord>& keywords );
@@ -75,6 +80,7 @@ private:
     caf::VecIjk0                 m_min;
     caf::VecIjk0                 m_max;
     cvf::Vec3st                  m_refinement;
+    std::vector<std::string>     m_keywordsToRemove;
     std::vector<Opm::DeckRecord> m_bcpropKeywords;
     BoundaryConditionEnum        m_boundaryCondition;
     double                       m_porvMultiplier;

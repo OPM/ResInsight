@@ -75,6 +75,16 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     QString   outputFolder = exportGridInfo.absolutePath();
     QString   outputFile   = exportGridInfo.completeBaseName() + ".DATA";
 
+    int noOfRemovedKeywords = 0;
+    for ( auto& kwToRemove : settings.keywordsToRemove() )
+    {
+        noOfRemovedKeywords += deckFile.removeKeywords( kwToRemove );
+    }
+    if ( noOfRemovedKeywords > 0 )
+    {
+        RiaLogging::info( QString( "Removed %1 user specified keywords from deck file." ).arg( noOfRemovedKeywords ) );
+    }
+
     if ( auto result = updateCornerPointGridInDeckFile( &eclipseCase, settings, deckFile ); !result )
     {
         return result;

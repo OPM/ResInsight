@@ -62,6 +62,8 @@ public:
 
     cvf::Vec3st refinement() const;
 
+    std::vector<QString> keywordsToRemove() const;
+
     std::vector<RimKeywordBcprop*>           bcpropKeywords() const;
     RiaModelExportDefines::BoundaryCondition boundaryCondition() const;
     double                                   porvMultiplier() const;
@@ -81,6 +83,8 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     std::map<QString, QString> validate( const QString& configName ) const override;
 
+    void setDefaultKeywordsToRemove();
+
 private:
     enum WizardPageEnum : unsigned int
     {
@@ -88,26 +92,20 @@ private:
         GridBoxSelection   = 1,
         GridRefinement     = 2,
         BoundaryConditions = 3,
-        SimulationJob      = 4,
-        TotalPages         = 5
+        KeywordAdjustments = 4,
+        SimulationJob      = 5,
+        TotalPages         = 6
     };
 
     void           applyBoundaryDefaults();
     static QString defaultFolder();
 
 private:
-    caf::PdmField<caf::FilePath>               m_exportFolder;
-    caf::PdmField<QString>                     m_exportDeckName;
-    caf::PdmField<double>                      m_porvMultiplier;
-    caf::PdmField<int>                         m_visibleWellsPadding;
-    caf::PdmField<BoundaryConditionEnum>       m_boundaryCondition;
-    caf::PdmField<GridBoxSelectionEnum>        m_gridBoxSelection;
-    caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
+    caf::PdmField<caf::FilePath> m_exportFolder;
+    caf::PdmField<QString>       m_exportDeckName;
 
-    caf::PdmField<bool> m_refineGrid;
-    caf::PdmField<int>  m_refinementCountI;
-    caf::PdmField<int>  m_refinementCountJ;
-    caf::PdmField<int>  m_refinementCountK;
+    caf::PdmField<int>                  m_visibleWellsPadding;
+    caf::PdmField<GridBoxSelectionEnum> m_gridBoxSelection;
 
     caf::PdmField<int> m_minI;
     caf::PdmField<int> m_maxI;
@@ -115,6 +113,17 @@ private:
     caf::PdmField<int> m_maxJ;
     caf::PdmField<int> m_minK;
     caf::PdmField<int> m_maxK;
+
+    caf::PdmField<bool> m_refineGrid;
+    caf::PdmField<int>  m_refinementCountI;
+    caf::PdmField<int>  m_refinementCountJ;
+    caf::PdmField<int>  m_refinementCountK;
+
+    caf::PdmField<BoundaryConditionEnum>       m_boundaryCondition;
+    caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
+    caf::PdmField<double>                      m_porvMultiplier;
+
+    caf::PdmField<std::vector<QString>> m_keywordsToRemove;
 
     caf::PdmField<bool>          m_createSimulationJob;
     caf::PdmField<caf::FilePath> m_simulationJobFolder;
