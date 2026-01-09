@@ -89,7 +89,7 @@ public:
     bool        hasRefinement() const;
 
     // Coordinate transformation utilities
-    static std::expected<caf::VecIjk1, QString> transformIjkToSectorCoordinates( const caf::VecIjk0& originalIjk,
+    static std::expected<caf::VecIjk0, QString> transformIjkToSectorCoordinates( const caf::VecIjk0& originalIjk,
                                                                                  const caf::VecIjk0& min,
                                                                                  const caf::VecIjk0& max,
                                                                                  const cvf::Vec3st&  refinement,

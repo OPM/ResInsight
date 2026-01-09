@@ -672,27 +672,27 @@ TEST( RigGridExportAdapter, TransformIjkToSectorCoordinates_NoRefinement )
     caf::VecIjk0 max( 10, 10, 5 );
     cvf::Vec3st  refinement( 1, 1, 1 );
 
-    // Point at sector min should transform to (1,1,1)
+    // Point at sector min should transform to (0,0,0)
     auto result1 = RigGridExportAdapter::transformIjkToSectorCoordinates( min, min, max, refinement );
     EXPECT_TRUE( result1.has_value() );
-    EXPECT_EQ( caf::VecIjk1( 1, 1, 1 ), result1.value() );
+    EXPECT_EQ( caf::VecIjk0( 0, 0, 0 ), result1.value() );
 
     // Point at sector max should transform correctly
     auto result2 = RigGridExportAdapter::transformIjkToSectorCoordinates( max, min, max, refinement );
     EXPECT_TRUE( result2.has_value() );
-    EXPECT_EQ( caf::VecIjk1( 8, 8, 5 ), result2.value() ); // (10-3)*1+1 = 8
+    EXPECT_EQ( caf::VecIjk0( 7, 7, 4 ), result2.value() ); // (10-3)*1 = 7
 
     // Point in middle of sector
     caf::VecIjk0 middle( 5, 5, 3 );
     auto         result3 = RigGridExportAdapter::transformIjkToSectorCoordinates( middle, min, max, refinement );
     EXPECT_TRUE( result3.has_value() );
-    EXPECT_EQ( caf::VecIjk1( 3, 3, 3 ), result3.value() ); // (5-3)*1+1 = 3
+    EXPECT_EQ( caf::VecIjk0( 2, 2, 2 ), result3.value() ); // (5-3)*1 = 2
 
     // Test different point
     caf::VecIjk0 point( 7, 6, 2 );
     auto         result4 = RigGridExportAdapter::transformIjkToSectorCoordinates( point, min, max, refinement );
     EXPECT_TRUE( result4.has_value() );
-    EXPECT_EQ( caf::VecIjk1( 5, 4, 2 ), result4.value() ); // (7-3)*1+1=5, (6-3)*1+1=4, (2-1)*1+1=2
+    EXPECT_EQ( caf::VecIjk0( 4, 3, 1 ), result4.value() ); // (7-3)*1=4, (6-3)*1=3, (2-1)*1=1
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -747,11 +747,11 @@ TEST( RigGridExportAdapter, BoxTransformation_NoRefinement )
     EXPECT_TRUE( startResult.has_value() );
     EXPECT_TRUE( endResult.has_value() );
 
-    // Start: (5-3)*1+1 = 3 for each dimension
-    EXPECT_EQ( caf::VecIjk1( 3, 3, 2 ), startResult.value() );
+    // Start: (5-3)*1 = 2 for each dimension
+    EXPECT_EQ( caf::VecIjk0( 2, 2, 1 ), startResult.value() );
 
-    // End: (7-3)*1+1 = 5 for each dimension
-    EXPECT_EQ( caf::VecIjk1( 5, 5, 3 ), endResult.value() );
+    // End: (7-3)*1 = 4 for each dimension
+    EXPECT_EQ( caf::VecIjk0( 4, 4, 2 ), endResult.value() );
 
     // Verify box contains expected number of cells
     // In X: 5-3+1 = 3 cells (sector cells 3,4,5)
@@ -781,7 +781,7 @@ TEST( RigGridExportAdapter, SingleCellBox_NoRefinement )
     auto result = RigGridExportAdapter::transformIjkToSectorCoordinates( singleCell, sectorMin, sectorMax, refinement );
 
     EXPECT_TRUE( result.has_value() );
-    EXPECT_EQ( caf::VecIjk1( 3, 3, 2 ), result.value() );
+    EXPECT_EQ( caf::VecIjk0( 2, 2, 1 ), result.value() );
 
     // For a single-cell box, start and end are the same
     auto startResult = RigGridExportAdapter::transformIjkToSectorCoordinates( singleCell, sectorMin, sectorMax, refinement );
@@ -806,15 +806,16 @@ TEST( RigGridExportAdapter, BoxAtSectorBoundaries_NoRefinement )
     EXPECT_TRUE( minResult.has_value() );
     EXPECT_TRUE( maxResult.has_value() );
 
-    EXPECT_EQ( caf::VecIjk1( 1, 1, 1 ), minResult.value() );
-    EXPECT_EQ( caf::VecIjk1( 8, 8, 5 ), maxResult.value() ); // (10-3)*1+1 = 8
+    EXPECT_EQ( caf::VecIjk0( 0, 0, 0 ), minResult.value() );
+    EXPECT_EQ( caf::VecIjk0( 7, 7, 4 ), maxResult.value() ); // (10-3)*1 = 7
 
     // Verify sector dimensions
     size_t sectorSizeX = sectorMax.x() - sectorMin.x() + 1; // 10-3+1 = 8
     size_t sectorSizeY = sectorMax.y() - sectorMin.y() + 1; // 10-3+1 = 8
     size_t sectorSizeZ = sectorMax.z() - sectorMin.z() + 1; // 5-1+1 = 5
 
-    EXPECT_EQ( sectorSizeX, maxResult->x() );
-    EXPECT_EQ( sectorSizeY, maxResult->y() );
-    EXPECT_EQ( sectorSizeZ, maxResult->z() );
+    // maxResult is 0-based, so max index = size - 1
+    EXPECT_EQ( sectorSizeX - 1, maxResult->x() );
+    EXPECT_EQ( sectorSizeY - 1, maxResult->y() );
+    EXPECT_EQ( sectorSizeZ - 1, maxResult->z() );
 }

@@ -753,10 +753,10 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompdatRe
     }
 
     using C = Opm::ParserKeywords::COMPDAT;
-    items.push_back( RifOpmDeckTools::item( C::I::itemName, static_cast<int>( transformResultK1->x() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::J::itemName, static_cast<int>( transformResultK1->y() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::K1::itemName, static_cast<int>( transformResultK1->z() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::K2::itemName, static_cast<int>( transformResultK2->z() ) ) );
+    items.push_back( RifOpmDeckTools::item( C::I::itemName, static_cast<int>( transformResultK1->toOneBased().x() ) ) );
+    items.push_back( RifOpmDeckTools::item( C::J::itemName, static_cast<int>( transformResultK1->toOneBased().y() ) ) );
+    items.push_back( RifOpmDeckTools::item( C::K1::itemName, static_cast<int>( transformResultK1->toOneBased().z() ) ) );
+    items.push_back( RifOpmDeckTools::item( C::K2::itemName, static_cast<int>( transformResultK2->toOneBased().z() ) ) );
 
     // Copy remaining items
     for ( size_t i = 5; i < record.size(); ++i )
@@ -809,9 +809,9 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsR
     }
 
     // Add transformed I, J, K
-    items.push_back( RifOpmDeckTools::item( "I", static_cast<int>( transformResult->x() ) ) );
-    items.push_back( RifOpmDeckTools::item( "J", static_cast<int>( transformResult->y() ) ) );
-    items.push_back( RifOpmDeckTools::item( "K", static_cast<int>( transformResult->z() ) ) );
+    items.push_back( RifOpmDeckTools::item( "I", static_cast<int>( transformResult->toOneBased().x() ) ) );
+    items.push_back( RifOpmDeckTools::item( "J", static_cast<int>( transformResult->toOneBased().y() ) ) );
+    items.push_back( RifOpmDeckTools::item( "K", static_cast<int>( transformResult->toOneBased().z() ) ) );
 
     // Copy remaining items
     for ( size_t i = 3; i < record.size(); ++i )
@@ -913,10 +913,8 @@ std::expected<RigBoundingBoxIjk, QString> RigSimulationInputTool::transformBoxTo
     }
 
     // Return bounding box with 0-based sector-relative coordinates
-    return RigBoundingBoxIjk( cvf::Vec3st( transformResult1->x() - 1, transformResult1->y() - 1, transformResult1->z() - 1 ),
-                              cvf::Vec3st( transformResult2->x() - 1, transformResult2->y() - 1, transformResult2->z() - 1 ) );
+    return RigBoundingBoxIjk( *transformResult1, *transformResult2 );
 }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
