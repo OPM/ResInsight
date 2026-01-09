@@ -600,6 +600,9 @@ std::vector<RigSimWellData*>
 
     const auto& wellResults = eclipseCase->eclipseCaseData()->wellResults();
 
+    // Create sector bounding box for intersection checks
+    RigBoundingBoxIjk sectorBox( min, max );
+
     for ( size_t wellIdx = 0; wellIdx < wellResults.size(); ++wellIdx )
     {
         const RigSimWellData* wellData = wellResults[wellIdx].p();
@@ -621,9 +624,7 @@ std::vector<RigSimWellData*>
                 const auto& ijk = ijkOpt.value();
 
                 // Check if point is within bounding box (inclusive)
-                if ( static_cast<size_t>( ijk.i() ) >= min.x() && static_cast<size_t>( ijk.i() ) <= max.x() &&
-                     static_cast<size_t>( ijk.j() ) >= min.y() && static_cast<size_t>( ijk.j() ) <= max.y() &&
-                     static_cast<size_t>( ijk.k() ) >= min.z() && static_cast<size_t>( ijk.k() ) <= max.z() )
+                if ( sectorBox.contains( ijk ) )
                 {
                     intersects = true;
                     break;
