@@ -152,4 +152,8 @@ private:
                                                                                       const cvf::Vec3st&       refinement,
                                                                                       const QString&           keywordName,
                                                                                       const QString&           recordIdentifier );
+
+    // Helper function to extract IJK coordinates from a deck record
+    // Returns a VecIjk1 (1-based) constructed from values at the specified item indices
+    static caf::VecIjk1 extractIjk( const Opm::DeckRecord& record, size_t indexI, size_t indexJ, size_t indexK );
 };
