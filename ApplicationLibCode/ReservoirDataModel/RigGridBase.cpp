@@ -198,6 +198,14 @@ std::array<cvf::Vec3d, 8> RigGridBase::cellCornerVertices( size_t cellIndex ) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RigGridBase::cellIndexFromIJK( const caf::VecIjk0& ijk ) const
+{
+    return cellIndexFromIJK( ijk.i(), ijk.j(), ijk.k() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 {
     CVF_TIGHT_ASSERT( i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
