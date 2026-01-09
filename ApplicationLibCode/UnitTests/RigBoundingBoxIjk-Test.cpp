@@ -26,19 +26,19 @@
 TEST( RigBoundingBoxIjk, BasicConstruction )
 {
     // Default constructor
-    RigBoundingBoxIjk defaultBox;
+    RigBoundingBoxIjk<cvf::Vec3st> defaultBox;
     EXPECT_TRUE( defaultBox.isValid() ); // Min and max are both (0,0,0)
     EXPECT_EQ( cvf::Vec3st::ZERO, defaultBox.min() );
     EXPECT_EQ( cvf::Vec3st::ZERO, defaultBox.max() );
 
     // Constructor with min and max
-    RigBoundingBoxIjk box( cvf::Vec3st( 1, 2, 3 ), cvf::Vec3st( 5, 6, 7 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box( cvf::Vec3st( 1, 2, 3 ), cvf::Vec3st( 5, 6, 7 ) );
     EXPECT_TRUE( box.isValid() );
     EXPECT_EQ( cvf::Vec3st( 1, 2, 3 ), box.min() );
     EXPECT_EQ( cvf::Vec3st( 5, 6, 7 ), box.max() );
 
     // Invalid box (min > max)
-    RigBoundingBoxIjk invalidBox( cvf::Vec3st( 10, 10, 10 ), cvf::Vec3st( 5, 5, 5 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> invalidBox( cvf::Vec3st( 10, 10, 10 ), cvf::Vec3st( 5, 5, 5 ) );
     EXPECT_FALSE( invalidBox.isValid() );
 }
 
@@ -48,14 +48,14 @@ TEST( RigBoundingBoxIjk, BasicConstruction )
 TEST( RigBoundingBoxIjk, IsValid )
 {
     // Valid boxes
-    EXPECT_TRUE( RigBoundingBoxIjk( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) ).isValid() );
-    EXPECT_TRUE( RigBoundingBoxIjk( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 5, 5, 5 ) ).isValid() ); // Single point
+    EXPECT_TRUE( RigBoundingBoxIjk<cvf::Vec3st>( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) ).isValid() );
+    EXPECT_TRUE( RigBoundingBoxIjk<cvf::Vec3st>( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 5, 5, 5 ) ).isValid() ); // Single point
 
     // Invalid boxes (min > max in at least one dimension)
-    EXPECT_FALSE( RigBoundingBoxIjk( cvf::Vec3st( 10, 0, 0 ), cvf::Vec3st( 5, 10, 10 ) ).isValid() ); // X invalid
-    EXPECT_FALSE( RigBoundingBoxIjk( cvf::Vec3st( 0, 10, 0 ), cvf::Vec3st( 10, 5, 10 ) ).isValid() ); // Y invalid
-    EXPECT_FALSE( RigBoundingBoxIjk( cvf::Vec3st( 0, 0, 10 ), cvf::Vec3st( 10, 10, 5 ) ).isValid() ); // Z invalid
-    EXPECT_FALSE( RigBoundingBoxIjk( cvf::Vec3st( 10, 10, 10 ), cvf::Vec3st( 5, 5, 5 ) ).isValid() ); // All invalid
+    EXPECT_FALSE( RigBoundingBoxIjk<cvf::Vec3st>( cvf::Vec3st( 10, 0, 0 ), cvf::Vec3st( 5, 10, 10 ) ).isValid() ); // X invalid
+    EXPECT_FALSE( RigBoundingBoxIjk<cvf::Vec3st>( cvf::Vec3st( 0, 10, 0 ), cvf::Vec3st( 10, 5, 10 ) ).isValid() ); // Y invalid
+    EXPECT_FALSE( RigBoundingBoxIjk<cvf::Vec3st>( cvf::Vec3st( 0, 0, 10 ), cvf::Vec3st( 10, 10, 5 ) ).isValid() ); // Z invalid
+    EXPECT_FALSE( RigBoundingBoxIjk<cvf::Vec3st>( cvf::Vec3st( 10, 10, 10 ), cvf::Vec3st( 5, 5, 5 ) ).isValid() ); // All invalid
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,33 +63,33 @@ TEST( RigBoundingBoxIjk, IsValid )
 //--------------------------------------------------------------------------------------------------
 TEST( RigBoundingBoxIjk, OverlapDetection )
 {
-    RigBoundingBoxIjk box1( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box1( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
 
     // Same box overlaps with itself
     EXPECT_TRUE( box1.overlaps( box1 ) );
 
     // Completely inside
-    RigBoundingBoxIjk box2( cvf::Vec3st( 2, 2, 2 ), cvf::Vec3st( 8, 8, 8 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box2( cvf::Vec3st( 2, 2, 2 ), cvf::Vec3st( 8, 8, 8 ) );
     EXPECT_TRUE( box1.overlaps( box2 ) );
     EXPECT_TRUE( box2.overlaps( box1 ) ); // Symmetric
 
     // Partially overlapping
-    RigBoundingBoxIjk box3( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 15, 15, 15 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box3( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 15, 15, 15 ) );
     EXPECT_TRUE( box1.overlaps( box3 ) );
     EXPECT_TRUE( box3.overlaps( box1 ) );
 
     // Touching at edge (inclusive bounds - should overlap)
-    RigBoundingBoxIjk box4( cvf::Vec3st( 10, 10, 10 ), cvf::Vec3st( 20, 20, 20 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box4( cvf::Vec3st( 10, 10, 10 ), cvf::Vec3st( 20, 20, 20 ) );
     EXPECT_TRUE( box1.overlaps( box4 ) );
     EXPECT_TRUE( box4.overlaps( box1 ) );
 
     // Completely separate (no overlap)
-    RigBoundingBoxIjk box5( cvf::Vec3st( 20, 20, 20 ), cvf::Vec3st( 30, 30, 30 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box5( cvf::Vec3st( 20, 20, 20 ), cvf::Vec3st( 30, 30, 30 ) );
     EXPECT_FALSE( box1.overlaps( box5 ) );
     EXPECT_FALSE( box5.overlaps( box1 ) );
 
     // Overlap in 2D but not 3D (separated in Z)
-    RigBoundingBoxIjk box6( cvf::Vec3st( 5, 5, 20 ), cvf::Vec3st( 15, 15, 30 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box6( cvf::Vec3st( 5, 5, 20 ), cvf::Vec3st( 15, 15, 30 ) );
     EXPECT_FALSE( box1.overlaps( box6 ) );
 }
 
@@ -98,23 +98,23 @@ TEST( RigBoundingBoxIjk, OverlapDetection )
 //--------------------------------------------------------------------------------------------------
 TEST( RigBoundingBoxIjk, Intersection )
 {
-    RigBoundingBoxIjk box1( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box1( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
 
     // No overlap returns nullopt
-    RigBoundingBoxIjk box2( cvf::Vec3st( 20, 20, 20 ), cvf::Vec3st( 30, 30, 30 ) );
-    auto              result1 = box1.intersection( box2 );
+    RigBoundingBoxIjk<cvf::Vec3st> box2( cvf::Vec3st( 20, 20, 20 ), cvf::Vec3st( 30, 30, 30 ) );
+    auto                           result1 = box1.intersection( box2 );
     EXPECT_FALSE( result1.has_value() );
 
     // Partial overlap
-    RigBoundingBoxIjk box3( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 15, 15, 15 ) );
-    auto              result2 = box1.intersection( box3 );
+    RigBoundingBoxIjk<cvf::Vec3st> box3( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 15, 15, 15 ) );
+    auto                           result2 = box1.intersection( box3 );
     EXPECT_TRUE( result2.has_value() );
     EXPECT_EQ( cvf::Vec3st( 5, 5, 5 ), result2->min() );
     EXPECT_EQ( cvf::Vec3st( 10, 10, 10 ), result2->max() );
 
     // Complete containment (box4 inside box1)
-    RigBoundingBoxIjk box4( cvf::Vec3st( 2, 2, 2 ), cvf::Vec3st( 8, 8, 8 ) );
-    auto              result3 = box1.intersection( box4 );
+    RigBoundingBoxIjk<cvf::Vec3st> box4( cvf::Vec3st( 2, 2, 2 ), cvf::Vec3st( 8, 8, 8 ) );
+    auto                           result3 = box1.intersection( box4 );
     EXPECT_TRUE( result3.has_value() );
     EXPECT_EQ( cvf::Vec3st( 2, 2, 2 ), result3->min() );
     EXPECT_EQ( cvf::Vec3st( 8, 8, 8 ), result3->max() );
@@ -126,8 +126,8 @@ TEST( RigBoundingBoxIjk, Intersection )
     EXPECT_EQ( cvf::Vec3st( 10, 10, 10 ), result4->max() );
 
     // Single cell intersection
-    RigBoundingBoxIjk box5( cvf::Vec3st( 10, 10, 10 ), cvf::Vec3st( 20, 20, 20 ) );
-    auto              result5 = box1.intersection( box5 );
+    RigBoundingBoxIjk<cvf::Vec3st> box5( cvf::Vec3st( 10, 10, 10 ), cvf::Vec3st( 20, 20, 20 ) );
+    auto                           result5 = box1.intersection( box5 );
     EXPECT_TRUE( result5.has_value() );
     EXPECT_EQ( cvf::Vec3st( 10, 10, 10 ), result5->min() );
     EXPECT_EQ( cvf::Vec3st( 10, 10, 10 ), result5->max() );
@@ -138,25 +138,25 @@ TEST( RigBoundingBoxIjk, Intersection )
 //--------------------------------------------------------------------------------------------------
 TEST( RigBoundingBoxIjk, Clamp )
 {
-    RigBoundingBoxIjk bounds( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> bounds( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
 
     // Box completely inside bounds
-    RigBoundingBoxIjk box1( cvf::Vec3st( 2, 2, 2 ), cvf::Vec3st( 8, 8, 8 ) );
-    auto              result1 = box1.clamp( bounds );
+    RigBoundingBoxIjk<cvf::Vec3st> box1( cvf::Vec3st( 2, 2, 2 ), cvf::Vec3st( 8, 8, 8 ) );
+    auto                           result1 = box1.clamp( bounds );
     EXPECT_TRUE( result1.has_value() );
     EXPECT_EQ( cvf::Vec3st( 2, 2, 2 ), result1->min() );
     EXPECT_EQ( cvf::Vec3st( 8, 8, 8 ), result1->max() );
 
     // Box partially outside bounds - should be clamped
-    RigBoundingBoxIjk box2( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 15, 15, 15 ) );
-    auto              result2 = box2.clamp( bounds );
+    RigBoundingBoxIjk<cvf::Vec3st> box2( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 15, 15, 15 ) );
+    auto                           result2 = box2.clamp( bounds );
     EXPECT_TRUE( result2.has_value() );
     EXPECT_EQ( cvf::Vec3st( 5, 5, 5 ), result2->min() );
     EXPECT_EQ( cvf::Vec3st( 10, 10, 10 ), result2->max() );
 
     // Box completely outside bounds
-    RigBoundingBoxIjk box3( cvf::Vec3st( 20, 20, 20 ), cvf::Vec3st( 30, 30, 30 ) );
-    auto              result3 = box3.clamp( bounds );
+    RigBoundingBoxIjk<cvf::Vec3st> box3( cvf::Vec3st( 20, 20, 20 ), cvf::Vec3st( 30, 30, 30 ) );
+    auto                           result3 = box3.clamp( bounds );
     EXPECT_FALSE( result3.has_value() );
 }
 
@@ -166,8 +166,8 @@ TEST( RigBoundingBoxIjk, Clamp )
 TEST( RigBoundingBoxIjk, ClampBehavesLikeIntersection )
 {
     // Verify that clamp() and intersection() behave identically
-    RigBoundingBoxIjk bounds( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
-    RigBoundingBoxIjk box( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 15, 15, 15 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> bounds( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box( cvf::Vec3st( 5, 5, 5 ), cvf::Vec3st( 15, 15, 15 ) );
 
     auto clampResult        = box.clamp( bounds );
     auto intersectionResult = box.intersection( bounds );
@@ -185,7 +185,7 @@ TEST( RigBoundingBoxIjk, ClampBehavesLikeIntersection )
 //--------------------------------------------------------------------------------------------------
 TEST( RigBoundingBoxIjk, ContainsPoint )
 {
-    RigBoundingBoxIjk box( cvf::Vec3st( 10, 20, 30 ), cvf::Vec3st( 50, 60, 70 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box( cvf::Vec3st( 10, 20, 30 ), cvf::Vec3st( 50, 60, 70 ) );
 
     // Points inside the box
     EXPECT_TRUE( box.contains( cvf::Vec3st( 25, 40, 50 ) ) ); // Center
@@ -252,7 +252,7 @@ TEST( RigBoundingBoxIjk, ContainsSinglePointBox )
 TEST( RigBoundingBoxIjk, ContainsZeroBasedBox )
 {
     // Box starting at origin (common case in grid applications)
-    RigBoundingBoxIjk box( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
+    RigBoundingBoxIjk<cvf::Vec3st> box( cvf::Vec3st( 0, 0, 0 ), cvf::Vec3st( 10, 10, 10 ) );
 
     // Origin should be inside
     EXPECT_TRUE( box.contains( cvf::Vec3st( 0, 0, 0 ) ) );

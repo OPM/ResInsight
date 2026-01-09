@@ -432,7 +432,7 @@ std::expected<caf::VecIjk0, QString> RigGridExportAdapter::transformIjkToSectorC
                                                                                             bool                isBoxMaxCoordinate )
 {
     // Check if original IJK is within the sector bounds
-    RigBoundingBoxIjk sectorBox( min, max );
+    RigBoundingBoxIjk<caf::VecIjk0> sectorBox( min, max );
     if ( !sectorBox.contains( ijk ) )
     {
         return std::unexpected( QString( "IJK coordinates (%1) are outside sector bounds [(%2), (%3)]" )

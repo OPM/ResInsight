@@ -582,7 +582,7 @@ std::expected<void, QString> RigSimulationInputTool::addFaultsToDeckFile( RimEcl
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigSimWellData*>
-    RigSimulationInputTool::findIntersectingWells( RimEclipseCase* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max )
+    RigSimulationInputTool::findIntersectingWells( RimEclipseCase* eclipseCase, const caf::VecIjk0& min, const caf::VecIjk0& max )
 {
     std::vector<RigSimWellData*> intersectingWells;
 
@@ -591,7 +591,7 @@ std::vector<RigSimWellData*>
     const auto& wellResults = eclipseCase->eclipseCaseData()->wellResults();
 
     // Create sector bounding box for intersection checks
-    RigBoundingBoxIjk sectorBox( min, max );
+    RigBoundingBoxIjk<caf::VecIjk0> sectorBox( min, max );
 
     for ( size_t wellIdx = 0; wellIdx < wellResults.size(); ++wellIdx )
     {
@@ -824,15 +824,16 @@ caf::VecIjk1 RigSimulationInputTool::extractIjk( const Opm::DeckRecord& record, 
 /// Performs intersection, clamping, and coordinate transformation
 /// Returns bounding box with 0-based sector-relative coordinates
 //--------------------------------------------------------------------------------------------------
-std::expected<RigBoundingBoxIjk, QString> RigSimulationInputTool::transformBoxToSectorCoordinates( const RigBoundingBoxIjk& inputBox,
-                                                                                                   const caf::VecIjk0&      sectorMin,
-                                                                                                   const caf::VecIjk0&      sectorMax,
-                                                                                                   const cvf::Vec3st&       refinement,
-                                                                                                   const QString&           keywordName,
-                                                                                                   const QString& recordIdentifier )
+std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
+    RigSimulationInputTool::transformBoxToSectorCoordinates( const RigBoundingBoxIjk<caf::VecIjk0>& inputBox,
+                                                             const caf::VecIjk0&                    sectorMin,
+                                                             const caf::VecIjk0&                    sectorMax,
+                                                             const cvf::Vec3st&                     refinement,
+                                                             const QString&                         keywordName,
+                                                             const QString&                         recordIdentifier )
 {
     // Create sector bounding box
-    RigBoundingBoxIjk sectorBox( sectorMin, sectorMax );
+    RigBoundingBoxIjk<caf::VecIjk0> sectorBox( sectorMin, sectorMax );
 
     // Check if boxes overlap and get intersection
     auto intersection = inputBox.intersection( sectorBox );
@@ -908,7 +909,7 @@ std::expected<RigBoundingBoxIjk, QString> RigSimulationInputTool::transformBoxTo
     }
 
     // Return bounding box with 0-based sector-relative coordinates
-    return RigBoundingBoxIjk( *transformResult1, *transformResult2 );
+    return RigBoundingBoxIjk<caf::VecIjk0>( *transformResult1, *transformResult2 );
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -940,7 +941,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processEqualsRec
         caf::VecIjk1 origMax = extractIjk( record, 3, 5, 7 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
+        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get field name for logging
         QString fieldName   = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
@@ -995,7 +996,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processMultiplyR
         caf::VecIjk1 origMax = extractIjk( record, 3, 5, 7 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
+        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get field name for logging
         QString fieldName   = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
@@ -1050,7 +1051,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAddRecord
         caf::VecIjk1 origMax = extractIjk( record, 3, 5, 7 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
+        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get field name for logging
         QString fieldName   = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
@@ -1104,7 +1105,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquconRec
         caf::VecIjk1 origMax = extractIjk( record, 2, 4, 6 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
+        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get aquifer ID for logging
         int     aquiferId   = record.getItem( 0 ).get<int>( 0 );
@@ -1174,7 +1175,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCopyRecor
         caf::VecIjk1 origMax = extractIjk( record, 3, 5, 7 ); // I2, J2, K2
 
         // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
+        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
         // Get array names for logging
         QString srcArray    = QString::fromStdString( record.getItem( 0 ).get<std::string>( 0 ) );
@@ -1232,7 +1233,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processBoxRecord
     caf::VecIjk1 origMax = extractIjk( record, 1, 3, 5 ); // I2, J2, K2
 
     // Create input bounding box (0-based, inclusive)
-    RigBoundingBoxIjk inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
+    RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
 
     // Transform box to sector coordinates
     auto transformResult = transformBoxToSectorCoordinates( inputBox, min, max, refinement, "BOX", "" );
