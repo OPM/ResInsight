@@ -1299,22 +1299,10 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                               }() ) ) );
 
     // List of well-related keywords to filter (keywords that reference well names)
-    std::vector<std::string> wellKeywords = { "COMPDAT",
-                                              "COMPLUMP",
-                                              "COMPORD",
-                                              "COMPSEGS",
-                                              "WCONHIST",
-                                              "WCONINJH",
-                                              "WCONINJE",
-                                              "WCONPROD",
-                                              "WELSEGS",
-                                              "WELSPECS",
-                                              "WELOPEN",
-                                              "WELTARG",
-                                              "WPAVEDEP",
-                                              "WRFTPLT",
-                                              "WTRACER",
-                                              "WTEST" };
+    std::vector<std::string> wellKeywords = { "COMPDAT",  "COMPLUMP", "COMPORD",  "COMPSEGS", "WCONHIST", "WCONINJE", "WCONINJH",
+                                              "WCONPROD", "WCYCLE",   "WDFAC",    "WDFACCOR", "WEFAC",    "WELCNTL",  "WELOPEN",
+                                              "WELPI",    "WELSEGS",  "WELSPECS", "WELTARG",  "WINJCLN",  "WINJMULT", "WINJTEMP",
+                                              "WLIFTOPT", "WPAVEDEP", "WRFTPLT",  "WTEMP",    "WTEST",    "WTRACER" };
 
     // Process each type of well keyword
     // Use findAllKeywordsWithIndices to get all occurrences with their positions
