@@ -132,9 +132,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCompletionSettings_add
     // Validate that end MD is greater than start MD
     if ( m_endMD() <= m_startMD() )
     {
-        return std::unexpected( QString( "End MD must be greater than Start MD. Start MD: %1, End MD: %2" )
-                                    .arg( m_startMD() )
-                                    .arg( m_endMD() ) );
+        return std::unexpected(
+            QString( "End MD must be greater than Start MD. Start MD: %1, End MD: %2" ).arg( m_startMD() ).arg( m_endMD() ) );
     }
 
     // Create new interval
