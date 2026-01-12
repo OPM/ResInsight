@@ -59,7 +59,7 @@ RimEnsembleSurface::RimEnsembleSurface()
     {
         auto statSurface = new RimEnsembleStatisticsSurface;
         statSurface->setStatisticsType( s );
-        addSurface( statSurface );
+        RimSurfaceCollection::addSurface( statSurface );
     }
 }
 
