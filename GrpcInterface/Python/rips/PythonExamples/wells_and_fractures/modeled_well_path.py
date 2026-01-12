@@ -79,6 +79,14 @@ print(
     f"Added diameter roughness intervals: {interval1.start_md}-{interval1.end_md}m and {interval2.start_md}-{interval2.end_md}m"
 )
 
+# Add custom segment intervals to define explicit segment boundaries for MSW export
+segment1 = completions_settings.add_custom_segment_interval(start_md=3200, end_md=3250)
+segment2 = completions_settings.add_custom_segment_interval(start_md=3250, end_md=3320)
+segment3 = completions_settings.add_custom_segment_interval(start_md=3320, end_md=3400)
+print(
+    f"Added custom segment intervals: {segment1.start_md}-{segment1.end_md}m, {segment2.start_md}-{segment2.end_md}m, {segment3.start_md}-{segment3.end_md}m"
+)
+
 # Optionally update the MSW settings
 msw_settings = well_path.msw_settings()
 msw_settings.custom_values_for_lateral = False

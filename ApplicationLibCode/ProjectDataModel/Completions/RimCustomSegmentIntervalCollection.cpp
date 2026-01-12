@@ -41,6 +41,19 @@ RimCustomSegmentIntervalCollection::~RimCustomSegmentIntervalCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCustomSegmentInterval* RimCustomSegmentIntervalCollection::createInterval( double startMD, double endMD )
+{
+    auto* interval = new RimCustomSegmentInterval();
+    interval->setStartMD( startMD );
+    interval->setEndMD( endMD );
+
+    addInterval( interval );
+    return interval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<QString, QString> RimCustomSegmentIntervalCollection::validate( const QString& configName ) const
 {
     // First validate all fields using base implementation

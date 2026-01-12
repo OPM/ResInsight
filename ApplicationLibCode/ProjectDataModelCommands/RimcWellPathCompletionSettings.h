@@ -43,3 +43,21 @@ private:
     caf::PdmField<double> m_diameter;
     caf::PdmField<double> m_roughnessFactor;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPathCompletionSettings_addCustomSegmentInterval : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPathCompletionSettings_addCustomSegmentInterval( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<double> m_startMD;
+    caf::PdmField<double> m_endMD;
+};

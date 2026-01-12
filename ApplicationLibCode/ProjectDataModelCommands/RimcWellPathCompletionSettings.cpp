@@ -18,6 +18,8 @@
 
 #include "RimcWellPathCompletionSettings.h"
 
+#include "RimCustomSegmentInterval.h"
+#include "RimCustomSegmentIntervalCollection.h"
 #include "RimDiameterRoughnessInterval.h"
 #include "RimDiameterRoughnessIntervalCollection.h"
 #include "RimMswCompletionParameters.h"
@@ -28,6 +30,10 @@
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCompletionSettings,
                                    RimcWellPathCompletionSettings_addDiameterRoughnessInterval,
                                    "AddDiameterRoughnessInterval" );
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCompletionSettings,
+                                   RimcWellPathCompletionSettings_addCustomSegmentInterval,
+                                   "AddCustomSegmentInterval" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -87,4 +93,66 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCompletionSettings_add
 QString RimcWellPathCompletionSettings_addDiameterRoughnessInterval::classKeywordReturnedType() const
 {
     return RimDiameterRoughnessInterval::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPathCompletionSettings_addCustomSegmentInterval::RimcWellPathCompletionSettings_addCustomSegmentInterval( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Add Custom Segment Interval" );
+    CAF_PDM_InitScriptableField( &m_startMD, "StartMd", 0.0, "Start Measured Depth" );
+    CAF_PDM_InitScriptableField( &m_endMD, "EndMd", 100.0, "End Measured Depth" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCompletionSettings_addCustomSegmentInterval::execute()
+{
+    auto completionSettings = self<RimWellPathCompletionSettings>();
+    if ( !completionSettings )
+    {
+        return std::unexpected( QString( "Completion settings is null. Cannot add custom segment interval." ) );
+    }
+
+    auto mswParams = completionSettings->mswCompletionParameters();
+    if ( !mswParams )
+    {
+        return std::unexpected( QString( "MSW completion parameters is null. Cannot add custom segment interval." ) );
+    }
+
+    auto intervalCollection = mswParams->customSegmentIntervals();
+    if ( !intervalCollection )
+    {
+        return std::unexpected( QString( "Custom segment interval collection is null. Cannot add interval." ) );
+    }
+
+    // Validate that end MD is greater than start MD
+    if ( m_endMD() <= m_startMD() )
+    {
+        return std::unexpected(
+            QString( "End MD must be greater than Start MD. Start MD: %1, End MD: %2" ).arg( m_startMD() ).arg( m_endMD() ) );
+    }
+
+    // Create new interval
+    auto* newInterval = intervalCollection->createInterval( m_startMD(), m_endMD() );
+
+    if ( !newInterval )
+    {
+        return std::unexpected( QString( "Failed to create custom segment interval." ) );
+    }
+
+    completionSettings->updateAllRequiredEditors();
+
+    return newInterval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPathCompletionSettings_addCustomSegmentInterval::classKeywordReturnedType() const
+{
+    return RimCustomSegmentInterval::classKeywordStatic();
 }
