@@ -1500,6 +1500,7 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
         if ( std::find( keywords.begin(), keywords.end(), "OPERNUM" ) == keywords.end() )
         {
             Opm::DeckKeyword newKw( ( Opm::ParserKeywords::OPERNUM() ) );
+            newKw.setDataKeyword( true );
             deckFile.addKeyword( "GRID", newKw );
         }
     }
