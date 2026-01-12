@@ -33,6 +33,9 @@ public:
     RimCustomSegmentIntervalCollection();
     ~RimCustomSegmentIntervalCollection() override;
 
+    // Domain-specific interval creation
+    RimCustomSegmentInterval* createInterval( double startMD, double endMD );
+
     // Validation
     std::map<QString, QString> validate( const QString& configName = "" ) const override;
 
