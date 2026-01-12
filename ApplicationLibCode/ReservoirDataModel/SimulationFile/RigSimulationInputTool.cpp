@@ -195,7 +195,7 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
                                 static_cast<int>( gridAdapter.cellCountJ() ),
                                 static_cast<int>( gridAdapter.cellCountK() ) };
 
-    if ( !deckFile.replaceKeywordData( "DIMENS", dimens ) )
+    if ( !deckFile.replaceKeyword( "DIMENS", dimens ) )
     {
         return std::unexpected( "Failed to replace DIMENS keyword in deck file" );
     }
@@ -204,7 +204,7 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
     // Format: NX NY NZ (use defaults for NUMRES (1) and  COORD_TYPE: 'F'=Cartesian)
     if ( std::find( keywords.begin(), keywords.end(), "SPECGRID" ) == keywords.end() )
     {
-        Opm::DeckKeyword newKw( Opm::ParserKeyword( "SPECGRID" ) );
+        Opm::DeckKeyword newKw( ( Opm::ParserKeywords::SPECGRID() ) );
         deckFile.addKeyword( "GRID", newKw );
     }
 
@@ -212,7 +212,7 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
                                   static_cast<int>( gridAdapter.cellCountJ() ),
                                   static_cast<int>( gridAdapter.cellCountK() ) };
 
-    if ( !deckFile.replaceKeywordData( "SPECGRID", specgrid ) )
+    if ( !deckFile.replaceKeyword( "SPECGRID", specgrid ) )
     {
         return std::unexpected( "Failed to replace SPECGRID keyword in deck file" );
     }
@@ -230,21 +230,22 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
 
     if ( std::find( keywords.begin(), keywords.end(), "ACTNUM" ) == keywords.end() )
     {
-        Opm::DeckKeyword newKw( Opm::ParserKeyword( "ACTNUM" ) );
+        Opm::DeckKeyword newKw( ( Opm::ParserKeywords::ACTNUM() ) );
+        newKw.setDataKeyword( true ); // needed due to bug(?) in OPM constructor
         deckFile.addKeyword( "GRID", newKw );
     }
 
-    if ( !deckFile.replaceKeywordData( "COORD", coords ) )
+    if ( !deckFile.replaceKeyword( "COORD", coords, true /*data kw*/ ) )
     {
         return std::unexpected( "Failed to replace COORD keyword in deck file" );
     }
 
-    if ( !deckFile.replaceKeywordData( "ZCORN", zcorn ) )
+    if ( !deckFile.replaceKeyword( "ZCORN", zcorn, true /*data kw*/ ) )
     {
         return std::unexpected( "Failed to replace ZCORN keyword in deck file" );
     }
 
-    if ( !deckFile.replaceKeywordData( "ACTNUM", actnumArray ) )
+    if ( !deckFile.replaceKeyword( "ACTNUM", actnumArray, true /*data kw*/ ) )
     {
         return std::unexpected( "Failed to replace ACTNUM keyword in deck file" );
     }
@@ -284,14 +285,14 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
         if ( result )
         {
             // Replace keyword values in deck with extracted data
-            if ( deckFile.replaceKeywordData( keywordStdStr, result.value() ) )
+            if ( deckFile.replaceKeyword( keywordStdStr, result.value(), true /* data kw */ ) )
             {
                 RiaLogging::info(
                     QString( "Successfully replaced data for keyword '%1' (%2 values)" ).arg( keyword ).arg( result.value().size() ) );
             }
             else
             {
-                RiaLogging::warning( QString( "Failed to replace keyword '%1' in deck" ).arg( keyword ) );
+                RiaLogging::debug( QString( "'%1' is not a data keyword, skipping" ).arg( keyword ) );
             }
         }
     }
@@ -1504,7 +1505,7 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
     }
 
     // Replace keyword values in deck with refined exported data
-    if ( deckFile.replaceKeywordData( "OPERNUM", operNumResult ) )
+    if ( deckFile.replaceKeyword( "OPERNUM", operNumResult, true /*data kw*/ ) )
     {
         RiaLogging::info( QString( "Replaced OPERNUM values for refined grid with dimensions %1x%2x%3" )
                               .arg( gridAdapter.cellCountI() )

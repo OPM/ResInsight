@@ -1061,7 +1061,7 @@ bool RifOpmFlowDeckFile::stopAtTimeStep( int timeStep )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::replaceKeywordData( const std::string& keyword, const std::vector<double>& data )
+bool RifOpmFlowDeckFile::replaceKeyword( const std::string& keyword, const std::vector<double>& data, bool dataKeyword )
 {
     try
     {
@@ -1073,10 +1073,13 @@ bool RifOpmFlowDeckFile::replaceKeywordData( const std::string& keyword, const s
 
         // Get the existing keyword to preserve location
         const auto& existingKw = m_fileDeck->operator[]( keywordIdx.value() );
+        if ( dataKeyword != existingKw.isDataKeyword() )
+        {
+            return false; // Mismatch in data keyword flag
+        }
 
-        // Create a new keyword with the same name and location
-        Opm::DeckKeyword newKw( existingKw.location(), keyword );
-        newKw.setDataKeyword( true );
+        // Create a new keyword with the same settings
+        Opm::DeckKeyword newKw = existingKw.emptyStructuralCopy();
 
         // Keywords ending with "NUM" should be integers (e.g., SATNUM, PVTNUM, EQLNUM)
         bool isIntType = keyword.size() >= 3 && keyword.substr( keyword.size() - 3 ) == "NUM";
@@ -1123,7 +1126,7 @@ bool RifOpmFlowDeckFile::replaceKeywordData( const std::string& keyword, const s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::replaceKeywordData( const std::string& keyword, const std::vector<int>& data )
+bool RifOpmFlowDeckFile::replaceKeyword( const std::string& keyword, const std::vector<int>& data, bool dataKeyword )
 {
     try
     {
@@ -1135,10 +1138,13 @@ bool RifOpmFlowDeckFile::replaceKeywordData( const std::string& keyword, const s
 
         // Get the existing keyword to preserve location
         const auto& existingKw = m_fileDeck->operator[]( keywordIdx.value() );
+        if ( dataKeyword != existingKw.isDataKeyword() )
+        {
+            return false; // Mismatch in data keyword flag
+        }
 
-        // Create a new keyword with the same name and location
-        Opm::DeckKeyword newKw( existingKw.location(), keyword );
-        newKw.setDataKeyword( true );
+        // Create a new keyword with the same settings
+        Opm::DeckKeyword newKw = existingKw.emptyStructuralCopy();
 
         // Create a record with the new data
         Opm::DeckRecord record;

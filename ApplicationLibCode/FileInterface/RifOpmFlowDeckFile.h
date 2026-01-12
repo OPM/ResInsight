@@ -90,10 +90,10 @@ public:
 
     bool addKeyword( const std::string& section, const Opm::DeckKeyword& keyword );
 
-    bool replaceKeywordData( const std::string& keyword, const std::vector<double>& data );
-    bool replaceKeywordData( const std::string& keyword, const std::vector<int>& data );
-
     bool replaceKeyword( const std::string& section, const Opm::DeckKeyword& keyword );
+    bool replaceKeyword( const std::string& keyword, const std::vector<double>& data, bool dataKeyword = false );
+    bool replaceKeyword( const std::string& keyword, const std::vector<int>& data, bool dataKeyword = false );
+
     bool replaceAllKeywords( const std::string& keywordName, const std::vector<Opm::DeckKeyword>& keywords );
     bool replaceKeywordAtIndex( const Opm::FileDeck::Index& index, const Opm::DeckKeyword& keyword );
 
