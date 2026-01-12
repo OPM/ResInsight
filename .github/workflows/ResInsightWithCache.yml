@@ -49,7 +49,7 @@ jobs:
               ri-unit-test-path: "ResInsight-tests",
             }
           - {
-              name: "Ubuntu 24.04 gcc-14",
+              name: "Ubuntu 24.04 gcc",
               os: ubuntu-24.04,
               cc: "gcc-14",
               cxx: "g++-14",
