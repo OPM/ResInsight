@@ -284,6 +284,55 @@ void RiuQwtPlotCurve::setColor( const QColor& color )
 //--------------------------------------------------------------------------------------------------
 QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 {
+    Q_UNUSED( index );
+
+    if ( size.isEmpty() )
+        return QwtGraphic();
+
+    // Qt 6.9 fix: For symbol-only curves (no line), we need explicit rendering
+    // because the standard Qwt rendering has issues with NoCurve style
+    bool hasLine        = testLegendAttribute( QwtPlotCurve::LegendShowLine ) && ( pen().style() != Qt::NoPen );
+    bool hasSymbol      = symbol() && ( symbol()->style() != QwtSymbol::NoSymbol );
+    bool isSymbolOnlyIcon = !hasLine && hasSymbol;
+
+    if ( isSymbolOnlyIcon )
+    {
+        // Qt 6.9 workaround: Bypass QwtGraphic rendering issues by drawing to QPixmap first
+        QPixmap pixmap( size.toSize() );
+        pixmap.fill( Qt::transparent );
+
+        {
+            QPainter pixPainter( &pixmap );
+            pixPainter.setRenderHint( QPainter::Antialiasing, testRenderHint( QwtPlotItem::RenderAntialiased ) );
+
+            // Draw symbol directly to pixmap
+            QRectF symbolRect( 0, 0, size.width(), size.height() );
+            symbol()->drawSymbol( &pixPainter, symbolRect );
+        }
+
+        // Convert pixmap to QwtGraphic
+        QwtGraphic graphic;
+        graphic.setDefaultSize( size );
+
+        {
+            QPainter graphicPainter( &graphic );
+
+            if ( m_blackAndWhiteLegendIcon )
+            {
+                QImage image = pixmap.toImage();
+                RiaImageTools::makeGrayScale( image );
+                graphicPainter.drawImage( QPoint( 0, 0 ), image );
+            }
+            else
+            {
+                graphicPainter.drawPixmap( QPoint( 0, 0 ), pixmap );
+            }
+        }
+
+        return graphic;
+    }
+
+    // Use standard Qwt rendering for curves with lines
     QwtGraphic icon = QwtPlotCurve::legendIcon( index, size );
     if ( m_blackAndWhiteLegendIcon )
     {
