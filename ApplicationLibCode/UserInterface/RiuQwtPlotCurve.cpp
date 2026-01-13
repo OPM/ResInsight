@@ -286,13 +286,12 @@ QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 {
     Q_UNUSED( index );
 
-    if ( size.isEmpty() )
-        return QwtGraphic();
+    if ( size.isEmpty() ) return QwtGraphic();
 
     // Qt 6.9 fix: For symbol-only curves (no line), we need explicit rendering
     // because the standard Qwt rendering has issues with NoCurve style
-    bool hasLine        = testLegendAttribute( QwtPlotCurve::LegendShowLine ) && ( pen().style() != Qt::NoPen );
-    bool hasSymbol      = symbol() && ( symbol()->style() != QwtSymbol::NoSymbol );
+    bool hasLine          = testLegendAttribute( QwtPlotCurve::LegendShowLine ) && ( pen().style() != Qt::NoPen );
+    bool hasSymbol        = symbol() && ( symbol()->style() != QwtSymbol::NoSymbol );
     bool isSymbolOnlyIcon = !hasLine && hasSymbol;
 
     if ( isSymbolOnlyIcon )
