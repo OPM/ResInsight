@@ -26,6 +26,7 @@
 
 #include "cafFilePath.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmPtrArrayField.h"
 
 #include <memory>
 
@@ -38,6 +39,7 @@ class RigMainGrid;
 class RimEclipseInputProperty;
 class RimEclipseInputPropertyCollection;
 class RimFlowDiagSolution;
+class RimResultNameAlias;
 
 //==================================================================================================
 //
@@ -106,6 +108,8 @@ private:
     caf::PdmField<caf::FilePath>                                         m_sourSimFileName;
 
     caf::PdmField<std::pair<bool, int>> m_mswMergeThreshold;
+
+    caf::PdmPtrArrayField<RimResultNameAlias*> m_resultAliasList;
 
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;

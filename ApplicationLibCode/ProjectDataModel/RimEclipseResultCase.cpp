@@ -58,12 +58,14 @@
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimResultNameAlias.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
 
 #include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafProgressInfo.h"
 #include "cafUtils.h"
 
@@ -105,6 +107,14 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     CAF_PDM_InitField( &m_mswMergeThreshold, "MswMergeThreshold", std::make_pair( false, 3 ), "MSW Short Well Merge Threshold" );
     m_mswMergeThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_resultAliasList, "ResultAliasNames", "Result Name Aliases" );
+    m_resultAliasList.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_resultAliasList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+
+    auto alias = new RimResultNameAlias();
+    alias->setResultNameAndAlias( "PRESSURE", "MYPRESSURE" );
+    m_resultAliasList.push_back( alias );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -718,6 +728,8 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         group1->setCollapsedByDefault();
         m_timeStepFilter->uiOrdering( uiConfigName, *group1 );
     }
+
+    uiOrdering.add( &m_resultAliasList );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -754,6 +766,15 @@ void RimEclipseResultCase::defineEditorAttribute( const caf::PdmFieldHandle* fie
         {
             myAttr->m_fileSelectionFilter = "SourSim (*.sourres)";
             myAttr->m_defaultPath         = QFileInfo( gridFileName() ).absolutePath();
+        }
+    }
+    else if ( field == &m_resultAliasList )
+    {
+        auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttr )
+        {
+            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
+            tvAttr->alwaysEnforceResizePolicy = true;
         }
     }
 }

@@ -124,7 +124,7 @@ public:
     void eraseAllSourSimData();
     void setRemovedTagOnGeneratedResult( const RigEclipseResultAddress& resultAddress );
 
-    QStringList                          resultNames( RiaDefines::ResultCatType type ) const;
+    QStringList                          resultNames( RiaDefines::ResultCatType type, bool includeAliases = true ) const;
     std::vector<RigEclipseResultAddress> existingResults() const;
     const RigEclipseResultInfo*          resultInfo( const RigEclipseResultAddress& resVarAddr ) const;
     bool    updateResultName( RiaDefines::ResultCatType resultType, const QString& oldName, const QString& newName );
@@ -154,6 +154,9 @@ public:
     size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
 
     RigEclipseResultAddress defaultResult() const;
+
+    void addResultAlias( QString originalResultName, QString aliasResultName );
+    void clearAllResultAliases();
 
 private:
     size_t findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr );
@@ -226,6 +229,8 @@ private:
     cvf::Collection<RigStatisticsDataCache>   m_statisticsDataCache;
     std::vector<RigEclipseResultInfo>         m_resultInfos;
     std::map<RigEclipseResultAddress, size_t> m_addressToResultIndexMap;
+
+    std::map<QString, QString> m_resultAliasMap;
 
     RigMainGrid*                  m_ownerMainGrid;
     RigEclipseCaseData*           m_ownerCaseData;
