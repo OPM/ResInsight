@@ -80,6 +80,10 @@ RigCaseCellResultsData::RigCaseCellResultsData( RigEclipseCaseData* ownerCaseDat
     m_ownerMainGrid = ownerCaseData->mainGrid();
 
     m_allanDiagramData = new RigAllanDiagramData;
+
+    m_resultAliasMap["MYDATA"]  = "PERMX";
+    m_resultAliasMap["MYDATA2"] = "PRESSURE";
+    m_resultAliasMap["NODATA"]  = "HELLO";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,8 +312,14 @@ const std::vector<double>& RigCaseCellResultsData::cellScalarResults( const RigE
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
 /// if resultName already exists, it just returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored )
+size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddrOrg, bool needsToBeStored )
 {
+    auto resVarAddr( resVarAddrOrg );
+    if ( m_resultAliasMap.contains( resVarAddrOrg.resultName() ) )
+    {
+        resVarAddr.setResultName( m_resultAliasMap[resVarAddrOrg.resultName()] );
+    }
+
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
 
     // If the result exists, do nothing
@@ -456,7 +466,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RigCaseCellResultsData::resultNames( RiaDefines::ResultCatType resType ) const
+QStringList RigCaseCellResultsData::resultNames( RiaDefines::ResultCatType resType, bool includeAliases ) const
 {
     QStringList varList;
 
@@ -472,6 +482,16 @@ QStringList RigCaseCellResultsData::resultNames( RiaDefines::ResultCatType resTy
         if ( it->resultType() == resType )
         {
             varList.push_back( it->resultName() );
+
+            if ( !includeAliases ) continue;
+
+            for ( auto& [alias, real] : m_resultAliasMap )
+            {
+                if ( real == it->resultName() )
+                {
+                    varList.push_back( alias );
+                }
+            }
         }
     }
 
@@ -1284,8 +1304,15 @@ void RigCaseCellResultsData::createResultEntry( const RigEclipseResultAddress& r
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr )
+size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddrOrg )
 {
+    auto resVarAddr( resVarAddrOrg );
+
+    if ( m_resultAliasMap.contains( resVarAddrOrg.resultName() ) )
+    {
+        resVarAddr.setResultName( m_resultAliasMap[resVarAddrOrg.resultName()] );
+    }
+
     if ( !resVarAddr.isValid() )
     {
         return cvf::UNDEFINED_SIZE_T;
@@ -2990,6 +3017,11 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs( const QString& resultN
         return;
     }
 
+    if ( m_resultAliasMap.contains( resultName ) )
+    {
+        return;
+    }
+
     bool invalidCellsDetected = false;
     for ( size_t gridIdx = 0; gridIdx < m_ownerMainGrid->gridCount(); gridIdx++ )
     {
@@ -3049,9 +3081,15 @@ bool RigCaseCellResultsData::isRadialModel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findScalarResultIndexFromAddress( const RigEclipseResultAddress& resVarAddr ) const
+size_t RigCaseCellResultsData::findScalarResultIndexFromAddress( const RigEclipseResultAddress& resVarAddrOrg ) const
 {
-    if ( !resVarAddr.isValid() )
+    auto resVarAddr( resVarAddrOrg );
+    if ( m_resultAliasMap.contains( resVarAddrOrg.resultName() ) )
+    {
+        resVarAddr.setResultName( m_resultAliasMap.at( resVarAddrOrg.resultName() ) );
+    }
+
+    if ( !resVarAddrOrg.isValid() )
     {
         return cvf::UNDEFINED_SIZE_T;
     }
@@ -3168,4 +3206,20 @@ void RigCaseCellResultsData::copyResultsMetaDataFromMainCase( RigEclipseCaseData
 void RigCaseCellResultsData::setStatisticsDataCacheNumBins( const RigEclipseResultAddress& resultAddress, size_t numBins )
 {
     statistics( resultAddress )->setNumBins( numBins );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::addResultAlias( QString originalResultName, QString aliasResultName )
+{
+    m_resultAliasMap[aliasResultName] = originalResultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::clearAllResultAliases()
+{
+    m_resultAliasMap.clear();
 }
