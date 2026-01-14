@@ -390,12 +390,9 @@ void RimRegularSurface::setProperty( const QString& key, const std::vector<float
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimRegularSurface::setPropertyAsDepth( const QString& key )
+void RimRegularSurface::setPropertyAsDepth( const QString& key )
 {
-    if ( !m_properties.contains( key ) ) return false;
-
     m_depthProperty = key;
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

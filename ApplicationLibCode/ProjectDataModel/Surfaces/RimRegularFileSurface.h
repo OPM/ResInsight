@@ -29,6 +29,8 @@ public:
 
     bool onLoadData() override;
 
+    static QString propertyName();
+
     // File-based surface interface (from RimSurface)
     bool    isFileBased() const override { return true; }
     QString filePath() const override;

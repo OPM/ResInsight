@@ -40,7 +40,7 @@ public:
     void setRotation( double rotation );
 
     void setProperty( const QString& key, const std::vector<float>& values );
-    bool setPropertyAsDepth( const QString& key );
+    void setPropertyAsDepth( const QString& key );
 
     int nx() const;
     int ny() const;

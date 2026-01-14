@@ -94,8 +94,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyAsDe
     RimRegularSurface* surface = self<RimRegularSurface>();
     if ( !surface ) return std::unexpected( "No surface found" );
 
-    if ( !surface->setPropertyAsDepth( m_name ) ) return std::unexpected( "Failed to set depth property." );
-
+    surface->setPropertyAsDepth( m_name );
     surface->onLoadData();
 
     if ( auto coll = surface->firstAncestorOrThisOfType<RimSurfaceCollection>() )
