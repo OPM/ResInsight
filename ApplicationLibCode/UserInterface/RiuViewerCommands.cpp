@@ -60,6 +60,7 @@
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
+#include "Completions/RimMswSegment.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimSeismicDataInterface.h"
@@ -792,6 +793,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         // Display result info text
                         RiuMainWindow::instance()->setResultInfo( resultInfoText );
                     }
+
                 }
 
                 RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>( rivObjectSourceInfo->object() );
@@ -822,6 +824,28 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
                     // Display result info text
                     RiuMainWindow::instance()->setResultInfo( resultInfoText );
+                }
+
+                RimMswSegment* mswSegment = dynamic_cast<RimMswSegment*>( rivObjectSourceInfo->object() );
+                if ( mswSegment )
+                {
+                    QString resultInfoText;
+
+                    if ( firstHitPart && !firstHitPart->name().isEmpty() )
+                    {
+                        resultInfoText += QString::fromLatin1( firstHitPart->name().toAscii().ptr() );
+                        resultInfoText += "\n\n";
+                    }
+
+                    resultInfoText += QString( "Segment: %1\nBranch: %2\nMD: %3 - %4\nDiameter: %5" )
+                                         .arg( mswSegment->segmentNumber() )
+                                         .arg( mswSegment->branchNumber() )
+                                         .arg( mswSegment->startMD() )
+                                         .arg( mswSegment->endMD() )
+                                         .arg( mswSegment->diameter() );
+
+                    RiuMainWindow::instance()->setResultInfo( resultInfoText );
+                    RiuMainWindow::instance()->selectAsCurrentItem( mswSegment, true );
                 }
             }
             else if ( const auto* surfIntersectSourceInfo =

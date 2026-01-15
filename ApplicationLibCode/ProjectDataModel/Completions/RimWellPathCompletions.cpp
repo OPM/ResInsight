@@ -22,6 +22,7 @@
 
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
+#include "RimMswSegmentCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
@@ -64,6 +65,9 @@ RimWellPathCompletions::RimWellPathCompletions()
 
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelCollection, "StimPlanModels", "StimPlan Models" );
     m_stimPlanModelCollection = new RimStimPlanModelCollection;
+
+    CAF_PDM_InitFieldNoDefault( &m_mswSegmentCollection, "MswSegments", "MSW Segments" );
+    m_mswSegmentCollection = new RimMswSegmentCollection;
 
     CAF_PDM_InitField( &m_wellNameForExport_OBSOLETE, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -127,6 +131,14 @@ RimStimPlanModelCollection* RimWellPathCompletions::stimPlanModelCollection() co
     CVF_ASSERT( m_stimPlanModelCollection );
 
     return m_stimPlanModelCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMswSegmentCollection* RimWellPathCompletions::mswSegmentCollection() const
+{
+    return m_mswSegmentCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,6 +285,11 @@ void RimWellPathCompletions::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTre
     if ( !m_stimPlanModelCollection->allStimPlanModels().empty() )
     {
         uiTreeOrdering.add( &m_stimPlanModelCollection );
+    }
+
+    if ( m_mswSegmentCollection && m_mswSegmentCollection->hasSegments() )
+    {
+        uiTreeOrdering.add( &m_mswSegmentCollection );
     }
 }
 

@@ -109,6 +109,11 @@ private:
                                          double                            wellPathRadius,
                                          const caf::DisplayCoordTransform* displayCoordTransform );
 
+    void appendMswSegmentsToModel( cvf::ModelBasicList*              model,
+                                   const caf::DisplayCoordTransform* displayCoordTransform,
+                                   double                            characteristicCellSize,
+                                   bool                              doFlatten );
+
     void appendVirtualTransmissibilitiesToModel( cvf::ModelBasicList*              model,
                                                  size_t                            timeStepIndex,
                                                  const caf::DisplayCoordTransform* displayCoordTransform,
