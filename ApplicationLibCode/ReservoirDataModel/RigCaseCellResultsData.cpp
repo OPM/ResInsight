@@ -80,10 +80,6 @@ RigCaseCellResultsData::RigCaseCellResultsData( RigEclipseCaseData* ownerCaseDat
     m_ownerMainGrid = ownerCaseData->mainGrid();
 
     m_allanDiagramData = new RigAllanDiagramData;
-
-    m_resultAliasMap["MYDATA"]  = "PERMX";
-    m_resultAliasMap["MYDATA2"] = "PRESSURE";
-    m_resultAliasMap["NODATA"]  = "HELLO";
 }
 
 //--------------------------------------------------------------------------------------------------

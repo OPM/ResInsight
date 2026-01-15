@@ -18,6 +18,11 @@
 
 #include "RimResultNameAlias.h"
 
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+
+#include "RimEclipseResultCase.h"
+
 CAF_PDM_SOURCE_INIT( RimResultNameAlias, "ResultNameAlias" );
 
 //--------------------------------------------------------------------------------------------------
@@ -54,4 +59,51 @@ void RimResultNameAlias::setResultNameAndAlias( const QString& resultName, const
 {
     m_resultName = resultName;
     m_aliasName  = aliasName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimResultNameAlias::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_resultName )
+    {
+        if ( RimEclipseResultCase* resultCase = this->firstAncestorOrThisOfType<RimEclipseResultCase>() )
+        {
+            if ( resultCase->eclipseCaseData() == nullptr )
+            {
+                return options;
+            }
+
+            std::set<QString> allResultNames;
+
+            if ( auto resultMetaData = resultCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
+            {
+                for ( auto catType : { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                       RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                       RiaDefines::ResultCatType::INPUT_PROPERTY } )
+                {
+                    for ( auto resName : resultMetaData->resultNames( catType ) )
+                    {
+                        allResultNames.insert( resName );
+                    }
+                }
+            }
+
+            for ( const QString& resultName : allResultNames )
+            {
+                options.append( caf::PdmOptionItemInfo( resultName, resultName ) );
+            }
+        }
+    }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimResultNameAlias::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    updateConnectedEditors();
 }

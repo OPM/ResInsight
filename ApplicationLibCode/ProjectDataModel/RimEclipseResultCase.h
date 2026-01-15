@@ -25,8 +25,8 @@
 #include "RimEclipseCase.h"
 
 #include "cafFilePath.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrArrayField.h"
 
 #include <memory>
 
@@ -84,8 +84,12 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
+
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
 private:
     void loadAndUpdateSourSimData();
@@ -95,7 +99,8 @@ private:
     QString phasesAsString() const;
 
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );
-    void                         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    void syncResultAliases();
 
 private:
     std::unique_ptr<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
@@ -109,7 +114,7 @@ private:
 
     caf::PdmField<std::pair<bool, int>> m_mswMergeThreshold;
 
-    caf::PdmPtrArrayField<RimResultNameAlias*> m_resultAliasList;
+    caf::PdmChildArrayField<RimResultNameAlias*> m_resultAliasList;
 
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;
