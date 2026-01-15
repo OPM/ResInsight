@@ -40,6 +40,7 @@
 #include "RimImportedWellLog.h"
 #include "RimMainPlotCollection.h"
 #include "RimMswCompletionParameters.h"
+#include "RimMswSegmentCollection.h"
 #include "RimOsduWellLog.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
@@ -752,6 +753,12 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
     caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup( "Well Picks" );
     formationFileInfoGroup->add( &m_wellPathFormationFilePath );
     formationFileInfoGroup->add( &m_formationKeyInFile );
+
+    if ( isTopLevelWellPath() && m_completions() && m_completions->mswSegmentCollection() )
+    {
+        caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "MSW Segments" );
+        m_completions->mswSegmentCollection()->uiOrdering( uiConfigName, *mswGroup );
+    }
 
     uiOrdering.skipRemainingFields( true );
 }
