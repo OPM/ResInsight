@@ -597,6 +597,21 @@ TEST( RifEclipseSummaryAddressTest, ConversionFromTextToAddress )
     }
 }
 
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellNameWithColon )
+{
+    // https://github.com/OPM/ResInsight/issues/13402
+
+    std::string addrString = "WGPI:PA:WP_PL-PA_F_1A";
+
+    RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
+
+    EXPECT_TRUE( addr.isValid() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL, addr.category() );
+    EXPECT_EQ( "WGPI", addr.vectorName() );
+    EXPECT_EQ( "PA:WP_PL-PA_F_1A", addr.wellName() );
+    EXPECT_FALSE( addr.isErrorResult() );
+}
+
 TEST( RifEclipseSummaryAddressTest, Conversion_RifEclipseSummaryAddress_RimSummaryAddress_RoundTrip )
 {
     // Create a RifEclipseSummaryAddress with various fields set

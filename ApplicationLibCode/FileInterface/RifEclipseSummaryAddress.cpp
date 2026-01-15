@@ -1059,9 +1059,19 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
     if ( tokens.size() > 2 ) token2 = tokens[2];
 
     SummaryCategory category = SummaryCategory::SUMMARY_INVALID;
-    if ( ( tokens.size() == 3 ) && ( vectorName.starts_with( 'W' ) ) )
+    if ( ( tokens.size() >= 3 ) && ( vectorName.starts_with( 'W' ) ) )
     {
-        category = SummaryCategory::SUMMARY_WELL_COMPLETION;
+        // Check if token2 is a valid integer (completion number) before classifying as SUMMARY_WELL_COMPLETION
+        // If token2 is not an integer, it could be a well name containing a colon
+        int tempInt = -1;
+        if ( RiaStdStringTools::toInt( token2, tempInt ) )
+        {
+            category = SummaryCategory::SUMMARY_WELL_COMPLETION;
+        }
+        else
+        {
+            category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( vectorName );
+        }
     }
     else
     {
@@ -1128,7 +1138,14 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
 
         case SummaryCategory::SUMMARY_WELL:
         {
-            auto wellName = token1;
+            // Well name can contain colons. Concatenate all tokens after the vector name.
+            // https://github.com/OPM/ResInsight/issues/13402
+            std::string wellName;
+            for ( size_t i = 1; i < tokens.size(); i++ )
+            {
+                if ( !wellName.empty() ) wellName += ":";
+                wellName += tokens[i];
+            }
             if ( !wellName.empty() ) return wellAddress( vectorName, wellName );
             break;
         }
