@@ -84,7 +84,7 @@ QList<caf::PdmOptionItemInfo> RimResultNameAlias::calculateValueOptions( const c
                                        RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                        RiaDefines::ResultCatType::INPUT_PROPERTY } )
                 {
-                    for ( auto resName : resultMetaData->resultNames( catType ) )
+                    for ( auto resName : resultMetaData->resultNames( catType, false /* no aliases */ ) )
                     {
                         allResultNames.insert( resName );
                     }
