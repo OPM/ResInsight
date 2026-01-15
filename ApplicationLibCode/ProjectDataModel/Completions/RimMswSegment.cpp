@@ -111,7 +111,7 @@ RiaDefines::WellPathComponentType RimMswSegment::componentType() const
 //--------------------------------------------------------------------------------------------------
 QString RimMswSegment::componentLabel() const
 {
-    return QString( "Seg %1" ).arg( m_segmentNumber );
+    return QString( "Seg %1\n%2 - %3" ).arg( segmentNumber() ).arg( startMD(), 0, 'f', 1 ).arg( endMD(), 0, 'f', 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ QString RimMswSegment::componentTypeLabel() const
 cvf::Color3f RimMswSegment::defaultComponentColor() const
 {
     // Alternating colors based on segment number
-    if ( m_segmentNumber % 2 == 0 )
+    if ( segmentNumber() % 2 == 0 )
     {
         return cvf::Color3f( 0.3f, 0.5f, 0.8f ); // Blue
     }

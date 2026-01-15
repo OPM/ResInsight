@@ -591,6 +591,7 @@ RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors(
              { RiaDefines::WellPathComponentType::CASING, cvf::Color3::SEA_GREEN },
              { RiaDefines::WellPathComponentType::LINER, cvf::Color3::OLIVE },
              { RiaDefines::WellPathComponentType::PACKER, cvf::Color3::GRAY },
+             { RiaDefines::WellPathComponentType::MSW_SEGMENT, cvf::Color3::DARK_CYAN },
              { RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT, cvf::Color3::MAGENTA } };
 }
 

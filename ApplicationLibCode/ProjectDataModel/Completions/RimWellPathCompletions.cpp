@@ -22,6 +22,7 @@
 
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
+#include "RimMswSegment.h"
 #include "RimMswSegmentCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -199,6 +200,14 @@ std::vector<RimWellPathComponentInterface*> RimWellPathCompletions::allCompletio
         completions.push_back( valve );
     }
 
+    if ( m_mswSegmentCollection && m_mswSegmentCollection->isChecked() )
+    {
+        for ( const RimMswSegment* segment : m_mswSegmentCollection->segments() )
+        {
+            completions.push_back( const_cast<RimMswSegment*>( segment ) );
+        }
+    }
+
     return completions;
 }
 
@@ -226,6 +235,14 @@ std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCom
     for ( const RimWellPathValve* valve : allValves )
     {
         completions.push_back( valve );
+    }
+
+    if ( m_mswSegmentCollection && m_mswSegmentCollection->isChecked() )
+    {
+        for ( const RimMswSegment* segment : m_mswSegmentCollection->segments() )
+        {
+            completions.push_back( segment );
+        }
     }
 
     return completions;
