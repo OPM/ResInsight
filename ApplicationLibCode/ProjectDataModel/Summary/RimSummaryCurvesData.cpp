@@ -247,15 +247,22 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
         CurveData curveData = { curve->curveExportDescription( {} ), curve->curveType(), curve->valuesY() };
         CurveData errorCurveData;
 
-        // Error data
-        auto errorValues  = curve->errorValuesY();
-        bool hasErrorData = !errorValues.empty();
-
-        if ( hasErrorData )
+        // Error data - skip for ensemble curves
+        // A check if data is present is done in RifSummaryReaderInterface::hasAddress. For ensemble file readers, m_allResultAddresses will
+        // be empty for all realizations except one. To avoid display of error data for ensemble curves, we do an explicit check here.
+        // https://github.com/OPM/ResInsight/issues/13055
+        bool hasErrorData = false;
+        if ( !curve->isEnsembleCurve() )
         {
-            errorCurveData.name      = curve->curveExportDescription( curve->errorSummaryAddressY() );
-            errorCurveData.curveType = curve->curveType();
-            errorCurveData.values    = errorValues;
+            auto errorValues = curve->errorValuesY();
+            hasErrorData     = !errorValues.empty();
+
+            if ( hasErrorData )
+            {
+                errorCurveData.name      = curve->curveExportDescription( curve->errorSummaryAddressY() );
+                errorCurveData.curveType = curve->curveType();
+                errorCurveData.values    = errorValues;
+            }
         }
 
         auto curveDataList = std::vector<CurveData>( { curveData } );
