@@ -40,6 +40,7 @@
 #include "RigMainGrid.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
+#include "Completions/RimMswSegment.h"
 #include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim2dIntersectionView.h"
 #include "RimBoxIntersection.h"
@@ -60,7 +61,6 @@
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
-#include "Completions/RimMswSegment.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimSeismicDataInterface.h"
@@ -793,7 +793,6 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         // Display result info text
                         RiuMainWindow::instance()->setResultInfo( resultInfoText );
                     }
-
                 }
 
                 RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>( rivObjectSourceInfo->object() );
@@ -838,11 +837,11 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                     }
 
                     resultInfoText += QString( "Segment: %1\nBranch: %2\nMD: %3 - %4\nDiameter: %5" )
-                                         .arg( mswSegment->segmentNumber() )
-                                         .arg( mswSegment->branchNumber() )
-                                         .arg( mswSegment->startMD() )
-                                         .arg( mswSegment->endMD() )
-                                         .arg( mswSegment->diameter() );
+                                          .arg( mswSegment->segmentNumber() )
+                                          .arg( mswSegment->branchNumber() )
+                                          .arg( mswSegment->startMD() )
+                                          .arg( mswSegment->endMD() )
+                                          .arg( mswSegment->diameter() );
 
                     RiuMainWindow::instance()->setResultInfo( resultInfoText );
                     RiuMainWindow::instance()->selectAsCurrentItem( mswSegment, true );
