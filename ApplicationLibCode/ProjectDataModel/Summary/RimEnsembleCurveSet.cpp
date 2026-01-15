@@ -53,6 +53,7 @@
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTimeAxisProperties.h"
 #include "RimTimeAxisAnnotation.h"
 #include "RimTimeStepFilter.h"
 
@@ -2119,9 +2120,16 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    auto yAddressText       = m_yValuesSummaryAddress()->address().toEclipseTextAddress();
-    auto xAddressText       = m_xAddressSelector->summaryAddress().toEclipseTextAddress();
-    auto newRealizationHash = RiaHashTools::hash( sumCases, yAddressText, xAddressText );
+    auto yAddressText = m_yValuesSummaryAddress()->address().toEclipseTextAddress();
+    auto xAddressText = m_xAddressSelector->summaryAddress().toEclipseTextAddress();
+    int  timeMode     = 0;
+    auto timeScale    = 0.0;
+    if ( auto timeAxisProps = plot->timeAxisProperties() )
+    {
+        timeMode  = std::to_underlying( timeAxisProps->timeMode() );
+        timeScale = timeAxisProps->fromTimeTToDisplayUnitScale();
+    }
+    auto newRealizationHash = RiaHashTools::hash( sumCases, yAddressText, xAddressText, timeMode, timeScale );
     if ( newRealizationHash != m_realizationHash )
     {
         deleteEnsembleCurves();
