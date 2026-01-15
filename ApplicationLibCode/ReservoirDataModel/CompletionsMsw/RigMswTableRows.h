@@ -65,6 +65,7 @@ struct WelsegsRow
     std::optional<double> roughness;    // EPSILON
     
     std::string           description;
+    std::string           sourceWellName;   // Name of the source well path object. This can be different than WELNAME used in other tables.
 };
 
 //==================================================================================================
@@ -72,14 +73,14 @@ struct WelsegsRow
 //==================================================================================================
 struct CompsegsRow
 {
-    // type               variableName;         // Opm::ParserKeywords::COMPSEGS::...
+    // type             variableName;   // Opm::ParserKeywords::COMPSEGS::...
 
-    size_t                      i;              // I (1-based)
-    size_t                      j;              // J (1-based)
-    size_t                      k;              // K (1-based)
-    int                         branch;         // IBRANCH
-    double                      distanceStart;  // LENGTH1
-    double                      distanceEnd;    // LENGTH2
+    size_t              i;              // I (1-based)
+    size_t              j;              // J (1-based)
+    size_t              k;              // K (1-based)
+    int                 branch;         // IBRANCH
+    double              distanceStart;  // LENGTH1
+    double              distanceEnd;    // LENGTH2
 
     std::string gridName; // Empty for main grid, populated for LGR data
 

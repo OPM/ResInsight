@@ -232,6 +232,7 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&              
         const auto roughnessFactor = branch->wellPath()->mswCompletionParameters()->getRoughnessAtMD( midPointMD, exportInfo.unitSystem() );
 
         WelsegsRow row;
+        row.sourceWellName  = branch->wellPath()->name().toStdString();
         row.segment1    = segment->segmentNumber();
         row.segment2    = segment->segmentNumber();
         row.joinSegment = previousSegmentNumber;
@@ -324,6 +325,7 @@ void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&         
     for ( const auto& [subStartMD, subEndMD] : splitSegments )
     {
         WelsegsRow row;
+        row.sourceWellName = valve->wellPath()->name().toStdString();
 
         if ( !isCommentAdded )
         {
@@ -479,6 +481,7 @@ void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&   
             if ( segment->effectiveDiameter() > 0.0 ) diameter = segment->effectiveDiameter();
 
             WelsegsRow row;
+            row.sourceWellName  = completion->wellPath()->name().toStdString();
             row.segment1    = subSegmentNumber;
             row.segment2    = subSegmentNumber;
             row.joinSegment = outletNumber;
