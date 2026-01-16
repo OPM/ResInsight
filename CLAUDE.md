@@ -322,6 +322,119 @@ interval = completions_settings.add_diameter_roughness_interval(start_md=100, en
 print(f"Start: {interval.start_md}, End: {interval.end_md}")
 ```
 
+## Field Validation in Python GRPC Interface
+
+Python field updates are automatically validated when calling `obj.update()`. This ensures data integrity by preventing invalid values from being set.
+
+### Validation Types
+
+1. **Type Validation**: Ensures field value types match (int, float, string, etc.)
+   - Parsing errors are caught during type conversion
+   - Example: Setting a string "hello" to an integer field is rejected
+
+2. **Range Validation**: Checks values against min/max constraints defined with `setRange()`, `setMinValue()`, or `setMaxValue()`
+   - Fields with range constraints reject out-of-bounds values
+   - Example: A field with `setMinValue(0)` rejects negative values
+
+3. **Object Validation**: Validates cross-field constraints via `validate()` override
+   - Custom business logic can enforce relationships between fields
+   - Example: Ensuring end date is after start date
+
+### Setting Field Ranges in C++
+
+To add range validation to a PDM field:
+
+```cpp
+RimMyClass::RimMyClass()
+{
+    CAF_PDM_InitScriptableField(&m_percentage, "Percentage", 50.0, "Percentage");
+    m_percentage.setRange(0.0, 100.0);  // Validates 0-100 range
+
+    CAF_PDM_InitScriptableField(&m_count, "Count", 1, "Count");
+    m_count.setMinValue(0);  // Only validates minimum
+    m_count.setMaxValue(100);  // Only validates maximum
+
+    CAF_PDM_InitScriptableField(&m_wellBoreFluidPvtTable, "WellBoreFluidPvtTable", 0, "Wellbore Fluid PVT Table");
+    m_wellBoreFluidPvtTable.setMinValue(0);  // Must be non-negative
+}
+```
+
+### Python Behavior
+
+Invalid values are **rejected** and field values remain unchanged:
+
+```python
+# Example: Setting invalid value
+completions_settings = well_path.completion_settings()
+completions_settings.well_bore_fluid_pvt_table = -5  # Invalid: below minimum of 0
+
+try:
+    completions_settings.update()  # Triggers validation
+except Exception as e:
+    print(f"Validation failed: {e}")
+    # Output:
+    # Validation failed: <_InactiveRpcError of RPC that terminated with:
+    #     status = StatusCode.INVALID_ARGUMENT
+    #     details = "Validation failed for WellPathCompletionSettings:
+    #     WellBoreFluidPvtTable: Value -5 is below minimum 0"
+    # >
+
+# The field retains its previous valid value (rollback occurred)
+current_value = well_path.completion_settings().well_bore_fluid_pvt_table
+print(f"Value remains: {current_value}")  # Previous valid value
+```
+
+### Error Handling
+
+Validation errors raise gRPC exceptions with descriptive messages:
+
+```python
+try:
+    obj.update()
+except Exception as e:
+    error_msg = str(e)
+    if "Validation failed" in error_msg:
+        # Handle validation error
+        print("Please correct the following fields:")
+        print(error_msg)
+    else:
+        # Other error
+        raise
+```
+
+### Multiple Field Errors
+
+All validation errors are aggregated and returned together:
+
+```python
+# Set multiple invalid values
+settings.field1 = invalid_value1
+settings.field2 = invalid_value2
+
+try:
+    settings.update()
+except Exception as e:
+    # Error message lists all validation failures:
+    # "Validation failed for ClassName:
+    # field1: Value ... exceeds maximum ...
+    # field2: Value ... is below minimum ..."
+    pass
+```
+
+### Validation Guarantees
+
+- **Atomic Updates**: If any field fails validation, no fields are updated (all-or-nothing)
+- **Rollback**: Failed updates don't modify field values - they remain at their previous valid state
+- **Type Safety**: Cannot assign values of wrong type (string to int, etc.)
+- **Clear Messages**: Error messages include field names and specific validation failures
+
+### Implementation Notes
+
+- Validation occurs automatically on `update()` - no manual validation needed
+- Built on commit f342ca77572c840eadf22fe0a3fd2935c62fd04b validation infrastructure
+- Uses C++23 `std::expected<void, QString>` for clean error handling
+- Returns `grpc::INVALID_ARGUMENT` status with validation details
+
 ## PDM UI Editor Attributes - Modern setAttribute Pattern
 
 Note: Always use () when accessing a field's value. This is required for proper type management. Use `m_myTextField()` instead of `m_myTextField`.

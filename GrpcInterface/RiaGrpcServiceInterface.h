@@ -19,6 +19,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <expected>
 #include <vector>
 
 class RiaGrpcCallbackInterface;
@@ -54,7 +55,8 @@ public:
 
 protected:
     static void copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination );
-    static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination );
+    static std::expected<void, QString> copyPdmObjectFromRipsToCaf( const rips::PdmObject* source,
+                                                                    caf::PdmObjectHandle*  destination );
 
     static caf::PdmObjectHandle*
         emplaceChildField( caf::PdmObject* parent, const QString& fieldKeyword, const QString& keywordForClassToCreate );
@@ -64,11 +66,11 @@ protected:
     static caf::PdmObjectHandle* emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField,
                                                          const QString&                 keywordForClassToCreate );
 
-    static bool assignFieldValue( const QString&            stringValue,
-                                  caf::PdmFieldHandle*      field,
-                                  QVariant*                 oldValue,
-                                  QVariant*                 newValue,
-                                  caf::PdmScriptIOMessages* messages );
+    static std::expected<void, QString> assignFieldValue( const QString&            stringValue,
+                                                          caf::PdmFieldHandle*      field,
+                                                          QVariant*                 oldValue,
+                                                          QVariant*                 newValue,
+                                                          caf::PdmScriptIOMessages* messages );
 };
 
 #include "cafFactory.h"

@@ -436,23 +436,33 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
 {
     auto matchingObject = RiaGrpcHelper::findCafObjectFromRipsObject( *request );
 
-    if ( matchingObject )
+    if ( !matchingObject )
     {
-        copyPdmObjectFromRipsToCaf( request, matchingObject );
-        RimEclipseResultDefinition* resultDefinition = dynamic_cast<RimEclipseResultDefinition*>( matchingObject );
-        // TODO: Make this more general. Perhaps we need an interface method for updating UI fields
-        if ( resultDefinition )
-        {
-            resultDefinition->updateUiFieldsFromActiveResult();
-            resultDefinition->loadResult();
-        }
-
-        matchingObject->updateAllRequiredEditors();
-        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
-
-        return grpc::Status::OK;
+        return grpc::Status( grpc::NOT_FOUND, "PdmObject not found" );
     }
-    return grpc::Status( grpc::NOT_FOUND, "PdmObject not found" );
+
+    // Validate and copy fields from request
+    auto result = copyPdmObjectFromRipsToCaf( request, matchingObject );
+
+    if ( !result )
+    {
+        // Validation failed - return error to Python
+        return grpc::Status( grpc::INVALID_ARGUMENT, result.error().toStdString() );
+    }
+
+    // Validation succeeded - update UI and views
+    RimEclipseResultDefinition* resultDefinition = dynamic_cast<RimEclipseResultDefinition*>( matchingObject );
+    // TODO: Make this more general. Perhaps we need an interface method for updating UI fields
+    if ( resultDefinition )
+    {
+        resultDefinition->updateUiFieldsFromActiveResult();
+        resultDefinition->loadResult();
+    }
+
+    matchingObject->updateAllRequiredEditors();
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+
+    return grpc::Status::OK;
 }
 
 //--------------------------------------------------------------------------------------------------
