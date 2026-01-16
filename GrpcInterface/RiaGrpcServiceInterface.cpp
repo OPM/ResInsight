@@ -114,7 +114,8 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination )
+std::expected<void, QString> RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source,
+                                                                                  caf::PdmObjectHandle*  destination )
 {
     CAF_ASSERT( source && destination && destination->xmlCapability() );
 
@@ -145,7 +146,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
             if ( uniqueNames.count( lowerCase ) > 0 )
             {
                 QString txt = "When receiving an object from Python, multiple key/values for a field keyword was "
-                              "detected. This is an error will most likely fail to update the object as intende. "
+                              "detected. This is an error will most likely fail to update the object as intended. "
                               "Keyword name : " +
                               QString::fromStdString( p.first );
                 RiaLogging::error( txt );
@@ -164,7 +165,17 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
         }
     }
 
-    caf::PdmScriptIOMessages messages;
+    // Structure to hold pending field changes for two-phase commit
+    struct FieldChange
+    {
+        caf::PdmFieldHandle* field;
+        QVariant             oldValue;
+        QVariant             newValue;
+    };
+
+    // Phase 1: Validate all fields and collect changes (don't commit yet)
+    std::vector<FieldChange> pendingChanges;
+    QStringList              fieldErrors;
 
     for ( auto field : fields )
     {
@@ -181,47 +192,140 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
                 // https://github.com/OPM/ResInsight/issues/7794
                 continue;
             }
-            QString keyword = scriptability->scriptFieldName();
-            QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
-            QVariant oldValue, newValue;
+            QString keyword = scriptability->scriptFieldName();
+
+            // Skip if parameter not provided (don't update field)
+            if ( parametersMap.find( keyword.toStdString() ) == parametersMap.end() )
+            {
+                continue;
+            }
+
+            QString value = QString::fromStdString( parametersMap[keyword.toStdString()] );
+
+            QVariant                 oldValue, newValue;
+            caf::PdmScriptIOMessages messages;
             messages.currentCommand  = "Assign value to field " + keyword;
             messages.currentArgument = value;
-            if ( assignFieldValue( value, field, &oldValue, &newValue, &messages ) )
+
+            auto result = assignFieldValue( value, field, &oldValue, &newValue, &messages );
+
+            if ( !result )
             {
-                destination->uiCapability()->fieldChangedByUi( field, oldValue, newValue );
+                // Validation failed for this field
+                fieldErrors.append( QString( "%1: %2" ).arg( keyword, result.error() ) );
+            }
+            else if ( oldValue != newValue )
+            {
+                // Value changed and validated - save for commit later
+                pendingChanges.push_back( { field, oldValue, newValue } );
             }
         }
     }
 
-    for ( const auto message : messages.m_messages )
+    // Object-level validation (only if no field errors so far)
+    if ( fieldErrors.isEmpty() )
     {
-        RiaLogging::error( message.second );
+        std::map<QString, QString> objectErrors = destination->validate();
+        for ( const auto& [fieldKeyword, errorMsg] : objectErrors )
+        {
+            fieldErrors.append( QString( "%1: %2" ).arg( fieldKeyword, errorMsg ) );
+        }
     }
+
+    // Phase 2: Commit or rollback based on validation results
+    if ( !fieldErrors.isEmpty() )
+    {
+        // ROLLBACK: Restore all fields to their old values
+        for ( const auto& change : pendingChanges )
+        {
+            auto* valueField = dynamic_cast<caf::PdmValueField*>( change.field );
+            if ( valueField )
+            {
+                valueField->setFromQVariant( change.oldValue );
+            }
+        }
+
+        // Return aggregated error message
+        QString objectClass = destination->xmlCapability() ? destination->xmlCapability()->classKeyword() : "PdmObject";
+        return std::unexpected( QString( "Validation failed for %1:\n%2" ).arg( objectClass, fieldErrors.join( "\n" ) ) );
+    }
+
+    // SUCCESS: Commit all changes by notifying UI
+    for ( const auto& change : pendingChanges )
+    {
+        destination->uiCapability()->fieldChangedByUi( change.field, change.oldValue, change.newValue );
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaGrpcServiceInterface::assignFieldValue( const QString&            stringValue,
-                                                caf::PdmFieldHandle*      field,
-                                                QVariant*                 oldValue,
-                                                QVariant*                 newValue,
-                                                caf::PdmScriptIOMessages* messages )
+std::expected<void, QString> RiaGrpcServiceInterface::assignFieldValue( const QString&            stringValue,
+                                                                        caf::PdmFieldHandle*      field,
+                                                                        QVariant*                 oldValue,
+                                                                        QVariant*                 newValue,
+                                                                        caf::PdmScriptIOMessages* messages )
 {
     CAF_ASSERT( oldValue && newValue );
 
     auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
-    if ( field && scriptability != nullptr && scriptability->isIOWriteable() )
+    if ( !field || !scriptability || !scriptability->isIOWriteable() )
     {
-        auto*       valueField = dynamic_cast<caf::PdmValueField*>( field );
-        QTextStream stream( stringValue.toLatin1() );
-        if ( valueField ) *oldValue = valueField->toQVariant();
-        scriptability->writeToField( stream, nullptr, messages, false, RimProject::current() );
-        if ( valueField ) *newValue = valueField->toQVariant();
-        return true;
+        return {}; // Skip non-writable fields
     }
-    return false;
+
+    auto* valueField = dynamic_cast<caf::PdmValueField*>( field );
+
+    // Step 1: Save old value for potential rollback
+    if ( valueField ) *oldValue = valueField->toQVariant();
+
+    // Step 2: Parse and set new value
+    QTextStream stream( stringValue.toLatin1() );
+    scriptability->writeToField( stream, nullptr, messages, false, RimProject::current() );
+
+    // Step 3: Check for parsing errors (type mismatches)
+    if ( !messages->m_messages.empty() )
+    {
+        // Parsing failed - collect error messages
+        QStringList errors;
+        for ( const auto& msg : messages->m_messages )
+        {
+            if ( msg.first == caf::PdmScriptIOMessages::MESSAGE_ERROR )
+            {
+                errors.append( msg.second );
+            }
+        }
+
+        // Rollback to old value
+        if ( valueField && oldValue->isValid() )
+        {
+            valueField->setFromQVariant( *oldValue );
+        }
+
+        return errors.isEmpty() ? std::expected<void, QString>{} : std::unexpected( errors.join( "; " ) );
+    }
+
+    // Step 4: Get new value after successful parsing
+    if ( valueField ) *newValue = valueField->toQVariant();
+
+    // Step 5: Validate the new value (range constraints, etc.)
+    QString validationError = field->validate();
+    if ( !validationError.isEmpty() )
+    {
+        // Validation failed - rollback to old value
+        if ( valueField && oldValue->isValid() )
+        {
+            valueField->setFromQVariant( *oldValue );
+            *newValue = *oldValue; // Update newValue to reflect rollback
+        }
+        return std::unexpected( validationError );
+    }
+
+    // Success - value is valid and set
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
