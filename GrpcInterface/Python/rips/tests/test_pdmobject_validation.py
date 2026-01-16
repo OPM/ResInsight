@@ -97,13 +97,13 @@ def test_value_unchanged_after_validation_error(rips_instance, initialize_test):
 
     # Value should remain at the previous valid value (42)
     completions_settings_refreshed = well_path.completion_settings()
-    assert (
-        completions_settings_refreshed.well_bore_fluid_pvt_table == 42
-    ), "Field value should not change after failed validation (rollback should occur)"
+    assert completions_settings_refreshed.well_bore_fluid_pvt_table == 42, (
+        "Field value should not change after failed validation (rollback should occur)"
+    )
 
-    assert (
-        completions_settings_refreshed.fluid_in_place_region == 99
-    ), "Field value should not change after failed validation (rollback should occur)"
+    assert completions_settings_refreshed.fluid_in_place_region == 99, (
+        "Field value should not change after failed validation (rollback should occur)"
+    )
 
 
 def test_strict_double_validation_extra_text(rips_instance, initialize_test):
@@ -166,6 +166,33 @@ def test_strict_int_validation(rips_instance, initialize_test):
 
     assert "Extra characters found" in str(exc_info.value)
     assert "0.99" in str(exc_info.value)
+
+
+def test_validation_rollback(rips_instance, initialize_test):
+    """Verifies that failed updates rollback local state."""
+    well_path_coll = rips_instance.project.well_path_collection()
+    well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
+    well_path.update()
+
+    completions_settings = well_path.completion_settings()
+
+    # Set valid value
+    completions_settings.well_bore_fluid_pvt_table = 5
+    completions_settings.update()
+    assert completions_settings.well_bore_fluid_pvt_table == 5
+
+    # Try to set invalid value (float instead of int)
+    completions_settings.well_bore_fluid_pvt_table = 0.99
+
+    with pytest.raises(Exception) as exc_info:
+        completions_settings.update()
+
+    assert "Extra characters found" in str(exc_info.value)
+
+    # Verify rollback: should be back to 5, not 0.99
+    assert completions_settings.well_bore_fluid_pvt_table == 5, (
+        "Field should rollback to previous valid value after failed update"
+    )
 
 
 def test_enum_validation_message(rips_instance, initialize_test):
@@ -244,9 +271,8 @@ def test_strict_bool_validation(rips_instance, initialize_test):
         or "does not evaluate to either true or false" in error_msg
     )
 
-    # Reset to valid value for next test
-    fracture_template.user_defined_perforation_length = False
-    fracture_template.update()
+    # Verify automatic rollback: should be back to False
+    assert fracture_template.user_defined_perforation_length is False
 
     # Test 3: Float 0.99 should fail
     fracture_template.user_defined_perforation_length = 0.99
@@ -260,9 +286,8 @@ def test_strict_bool_validation(rips_instance, initialize_test):
         or "does not evaluate to either true or false" in error_msg
     )
 
-    # Reset to valid value for next test
-    fracture_template.user_defined_perforation_length = False
-    fracture_template.update()
+    # Verify automatic rollback: should be back to False
+    assert fracture_template.user_defined_perforation_length is False
 
     # Test 4: String "yes" should fail
     fracture_template.user_defined_perforation_length = "yes"
@@ -275,3 +300,6 @@ def test_strict_bool_validation(rips_instance, initialize_test):
         or "unreadable" in error_msg
         or "does not evaluate to either true or false" in error_msg
     )
+
+    # Verify automatic rollback: should be back to False
+    assert fracture_template.user_defined_perforation_length is False
