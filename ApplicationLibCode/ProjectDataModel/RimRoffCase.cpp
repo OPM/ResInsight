@@ -32,9 +32,12 @@
 
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimResultNameAlias.h"
 
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -125,6 +128,8 @@ void RimRoffCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
     group->add( &m_activeFormationNames );
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
+
+    resultAliasUiOrdering( uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,4 +155,20 @@ bool RimRoffCase::importAsciiInputProperties( const QStringList& fileNames )
                                                                importFaults );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRoffCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_resultAliasList )
+    {
+        auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttr )
+        {
+            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
+            tvAttr->alwaysEnforceResizePolicy = true;
+        }
+    }
 }

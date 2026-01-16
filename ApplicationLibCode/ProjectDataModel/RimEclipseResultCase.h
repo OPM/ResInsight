@@ -89,8 +89,6 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
 
-    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
-
 private:
     void loadAndUpdateSourSimData();
     void ensureRftDataIsImported();
@@ -99,8 +97,6 @@ private:
     QString phasesAsString() const;
 
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );
-
-    void syncResultAliases();
 
 private:
     std::unique_ptr<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
@@ -113,8 +109,6 @@ private:
     caf::PdmField<caf::FilePath>                                         m_sourSimFileName;
 
     caf::PdmField<std::pair<bool, int>> m_mswMergeThreshold;
-
-    caf::PdmChildArrayField<RimResultNameAlias*> m_resultAliasList;
 
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;

@@ -21,7 +21,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 
-#include "RimEclipseResultCase.h"
+#include "RimEclipseCase.h"
 
 CAF_PDM_SOURCE_INIT( RimResultNameAlias, "ResultNameAlias" );
 
@@ -69,16 +69,16 @@ QList<caf::PdmOptionItemInfo> RimResultNameAlias::calculateValueOptions( const c
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_resultName )
     {
-        if ( RimEclipseResultCase* resultCase = this->firstAncestorOrThisOfType<RimEclipseResultCase>() )
+        if ( RimEclipseCase* eCase = this->firstAncestorOrThisOfType<RimEclipseCase>() )
         {
-            if ( resultCase->eclipseCaseData() == nullptr )
+            if ( eCase->eclipseCaseData() == nullptr )
             {
                 return options;
             }
 
             std::set<QString> allResultNames;
 
-            if ( auto resultMetaData = resultCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
+            if ( auto resultMetaData = eCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
             {
                 for ( auto catType : { RiaDefines::ResultCatType::STATIC_NATIVE,
                                        RiaDefines::ResultCatType::DYNAMIC_NATIVE,
