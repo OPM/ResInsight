@@ -107,10 +107,6 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     CAF_PDM_InitField( &m_mswMergeThreshold, "MswMergeThreshold", std::make_pair( false, 3 ), "MSW Short Well Merge Threshold" );
     m_mswMergeThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_resultAliasList, "ResultAliasNames", "Result Name Aliases" );
-    m_resultAliasList.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_resultAliasList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,8 +321,6 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
     }
 
-    syncResultAliases();
-
     if ( mainGrid() && mainGrid()->isRadial() )
     {
         // This is required to make the generated LGR for radial grids work when loading a project file
@@ -393,8 +387,6 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
         }
 
         setReservoirData( eclipseCase.p() );
-
-        syncResultAliases();
 
         readerInterface = readerEclipseOutput;
     }
@@ -575,8 +567,6 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
 
     setReservoirData( reservoir.p() );
 
-    syncResultAliases();
-
     return mockFileInterface.p();
 }
 
@@ -731,23 +721,7 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         m_timeStepFilter->uiOrdering( uiConfigName, *group1 );
     }
 
-    auto aGrp = uiOrdering.addNewGroup( "Result Name Aliases" );
-    aGrp->setCollapsedByDefault();
-    aGrp->add( &m_resultAliasList );
-
-    aGrp->addNewButton( "Add Result Alias",
-                        [this]()
-                        {
-                            m_resultAliasList.push_back( new RimResultNameAlias() );
-                            updateConnectedEditors();
-                        } );
-    aGrp->addNewButton( "Reset Result Aliases",
-                        [this]()
-                        {
-                            m_resultAliasList.deleteChildren();
-                            updateConnectedEditors();
-                        },
-                        { .newRow = false, .totalColumnSpan = 1 } );
+    resultAliasUiOrdering( uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -769,39 +743,6 @@ void RimEclipseResultCase::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     }
 
     return RimEclipseCase::fieldChangedByUi( changedField, oldValue, newValue );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
-{
-    if ( changedChildField == &m_resultAliasList )
-    {
-        syncResultAliases();
-        for ( auto resView : reservoirViews() )
-        {
-            resView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::syncResultAliases()
-{
-    if ( auto ecData = eclipseCaseData() )
-    {
-        if ( auto results = ecData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
-        {
-            results->clearAllResultAliases();
-            for ( const auto& alias : m_resultAliasList )
-            {
-                results->addResultAlias( alias->resultName(), alias->aliasName() );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
