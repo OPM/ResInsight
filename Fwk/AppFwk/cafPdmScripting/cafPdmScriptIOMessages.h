@@ -65,6 +65,8 @@ public:
     QChar readCharWithLineNumberCount( QTextStream& inputStream );
     QChar peekNextChar( QTextStream& inputStream );
 
+    void checkForExtraCharactersAfterValue( QTextStream& inputStream );
+
     QString                                      currentCommand;
     QString                                      currentArgument;
     std::vector<std::pair<MessageType, QString>> m_messages;

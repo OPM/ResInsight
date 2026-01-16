@@ -169,6 +169,10 @@ void PdmFieldScriptingCapabilityIOHandler<bool>::writeToField( bool&            
             formatString.arg( errorMessageContainer->currentArgument ).arg( errorMessageContainer->currentCommand );
         errorMessageContainer->addError( errorMessage );
     }
+    else
+    {
+        errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
+    }
     fieldValue = evaluatesToTrue;
 }
 
@@ -201,6 +205,10 @@ void PdmFieldScriptingCapabilityIOHandler<double>::writeToField( double&        
 
         inputStream.setStatus( QTextStream::Ok );
     }
+    else
+    {
+        errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
+    }
 }
 
 void PdmFieldScriptingCapabilityIOHandler<double>::readFromField( const double& fieldValue,
@@ -211,5 +219,39 @@ void PdmFieldScriptingCapabilityIOHandler<double>::readFromField( const double& 
     // Use scientific for better precision
     outputStream.setRealNumberPrecision( 15 );
     outputStream.setRealNumberNotation( QTextStream::ScientificNotation );
+    outputStream << fieldValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<int>::writeToField( int&                 fieldValue,
+                                                              QTextStream&         inputStream,
+                                                              PdmScriptIOMessages* errorMessageContainer,
+                                                              bool                 stringsAreQuoted )
+{
+    inputStream >> fieldValue;
+    if ( inputStream.status() == QTextStream::ReadCorruptData )
+    {
+        errorMessageContainer->addError( "Argument value is unreadable in the argument: \"" +
+                                         errorMessageContainer->currentArgument + "\" in the command: \"" +
+                                         errorMessageContainer->currentCommand + "\"" );
+
+        inputStream.setStatus( QTextStream::Ok );
+    }
+    else
+    {
+        errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<int>::readFromField( const int&   fieldValue,
+                                                               QTextStream& outputStream,
+                                                               bool         quoteStrings,
+                                                               bool         quoteNonBuiltins )
+{
     outputStream << fieldValue;
 }
