@@ -279,6 +279,19 @@ struct PdmFieldScriptingCapabilityIOHandler<double>
                                bool          quoteNonBuiltins = false );
 };
 
+template <>
+struct PdmFieldScriptingCapabilityIOHandler<int>
+{
+    static void writeToField( int&                 fieldValue,
+                              QTextStream&         inputStream,
+                              PdmScriptIOMessages* errorMessageContainer,
+                              bool                 stringsAreQuoted = true );
+    static void readFromField( const int&   fieldValue,
+                               QTextStream& outputStream,
+                               bool         quoteStrings     = true,
+                               bool         quoteNonBuiltins = false );
+};
+
 template <typename T>
 struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
 {
@@ -308,8 +321,19 @@ struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
         {
             // Unexpected enum value
             // Error message
+            QStringList validOptions;
+            for ( size_t i = 0; i < fieldValue.size(); ++i )
+            {
+                validOptions.append( fieldValue.text( fieldValue.fromIndex( i ) ) );
+            }
+
             errorMessageContainer->addError( "Failed to set enum text value \"" + accumulatedFieldValue +
-                                             "\" for the command: \"" + errorMessageContainer->currentCommand + "\"" );
+                                             "\" for the command: \"" + errorMessageContainer->currentCommand +
+                                             "\". Valid options are: " + validOptions.join( ", " ) );
+        }
+        else
+        {
+            errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
         }
     }
 

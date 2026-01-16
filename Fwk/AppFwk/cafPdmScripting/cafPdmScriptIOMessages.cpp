@@ -108,3 +108,22 @@ void PdmScriptIOMessages::skipLineWithLineNumberCount( QTextStream& inputStream 
     inputStream.readLine();
     m_currentLineNumber++;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmScriptIOMessages::checkForExtraCharactersAfterValue( QTextStream& inputStream )
+{
+    skipWhiteSpaceWithLineNumberCount( inputStream );
+    if ( !inputStream.atEnd() )
+    {
+        // Check if the next character is a valid delimiter (for command syntax) or garbage
+        QChar nextChar = peekNextChar( inputStream );
+        // Valid delimiters: comma, close paren, close bracket (for array), or end of stream
+        if ( !( nextChar == QChar( ',' ) || nextChar == QChar( ')' ) || nextChar == QChar( ']' ) || nextChar.isNull() ) )
+        {
+            addError( "Extra characters found after value in argument: \"" + currentArgument + "\" in the command: \"" +
+                      currentCommand + "\"" );
+        }
+    }
+}
