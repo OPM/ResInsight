@@ -22,7 +22,9 @@ resinsight = rips.Instance.find()
 resinsight_exe_path = os.environ.get("RESINSIGHT_EXECUTABLE")
 
 # Get the TestModels path from the executable path
-resinsight_install_path = pathlib.PurePath(os.path.dirname(resinsight_exe_path)).as_posix()
+resinsight_install_path = pathlib.PurePath(
+    os.path.dirname(resinsight_exe_path)
+).as_posix()
 test_models_path = resinsight_install_path + "/TestModels/"
 
 # Get the .roff case
