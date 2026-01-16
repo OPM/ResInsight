@@ -529,14 +529,35 @@ class PdmObjectBase:
             raise RipsError("%s" % exc.details()) from None
 
     def update(self) -> None:
-        """Sync all fields from the Python Object to ResInsight"""
-        self.__copy_to_pb2()
-        if self._pdm_object_stub is not None:
-            self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)
-        else:
+        """Sync all fields from the Python Object to ResInsight
+
+        If validation fails on the server, all local changes are rolled back
+        to the last known valid state, and the exception is re-raised.
+        """
+        if self._pdm_object_stub is None:
             raise Exception(
                 "Object is not connected to GRPC service so cannot update ResInsight"
             )
+
+        # Store a snapshot of the last known valid protobuf state
+        pb2_snapshot = PdmObject_pb2.PdmObject()
+        pb2_snapshot.CopyFrom(self._pb2_object)
+
+        try:
+            self.__copy_to_pb2()
+            self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)
+        except Exception:
+            # Rollback: restore protobuf object to previous state
+            self._pb2_object.CopyFrom(pb2_snapshot)
+            # Restore Python attributes from the protobuf snapshot
+            for camel_keyword in pb2_snapshot.parameters:
+                snake_keyword = camel_to_snake(camel_keyword)
+                value = self.__convert_from_grpc_value(
+                    pb2_snapshot.parameters[camel_keyword]
+                )
+                setattr(self, snake_keyword, value)
+            # Re-raise the exception so the caller knows update failed
+            raise
 
     def delete(self) -> None:
         """Delete object in ResInsight"""
