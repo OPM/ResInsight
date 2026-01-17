@@ -212,7 +212,7 @@ static std::string hashUsername( const std::string& username )
 
     QByteArray usernameBytes = QString::fromStdString( username ).toUtf8();
     QByteArray hash          = QCryptographicHash::hash( usernameBytes, QCryptographicHash::Sha256 );
-    
+
     // Convert to hex string for readability in telemetry
     return hash.toHex().toStdString();
 }
@@ -239,7 +239,7 @@ void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, co
     // Create mutable copy and add hashed username if configured (privacy-preserving for regular events)
     // Note: crash events already have real username added in reportCrash()
     std::map<std::string, std::string> enrichedAttributes = attributes;
-    
+
     bool isCrashEvent = ( eventName == "crash.signal_handler" );
     if ( !isCrashEvent )
     {
