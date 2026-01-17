@@ -32,8 +32,8 @@
 #include "RimMswSegment.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
-#include "RimWellPathCompletions.h"
 #include "RimWellPathCompletionSettings.h"
+#include "RimWellPathCompletions.h"
 
 #include "RiuFileDialogTools.h"
 #include "RiuTools.h"
@@ -58,9 +58,7 @@
 class RiuMswBranchMappingDialog : public QDialog
 {
 public:
-    RiuMswBranchMappingDialog( QWidget*                        parent,
-                               const std::vector<RimWellPath*> wellPaths,
-                               const std::set<int>&            availableBranches )
+    RiuMswBranchMappingDialog( QWidget* parent, const std::vector<RimWellPath*> wellPaths, const std::set<int>& availableBranches )
         : QDialog( parent, RiuTools::defaultDialogFlags() )
     {
         setWindowTitle( "Assign Branch Numbers to Well Paths" );

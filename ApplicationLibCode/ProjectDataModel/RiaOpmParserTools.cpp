@@ -523,9 +523,8 @@ std::map<std::string, std::vector<WelsegsRow>> extractWelsegs( const std::string
     }
     catch ( std::exception& e )
     {
-        RiaLogging::error( QString( "Error parsing WELSEGS from '%1': %2" )
-                               .arg( QString::fromStdString( filename ) )
-                               .arg( QString::fromStdString( e.what() ) ) );
+        RiaLogging::error(
+            QString( "Error parsing WELSEGS from '%1': %2" ).arg( QString::fromStdString( filename ) ).arg( QString::fromStdString( e.what() ) ) );
     }
 
     return {};
