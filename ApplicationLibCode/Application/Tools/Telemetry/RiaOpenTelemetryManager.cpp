@@ -22,6 +22,7 @@
 #include "RiaPreferencesOpenTelemetry.h"
 #include "RifJsonEncodeDecode.h"
 
+#include <QCryptographicHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -199,6 +200,24 @@ bool RiaOpenTelemetryManager::reinitialize()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Create a stable, anonymized hash of username for privacy-preserving telemetry
+/// Uses SHA-256 to ensure consistent hashing across sessions while protecting user identity
+//--------------------------------------------------------------------------------------------------
+static std::string hashUsername( const std::string& username )
+{
+    if ( username.empty() )
+    {
+        return "";
+    }
+
+    QByteArray usernameBytes = QString::fromStdString( username ).toUtf8();
+    QByteArray hash          = QCryptographicHash::hash( usernameBytes, QCryptographicHash::Sha256 );
+    
+    // Convert to hex string for readability in telemetry
+    return hash.toHex().toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, const std::map<std::string, std::string>& attributes )
@@ -217,7 +236,21 @@ void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, co
         return;
     }
 
-    m_eventQueue.emplace( eventName, attributes );
+    // Create mutable copy and add hashed username if configured (privacy-preserving for regular events)
+    // Note: crash events already have real username added in reportCrash()
+    std::map<std::string, std::string> enrichedAttributes = attributes;
+    
+    bool isCrashEvent = ( eventName == "crash.signal_handler" );
+    if ( !isCrashEvent )
+    {
+        std::lock_guard<std::mutex> configLock( m_configMutex );
+        if ( !m_username.empty() )
+        {
+            enrichedAttributes["user.hash"] = hashUsername( m_username );
+        }
+    }
+
+    m_eventQueue.emplace( eventName, enrichedAttributes );
     m_healthMetrics.eventsQueued++;
 }
 
@@ -289,6 +322,20 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     attributes["service.name"]            = RiaPreferencesOpenTelemetry::current()->serviceName().toStdString();
     attributes["service.version"]         = RiaPreferencesOpenTelemetry::current()->serviceVersion().toStdString();
 
+    // Add system information
+    attributes["os.type"]    = QSysInfo::productType().toStdString();
+    attributes["os.version"] = QSysInfo::productVersion().toStdString();
+    attributes["os.name"]    = QSysInfo::prettyProductName().toStdString();
+
+    // Add real username for crash reports (not hashed - needed for debugging critical issues)
+    {
+        std::lock_guard<std::mutex> lock( m_configMutex );
+        if ( !m_username.empty() )
+        {
+            attributes["user.name"] = m_username;
+        }
+    }
+
     reportEventAsync( "crash.signal_handler", attributes );
     flushPendingEvents();
 
@@ -326,6 +373,7 @@ void RiaOpenTelemetryManager::setErrorCallback( ErrorCallback callback )
 void RiaOpenTelemetryManager::setUsername( const std::string& username )
 {
     std::lock_guard<std::mutex> lock( m_configMutex );
+    // Store original username - will be hashed for regular events but kept plain for crash reports
     m_username = username;
 }
 
@@ -568,20 +616,6 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
         for ( const auto& [key, value] : event.attributes )
         {
             properties[QString::fromStdString( key )] = QString::fromStdString( value );
-        }
-
-        // Add system information
-        properties["os.type"]    = QSysInfo::productType();
-        properties["os.version"] = QSysInfo::productVersion();
-        properties["os.name"]    = QSysInfo::prettyProductName();
-
-        // Add username if configured
-        {
-            std::lock_guard<std::mutex> lock( m_configMutex );
-            if ( !m_username.empty() )
-            {
-                properties["user.name"] = QString::fromStdString( m_username );
-            }
         }
 
         // Determine if this is a crash event
