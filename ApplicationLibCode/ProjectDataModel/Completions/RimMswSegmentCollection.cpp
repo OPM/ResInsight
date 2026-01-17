@@ -33,15 +33,92 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
+#include "RimWellPathCompletionSettings.h"
 
 #include "RiuFileDialogTools.h"
+#include "RiuTools.h"
 
 #include "cafPdmUiButton.h"
 
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QFileInfo>
+#include <QGridLayout>
+#include <QLabel>
+#include <QVBoxLayout>
 
 #include <algorithm>
 #include <map>
+#include <set>
+
+//==================================================================================================
+/// Dialog for mapping well path laterals to imported MSW branch numbers
+//==================================================================================================
+class RiuMswBranchMappingDialog : public QDialog
+{
+public:
+    RiuMswBranchMappingDialog( QWidget*                        parent,
+                               const std::vector<RimWellPath*> wellPaths,
+                               const std::set<int>&            availableBranches )
+        : QDialog( parent, RiuTools::defaultDialogFlags() )
+    {
+        setWindowTitle( "Assign Branch Numbers to Well Paths" );
+
+        auto* mainLayout = new QVBoxLayout( this );
+
+        auto* infoLabel = new QLabel( "Assign imported branch numbers to each well path:" );
+        mainLayout->addWidget( infoLabel );
+
+        auto* gridLayout = new QGridLayout();
+        gridLayout->addWidget( new QLabel( "Well Path" ), 0, 0 );
+        gridLayout->addWidget( new QLabel( "Branch Number" ), 0, 1 );
+
+        int row = 1;
+        for ( auto* wellPath : wellPaths )
+        {
+            auto* nameLabel = new QLabel( wellPath->name() );
+            auto* comboBox  = new QComboBox();
+
+            for ( int branch : availableBranches )
+            {
+                comboBox->addItem( QString::number( branch ), branch );
+            }
+
+            // Default selection: try to match row index to branch number
+            int defaultIndex = std::min( row - 1, comboBox->count() - 1 );
+            comboBox->setCurrentIndex( defaultIndex );
+
+            gridLayout->addWidget( nameLabel, row, 0 );
+            gridLayout->addWidget( comboBox, row, 1 );
+
+            m_wellPathCombos.push_back( { wellPath, comboBox } );
+            row++;
+        }
+
+        mainLayout->addLayout( gridLayout );
+
+        auto* buttonBox = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
+        connect( buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept );
+        connect( buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject );
+        mainLayout->addWidget( buttonBox );
+
+        setLayout( mainLayout );
+    }
+
+    std::map<RimWellPath*, int> branchMapping() const
+    {
+        std::map<RimWellPath*, int> mapping;
+        for ( const auto& [wellPath, comboBox] : m_wellPathCombos )
+        {
+            mapping[wellPath] = comboBox->currentData().toInt();
+        }
+        return mapping;
+    }
+
+private:
+    std::vector<std::pair<RimWellPath*, QComboBox*>> m_wellPathCombos;
+};
 
 CAF_PDM_SOURCE_INIT( RimMswSegmentCollection, "RimMswSegmentCollection" );
 
@@ -284,8 +361,12 @@ void RimMswSegmentCollection::importFromFile()
         return;
     }
 
-    // Find segments matching this well path name
-    QString wellName = wellPath->name();
+    // Get top-level well path to access all laterals
+    RimWellPath* topLevelWell = wellPath->topLevelWellPath();
+    if ( !topLevelWell ) topLevelWell = wellPath;
+
+    // Use the well name from completion settings for matching with WELSEGS data
+    QString wellName = topLevelWell->completionSettings()->wellNameForExport();
 
     std::vector<WelsegsRow> matchingSegments;
     for ( const auto& [name, segments] : welsegsData )
@@ -299,7 +380,6 @@ void RimMswSegmentCollection::importFromFile()
 
     if ( matchingSegments.empty() )
     {
-        // If no exact match, try to find partial match or use first well
         QString availableWells;
         for ( const auto& [name, segments] : welsegsData )
         {
@@ -310,23 +390,85 @@ void RimMswSegmentCollection::importFromFile()
         return;
     }
 
-    double wellTotalDepth = 0.0;
-    if ( auto* geom = wellPath->wellPathGeometry() )
+    // Extract unique branch numbers from imported segments
+    std::set<int> availableBranches;
+    for ( const auto& segment : matchingSegments )
     {
-        auto mds = geom->uniqueMeasuredDepths();
-        if ( !mds.empty() ) wellTotalDepth = mds.back();
+        availableBranches.insert( segment.branch );
     }
 
-    clearSegments();
-    populateFromWelsegsData( matchingSegments, wellTotalDepth );
-    updateConnectedEditors();
+    // Collect all well paths: main well + laterals
+    std::vector<RimWellPath*> allWellPaths;
+    allWellPaths.push_back( topLevelWell );
+    for ( auto* lateral : topLevelWell->wellPathLaterals() )
+    {
+        allWellPaths.push_back( lateral );
+    }
+
+    // Show branch mapping dialog if there are multiple branches or laterals
+    std::map<RimWellPath*, int> branchMapping;
+    if ( allWellPaths.size() > 1 || availableBranches.size() > 1 )
+    {
+        RiuMswBranchMappingDialog dialog( nullptr, allWellPaths, availableBranches );
+        if ( dialog.exec() != QDialog::Accepted )
+        {
+            return;
+        }
+        branchMapping = dialog.branchMapping();
+    }
+    else
+    {
+        // Single well path and single branch - auto-assign
+        if ( !availableBranches.empty() )
+        {
+            branchMapping[topLevelWell] = *availableBranches.begin();
+        }
+    }
+
+    // Import segments for each well path based on branch mapping
+    for ( const auto& [targetWellPath, branchNumber] : branchMapping )
+    {
+        // Filter segments by branch number
+        std::vector<WelsegsRow> branchSegments;
+        for ( const auto& segment : matchingSegments )
+        {
+            if ( segment.branch == branchNumber )
+            {
+                branchSegments.push_back( segment );
+            }
+        }
+
+        if ( branchSegments.empty() ) continue;
+
+        // Get well total depth for this well path
+        double wellTotalDepth = 0.0;
+        if ( auto* geom = targetWellPath->wellPathGeometry() )
+        {
+            auto mds = geom->uniqueMeasuredDepths();
+            if ( !mds.empty() ) wellTotalDepth = mds.back();
+        }
+
+        // Get MSW segment collection for this well path
+        if ( !targetWellPath->completions() || !targetWellPath->completions()->mswSegmentCollection() )
+        {
+            continue;
+        }
+
+        auto* segCollection = targetWellPath->completions()->mswSegmentCollection();
+        segCollection->clearSegments();
+        segCollection->populateFromWelsegsData( branchSegments, wellTotalDepth );
+        segCollection->updateConnectedEditors();
+
+        RiaLogging::info( QString( "Imported %1 WELSEGS segments (branch %2) for well '%3'" )
+                              .arg( branchSegments.size() )
+                              .arg( branchNumber )
+                              .arg( targetWellPath->name() ) );
+    }
 
     if ( RimProject* project = RimProject::current() )
     {
         project->scheduleCreateDisplayModelAndRedrawAllViews();
     }
-
-    RiaLogging::info( QString( "Imported %1 WELSEGS segments for well '%2'" ).arg( matchingSegments.size() ).arg( wellName ) );
 }
 
 //--------------------------------------------------------------------------------------------------
