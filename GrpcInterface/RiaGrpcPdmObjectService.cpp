@@ -22,6 +22,7 @@
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcHelper.h"
 #include "RiaLogging.h"
+#include "RiaOpenTelemetryManager.h"
 
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
@@ -547,6 +548,12 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
     {
         QString methodKeyword = QString::fromStdString( request->method() );
 
+        // Prepare telemetry attributes
+        std::map<std::string, std::string> telemetryAttributes;
+        QString objectClassName           = QString::fromStdString( request->object().class_keyword() );
+        telemetryAttributes["pdm.class"]  = objectClassName.toStdString();
+        telemetryAttributes["pdm.method"] = methodKeyword.toStdString();
+
         std::shared_ptr<caf::PdmObjectMethod> method =
             caf::PdmObjectMethodFactory::instance()->createMethod( matchingObject, methodKeyword );
         if ( method )
@@ -561,6 +568,10 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
             auto result = method->execute();
             if ( !result.has_value() )
             {
+                telemetryAttributes["pdm.status"] = "failed";
+                telemetryAttributes["pdm.error"]  = result.error().toStdString();
+                RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
+
                 RiaLogging::error( QString( "Method '%1' failed. Error: %2" ).arg( methodKeyword ).arg( result.error() ) );
                 return grpc::Status( grpc::NOT_FOUND, result.error().toStdString() );
             }
@@ -569,6 +580,10 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
                 caf::PdmObjectHandle* object = result.value();
                 if ( object )
                 {
+                    telemetryAttributes["pdm.status"]       = "success";
+                    telemetryAttributes["pdm.result_class"] = object->classKeywordStatic().toStdString();
+                    RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
+
                     copyPdmObjectFromCafToRips( object, reply );
                     if ( !method->resultIsPersistent() )
                     {
@@ -579,14 +594,29 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
 
                 if ( method->isNullptrValidResult() )
                 {
+                    telemetryAttributes["pdm.status"]       = "success";
+                    telemetryAttributes["pdm.result_class"] = "null";
+                    RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
                     return grpc::Status::OK;
                 }
 
+                telemetryAttributes["pdm.status"] = "failed";
+                telemetryAttributes["pdm.error"]  = "No result returned from Method";
+                RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
                 return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
             }
         }
+
+        telemetryAttributes["pdm.status"] = "failed";
+        telemetryAttributes["pdm.error"]  = "Could not find Method";
+        RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
         return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
     }
+
+    std::map<std::string, std::string> telemetryAttributes;
+    telemetryAttributes["pdm.status"] = "failed";
+    telemetryAttributes["pdm.error"]  = "Could not find PdmObject";
+    RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
     return grpc::Status( grpc::NOT_FOUND, "Could not find PdmObject" );
 }
 //--------------------------------------------------------------------------------------------------

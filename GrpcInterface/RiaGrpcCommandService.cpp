@@ -15,9 +15,11 @@
 //  for more details.
 //
 //////////////////////////////////////////////////////////////////////////////////
+
 #include "RiaGrpcCommandService.h"
 
 #include "RiaGrpcCallbacks.h"
+#include "RiaOpenTelemetryManager.h"
 
 #include "RicfReplaceCase.h"
 #include "RicfSetTimeStep.h"
@@ -54,8 +56,13 @@ grpc::Status RiaGrpcCommandService::Execute( grpc::ServerContext* context, const
         CAF_ASSERT( grpcOneOfMessage->type() == FieldDescriptor::TYPE_MESSAGE );
 
         QString grpcOneOfMessageName = QString::fromStdString( grpcOneOfMessage->name() );
-        auto    pdmObjectHandle      = caf::PdmDefaultObjectFactory::instance()->create( grpcOneOfMessageName );
-        auto    commandHandle        = dynamic_cast<RicfCommandObject*>( pdmObjectHandle );
+
+        // Prepare telemetry attributes
+        std::map<std::string, std::string> telemetryAttributes;
+        telemetryAttributes["command.name"] = grpcOneOfMessageName.toStdString();
+
+        auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( grpcOneOfMessageName );
+        auto commandHandle   = dynamic_cast<RicfCommandObject*>( pdmObjectHandle );
 
         if ( commandHandle )
         {
@@ -72,30 +79,56 @@ grpc::Status RiaGrpcCommandService::Execute( grpc::ServerContext* context, const
                                                           QString::fromStdString( caseGridFilePair.newgridfile() ) ) );
                 }
                 multiCaseReplaceCommand->setCaseReplacePairs( caseIdFileMap );
+                telemetryAttributes["command.type"]       = "multi_case_replace";
+                telemetryAttributes["command.case_count"] = std::to_string( caseIdFileMap.size() );
             }
             else
             {
                 assignPdmObjectValues( commandHandle, *request, grpcOneOfMessage );
+                telemetryAttributes["command.type"] = "standard";
             }
 
             // Execute command
             caf::PdmScriptResponse response = commandHandle->execute();
 
-            // Copy results
+            // Copy results and log based on status
             if ( response.status() == caf::PdmScriptResponse::COMMAND_ERROR )
             {
+                telemetryAttributes["command.status"] = "error";
+                telemetryAttributes["command.error"]  = response.sanitizedResponseMessage().toStdString();
+                RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.command_execute", telemetryAttributes );
+
                 return grpc::Status( grpc::FAILED_PRECONDITION, response.sanitizedResponseMessage().toStdString() );
             }
             else if ( response.status() == caf::PdmScriptResponse::COMMAND_WARNING )
             {
+                telemetryAttributes["command.status"]  = "warning";
+                telemetryAttributes["command.warning"] = response.sanitizedResponseMessage().toStdString();
+                RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.command_execute", telemetryAttributes );
+
                 context->AddTrailingMetadata( "warning", response.sanitizedResponseMessage().toStdString() );
+            }
+            else
+            {
+                telemetryAttributes["command.status"] = "success";
+                RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.command_execute", telemetryAttributes );
             }
 
             assignResultToReply( response.result(), reply );
 
             return Status::OK;
         }
+
+        telemetryAttributes["command.status"] = "error";
+        telemetryAttributes["command.error"]  = "Invalid command handle";
+        RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.command_execute", telemetryAttributes );
     }
+
+    std::map<std::string, std::string> telemetryAttributes;
+    telemetryAttributes["command.status"] = "error";
+    telemetryAttributes["command.error"]  = "Command not found";
+    RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.command_execute", telemetryAttributes );
+
     return grpc::Status( grpc::NOT_FOUND, "Command not found" );
 }
 
