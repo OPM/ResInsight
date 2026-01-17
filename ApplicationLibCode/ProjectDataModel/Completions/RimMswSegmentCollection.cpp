@@ -18,7 +18,9 @@
 
 #include "RimMswSegmentCollection.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaOpmParserTools.h"
 
 #include "CompletionExportCommands/RicWellPathExportMswTableData.h"
 
@@ -31,6 +33,12 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
+
+#include "RiuFileDialogTools.h"
+
+#include "cafPdmUiButton.h"
+
+#include <QFileInfo>
 
 #include <algorithm>
 #include <map>
@@ -239,9 +247,86 @@ void RimMswSegmentCollection::updateSegments()
 void RimMswSegmentCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_isChecked );
-    uiOrdering.add( &m_eclipseCase );
-    uiOrdering.addNewButton( "Update Segments", [this]() { updateSegments(); } );
+    auto group = uiOrdering.addNewGroup( "Segments from grid model" );
+    group->add( &m_eclipseCase );
+    auto updateButton = group->addNewButton( "Update Segments", [this]() { updateSegments(); } );
+    updateButton->setAlignment( Qt::AlignRight );
+    auto importButton = uiOrdering.addNewButton( "Import from File...", [this]() { importFromFile(); } );
+    importButton->setAlignment( Qt::AlignRight );
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMswSegmentCollection::importFromFile()
+{
+    auto* wellPath = firstAncestorOrThisOfType<RimWellPath>();
+    if ( !wellPath )
+    {
+        RiaLogging::error( "Unable to import MSW segments: no well path found." );
+        return;
+    }
+
+    RiaApplication* app          = RiaApplication::instance();
+    QString         defaultDir   = app->lastUsedDialogDirectory( "WELSEGS_IMPORT" );
+    QString         filterText   = "Eclipse Data Files (*.data *.DATA);;Schedule Files (*.sch *.SCH);;All Files (*.*)";
+    QString         selectedFile = RiuFileDialogTools::getOpenFileName( nullptr, "Import WELSEGS", defaultDir, filterText );
+
+    if ( selectedFile.isEmpty() ) return;
+
+    app->setLastUsedDialogDirectory( "WELSEGS_IMPORT", QFileInfo( selectedFile ).absolutePath() );
+
+    auto welsegsData = RiaOpmParserTools::extractWelsegs( selectedFile.toStdString() );
+    if ( welsegsData.empty() )
+    {
+        RiaLogging::warning( QString( "No WELSEGS data found in file: %1" ).arg( selectedFile ) );
+        return;
+    }
+
+    // Find segments matching this well path name
+    QString wellName = wellPath->name();
+
+    std::vector<WelsegsRow> matchingSegments;
+    for ( const auto& [name, segments] : welsegsData )
+    {
+        if ( QString::fromStdString( name ) == wellName )
+        {
+            matchingSegments = segments;
+            break;
+        }
+    }
+
+    if ( matchingSegments.empty() )
+    {
+        // If no exact match, try to find partial match or use first well
+        QString availableWells;
+        for ( const auto& [name, segments] : welsegsData )
+        {
+            if ( !availableWells.isEmpty() ) availableWells += ", ";
+            availableWells += QString::fromStdString( name );
+        }
+        RiaLogging::warning( QString( "No WELSEGS data found for well '%1'. Available wells: %2" ).arg( wellName ).arg( availableWells ) );
+        return;
+    }
+
+    double wellTotalDepth = 0.0;
+    if ( auto* geom = wellPath->wellPathGeometry() )
+    {
+        auto mds = geom->uniqueMeasuredDepths();
+        if ( !mds.empty() ) wellTotalDepth = mds.back();
+    }
+
+    clearSegments();
+    populateFromWelsegsData( matchingSegments, wellTotalDepth );
+    updateConnectedEditors();
+
+    if ( RimProject* project = RimProject::current() )
+    {
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+
+    RiaLogging::info( QString( "Imported %1 WELSEGS segments for well '%2'" ).arg( matchingSegments.size() ).arg( wellName ) );
 }
 
 //--------------------------------------------------------------------------------------------------

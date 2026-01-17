@@ -45,21 +45,20 @@ public:
     std::vector<const RimMswSegment*> segments() const;
     void                              clearSegments();
 
-    void populateFromWelsegsData( std::vector<WelsegsRow> welsegsData, double wellTotalDepth );
-
     double referenceDiameter() const;
 
     RimEclipseCase* eclipseCase() const;
     void            setEclipseCase( RimEclipseCase* eclipseCase );
-
-    void updateSegments();
 
 private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    void populateFromWelsegsData( std::vector<WelsegsRow> welsegsData, double wellTotalDepth );
     void appendSegment( RimMswSegment* segment );
+    void updateSegments();
+    void importFromFile();
 
 private:
     caf::PdmChildArrayField<RimMswSegment*> m_segments;

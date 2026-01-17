@@ -32,6 +32,7 @@ class UnitSystem;
 
 class RifVfpInjTable;
 class RifVfpProdTable;
+struct WelsegsRow;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,5 +53,8 @@ std::string aicdTemplateId();
 
 // Phase conversion utilities
 std::set<RiaDefines::PhaseType> phasesFromInteheadValue( int phaseIndicator );
+
+// WELSEGS extraction
+std::map<std::string, std::vector<WelsegsRow>> extractWelsegs( const std::string& filename );
 
 }; // namespace RiaOpmParserTools

@@ -20,6 +20,7 @@
 #include "RiaLogging.h"
 #include "RiaTextStringTools.h"
 
+#include "CompletionsMsw/RigMswTableRows.h"
 #include "FileInterface/RifVfpInjTable.h"
 #include "FileInterface/RifVfpProdTable.h"
 #include "RifEclipseInputFileTools.h"
@@ -434,6 +435,100 @@ std::set<RiaDefines::PhaseType> phasesFromInteheadValue( int phaseIndicator )
     }
 
     return phases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<WelsegsRow>> extractWelsegs( const std::string& filename )
+{
+    if ( !std::filesystem::exists( filename ) ) return {};
+
+    try
+    {
+        Opm::Parser parser( false );
+
+        const Opm::ParserKeywords::WELSEGS kw1;
+        const Opm::ParserKeywords::INCLUDE kw2;
+        const Opm::ParserKeywords::PATHS   kw3;
+
+        parser.addParserKeyword( kw1 );
+        parser.addParserKeyword( kw2 );
+        parser.addParserKeyword( kw3 );
+
+        Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
+        auto              deck = parser.parseFile( filename, parseContext );
+
+        const std::string keyword     = "WELSEGS";
+        auto              keywordList = deck.getKeywordList( keyword );
+        if ( keywordList.empty() ) return {};
+
+        std::map<std::string, std::vector<WelsegsRow>> welsegsData;
+
+        for ( const auto& kw : keywordList )
+        {
+            if ( kw->size() < 2 ) continue; // Need at least header + one segment record
+
+            // First record is the header containing well name
+            std::string wellName;
+            {
+                const auto& headerRecord = kw->getRecord( 0 );
+                auto        itemName     = Opm::ParserKeywords::WELSEGS::WELL::itemName;
+                if ( headerRecord.hasItem( itemName ) && headerRecord.getItem( itemName ).hasValue( 0 ) )
+                {
+                    wellName = headerRecord.getItem( itemName ).getTrimmedString( 0 );
+                }
+            }
+
+            if ( wellName.empty() ) continue;
+
+            // Remaining records are segment data
+            for ( size_t i = 1; i < kw->size(); i++ )
+            {
+                const auto& deckRecord = kw->getRecord( i );
+                WelsegsRow  row;
+
+                auto getInt = [&deckRecord]( const std::string& itemName, int defaultValue ) -> int
+                {
+                    if ( deckRecord.hasItem( itemName ) && deckRecord.getItem( itemName ).hasValue( 0 ) )
+                    {
+                        return deckRecord.getItem( itemName ).get<int>( 0 );
+                    }
+                    return defaultValue;
+                };
+
+                auto getDouble = [&deckRecord]( const std::string& itemName ) -> std::optional<double>
+                {
+                    if ( deckRecord.hasItem( itemName ) && deckRecord.getItem( itemName ).hasValue( 0 ) )
+                    {
+                        return deckRecord.getItem( itemName ).get<double>( 0 );
+                    }
+                    return std::nullopt;
+                };
+
+                row.segment1    = getInt( Opm::ParserKeywords::WELSEGS::SEGMENT1::itemName, 0 );
+                row.segment2    = getInt( Opm::ParserKeywords::WELSEGS::SEGMENT2::itemName, 0 );
+                row.branch      = getInt( Opm::ParserKeywords::WELSEGS::BRANCH::itemName, 1 );
+                row.joinSegment = getInt( Opm::ParserKeywords::WELSEGS::JOIN_SEGMENT::itemName, 0 );
+                row.length      = getDouble( Opm::ParserKeywords::WELSEGS::LENGTH::itemName ).value_or( 0.0 );
+                row.depth       = getDouble( Opm::ParserKeywords::WELSEGS::DEPTH::itemName ).value_or( 0.0 );
+                row.diameter    = getDouble( Opm::ParserKeywords::WELSEGS::DIAMETER::itemName );
+                row.roughness   = getDouble( Opm::ParserKeywords::WELSEGS::ROUGHNESS::itemName );
+
+                welsegsData[wellName].push_back( row );
+            }
+        }
+
+        return welsegsData;
+    }
+    catch ( std::exception& e )
+    {
+        RiaLogging::error( QString( "Error parsing WELSEGS from '%1': %2" )
+                               .arg( QString::fromStdString( filename ) )
+                               .arg( QString::fromStdString( e.what() ) ) );
+    }
+
+    return {};
 }
 
 } // namespace RiaOpmParserTools
