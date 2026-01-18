@@ -22,13 +22,13 @@ resinsight = rips.Instance.find()
 resinsight_exe_path = os.environ.get("RESINSIGHT_EXECUTABLE")
 
 # Get the TestModels path from the executable path
-resinsight_install_path = pathlib.PurePath(os.path.dirname(resinsight_exe_path)).as_posix()
+resinsight_install_path = pathlib.PurePath(
+    os.path.dirname(resinsight_exe_path)
+).as_posix()
 test_models_path = resinsight_install_path + "/TestModels/"
 
 # Get the .roff case
-roff_case_path = os.path.join(
-    test_models_path, "reek/reek_box_grid_w_props.roff"
-)
+roff_case_path = os.path.join(test_models_path, "reek/reek_box_grid_w_props.roff")
 
 roff_case = resinsight.project.load_case(roff_case_path)
 
