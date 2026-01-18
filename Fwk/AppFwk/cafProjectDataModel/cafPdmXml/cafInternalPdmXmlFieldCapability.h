@@ -197,9 +197,6 @@ private:
 };
 
 template <typename DataType>
-class PdmProxyValueField;
-
-template <typename DataType>
 class PdmFieldXmlCap<PdmProxyValueField<DataType>> : public PdmXmlFieldHandle
 {
     typedef PdmProxyValueField<DataType> FieldType;

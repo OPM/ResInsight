@@ -593,7 +593,7 @@ TEST( BaseTest, XmlImportClamping )
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, ProxyFieldIODisabled )
 {
-    DemoPdmObject* obj = new DemoPdmObject;
+    auto obj = std::make_unique<DemoPdmObject>();
 
     // Verify that proxy fields have IO disabled by default
     EXPECT_FALSE( obj->m_proxyDoubleField.xmlCapability()->isIOReadable() );
@@ -603,16 +603,12 @@ TEST( BaseTest, ProxyFieldIODisabled )
     EXPECT_TRUE( obj->m_appEnumField.xmlCapability()->isIOReadable() );
     EXPECT_TRUE( obj->m_appEnumField.xmlCapability()->isIOWritable() );
 
-    delete obj;
-
     // Also test with SimpleObj
-    SimpleObj* simpleObj = new SimpleObj;
+    auto simpleObj = std::make_unique<SimpleObj>();
     EXPECT_FALSE( simpleObj->m_proxyDouble.xmlCapability()->isIOReadable() );
     EXPECT_FALSE( simpleObj->m_proxyDouble.xmlCapability()->isIOWritable() );
 
     // Regular fields should still have IO enabled
     EXPECT_TRUE( simpleObj->m_position.xmlCapability()->isIOReadable() );
     EXPECT_TRUE( simpleObj->m_position.xmlCapability()->isIOWritable() );
-
-    delete simpleObj;
 }
