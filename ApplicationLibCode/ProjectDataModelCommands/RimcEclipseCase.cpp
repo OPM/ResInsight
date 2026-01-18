@@ -254,3 +254,55 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_exportCornerPointG
 
     return nullptr;
 }
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_addResultAlias, "add_result_alias" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcEclipseCase_addResultAlias::RimcEclipseCase_addResultAlias( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Add Result Alias", "", "", "Add Result Alias" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resultName, "ResultName", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_aliasName, "AliasName", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_addResultAlias::execute()
+{
+    auto eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase )
+    {
+        return std::unexpected( "Unable to get Eclipse case." );
+    }
+    eclipseCase->addResultAlias( m_resultName(), m_aliasName() );
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_clearResultAliases, "clear_result_aliases" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcEclipseCase_clearResultAliases::RimcEclipseCase_clearResultAliases( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Clear Result Aliases", "", "", "Clear Result Aliases" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_clearResultAliases::execute()
+{
+    auto eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase )
+    {
+        return std::unexpected( "Unable to get Eclipse case." );
+    }
+    eclipseCase->clearResultAliases();
+    return nullptr;
+}
