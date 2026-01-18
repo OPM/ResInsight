@@ -46,7 +46,6 @@ RimColorLegendItem::RimColorLegendItem()
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimColorLegendItem::itemName );
     m_nameProxy.uiCapability()->setUiHidden( true );
-    m_nameProxy.xmlCapability()->disableIO();
 
     setDeletable( true );
 }

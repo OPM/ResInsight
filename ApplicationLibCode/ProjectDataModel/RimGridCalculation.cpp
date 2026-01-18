@@ -111,7 +111,6 @@ RimGridCalculation::RimGridCalculation()
     CAF_PDM_InitFieldNoDefault( &m_nonVisibleResultText, "NonVisibleResultText", "" );
     m_nonVisibleResultText.registerGetMethod( this, &RimGridCalculation::nonVisibleResultAddressText );
     m_nonVisibleResultText.uiCapability()->setUiReadOnly( true );
-    m_nonVisibleResultText.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );

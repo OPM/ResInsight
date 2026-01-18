@@ -119,7 +119,6 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitFieldNoDefault( &m_nameAndUnit, "NameAndUnit", "NameAndUnit" );
     m_nameAndUnit.registerGetMethod( this, &RimFractureTemplate::nameAndUnit );
     m_nameAndUnit.uiCapability()->setUiHidden( true );
-    m_nameAndUnit.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_fractureTemplateUnit,
                        "UnitSystem",
@@ -192,14 +191,12 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorDisplayField.registerGetMethod( this, &RimFractureTemplate::dFactorForTemplate );
     m_dFactorDisplayField.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_dFactorDisplayField.uiCapability()->setUiReadOnly( true );
-    m_dFactorDisplayField.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary" );
     m_dFactorSummaryText.registerGetMethod( this, &RimFractureTemplate::dFactorSummary );
     m_dFactorSummaryText.uiCapability()->setUiReadOnly( true );
     m_dFactorSummaryText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
-    m_dFactorSummaryText.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height" );
     CAF_PDM_InitScriptableField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length" );

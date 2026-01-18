@@ -71,7 +71,6 @@ RimCellFilter::RimCellFilter( FilterDefinitionType defType )
     m_nameProxy.registerGetMethod( this, &RimCellFilter::fullName );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.uiCapability()->setUiHidden( true );
-    m_nameProxy.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,7 +47,6 @@ RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_ensembleName, "NameAndUnit", "NameAndUnit" );
     m_ensembleName.registerGetMethod( this, &RimWellRftEnsembleCurveSet::ensembleName );
     m_ensembleName.uiCapability()->setUiHidden( true );
-    m_ensembleName.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseResultCase", "Eclipse Result Case" );
     m_eclipseCase.uiCapability()->setUiHidden( true );

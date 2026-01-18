@@ -39,7 +39,6 @@ RimObservedFmuRftData::RimObservedFmuRftData()
     m_directoryPath_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells" );
-    m_wells.xmlCapability()->disableIO();
     m_wells.uiCapability()->setUiReadOnly( true );
     m_wells.registerGetMethod( this, &RimObservedFmuRftData::wells );
 }

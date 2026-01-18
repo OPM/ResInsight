@@ -66,7 +66,6 @@ RimEnsembleFileSet::RimEnsembleFileSet()
     CAF_PDM_InitFieldNoDefault( &m_ensembleInfo, "EnsembleInfo", "Info" );
     m_ensembleInfo.registerGetMethod( this, &RimEnsembleFileSet::ensembleInfo );
     m_ensembleInfo.uiCapability()->setUiReadOnly( true );
-    m_ensembleInfo.xmlCapability()->disableIO();
     m_ensembleInfo.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );

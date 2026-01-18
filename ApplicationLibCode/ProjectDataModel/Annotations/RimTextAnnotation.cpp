@@ -72,7 +72,6 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimTextAnnotation::extractNameFromText );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
-    m_nameProxy.xmlCapability()->disableIO();
 
     m_anchorPointPickEventHandler = std::make_shared<RicVec3dPickEventHandler>( &m_anchorPointXyd );
     m_labelPointPickEventHandler  = std::make_shared<RicVec3dPickEventHandler>( &m_labelPointXyd, 0.1 );

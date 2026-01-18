@@ -47,7 +47,6 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_collectionName, "CollectionName", "Name" );
     m_collectionName.registerGetMethod( this, &RimSurfaceInViewCollection::name );
     m_collectionName.uiCapability()->setUiReadOnly( true );
-    m_collectionName.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "SurfacesInViewFieldCollections", "SurfacesInViewFieldCollections" );
 

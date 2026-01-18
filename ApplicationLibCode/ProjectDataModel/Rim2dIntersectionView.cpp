@@ -86,7 +86,6 @@ Rim2dIntersectionView::Rim2dIntersectionView()
     CAF_PDM_InitField( &m_showAxisLines, "ShowAxisLines", false, "Show Axis Lines" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name" );
-    m_nameProxy.xmlCapability()->disableIO();
     m_nameProxy.registerGetMethod( this, &Rim2dIntersectionView::getName );
     m_nameProxy.registerSetMethod( this, &Rim2dIntersectionView::setName );
 

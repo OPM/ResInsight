@@ -86,7 +86,6 @@ RimWellIASettings::RimWellIASettings()
     m_nameProxy.registerGetMethod( this, &RimWellIASettings::fullName );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.uiCapability()->setUiHidden( true );
-    m_nameProxy.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_showBox, "showBox", false, "Show model box" );
 

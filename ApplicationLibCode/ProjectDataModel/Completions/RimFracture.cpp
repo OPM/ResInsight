@@ -122,7 +122,6 @@ RimFracture::RimFracture()
     CAF_PDM_InitFieldNoDefault( &m_uiAnchorPosition, "ui_positionAtWellpath", "Fracture Position" );
     m_uiAnchorPosition.registerGetMethod( this, &RimFracture::fracturePositionForUi );
     m_uiAnchorPosition.uiCapability()->setUiReadOnly( true );
-    m_uiAnchorPosition.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_azimuth, "Azimuth", 0.0, "Azimuth" );
     m_azimuth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -146,12 +145,10 @@ RimFracture::RimFracture()
     CAF_PDM_InitFieldNoDefault( &m_uiWellPathAzimuth, "WellPathAzimuth", "Well Path Azimuth" );
     m_uiWellPathAzimuth.registerGetMethod( this, &RimFracture::wellAzimuthAtFracturePositionText );
     m_uiWellPathAzimuth.uiCapability()->setUiReadOnly( true );
-    m_uiWellPathAzimuth.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_uiWellFractureAzimuthDiff, "WellFractureAzimuthDiff", "Azimuth Difference Between\nFracture and Well" );
     m_uiWellFractureAzimuthDiff.registerGetMethod( this, &RimFracture::wellFractureAzimuthDiffText );
     m_uiWellFractureAzimuthDiff.uiCapability()->setUiReadOnly( true );
-    m_uiWellFractureAzimuthDiff.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_wellFractureAzimuthAngleWarning,
                        "WellFractureAzimithAngleWarning",
