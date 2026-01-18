@@ -56,7 +56,7 @@ TFACE
     text_file.write(bottom_header)
 
     i = 1
-    (num_rows, num_props) = point_cloud.shape
+    num_rows, num_props = point_cloud.shape
     for row in range(0, num_rows):
         x = point_cloud[row, 0]
         y = point_cloud[row, 1]
@@ -115,7 +115,7 @@ for fracture in fractures:
         )
 
         # Reconstruct a surface from the exported values file
-        (surface, point_cloud, properties) = generate_surface_from_file(
+        surface, point_cloud, properties = generate_surface_from_file(
             temp_file_path.as_posix()
         )
 
