@@ -587,3 +587,32 @@ TEST( BaseTest, XmlImportClamping )
         EXPECT_DOUBLE_EQ( -123.456, obj->m_unclampedField() );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Test that proxy fields have IO disabled by default
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, ProxyFieldIODisabled )
+{
+    DemoPdmObject* obj = new DemoPdmObject;
+
+    // Verify that proxy fields have IO disabled by default
+    EXPECT_FALSE( obj->m_proxyDoubleField.xmlCapability()->isIOReadable() );
+    EXPECT_FALSE( obj->m_proxyDoubleField.xmlCapability()->isIOWritable() );
+
+    // For comparison, verify that regular fields have IO enabled
+    EXPECT_TRUE( obj->m_appEnumField.xmlCapability()->isIOReadable() );
+    EXPECT_TRUE( obj->m_appEnumField.xmlCapability()->isIOWritable() );
+
+    delete obj;
+
+    // Also test with SimpleObj
+    SimpleObj* simpleObj = new SimpleObj;
+    EXPECT_FALSE( simpleObj->m_proxyDouble.xmlCapability()->isIOReadable() );
+    EXPECT_FALSE( simpleObj->m_proxyDouble.xmlCapability()->isIOWritable() );
+
+    // Regular fields should still have IO enabled
+    EXPECT_TRUE( simpleObj->m_position.xmlCapability()->isIOReadable() );
+    EXPECT_TRUE( simpleObj->m_position.xmlCapability()->isIOWritable() );
+
+    delete simpleObj;
+}
