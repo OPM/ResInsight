@@ -325,6 +325,29 @@ void RimEclipseCase::syncResultAliases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseCase::addResultAlias( const QString& resultName, const QString& aliasName )
+{
+    if ( resultName.trimmed().isEmpty() ) return;
+    if ( aliasName.trimmed().isEmpty() ) return;
+
+    auto resultAlias = new RimResultNameAlias();
+    resultAlias->setResultNameAndAlias( resultName, aliasName );
+    m_resultAliasList.push_back( resultAlias );
+    syncResultAliases();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::clearResultAliases()
+{
+    m_resultAliasList.deleteChildren();
+    syncResultAliases();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createAndAddReservoirView( bool useGlobalViewCollection )
 {
     RimEclipseViewCollection* viewColl = useGlobalViewCollection ? globalViewCollection() : viewCollection();

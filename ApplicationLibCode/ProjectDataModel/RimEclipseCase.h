@@ -138,6 +138,9 @@ public:
 
     void setReservoirData( RigEclipseCaseData* eclipseCase );
 
+    void addResultAlias( const QString& resultName, const QString& aliasName );
+    void clearResultAliases();
+
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

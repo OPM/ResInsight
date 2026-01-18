@@ -80,3 +80,33 @@ private:
     caf::PdmField<QString> m_coordKey;
     caf::PdmField<QString> m_actnumKey;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcEclipseCase_addResultAlias : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcEclipseCase_addResultAlias( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString> m_resultName;
+    caf::PdmField<QString> m_aliasName;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcEclipseCase_clearResultAliases : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcEclipseCase_clearResultAliases( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+};
