@@ -75,6 +75,9 @@ public:
         addUiCapabilityToField( &m_proxyDouble );
         addXmlCapabilityToField( &m_proxyDouble );
         CAF_PDM_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble" );
+        m_proxyDouble.xmlCapability()->setIOWritable( true );
+        m_proxyDouble.xmlCapability()->setIOReadable( true );
+        m_proxyDouble.xmlCapability()->setCopyable( true );
 #endif
     }
 
