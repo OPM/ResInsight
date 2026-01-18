@@ -551,9 +551,10 @@ bool caf::PdmFieldXmlCap<caf::PdmProxyValueField<DataType>>::isVectorField() con
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<QString> caf::PdmFieldXmlCap<caf::PdmProxyValueField<DataType>>::readFieldData( QXmlStreamReader& xmlStream,
-                                                                                            PdmObjectFactory*,
-                                                                                            const std::vector<caf::PdmDeprecation>& )
+std::vector<QString>
+    caf::PdmFieldXmlCap<caf::PdmProxyValueField<DataType>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                           PdmObjectFactory*,
+                                                                           const std::vector<caf::PdmDeprecation>& )
 {
     this->assertValid();
     DataType value;
