@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cafInternalPdmXmlFieldReaderWriter.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
 
 #include <typeinfo>
@@ -190,6 +191,39 @@ public:
     void                 writeFieldData( QXmlStreamWriter& xmlStream ) const override;
     bool                 resolveReferences() override;
     bool                 isVectorField() const override;
+
+private:
+    FieldType* m_field;
+};
+
+template <typename DataType>
+class PdmProxyValueField;
+
+template <typename DataType>
+class PdmFieldXmlCap<PdmProxyValueField<DataType>> : public PdmXmlFieldHandle
+{
+    typedef PdmProxyValueField<DataType> FieldType;
+
+public:
+    PdmFieldXmlCap( FieldType* field, bool giveOwnership )
+        : PdmXmlFieldHandle( field, giveOwnership )
+    {
+        m_field        = field;
+        m_dataTypeName = QString( "%1" ).arg( typeid( DataType ).name() );
+
+        // Proxy fields should not be serialized by default
+        disableIO();
+    }
+
+    // Xml Serializing
+public:
+    std::vector<QString> readFieldData( QXmlStreamReader&                       xmlStream,
+                                        PdmObjectFactory*                       objectFactory,
+                                        const std::vector<caf::PdmDeprecation>& deprecations = {} ) override;
+    void                 writeFieldData( QXmlStreamWriter& xmlStream ) const override;
+    bool                 resolveReferences() override;
+
+    bool isVectorField() const override;
 
 private:
     FieldType* m_field;
