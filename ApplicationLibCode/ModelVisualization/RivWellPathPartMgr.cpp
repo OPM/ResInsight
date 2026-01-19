@@ -92,9 +92,9 @@
 #include "cvfqtUtils.h"
 
 // MSW segment visualization scaling constants
-const double MSW_SEGMENT_RADIUS_SCALE  = 1.1;  // Segment radius relative to well path radius
-const double MSW_MARKER_LENGTH_SCALE   = 0.03; // Marker length relative to characteristic cell size
-const double MSW_MARKER_RADIUS_SCALE   = 1.3;  // Marker radius relative to segment radius
+const double MSW_SEGMENT_RADIUS_SCALE = 1.1; // Segment radius relative to well path radius
+const double MSW_MARKER_LENGTH_SCALE  = 0.03; // Marker length relative to characteristic cell size
+const double MSW_MARKER_RADIUS_SCALE  = 1.3; // Marker radius relative to segment radius
 
 //--------------------------------------------------------------------------------------------------
 ///
