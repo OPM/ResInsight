@@ -324,6 +324,8 @@ print(f"Start: {interval.start_md}, End: {interval.end_md}")
 
 ## PDM UI Editor Attributes - Modern setAttribute Pattern
 
+Note: Always use () when accessing a field's value. This is required for proper type management. Use `m_myTextField()` instead of `m_myTextField`.
+
 The CAF (Command Application Framework) PDM (Project Data Model) system has migrated from the old `defineEditorAttribute` pattern to a modern `setAttribute` pattern using type-safe Keys structs.
 
 ### New Pattern: setAttribute with Keys Struct
