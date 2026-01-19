@@ -102,6 +102,7 @@ void RimHistogramMultiPlot::insertPlot( RimPlot* plot, size_t index )
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
+        sumPlot->axisChanged.connect( this, &RimHistogramMultiPlot::onSubPlotAxisChanged );
         sumPlot->curvesChanged.connect( this, &RimHistogramMultiPlot::onSubPlotChanged );
         sumPlot->titleChanged.connect( this, &RimHistogramMultiPlot::onSubPlotChanged );
         sumPlot->autoTitleChanged.connect( this, &RimHistogramMultiPlot::onSubPlotAutoTitleChanged );
@@ -541,6 +542,14 @@ void RimHistogramMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter 
 {
     updatePlotTitles();
     applyPlotWindowTitleToWidgets();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimHistogramPlot* summaryPlot )
+{
+    syncAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------

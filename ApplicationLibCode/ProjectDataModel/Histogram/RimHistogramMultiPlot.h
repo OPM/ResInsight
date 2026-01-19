@@ -108,6 +108,7 @@ private:
     void appendCurveByStepping( int direction );
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
+    void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimHistogramPlot* summaryPlot );
     void onSubPlotAutoTitleChanged( const caf::SignalEmitter* emitter, bool isEnabled );
 
     std::pair<double, double> adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const;

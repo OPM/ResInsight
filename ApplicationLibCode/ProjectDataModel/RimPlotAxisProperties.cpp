@@ -130,7 +130,7 @@ void RimPlotAxisProperties::configureForHistogramUse()
     setEnableTitleTextSettings( false );
     setEnableTitleLayoutSettings( false );
 
-    m_isLogarithmicScaleEnabled.uiCapability()->setUiHidden( true );
+    m_isLogarithmicScaleEnabled.uiCapability()->setUiHidden( false );
     m_isAxisInverted.uiCapability()->setUiHidden( true );
     m_showNumbers.uiCapability()->setUiHidden( true );
     m_plotAxis.uiCapability()->setUiHidden( true );

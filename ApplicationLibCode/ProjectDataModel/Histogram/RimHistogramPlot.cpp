@@ -429,11 +429,20 @@ void RimHistogramPlot::updateZoomForNumericalAxis( RimPlotAxisProperties* axisPr
         }
         else
         {
+            plotWidget()->setAxisScaleType( plotAxis, RiuQwtPlotWidget::AxisScaleType::LINEAR );
             plotWidget()->setAxisAutoScale( axisProperties->plotAxis(), true );
         }
     }
     else
     {
+        if ( axisProperties->isLogarithmicScaleEnabled() )
+        {
+            plotWidget()->setAxisScaleType( plotAxis, RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
+        }
+        else
+        {
+            plotWidget()->setAxisScaleType( plotAxis, RiuQwtPlotWidget::AxisScaleType::LINEAR );
+        }
         double min = axisProperties->visibleRangeMin();
         double max = axisProperties->visibleRangeMax();
         if ( axisProperties->isAxisInverted() ) std::swap( min, max );
