@@ -1,6 +1,6 @@
 #######################################################
 #
-# This file shows how to set up an alias name for 
+# This file shows how to set up an alias name for
 # a result, so that you could access the data
 # using the alias name.
 #
