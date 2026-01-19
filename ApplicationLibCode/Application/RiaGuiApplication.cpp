@@ -246,7 +246,7 @@ bool RiaGuiApplication::askUserToSaveModifiedProject()
 {
     if ( RiaPreferencesSystem::current()->showProjectChangedDialog() && caf::PdmUiModelChangeDetector::instance()->isModelChanged() )
     {
-        QMessageBox msgBox;
+        QMessageBox msgBox( activeMainWindow() );
         msgBox.setIcon( QMessageBox::Question );
 
         QString questionText;
@@ -284,7 +284,7 @@ bool RiaGuiApplication::saveProjectAs( const QString& fileName )
     QString errMsg;
     if ( !RiaApplication::saveProjectAs( fileName, &errMsg ) )
     {
-        QMessageBox::warning( nullptr, "Error when saving project file", errMsg );
+        QMessageBox::warning( activeMainWindow(), "Error when saving project file", errMsg );
         return false;
     }
 
@@ -298,7 +298,7 @@ bool RiaGuiApplication::notifyUserAboutRunningJobs()
 {
     if ( m_project->jobCollection()->numberOfRunningJobs() > 0 )
     {
-        QMessageBox::critical( nullptr,
+        QMessageBox::critical( activeMainWindow(),
                                "Active running jobs",
                                "One or more jobs are still running, you need to stop all jobs before continuing." );
         return false;

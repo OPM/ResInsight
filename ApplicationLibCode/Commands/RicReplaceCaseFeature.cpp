@@ -37,6 +37,7 @@
 #include "RimTimeStepFilter.h"
 
 #include "Riu3dSelectionManager.h"
+#include "RiuMainWindow.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -94,7 +95,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
     auto                    summaryFileNames = helper.findSummaryFileCandidates();
     if ( summaryCase && !summaryFileNames.empty() )
     {
-        QMessageBox msgBox;
+        QMessageBox msgBox( RiuMainWindow::instance() );
         msgBox.setIcon( QMessageBox::Question );
 
         QString questionText;

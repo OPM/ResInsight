@@ -29,6 +29,7 @@
 #include "RimProject.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuMainWindow.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -61,7 +62,7 @@ void RicShowFaultReactModelFeature::onActionTriggered( bool isChecked )
     {
         QString outErrorText =
             QString( "Failed to export INP model to file %1.\n\n%2" ).arg( exportFile ).arg( QString::fromStdString( errText ) );
-        QMessageBox::critical( nullptr, frmTitle, outErrorText );
+        QMessageBox::critical( RiuMainWindow::instance(), frmTitle, outErrorText );
         return;
     }
 
@@ -86,7 +87,7 @@ void RicShowFaultReactModelFeature::onActionTriggered( bool isChecked )
     RiaApplication* app = RiaApplication::instance();
     if ( !app->openOdbCaseFromFile( exportFile ) )
     {
-        QMessageBox::critical( nullptr,
+        QMessageBox::critical( RiuMainWindow::instance(),
                                frmTitle,
                                "Failed to load INP model from file \"" + exportFile + "\". Check log window for additional information." );
     }

@@ -381,8 +381,11 @@ void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<R
         {
             QString questionStr = QString( "This operation will produce %1 text lines. Do you want to continue?" ).arg( allTimeSteps.size() );
 
-            auto reply =
-                QMessageBox::question( nullptr, "Summary Text Export", questionStr, QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
+            auto reply = QMessageBox::question( RiaGuiApplication::activeWindow(),
+                                                "Summary Text Export",
+                                                questionStr,
+                                                QMessageBox::Yes | QMessageBox::No,
+                                                QMessageBox::No );
             if ( reply != QMessageBox::Yes ) return;
         }
 

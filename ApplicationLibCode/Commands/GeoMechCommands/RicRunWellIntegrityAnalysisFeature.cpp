@@ -33,6 +33,7 @@
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
 #include "RiuFileDialogTools.h"
+#include "RiuMainWindow.h"
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManagerTools.h"
@@ -61,13 +62,13 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     if ( !modelSettings->geomechCase() )
     {
-        QMessageBox::critical( nullptr, wiaTitle, "GeoMechanical case is not selected. Please check your model settings." );
+        QMessageBox::critical( RiuMainWindow::instance(), wiaTitle, "GeoMechanical case is not selected. Please check your model settings." );
         return;
     }
 
     if ( !modelSettings->extractModelData() )
     {
-        QMessageBox::critical( nullptr,
+        QMessageBox::critical( RiuMainWindow::instance(),
                                wiaTitle,
                                "Unable to get necessary data from the defined model box. Is the model box center "
                                "outside the reservoir?" );
@@ -76,13 +77,13 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     if ( !RifWellIAFileWriter::writeToJsonFile( *modelSettings, outErrorText ) )
     {
-        QMessageBox::critical( nullptr, wiaTitle, outErrorText );
+        QMessageBox::critical( RiuMainWindow::instance(), wiaTitle, outErrorText );
         return;
     }
 
     if ( !RifWellIAFileWriter::writeToCSVFile( *modelSettings, outErrorText ) )
     {
-        QMessageBox::critical( nullptr, wiaTitle, outErrorText );
+        QMessageBox::critical( RiuMainWindow::instance(), wiaTitle, outErrorText );
         return;
     }
 
@@ -94,7 +95,7 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
         infoText += " \"" + modelSettings->outputBaseDirectory() + "\"\n";
         infoText += "\nClick OK to start the Abaqus modeling or Cancel to stop.";
 
-        auto reply = QMessageBox::information( nullptr, wiaTitle, infoText, QMessageBox::Ok | QMessageBox::Cancel );
+        auto reply = QMessageBox::information( RiuMainWindow::instance(), wiaTitle, infoText, QMessageBox::Ok | QMessageBox::Cancel );
 
         if ( reply != QMessageBox::Ok ) return;
     }
@@ -111,7 +112,7 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     if ( !process.execute() )
     {
-        QMessageBox::critical( nullptr, wiaTitle, "Failed to run modeling. Check log window for additional information." );
+        QMessageBox::critical( RiuMainWindow::instance(), wiaTitle, "Failed to run modeling. Check log window for additional information." );
         return;
     }
 
@@ -121,7 +122,7 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
     RiaApplication* app = RiaApplication::instance();
     if ( !app->openOdbCaseFromFile( modelSettings->outputDrillingOdbFilename() ) )
     {
-        QMessageBox::critical( nullptr,
+        QMessageBox::critical( RiuMainWindow::instance(),
                                wiaTitle,
                                "Failed to load modeling results from file \"" + modelSettings->outputDrillingOdbFilename() +
                                    "\". Check log window for additional information." );
@@ -129,7 +130,7 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     if ( !app->openOdbCaseFromFile( modelSettings->outputOdbFilename() ) )
     {
-        QMessageBox::critical( nullptr,
+        QMessageBox::critical( RiuMainWindow::instance(),
                                wiaTitle,
                                "Failed to load modeling results from file \"" + modelSettings->outputOdbFilename() +
                                    "\". Check log window for additional information." );

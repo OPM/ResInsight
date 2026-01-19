@@ -23,6 +23,8 @@
 
 #include "RigFaultReactivationModel.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -55,7 +57,7 @@ void RicExportInpFileFeature::onActionTriggered( bool isChecked )
             QString       outErrorText = QString( "Failed to export INP model to file %1.\n\n%2" )
                                        .arg( QString::fromStdString( faultReactivationModel->inputFilename() ) )
                                        .arg( QString::fromStdString( errorMessage ) );
-            QMessageBox::critical( nullptr, frmTitle, outErrorText );
+            QMessageBox::critical( RiuMainWindow::instance(), frmTitle, outErrorText );
         }
     }
 }

@@ -30,6 +30,7 @@
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
 #include "RiuFileDialogTools.h"
+#include "RiuMainWindow.h"
 
 #include <QAction>
 #include <QMessageBox>
@@ -59,7 +60,7 @@ void RicNewWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     if ( !RiaPreferencesGeoMech::current()->validateWIASettings() )
     {
-        QMessageBox::critical( nullptr,
+        QMessageBox::critical( RiuMainWindow::instance(),
                                "Well Integrity Analysis",
                                "Well Integrity Analysis has not been properly set up.\nPlease go to ResInsight "
                                "preferences and set / check the GeoMechanical settings." );
@@ -85,7 +86,7 @@ void RicNewWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        QMessageBox::critical( nullptr, "Well Integrity Analysis", errMsg );
+        QMessageBox::critical( RiuMainWindow::instance(), "Well Integrity Analysis", errMsg );
     }
 }
 

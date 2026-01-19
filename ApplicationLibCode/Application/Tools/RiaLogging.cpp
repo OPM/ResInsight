@@ -21,6 +21,9 @@
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
+
 #include <iostream>
 #include <sstream>
 
@@ -333,7 +336,11 @@ void RiaLogging::errorInMessageBox( QWidget* parent, const QString& title, const
 {
     if ( RiaGuiApplication::isRunning() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
-        QMessageBox::warning( parent, title, text );
+        if ( parent == nullptr )
+        {
+            parent = RiaGuiApplication::activeWindow();
+        }
+        QMessageBox::critical( parent, title, text );
     }
 
     RiaLogging::error( text );

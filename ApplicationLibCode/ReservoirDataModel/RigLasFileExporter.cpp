@@ -19,12 +19,15 @@
 #include "RigLasFileExporter.h"
 
 #include "RiaDefines.h"
+#include "RiaGuiApplication.h"
+
+#include "Well/RigWellLogCurveData.h"
+#include "Well/RigWellPath.h"
+
 #include "RimCase.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellPath.h"
-#include "Well/RigWellLogCurveData.h"
-#include "Well/RigWellPath.h"
 
 #include "cafUtils.h"
 
@@ -379,7 +382,11 @@ std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFol
         if ( caf::Utils::fileExists( fullPathName ) && !alwaysOverwrite )
         {
             QString txt = QString( "File %1 exists.\n\nDo you want to overwrite the file?" ).arg( fullPathName );
-            int     ret = QMessageBox::question( nullptr, "LAS File Export", txt, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes );
+            int     ret = QMessageBox::question( RiaGuiApplication::activeWindow(),
+                                             "LAS File Export",
+                                             txt,
+                                             QMessageBox::Yes | QMessageBox::No,
+                                             QMessageBox::Yes );
 
             if ( ret != QMessageBox::Yes ) continue;
         }

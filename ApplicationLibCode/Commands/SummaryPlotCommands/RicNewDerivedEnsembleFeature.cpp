@@ -24,6 +24,7 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
@@ -40,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicNewDerivedEnsembleFeature, "RicNewDerivedEnsembleFeature
 //--------------------------------------------------------------------------------------------------
 void RicNewDerivedEnsembleFeature::showWarningDialog()
 {
-    QMessageBox::warning( nullptr, "Ensemble Matching", "None of the cases in the ensembles match" );
+    QMessageBox::warning( RiuPlotMainWindow::instance(), "Ensemble Matching", "None of the cases in the ensembles match" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +49,7 @@ void RicNewDerivedEnsembleFeature::showWarningDialog()
 //--------------------------------------------------------------------------------------------------
 bool RicNewDerivedEnsembleFeature::showWarningDialogWithQuestion()
 {
-    QMessageBox msgBox;
+    QMessageBox msgBox( RiuPlotMainWindow::instance() );
     msgBox.setIcon( QMessageBox::Question );
     msgBox.setWindowTitle( "Ensemble Matching" );
     msgBox.setText( "None of the cases in the ensembles match" );

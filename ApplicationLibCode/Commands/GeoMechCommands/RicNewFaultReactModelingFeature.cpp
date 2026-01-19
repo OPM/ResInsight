@@ -23,6 +23,7 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
+#include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
 #include "Rim3dView.h"
@@ -119,7 +120,7 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 }
                 else
                 {
-                    QMessageBox::critical( nullptr, "Fault Reactivation Modeling", errMsg );
+                    QMessageBox::critical( RiuMainWindow::instance(), "Fault Reactivation Modeling", errMsg );
                 }
             }
         }

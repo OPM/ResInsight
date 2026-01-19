@@ -126,7 +126,7 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
 
         if ( !foundPathInPreferences )
         {
-            QMessageBox msgBox;
+            QMessageBox msgBox( RiuPlotMainWindow::instance() );
             msgBox.setIcon( QMessageBox::Question );
 
             QString questionText;

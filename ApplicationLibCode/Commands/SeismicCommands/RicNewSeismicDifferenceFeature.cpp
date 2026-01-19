@@ -26,6 +26,7 @@
 #include "RimSeismicDataCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManagerTools.h"
@@ -58,7 +59,7 @@ void RicNewSeismicDifferenceFeature::onActionTriggered( bool isChecked )
     if ( seismicInput.size() != 2 )
     {
         QString warning = "The selected seismic data grids do not match. Cannot create seismic difference data.";
-        QMessageBox::warning( nullptr, "Invalid input.", warning );
+        QMessageBox::warning( RiuMainWindow::instance(), "Invalid input.", warning );
         return;
     }
 

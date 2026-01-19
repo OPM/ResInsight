@@ -28,6 +28,8 @@
 #include "RimFileSummaryCase.h"
 #include "RimReloadCaseTools.h"
 
+#include "RiuPlotMainWindow.h"
+
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
 
@@ -73,7 +75,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     auto                    newGridFileName = helper.findRelatedGridFile();
     if ( gridModel && !newGridFileName.isEmpty() )
     {
-        QMessageBox msgBox;
+        QMessageBox msgBox( RiuPlotMainWindow::instance() );
         msgBox.setIcon( QMessageBox::Question );
 
         QString questionText;

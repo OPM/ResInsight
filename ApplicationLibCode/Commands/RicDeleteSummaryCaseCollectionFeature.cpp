@@ -32,6 +32,8 @@
 #include "RimSummaryPlot.h"
 #include "RimWellPlotTools.h"
 
+#include "RiuPlotMainWindow.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmObjectHandleTools.h"
 #include "cafSelectionManager.h"
@@ -85,7 +87,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
     const auto ensembles = caf::SelectionManager::instance()->objectsByType<RimSummaryEnsemble>();
     if ( ensembles.empty() ) return;
 
-    QMessageBox msgBox;
+    QMessageBox msgBox( RiuPlotMainWindow::instance() );
     msgBox.setIcon( QMessageBox::Question );
 
     QString questionText;

@@ -31,6 +31,7 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
+#include "RiuMainWindow.h"
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManagerTools.h"
@@ -69,7 +70,7 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
         QString outErrorText = QString( "Failed to export INP model to file %1.\n\n%2" )
                                    .arg( QString::fromStdString( model->inputFilename() ) )
                                    .arg( QString::fromStdString( errText ) );
-        QMessageBox::critical( nullptr, frmTitle, outErrorText );
+        QMessageBox::critical( RiuMainWindow::instance(), frmTitle, outErrorText );
         return;
     }
 
@@ -81,7 +82,7 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
         infoText += " \"" + model->baseDir() + "\"\n";
         infoText += "\nClick OK to start the Abaqus modeling or Cancel to stop.";
 
-        auto reply = QMessageBox::information( nullptr, frmTitle, infoText, QMessageBox::Ok | QMessageBox::Cancel );
+        auto reply = QMessageBox::information( RiuMainWindow::instance(), frmTitle, infoText, QMessageBox::Ok | QMessageBox::Cancel );
 
         if ( reply != QMessageBox::Ok ) return;
     }
@@ -98,7 +99,7 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
     if ( !process.execute() )
     {
-        QMessageBox::critical( nullptr, frmTitle, "Failed to run modeling. Check log window for additional information." );
+        QMessageBox::critical( RiuMainWindow::instance(), frmTitle, "Failed to run modeling. Check log window for additional information." );
         return;
     }
 
@@ -126,7 +127,7 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
     RiaApplication* app = RiaApplication::instance();
     if ( !app->openOdbCaseFromFile( QString::fromStdString( model->outputOdbFilename() ) ) )
     {
-        QMessageBox::critical( nullptr,
+        QMessageBox::critical( RiuMainWindow::instance(),
                                frmTitle,
                                "Failed to load modeling results from file \"" + QString::fromStdString( model->outputOdbFilename() ) +
                                    "\". Check log window for additional information." );

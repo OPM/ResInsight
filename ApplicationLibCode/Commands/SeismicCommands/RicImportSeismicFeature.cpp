@@ -31,6 +31,7 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
+#include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManagerTools.h"
@@ -106,7 +107,7 @@ QString RicImportSeismicFeature::convertSEGYtoVDS( QString filename )
     QString   outputFilename = fi.path() + "/" + fi.completeBaseName() + ".vds";
     segyoptions.setOutputFilename( outputFilename );
 
-    caf::PdmUiPropertyViewDialog propDlg( nullptr,
+    caf::PdmUiPropertyViewDialog propDlg( RiuMainWindow::instance(),
                                           &segyoptions,
                                           "Convert SEG-Y to VDS file format",
                                           "",
@@ -127,14 +128,15 @@ QString RicImportSeismicFeature::convertSEGYtoVDS( QString filename )
         if ( QFile::exists( outputFilename ) )
         {
             QString question = QString( "File \"%1\" already exists. \n\nDo you want to overwrite it?" ).arg( outputFilename );
-            auto    reply    = QMessageBox::question( nullptr, "Replace existing file?", question, QMessageBox::Yes, QMessageBox::No );
+            auto    reply =
+                QMessageBox::question( RiuMainWindow::instance(), "Replace existing file?", question, QMessageBox::Yes, QMessageBox::No );
             if ( reply != QMessageBox::Yes ) continue;
         }
 
         if ( !segyoptions.headerFormatFilename().isEmpty() && !QFile::exists( segyoptions.headerFormatFilename() ) )
         {
             QString warning = QString( "Header Format Definition File \"%1\" could not be found." ).arg( segyoptions.headerFormatFilename() );
-            QMessageBox::warning( nullptr, "File Not Found.", warning );
+            QMessageBox::warning( RiuMainWindow::instance(), "File Not Found.", warning );
             continue;
         }
 
@@ -142,7 +144,7 @@ QString RicImportSeismicFeature::convertSEGYtoVDS( QString filename )
         if ( overrideSampleStart && ( sampleStartOffset < 0.0 ) )
         {
             QString warning = "Depth (Z) Offset Override must be 0 or larger.";
-            QMessageBox::warning( nullptr, "Invalid input.", warning );
+            QMessageBox::warning( RiuMainWindow::instance(), "Invalid input.", warning );
             continue;
         }
 
@@ -176,7 +178,7 @@ bool RicImportSeismicFeature::runSEGYConversion( RimSEGYConvertOptions* options 
     if ( !QFile::exists( command ) )
     {
         QString warning = QString( "The SEG-Y import utility \"%1\" could not be found!" ).arg( command );
-        QMessageBox::critical( nullptr, "Missing Converter.", warning );
+        QMessageBox::critical( RiuMainWindow::instance(), "Missing Converter.", warning );
         return false;
     }
 
@@ -188,7 +190,7 @@ bool RicImportSeismicFeature::runSEGYConversion( RimSEGYConvertOptions* options 
 
     if ( !process.execute( showStdOut, showStdErr ) )
     {
-        QMessageBox::critical( nullptr,
+        QMessageBox::critical( RiuMainWindow::instance(),
                                "SEG-Y conversion failed.",
                                "Failed to convert the input SEG-Y file. Check log window for additional information." );
         return false;
