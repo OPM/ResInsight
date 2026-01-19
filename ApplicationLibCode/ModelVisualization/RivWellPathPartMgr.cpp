@@ -33,6 +33,8 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimModeledWellPath.h"
+#include "RimMswSegment.h"
+#include "RimMswSegmentCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimRegularLegendConfig.h"
@@ -48,6 +50,7 @@
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathGeometryDef.h"
@@ -404,7 +407,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
     CVF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
 
     double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
-    double perforationRadius = wellPathRadius * 1.1;
+    double perforationRadius = wellPathRadius * 1.2;
 
     std::vector<RimPerforationInterval*> perforations = m_rimWellPath->descendantsIncludingThisOfType<RimPerforationInterval>();
     for ( RimPerforationInterval* perforation : perforations )
@@ -563,6 +566,152 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
                 for ( auto part : parts )
                 {
                     part->setSourceInfo( objectSourceInfo.p() );
+                    model->addPart( part.p() );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendMswSegmentsToModel( cvf::ModelBasicList*              model,
+                                                   const caf::DisplayCoordTransform* displayCoordTransform,
+                                                   double                            characteristicCellSize,
+                                                   bool                              doFlatten )
+{
+    if ( !m_rimWellPath ) return;
+
+    auto completions = m_rimWellPath->completions();
+    if ( !completions ) return;
+
+    auto segmentCollection = completions->mswSegmentCollection();
+    if ( !segmentCollection || !segmentCollection->hasSegments() ) return;
+
+    // Use top-level well path's MSW settings for visibility control
+    RimWellPath* topLevelWell = m_rimWellPath->topLevelWellPath();
+    if ( !topLevelWell ) topLevelWell = m_rimWellPath;
+
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if ( !wellPathCollection ) return;
+
+    RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return;
+
+    CVF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
+
+    double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
+    double referenceDiameter = segmentCollection->referenceDiameter();
+
+    // Colors for alternating segments and boundary markers
+    cvf::Color3f color1( 0.3f, 0.5f, 0.8f ); // Blue
+    cvf::Color3f color2( 0.3f, 0.7f, 0.9f ); // Cyan
+    cvf::Color3f boundaryColor( 0.9f, 0.3f, 0.2f ); // Red for boundary markers
+
+    auto segments = segmentCollection->segments();
+    for ( size_t segIdx = 0; segIdx < segments.size(); ++segIdx )
+    {
+        const auto* segment = segments[segIdx];
+        if ( segment->startMD() >= segment->endMD() ) continue;
+
+        // Calculate segment radius based on diameter
+        double segmentRadius = wellPathRadius * 1.1;
+        if ( referenceDiameter > 0.0 && segment->diameter() > 0.0 )
+        {
+            segmentRadius = wellPathRadius * 1.1 * ( segment->diameter() / referenceDiameter );
+        }
+
+        // Get segment geometry
+        double                                                  horizontalLengthAlongWellPath = 0.0;
+        std::pair<std::vector<cvf::Vec3d>, std::vector<double>> segmentCoordsAndMD =
+            wellPathGeometry->clippedPointSubset( segment->startMD(), segment->endMD(), &horizontalLengthAlongWellPath );
+        std::vector<cvf::Vec3d> segmentCL = segmentCoordsAndMD.first;
+
+        if ( segmentCL.size() < 2 ) continue;
+
+        // Transform to display coordinates
+        std::vector<cvf::Vec3d> segmentCLDisplayCS;
+        if ( doFlatten )
+        {
+            cvf::Vec3d              dummy;
+            std::vector<cvf::Mat4d> flatningCSs =
+                RivSectionFlattener::calculateFlatteningCSsForPolyline( segmentCL,
+                                                                        cvf::Vec3d::Z_AXIS,
+                                                                        { horizontalLengthAlongWellPath, 0.0, segmentCL[0].z() },
+                                                                        &dummy );
+            for ( size_t cIdx = 0; cIdx < segmentCL.size(); ++cIdx )
+            {
+                auto clpoint = segmentCL[cIdx].getTransformedPoint( flatningCSs[cIdx] );
+                segmentCLDisplayCS.push_back( displayCoordTransform->scaleToDisplaySize( clpoint ) );
+            }
+        }
+        else
+        {
+            for ( const cvf::Vec3d& point : segmentCL )
+            {
+                segmentCLDisplayCS.push_back( displayCoordTransform->transformToDisplayCoord( point ) );
+            }
+        }
+
+        // Alternating color based on segment index
+        cvf::Color3f segmentColor = ( segIdx % 2 == 0 ) ? color1 : color2;
+
+        // Generate segment cylinder
+        {
+            cvf::Collection<cvf::Part> parts;
+            RivPipeGeometryGenerator::cylinderWithCenterLineParts( &parts, segmentCLDisplayCS, segmentColor, segmentRadius );
+            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( const_cast<RimMswSegment*>( segment ) );
+            for ( auto part : parts )
+            {
+                part->setName(
+                    QString( "MSW Segment %1 (Branch %2)" ).arg( segment->segmentNumber() ).arg( segment->branchNumber() ).toStdString() );
+                part->setSourceInfo( objectSourceInfo.p() );
+                model->addPart( part.p() );
+            }
+        }
+
+        // Add boundary marker at segment start (use well path collection settings)
+        if ( wellPathCollection->showMswSegmentBands() )
+        {
+            double markerLength           = characteristicCellSize * 0.03;
+            double markerStartMD          = segment->startMD();
+            double markerEndMD            = std::min( segment->startMD() + markerLength, segment->endMD() );
+            double markerHorizontalLength = 0.0;
+            std::pair<std::vector<cvf::Vec3d>, std::vector<double>> markerCoordsAndMD =
+                wellPathGeometry->clippedPointSubset( markerStartMD, markerEndMD, &markerHorizontalLength );
+            std::vector<cvf::Vec3d> markerCL = markerCoordsAndMD.first;
+
+            if ( markerCL.size() >= 2 )
+            {
+                std::vector<cvf::Vec3d> markerCLDisplayCS;
+                if ( doFlatten )
+                {
+                    cvf::Vec3d              dummy;
+                    std::vector<cvf::Mat4d> flatningCSs =
+                        RivSectionFlattener::calculateFlatteningCSsForPolyline( markerCL,
+                                                                                cvf::Vec3d::Z_AXIS,
+                                                                                { markerHorizontalLength, 0.0, markerCL[0].z() },
+                                                                                &dummy );
+                    for ( size_t cIdx = 0; cIdx < markerCL.size(); ++cIdx )
+                    {
+                        auto clpoint = markerCL[cIdx].getTransformedPoint( flatningCSs[cIdx] );
+                        markerCLDisplayCS.push_back( displayCoordTransform->scaleToDisplaySize( clpoint ) );
+                    }
+                }
+                else
+                {
+                    for ( const cvf::Vec3d& point : markerCL )
+                    {
+                        markerCLDisplayCS.push_back( displayCoordTransform->transformToDisplayCoord( point ) );
+                    }
+                }
+
+                cvf::Collection<cvf::Part> markerParts;
+                double                     markerRadius = segmentRadius * 1.3;
+                RivPipeGeometryGenerator::cylinderWithCenterLineParts( &markerParts, markerCLDisplayCS, boundaryColor, markerRadius );
+                for ( auto part : markerParts )
+                {
                     model->addPart( part.p() );
                 }
             }
@@ -936,8 +1085,9 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
 
     if ( showWellPath )
     {
-        // Only show perforations and virtual transmissibilities when well path is shown
+        // Only show perforations, MSW segments, and virtual transmissibilities when well path is shown
         appendPerforationsToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize, false );
+        appendMswSegmentsToModel( model, displayCoordTransform, characteristicCellSize, false );
         appendVirtualTransmissibilitiesToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize );
     }
 
@@ -977,6 +1127,7 @@ void RivWellPathPartMgr::appendFlattenedDynamicGeometryPartsToModel( cvf::ModelB
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
 
     appendPerforationsToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize, true );
+    appendMswSegmentsToModel( model, displayCoordTransform, characteristicCellSize, true );
 }
 
 //--------------------------------------------------------------------------------------------------
