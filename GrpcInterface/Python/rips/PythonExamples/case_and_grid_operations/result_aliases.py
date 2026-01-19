@@ -1,9 +1,10 @@
 #######################################################
 #
-# This file shows how to import properties for a
-# grid case created with .ROFFASC files
+# This file shows how to set up an alias name for 
+# a result, so that you could access the data
+# using the alias name.
 #
-# Same procedure can also be used for .GRDECL files
+# This works for both eclipse and roff cases.
 #
 #######################################################
 
