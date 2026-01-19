@@ -91,6 +91,11 @@
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
 
+// MSW segment visualization scaling constants
+const double MSW_SEGMENT_RADIUS_SCALE = 1.1; // Segment radius relative to well path radius
+const double MSW_MARKER_LENGTH_SCALE  = 0.03; // Marker length relative to characteristic cell size
+const double MSW_MARKER_RADIUS_SCALE  = 1.3; // Marker radius relative to segment radius
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -616,10 +621,10 @@ void RivWellPathPartMgr::appendMswSegmentsToModel( cvf::ModelBasicList*         
         if ( segment->startMD() >= segment->endMD() ) continue;
 
         // Calculate segment radius based on diameter
-        double segmentRadius = wellPathRadius * 1.1;
+        double segmentRadius = wellPathRadius * MSW_SEGMENT_RADIUS_SCALE;
         if ( referenceDiameter > 0.0 && segment->diameter() > 0.0 )
         {
-            segmentRadius = wellPathRadius * 1.1 * ( segment->diameter() / referenceDiameter );
+            segmentRadius = wellPathRadius * MSW_SEGMENT_RADIUS_SCALE * ( segment->diameter() / referenceDiameter );
         }
 
         // Get segment geometry
@@ -674,7 +679,7 @@ void RivWellPathPartMgr::appendMswSegmentsToModel( cvf::ModelBasicList*         
         // Add boundary marker at segment start (use well path collection settings)
         if ( wellPathCollection->showMswSegmentBands() )
         {
-            double markerLength           = characteristicCellSize * 0.03;
+            double markerLength           = characteristicCellSize * MSW_MARKER_LENGTH_SCALE;
             double markerStartMD          = segment->startMD();
             double markerEndMD            = std::min( segment->startMD() + markerLength, segment->endMD() );
             double markerHorizontalLength = 0.0;
@@ -708,7 +713,7 @@ void RivWellPathPartMgr::appendMswSegmentsToModel( cvf::ModelBasicList*         
                 }
 
                 cvf::Collection<cvf::Part> markerParts;
-                double                     markerRadius = segmentRadius * 1.3;
+                double                     markerRadius = segmentRadius * MSW_MARKER_RADIUS_SCALE;
                 RivPipeGeometryGenerator::cylinderWithCenterLineParts( &markerParts, markerCLDisplayCS, boundaryColor, markerRadius );
                 for ( auto part : markerParts )
                 {

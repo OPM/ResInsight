@@ -55,6 +55,7 @@ class RimWellPath;
 class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
 class RimWellLog;
+class RimEclipseCase;
 class cafTreeNode;
 class QString;
 
