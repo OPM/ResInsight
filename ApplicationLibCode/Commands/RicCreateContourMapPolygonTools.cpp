@@ -27,7 +27,10 @@
 #include "ContourMap/RimEclipseContourMapView.h"
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "RimGeoMechContourMapView.h"
+#include "RimGridView.h"
+#include "RimProject.h"
 #include "RimTools.h"
 
 #include "RiuMainWindow.h"
@@ -125,6 +128,23 @@ void createPolygonObjects( const std::vector<std::vector<cvf::Vec3d>>& polygons 
     }
 
     polygonCollection->updateAllRequiredEditors();
+
+    // Update polygon collections in all views so new polygons become visible
+    if ( auto project = RimProject::current() )
+    {
+        for ( auto* view : project->allViews() )
+        {
+            if ( auto* gridView = dynamic_cast<RimGridView*>( view ) )
+            {
+                if ( auto* polyCollection = gridView->polygonInViewCollection() )
+                {
+                    polyCollection->updateFromPolygonCollection();
+                    polyCollection->updateConnectedEditors();
+                }
+                gridView->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
 }
 
 } // namespace internal
