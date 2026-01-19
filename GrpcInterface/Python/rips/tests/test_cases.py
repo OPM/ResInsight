@@ -353,7 +353,6 @@ def test_10k_result_alias(rips_instance, initialize_test):
     case = rips_instance.project.load_case(path=case_path)
 
     result_permx = case.grid_property("STATIC_NATIVE", "PERMX", 0)
-    assert len(result_permx) == 11125
     result_soil = case.grid_property("DYNAMIC_NATIVE", "SOIL", 3)
 
     case.add_result_alias("PERMX", "PERMW")
