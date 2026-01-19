@@ -374,4 +374,4 @@ def test_10k_result_alias(rips_instance, initialize_test):
     case.clear_result_aliases()
 
     with pytest.raises(rips.RipsError, match="Result property not found."):
-        case.case.grid_property("DYNAMIC_NATIVE", "SPOIL", 3)
+        case.grid_property("DYNAMIC_NATIVE", "SPOIL", 3)
