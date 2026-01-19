@@ -295,6 +295,12 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addColumnFeature( 0.25, 1.1 * casingTrackEnd, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
         addMarker( casingTrackEnd, midDepth, 10, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
+    else if ( m_componentType == RiaDefines::WellPathComponentType::MSW_SEGMENT )
+    {
+        addColumnFeature( -0.4, -0.25, startDepth, endDepth, componentColor() );
+        addColumnFeature( 0.25, 0.4, startDepth, endDepth, componentColor() );
+        addMarker( casingTrackEnd, midDepth, 8, RiuPlotCurveSymbol::SYMBOL_RECT, componentColor( 0.0 ), label() );
+    }
     m_combinedComponentGroup.setTitle( legendTitle() );
     m_combinedComponentGroup.setLegendIconSize( QSize( 20, 16 ) );
 }
