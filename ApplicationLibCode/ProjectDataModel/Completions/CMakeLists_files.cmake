@@ -40,6 +40,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomSegmentIntervalCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatistics.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMswSegment.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMswSegmentCollection.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -79,6 +81,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomSegmentIntervalCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatistics.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMswSegment.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMswSegmentCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
