@@ -361,6 +361,15 @@ struct PdmFieldScriptingCapabilityIOHandler<std::optional<T>>
                               PdmScriptIOMessages* errorMessageContainer,
                               bool                 stringsAreQuoted = true )
     {
+        // Check if stream is empty (after skipping whitespace)
+        // Empty input for optional fields means "leave unset" - this is valid, not an error
+        errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+        if ( inputStream.atEnd() )
+        {
+            fieldValue.reset();
+            return;
+        }
+
         T realValue;
 
         // Use error count to detect if error messages were added during the read operation

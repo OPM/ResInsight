@@ -205,7 +205,7 @@ void PdmFieldScriptingCapabilityIOHandler<double>::writeToField( double&        
 
         inputStream.setStatus( QTextStream::Ok );
     }
-    else
+    else if ( inputStream.status() == QTextStream::Ok )
     {
         errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
     }
@@ -239,7 +239,7 @@ void PdmFieldScriptingCapabilityIOHandler<int>::writeToField( int&              
 
         inputStream.setStatus( QTextStream::Ok );
     }
-    else
+    else if ( inputStream.status() == QTextStream::Ok )
     {
         errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
     }
