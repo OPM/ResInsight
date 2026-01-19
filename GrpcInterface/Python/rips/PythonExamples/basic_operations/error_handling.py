@@ -6,7 +6,6 @@
 import rips
 import tempfile
 
-
 resinsight = rips.Instance.find()
 
 case = None
