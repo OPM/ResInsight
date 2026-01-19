@@ -38,7 +38,6 @@ RimNameConfig::RimNameConfig( const QString& customName )
     CAF_PDM_InitFieldNoDefault( &m_customName, "CustomCurveName", "Custom Name Part" );
     CAF_PDM_InitFieldNoDefault( &m_autoName, "AutoCurveName", "Full Name" );
     m_autoName.registerGetMethod( this, &RimNameConfig::autoName );
-    m_autoName.xmlCapability()->disableIO();
     m_autoName.uiCapability()->setUiReadOnly( true );
 
     m_customName = customName;

@@ -32,7 +32,6 @@ RimUserDefinedCalculationVariable::RimUserDefinedCalculationVariable()
 
     CAF_PDM_InitFieldNoDefault( &m_addressUi, "AddressUi", "Address" );
     m_addressUi.registerGetMethod( this, &RimUserDefinedCalculationVariable::displayString );
-    m_addressUi.xmlCapability()->disableIO();
     m_addressUi.uiCapability()->setUiReadOnly( true );
 }
 

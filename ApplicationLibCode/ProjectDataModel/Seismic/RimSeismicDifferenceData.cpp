@@ -72,7 +72,6 @@ RimSeismicDifferenceData::RimSeismicDifferenceData()
     m_nameProxy.registerGetMethod( this, &RimSeismicDifferenceData::fullName );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.uiCapability()->setUiHidden( true );
-    m_nameProxy.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_seismicData1, "SeismicData1", "Seismic Data 1" );
     CAF_PDM_InitFieldNoDefault( &m_seismicData2, "SeismicData2", "Seismic Data 2" );

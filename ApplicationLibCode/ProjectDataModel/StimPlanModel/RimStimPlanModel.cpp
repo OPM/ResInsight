@@ -183,7 +183,6 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitFieldNoDefault( &m_anchorPositionForUi, "AnchorPositionForUi", "Anchor Position" );
     m_anchorPositionForUi.registerGetMethod( this, &RimStimPlanModel::anchorPositionForUi );
     m_anchorPositionForUi.uiCapability()->setUiReadOnly( true );
-    m_anchorPositionForUi.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );

@@ -533,4 +533,53 @@ bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::resolveReference
     return true;
 }
 
+//==================================================================================================
+/// XML Implementation for PdmFieldXmlCap<PdmProxyValueField<>> methods
+///
+//==================================================================================================
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmProxyValueField<DataType>>::isVectorField() const
+{
+    return m_field->isStreamingField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+std::vector<QString>
+    caf::PdmFieldXmlCap<caf::PdmProxyValueField<DataType>>::readFieldData( QXmlStreamReader& xmlStream,
+                                                                           PdmObjectFactory*,
+                                                                           const std::vector<caf::PdmDeprecation>& )
+{
+    this->assertValid();
+    DataType value;
+    PdmFieldReader<DataType>::readFieldData( value, xmlStream, m_field );
+    m_field->setValue( value );
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void caf::PdmFieldXmlCap<caf::PdmProxyValueField<DataType>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
+{
+    this->assertValid();
+    PdmFieldWriter<DataType>::writeFieldData( m_field->value(), xmlStream );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmProxyValueField<DataType>>::resolveReferences()
+{
+    return true;
+}
+
 } // End namespace caf

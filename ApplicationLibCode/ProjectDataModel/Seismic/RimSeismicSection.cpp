@@ -77,7 +77,6 @@ RimSeismicSection::RimSeismicSection()
     m_nameProxy.registerGetMethod( this, &RimSeismicSection::fullName );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.uiCapability()->setUiHidden( true );
-    m_nameProxy.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );
 

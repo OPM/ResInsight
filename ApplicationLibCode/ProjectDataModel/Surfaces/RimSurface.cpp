@@ -72,7 +72,6 @@ RimSurface::RimSurface()
     m_nameProxy.registerGetMethod( this, &RimSurface::fullName );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.uiCapability()->setUiHidden( true );
-    m_nameProxy.xmlCapability()->disableIO();
 
     setDeletable( true );
 }

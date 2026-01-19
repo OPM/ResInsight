@@ -37,6 +37,8 @@ public:
         CAF_PDM_XML_InitField( &m_proxyDoubleField, "BigNumber" );
         m_proxyDoubleField.registerSetMethod( this, &DemoPdmObject::setDoubleMember );
         m_proxyDoubleField.registerGetMethod( this, &DemoPdmObject::doubleMember );
+        m_proxyDoubleField.xmlCapability()->setIOWritable( true );
+        m_proxyDoubleField.xmlCapability()->setIOReadable( true );
 
         CAF_PDM_XML_InitField( &m_proxyEnumField, "AppEnum" );
         m_proxyEnumField.registerSetMethod( this, &DemoPdmObject::setEnumMember );
@@ -586,4 +588,21 @@ TEST( BaseTest, XmlImportClamping )
         EXPECT_EQ( 75, obj->m_maxOnlyField() );
         EXPECT_DOUBLE_EQ( -123.456, obj->m_unclampedField() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test that proxy fields have IO disabled by default
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, ProxyFieldIODisabled )
+{
+    // Test with SimpleObj which has default proxy field IO behavior (disabled)
+    auto simpleObj = std::make_unique<SimpleObj>();
+    EXPECT_FALSE( simpleObj->m_proxyDouble.xmlCapability()->isIOReadable() );
+    EXPECT_FALSE( simpleObj->m_proxyDouble.xmlCapability()->isIOWritable() );
+
+    // Regular fields should still have IO enabled
+    EXPECT_TRUE( simpleObj->m_position.xmlCapability()->isIOReadable() );
+    EXPECT_TRUE( simpleObj->m_position.xmlCapability()->isIOWritable() );
+
+    // Note: DemoPdmObject explicitly enables IO for its proxy field for the ChildArrayFieldSerializing test
 }

@@ -68,7 +68,6 @@ RimParameterGroup::RimParameterGroup()
     m_labelProxy.registerGetMethod( this, &RimParameterGroup::labelOrName );
     m_labelProxy.uiCapability()->setUiReadOnly( true );
     m_labelProxy.uiCapability()->setUiHidden( true );
-    m_labelProxy.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_lists, "ParameterLists", "Parameter Lists" );
     m_lists.uiCapability()->setUiHidden( true );
