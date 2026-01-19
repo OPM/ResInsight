@@ -76,6 +76,8 @@ enum class WellPathComponentType
     CASING,
     LINER,
     PACKER,
+    // MSW segments from WELSEGS
+    MSW_SEGMENT,
     UNDEFINED_COMPONENT
 };
 
