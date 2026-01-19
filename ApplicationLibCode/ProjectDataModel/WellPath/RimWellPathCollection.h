@@ -29,6 +29,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmPtrField.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmChildField.h"
@@ -121,6 +122,8 @@ public:
 
     std::vector<RimWellPath*> connectedWellPathLaterals( const RimWellPath* parentWellPath ) const;
 
+    bool showMswSegmentBands() const;
+
     RimWellPath* mostRecentlyUpdatedWellPath();
 
     void         readWellPathFormationFiles();
@@ -155,9 +158,10 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-    void initAfterRead() override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void                          initAfterRead() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -168,15 +172,14 @@ private:
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
 
-    cafTreeNode* addWellToWellNode( cafTreeNode* parent, RimWellPath* wellPath );
-
-    std::vector<RimWellPath*> wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
-
+    std::vector<RimWellPath*>                    wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
     std::map<QString, std::vector<RimWellPath*>> wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const;
 
-    static void buildUiTreeOrdering( cafTreeNode* treeNode, caf::PdmUiTreeOrdering* parentUiTreeNode, const QString& uiConfigName );
-
+    cafTreeNode*   addWellToWellNode( cafTreeNode* parent, RimWellPath* wellPath );
+    static void    buildUiTreeOrdering( cafTreeNode* treeNode, caf::PdmUiTreeOrdering* parentUiTreeNode, const QString& uiConfigName );
     static QString unGroupedText();
+
+    void updateMswSegments();
 
 private:
     std::unique_ptr<RifWellPathImporter>           m_wellPathImporter;
@@ -190,4 +193,7 @@ private:
 
     caf::PdmField<MswGroupingEnum> m_mswNameGrouping;
     caf::PdmField<QString>         m_mswNameGroupingPattern;
+
+    caf::PdmPtrField<RimEclipseCase*> m_mswEclipseCase;
+    caf::PdmField<bool>               m_mswShowBands;
 };

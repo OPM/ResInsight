@@ -41,9 +41,11 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseView.h"
 #include "RimFileWellPath.h"
 #include "RimModeledWellPath.h"
+#include "RimMswSegmentCollection.h"
 #include "RimOilField.h"
 #include "RimOsduWellLog.h"
 #include "RimOsduWellPath.h"
@@ -55,6 +57,7 @@
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathTieIn.h"
 
 #include "RiuMainWindow.h"
@@ -67,6 +70,7 @@
 #include "cafDataLoader.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
@@ -140,6 +144,9 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitFieldNoDefault( &m_mswNameGrouping, "MswWellNameGrouping", "Grouping" );
     CAF_PDM_InitFieldNoDefault( &m_mswNameGroupingPattern, "MswWellNameGroupingPattern", "Grouping Pattern" );
 
+    CAF_PDM_InitFieldNoDefault( &m_mswEclipseCase, "MswEclipseCase", "Eclipse Case" );
+    CAF_PDM_InitField( &m_mswShowBands, "MseShowBands", true, "Show Bands" );
+
     m_wellPathImporter           = std::make_unique<RifWellPathImporter>();
     m_wellPathFormationsImporter = std::make_unique<RifWellPathFormationsImporter>();
 }
@@ -157,6 +164,27 @@ RimWellPathCollection::~RimWellPathCollection()
 void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     scheduleRedrawAffectedViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellPathCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_mswEclipseCase )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        auto cases = RimEclipseCaseTools::eclipseCases();
+        for ( auto* c : cases )
+        {
+            options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -514,17 +542,23 @@ void RimWellPathCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     advancedGroup->add( &wellPathClip );
     advancedGroup->add( &wellPathClipZDistance );
 
-    caf::PdmUiGroup* mswGroupingGroup = uiOrdering.addNewGroup( "MSW Settings" );
-    mswGroupingGroup->add( &m_mswNameGrouping );
+    caf::PdmUiGroup* wellGrouping = uiOrdering.addNewGroup( "MSW Grouping" );
+    wellGrouping->add( &m_mswNameGrouping );
     if ( m_mswNameGrouping() != MswGroupingMode::DISABLED )
     {
         if ( m_mswNameGrouping() == MswGroupingMode::USE_PREFERENCES )
         {
             m_mswNameGroupingPattern = RiaPreferences::current()->multiLateralWellNamePattern();
         }
-        mswGroupingGroup->add( &m_mswNameGroupingPattern );
+        wellGrouping->add( &m_mswNameGroupingPattern );
         m_mswNameGroupingPattern.uiCapability()->setUiReadOnly( m_mswNameGrouping() == MswGroupingMode::USE_PREFERENCES );
     }
+
+    caf::PdmUiGroup* mswSegmentGroup = uiOrdering.addNewGroup( "MSW Segment Visualization" );
+    mswSegmentGroup->add( &m_mswShowBands );
+    mswSegmentGroup->add( &m_mswEclipseCase );
+    auto updateButton = mswSegmentGroup->addNewButton( "Update Segments", [this]() { updateMswSegments(); } );
+    updateButton->setAlignment( Qt::AlignRight );
     uiOrdering.skipRemainingFields();
 }
 
@@ -552,6 +586,38 @@ void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
 caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
 {
     return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::updateMswSegments()
+{
+    for ( const auto& wellPath : m_wellPaths )
+    {
+        if ( !wellPath ) continue;
+
+        auto* completions = wellPath->completions();
+        if ( !completions ) continue;
+
+        auto* segmentCollection = completions->mswSegmentCollection();
+        if ( !segmentCollection ) continue;
+
+        segmentCollection->updateSegments( m_mswEclipseCase() );
+    }
+
+    if ( RimProject* project = RimProject::current() )
+    {
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathCollection::showMswSegmentBands() const
+{
+    return m_mswShowBands();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 #include "gsl/gsl"
 
 class RimFishbonesCollection;
+class RimMswSegmentCollection;
 class RimPerforationCollection;
 class RimStimPlanModelCollection;
 class RimWellPathComponentInterface;
@@ -49,6 +50,7 @@ public:
     RimPerforationCollection*      perforationCollection() const;
     RimWellPathFractureCollection* fractureCollection() const;
     RimStimPlanModelCollection*    stimPlanModelCollection() const;
+    RimMswSegmentCollection*       mswSegmentCollection() const;
 
     std::vector<RimWellPathComponentInterface*>       allCompletionsNoConst() const;
     std::vector<const RimWellPathComponentInterface*> allCompletions() const;
@@ -72,6 +74,7 @@ private:
     caf::PdmChildField<RimPerforationCollection*>      m_perforationCollection;
     caf::PdmChildField<RimWellPathFractureCollection*> m_fractureCollection;
     caf::PdmChildField<RimStimPlanModelCollection*>    m_stimPlanModelCollection;
+    caf::PdmChildField<RimMswSegmentCollection*>       m_mswSegmentCollection;
 
 private:
     /////////////////////
