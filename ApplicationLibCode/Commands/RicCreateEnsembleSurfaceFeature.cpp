@@ -18,7 +18,7 @@
 
 #include "RicCreateEnsembleSurfaceFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
 #include "RicCreateEnsembleSurfaceUi.h"
@@ -56,7 +56,7 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
     QString fileNameFilter( "*" );
 
     RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( RiaGuiApplication::widgetToUseAsParent(),
                                                                 "Choose Eclipse Cases",
                                                                 defaultDir,
                                                                 pathFilter,

@@ -18,6 +18,7 @@
 
 #include "RimAbstractCorrelationPlot.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
@@ -140,7 +141,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_pushButtonSelectSummaryAddress )
     {
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
 
         if ( m_selectMultipleVectors )
         {

@@ -20,6 +20,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
@@ -241,7 +242,7 @@ RicGridStatisticsDialog* Rim3dOverlayInfoConfig::getOrCreateGridStatisticsDialog
 {
     if ( !m_gridStatisticsDialog )
     {
-        m_gridStatisticsDialog = std::make_unique<RicGridStatisticsDialog>( nullptr );
+        m_gridStatisticsDialog = std::make_unique<RicGridStatisticsDialog>( RiaGuiApplication::widgetToUseAsParent() );
     }
     CVF_ASSERT( m_gridStatisticsDialog );
     return m_gridStatisticsDialog.get();

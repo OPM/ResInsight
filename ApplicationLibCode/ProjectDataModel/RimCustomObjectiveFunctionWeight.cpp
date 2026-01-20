@@ -18,6 +18,7 @@
 
 #include "RimCustomObjectiveFunctionWeight.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
@@ -144,7 +145,7 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
     }
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
         RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryEnsemble* candidateEnsemble = parentCurveSet()->summaryEnsemble();
 

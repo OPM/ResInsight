@@ -18,6 +18,7 @@
 
 #include "RimSummaryAddressSelector.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaResultNames.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryTools.h"
@@ -195,7 +196,7 @@ void RimSummaryAddressSelector::fieldChangedByUi( const caf::PdmFieldHandle* cha
 {
     if ( changedField == &m_pushButtonSelectSummaryAddress )
     {
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
 
         if ( isEnsemble() )
         {

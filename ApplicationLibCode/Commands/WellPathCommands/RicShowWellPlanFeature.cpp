@@ -18,6 +18,8 @@
 
 #include "RicShowWellPlanFeature.h"
 
+#include "RiaGuiApplication.h"
+
 #include "ApplicationCommands/RicShowPlotDataFeature.h"
 
 #include "RimModeledWellPath.h"
@@ -56,7 +58,7 @@ void RicShowWellPlanFeature::onActionTriggered( bool isChecked )
     {
         QString title = "Well Plan for " + wellPath->name();
 
-        RiuTextDialog* textDialog = new RiuTextDialog();
+        RiuTextDialog* textDialog = new RiuTextDialog( RiaGuiApplication::widgetToUseAsParent() );
         textDialog->setMinimumSize( 800, 600 );
         textDialog->setWindowTitle( title );
         textDialog->setText( wellPath->wellPlanText() );

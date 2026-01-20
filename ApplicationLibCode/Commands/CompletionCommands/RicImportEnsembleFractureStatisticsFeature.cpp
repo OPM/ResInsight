@@ -123,7 +123,7 @@ std::pair<QStringList, RiaDefines::EnsembleGroupingMode>
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
     RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( RiaGuiApplication::widgetToUseAsParent(),
                                                                 dialogTitle,
                                                                 defaultDir,
                                                                 m_pathFilter,

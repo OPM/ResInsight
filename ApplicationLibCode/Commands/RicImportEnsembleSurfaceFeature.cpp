@@ -18,9 +18,9 @@
 
 #include "RicImportEnsembleSurfaceFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -182,7 +182,7 @@ std::pair<QStringList, RiaDefines::EnsembleGroupingMode>
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
     RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( RiaGuiApplication::widgetToUseAsParent(),
                                                                 dialogTitle,
                                                                 defaultDir,
                                                                 m_pathFilter,

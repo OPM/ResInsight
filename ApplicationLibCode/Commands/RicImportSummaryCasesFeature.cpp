@@ -197,7 +197,12 @@ RicRecursiveFileSearchDialogResult
                        RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY };
 
     RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr, dialogTitle, defaultDir, m_pathFilter, m_fileNameFilter, fileTypes );
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( RiaGuiApplication::widgetToUseAsParent(),
+                                                                dialogTitle,
+                                                                defaultDir,
+                                                                m_pathFilter,
+                                                                m_fileNameFilter,
+                                                                fileTypes );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;

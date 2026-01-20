@@ -63,7 +63,7 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
 
     std::unique_ptr<RiaPreferences> oldPreferences = clonePreferences( app->preferences() );
 
-    RiuPropertyViewTabWidget propertyDialog( nullptr, app->preferences(), "Preferences", tabNames );
+    RiuPropertyViewTabWidget propertyDialog( RiaGuiApplication::widgetToUseAsParent(), app->preferences(), "Preferences", tabNames );
 
     auto pushButton = propertyDialog.dialogButtonBox()->addButton( "Help", QDialogButtonBox::HelpRole );
     connect( pushButton, &QPushButton::clicked, this, &RicEditPreferencesFeature::showHelp );

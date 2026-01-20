@@ -18,6 +18,8 @@
 
 #include "RicCreateContourMapPolygonAdvancedFeature.h"
 
+#include "RiaGuiApplication.h"
+
 #include "RicCreateContourMapPolygonTools.h"
 #include "RicPolygonFromImageDialog.h"
 
@@ -35,7 +37,7 @@ void RicCreateContourMapPolygonAdvancedFeature::onActionTriggered( bool isChecke
 
     auto sourceImage = RicCreateContourMapPolygonTools::convertToBinaryImage( rigContourMapProjection );
 
-    RicPolygonFromImageDialog dlg;
+    RicPolygonFromImageDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
     dlg.setSourceImageData( sourceImage );
     dlg.show();
     dlg.updateAndShowImages();

@@ -36,6 +36,7 @@
 #include <QTime>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QVariant>
 
 //--------------------------------------------------------------------------------------------------
 ///

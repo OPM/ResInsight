@@ -337,7 +337,7 @@ void RicShowPlotDataFeature::showTextWindow( const QString& title, const QString
     RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     CVF_ASSERT( plotwindow );
 
-    auto* textWiget = new RiuTextDialog();
+    auto* textWiget = new RiuTextDialog( RiaGuiApplication::widgetToUseAsParent() );
     textWiget->setMinimumSize( 400, 600 );
 
     textWiget->setWindowTitle( title );

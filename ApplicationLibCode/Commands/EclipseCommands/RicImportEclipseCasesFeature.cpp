@@ -19,9 +19,8 @@
 
 #include "RicImportEclipseCasesFeature.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
-
-#include "RiaApplication.h"
 
 #include "RicRecursiveFileSearchDialog.h"
 
@@ -45,7 +44,7 @@ void RicImportEclipseCasesFeature::onActionTriggered( bool isChecked )
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
 
     RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( RiaGuiApplication::widgetToUseAsParent(),
                                                                 "Import Eclipse Cases",
                                                                 defaultDir,
                                                                 m_pathFilter,

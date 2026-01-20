@@ -18,6 +18,8 @@
 
 #include "RicViewJobLogFeature.h"
 
+#include "RiaGuiApplication.h"
+
 #include "RiuTextDialog.h"
 
 #include "Jobs/RimGenericJob.h"
@@ -40,7 +42,7 @@ void RicViewJobLogFeature::onActionTriggered( bool isChecked )
 
         QString text = log.join( "\n" );
 
-        auto* textDlg = new RiuTextDialog();
+        auto* textDlg = new RiuTextDialog( RiaGuiApplication::widgetToUseAsParent() );
         textDlg->setMinimumSize( 600, 800 );
 
         textDlg->setWindowTitle( "Job log for \"" + job->name() + "\"" );

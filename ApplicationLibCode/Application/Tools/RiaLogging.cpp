@@ -21,9 +21,6 @@
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
 
-#include "RiuMainWindow.h"
-#include "RiuPlotMainWindow.h"
-
 #include <iostream>
 #include <sstream>
 

@@ -1120,12 +1120,18 @@ RiuMainWindowBase* RiaGuiApplication::activeMainWindow()
     QWidget*           mainWindowWidget = RiaGuiApplication::activeWindow();
     RiuMainWindowBase* mainWindow       = dynamic_cast<RiuMainWindowBase*>( mainWindowWidget );
 
+    // If another window/app than ResInsight is active, mainWindow will be nullptr
+    // In that case, return a visible RI main window
     if ( mainWindow == nullptr )
     {
         if ( instance()->isMain3dWindowVisible() )
+        {
             mainWindow = instance()->m_mainWindow.get();
+        }
         else if ( instance()->isMainPlotWindowVisible() )
+        {
             mainWindow = instance()->m_mainPlotWindow.get();
+        }
     }
 
     return mainWindow;
@@ -1189,7 +1195,7 @@ void RiaGuiApplication::clearAllSelections()
 void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole( const QString& text )
 {
     // Create a message dialog with cut/paste friendly text
-    QDialog dlg;
+    QDialog dlg( widgetToUseAsParent() );
     dlg.setModal( true );
 
     QGridLayout* layout = new QGridLayout;

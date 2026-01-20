@@ -18,6 +18,8 @@
 
 #include "RicEditPerforationCollectionFeature.h"
 
+#include "RiaGuiApplication.h"
+
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
 #include "RiuEditPerforationCollectionWidget.h"
@@ -53,7 +55,7 @@ void RicEditPerforationCollectionFeature::onActionTriggered( bool isChecked )
     RimWellPath* wellPath = perforationCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
-    RiuEditPerforationCollectionWidget dlg( nullptr, perforationCollection );
+    RiuEditPerforationCollectionWidget dlg( RiaGuiApplication::widgetToUseAsParent(), perforationCollection );
     dlg.exec();
 
     perforationCollection->updateConnectedEditors();

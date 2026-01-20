@@ -1058,7 +1058,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
         RimSummaryEnsemble*             candidateEnsemble = m_yValuesSummaryEnsemble();
         RifEclipseSummaryAddress        candicateAddress  = m_yValuesSummaryAddress->address();
 
@@ -1097,7 +1097,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
         RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryEnsemble* candidateEnsemble = m_yValuesSummaryEnsemble();
 

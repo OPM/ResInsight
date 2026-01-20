@@ -1185,7 +1185,10 @@ void RimOpmFlowJob::selectOpenWellPosition()
         kwVec.push_back( std::make_pair( i++, QString::fromStdString( kw ) ) );
     }
 
-    m_openWellDeckPosition = RimDeckPositionDlg::askForPosition( nullptr, kwVec, "--- Open New Well HERE ---", m_openWellDeckPosition );
+    m_openWellDeckPosition = RimDeckPositionDlg::askForPosition( RiaGuiApplication::widgetToUseAsParent(),
+                                                                 kwVec,
+                                                                 "--- Open New Well HERE ---",
+                                                                 m_openWellDeckPosition );
 }
 
 //--------------------------------------------------------------------------------------------------

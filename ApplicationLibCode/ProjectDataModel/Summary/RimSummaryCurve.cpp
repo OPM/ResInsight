@@ -1178,7 +1178,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
         RimSummaryCase*                 candidateCase    = m_yValuesSummaryCase();
         RifEclipseSummaryAddress        candicateAddress = m_yValuesSummaryAddress->address();
 
@@ -1212,7 +1212,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_xPushButtonSelectSummaryAddress )
     {
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
         RimSummaryCase*                 candidateCase    = m_xValuesSummaryCase();
         RifEclipseSummaryAddress        candicateAddress = m_xValuesSummaryAddress->address();
 

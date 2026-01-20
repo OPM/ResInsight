@@ -19,6 +19,7 @@
 #include "RimEnsembleCurveFilter.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaNumericalTools.h"
 #include "RiaStdStringTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
@@ -419,7 +420,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
-        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
         RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryEnsemble* candidateEnsemble = parentCurveSet()->summaryEnsemble();
 

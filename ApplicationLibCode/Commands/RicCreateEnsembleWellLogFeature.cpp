@@ -18,8 +18,8 @@
 
 #include "RicCreateEnsembleWellLogFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
@@ -73,7 +73,7 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
     QString fileNameFilter( "*" );
 
     RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( RiaGuiApplication::widgetToUseAsParent(),
                                                                 "Choose Eclipse Cases",
                                                                 defaultDir,
                                                                 pathFilter,

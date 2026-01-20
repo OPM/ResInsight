@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaMemoryCleanup.h"
+#include "RiaGuiApplication.h"
 #include "RiaStdStringTools.h"
 
 #include "RigCaseCellResultsData.h"
@@ -141,7 +142,7 @@ void RiaMemoryCleanup::showMemoryReport()
 
     QString allText = summary + "\n\n" + details;
 
-    auto dialog = new TextDialog( allText );
+    auto dialog = new TextDialog( allText, RiaGuiApplication::widgetToUseAsParent() );
     dialog->setWindowTitle( "Memory Report" );
     dialog->setMinimumSize( 800, 600 );
     dialog->show();

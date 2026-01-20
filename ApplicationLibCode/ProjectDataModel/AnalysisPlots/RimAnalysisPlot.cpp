@@ -19,6 +19,7 @@
 #include "RimAnalysisPlot.h"
 
 #include "RiaDefines.h"
+#include "RiaGuiApplication.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
@@ -444,7 +445,7 @@ std::vector<time_t> RimAnalysisPlot::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::showSelectVariablesDialog()
 {
-    RiuSummaryVectorSelectionDialog dlg( nullptr );
+    RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
 
     dlg.enableMultiSelect( true );
     dlg.enableIndividualEnsembleCaseSelection( true );

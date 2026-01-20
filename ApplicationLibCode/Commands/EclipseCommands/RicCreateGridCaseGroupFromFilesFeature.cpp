@@ -19,7 +19,7 @@
 
 #include "RicCreateGridCaseGroupFromFilesFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 
 #include "RicRecursiveFileSearchDialog.h"
@@ -42,7 +42,7 @@ void RicCreateGridCaseGroupFromFilesFeature::onActionTriggered( bool isChecked )
     QString         defaultDir = app->lastUsedDialogDirectory( "INPUT_FILES" );
 
     RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( RiaGuiApplication::widgetToUseAsParent(),
                                                                 "Create Grid Case Group",
                                                                 defaultDir,
                                                                 m_pathFilter,

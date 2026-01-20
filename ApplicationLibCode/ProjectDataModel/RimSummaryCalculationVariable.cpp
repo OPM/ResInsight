@@ -18,7 +18,7 @@
 
 #include "RimSummaryCalculationVariable.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -65,7 +65,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
         bool updateContainingEditor = false;
 
         {
-            RiuSummaryVectorSelectionDialog dlg( nullptr );
+            RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
             dlg.hideEnsembles();
             dlg.hideCalculationIncompatibleCategories();
 

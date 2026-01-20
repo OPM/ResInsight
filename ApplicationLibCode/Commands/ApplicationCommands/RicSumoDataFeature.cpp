@@ -274,7 +274,7 @@ void RicSumoDataFeature::onActionTriggered( bool isChecked )
 {
     if ( !m_dialog )
     {
-        m_dialog = new SimpleDialog( RiaGuiApplication::instance()->mainWindow() );
+        m_dialog = new SimpleDialog( RiaGuiApplication::widgetToUseAsParent() );
     }
     m_dialog->show();
 }

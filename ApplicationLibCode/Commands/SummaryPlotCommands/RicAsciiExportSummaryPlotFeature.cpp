@@ -18,7 +18,7 @@
 
 #include "RicAsciiExportSummaryPlotFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 
@@ -55,7 +55,7 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
     RiaPreferencesSummary* prefs      = RiaPreferencesSummary::current();
 
     // Ask user about resampling
-    auto result = RicResampleDialog::openDialog();
+    auto result = RicResampleDialog::openDialog( RiaGuiApplication::widgetToUseAsParent() );
     if ( !result.ok ) return;
 
     if ( selectedSummaryPlots.size() == 1 )

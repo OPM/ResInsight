@@ -18,8 +18,8 @@
 
 #include "RifSummaryCaseRestartSelector.h"
 
-#include "RiaApplication.h"
 #include "RiaFilePathTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 
@@ -186,7 +186,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const st
                                                                                             defaultGridImportMode,
                                                                                             m_ensembleOrGroupMode,
                                                                                             &lastResult,
-                                                                                            nullptr );
+                                                                                            RiaGuiApplication::widgetToUseAsParent() );
 
         if ( result.status == RicSummaryCaseRestartDialogResult::SUMMARY_CANCELLED )
         {
