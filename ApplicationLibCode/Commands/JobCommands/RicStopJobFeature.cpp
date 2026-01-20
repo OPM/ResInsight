@@ -22,9 +22,6 @@
 
 #include "Jobs/RimGenericJob.h"
 
-#include "RiuMainWindow.h"
-#include "RiuPlotMainWindow.h"
-
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -56,7 +53,7 @@ bool RicStopJobFeature::stopJob( RimGenericJob* job )
 {
     if ( job == nullptr ) return false;
 
-    if ( QMessageBox::question( RiaGuiApplication::activeWindow(),
+    if ( QMessageBox::question( RiaGuiApplication::widgetToUseAsParent(),
                                 job->name(),
                                 "Do you want to stop this job?",
                                 QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )

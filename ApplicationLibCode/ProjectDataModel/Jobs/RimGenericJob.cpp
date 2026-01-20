@@ -171,7 +171,9 @@ bool RimGenericJob::execute()
         m_lastRunFailed = true;
         m_isRunning     = false;
         setDeletable( true );
-        QMessageBox::critical( RiaGuiApplication::activeWindow(), name(), "Failed to start job. Check log window for additional information." );
+        QMessageBox::critical( RiaGuiApplication::widgetToUseAsParent(),
+                               name(),
+                               "Failed to start job. Check log window for additional information." );
     }
 
     return startOk;

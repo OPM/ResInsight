@@ -1120,7 +1120,23 @@ RiuMainWindowBase* RiaGuiApplication::activeMainWindow()
     QWidget*           mainWindowWidget = RiaGuiApplication::activeWindow();
     RiuMainWindowBase* mainWindow       = dynamic_cast<RiuMainWindowBase*>( mainWindowWidget );
 
+    if ( mainWindow == nullptr )
+    {
+        if ( instance()->isMain3dWindowVisible() )
+            mainWindow = instance()->m_mainWindow.get();
+        else if ( instance()->isMainPlotWindowVisible() )
+            mainWindow = instance()->m_mainPlotWindow.get();
+    }
+
     return mainWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RiaGuiApplication::widgetToUseAsParent()
+{
+    return dynamic_cast<QWidget*>( activeMainWindow() );
 }
 
 //--------------------------------------------------------------------------------------------------

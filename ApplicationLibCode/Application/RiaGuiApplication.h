@@ -108,6 +108,7 @@ public:
 
     static RimViewWindow*     activeViewWindow();
     static RiuMainWindowBase* activeMainWindow();
+    static QWidget*           widgetToUseAsParent();
 
     bool isMain3dWindowVisible() const;
     bool isMainPlotWindowVisible() const;

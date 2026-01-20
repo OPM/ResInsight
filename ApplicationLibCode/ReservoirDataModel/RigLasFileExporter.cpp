@@ -382,7 +382,7 @@ std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFol
         if ( caf::Utils::fileExists( fullPathName ) && !alwaysOverwrite )
         {
             QString txt = QString( "File %1 exists.\n\nDo you want to overwrite the file?" ).arg( fullPathName );
-            int     ret = QMessageBox::question( RiaGuiApplication::activeWindow(),
+            int     ret = QMessageBox::question( RiaGuiApplication::widgetToUseAsParent(),
                                              "LAS File Export",
                                              txt,
                                              QMessageBox::Yes | QMessageBox::No,

@@ -338,9 +338,11 @@ void RiaLogging::errorInMessageBox( QWidget* parent, const QString& title, const
     {
         if ( parent == nullptr )
         {
-            parent = RiaGuiApplication::activeWindow();
+            parent = RiaGuiApplication::widgetToUseAsParent();
         }
-        QMessageBox::critical( parent, title, text );
+        QMessageBox dlg( QMessageBox::Critical, title, text, QMessageBox::Ok, parent );
+        dlg.setWindowFlags( dlg.windowFlags() | Qt::WindowStaysOnTopHint );
+        dlg.exec();
     }
 
     RiaLogging::error( text );
