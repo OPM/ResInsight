@@ -43,13 +43,15 @@ using namespace caf;
 void PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>::writeToField( cvf::Vector3<double>& fieldValue,
                                                                                QTextStream&          inputStream,
                                                                                caf::PdmScriptIOMessages* errorMessageContainer,
-                                                                               bool stringsAreQuoted )
+                                                                               bool stringsAreQuoted,
+                                                                               bool allowExtraCharacters )
 {
     std::vector<double> fieldVectorValue;
     PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::writeToField( fieldVectorValue,
                                                                              inputStream,
                                                                              errorMessageContainer,
-                                                                             stringsAreQuoted );
+                                                                             stringsAreQuoted,
+                                                                             allowExtraCharacters );
     if ( fieldVectorValue.size() == 3u )
     {
         for ( int i = 0; i < 3; ++i )
@@ -88,7 +90,8 @@ void PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>::wr
     std::vector<cvf::Vector3<double>>& fieldValue,
     QTextStream&                       inputStream,
     caf::PdmScriptIOMessages*          errorMessageContainer,
-    bool                               stringsAreQuoted )
+    bool                               stringsAreQuoted,
+    bool                               allowExtraCharacters )
 {
     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
     QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
@@ -101,7 +104,8 @@ void PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>::wr
             PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::writeToField( fieldVectorValue,
                                                                                      inputStream,
                                                                                      errorMessageContainer,
-                                                                                     stringsAreQuoted );
+                                                                                     stringsAreQuoted,
+                                                                                     allowExtraCharacters );
             if ( fieldVectorValue.size() == 3u )
             {
                 fieldValue.push_back(
@@ -164,13 +168,15 @@ void PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>::re
 void PdmFieldScriptingCapabilityIOHandler<cvf::Matrix4<double>>::writeToField( cvf::Matrix4<double>& fieldValue,
                                                                                QTextStream&          inputStream,
                                                                                caf::PdmScriptIOMessages* errorMessageContainer,
-                                                                               bool stringsAreQuoted )
+                                                                               bool stringsAreQuoted,
+                                                                               bool allowExtraCharacters )
 {
     std::vector<double> fieldVectorValue;
     PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::writeToField( fieldVectorValue,
                                                                              inputStream,
                                                                              errorMessageContainer,
-                                                                             stringsAreQuoted );
+                                                                             stringsAreQuoted,
+                                                                             allowExtraCharacters );
     if ( fieldVectorValue.size() == 16u )
     {
         for ( int row = 0; row < 4; ++row )

@@ -206,7 +206,8 @@ struct PdmFieldScriptingCapabilityIOHandler
     static void writeToField( DataType&            fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true )
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true )
     {
         inputStream >> fieldValue;
         if ( inputStream.status() != QTextStream::Ok )
@@ -246,7 +247,8 @@ struct PdmFieldScriptingCapabilityIOHandler<QString>
     static void writeToField( QString&             fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true );
     static void readFromField( const QString& fieldValue,
                                QTextStream&   outputStream,
                                bool           quoteStrings     = true,
@@ -259,7 +261,8 @@ struct PdmFieldScriptingCapabilityIOHandler<bool>
     static void writeToField( bool&                fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true );
     static void readFromField( const bool&  fieldValue,
                                QTextStream& outputStream,
                                bool         quoteStrings     = true,
@@ -272,7 +275,8 @@ struct PdmFieldScriptingCapabilityIOHandler<double>
     static void writeToField( double&              fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true );
     static void readFromField( const double& fieldValue,
                                QTextStream&  outputStream,
                                bool          quoteStrings     = true,
@@ -285,7 +289,8 @@ struct PdmFieldScriptingCapabilityIOHandler<int>
     static void writeToField( int&                 fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true );
     static void readFromField( const int&   fieldValue,
                                QTextStream& outputStream,
                                bool         quoteStrings     = true,
@@ -298,7 +303,8 @@ struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
     static void writeToField( AppEnum<T>&          fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true )
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true )
     {
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
         QString accumulatedFieldValue;
@@ -331,7 +337,7 @@ struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
                                              "\" for the command: \"" + errorMessageContainer->currentCommand +
                                              "\". Valid options are: " + validOptions.join( ", " ) );
         }
-        else
+        else if ( !allowExtraCharacters )
         {
             errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
         }
@@ -359,7 +365,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::optional<T>>
     static void writeToField( std::optional<T>&    fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true )
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true )
     {
         // Check if stream is empty (after skipping whitespace)
         // Empty input for optional fields means "leave unset" - this is valid, not an error
@@ -376,7 +383,11 @@ struct PdmFieldScriptingCapabilityIOHandler<std::optional<T>>
         // If so, we do not set the field value
         auto incomingErrorCount = errorMessageContainer->m_messages.size();
 
-        PdmFieldScriptingCapabilityIOHandler<T>::writeToField( realValue, inputStream, errorMessageContainer, stringsAreQuoted );
+        PdmFieldScriptingCapabilityIOHandler<T>::writeToField( realValue,
+                                                               inputStream,
+                                                               errorMessageContainer,
+                                                               stringsAreQuoted,
+                                                               allowExtraCharacters );
 
         if ( errorMessageContainer->m_messages.size() == incomingErrorCount )
         {
@@ -407,7 +418,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
     static void writeToField( std::vector<T>&      fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true )
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true )
     {
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
@@ -445,7 +457,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
                 PdmFieldScriptingCapabilityIOHandler<T>::writeToField( singleValue,
                                                                        singleValueStream,
                                                                        errorMessageContainer,
-                                                                       stringsAreQuoted );
+                                                                       stringsAreQuoted,
+                                                                       allowExtraCharacters );
                 fieldValue.push_back( singleValue );
             }
         }
@@ -481,7 +494,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T*>>
     static void writeToField( std::vector<T*>&       fieldValue,
                               const std::vector<T*>& allObjectsOfType,
                               QTextStream&           inputStream,
-                              PdmScriptIOMessages*   errorMessageContainer )
+                              PdmScriptIOMessages*   errorMessageContainer,
+                              bool                   allowExtraCharacters = true )
     {
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
@@ -519,7 +533,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T*>>
                 PdmFieldScriptingCapabilityIOHandler<T*>::writeToField( singleValue,
                                                                         allObjectsOfType,
                                                                         singleValueStream,
-                                                                        errorMessageContainer );
+                                                                        errorMessageContainer,
+                                                                        allowExtraCharacters );
                 fieldValue.push_back( singleValue );
             }
         }
@@ -555,7 +570,8 @@ struct PdmFieldScriptingCapabilityIOHandler<DataType*>
     static void writeToField( DataType*&                    fieldValue,
                               const std::vector<DataType*>& allObjectsOfType,
                               QTextStream&                  inputStream,
-                              PdmScriptIOMessages*          errorMessageContainer )
+                              PdmScriptIOMessages*          errorMessageContainer,
+                              bool                          allowExtraCharacters = true )
     {
         fieldValue = nullptr; // Default initialized to nullptr
 
@@ -564,7 +580,8 @@ struct PdmFieldScriptingCapabilityIOHandler<DataType*>
         PdmFieldScriptingCapabilityIOHandler<QString>::writeToField( fieldString,
                                                                      inputStream,
                                                                      errorMessageContainer,
-                                                                     stringsAreQuoted );
+                                                                     stringsAreQuoted,
+                                                                     allowExtraCharacters );
 
         if ( inputStream.status() == QTextStream::ReadCorruptData )
         {
@@ -634,14 +651,16 @@ public:
     void writeToField( QTextStream&          inputStream,
                        PdmObjectFactory*     objectFactory,
                        PdmScriptIOMessages*  errorMessageContainer,
-                       bool                  stringsAreQuoted    = true,
-                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+                       bool                  stringsAreQuoted     = true,
+                       caf::PdmObjectHandle* existingObjectsRoot  = nullptr,
+                       bool                  allowExtraCharacters = true ) override
     {
         typename FieldType::FieldDataType value;
         PdmFieldScriptingCapabilityIOHandler<typename FieldType::FieldDataType>::writeToField( value,
                                                                                                inputStream,
                                                                                                errorMessageContainer,
-                                                                                               stringsAreQuoted );
+                                                                                               stringsAreQuoted,
+                                                                                               allowExtraCharacters );
 
         if ( this->isIOWriteable() )
         {
@@ -676,8 +695,9 @@ public:
     void writeToField( QTextStream&          inputStream,
                        PdmObjectFactory*     objectFactory,
                        PdmScriptIOMessages*  errorMessageContainer,
-                       bool                  stringsAreQuoted    = true,
-                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+                       bool                  stringsAreQuoted     = true,
+                       caf::PdmObjectHandle* existingObjectsRoot  = nullptr,
+                       bool                  allowExtraCharacters = true ) override
     {
         std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
@@ -685,7 +705,8 @@ public:
         PdmFieldScriptingCapabilityIOHandler<DataType*>::writeToField( object,
                                                                        allObjectsOfType,
                                                                        inputStream,
-                                                                       errorMessageContainer );
+                                                                       errorMessageContainer,
+                                                                       allowExtraCharacters );
 
         if ( object && this->isIOWriteable() )
         {
@@ -720,8 +741,9 @@ public:
     void writeToField( QTextStream&          inputStream,
                        PdmObjectFactory*     objectFactory,
                        PdmScriptIOMessages*  errorMessageContainer,
-                       bool                  stringsAreQuoted    = true,
-                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+                       bool                  stringsAreQuoted     = true,
+                       caf::PdmObjectHandle* existingObjectsRoot  = nullptr,
+                       bool                  allowExtraCharacters = true ) override
     {
         std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
@@ -729,7 +751,8 @@ public:
         PdmFieldScriptingCapabilityIOHandler<DataType*>::writeToField( object,
                                                                        allObjectsOfType,
                                                                        inputStream,
-                                                                       errorMessageContainer );
+                                                                       errorMessageContainer,
+                                                                       allowExtraCharacters );
 
         if ( object && this->isIOWriteable() )
         {
@@ -764,8 +787,9 @@ public:
     void writeToField( QTextStream&          inputStream,
                        PdmObjectFactory*     objectFactory,
                        PdmScriptIOMessages*  errorMessageContainer,
-                       bool                  stringsAreQuoted    = true,
-                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+                       bool                  stringsAreQuoted     = true,
+                       caf::PdmObjectHandle* existingObjectsRoot  = nullptr,
+                       bool                  allowExtraCharacters = true ) override
     {
         std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
@@ -773,7 +797,8 @@ public:
         PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
                                                                                     allObjectsOfType,
                                                                                     inputStream,
-                                                                                    errorMessageContainer );
+                                                                                    errorMessageContainer,
+                                                                                    allowExtraCharacters );
 
         if ( this->isIOWriteable() )
         {
@@ -808,8 +833,9 @@ public:
     void writeToField( QTextStream&          inputStream,
                        PdmObjectFactory*     objectFactory,
                        PdmScriptIOMessages*  errorMessageContainer,
-                       bool                  stringsAreQuoted    = true,
-                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+                       bool                  stringsAreQuoted     = true,
+                       caf::PdmObjectHandle* existingObjectsRoot  = nullptr,
+                       bool                  allowExtraCharacters = true ) override
     {
         std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
@@ -817,7 +843,8 @@ public:
         PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
                                                                                     allObjectsOfType,
                                                                                     inputStream,
-                                                                                    errorMessageContainer );
+                                                                                    errorMessageContainer,
+                                                                                    allowExtraCharacters );
 
         if ( this->isIOWriteable() )
         {
@@ -850,8 +877,9 @@ public:
     void writeToField( QTextStream&          inputStream,
                        PdmObjectFactory*     objectFactory,
                        PdmScriptIOMessages*  errorMessageContainer,
-                       bool                  stringsAreQuoted    = true,
-                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+                       bool                  stringsAreQuoted     = true,
+                       caf::PdmObjectHandle* existingObjectsRoot  = nullptr,
+                       bool                  allowExtraCharacters = true ) override
     {
         if ( this->isIOWriteable() )
         {
@@ -860,7 +888,8 @@ public:
             PdmFieldScriptingCapabilityIOHandler<caf::AppEnum<DataType>>::writeToField( value,
                                                                                         inputStream,
                                                                                         errorMessageContainer,
-                                                                                        stringsAreQuoted );
+                                                                                        stringsAreQuoted,
+                                                                                        allowExtraCharacters );
             m_field->setValue( value );
         }
     }

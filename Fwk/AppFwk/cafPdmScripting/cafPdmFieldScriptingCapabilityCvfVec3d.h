@@ -48,7 +48,8 @@ struct PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>
     static void writeToField( cvf::Vector3<double>& fieldValue,
                               QTextStream&          inputStream,
                               PdmScriptIOMessages*  errorMessageContainer,
-                              bool                  stringsAreQuoted = true );
+                              bool                  stringsAreQuoted     = true,
+                              bool                  allowExtraCharacters = true );
     static void readFromField( const cvf::Vector3<double>& fieldValue,
                                QTextStream&                outputStream,
                                bool                        quoteStrings     = true,
@@ -61,7 +62,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>
     static void writeToField( std::vector<cvf::Vector3<double>>& fieldValue,
                               QTextStream&                       inputStream,
                               PdmScriptIOMessages*               errorMessageContainer,
-                              bool                               stringsAreQuoted = true );
+                              bool                               stringsAreQuoted     = true,
+                              bool                               allowExtraCharacters = true );
     static void readFromField( const std::vector<cvf::Vector3<double>>& fieldValue,
                                QTextStream&                             outputStream,
                                bool                                     quoteStrings     = true,
@@ -74,7 +76,8 @@ struct PdmFieldScriptingCapabilityIOHandler<cvf::Matrix4<double>>
     static void writeToField( cvf::Matrix4<double>& fieldValue,
                               QTextStream&          inputStream,
                               PdmScriptIOMessages*  errorMessageContainer,
-                              bool                  stringsAreQuoted = true );
+                              bool                  stringsAreQuoted     = true,
+                              bool                  allowExtraCharacters = true );
     static void readFromField( const cvf::Matrix4<double>& fieldValue,
                                QTextStream&                outputStream,
                                bool                        quoteStrings     = true,

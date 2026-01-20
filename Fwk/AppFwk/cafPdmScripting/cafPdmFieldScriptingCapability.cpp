@@ -43,7 +43,8 @@ using namespace caf;
 void PdmFieldScriptingCapabilityIOHandler<QString>::writeToField( QString&                  fieldValue,
                                                                   QTextStream&              inputStream,
                                                                   caf::PdmScriptIOMessages* errorMessageContainer,
-                                                                  bool                      stringsAreQuoted )
+                                                                  bool                      stringsAreQuoted,
+                                                                  bool                      allowExtraCharacters )
 {
     fieldValue = "";
 
@@ -139,7 +140,8 @@ void PdmFieldScriptingCapabilityIOHandler<QString>::readFromField( const QString
 void PdmFieldScriptingCapabilityIOHandler<bool>::writeToField( bool&                     fieldValue,
                                                                QTextStream&              inputStream,
                                                                caf::PdmScriptIOMessages* errorMessageContainer,
-                                                               bool                      stringsAreQuoted )
+                                                               bool                      stringsAreQuoted,
+                                                               bool                      allowExtraCharacters )
 {
     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
     QString accumulatedFieldValue;
@@ -169,7 +171,7 @@ void PdmFieldScriptingCapabilityIOHandler<bool>::writeToField( bool&            
             formatString.arg( errorMessageContainer->currentArgument ).arg( errorMessageContainer->currentCommand );
         errorMessageContainer->addError( errorMessage );
     }
-    else
+    else if ( !allowExtraCharacters )
     {
         errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
     }
@@ -194,7 +196,8 @@ void PdmFieldScriptingCapabilityIOHandler<bool>::readFromField( const bool&  fie
 void PdmFieldScriptingCapabilityIOHandler<double>::writeToField( double&              fieldValue,
                                                                  QTextStream&         inputStream,
                                                                  PdmScriptIOMessages* errorMessageContainer,
-                                                                 bool                 stringsAreQuoted )
+                                                                 bool                 stringsAreQuoted,
+                                                                 bool                 allowExtraCharacters )
 {
     inputStream >> fieldValue;
     if ( inputStream.status() == QTextStream::ReadCorruptData )
@@ -205,7 +208,7 @@ void PdmFieldScriptingCapabilityIOHandler<double>::writeToField( double&        
 
         inputStream.setStatus( QTextStream::Ok );
     }
-    else if ( inputStream.status() == QTextStream::Ok )
+    else if ( inputStream.status() == QTextStream::Ok && !allowExtraCharacters )
     {
         errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
     }
@@ -228,7 +231,8 @@ void PdmFieldScriptingCapabilityIOHandler<double>::readFromField( const double& 
 void PdmFieldScriptingCapabilityIOHandler<int>::writeToField( int&                 fieldValue,
                                                               QTextStream&         inputStream,
                                                               PdmScriptIOMessages* errorMessageContainer,
-                                                              bool                 stringsAreQuoted )
+                                                              bool                 stringsAreQuoted,
+                                                              bool                 allowExtraCharacters )
 {
     inputStream >> fieldValue;
     if ( inputStream.status() == QTextStream::ReadCorruptData )
@@ -239,7 +243,7 @@ void PdmFieldScriptingCapabilityIOHandler<int>::writeToField( int&              
 
         inputStream.setStatus( QTextStream::Ok );
     }
-    else if ( inputStream.status() == QTextStream::Ok )
+    else if ( inputStream.status() == QTextStream::Ok && !allowExtraCharacters )
     {
         errorMessageContainer->checkForExtraCharactersAfterValue( inputStream );
     }

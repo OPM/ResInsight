@@ -63,8 +63,9 @@ public:
     virtual void writeToField( QTextStream&              inputStream,
                                caf::PdmObjectFactory*    objectFactory,
                                caf::PdmScriptIOMessages* errorMessageContainer,
-                               bool                      stringsAreQuoted    = true,
-                               caf::PdmObjectHandle*     existingObjectsRoot = nullptr )                              = 0;
+                               bool                      stringsAreQuoted     = true,
+                               caf::PdmObjectHandle*     existingObjectsRoot  = nullptr,
+                               bool                      allowExtraCharacters = true )                                                 = 0;
 
     static QString helpString( const QString& existingTooltip, const QString& keyword );
 

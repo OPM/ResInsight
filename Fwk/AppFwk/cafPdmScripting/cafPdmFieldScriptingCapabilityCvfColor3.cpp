@@ -45,13 +45,15 @@ using namespace caf;
 void PdmFieldScriptingCapabilityIOHandler<cvf::Color3f>::writeToField( cvf::Color3f&             fieldValue,
                                                                        QTextStream&              inputStream,
                                                                        caf::PdmScriptIOMessages* errorMessageContainer,
-                                                                       bool                      stringsAreQuoted )
+                                                                       bool                      stringsAreQuoted,
+                                                                       bool                      allowExtraCharacters )
 {
     QString fieldStringValue;
     PdmFieldScriptingCapabilityIOHandler<QString>::writeToField( fieldStringValue,
                                                                  inputStream,
                                                                  errorMessageContainer,
-                                                                 stringsAreQuoted );
+                                                                 stringsAreQuoted,
+                                                                 allowExtraCharacters );
 
     QColor qColor( fieldStringValue );
     if ( qColor.isValid() )

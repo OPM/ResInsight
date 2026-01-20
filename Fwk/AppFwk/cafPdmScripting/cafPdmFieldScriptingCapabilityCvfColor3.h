@@ -46,7 +46,8 @@ struct PdmFieldScriptingCapabilityIOHandler<cvf::Color3f>
     static void writeToField( cvf::Color3f&        fieldValue,
                               QTextStream&         inputStream,
                               PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true );
     static void readFromField( const cvf::Color3f& fieldValue,
                                QTextStream&        outputStream,
                                bool                quoteStrings     = true,

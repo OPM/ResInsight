@@ -284,7 +284,7 @@ std::expected<void, QString> RiaGrpcServiceInterface::assignFieldValue( const QS
 
     // Step 2: Parse and set new value
     QTextStream stream( stringValue.toLatin1() );
-    scriptability->writeToField( stream, nullptr, messages, false, RimProject::current() );
+    scriptability->writeToField( stream, nullptr, messages, false, RimProject::current(), false );
 
     // Step 3: Check for parsing errors (type mismatches)
     if ( !messages->m_messages.empty() )
