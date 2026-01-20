@@ -151,6 +151,7 @@ RimSurface* RimSurfaceCollection::createSurfaceFromFile( const QString& fileName
     {
         auto regularFileSurface = new RimRegularFileSurface;
         regularFileSurface->setFilePath( fileName );
+        regularFileSurface->setPropertyAsDepth( RimRegularFileSurface::propertyName() );
         newSurface = regularFileSurface;
     }
     else

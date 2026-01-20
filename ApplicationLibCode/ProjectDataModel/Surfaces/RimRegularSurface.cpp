@@ -18,6 +18,8 @@
 
 #include "RimRegularSurface.h"
 
+#include "RiaLogging.h"
+
 #include "Surface/RigSurface.h"
 
 #include "RimSurfaceCollection.h"
@@ -208,6 +210,14 @@ void RimRegularSurface::clearCachedNativeData()
 //--------------------------------------------------------------------------------------------------
 bool RimRegularSurface::updateSurfaceData()
 {
+    if ( m_depthProperty() != internal::fixedDepth() && !m_properties.contains( m_depthProperty() ) )
+    {
+        RiaLogging::warning( QString( "Surface '%1': Depth property '%2' not found." ).arg( userDescription(), m_depthProperty() ) );
+        setSurfaceData( nullptr );
+
+        return false;
+    }
+
     // Adapted from xtgeo surf_xyz_from_ij
     auto computeXyzFromIj =
         []( int i, int j, double depth, double xori, double yori, double xinc, double yinc, double rotationDegrees ) -> cvf::Vec3d
@@ -390,12 +400,9 @@ void RimRegularSurface::setProperty( const QString& key, const std::vector<float
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimRegularSurface::setPropertyAsDepth( const QString& key )
+void RimRegularSurface::setPropertyAsDepth( const QString& key )
 {
-    if ( !m_properties.contains( key ) ) return false;
-
     m_depthProperty = key;
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

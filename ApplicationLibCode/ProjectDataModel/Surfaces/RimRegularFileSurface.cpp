@@ -29,6 +29,14 @@ CAF_PDM_SOURCE_INIT( RimRegularFileSurface, "RegularFileSurface" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimRegularFileSurface::propertyName()
+{
+    return "Property Values in File";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularFileSurface::RimRegularFileSurface()
 {
     CAF_PDM_InitScriptableObject( "RegularFileSurface", ":/ReservoirSurface16x16.png" );
@@ -72,8 +80,7 @@ bool RimRegularFileSurface::onLoadData()
 
         if ( !values.empty() )
         {
-            const QString propertyName = "File Property Values";
-            setProperty( propertyName, values );
+            setProperty( RimRegularFileSurface::propertyName(), values );
         }
 
         RimRegularSurface::onLoadData();
