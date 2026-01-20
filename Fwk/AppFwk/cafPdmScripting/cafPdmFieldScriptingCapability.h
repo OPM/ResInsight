@@ -210,23 +210,11 @@ struct PdmFieldScriptingCapabilityIOHandler
                               bool                 allowExtraCharacters = true )
     {
         inputStream >> fieldValue;
-        if ( inputStream.status() != QTextStream::Ok )
+        // Only report ReadCorruptData as an error. ReadPastEnd just means the stream was fully
+        // consumed, which is expected for types like caf::FilePath that read all available input.
+        if ( inputStream.status() == QTextStream::ReadCorruptData )
         {
-            QString errorMessage;
-            if ( inputStream.status() == QTextStream::ReadPastEnd )
-            {
-                errorMessage = "Read past end of argument";
-            }
-            else if ( inputStream.status() == QTextStream::ReadCorruptData )
-            {
-                errorMessage = "Argument value is unreadable";
-            }
-            else
-            {
-                errorMessage = "Unknown read error";
-            }
-
-            errorMessageContainer->addError( errorMessage + ": \"" + errorMessageContainer->currentArgument +
+            errorMessageContainer->addError( "Argument value is unreadable: \"" + errorMessageContainer->currentArgument +
                                              "\" in the command: \"" + errorMessageContainer->currentCommand + "\"" );
             inputStream.setStatus( QTextStream::Ok );
         }

@@ -282,7 +282,7 @@ std::expected<void, QString> RiaGrpcServiceInterface::assignFieldValue( const QS
     // Step 1: Save old value for potential rollback
     if ( valueField ) *oldValue = valueField->toQVariant();
 
-    // Step 2: Parse and set new value
+    // Step 2: Parse and set new value (strict mode for GRPC)
     QTextStream stream( stringValue.toLatin1() );
     scriptability->writeToField( stream, nullptr, messages, false, RimProject::current(), false );
 

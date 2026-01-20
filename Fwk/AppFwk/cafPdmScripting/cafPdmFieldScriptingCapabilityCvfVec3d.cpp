@@ -99,6 +99,15 @@ void PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>::wr
     {
         while ( !inputStream.atEnd() )
         {
+            // Check for closing bracket first (handles empty array case)
+            errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+            QChar nextChar = errorMessageContainer->peekNextChar( inputStream );
+            if ( nextChar == QChar( ']' ) )
+            {
+                nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                break;
+            }
+
             std::vector<double> fieldVectorValue;
 
             PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::writeToField( fieldVectorValue,
@@ -120,7 +129,7 @@ void PdmFieldScriptingCapabilityIOHandler<std::vector<cvf::Vector3<double>>>::wr
             }
 
             errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
-            QChar nextChar = errorMessageContainer->peekNextChar( inputStream );
+            nextChar = errorMessageContainer->peekNextChar( inputStream );
             if ( nextChar == QChar( ']' ) )
             {
                 nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
