@@ -261,11 +261,16 @@ static QProgressDialog* progressDialog()
 
     QWidget* parent = app != nullptr ? app->activeWindow() : nullptr;
 
-    if ( !progDialog.isNull() && ( progDialog->parent() == nullptr ) && ( parent != nullptr ) )
+    // Check if the current prog dialog (if any) has a proper parent.
+    // If not, re-create it, to make sure it is positioned in the correct main window
+    if ( !progDialog.isNull() && ( progDialog->parent() != parent ) && ( parent != nullptr ) )
     {
-        progDialog->hide();
-        progDialog->deleteLater();
-        progDialog = nullptr;
+        // Thread check, we can only modify the progDialog if we are in the same thread as it belongs
+        if ( QThread::currentThread() == progDialog->thread() )
+        {
+            progDialog->deleteLater();
+            progDialog = nullptr;
+        }
     }
 
     if ( progDialog.isNull() )
