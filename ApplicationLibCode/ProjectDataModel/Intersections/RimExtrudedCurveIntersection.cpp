@@ -448,12 +448,12 @@ void RimExtrudedCurveIntersection::setKFilterOverride( bool collectionOverride, 
 void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive || changedField == &m_type || changedField == &m_direction || changedField == &m_wellPath ||
-         changedField == &m_simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength || changedField == &m_lengthUp ||
-         changedField == &m_lengthDown || changedField == &m_showInactiveCells || changedField == &m_useSeparateDataSource ||
-         changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold || changedField == &m_depthLowerThreshold ||
-         changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType || changedField == &m_enableKFilter ||
-         changedField == &m_kFilterText || changedField == &m_kFilterCollectionOverride || changedField == &m_projectPolygon ||
-         changedField == &m_showIntersectionGeometry )
+         changedField == &m_simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength ||
+         changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &m_showInactiveCells ||
+         changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold ||
+         changedField == &m_depthLowerThreshold || changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType ||
+         changedField == &m_enableKFilter || changedField == &m_kFilterText || changedField == &m_kFilterCollectionOverride ||
+         changedField == &m_projectPolygon || changedField == &m_showIntersectionGeometry )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
