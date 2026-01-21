@@ -78,7 +78,9 @@ void RigWellPathGeometryExporter::computeWellPathDataForExport( const RigWellPat
                                                                 std::vector<double>& mdValues )
 {
     double currMd = wellPathGeom.measuredDepths().front() - mdStepSize;
-    double endMd  = wellPathGeom.measuredDepths().back();
+    // Safety check to avoid "infinite" loop: max MD for a well path cannot be more than 100 km
+    // This could happen in certain corner cases for "weird" input, causing massive memory usage
+    double endMd = std::min( wellPathGeom.measuredDepths().back(), 100000.0 );
 
     bool   isFirst = true;
     double prevMd  = 0.0;
