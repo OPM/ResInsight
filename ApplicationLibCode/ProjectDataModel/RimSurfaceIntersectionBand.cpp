@@ -255,11 +255,11 @@ QString RimSurfaceIntersectionBand::objectName() const
             }
         }
 
-        auto secondSurface = surfaces[0];
+        auto secondSurface = surfaces[1];
 
         if ( firstSurface && secondSurface )
         {
-            text += "( " + firstSurface->fullName() + " - " + secondSurface->fullName() + " )";
+            text += " (" + firstSurface->fullName() + " - " + secondSurface->fullName() + ")";
             return text;
         }
     }
