@@ -254,7 +254,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 
     if ( statusBar() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
-        statusBar()->showMessage( "Ready ..." );
+        statusBar()->showMessage( "Ready ...", 5000 );
     }
 
     QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
