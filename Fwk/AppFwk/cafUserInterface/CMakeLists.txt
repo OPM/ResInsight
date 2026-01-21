@@ -74,10 +74,6 @@ set(PROJECT_FILES
     # object editors
     cafPdmUiDefaultObjectEditor.cpp
     cafPdmUiDefaultObjectEditor.h
-    cafPdmUiListView.cpp
-    cafPdmUiListView.h
-    cafPdmUiListViewEditor.cpp
-    cafPdmUiListViewEditor.h
     cafPdmUiTableRowEditor.cpp
     cafPdmUiTableRowEditor.h
     cafPdmUiTableView.cpp
