@@ -205,6 +205,8 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitScriptableObject( "Intersection", ":/CrossSection16x16.png" );
     CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_name, "UserDescription", "Name", QString( "Intersection Name" ), "Name" );
 
+    CAF_PDM_InitField( &m_showIntersectionGeometry, "ShowIntersectionGeometry", true, "Show Intersection Geometry" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_type, "Type", "Type" );
     CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path        " );
@@ -446,11 +448,12 @@ void RimExtrudedCurveIntersection::setKFilterOverride( bool collectionOverride, 
 void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive || changedField == &m_type || changedField == &m_direction || changedField == &m_wellPath ||
-         changedField == &m_simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength || changedField == &m_lengthUp ||
-         changedField == &m_lengthDown || changedField == &m_showInactiveCells || changedField == &m_useSeparateDataSource ||
-         changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold || changedField == &m_depthLowerThreshold ||
-         changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType || changedField == &m_enableKFilter ||
-         changedField == &m_kFilterText || changedField == &m_kFilterCollectionOverride || changedField == &m_projectPolygon )
+         changedField == &m_simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength ||
+         changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &m_showInactiveCells ||
+         changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold ||
+         changedField == &m_depthLowerThreshold || changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType ||
+         changedField == &m_enableKFilter || changedField == &m_kFilterText || changedField == &m_kFilterCollectionOverride ||
+         changedField == &m_projectPolygon || changedField == &m_showIntersectionGeometry )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -536,6 +539,7 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
 void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
+    uiOrdering.add( &m_showIntersectionGeometry );
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup( "Intersecting Geometry" );
     geometryGroup->add( &m_type );
 
@@ -1270,6 +1274,14 @@ double RimExtrudedCurveIntersection::extentLength()
 bool RimExtrudedCurveIntersection::hasDefiningPoints() const
 {
     return m_type() == CrossSectionEnum::CS_POLYLINE || m_type() == CrossSectionEnum::CS_AZIMUTHLINE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimExtrudedCurveIntersection::showIntersectionGeometry() const
+{
+    return m_showIntersectionGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------

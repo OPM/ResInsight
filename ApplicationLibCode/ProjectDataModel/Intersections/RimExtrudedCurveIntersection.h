@@ -134,6 +134,8 @@ public:
     RimSurfaceIntersectionCurve*              addIntersectionCurve();
     RimSurfaceIntersectionBand*               addIntersectionBand();
 
+    bool showIntersectionGeometry() const;
+
     int  branchIndex() const;
     void rebuildGeometryAndScheduleCreateDisplayModel();
 
@@ -168,6 +170,7 @@ private:
 
 private:
     caf::PdmField<QString> m_name;
+    caf::PdmField<bool>    m_showIntersectionGeometry;
 
     caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_depthFilterType;
     caf::PdmField<double>                                  m_depthUpperThreshold;
