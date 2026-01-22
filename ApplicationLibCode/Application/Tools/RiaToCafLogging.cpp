@@ -126,7 +126,7 @@ void RiaCafLoggingManager::initializeCafLogging()
         s_isInitialized = true;
 
         // Log initialization success
-        RiaLogging::info( "CAF logging bridge initialized successfully" );
+        RiaLogging::debug( "CAF logging bridge initialized successfully" );
     }
 }
 
@@ -141,7 +141,7 @@ void RiaCafLoggingManager::shutdownCafLogging()
         s_isInitialized = false;
 
         // Log shutdown
-        RiaLogging::info( "CAF logging bridge shut down" );
+        RiaLogging::debug( "CAF logging bridge shut down" );
     }
 }
 

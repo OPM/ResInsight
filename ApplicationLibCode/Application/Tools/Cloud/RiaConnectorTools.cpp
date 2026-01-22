@@ -179,7 +179,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( filePath );
         if ( !keyValuePairs.empty() )
         {
-            RiaLogging::info( QString( "Imported OSDU configuration from : '%1'" ).arg( filePath ) );
+            RiaLogging::debug( QString( "Imported OSDU configuration from : '%1'" ).arg( filePath ) );
             preferences->osduPreferences()->setData( keyValuePairs );
             preferences->osduPreferences()->setFieldsReadOnly();
             break;
@@ -192,7 +192,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( filePath );
         if ( !keyValuePairs.empty() )
         {
-            RiaLogging::info( QString( "Imported SUMO configuration from : '%1'" ).arg( filePath ) );
+            RiaLogging::debug( QString( "Imported SUMO configuration from : '%1'" ).arg( filePath ) );
             preferences->sumoPreferences()->setData( keyValuePairs );
             preferences->sumoPreferences()->setFieldsReadOnly();
             break;
@@ -205,7 +205,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( filePath );
         if ( !keyValuePairs.empty() )
         {
-            RiaLogging::info( QString( "Imported OpenTelemetry configuration from : '%1'" ).arg( filePath ) );
+            RiaLogging::debug( QString( "Imported OpenTelemetry configuration from : '%1'" ).arg( filePath ) );
             RiaPreferencesOpenTelemetry::current()->setData( keyValuePairs );
             RiaPreferencesOpenTelemetry::current()->setFieldsReadOnly();
             break;
@@ -221,22 +221,25 @@ void RiaConnectorTools::configureCloudServices()
     if ( auto preferences = RiaApplication::instance()->preferences() )
     {
         RiaConnectorTools::readCloudConfigFiles( preferences );
-    }
 
-    // Initialize OpenTelemetry after configuration is loaded
-    auto& otelManager = RiaOpenTelemetryManager::instance();
-    if ( otelManager.initialize() )
-    {
-        // Set system username for telemetry tracking
-        QString username = RiaOpenTelemetryManager::getSystemUsername();
-        if ( !username.isEmpty() )
+        if ( preferences->openTelemetryPreferences()->loggingState() != RiaPreferencesOpenTelemetry::LoggingState::DISABLED )
         {
-            otelManager.setUsername( username.toStdString() );
+            // Initialize OpenTelemetry after configuration is loaded
+            auto& otelManager = RiaOpenTelemetryManager::instance();
+            if ( otelManager.initialize() )
+            {
+                // Set system username for telemetry tracking
+                QString username = RiaOpenTelemetryManager::getSystemUsername();
+                if ( !username.isEmpty() )
+                {
+                    otelManager.setUsername( username.toStdString() );
+                }
+                RiaLogging::debug( "OpenTelemetry initialized successfully" );
+            }
+            else
+            {
+                RiaLogging::debug( "OpenTelemetry initialization failed or not configured" );
+            }
         }
-        RiaLogging::info( "OpenTelemetry initialized successfully" );
-    }
-    else
-    {
-        RiaLogging::debug( "OpenTelemetry initialization failed or not configured" );
     }
 }

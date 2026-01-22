@@ -164,7 +164,7 @@ void RiaGrpcServerImpl::initialize()
         return;
     }
 
-    RiaLogging::info( QString( "Server listening on %1" ).arg( serverAddress ) );
+    RiaLogging::debug( QString( "Server listening on %1" ).arg( serverAddress ) );
 
     // Spawn new CallData instances to serve new clients.
     for ( auto service : m_services )

@@ -74,7 +74,7 @@ RiaSocketServer::RiaSocketServer( QObject* parent )
     }
 
     QString txt = QString( "Octave is using port: %1" ).arg( portNumber );
-    RiaLogging::info( txt );
+    RiaLogging::debug( txt );
 
     connect( m_nextPendingConnectionTimer, SIGNAL( timeout() ), this, SLOT( slotNewClientConnection() ) );
     connect( m_tcpServer, SIGNAL( newConnection() ), this, SLOT( slotNewClientConnection() ) );
