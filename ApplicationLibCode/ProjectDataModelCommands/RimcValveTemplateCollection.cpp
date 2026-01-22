@@ -30,6 +30,7 @@ void caf::AppEnum<RimcValveTemplateCollection_add_template::ValveTemplateType>::
     addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::ICD, "ICD", "Inflow Control Device" );
     addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::ICV, "ICV", "Inflow Control Valve" );
     addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::AICD, "AICD", "Adaptive Inflow Control Device" );
+    addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::SICD, "SICD", "Spiral Inflow Control Device" );
     addItem( RimcValveTemplateCollection_add_template::ValveTemplateType::UNDEFINED, "UNDEFINED", "Undefined Valve Template" );
 
     setDefault( RimcValveTemplateCollection_add_template::ValveTemplateType::UNDEFINED );
@@ -51,7 +52,7 @@ RimcValveTemplateCollection_add_template::RimcValveTemplateCollection_add_templa
                                  "",
                                  "",
                                  "",
-                                 "Completion type (ICD, ICV, or AICD)" );
+                                 "Completion type (ICD, ICV, AICD or SICD)" );
     CAF_PDM_InitScriptableField( &m_orificeDiameter, "OrificeDiameter", RimValveTemplate::defaultOrificeDiameter(), "", "", "", "Orifice diameter" );
     CAF_PDM_InitScriptableField( &m_flowCoefficient, "FlowCoefficient", RimValveTemplate::defaultFlowCoefficient(), "", "", "", "Flow coefficient" );
     CAF_PDM_InitScriptableField( &m_userLabel, "UserLabel", QString( "" ), "", "", "", "User-defined label for the template" );
@@ -80,6 +81,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcValveTemplateCollection_add_te
             break;
         case ValveTemplateType::AICD:
             completionType = RiaDefines::WellPathComponentType::AICD;
+            break;
+        case ValveTemplateType::SICD:
+            completionType = RiaDefines::WellPathComponentType::SICD;
             break;
         default:
             return std::unexpected( QString( "Unknown completion type" ) );

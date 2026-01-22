@@ -41,6 +41,7 @@ public:
         ICD,
         ICV,
         AICD,
+        SICD,
         UNDEFINED
     };
 

@@ -7,7 +7,8 @@
         <file>3DViewGeoMech16x16.png</file>
         <file>3DWindow.svg</file>
         <file>AICDValve16x16.png</file>
-        <file>Annotations16x16.png</file>
+		<file>SICDValve16x16.png</file>
+		<file>Annotations16x16.png</file>
         <file>AnalysisPlot16x16.png</file>
         <file>AnalysisPlots16x16.png</file>
         <file>AnalysisPlotFilter16x16.png</file>

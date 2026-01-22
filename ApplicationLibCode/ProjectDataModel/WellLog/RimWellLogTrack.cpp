@@ -3309,7 +3309,8 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
                                                                                { RiaDefines::WellPathComponentType::ICD, 7 },
                                                                                { RiaDefines::WellPathComponentType::AICD, 8 },
                                                                                { RiaDefines::WellPathComponentType::ICV, 9 },
-                                                                               { RiaDefines::WellPathComponentType::MSW_SEGMENT, 10 } };
+                                                                               { RiaDefines::WellPathComponentType::MSW_SEGMENT, 10 },
+                                                                               { RiaDefines::WellPathComponentType::SICD, 11 } };
 
         std::stable_sort( allWellPathComponents.begin(),
                           allWellPathComponents.end(),

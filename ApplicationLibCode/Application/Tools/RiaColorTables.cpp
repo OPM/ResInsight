@@ -587,6 +587,7 @@ RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors(
              { RiaDefines::WellPathComponentType::FRACTURE, cvf::Color3::CRIMSON },
              { RiaDefines::WellPathComponentType::ICD, cvf::Color3::DARK_ORANGE },
              { RiaDefines::WellPathComponentType::AICD, cvf::Color3::INDIGO },
+             { RiaDefines::WellPathComponentType::SICD, cvf::Color3::CYAN },
              { RiaDefines::WellPathComponentType::ICV, cvf::Color3::ORCHID },
              { RiaDefines::WellPathComponentType::CASING, cvf::Color3::SEA_GREEN },
              { RiaDefines::WellPathComponentType::LINER, cvf::Color3::OLIVE },

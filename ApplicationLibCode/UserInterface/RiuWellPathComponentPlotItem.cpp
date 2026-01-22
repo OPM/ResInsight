@@ -265,23 +265,8 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
                    label(),
                    Qt::AlignTop | Qt::AlignRight );
     }
-    else if ( m_componentType == RiaDefines::WellPathComponentType::ICD )
-    {
-        for ( double md : m_subMDs )
-        {
-            addMarker( 0.0, md, 16, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
-        }
-        m_combinedComponentGroup.addLegendItem( createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
-    }
-    else if ( m_componentType == RiaDefines::WellPathComponentType::ICV )
-    {
-        for ( double md : m_subMDs )
-        {
-            addMarker( 0.0, md, 16, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
-        }
-        m_combinedComponentGroup.addLegendItem( createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
-    }
-    else if ( m_componentType == RiaDefines::WellPathComponentType::AICD )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::ICD || m_componentType == RiaDefines::WellPathComponentType::ICV ||
+              m_componentType == RiaDefines::WellPathComponentType::AICD || m_componentType == RiaDefines::WellPathComponentType::SICD )
     {
         for ( double md : m_subMDs )
         {

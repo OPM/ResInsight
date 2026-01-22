@@ -78,6 +78,8 @@ enum class WellPathComponentType
     PACKER,
     // MSW segments from WELSEGS
     MSW_SEGMENT,
+    // More valves
+    SICD,
     UNDEFINED_COMPONENT
 };
 

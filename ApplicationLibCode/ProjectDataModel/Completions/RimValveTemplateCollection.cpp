@@ -84,7 +84,12 @@ void RimValveTemplateCollection::addDefaultValveTemplates()
     icv->setType( RiaDefines::WellPathComponentType::ICV );
     icv->setUserLabel( "Valve Template #3" );
 
+    RimValveTemplate* sicd = new RimValveTemplate;
+    sicd->setType( RiaDefines::WellPathComponentType::SICD );
+    sicd->setUserLabel( "Valve Template #4" );
+
     addItem( aicd );
     addItem( icd );
     addItem( icv );
+    addItem( sicd );
 }

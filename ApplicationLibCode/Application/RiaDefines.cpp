@@ -110,6 +110,7 @@ void caf::AppEnum<RiaDefines::WellPathComponentType>::setUp()
     addItem( RiaDefines::WellPathComponentType::FRACTURE, "FRACTURE", "Fracture" );
     addItem( RiaDefines::WellPathComponentType::ICD, "ICD", "ICD" );
     addItem( RiaDefines::WellPathComponentType::AICD, "AICD", "AICD" );
+    addItem( RiaDefines::WellPathComponentType::SICD, "SICD", "SICD" );
     addItem( RiaDefines::WellPathComponentType::ICV, "ICV", "ICV" );
     addItem( RiaDefines::WellPathComponentType::CASING, "CASING", "Casing" );
     addItem( RiaDefines::WellPathComponentType::LINER, "LINER", "Liner" );

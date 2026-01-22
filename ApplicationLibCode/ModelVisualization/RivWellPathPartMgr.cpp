@@ -519,7 +519,8 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
             }
         }
         else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICD ||
-                  valve->componentType() == RiaDefines::WellPathComponentType::AICD )
+                  valve->componentType() == RiaDefines::WellPathComponentType::AICD ||
+                  valve->componentType() == RiaDefines::WellPathComponentType::SICD )
         {
             std::vector<double> valveLocations = valve->valveLocations();
             for ( double startMD : valveLocations )
@@ -538,7 +539,9 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
                 int  nInners = 0;
                 for ( int i = 1; i < size - 1; i += 2 )
                 {
-                    if ( inner && valve->componentType() == RiaDefines::WellPathComponentType::AICD && nInners > 0 )
+                    if ( inner && nInners > 0 &&
+                         ( valve->componentType() == RiaDefines::WellPathComponentType::AICD ||
+                           valve->componentType() == RiaDefines::WellPathComponentType::SICD ) )
                     {
                         radii[i + 1] = radii[i] = wellPathRadius * 1.7;
                         nInners                 = 0;
