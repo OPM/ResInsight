@@ -1540,6 +1540,29 @@ void RiaApplication::setCommandLineHelpText( const QString& commandLineHelpText 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Parse and set the log level from Qt command line arguments
+/// This method is called early during initialization, before the full argument parsing
+/// Only sets m_logLevelFromCommandLine if a valid value is found, silently ignores errors
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::parseLogLevelFromQtArguments()
+{
+    QStringList args = QCoreApplication::arguments();
+    for ( int i = 1; i < args.size(); ++i )
+    {
+        if ( args[i] == "--loglevel" && i + 1 < args.size() )
+        {
+            QString                   logLevelString = args[i + 1];
+            std::optional<RILogLevel> logLevel       = RiaLogging::parseLogLevelString( logLevelString );
+            if ( logLevel.has_value() )
+            {
+                m_logLevelFromCommandLine = int( logLevel.value() );
+            }
+            break;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaApplication::readFileListFromTextFile( QString listFileName )
@@ -1645,6 +1668,9 @@ void RiaApplication::initialize()
     RiaCafLoggingManager::initializeCafLogging();
 
     initializeDataLoadController();
+
+    // Parse log level early so it's available before logger is created in subclass initialize()
+    parseLogLevelFromQtArguments();
 }
 
 //--------------------------------------------------------------------------------------------------

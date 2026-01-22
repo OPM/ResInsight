@@ -144,6 +144,11 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
                              "Select the reader type used to access EGRID files, valid values are RESDATA or OPM_COMMON",
                              cvf::ProgramOptions::SINGLE_VALUE );
 
+    progOpt->registerOption( "loglevel",
+                             "<level>",
+                             "Set the log level. Valid values are DISABLED, ERROR, WARNING, INFO, DEBUG",
+                             cvf::ProgramOptions::SINGLE_VALUE );
+
     progOpt->setOptionPrefix( cvf::ProgramOptions::DOUBLE_DASH );
 
     QStringList arguments = QCoreApplication::arguments();

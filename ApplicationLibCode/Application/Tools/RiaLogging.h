@@ -29,10 +29,11 @@ class QWidget;
 
 enum class RILogLevel
 {
-    RI_LL_ERROR   = 1,
-    RI_LL_WARNING = 2,
-    RI_LL_INFO    = 3,
-    RI_LL_DEBUG   = 4
+    RI_LL_DISABLED = 0,
+    RI_LL_ERROR    = 1,
+    RI_LL_WARNING  = 2,
+    RI_LL_INFO     = 3,
+    RI_LL_DEBUG    = 4
 };
 
 //==================================================================================================
@@ -65,7 +66,8 @@ public:
     static std::vector<RiaLogger*> loggerInstances();
     static void                    appendLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance );
 
-    static RILogLevel logLevelBasedOnPreferences();
+    static RILogLevel                logLevelBasedOnPreferences();
+    static std::optional<RILogLevel> parseLogLevelString( const QString& logLevelString );
 
     static void error( const QString& message, const QString logKeyword = "" );
     static void warning( const QString& message, const QString logKeyword = "" );

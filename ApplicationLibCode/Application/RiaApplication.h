@@ -232,6 +232,7 @@ protected:
 
 protected:
     void initializeDataLoadController();
+    void parseLogLevelFromQtArguments();
 
     cvf::ref<cvf::Font> m_defaultSceneFont;
     cvf::ref<cvf::Font> m_defaultAnnotationFont;
@@ -264,6 +265,7 @@ protected:
     bool m_runningWorkerProcess;
 
     std::optional<int> m_threadCountFromCommandLine;
+    std::optional<int> m_logLevelFromCommandLine;
 
 private:
     static RiaApplication*     s_riaApplication;
