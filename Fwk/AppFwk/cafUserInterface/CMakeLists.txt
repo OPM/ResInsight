@@ -48,8 +48,6 @@ set(PROJECT_FILES
     cafPdmUiListEditor.h
     cafPdmUiPushButtonEditor.cpp
     cafPdmUiPushButtonEditor.h
-    cafPdmUiActionPushButtonEditor.cpp
-    cafPdmUiActionPushButtonEditor.h
     cafPdmUiSliderEditor.cpp
     cafPdmUiSliderEditor.h
     cafPdmUiTextEditor.cpp
