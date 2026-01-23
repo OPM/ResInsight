@@ -62,6 +62,7 @@ class RimMswCompletionParameters;
 class RimWellIASettingsCollection;
 class RimWellLogFile;
 class RimWellLog;
+class RimWellEventTimeline;
 
 //==================================================================================================
 ///
