@@ -30,7 +30,7 @@ def main():
     well_path_coll = project.well_path_collection()
     wells = project.well_paths()
 
-    if (len(wells) > 0):
+    if len(wells) > 0:
         well_path = wells[0]
 
     print("Well name: ", well_path.name)
@@ -114,7 +114,9 @@ def main():
     perforations = perforation_coll.perforations()
     print(f"   Perforations created: {len(perforations)}")
     for perf in perforations:
-        print(f"      - MD {perf.start_measured_depth:.0f} to {perf.end_measured_depth:.0f}m")
+        print(
+            f"      - MD {perf.start_measured_depth:.0f} to {perf.end_measured_depth:.0f}m"
+        )
         valves = perf.valves()
         if valves:
             print(f"        Valves: {len(valves)}")
@@ -131,7 +133,9 @@ def main():
     perforations = perforation_coll.perforations()
     print(f"   Perforations after full application: {len(perforations)}")
     for perf in perforations:
-        print(f"      - MD {perf.start_measured_depth:.0f} to {perf.end_measured_depth:.0f}m")
+        print(
+            f"      - MD {perf.start_measured_depth:.0f} to {perf.end_measured_depth:.0f}m"
+        )
 
     print("\nExample completed successfully!")
     print("\nAPI Usage Summary:")
