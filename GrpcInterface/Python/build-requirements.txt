@@ -6,3 +6,4 @@ typing-extensions
 pytest
 setuptools>=70.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
 packaging>=22.0 # https://github.com/pypa/setuptools/issues/4483
+

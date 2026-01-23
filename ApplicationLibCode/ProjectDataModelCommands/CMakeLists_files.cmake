@@ -37,6 +37,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcValveTemplateCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathCompletionSettings.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathValve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcWellEventTimeline.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -78,6 +79,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcValveTemplateCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathCompletionSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathValve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcWellEventTimeline.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

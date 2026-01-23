@@ -25,6 +25,9 @@
 #include <gsl/gsl>
 
 #include <expected>
+#include <optional>
+
+#include <QDateTime>
 
 class RicMswCompletion;
 class RigCompletionData;
@@ -65,7 +68,8 @@ public:
                                                                                  RimWellPath*    wellPath,
                                                                                  int             timeStep,
                                                                                  bool exportCompletionsAfterMainBoreSegments = true,
-                                                                                 CompletionType completionType = CompletionType::ALL );
+                                                                                 CompletionType completionType = CompletionType::ALL,
+                                                                                 const std::optional<QDateTime>& exportDate = std::nullopt );
 
     static CompletionType convertFromExportSettings( const class RicExportCompletionDataSettingsUi& settings );
 

@@ -26,6 +26,9 @@
 #include "cvfVector3.h"
 
 #include <gsl/gsl>
+#include <optional>
+
+#include <QDateTime>
 
 class RicMswExportInfo;
 class RigMswTableData;
@@ -120,21 +123,28 @@ void collectWelsegsDataRecursively( RigMswTableData&                            
                                     bool                                          exportCompletionSegmentsAfterMainBore,
                                     RicMswSegment*                                connectedToSegment );
 
-void collectCompsegData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, bool exportSubGridIntersections );
+void collectCompsegData( RigMswTableData&                tableData,
+                         RicMswExportInfo&               exportInfo,
+                         bool                            exportSubGridIntersections,
+                         const std::optional<QDateTime>& exportDate = std::nullopt );
 
 void collectCompsegDataByType( RigMswTableData&                                   tableData,
                                RicMswExportInfo&                                  exportInfo,
                                gsl::not_null<const RicMswBranch*>                 branch,
                                bool                                               exportSubGridIntersections,
                                const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
-                               gsl::not_null<std::set<size_t>*>                   intersectedCells );
+                               gsl::not_null<std::set<size_t>*>                   intersectedCells,
+                               const std::optional<QDateTime>&                    exportDate = std::nullopt );
 
-void collectWsegvalvData( RigMswTableData& tableData, RicMswExportInfo& exportInfo );
+void collectWsegvalvData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, const std::optional<QDateTime>& exportDate = std::nullopt );
 
-void collectWsegvalvDataRecursively( RigMswTableData& tableData, gsl::not_null<RicMswBranch*> branch, const std::string& wellNameForExport );
+void collectWsegvalvDataRecursively( RigMswTableData&                tableData,
+                                     gsl::not_null<RicMswBranch*>    branch,
+                                     const std::string&              wellNameForExport,
+                                     const std::optional<QDateTime>& exportDate = std::nullopt );
 
-void collectWsegAicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo );
-void collectWsegSicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo );
+void collectWsegAicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, const std::optional<QDateTime>& exportDate = std::nullopt );
+void collectWsegSicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, const std::optional<QDateTime>& exportDate = std::nullopt );
 
 // Helper functions for data collection
 
@@ -175,11 +185,13 @@ void collectCompletionWelsegsSegments( RigMswTableData&                         
 
 void generateWsegAicdTableRecursively( RicMswExportInfo&                                 exportInfo,
                                        gsl::not_null<const RicMswBranch*>                branch,
-                                       std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData );
+                                       std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData,
+                                       const std::optional<QDateTime>&                   exportDate = std::nullopt );
 
 void generateWsegSicdTableRecursively( RicMswExportInfo&                                 exportInfo,
                                        gsl::not_null<const RicMswBranch*>                branch,
-                                       std::map<size_t, std::vector<SicdWsegvalveData>>& sicdValveData );
+                                       std::map<size_t, std::vector<SicdWsegvalveData>>& sicdValveData,
+                                       const std::optional<QDateTime>&                   exportDate = std::nullopt );
 
 std::vector<std::pair<double, double>> createSubSegmentMDPairs( double                                        startMD,
                                                                 double                                        endMD,

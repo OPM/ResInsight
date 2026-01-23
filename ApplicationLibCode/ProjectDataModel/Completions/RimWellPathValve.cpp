@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaQDateTimeTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -53,6 +54,9 @@ RimWellPathValve::RimWellPathValve()
     CAF_PDM_InitFieldNoDefault( &m_multipleValveLocations, "ValveLocations", "Valve Locations" );
     CAF_PDM_InitField( &m_editValveTemplate, "EditTemplate", false, "Edit" );
     CAF_PDM_InitField( &m_createValveTemplate, "CreateTemplate", false, "Create" );
+
+    CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
+    CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
 
     m_measuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_multipleValveLocations = new RimMultipleValveLocations;
@@ -246,6 +250,35 @@ const RimWellPathSicdParameters* RimWellPathValve::sicdParameters() const
         return m_valveTemplate()->sicdParameters();
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathValve::enableCustomStartDate( bool enable )
+{
+    m_useCustomStartDate = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathValve::setCustomStartDate( const QDate& date )
+{
+    if ( date.isValid() )
+    {
+        m_startDate = RiaQDateTimeTools::createDateTime( date );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathValve::isActiveOnDate( const QDateTime& date ) const
+{
+    if ( m_useCustomStartDate() && date < m_startDate() ) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
