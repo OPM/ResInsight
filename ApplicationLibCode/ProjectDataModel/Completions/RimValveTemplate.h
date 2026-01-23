@@ -27,6 +27,7 @@
 #include "cafPdmChildField.h"
 
 class RimWellPathAicdParameters;
+class RimWellPathSicdParameters;
 
 class RimValveTemplate : public RimNamedObject
 {
@@ -78,4 +79,6 @@ private:
     caf::PdmField<double> m_flowCoefficient;
     // AICDs
     caf::PdmChildField<RimWellPathAicdParameters*> m_aicdParameters;
+    // SICDs
+    caf::PdmChildField<RimWellPathSicdParameters*> m_sicdParameters;
 };

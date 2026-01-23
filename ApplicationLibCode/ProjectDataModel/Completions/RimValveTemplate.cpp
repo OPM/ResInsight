@@ -19,6 +19,7 @@
 #include "RimValveTemplate.h"
 
 #include "RimWellPathAicdParameters.h"
+#include "RimWellPathSicdParameters.h"
 #include "RimWellPathValve.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -54,6 +55,10 @@ RimValveTemplate::RimValveTemplate()
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_aicdParameters, "AICDParameters", "AicdParameters", "AICD Parameters" );
     m_aicdParameters = new RimWellPathAicdParameters;
     m_aicdParameters.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_sicdParameters, "SICDParameters", "SicdParameters", "SICD Parameters" );
+    m_sicdParameters = new RimWellPathSicdParameters();
+    m_sicdParameters.uiCapability()->setUiTreeChildrenHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,7 +320,8 @@ void RimValveTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     if ( m_type() == RiaDefines::WellPathComponentType::SICD )
     {
-        uiOrdering.addNewLabel( "SICD in progress..." );
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "MSW SICD Parameters" );
+        m_sicdParameters->uiOrdering( uiConfigName, *group );
     }
 
     bool readOnly = uiConfigName == QString( "InsideValve" );

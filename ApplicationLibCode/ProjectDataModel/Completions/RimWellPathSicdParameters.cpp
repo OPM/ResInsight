@@ -79,4 +79,25 @@ void RimWellPathSicdParameters::defineUiOrdering( QString uiConfigName, caf::Pdm
 
     uiOrdering.add( &m_deviceOpen );
     m_deviceOpen.uiCapability()->setUiReadOnly( readOnly );
+
+    uiOrdering.add( &m_strength );
+    m_strength.uiCapability()->setUiReadOnly( readOnly );
+    uiOrdering.add( &m_length );
+    m_length.uiCapability()->setUiReadOnly( readOnly );
+    uiOrdering.add( &m_calibrationDensity );
+    m_calibrationDensity.uiCapability()->setUiReadOnly( readOnly );
+    uiOrdering.add( &m_calibrationViscosity );
+    m_calibrationViscosity.uiCapability()->setUiReadOnly( readOnly );
+    uiOrdering.add( &m_emlCrt );
+    m_emlCrt.uiCapability()->setUiReadOnly( readOnly );
+    uiOrdering.add( &m_emlTrans );
+    m_emlTrans.uiCapability()->setUiReadOnly( readOnly );
+    uiOrdering.add( &m_emlMax );
+    m_emlMax.uiCapability()->setUiReadOnly( readOnly );
+    uiOrdering.add( &m_scaleFactorType );
+    m_scaleFactorType.uiCapability()->setUiReadOnly( readOnly );
+    uiOrdering.add( &m_maxCalibRate );
+    m_maxCalibRate.uiCapability()->setUiReadOnly( readOnly );
+
+    uiOrdering.skipRemainingFields( true );
 }
