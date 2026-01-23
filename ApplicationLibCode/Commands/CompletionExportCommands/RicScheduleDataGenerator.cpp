@@ -123,8 +123,7 @@ QString RicScheduleDataGenerator::generateDateSection( RimEclipseCase*          
 
     for ( auto* well : wellPaths )
     {
-        if ( !well )
-            continue;
+        if ( !well ) continue;
 
         if ( options.includeCompdat )
         {
@@ -197,8 +196,7 @@ QString RicScheduleDataGenerator::generateDatesKeyword( const QDateTime& date )
 //--------------------------------------------------------------------------------------------------
 QString RicScheduleDataGenerator::generateCompdatForWell( RimEclipseCase* eclipseCase, RimWellPath* well, const QDateTime& date )
 {
-    if ( !well || !well->eventTimeline() )
-        return QString();
+    if ( !well || !well->eventTimeline() ) return QString();
 
     // Get perforation events at this exact date
     auto events = well->eventTimeline()->getEventsAtDate( date );
@@ -212,8 +210,7 @@ QString RicScheduleDataGenerator::generateCompdatForWell( RimEclipseCase* eclips
         }
     }
 
-    if ( perfEvents.isEmpty() )
-        return QString();
+    if ( perfEvents.isEmpty() ) return QString();
 
     // Note: Actual COMPDAT generation requires grid intersection calculations
     // This is a placeholder that generates comments with event data
@@ -229,8 +226,7 @@ QString RicScheduleDataGenerator::generateCompdatForWell( RimEclipseCase* eclips
 //--------------------------------------------------------------------------------------------------
 QString RicScheduleDataGenerator::generateMswForWell( RimEclipseCase* eclipseCase, RimWellPath* well, const QDateTime& date )
 {
-    if ( !well || !well->eventTimeline() )
-        return QString();
+    if ( !well || !well->eventTimeline() ) return QString();
 
     // Get valve and tubing events at this exact date
     auto events = well->eventTimeline()->getEventsAtDate( date );
@@ -250,8 +246,7 @@ QString RicScheduleDataGenerator::generateMswForWell( RimEclipseCase* eclipseCas
         }
     }
 
-    if ( valveEvents.isEmpty() && tubingEvents.isEmpty() )
-        return QString();
+    if ( valveEvents.isEmpty() && tubingEvents.isEmpty() ) return QString();
 
     QString result;
 
@@ -277,8 +272,7 @@ QString RicScheduleDataGenerator::generateMswForWell( RimEclipseCase* eclipseCas
 //--------------------------------------------------------------------------------------------------
 QString RicScheduleDataGenerator::generateWellControlForWell( RimWellPath* well, const QDateTime& date )
 {
-    if ( !well || !well->eventTimeline() )
-        return QString();
+    if ( !well || !well->eventTimeline() ) return QString();
 
     // Get state and control events at this exact date
     auto events = well->eventTimeline()->getEventsAtDate( date );
@@ -309,8 +303,7 @@ QString RicScheduleDataGenerator::generateWellControlForWell( RimWellPath* well,
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellEvent*> RicScheduleDataGenerator::getActiveEventsAtDate( RimWellPath* well, const QDateTime& date )
 {
-    if ( !well || !well->eventTimeline() )
-        return {};
+    if ( !well || !well->eventTimeline() ) return {};
 
     return well->eventTimeline()->getEventsUpToDate( date );
 }

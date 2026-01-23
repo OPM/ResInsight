@@ -65,11 +65,11 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
-    caf::PdmField<double>                    m_startMD;
-    caf::PdmField<double>                    m_endMD;
-    caf::PdmField<double>                    m_diameter;
-    caf::PdmField<double>                    m_skinFactor;
-    caf::PdmField<caf::AppEnum<State>>       m_state;
+    caf::PdmField<double>              m_startMD;
+    caf::PdmField<double>              m_endMD;
+    caf::PdmField<double>              m_diameter;
+    caf::PdmField<double>              m_skinFactor;
+    caf::PdmField<caf::AppEnum<State>> m_state;
 };
 
 namespace caf

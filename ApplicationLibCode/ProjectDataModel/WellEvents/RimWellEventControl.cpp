@@ -314,8 +314,7 @@ QString RimWellEventControl::generateWCONPROD( const QString& wellName ) const
 
     auto formatValue = []( double val ) -> QString
     {
-        if ( val == 0.0 )
-            return "1*";
+        if ( val == 0.0 ) return "1*";
         return QString::number( val, 'f', 1 );
     };
 
@@ -379,8 +378,7 @@ QString RimWellEventControl::generateWCONINJE( const QString& wellName, const QS
 
     auto formatValue = []( double val ) -> QString
     {
-        if ( val == 0.0 )
-            return "1*";
+        if ( val == 0.0 ) return "1*";
         return QString::number( val, 'f', 1 );
     };
 
@@ -434,9 +432,5 @@ void RimWellEventControl::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
     QString ctrlStr  = m_controlMode().uiText();
     QString valueStr = QString::number( m_controlValue(), 'f', 0 );
 
-    setUiName( QString( "WCTRL %1: %2 %3 %4" )
-                 .arg( m_eventDate().toString( "yyyy-MM-dd" ) )
-                 .arg( typeStr )
-                 .arg( ctrlStr )
-                 .arg( valueStr ) );
+    setUiName( QString( "WCTRL %1: %2 %3 %4" ).arg( m_eventDate().toString( "yyyy-MM-dd" ) ).arg( typeStr ).arg( ctrlStr ).arg( valueStr ) );
 }

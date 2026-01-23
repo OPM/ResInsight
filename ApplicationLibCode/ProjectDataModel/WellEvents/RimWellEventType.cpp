@@ -77,8 +77,7 @@ void RimWellEventType::setWellType( WellType type )
 //--------------------------------------------------------------------------------------------------
 bool RimWellEventType::isProducer() const
 {
-    return m_wellType() == WellType::OIL_PRODUCER || m_wellType() == WellType::GAS_PRODUCER ||
-           m_wellType() == WellType::WATER_PRODUCER;
+    return m_wellType() == WellType::OIL_PRODUCER || m_wellType() == WellType::GAS_PRODUCER || m_wellType() == WellType::WATER_PRODUCER;
 }
 
 //--------------------------------------------------------------------------------------------------

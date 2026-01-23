@@ -45,6 +45,7 @@
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
+#include "RimWellEventTimeline.h"
 #include "RimWellIASettingsCollection.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
@@ -56,7 +57,6 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathTieIn.h"
-#include "RimWellEventTimeline.h"
 
 #include "RiuMainWindow.h"
 

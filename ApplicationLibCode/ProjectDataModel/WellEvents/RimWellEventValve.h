@@ -53,11 +53,11 @@ public:
     ~RimWellEventValve() override;
 
     // Getters
-    double           measuredDepth() const;
-    ValveType        valveType() const;
-    State            state() const;
-    double           flowCoefficient() const;
-    double           area() const;
+    double            measuredDepth() const;
+    ValveType         valveType() const;
+    State             state() const;
+    double            flowCoefficient() const;
+    double            area() const;
     RimValveTemplate* valveTemplate() const;
 
     // Setters
@@ -78,12 +78,12 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    caf::PdmField<double>                     m_measuredDepth;
-    caf::PdmField<caf::AppEnum<ValveType>>    m_valveType;
-    caf::PdmField<caf::AppEnum<State>>        m_state;
-    caf::PdmField<double>                     m_flowCoefficient;
-    caf::PdmField<double>                     m_area;
-    caf::PdmPtrField<RimValveTemplate*>       m_valveTemplate;
+    caf::PdmField<double>                  m_measuredDepth;
+    caf::PdmField<caf::AppEnum<ValveType>> m_valveType;
+    caf::PdmField<caf::AppEnum<State>>     m_state;
+    caf::PdmField<double>                  m_flowCoefficient;
+    caf::PdmField<double>                  m_area;
+    caf::PdmPtrField<RimValveTemplate*>    m_valveTemplate;
 };
 
 namespace caf
