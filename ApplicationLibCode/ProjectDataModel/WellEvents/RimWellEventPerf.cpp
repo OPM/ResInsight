@@ -192,8 +192,8 @@ void RimWellEventPerf::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
 {
     QString stateStr = ( m_state() == State::OPEN ) ? "OPEN" : "SHUT";
     setUiName( QString( "PERF %1: %2 - %3 [%4]" )
-                 .arg( m_eventDate().toString( "yyyy-MM-dd" ) )
-                 .arg( m_startMD(), 0, 'f', 1 )
-                 .arg( m_endMD(), 0, 'f', 1 )
-                 .arg( stateStr ) );
+                   .arg( m_eventDate().toString( "yyyy-MM-dd" ) )
+                   .arg( m_startMD(), 0, 'f', 1 )
+                   .arg( m_endMD(), 0, 'f', 1 )
+                   .arg( stateStr ) );
 }

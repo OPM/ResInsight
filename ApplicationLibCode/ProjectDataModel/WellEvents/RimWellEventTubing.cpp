@@ -155,8 +155,8 @@ void RimWellEventTubing::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 void RimWellEventTubing::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     setUiName( QString( "TUBING %1: %2 - %3 (D: %4 m)" )
-                 .arg( m_eventDate().toString( "yyyy-MM-dd" ) )
-                 .arg( m_startMD(), 0, 'f', 1 )
-                 .arg( m_endMD(), 0, 'f', 1 )
-                 .arg( m_innerDiameter(), 0, 'f', 3 ) );
+                   .arg( m_eventDate().toString( "yyyy-MM-dd" ) )
+                   .arg( m_startMD(), 0, 'f', 1 )
+                   .arg( m_endMD(), 0, 'f', 1 )
+                   .arg( m_innerDiameter(), 0, 'f', 3 ) );
 }

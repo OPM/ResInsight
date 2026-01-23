@@ -44,20 +44,20 @@ public:
     };
 
     // Generate schedule for multiple wells at specified dates
-    static QString generateSchedule( RimEclipseCase*                    eclipseCase,
-                                     const std::vector<RimWellPath*>&   wellPaths,
-                                     const std::vector<QDateTime>&      dates,
-                                     const Options&                     options );
+    static QString generateSchedule( RimEclipseCase*                  eclipseCase,
+                                     const std::vector<RimWellPath*>& wellPaths,
+                                     const std::vector<QDateTime>&    dates,
+                                     const Options&                   options );
 
     // Collect all unique dates from all wells' timelines
     static std::vector<QDateTime> collectAllDates( const std::vector<RimWellPath*>& wellPaths );
 
 private:
     // Generate schedule section for a single date
-    static QString generateDateSection( RimEclipseCase*                    eclipseCase,
-                                        const std::vector<RimWellPath*>&   wellPaths,
-                                        const QDateTime&                   date,
-                                        const Options&                     options );
+    static QString generateDateSection( RimEclipseCase*                  eclipseCase,
+                                        const std::vector<RimWellPath*>& wellPaths,
+                                        const QDateTime&                 date,
+                                        const Options&                   options );
 
     // Generate DATES keyword
     static QString generateDatesKeyword( const QDateTime& date );

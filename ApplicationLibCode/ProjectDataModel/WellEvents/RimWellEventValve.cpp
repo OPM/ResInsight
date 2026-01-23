@@ -256,10 +256,10 @@ void RimWellEventValve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
     }
 
     setUiName( QString( "%1 %2: MD %3 [%4]" )
-                 .arg( valveTypeStr )
-                 .arg( m_eventDate().toString( "yyyy-MM-dd" ) )
-                 .arg( m_measuredDepth(), 0, 'f', 1 )
-                 .arg( stateStr ) );
+                   .arg( valveTypeStr )
+                   .arg( m_eventDate().toString( "yyyy-MM-dd" ) )
+                   .arg( m_measuredDepth(), 0, 'f', 1 )
+                   .arg( stateStr ) );
 }
 
 //--------------------------------------------------------------------------------------------------

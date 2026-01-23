@@ -54,7 +54,7 @@ public:
     QString wellName() const;
     void    setWellName( const QString& wellName );
 
-    virtual EventType eventType() const                                    = 0;
+    virtual EventType eventType() const                                        = 0;
     virtual QString   generateScheduleKeyword( const QString& wellName ) const = 0;
 
 protected:

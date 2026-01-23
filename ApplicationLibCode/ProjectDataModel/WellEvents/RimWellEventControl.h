@@ -35,13 +35,13 @@ class RimWellEventControl : public RimWellEvent
 public:
     enum class ControlMode
     {
-        ORAT,  // Oil rate control
-        WRAT,  // Water rate control
-        GRAT,  // Gas rate control
-        LRAT,  // Liquid rate control
-        RESV,  // Reservoir volume rate control
-        BHP,   // Bottom hole pressure control
-        THP    // Tubing head pressure control
+        ORAT, // Oil rate control
+        WRAT, // Water rate control
+        GRAT, // Gas rate control
+        LRAT, // Liquid rate control
+        RESV, // Reservoir volume rate control
+        BHP, // Bottom hole pressure control
+        THP // Tubing head pressure control
     };
 
     enum class WellStatus
