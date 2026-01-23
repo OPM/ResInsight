@@ -45,6 +45,7 @@
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
+#include "RimWellEventTimeline.h"
 #include "RimWellIASettingsCollection.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
@@ -636,6 +637,24 @@ const RimWellPathAttributeCollection* RimWellPath::attributeCollection() const
 RimWellIASettingsCollection* RimWellPath::wellIASettingsCollection()
 {
     return m_wellIASettingsCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellEventTimeline* RimWellPath::eventTimeline()
+{
+    RimWellPathCollection* wellPathCollection = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
+    return wellPathCollection->eventTimeline();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellEventTimeline* RimWellPath::eventTimeline() const
+{
+    const RimWellPathCollection* wellPathCollection = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
+    return wellPathCollection->eventTimeline();
 }
 
 //--------------------------------------------------------------------------------------------------
