@@ -170,12 +170,12 @@ class TestWellEventScheduleApplication:
         assert len(perforations) > 0, "Perforation should be created from event"
         # Verify the perforation has the correct MD range
         perf = perforations[0]
-        assert abs(perf.start_measured_depth - 2000.0) < 1.0, (
-            "Perforation start MD should match"
-        )
-        assert abs(perf.end_measured_depth - 2200.0) < 1.0, (
-            "Perforation end MD should match"
-        )
+        assert (
+            abs(perf.start_measured_depth - 2000.0) < 1.0
+        ), "Perforation start MD should match"
+        assert (
+            abs(perf.end_measured_depth - 2200.0) < 1.0
+        ), "Perforation end MD should match"
 
     def test_set_timestamp_creates_tubing_intervals(self, project_with_wells):
         """Test that set_timestamp creates tubing intervals from tubing events."""
@@ -202,9 +202,9 @@ class TestWellEventScheduleApplication:
         msw_settings = well_path_b.msw_settings()
         assert msw_settings is not None, "MSW settings should be available"
         # Check that diameter roughness mode was set to intervals
-        assert msw_settings.diameter_roughness_mode == "Intervals", (
-            "Diameter roughness mode should be set to Intervals"
-        )
+        assert (
+            msw_settings.diameter_roughness_mode == "Intervals"
+        ), "Diameter roughness mode should be set to Intervals"
 
     def test_set_timestamp_ignores_future_events(self, project_with_wells):
         """Test that events after the timestamp are not applied."""
