@@ -56,6 +56,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathTieIn.h"
+#include "RimWellEventTimeline.h"
 
 #include "RiuMainWindow.h"
 
@@ -636,6 +637,24 @@ const RimWellPathAttributeCollection* RimWellPath::attributeCollection() const
 RimWellIASettingsCollection* RimWellPath::wellIASettingsCollection()
 {
     return m_wellIASettingsCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellEventTimeline* RimWellPath::eventTimeline()
+{
+    RimWellPathCollection* wellPathCollection = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
+    return wellPathCollection->eventTimeline();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellEventTimeline* RimWellPath::eventTimeline() const
+{
+    const RimWellPathCollection* wellPathCollection = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
+    return wellPathCollection->eventTimeline();
 }
 
 //--------------------------------------------------------------------------------------------------

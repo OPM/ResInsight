@@ -45,6 +45,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathFracture.h"
+#include "RimWellEventTimeline.h"
 
 #include "RigDoglegTools.h"
 #include "RigStimPlanModelTools.h"
@@ -694,4 +695,37 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendLateralFromGeom
     connectLateralToWellPath( wellPath, m_lateral, closestMdOnMainWell );
 
     return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_eventTimeline, "EventTimeline" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_eventTimeline::RimcWellPath_eventTimeline( caf::PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
+    CAF_PDM_InitObject( "Event Timeline", "", "", "Get the well event timeline" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_eventTimeline::execute()
+{
+    auto wellPath = self<RimWellPath>();
+
+    if ( auto timeline = wellPath->eventTimeline() )
+    {
+        return timeline;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_eventTimeline::classKeywordReturnedType() const
+{
+    return RimWellEventTimeline::classKeywordStatic();
 }

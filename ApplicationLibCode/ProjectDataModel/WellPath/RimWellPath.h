@@ -62,6 +62,7 @@ class RimMswCompletionParameters;
 class RimWellIASettingsCollection;
 class RimWellLogFile;
 class RimWellLog;
+class RimWellEventTimeline;
 
 //==================================================================================================
 ///
@@ -140,6 +141,8 @@ public:
     RimWellPathAttributeCollection*       attributeCollection();
     const RimWellPathAttributeCollection* attributeCollection() const;
     RimWellIASettingsCollection*          wellIASettingsCollection();
+    RimWellEventTimeline*                 eventTimeline();
+    const RimWellEventTimeline*           eventTimeline() const;
 
     bool showWellPathLabel() const;
     bool showWellPath() const;
