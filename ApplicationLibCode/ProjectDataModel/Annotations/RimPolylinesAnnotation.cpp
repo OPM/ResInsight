@@ -37,8 +37,9 @@ RimPolylinesAnnotation::RimPolylinesAnnotation()
 {
     CAF_PDM_InitObject( "PolylineAnnotation", ":/WellCollection.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
-    m_isActive.uiCapability()->setUiHidden( true );
+    // Register keyword alias for backward compatibility (old keyword was "IsActive", base uses "IsChecked")
+    m_isChecked.registerKeywordAlias( "IsActive" );
+    m_isChecked.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_closePolyline, "ClosePolyline", false, "Close Polyline" );
     CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines" );
@@ -62,19 +63,11 @@ RimPolylinesAnnotation::~RimPolylinesAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPolylinesAnnotation::isActive()
-{
-    return m_isActive();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimPolylinesAnnotation::isVisible()
 {
     auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
 
-    return coll && coll->isActive() && m_isActive;
+    return coll && coll->isActive() && isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,12 +100,4 @@ bool RimPolylinesAnnotation::showSpheres() const
 RimPolylineAppearance* RimPolylinesAnnotation::appearance() const
 {
     return m_appearance;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimPolylinesAnnotation::objectToggleField()
-{
-    return &m_isActive;
 }

@@ -21,10 +21,11 @@
 #include "RiaPlotDefines.h"
 
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
 #include "cvfColor3.h"
+
+#include "RimCheckableNamedObject.h"
 
 #include <QString>
 
@@ -32,7 +33,7 @@
 ///
 ///
 //==================================================================================================
-class RimPlotAxisAnnotation : public caf::PdmObject
+class RimPlotAxisAnnotation : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -43,9 +44,6 @@ public:
         RANGE
     };
     RimPlotAxisAnnotation();
-
-    void    setName( const QString& name );
-    QString name() const;
 
     void           setValue( double value );
     virtual double value() const;
@@ -65,17 +63,12 @@ public:
     double rangeStart() const;
     double rangeEnd() const;
 
-    caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
-
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 protected:
-    caf::PdmField<bool>                                    m_isActive;
-    caf::PdmField<QString>                                 m_name;
     caf::PdmField<double>                                  m_value;
     caf::PdmField<double>                                  m_rangeStart;
     caf::PdmField<double>                                  m_rangeEnd;

@@ -58,8 +58,9 @@ RimViewLinker::RimViewLinker()
 {
     CAF_PDM_InitObject( "Linked Views" );
 
-    CAF_PDM_InitField( &m_name, "Name", QString( "View Group Name" ), "View Group Name" );
-    m_name.uiCapability()->setUiHidden( true );
+    // Set default name
+    setName( "View Group Name" );
+    nameField()->uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_masterView, "MainView", "Main View" );
     m_masterView.uiCapability()->setUiTreeChildrenHidden( true );
@@ -455,7 +456,7 @@ void RimViewLinker::updateUiNameAndIcon()
     QString name;
     RimViewLinker::findNameAndIconFromView( &name, &iconProvider, m_masterView );
     name += " (Primary)";
-    m_name.v() = name;
+    setName( name );
 
     if ( m_masterView ) m_masterView->updateAutoName();
 

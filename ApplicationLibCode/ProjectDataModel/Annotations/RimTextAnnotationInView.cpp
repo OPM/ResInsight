@@ -30,10 +30,12 @@ RimTextAnnotationInView::RimTextAnnotationInView()
 {
     CAF_PDM_InitObject( "TextAnnotationInView", ":/TextAnnotation16x16.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
+    // Register keyword alias for backward compatibility (old keyword was "IsActive", base uses "IsChecked")
+    m_isChecked.registerKeywordAlias( "IsActive" );
+    m_isChecked.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_sourceAnnotation, "SourceAnnotation", "Source Annotation" );
 
-    m_isActive.uiCapability()->setUiHidden( true );
     m_sourceAnnotation.uiCapability()->setUiHidden( true );
     m_sourceAnnotation = nullptr;
 }
@@ -46,16 +48,8 @@ RimTextAnnotationInView::RimTextAnnotationInView( RimTextAnnotation* sourceAnnot
 {
     CVF_ASSERT( sourceAnnotation );
 
-    m_isActive         = sourceAnnotation->isActive();
+    setCheckState( sourceAnnotation->isActive() );
     m_sourceAnnotation = sourceAnnotation;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimTextAnnotationInView::isActive() const
-{
-    return m_isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +87,7 @@ bool RimTextAnnotationInView::isVisible() const
             if ( globalColl ) visible = globalColl->isVisible();
         }
     }
-    if ( visible ) visible = m_isActive;
+    if ( visible ) visible = isChecked();
     return visible;
 }
 
@@ -102,20 +96,12 @@ bool RimTextAnnotationInView::isVisible() const
 //--------------------------------------------------------------------------------------------------
 void RimTextAnnotationInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_isActive )
+    if ( changedField == objectToggleField() )
     {
         auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
 
         if ( coll ) coll->scheduleRedrawOfRelevantViews();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimTextAnnotationInView::objectToggleField()
-{
-    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------

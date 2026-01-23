@@ -23,10 +23,11 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
 #include "cvfVector3.h"
+
+#include "RimNamedObject.h"
 
 namespace caf
 {
@@ -48,7 +49,7 @@ class RimPropertyFilter;
 ///
 ///
 //==================================================================================================
-class RimViewLinker : public caf::PdmObject
+class RimViewLinker : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -95,8 +96,6 @@ public:
     void updateCursorPosition( const Rim3dView* sourceView, const cvf::Vec3d& domainCoord );
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
-
     void initAfterRead() override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -113,5 +112,4 @@ private:
 private:
     caf::PdmChildArrayField<RimViewController*> m_viewControllers;
     caf::PdmPtrField<Rim3dView*>                m_masterView;
-    caf::PdmField<QString>                      m_name;
 };

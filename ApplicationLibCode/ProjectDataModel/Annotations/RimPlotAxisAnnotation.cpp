@@ -42,10 +42,10 @@ RimPlotAxisAnnotation::RimPlotAxisAnnotation()
     m_annotationType = AnnotationType::LINE;
     CAF_PDM_InitObject( "Plot Axis Annotation", ":/LeftAxis16x16.png" );
 
-    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
-    m_isActive.uiCapability()->setUiHidden( true );
+    // Register keyword alias for backward compatibility (old keyword was "Active", base uses "IsChecked")
+    m_isChecked.registerKeywordAlias( "Active" );
+    m_isChecked.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
     CAF_PDM_InitFieldNoDefault( &m_value, "Value", "Value" );
 
     CAF_PDM_InitFieldNoDefault( &m_rangeStart, "RangeStart", "Range Start" );
@@ -64,14 +64,6 @@ RimPlotAxisAnnotation::RimPlotAxisAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisAnnotation::setName( const QString& name )
-{
-    m_name = name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPlotAxisAnnotation::setValue( double value )
 {
     m_value = value;
@@ -83,14 +75,6 @@ void RimPlotAxisAnnotation::setValue( double value )
 RimPlotAxisAnnotation::AnnotationType RimPlotAxisAnnotation::annotationType() const
 {
     return m_annotationType;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPlotAxisAnnotation::name() const
-{
-    return m_name();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,22 +152,6 @@ RiaDefines::TextAlignment RimPlotAxisAnnotation::textAlignment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimPlotAxisAnnotation::userDescriptionField()
-{
-    return &m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimPlotAxisAnnotation::objectToggleField()
-{
-    return &m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPlotAxisAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot* parentPlot = firstAncestorOrThisOfType<RimPlot>();
@@ -198,7 +166,7 @@ void RimPlotAxisAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_name );
+    uiOrdering.add( nameField() );
     uiOrdering.add( &m_value );
 
     uiOrdering.skipRemainingFields();

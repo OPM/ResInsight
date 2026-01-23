@@ -19,7 +19,8 @@
 #pragma once
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
+
+#include "RimCheckableObject.h"
 
 // Include to make Pdm work for cvf::Color
 
@@ -32,7 +33,7 @@ class RimPolylineAppearance;
 ///
 ///
 //==================================================================================================
-class RimPolylinesAnnotation : public caf::PdmObject
+class RimPolylinesAnnotation : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -43,7 +44,6 @@ public:
     virtual cvf::ref<RigPolyLinesData> polyLinesData() = 0;
     virtual bool                       isEmpty()       = 0;
 
-    bool isActive();
     bool isVisible();
 
     bool closePolyline() const;
@@ -53,11 +53,6 @@ public:
     RimPolylineAppearance* appearance() const;
 
 protected:
-    caf::PdmFieldHandle* objectToggleField() override;
-
-protected:
-    caf::PdmField<bool> m_isActive;
-
     caf::PdmField<bool> m_closePolyline;
     caf::PdmField<bool> m_showLines;
     caf::PdmField<bool> m_showSpheres;

@@ -19,8 +19,9 @@
 #pragma once
 
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+
+#include "RimCheckableObject.h"
 
 class RimTextAnnotation;
 
@@ -28,7 +29,7 @@ class RimTextAnnotation;
 ///
 ///
 //==================================================================================================
-class RimTextAnnotationInView : public caf::PdmObject
+class RimTextAnnotationInView : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,7 +38,6 @@ public:
     RimTextAnnotationInView( RimTextAnnotation* sourceAnnotation );
     ~RimTextAnnotationInView() override {}
 
-    bool               isActive() const;
     void               setSourceAnnotation( RimTextAnnotation* annotation );
     RimTextAnnotation* sourceAnnotation() const;
 
@@ -45,10 +45,8 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle* objectToggleField() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    caf::PdmField<bool>                  m_isActive;
     caf::PdmPtrField<RimTextAnnotation*> m_sourceAnnotation;
 };

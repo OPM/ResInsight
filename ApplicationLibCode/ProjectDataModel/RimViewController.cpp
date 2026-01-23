@@ -34,6 +34,7 @@
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
+#include "RimCheckableNamedObject.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -62,12 +63,16 @@ RimViewController::RimViewController()
 {
     CAF_PDM_InitObject( "View Link" );
 
-    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
-    m_isActive.uiCapability()->setUiHidden( true );
+    // Register keyword alias for backward compatibility (old keyword was "Active", base uses "IsChecked")
+    m_isChecked.registerKeywordAlias( "Active" );
+    m_isChecked.uiCapability()->setUiHidden( true );
 
+    // Set default name
     QString defaultName = "View Config: Empty view";
-    CAF_PDM_InitField( &m_name, "Name", defaultName, "Managed View Name" );
-    m_name.uiCapability()->setUiHidden( true );
+    setName( defaultName );
+
+    // Set UI properties for inherited fields
+    nameField()->uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_managedView, "ManagedView", "Linked View" );
     m_managedView.uiCapability()->setUiTreeChildrenHidden( true );
@@ -149,9 +154,9 @@ void RimViewController::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
 //--------------------------------------------------------------------------------------------------
 void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_isActive )
+    if ( changedField == objectToggleField() )
     {
-        if ( !m_isActive )
+        if ( !isChecked() )
         {
             applyCellFilterCollectionByUserChoice();
         }
@@ -220,7 +225,7 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 
         setManagedView( m_managedView() );
 
-        m_name.uiCapability()->updateConnectedEditors();
+        nameField()->uiCapability()->updateConnectedEditors();
     }
 }
 
@@ -473,8 +478,10 @@ void RimViewController::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 void RimViewController::updateDisplayNameAndIcon()
 {
     caf::IconProvider iconProvider;
-    RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, managedView() );
-    iconProvider.setActive( m_isActive() );
+    QString           nameValue = name();
+    RimViewLinker::findNameAndIconFromView( &nameValue, &iconProvider, managedView() );
+    setName( nameValue );
+    iconProvider.setActive( isChecked() );
     setUiIcon( iconProvider );
 }
 
@@ -748,7 +755,7 @@ void RimViewController::scheduleGeometryRegenForDepViews( RivCellSetEnum geometr
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isActive() const
 {
-    return ownerViewLinker()->isActive() && m_isActive();
+    return ownerViewLinker()->isActive() && isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -756,7 +763,7 @@ bool RimViewController::isActive() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isCameraLinked() const
 {
-    if ( ownerViewLinker()->isActive() && m_isActive() )
+    if ( ownerViewLinker()->isActive() && isChecked() )
     {
         return m_syncCamera;
     }
@@ -777,7 +784,7 @@ bool RimViewController::showCursor() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isTimeStepLinked() const
 {
-    if ( ownerViewLinker()->isActive() && m_isActive() )
+    if ( ownerViewLinker()->isActive() && isChecked() )
     {
         return m_syncTimeStep;
     }
@@ -790,7 +797,7 @@ bool RimViewController::isTimeStepLinked() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isResultColorControlled() const
 {
-    if ( ownerViewLinker()->isActive() && m_isActive() )
+    if ( ownerViewLinker()->isActive() && isChecked() )
     {
         return m_syncCellResult;
     }
@@ -803,7 +810,7 @@ bool RimViewController::isResultColorControlled() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isLegendDefinitionsControlled() const
 {
-    if ( ownerViewLinker()->isActive() && m_isActive() )
+    if ( ownerViewLinker()->isActive() && isChecked() )
     {
         return m_syncLegendDefinitions;
     }
@@ -887,7 +894,7 @@ bool RimViewController::isPropertyFilterControlAdvisable() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isCellFiltersControlled() const
 {
-    if ( ownerViewLinker() && ownerViewLinker()->isActive() && m_isActive() )
+    if ( ownerViewLinker() && ownerViewLinker()->isActive() && isChecked() )
     {
         return m_syncCellFilters;
     }
@@ -932,7 +939,7 @@ bool RimViewController::isPropertyFilterOveridden() const
 {
     if ( !isPropertyFilterControlPossible() ) return false;
 
-    if ( ownerViewLinker()->isActive() && m_isActive() )
+    if ( ownerViewLinker()->isActive() && isChecked() )
     {
         return m_syncPropertyFilters;
     }

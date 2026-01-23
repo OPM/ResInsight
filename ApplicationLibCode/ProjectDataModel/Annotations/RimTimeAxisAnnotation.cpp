@@ -93,7 +93,7 @@ void RimTimeAxisAnnotation::setTime( time_t time, const QString& dateTimeFormatS
 
     QString formatString = dateTimeFormatString.isEmpty() ? internal::defaultDateTimeFormatString() : dateTimeFormatString;
 
-    m_name = RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( time ), formatString );
+    setName( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( time ), formatString ) );
 
     setAnnotationType( AnnotationType::LINE );
 }
@@ -108,9 +108,9 @@ void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime, cons
 
     QString formatString = dateTimeFormatString.isEmpty() ? internal::defaultDateTimeFormatString() : dateTimeFormatString;
 
-    m_name = QString( "%0 - %1" )
+    setName( QString( "%0 - %1" )
                  .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( startTime ), formatString ) )
-                 .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( endTime ), formatString ) );
+                 .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( endTime ), formatString ) ) );
 
     setAnnotationType( AnnotationType::RANGE );
 }
@@ -144,7 +144,7 @@ void RimTimeAxisAnnotation::setDefaultColor()
 //--------------------------------------------------------------------------------------------------
 void RimTimeAxisAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_name );
+    uiOrdering.add( nameField() );
     uiOrdering.add( &m_value );
     uiOrdering.add( &m_rangeStart );
     uiOrdering.add( &m_rangeEnd );

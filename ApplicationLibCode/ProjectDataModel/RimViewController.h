@@ -21,11 +21,11 @@
 
 #include "cafIconProvider.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
 #include "cvfObject.h"
 
+#include "RimCheckableNamedObject.h"
 #include "RivCellSetEnum.h"
 
 class RimGridView;
@@ -41,7 +41,7 @@ class RimPropertyFilter;
 ///
 ///
 //==================================================================================================
-class RimViewController : public caf::PdmObject
+class RimViewController : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -89,9 +89,6 @@ protected: // Pdm overridden methods
     void                          defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
-    caf::PdmFieldHandle* objectToggleField() override { return &m_isActive; }
-
 private:
     void updateCameraLink();
     void updateTimeStepLink();
@@ -112,10 +109,8 @@ private:
     static bool askUserToRestoreOriginalCellFilterCollection( const QString& viewName );
 
 private:
-    caf::PdmField<QString>       m_name;
     caf::PdmPtrField<Rim3dView*> m_managedView;
 
-    caf::PdmField<bool> m_isActive;
     caf::PdmField<bool> m_syncCamera;
     caf::PdmField<bool> m_showCursor;
     caf::PdmField<bool> m_syncTimeStep;

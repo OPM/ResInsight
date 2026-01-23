@@ -140,7 +140,7 @@ void RimEquilibriumAxisAnnotation::defineUiOrdering( QString uiConfigName, caf::
 
     if ( m_annotationType() == PlotAxisAnnotationType::PL_USER_DEFINED )
     {
-        uiOrdering.add( &m_name );
+        uiOrdering.add( nameField() );
         uiOrdering.add( &m_value );
     }
     else
@@ -207,6 +207,6 @@ void RimEquilibriumAxisAnnotation::updateName()
             text = QString( "GOC %1" ).arg( value() );
         }
 
-        m_name = text;
+        setName( text );
     }
 }
