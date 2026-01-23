@@ -7,11 +7,12 @@ You are an AI pair programming assistant helping developers work on the ResInsig
 You MUST follow the canonical agent guidelines located in the `docs/agents/` directory:
 
 - **[docs/agents/core.md](docs/agents/core.md)** - Core agent guidelines, architecture overview, PDM system, Python integration
-- **[docs/agents/build.md](docs/agents/build.md)** - Build system, prerequisites, test commands
 - **[docs/agents/coding-style.md](docs/agents/coding-style.md)** - Code formatting, style conventions
 - **[docs/agents/repo-map.md](docs/agents/repo-map.md)** - Repository structure and file locations
 
 These documents contain the authoritative information about the project. Always consult them when making suggestions.
+
+- When working locally, the build description can be found in `docs/agents/build.md`. NEVER build when working in the cloud.
 
 ## Copilot-Specific Guidelines
 
