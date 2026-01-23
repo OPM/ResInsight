@@ -211,10 +211,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
                     if ( exportSettings.includePerforations )
                     {
+                        auto exportDate = exportDateForTimeStep( *exportSettings.caseToApply, exportSettings.timeStep );
                         std::vector<RigCompletionData> perforationCompletionData =
                             generatePerforationsCompdatValues( wellPathLateral,
                                                                wellPathLateral->perforationIntervalCollection()->perforations(),
-                                                               exportSettings );
+                                                               exportSettings,
+                                                               exportDate );
 
                         appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, perforationCompletionData );
                     }
@@ -371,6 +373,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
                                                                                                                  RimEclipseCase* eclipseCase,
                                                                                                                  size_t timeStepIndex )
 {
+    CAF_ASSERT( eclipseCase );
     std::vector<RigCompletionData> completionsPerEclipseCell;
 
     if ( eclipseCase && eclipseCase->eclipseCaseData() )
@@ -382,8 +385,10 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
         exportSettings.includePerforations = true;
         exportSettings.includeFractures    = true;
 
+        auto exportDate = exportDateForTimeStep( *eclipseCase, timeStepIndex );
+
         completionsPerEclipseCell =
-            generatePerforationsCompdatValues( wellPath, wellPath->perforationIntervalCollection()->perforations(), exportSettings );
+            generatePerforationsCompdatValues( wellPath, wellPath->perforationIntervalCollection()->perforations(), exportSettings, exportDate );
     }
 
     return completionsPerEclipseCell;
@@ -1155,7 +1160,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 std::vector<RigCompletionData>
     RicWellPathExportCompletionDataFeatureImpl::generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*> wellPath,
                                                                                    const std::vector<const RimPerforationInterval*>& intervals,
-                                                                                   const RicExportCompletionDataSettingsUi& settings )
+                                                                                   const RicExportCompletionDataSettingsUi& settings,
+                                                                                   const std::optional<QDateTime>&          exportDate )
 {
     RiaDefines::EclipseUnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
 
@@ -1166,7 +1172,6 @@ std::vector<RigCompletionData>
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return completionData;
-    auto timeSteps = settings.caseToApply->timeStepDates();
 
     const RimNonDarcyPerforationParameters* nonDarcyParameters = wellPath->perforationIntervalCollection()->nonDarcyParameters();
 
@@ -1175,9 +1180,7 @@ std::vector<RigCompletionData>
         for ( const RimPerforationInterval* interval : intervals )
         {
             if ( !interval->isChecked() ) continue;
-            if ( (size_t)settings.timeStep < timeSteps.size() &&
-                 !interval->isActiveOnDate( settings.caseToApply->timeStepDates()[settings.timeStep] ) )
-                continue;
+            if ( exportDate.has_value() && !interval->isActiveOnDate( *exportDate ) ) continue;
 
             std::pair<std::vector<cvf::Vec3d>, std::vector<double>> perforationPointsAndMD =
                 wellPathGeometry->clippedPointSubset( interval->startMD(), interval->endMD() );
@@ -1702,7 +1705,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCarfinForTemporaryLgrs( c
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( RimWellPath*    wellPath,
-                                                                                                      RimEclipseCase* eCase )
+                                                                                                      RimEclipseCase* eCase,
+                                                                                                      const std::optional<QDateTime>& exportDate )
 {
     if ( eCase == nullptr ) return {};
 
@@ -1750,7 +1754,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
             std::vector<RigCompletionData> perforationCompletionData =
                 generatePerforationsCompdatValues( wellPathLateral,
                                                    wellPathLateral->perforationIntervalCollection()->perforations(),
-                                                   exportSettings );
+                                                   exportSettings,
+                                                   exportDate );
 
             appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, perforationCompletionData );
         }
@@ -1802,4 +1807,15 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
     }
 
     return completions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<QDateTime> RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( const RimEclipseCase& eclipseCase,
+                                                                                            size_t                timeStepIndex )
+{
+    auto timeSteps = eclipseCase.timeStepDates();
+    if ( timeStepIndex < timeSteps.size() ) return timeSteps[timeStepIndex];
+    return std::nullopt;
 }

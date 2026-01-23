@@ -25,11 +25,13 @@
 #include "cvfVector2.h"
 #include "cvfVector3.h"
 
+#include <QDateTime>
 #include <QFile>
 
 #include <gsl/gsl>
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 class RicMswCompletion;
@@ -123,7 +125,8 @@ public:
     static std::vector<RigCompletionData>
         computeDynamicCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
-    static std::vector<RigCompletionData> completionDataForWellPath( RimWellPath* wellPath, RimEclipseCase* eCase );
+    static std::vector<RigCompletionData>
+        completionDataForWellPath( RimWellPath* wellPath, RimEclipseCase* eCase, const std::optional<QDateTime>& exportDate = std::nullopt );
 
     static std::pair<double, cvf::Vec2i> wellPathUpperGridIntersectionIJ( gsl::not_null<const RimEclipseCase*> gridCase,
                                                                           gsl::not_null<const RimWellPath*>    wellPath,
@@ -132,7 +135,8 @@ public:
 private:
     static std::vector<RigCompletionData> generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
                                                                              const std::vector<const RimPerforationInterval*>& intervals,
-                                                                             const RicExportCompletionDataSettingsUi&          settings );
+                                                                             const RicExportCompletionDataSettingsUi&          settings,
+                                                                             const std::optional<QDateTime>& exportDate = std::nullopt );
 
     static double calculateTransmissibilityAsEclipseDoes( RimEclipseCase*                  eclipseCase,
                                                           double                           skinFactor,
@@ -193,4 +197,6 @@ private:
     static void exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder );
 
     static RimWellPath* topLevelWellPath( const RigCompletionData& completion );
+
+    static std::optional<QDateTime> exportDateForTimeStep( const RimEclipseCase& eclipseCase, size_t timeStepIndex );
 };

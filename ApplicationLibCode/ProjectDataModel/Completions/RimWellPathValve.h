@@ -31,6 +31,8 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
+#include <QDate>
+#include <QDateTime>
 #include <QList>
 #include <QString>
 
@@ -59,6 +61,10 @@ public:
     void                             applyValveLabelAndIcon();
     const RimWellPathAicdParameters* aicdParameters() const;
     const RimWellPathSicdParameters* sicdParameters() const;
+
+    void enableCustomStartDate( bool enable );
+    void setCustomStartDate( const QDate& date );
+    bool isActiveOnDate( const QDateTime& date ) const;
 
     static double convertOrificeDiameter( double                        orificeDiameterUi,
                                           RiaDefines::EclipseUnitSystem wellPathUnitSystem,
@@ -93,6 +99,9 @@ private:
     caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
     caf::PdmField<bool>                            m_editValveTemplate;
     caf::PdmField<bool>                            m_createValveTemplate;
+
+    caf::PdmField<bool>      m_useCustomStartDate;
+    caf::PdmField<QDateTime> m_startDate;
 
     std::set<RiaDefines::WellPathComponentType> m_componentTypeFilter;
 };

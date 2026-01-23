@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 #include "RimDiameterRoughnessIntervalCollection.h"
 #include "RimMswCompletionParameters.h"
 
@@ -49,6 +50,9 @@ RimDiameterRoughnessInterval::RimDiameterRoughnessInterval()
                                  "RoughnessFactor",
                                  RimMswCompletionParameters::defaultRoughnessFactor( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
                                  "Roughness Factor" );
+
+    CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
+    CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +148,33 @@ void RimDiameterRoughnessInterval::setDiameter( double diameter )
 void RimDiameterRoughnessInterval::setRoughnessFactor( double roughness )
 {
     m_roughnessFactor = roughness;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDiameterRoughnessInterval::enableCustomStartDate( bool enable )
+{
+    m_useCustomStartDate = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDiameterRoughnessInterval::setCustomStartDate( const QDate& date )
+{
+    if ( date.isValid() )
+    {
+        m_startDate = RiaQDateTimeTools::createDateTime( date );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDiameterRoughnessInterval::isActiveOnDate( const QDateTime& date ) const
+{
+    return !( m_useCustomStartDate() && date < m_startDate() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,6 +21,7 @@ from . import well_path_collection as well_path_collection  # noqa: F401
 from .simulation_well import SimulationWell as SimulationWell
 from .exception import RipsError as RipsError
 from .surface import RegularSurface as RegularSurface
+from . import well_events as well_events  # noqa: F401
 
 from typing import List
 
