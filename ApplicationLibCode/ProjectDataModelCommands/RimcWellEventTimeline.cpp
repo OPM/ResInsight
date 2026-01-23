@@ -18,12 +18,18 @@
 
 #include "RimcWellEventTimeline.h"
 
+#include "CompletionExportCommands/RicScheduleDataGenerator.h"
+#include "RimEclipseCase.h"
+#include "RimProject.h"
 #include "RimWellEventControl.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventState.h"
 #include "RimWellEventTimeline.h"
 #include "RimWellEventTubing.h"
 #include "RimWellEventValve.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+#include "RimcDataContainerString.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -384,4 +390,82 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_setTimestamp
     }
 
     return nullptr; // Return nullptr on success (no specific object to return)
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_generateSchedule, "GenerateSchedule" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Generate Schedule", "", "", "Generate Eclipse schedule text for all wells in the collection" );
+
+    CAF_PDM_InitScriptableField( &m_eclipseCaseId, "EclipseCaseId", -1, "", "", "", "Eclipse Case ID" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSchedule::execute()
+{
+    auto timeline = self<RimWellEventTimeline>();
+
+    // Get the parent well path collection
+    RimWellPathCollection* wellPathCollection = timeline->firstAncestorOrThisOfType<RimWellPathCollection>();
+    if ( !wellPathCollection )
+    {
+        return std::unexpected( QString( "Could not find parent well path collection" ) );
+    }
+
+    // Find the Eclipse case by ID
+    RimProject* project = wellPathCollection->firstAncestorOrThisOfType<RimProject>();
+    if ( !project )
+    {
+        return std::unexpected( QString( "Could not find project" ) );
+    }
+
+    RimEclipseCase* eclipseCase = project->eclipseCaseFromCaseId( m_eclipseCaseId() );
+    if ( !eclipseCase )
+    {
+        return std::unexpected( QString( "Eclipse case with ID %1 not found" ).arg( m_eclipseCaseId() ) );
+    }
+
+    // Collect all dates from this timeline
+    std::vector<QDateTime> dates = timeline->getAllEventDates();
+    if ( dates.empty() )
+    {
+        return std::unexpected( QString( "No events found in timeline" ) );
+    }
+
+    // Get all well paths from the collection and generate schedule for all of them
+    std::vector<RimWellPath*> allWellPaths = wellPathCollection->descendantsOfType<RimWellPath>();
+
+    if ( allWellPaths.empty() )
+    {
+        return std::unexpected( QString( "No well paths found in collection" ) );
+    }
+
+    RicScheduleDataGenerator::Options options;
+    options.includeMsw         = true;
+    options.includeCompdat     = true;
+    options.includeWellControl = true;
+    options.includeComments    = true;
+
+    QString scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, allWellPaths, dates, options );
+
+    // Return the schedule text in a data container
+    auto* dataObject           = new RimcDataContainerString();
+    dataObject->m_stringValues = { scheduleText };
+
+    return dataObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellEventTimeline_generateSchedule::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
 }

@@ -25,6 +25,8 @@
 
 #include <QString>
 
+class RimEclipseCase;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -151,4 +153,21 @@ public:
 
 private:
     caf::PdmField<QString> m_timestamp;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellEventTimeline_generateSchedule : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_generateSchedule( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<int> m_eclipseCaseId;
 };

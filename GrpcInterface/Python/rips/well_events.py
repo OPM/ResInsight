@@ -10,14 +10,9 @@ from typing import Dict
 from datetime import date, datetime
 
 from .pdmobject import add_method
-from .resinsight_classes import WellPath
+from .resinsight_classes import Case
 from .generated.generated_classes import (
-    WellEventControl,
-    WellEventPerf,
-    WellEventState,
     WellEventTimeline,
-    WellEventTubing,
-    WellEventValve,
 )
 
 
@@ -168,3 +163,59 @@ def load_events_from_config(
                             inner_diameter=tubing.get("INNER_DIAMETER", 0.15),
                             roughness=tubing.get("ROUGHNESS", 1.0e-5),
                         )
+
+
+@add_method(WellEventTimeline)
+def generate_schedule_text(self, eclipse_case: Case) -> str:
+    """Generate Eclipse schedule text for all wells in the collection.
+
+    The timeline is shared across all wells in the well path collection.
+    This method generates schedule data for all wells that have events in
+    the timeline.
+
+    This is a convenience wrapper around generate_schedule() that returns the
+    text directly instead of a DataContainerString.
+
+    Arguments:
+        eclipse_case (Case): Eclipse case to use for schedule generation.
+
+    Returns:
+        str: Eclipse schedule text containing DATES, COMPDAT, WELSEGS, WCONPROD, etc.
+             for all wells in the collection.
+
+    Example:
+        ```python
+        # Get the timeline (shared across all wells)
+        well_path = project.well_paths()[0]
+        timeline = well_path.event_timeline()
+
+        # Add events for multiple wells
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_name="WELL-1",
+            start_md=1000,
+            end_md=1500,
+            diameter=0.1,
+            skin_factor=0.5,
+            state="OPEN"
+        )
+
+        timeline.add_perf_event(
+            event_date="2024-02-01",
+            well_name="WELL-2",
+            start_md=2000,
+            end_md=2500,
+            diameter=0.1,
+            state="OPEN"
+        )
+
+        # Generate schedule text for all wells
+        case = project.cases()[0]
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        print(schedule_text)
+        ```
+    """
+    container = self.generate_schedule(eclipse_case_id=eclipse_case.id)
+    if container and container.values:
+        return container.values[0]
+    return ""

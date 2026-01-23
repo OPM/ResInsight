@@ -642,24 +642,6 @@ RimWellIASettingsCollection* RimWellPath::wellIASettingsCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventTimeline* RimWellPath::eventTimeline()
-{
-    RimWellPathCollection* wellPathCollection = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
-    return wellPathCollection->eventTimeline();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RimWellEventTimeline* RimWellPath::eventTimeline() const
-{
-    const RimWellPathCollection* wellPathCollection = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
-    return wellPathCollection->eventTimeline();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimWellPath::showWellPathLabel() const
 {
     return m_showWellPathLabel();

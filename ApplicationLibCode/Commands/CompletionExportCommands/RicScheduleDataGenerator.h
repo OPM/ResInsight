@@ -26,6 +26,7 @@
 class RimEclipseCase;
 class RimWellPath;
 class RimWellEvent;
+class RimWellEventTimeline;
 
 //==================================================================================================
 ///
@@ -44,17 +45,19 @@ public:
     };
 
     // Generate schedule for multiple wells at specified dates
-    static QString generateSchedule( RimEclipseCase*                  eclipseCase,
+    static QString generateSchedule( const RimWellEventTimeline&      timeline,
+                                     RimEclipseCase&                  eclipseCase,
                                      const std::vector<RimWellPath*>& wellPaths,
                                      const std::vector<QDateTime>&    dates,
                                      const Options&                   options );
 
     // Collect all unique dates from all wells' timelines
-    static std::vector<QDateTime> collectAllDates( const std::vector<RimWellPath*>& wellPaths );
+    static std::vector<QDateTime> collectAllDates( const RimWellEventTimeline& timeline, const std::vector<RimWellPath*>& wellPaths );
 
 private:
     // Generate schedule section for a single date
-    static QString generateDateSection( RimEclipseCase*                  eclipseCase,
+    static QString generateDateSection( const RimWellEventTimeline&      timeline,
+                                        RimEclipseCase&                  eclipseCase,
                                         const std::vector<RimWellPath*>& wellPaths,
                                         const QDateTime&                 date,
                                         const Options&                   options );
@@ -63,14 +66,13 @@ private:
     static QString generateDatesKeyword( const QDateTime& date );
 
     // Generate COMPDAT for a well at a specific date based on events
-    static QString generateCompdatForWell( RimEclipseCase* eclipseCase, RimWellPath* well, const QDateTime& date );
+    static QString
+        generateCompdatForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
 
     // Generate WELSEGS and COMPSEGS for a well at a specific date
-    static QString generateMswForWell( RimEclipseCase* eclipseCase, RimWellPath* well, const QDateTime& date );
+    static QString
+        generateMswForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
 
     // Generate well control keywords (WCONPROD, WCONINJE, WELOPEN) for a well at a specific date
-    static QString generateWellControlForWell( RimWellPath* well, const QDateTime& date );
-
-    // Get events at or before a specific date for a well
-    static std::vector<RimWellEvent*> getActiveEventsAtDate( RimWellPath* well, const QDateTime& date );
+    static QString generateWellControlForWell( const RimWellEventTimeline& timeline, const RimWellPath& well, const QDateTime& date );
 };

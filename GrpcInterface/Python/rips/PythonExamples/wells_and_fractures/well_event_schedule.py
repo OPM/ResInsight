@@ -7,11 +7,13 @@ This example shows:
 1. Creating well events (perforations, tubing, valves) on a timeline
 2. Applying events up to a specific date using set_timestamp()
 3. Viewing the created completions after applying events
+4. Generating Eclipse schedule text from the event timeline
 
 This workflow is useful for:
 - Time-dependent well completion modeling
 - Simulating well workover schedules
 - Planning and visualizing completion changes over time
+- Generating schedule files for Eclipse simulation
 """
 
 import rips
@@ -27,7 +29,6 @@ def main():
 
     # Create a modeled well path for demonstration
     print("\n1. Finding well")
-    well_path_coll = project.well_path_collection()
     wells = project.well_paths()
 
     if len(wells) > 0:
@@ -35,9 +36,11 @@ def main():
 
     print("Well name: ", well_path.name)
 
+
     # Get the event timeline
     print("\n2. Adding well events to the timeline...")
-    timeline = well_path.event_timeline()
+    well_path_coll = project.descendants(rips.WellPathCollection)[0]
+    timeline = well_path_coll.event_timeline()
 
     # Add tubing event (installed early)
     _tubing_event = timeline.add_tubing_event(
@@ -137,6 +140,93 @@ def main():
             f"      - MD {perf.start_measured_depth:.0f} to {perf.end_measured_depth:.0f}m"
         )
 
+    # Generate Eclipse schedule text
+    print("\n6. Generating Eclipse schedule text from events...")
+
+    # Get the Eclipse case (if available)
+    cases = project.cases()
+    if cases:
+        case = cases[0]
+        print(f"   Using Eclipse case: {case.name}")
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        if schedule_text:
+            print(f"\n   Generated schedule text ({len(schedule_text)} characters)")
+            print("   " + "=" * 60)
+            # Show the full schedule
+            lines = schedule_text.split("\n")
+            for line in lines:
+                print(f"   {line}")
+            print("   " + "=" * 60)
+
+            # Validate expected keywords are present
+            print("\n7. Validating generated Eclipse keywords...")
+            expected_keywords = ["DATES", "WELSEGS", "COMPSEGS"]
+            found_keywords = [kw for kw in expected_keywords if kw in schedule_text]
+
+            print(f"   Keywords found: {', '.join(found_keywords)}")
+
+            if "WELSEGS" in schedule_text:
+                print("   ✓ WELSEGS keyword generated (MSW well segments)")
+                # Count segment lines (lines with segment data)
+                welsegs_lines = [
+                    line
+                    for line in lines
+                    if line.strip() and line.strip()[0].isdigit() and " 1 " in line
+                ]
+                print(f"     Number of segments: {len(welsegs_lines)}")
+
+            if "COMPSEGS" in schedule_text:
+                print("   ✓ COMPSEGS keyword generated (completion segments)")
+
+            if "WSEGVALV" in schedule_text:
+                print("   ✓ WSEGVALV keyword generated (segment valves)")
+                # Extract valve parameters
+                wsegvalv_idx = schedule_text.find("WSEGVALV")
+                if wsegvalv_idx > 0:
+                    wsegvalv_section = schedule_text[wsegvalv_idx : wsegvalv_idx + 500]
+                    if "0.7" in wsegvalv_section:
+                        print("     Flow coefficient (Cv) = 0.7 detected")
+
+            if "WCONPROD" in schedule_text or "WCONINJE" in schedule_text:
+                kw_name = "WCONPROD" if "WCONPROD" in schedule_text else "WCONINJE"
+                print(f"   ✓ {kw_name} keyword generated (well control)")
+
+            # Show keyword summary
+            print("\n   Eclipse Keyword Summary:")
+            print(f"   - DATES entries: {schedule_text.count('DATES')}")
+            print(f"   - WELSEGS entries: {schedule_text.count('WELSEGS')}")
+            print(f"   - COMPSEGS entries: {schedule_text.count('COMPSEGS')}")
+            print(f"   - WSEGVALV entries: {schedule_text.count('WSEGVALV')}")
+
+            # Save to file
+            output_file = "generated_schedule.sch"
+            with open(output_file, "w") as f:
+                f.write(schedule_text)
+            print(f"\n   Schedule text saved to: {output_file}")
+
+            # Show example of generated keywords
+            print("\n8. Example of generated Eclipse keywords:")
+            print("   (See generated_schedule.sch for complete output)")
+            if "WELSEGS" in schedule_text:
+                print("\n   Sample WELSEGS segment:")
+                for line in lines:
+                    if "WELSEGS" in line:
+                        idx = lines.index(line)
+                        # Show keyword and first data line
+                        if idx + 2 < len(lines):
+                            print(f"   {lines[idx]}")
+                            print(f"   {lines[idx + 1]}")
+                            print(f"   {lines[idx + 2]}")
+                        break
+        else:
+            print("   Warning: No schedule text was generated")
+    else:
+        print("   Note: No Eclipse case loaded - skipping schedule generation")
+        print("   Load a case first to generate schedule text")
+
     print("\nExample completed successfully!")
     print("\nAPI Usage Summary:")
     print("- timeline = well_path.event_timeline()")
@@ -146,6 +236,8 @@ def main():
     )
     print("- timeline.add_valve_event(event_date='2024-01-01', well_name='WellA', ...)")
     print("- timeline.set_timestamp(timestamp='2024-06-01')  # Apply events up to date")
+    print("- schedule_text = timeline.generate_schedule_text(eclipse_case=case)")
+    print("  # Generate Eclipse schedule text")
 
 
 if __name__ == "__main__":
