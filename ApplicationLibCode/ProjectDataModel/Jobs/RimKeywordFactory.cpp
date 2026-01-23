@@ -40,16 +40,21 @@
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
+#include "opm/input/eclipse/Deck/DeckOutput.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/D.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/E.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/F.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/N.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/O.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
+#include <QLocale>
+
 #include <algorithm>
+#include <sstream>
 
 //==================================================================================================
 ///
@@ -723,6 +728,39 @@ Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputTool::Trans
     }
 
     return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword datesKeyword( const QDateTime& date )
+{
+    using D = Opm::ParserKeywords::DATES;
+
+    QLocale locale( QLocale::English );
+    int     day   = date.date().day();
+    QString month = locale.monthName( date.date().month(), QLocale::ShortFormat ).toUpper();
+    int     year  = date.date().year();
+
+    std::vector<Opm::DeckItem> items;
+    items.push_back( RifOpmDeckTools::item( D::DAY::itemName, day ) );
+    items.push_back( RifOpmDeckTools::item( D::MONTH::itemName, month.toStdString() ) );
+    items.push_back( RifOpmDeckTools::item( D::YEAR::itemName, year ) );
+
+    Opm::DeckKeyword kw{ D() };
+    kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString deckKeywordToString( const Opm::DeckKeyword& keyword )
+{
+    std::ostringstream oss;
+    Opm::DeckOutput    out( oss, 10 );
+    keyword.write( out );
+    return QString::fromStdString( oss.str() );
 }
 
 } // namespace RimKeywordFactory

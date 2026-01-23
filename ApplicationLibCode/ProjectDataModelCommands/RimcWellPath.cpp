@@ -25,15 +25,13 @@
 #include "RiaKeyValueStoreUtil.h"
 #include "RiaLogging.h"
 
-#include "RimImportedWellLog.h"
-#include "RimImportedWellLogData.h"
-#include "Well/RigImportedWellLogData.h"
-
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesDefines.h"
+#include "RimImportedWellLog.h"
+#include "RimImportedWellLogData.h"
 #include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"

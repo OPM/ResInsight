@@ -62,11 +62,13 @@ constexpr double VALVE_SEGMENT_LENGTH = 0.1;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extractSingleWellMswData( RimEclipseCase* eclipseCase,
-                                                                                                     RimWellPath*    wellPath,
-                                                                                                     int             timeStep,
-                                                                                                     bool exportCompletionsAfterMainBoreSegments,
-                                                                                                     CompletionType completionType )
+std::expected<RigMswTableData, std::string>
+    RicWellPathExportMswTableData::extractSingleWellMswData( RimEclipseCase*                 eclipseCase,
+                                                             RimWellPath*                    wellPath,
+                                                             int                             timeStep,
+                                                             bool                            exportCompletionsAfterMainBoreSegments,
+                                                             CompletionType                  completionType,
+                                                             const std::optional<QDateTime>& exportDate )
 {
     if ( !eclipseCase || !wellPath || eclipseCase->eclipseCaseData() == nullptr )
     {
@@ -131,18 +133,18 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
     {
         // Get COMPSEGS for main grid
         bool isLgr = false;
-        RicMswTableDataTools::collectCompsegData( tableData, exportInfo, isLgr );
+        RicMswTableDataTools::collectCompsegData( tableData, exportInfo, isLgr, exportDate );
     }
 
     {
         // Get COMPSEGS for LGR grids
         bool isLgr = true;
-        RicMswTableDataTools::collectCompsegData( tableData, exportInfo, isLgr );
+        RicMswTableDataTools::collectCompsegData( tableData, exportInfo, isLgr, exportDate );
     }
 
-    RicMswTableDataTools::collectWsegvalvData( tableData, exportInfo );
-    RicMswTableDataTools::collectWsegAicdData( tableData, exportInfo );
-    RicMswTableDataTools::collectWsegSicdData( tableData, exportInfo );
+    RicMswTableDataTools::collectWsegvalvData( tableData, exportInfo, exportDate );
+    RicMswTableDataTools::collectWsegAicdData( tableData, exportInfo, exportDate );
+    RicMswTableDataTools::collectWsegSicdData( tableData, exportInfo, exportDate );
 
     return tableData;
 }
@@ -832,7 +834,8 @@ void RicWellPathExportMswTableData::createWellPathSegments( gsl::not_null<RicMsw
                 if ( overlap > 0.0 )
                 {
                     double overlapStartTVD = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( overlapStart ).z();
-                    auto intervalCompletion = std::make_unique<RicMswPerforation>( interval->name(), wellPath, overlapStart, overlapStartTVD );
+                    auto   intervalCompletion =
+                        std::make_unique<RicMswPerforation>( interval->name(), wellPath, overlapStart, overlapStartTVD, interval );
                     std::vector<RigCompletionData> completionData =
                         generatePerforationIntersections( wellPath, interval, timeStep, eclipseCase );
                     assignPerforationIntersections( completionData,

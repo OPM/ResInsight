@@ -56,6 +56,7 @@ class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
 class RimWellLog;
 class RimEclipseCase;
+class RimWellEventTimeline;
 class cafTreeNode;
 class QString;
 
@@ -146,6 +147,9 @@ public:
     RimWellMeasurementCollection*       measurementCollection();
     const RimWellMeasurementCollection* measurementCollection() const;
 
+    RimWellEventTimeline*       eventTimeline();
+    const RimWellEventTimeline* eventTimeline() const;
+
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
@@ -188,6 +192,7 @@ private:
 
     caf::PdmPointer<RimWellPath>                      m_mostRecentlyUpdatedWellPath;
     caf::PdmChildField<RimWellMeasurementCollection*> m_wellMeasurements;
+    caf::PdmChildField<RimWellEventTimeline*>         m_eventTimeline;
     caf::PdmChildArrayField<RimWellPath*>             m_wellPaths;
 
     caf::PdmChildArrayField<cafTreeNode*> m_wellPathNodes;

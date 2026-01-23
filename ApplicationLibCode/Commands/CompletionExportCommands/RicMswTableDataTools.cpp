@@ -27,8 +27,10 @@
 #include "Well/RigWellPath.h"
 
 #include "RimMswCompletionParameters.h"
+#include "RimPerforationInterval.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
+#include "RimWellPathValve.h"
 
 #include <cmath>
 
@@ -512,7 +514,8 @@ void RicMswTableDataTools::collectCompletionWelsegsSegments( RigMswTableData&   
 //--------------------------------------------------------------------------------------------------
 void RicMswTableDataTools::generateWsegAicdTableRecursively( RicMswExportInfo&                                 exportInfo,
                                                              gsl::not_null<const RicMswBranch*>                branch,
-                                                             std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData )
+                                                             std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData,
+                                                             const std::optional<QDateTime>&                   exportDate )
 {
     for ( auto segment : branch->segments() )
     {
@@ -521,6 +524,10 @@ void RicMswTableDataTools::generateWsegAicdTableRecursively( RicMswExportInfo&  
             if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
             {
                 auto aicd = static_cast<const RicMswPerforationAICD*>( completion );
+
+                // Filter by export date if specified
+                if ( exportDate.has_value() && aicd->wellPathValve() && !aicd->wellPathValve()->isActiveOnDate( *exportDate ) ) continue;
+
                 if ( aicd->isValid() )
                 {
                     int segmentNumber = -1;
@@ -549,14 +556,17 @@ void RicMswTableDataTools::generateWsegAicdTableRecursively( RicMswExportInfo&  
 
     for ( auto childBranch : branch->branches() )
     {
-        generateWsegAicdTableRecursively( exportInfo, childBranch, aicdValveData );
+        generateWsegAicdTableRecursively( exportInfo, childBranch, aicdValveData, exportDate );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectCompsegData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, bool exportSubGridIntersections )
+void RicMswTableDataTools::collectCompsegData( RigMswTableData&                tableData,
+                                               RicMswExportInfo&               exportInfo,
+                                               bool                            exportSubGridIntersections,
+                                               const std::optional<QDateTime>& exportDate )
 {
     // Define completion types to export
     std::set<RigCompletionData::CompletionType> perforationTypes = { RigCompletionData::CompletionType::PERFORATION,
@@ -573,9 +583,21 @@ void RicMswTableDataTools::collectCompsegData( RigMswTableData& tableData, RicMs
     std::set<size_t> intersectedCells;
 
     // Collect in order: perforations, fishbones, fractures
-    collectCompsegDataByType( tableData, exportInfo, exportInfo.mainBoreBranch(), exportSubGridIntersections, perforationTypes, &intersectedCells );
-    collectCompsegDataByType( tableData, exportInfo, exportInfo.mainBoreBranch(), exportSubGridIntersections, fishbonesTypes, &intersectedCells );
-    collectCompsegDataByType( tableData, exportInfo, exportInfo.mainBoreBranch(), exportSubGridIntersections, fractureTypes, &intersectedCells );
+    collectCompsegDataByType( tableData,
+                              exportInfo,
+                              exportInfo.mainBoreBranch(),
+                              exportSubGridIntersections,
+                              perforationTypes,
+                              &intersectedCells,
+                              exportDate );
+    collectCompsegDataByType( tableData,
+                              exportInfo,
+                              exportInfo.mainBoreBranch(),
+                              exportSubGridIntersections,
+                              fishbonesTypes,
+                              &intersectedCells,
+                              exportDate );
+    collectCompsegDataByType( tableData, exportInfo, exportInfo.mainBoreBranch(), exportSubGridIntersections, fractureTypes, &intersectedCells, exportDate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -586,7 +608,8 @@ void RicMswTableDataTools::collectCompsegDataByType( RigMswTableData&           
                                                      gsl::not_null<const RicMswBranch*>                 branch,
                                                      bool                                               exportSubGridIntersections,
                                                      const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
-                                                     gsl::not_null<std::set<size_t>*>                   intersectedCells )
+                                                     gsl::not_null<std::set<size_t>*>                   intersectedCells,
+                                                     const std::optional<QDateTime>&                    exportDate )
 {
     for ( auto segment : branch->segments() )
     {
@@ -645,49 +668,73 @@ void RicMswTableDataTools::collectCompsegDataByType( RigMswTableData&           
         {
             if ( completion->segments().empty() || !exportCompletionTypes.count( completion->completionType() ) ) continue;
 
-            collectCompsegDataByType( tableData, exportInfo, completion, exportSubGridIntersections, exportCompletionTypes, intersectedCells );
+            // Filter perforations by export date if specified
+            if ( exportDate.has_value() )
+            {
+                auto* perf = dynamic_cast<const RicMswPerforation*>( completion );
+                if ( perf && perf->perforationInterval() )
+                {
+                    if ( !perf->perforationInterval()->isActiveOnDate( exportDate.value() ) )
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            collectCompsegDataByType( tableData, exportInfo, completion, exportSubGridIntersections, exportCompletionTypes, intersectedCells, exportDate );
         }
     }
 
     for ( auto childBranch : branch->branches() )
     {
-        collectCompsegDataByType( tableData, exportInfo, childBranch, exportSubGridIntersections, exportCompletionTypes, intersectedCells );
+        collectCompsegDataByType( tableData, exportInfo, childBranch, exportSubGridIntersections, exportCompletionTypes, intersectedCells, exportDate );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectWsegvalvData( RigMswTableData& tableData, RicMswExportInfo& exportInfo )
+void RicMswTableDataTools::collectWsegvalvData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, const std::optional<QDateTime>& exportDate )
 {
     QString wellNameForExport = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport();
-    collectWsegvalvDataRecursively( tableData, exportInfo.mainBoreBranch(), wellNameForExport.toStdString() );
+    collectWsegvalvDataRecursively( tableData, exportInfo.mainBoreBranch(), wellNameForExport.toStdString(), exportDate );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Helper function to collect WSEGVALV data recursively through branches
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&             tableData,
-                                                           gsl::not_null<RicMswBranch*> branch,
-                                                           const std::string&           wellNameForExport )
+void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&                tableData,
+                                                           gsl::not_null<RicMswBranch*>    branch,
+                                                           const std::string&              wellNameForExport,
+                                                           const std::optional<QDateTime>& exportDate )
 {
     // Handle tie-in ICV at branch level
     {
         auto tieInValve = dynamic_cast<RicMswTieInICV*>( branch.get() );
         if ( tieInValve && !tieInValve->segments().empty() )
         {
-            auto firstSubSegment = tieInValve->segments().front();
-            CAF_ASSERT( tieInValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV );
+            // Check if valve is active on export date (or no date filter is set)
+            bool isActiveOnDate = true;
+            if ( exportDate.has_value() && tieInValve->wellPathValve() )
+            {
+                isActiveOnDate = tieInValve->wellPathValve()->isActiveOnDate( exportDate.value() );
+            }
 
-            auto flowCoefficient = tieInValve->flowCoefficient();
+            if ( isActiveOnDate )
+            {
+                auto firstSubSegment = tieInValve->segments().front();
+                CAF_ASSERT( tieInValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV );
 
-            WsegvalvRow row;
-            row.well          = wellNameForExport;
-            row.segmentNumber = firstSubSegment->segmentNumber();
-            row.cv            = flowCoefficient;
-            row.area          = tieInValve->area();
+                auto flowCoefficient = tieInValve->flowCoefficient();
 
-            tableData.addWsegvalvRow( row );
+                WsegvalvRow row;
+                row.well          = wellNameForExport;
+                row.segmentNumber = firstSubSegment->segmentNumber();
+                row.cv            = flowCoefficient;
+                row.area          = tieInValve->area();
+
+                tableData.addWsegvalvRow( row );
+            }
         }
     }
 
@@ -698,8 +745,13 @@ void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&     
         {
             if ( RigCompletionData::isWsegValveTypes( completion->completionType() ) )
             {
-                auto wsegValve     = static_cast<RicMswWsegValve*>( completion );
-                int  segmentNumber = -1;
+                auto wsegValve = static_cast<RicMswWsegValve*>( completion );
+
+                // Filter by export date if specified
+                if ( exportDate.has_value() && wsegValve->wellPathValve() && !wsegValve->wellPathValve()->isActiveOnDate( *exportDate ) )
+                    continue;
+
+                int segmentNumber = -1;
 
                 for ( auto seg : wsegValve->segments() )
                 {
@@ -728,17 +780,17 @@ void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&     
     // Recurse into child branches
     for ( auto childBranch : branch->branches() )
     {
-        collectWsegvalvDataRecursively( tableData, childBranch, wellNameForExport );
+        collectWsegvalvDataRecursively( tableData, childBranch, wellNameForExport, exportDate );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Based on RicMswTableFormatterTools::generateWsegAicdTable()
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectWsegAicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo )
+void RicMswTableDataTools::collectWsegAicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, const std::optional<QDateTime>& exportDate )
 {
     std::map<size_t, std::vector<AicdWsegvalveData>> aicdValveData;
-    generateWsegAicdTableRecursively( exportInfo, exportInfo.mainBoreBranch(), aicdValveData );
+    generateWsegAicdTableRecursively( exportInfo, exportInfo.mainBoreBranch(), aicdValveData, exportDate );
 
     // Export data for each cell with AICD valves
 
@@ -810,10 +862,10 @@ void RicMswTableDataTools::collectWsegAicdData( RigMswTableData& tableData, RicM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectWsegSicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo )
+void RicMswTableDataTools::collectWsegSicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, const std::optional<QDateTime>& exportDate )
 {
     std::map<size_t, std::vector<SicdWsegvalveData>> sicdValveData;
-    generateWsegSicdTableRecursively( exportInfo, exportInfo.mainBoreBranch(), sicdValveData );
+    generateWsegSicdTableRecursively( exportInfo, exportInfo.mainBoreBranch(), sicdValveData, exportDate );
 
     // Export data for each cell with SICD valves
 
@@ -876,7 +928,8 @@ void RicMswTableDataTools::collectWsegSicdData( RigMswTableData& tableData, RicM
 //--------------------------------------------------------------------------------------------------
 void RicMswTableDataTools::generateWsegSicdTableRecursively( RicMswExportInfo&                                 exportInfo,
                                                              gsl::not_null<const RicMswBranch*>                branch,
-                                                             std::map<size_t, std::vector<SicdWsegvalveData>>& sicdValveData )
+                                                             std::map<size_t, std::vector<SicdWsegvalveData>>& sicdValveData,
+                                                             const std::optional<QDateTime>&                   exportDate )
 {
     for ( auto segment : branch->segments() )
     {
@@ -885,6 +938,10 @@ void RicMswTableDataTools::generateWsegSicdTableRecursively( RicMswExportInfo&  
             if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_SICD )
             {
                 auto sicd = static_cast<const RicMswPerforationSICD*>( completion );
+
+                // Filter by export date if specified
+                if ( exportDate.has_value() && sicd->wellPathValve() && !sicd->wellPathValve()->isActiveOnDate( *exportDate ) ) continue;
+
                 if ( sicd->isValid() )
                 {
                     int segmentNumber = -1;
@@ -913,7 +970,7 @@ void RicMswTableDataTools::generateWsegSicdTableRecursively( RicMswExportInfo&  
 
     for ( auto childBranch : branch->branches() )
     {
-        generateWsegSicdTableRecursively( exportInfo, childBranch, sicdValveData );
+        generateWsegSicdTableRecursively( exportInfo, childBranch, sicdValveData, exportDate );
     }
 }
 

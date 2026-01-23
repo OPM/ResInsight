@@ -131,6 +131,7 @@ list(
   ProjectDataModel/WellLog/WellLogTrack/CMakeLists_files.cmake
   ProjectDataModel/WellMeasurement/CMakeLists_files.cmake
   ProjectDataModel/WellPath/CMakeLists_files.cmake
+  ProjectDataModel/WellEvents/CMakeLists_files.cmake
   ProjectDataModel/Tools/CMakeLists_files.cmake
   ProjectDataModelCommands/CMakeLists_files.cmake
   ProjectDataModelCommands/CommandRouter/CMakeLists_files.cmake
@@ -401,6 +402,7 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellLog/WellLogTrack
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellMeasurement
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellPath
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellEvents
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands/CommandRouter
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
