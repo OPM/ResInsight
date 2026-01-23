@@ -120,7 +120,6 @@ private:
     caf::PdmChildField<RimSummaryAddress*>  m_filterAddress;
     caf::PdmField<QString>                  m_filterEnsembleParameter;
     caf::PdmField<RifEclipseSummaryAddress> m_filterQuantityUiField;
-    caf::PdmField<bool>                     m_filterQuantitySelectButton;
 
     // Operation and parameters
 
