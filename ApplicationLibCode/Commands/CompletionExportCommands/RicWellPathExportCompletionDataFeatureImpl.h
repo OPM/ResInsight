@@ -123,7 +123,7 @@ public:
     static std::vector<RigCompletionData>
         computeDynamicCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
-    static std::vector<RigCompletionData> completionDataForWellPath( RimWellPath* wellPath, RimEclipseCase* eCase );
+    static std::vector<RigCompletionData> completionDataForWellPath( RimWellPath* wellPath, RimEclipseCase* eCase, bool ignoreDates = false );
 
     static std::pair<double, cvf::Vec2i> wellPathUpperGridIntersectionIJ( gsl::not_null<const RimEclipseCase*> gridCase,
                                                                           gsl::not_null<const RimWellPath*>    wellPath,
@@ -132,7 +132,8 @@ public:
 private:
     static std::vector<RigCompletionData> generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
                                                                              const std::vector<const RimPerforationInterval*>& intervals,
-                                                                             const RicExportCompletionDataSettingsUi&          settings );
+                                                                             const RicExportCompletionDataSettingsUi&          settings,
+                                                                             bool ignoreDates = false );
 
     static double calculateTransmissibilityAsEclipseDoes( RimEclipseCase*                  eclipseCase,
                                                           double                           skinFactor,

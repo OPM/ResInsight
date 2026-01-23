@@ -41,6 +41,7 @@
 #include "RimStimPlanModel.h"
 #include "RimThermalFractureTemplate.h"
 #include "RimTools.h"
+#include "RimWellEventTimeline.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletionSettings.h"
