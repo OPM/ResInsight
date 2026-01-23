@@ -23,6 +23,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QDate>
+#include <QDateTime>
 #include <QString>
 
 class RimWellPath;
@@ -53,6 +55,11 @@ public:
     void setEndMD( double endMD );
     void setDiameter( double diameter );
     void setRoughnessFactor( double roughness );
+
+    // Date tracking
+    void enableCustomStartDate( bool enable );
+    void setCustomStartDate( const QDate& date );
+    bool isActiveOnDate( const QDateTime& date ) const;
 
     // Validation
     bool isValidInterval() const;
@@ -94,4 +101,7 @@ private:
     caf::PdmField<double> m_endMD;
     caf::PdmField<double> m_diameter;
     caf::PdmField<double> m_roughnessFactor;
+
+    caf::PdmField<bool>      m_useCustomStartDate;
+    caf::PdmField<QDateTime> m_startDate;
 };

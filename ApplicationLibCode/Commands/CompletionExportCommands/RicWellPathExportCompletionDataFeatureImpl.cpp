@@ -1155,7 +1155,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 std::vector<RigCompletionData>
     RicWellPathExportCompletionDataFeatureImpl::generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*> wellPath,
                                                                                    const std::vector<const RimPerforationInterval*>& intervals,
-                                                                                   const RicExportCompletionDataSettingsUi& settings )
+                                                                                   const RicExportCompletionDataSettingsUi& settings,
+                                                                                   bool                                     ignoreDates )
 {
     RiaDefines::EclipseUnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
 
@@ -1176,7 +1177,7 @@ std::vector<RigCompletionData>
         {
             if ( !interval->isChecked() ) continue;
             if ( (size_t)settings.timeStep < timeSteps.size() &&
-                 !interval->isActiveOnDate( settings.caseToApply->timeStepDates()[settings.timeStep] ) )
+                 !interval->isActiveOnDate( settings.caseToApply->timeStepDates()[settings.timeStep] ) && !ignoreDates )
                 continue;
 
             std::pair<std::vector<cvf::Vec3d>, std::vector<double>> perforationPointsAndMD =
@@ -1702,7 +1703,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCarfinForTemporaryLgrs( c
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( RimWellPath*    wellPath,
-                                                                                                      RimEclipseCase* eCase )
+                                                                                                      RimEclipseCase* eCase,
+                                                                                                      bool            ignoreActiveDates )
 {
     if ( eCase == nullptr ) return {};
 
@@ -1750,7 +1752,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
             std::vector<RigCompletionData> perforationCompletionData =
                 generatePerforationsCompdatValues( wellPathLateral,
                                                    wellPathLateral->perforationIntervalCollection()->perforations(),
-                                                   exportSettings );
+                                                   exportSettings,
+                                                   ignoreActiveDates );
 
             appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, perforationCompletionData );
         }

@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RicMswSegmentCellIntersection.h"
+#include "RimPerforationInterval.h"
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
@@ -67,12 +68,14 @@ RigCompletionData::CompletionType RicMswFracture::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforation::RicMswPerforation( const QString&     label,
-                                      const RimWellPath* wellPath,
-                                      double             startMD,
-                                      double             startTVD,
-                                      size_t             index /*= cvf::UNDEFINED_SIZE_T*/ )
+RicMswPerforation::RicMswPerforation( const QString&                label,
+                                      const RimWellPath*            wellPath,
+                                      double                        startMD,
+                                      double                        startTVD,
+                                      const RimPerforationInterval* perforationInterval,
+                                      size_t                        index /*= cvf::UNDEFINED_SIZE_T*/ )
     : RicMswCompletion( label, wellPath, startMD, startTVD, index )
+    , m_perforationInterval( perforationInterval )
 {
 }
 
@@ -82,6 +85,14 @@ RicMswPerforation::RicMswPerforation( const QString&     label,
 RigCompletionData::CompletionType RicMswPerforation::completionType() const
 {
     return RigCompletionData::CompletionType::PERFORATION;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimPerforationInterval* RicMswPerforation::perforationInterval() const
+{
+    return m_perforationInterval;
 }
 
 //--------------------------------------------------------------------------------------------------

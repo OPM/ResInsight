@@ -45,6 +45,7 @@
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
+#include "RimWellEventTimeline.h"
 #include "RimWellIASettingsCollection.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"

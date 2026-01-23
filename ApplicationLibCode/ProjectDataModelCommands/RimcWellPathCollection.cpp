@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
+#include "RimWellEventTimeline.h"
 #include "WellPathCommands/RicImportWellPaths.h"
 
 #include "RimEclipseCase.h"

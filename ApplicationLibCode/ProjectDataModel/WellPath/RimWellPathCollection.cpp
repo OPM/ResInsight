@@ -60,6 +60,8 @@
 #include "RimWellPathCompletions.h"
 #include "RimWellPathTieIn.h"
 
+#include "WellEvents/RimWellEventTimeline.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafTreeNode.h" // TODO: Move to caf
@@ -136,6 +138,9 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements" );
     m_wellMeasurements = new RimWellMeasurementCollection;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eventTimeline, "EventTimeline", "Event Timeline" );
+    m_eventTimeline = new RimWellEventTimeline;
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNodes, "WellPathNodes", "Well Path Nodes" );
     m_wellPathNodes.xmlCapability()->disableIO();
@@ -568,6 +573,11 @@ void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
     if ( !m_wellMeasurements->isEmpty() )
     {
         uiTreeOrdering.add( &m_wellMeasurements );
+    }
+
+    if ( m_eventTimeline() && m_eventTimeline()->eventCount() > 0 )
+    {
+        uiTreeOrdering.add( &m_eventTimeline );
     }
 
     for ( const auto& wellPathNode : m_wellPathNodes() )
@@ -1156,6 +1166,22 @@ RimWellMeasurementCollection* RimWellPathCollection::measurementCollection()
 const RimWellMeasurementCollection* RimWellPathCollection::measurementCollection() const
 {
     return m_wellMeasurements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellEventTimeline* RimWellPathCollection::eventTimeline()
+{
+    return m_eventTimeline;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellEventTimeline* RimWellPathCollection::eventTimeline() const
+{
+    return m_eventTimeline;
 }
 
 //--------------------------------------------------------------------------------------------------
