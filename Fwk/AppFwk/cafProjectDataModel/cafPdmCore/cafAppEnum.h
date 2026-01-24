@@ -129,19 +129,34 @@ public:
     {
     }
 
-    static void setEnumSubset( caf::PdmFieldHandle* fieldKeyword, std::vector<T> subset )
+    static void setEnumSubset( caf::PdmFieldHandle* fieldHandle, std::vector<T> subset )
     {
-        if ( !fieldKeyword ) return;
-        m_enumSubset[fieldKeyword->keyword()] = subset;
+        if ( !fieldHandle ) return;
+        QString key       = createEnumSubsetKey( fieldHandle );
+        m_enumSubset[key] = subset;
     }
-    static std::vector<T> enumSubset( QString fieldKeyword )
+    static std::vector<T> enumSubset( caf::PdmFieldHandle* fieldHandle )
     {
-        auto it = m_enumSubset.find( fieldKeyword );
+        if ( !fieldHandle ) return {};
+        QString key = createEnumSubsetKey( fieldHandle );
+        auto    it  = m_enumSubset.find( key );
         if ( it != m_enumSubset.end() ) return it->second;
 
         return {};
     }
 
+private:
+    static QString createEnumSubsetKey( caf::PdmFieldHandle* fieldHandle )
+    {
+        if ( !fieldHandle ) return QString();
+
+        // Create a unique key by combining the owner class name with the field keyword
+        // This prevents collisions when different object types use the same field keyword
+        QString ownerClass = fieldHandle->ownerClass();
+        return ownerClass + "::" + fieldHandle->keyword();
+    }
+
+public:
     operator T() const { return m_value; }
 
     T       value() const { return m_value; }
@@ -201,7 +216,7 @@ private:
 
     T m_value;
 
-    static std::map<QString, std::vector<T>> m_enumSubset;
+    static std::map<QString, std::vector<T>> m_enumSubset; // Key format: "ownerClass::fieldKeyword"
 
     //==================================================================================================
     /// A private class to handle the instance of the mapping vector.
