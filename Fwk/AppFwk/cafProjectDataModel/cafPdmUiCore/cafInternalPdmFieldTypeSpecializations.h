@@ -14,6 +14,35 @@ template <typename T>
 class AppEnum;
 
 //==================================================================================================
+/// Helper base class for types that delegate all operations to PdmValueFieldSpecialization.
+/// Inherit from this to avoid repeating the delegation boilerplate.
+//==================================================================================================
+template <typename T>
+struct PdmUiFieldSpecializationForValueSpec : public PdmUiFieldSpecializationDefaults
+{
+    static QVariant convert( const T& value ) { return PdmValueFieldSpecialization<T>::convert( value ); }
+
+    static void setFromVariant( const QVariant& variantValue, T& value )
+    {
+        PdmValueFieldSpecialization<T>::setFromVariant( variantValue, value );
+    }
+
+    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        return PdmValueFieldSpecialization<T>::isEqual( variantValue, variantValue2 );
+    }
+};
+
+//==================================================================================================
+/// Primary template - delegates to PdmValueFieldSpecialization<T>.
+/// Types with custom PdmValueFieldSpecialization will automatically get correct behavior.
+//==================================================================================================
+template <typename T>
+class PdmUiFieldSpecialization : public PdmUiFieldSpecializationForValueSpec<T>
+{
+};
+
+//==================================================================================================
 /// Partial specialization for PdmField< PdmPointer<T> >
 ///
 /// Will package the PdmPointer<T> into QVariant as PdmPointer<PdmObject>
@@ -24,7 +53,7 @@ class AppEnum;
 //==================================================================================================
 
 template <typename T>
-class PdmUiFieldSpecialization<PdmPointer<T>>
+class PdmUiFieldSpecialization<PdmPointer<T>> : public PdmUiFieldSpecializationDefaults
 {
 public:
     static QVariant convert( const PdmPointer<T>& value )
@@ -41,11 +70,6 @@ public:
     {
         return variantValue.value<PdmPointer<PdmObjectHandle>>() == variantValue2.value<PdmPointer<PdmObjectHandle>>();
     }
-
-    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const PdmPointer<T>& )
-    {
-        return QList<PdmOptionItemInfo>();
-    }
 };
 
 //==================================================================================================
@@ -53,7 +77,7 @@ public:
 //==================================================================================================
 
 template <typename T>
-class PdmUiFieldSpecialization<std::list<T>>
+class PdmUiFieldSpecialization<std::list<T>> : public PdmUiFieldSpecializationDefaults
 {
 public:
     static QVariant convert( const std::list<T>& value )
@@ -85,13 +109,6 @@ public:
     {
         return PdmValueFieldSpecialization<T>::isEqual( variantValue, variantValue2 );
     }
-
-    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const std::list<T>& )
-    {
-        return QList<PdmOptionItemInfo>();
-    }
-
-    static void childObjects( const PdmDataValueField<std::list<T>>&, std::vector<PdmObjectHandle*>* ) {}
 };
 
 //==================================================================================================
@@ -99,7 +116,7 @@ public:
 //==================================================================================================
 
 template <typename T>
-class PdmUiFieldSpecialization<std::vector<T>>
+class PdmUiFieldSpecialization<std::vector<T>> : public PdmUiFieldSpecializationDefaults
 {
 public:
     static QVariant convert( const std::vector<T>& value )
@@ -116,22 +133,13 @@ public:
     {
         return PdmValueFieldSpecialization<T>::isEqual( variantValue, variantValue2 );
     }
-
-    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const std::vector<T>& )
-    {
-        return QList<PdmOptionItemInfo>();
-    }
-
-    static void childObjects( const PdmDataValueField<std::vector<T>>& field, std::vector<PdmObjectHandle*>* objects )
-    {
-    }
 };
 
 //==================================================================================================
 /// Partial specialization for PdmField<  caf::AppEnum<T> >
 //==================================================================================================
 template <typename T>
-class PdmUiFieldSpecialization<caf::AppEnum<T>>
+class PdmUiFieldSpecialization<caf::AppEnum<T>> : public PdmUiFieldSpecializationDefaults
 {
 public:
     static QVariant convert( const caf::AppEnum<T>& value )
@@ -147,17 +155,12 @@ public:
         value = static_cast<T>( variantValue.toInt() );
     }
 
-    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
-
-    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const caf::AppEnum<T>& appEnum )
+    static QList<PdmOptionItemInfo> valueOptions( PdmFieldHandle* fieldHandle, const caf::AppEnum<T>& appEnum )
     {
         QList<PdmOptionItemInfo> optionList;
 
         // If a subset of the enum is defined, use that subset
-        auto enumValues = caf::AppEnum<T>::enumSubset( keyword );
+        auto enumValues = caf::AppEnum<T>::enumSubset( fieldHandle );
         if ( enumValues.empty() )
         {
             // If no subset is defined, use all values
@@ -173,17 +176,13 @@ public:
 
         return optionList;
     }
-
-    static void childObjects( const PdmDataValueField<caf::AppEnum<T>>& field, std::vector<PdmObjectHandle*>* objects )
-    {
-    }
 };
 
 //==================================================================================================
 /// Partial specialization for PdmField<std::pair<T, U>>>
 //==================================================================================================
 template <typename T, typename U>
-class PdmUiFieldSpecialization<std::pair<T, U>>
+class PdmUiFieldSpecialization<std::pair<T, U>> : public PdmUiFieldSpecializationDefaults
 {
 public:
     static QVariant convert( const std::pair<T, U>& value )
@@ -195,29 +194,13 @@ public:
     {
         PdmValueFieldSpecialization<std::pair<T, U>>::setFromVariant( variantValue, value );
     }
-
-    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
-
-    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const std::pair<T, U>& )
-    {
-        QList<PdmOptionItemInfo> optionList;
-
-        return optionList;
-    }
-
-    static void childObjects( const PdmDataValueField<std::pair<T, U>>& field, std::vector<PdmObjectHandle*>* objects )
-    {
-    }
 };
 
 //==================================================================================================
 /// Partial specialization for PdmField<std::optional<T>>>
 //==================================================================================================
 template <typename T>
-class PdmUiFieldSpecialization<std::optional<T>>
+class PdmUiFieldSpecialization<std::optional<T>> : public PdmUiFieldSpecializationDefaults
 {
 public:
     /// Convert the field value into a QVariant
@@ -247,59 +230,6 @@ public:
         PdmValueFieldSpecialization<T>::setFromVariant( variantValue, valueOfType );
         value = valueOfType;
     }
-
-    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
-
-    /// Methods to get a list of options for a field, specialized for std::optional<T>
-    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const std::optional<T>& )
-    {
-        QList<PdmOptionItemInfo> optionList;
-
-        return optionList;
-    }
-
-    /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects( const PdmDataValueField<std::optional<T>>& field, std::vector<PdmObjectHandle*>* objects )
-    {
-    }
-};
-
-//==================================================================================================
-/// Partial specialization for FilePath
-//==================================================================================================
-
-template <>
-class PdmUiFieldSpecialization<caf::FilePath>
-{
-public:
-    /// Convert the field value into a QVariant
-    static QVariant convert( const caf::FilePath& value )
-    {
-        return PdmValueFieldSpecialization<caf::FilePath>::convert( value );
-    }
-
-    /// Set the field value from a QVariant
-    static void setFromVariant( const QVariant& variantValue, caf::FilePath& value )
-    {
-        return PdmValueFieldSpecialization<caf::FilePath>::setFromVariant( variantValue, value );
-    }
-
-    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return PdmValueFieldSpecialization<caf::FilePath>::isEqual( variantValue, variantValue2 );
-    }
-
-    /// Methods to get a list of options for a field, specialized for caf::FilePath
-    static QList<PdmOptionItemInfo> valueOptions( QString keyword, const caf::FilePath& )
-    {
-        return QList<PdmOptionItemInfo>();
-    }
-
-    /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects( const PdmDataValueField<caf::FilePath>& field, std::vector<PdmObjectHandle*>* objects ) {}
 };
 
 } // End namespace caf
