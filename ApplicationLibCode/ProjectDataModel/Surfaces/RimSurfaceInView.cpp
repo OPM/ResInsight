@@ -27,6 +27,7 @@
 #include "RimGridView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimSurfaceResultDefinition.h"
 
 #include "RiuViewer.h"
@@ -34,6 +35,21 @@
 #include "RivSurfacePartMgr.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimSurfaceInView::SurfaceColorMode>::setUp()
+{
+    addItem( RimSurfaceInView::SurfaceColorMode::DEFAULT, "DEFAULT", "Default (from Collection)" );
+    addItem( RimSurfaceInView::SurfaceColorMode::BOTH, "BOTH", "Both" );
+    addItem( RimSurfaceInView::SurfaceColorMode::SURFACE_COLOR, "SURFACE_COLOR", "Surface Color" );
+    addItem( RimSurfaceInView::SurfaceColorMode::RESULT_COLORS, "RESULT_COLORS", "Result Colors" );
+
+    setDefault( RimSurfaceInView::SurfaceColorMode::DEFAULT );
+}
+
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,6 +66,8 @@ RimSurfaceInView::RimSurfaceInView()
     m_surface.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_showMeshLines, "ShowMeshLines", false, "Show Mesh Lines" );
+
+    CAF_PDM_InitField( &m_surfaceColorMode, "SurfaceColorMode", caf::AppEnum<SurfaceColorMode>( SurfaceColorMode::DEFAULT ), "Color Mode" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -104,6 +122,30 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
     }
 
     m_resultDefinition->updateMinMaxValues( -1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInView::SurfaceColorMode RimSurfaceInView::surfaceColorMode() const
+{
+    return m_surfaceColorMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInView::SurfaceColorMode RimSurfaceInView::effectiveSurfaceColorMode() const
+{
+    if ( m_surfaceColorMode() == SurfaceColorMode::DEFAULT )
+    {
+        if ( auto collection = firstAncestorOfType<RimSurfaceInViewCollection>() )
+        {
+            return collection->surfaceColorMode();
+        }
+        return SurfaceColorMode::BOTH;
+    }
+    return m_surfaceColorMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,7 +297,7 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         scheduleRedraw = true;
     }
 
-    if ( changedField == &m_showInactiveCells || changedField == &m_showMeshLines )
+    if ( changedField == &m_showInactiveCells || changedField == &m_showMeshLines || changedField == &m_surfaceColorMode )
     {
         clearGeometry();
         scheduleRedraw = true;
@@ -274,6 +316,7 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
+    uiOrdering.add( &m_surfaceColorMode );
     uiOrdering.add( &m_showInactiveCells );
 
     defineSeparateDataSourceUi( uiConfigName, uiOrdering );

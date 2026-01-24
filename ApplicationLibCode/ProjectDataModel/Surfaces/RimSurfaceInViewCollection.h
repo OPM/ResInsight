@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimSurfaceInView.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -44,12 +45,15 @@ class RimSurfaceInViewCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
+    using SurfaceColorMode = RimSurfaceInView::SurfaceColorMode;
+
 public:
     RimSurfaceInViewCollection();
     ~RimSurfaceInViewCollection() override;
 
     QString name() const override;
 
+    SurfaceColorMode      surfaceColorMode() const;
     RimSurfaceCollection* surfaceCollection() const;
     void                  setSurfaceCollection( RimSurfaceCollection* surfcoll );
 
@@ -89,5 +93,6 @@ private:
     caf::PdmChildArrayField<RimSurfaceInView*>           m_surfacesInView;
     caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
 
-    caf::PdmPtrField<RimSurfaceCollection*> m_surfaceCollection;
+    caf::PdmPtrField<RimSurfaceCollection*>       m_surfaceCollection;
+    caf::PdmField<caf::AppEnum<SurfaceColorMode>> m_surfaceColorMode;
 };

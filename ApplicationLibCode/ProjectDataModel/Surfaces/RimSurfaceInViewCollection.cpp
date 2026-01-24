@@ -33,6 +33,7 @@
 #include "RivSurfacePartMgr.h"
 
 #include "cafPdmUiTreeOrdering.h"
+
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInViewCollection, "SurfaceInViewCollection" );
@@ -54,6 +55,10 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceCollectionRef", "SurfaceCollection" );
     m_surfaceCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_surfaceColorMode, "SurfaceColorMode", caf::AppEnum<SurfaceColorMode>( SurfaceColorMode::BOTH ), "Color Mode" );
+    caf::AppEnum<SurfaceColorMode>::setEnumSubset( &m_surfaceColorMode,
+                                                   { SurfaceColorMode::BOTH, SurfaceColorMode::SURFACE_COLOR, SurfaceColorMode::RESULT_COLORS } );
 
     nameField()->uiCapability()->setUiHidden( true );
 }
@@ -97,6 +102,14 @@ QString RimSurfaceInViewCollection::name() const
     if ( m_surfaceCollection ) return m_surfaceCollection->collectionName();
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInViewCollection::SurfaceColorMode RimSurfaceInViewCollection::surfaceColorMode() const
+{
+    return m_surfaceColorMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,7 +329,7 @@ void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     updateUiIconFromToggleField();
 
-    if ( changedField == &m_isChecked )
+    if ( changedField == &m_isChecked || changedField == &m_surfaceColorMode )
     {
         auto ownerView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
         ownerView->scheduleCreateDisplayModelAndRedraw();

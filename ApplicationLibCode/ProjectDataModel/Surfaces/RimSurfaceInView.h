@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimIntersection.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -24,8 +27,6 @@
 #include "cafPdmPtrField.h"
 
 #include "cvfObject.h"
-
-#include "RimIntersection.h"
 
 class RimSurface;
 class RimSurfaceResultDefinition;
@@ -41,12 +42,24 @@ class RimSurfaceInView : public RimIntersection
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class SurfaceColorMode
+    {
+        DEFAULT,
+        BOTH,
+        SURFACE_COLOR,
+        RESULT_COLORS
+    };
+
+public:
     RimSurfaceInView();
     ~RimSurfaceInView() override;
 
     QString     name() const override;
     RimSurface* surface() const;
     void        setSurface( RimSurface* surf );
+
+    SurfaceColorMode surfaceColorMode() const;
+    SurfaceColorMode effectiveSurfaceColorMode() const;
 
     bool                        isNativeSurfaceResultsActive() const;
     RimSurfaceResultDefinition* surfaceResultDefinition();
@@ -76,6 +89,8 @@ private:
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmPtrField<RimSurface*>    m_surface;
     caf::PdmField<bool>              m_showMeshLines;
+
+    caf::PdmField<caf::AppEnum<SurfaceColorMode>> m_surfaceColorMode;
 
     caf::PdmChildField<RimSurfaceResultDefinition*> m_resultDefinition;
 

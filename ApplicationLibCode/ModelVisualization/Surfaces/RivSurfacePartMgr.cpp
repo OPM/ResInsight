@@ -27,6 +27,7 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimSurfaceResultDefinition.h"
 
 #include "RivIntersectionGeometryGeneratorInterface.h"
@@ -131,7 +132,16 @@ void RivSurfacePartMgr::updateCellResultColor( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( m_surfaceInView->surface() && m_surfaceInView->surface()->showIntersectionCellResults() &&
+    if ( !m_surfaceInView ) return;
+
+    using SurfaceColorMode = RimSurfaceInView::SurfaceColorMode;
+
+    SurfaceColorMode surfaceColorMode = m_surfaceInView->effectiveSurfaceColorMode();
+
+    bool includeCellResults  = ( surfaceColorMode == SurfaceColorMode::BOTH || surfaceColorMode == SurfaceColorMode::RESULT_COLORS );
+    bool includeSurfaceColor = ( surfaceColorMode == SurfaceColorMode::BOTH || surfaceColorMode == SurfaceColorMode::SURFACE_COLOR );
+
+    if ( includeCellResults && m_surfaceInView->surface() && m_surfaceInView->surface()->showIntersectionCellResults() &&
          !m_surfaceInView->surfaceResultDefinition()->isChecked() )
     {
         if ( m_intersectionFaces.isNull() )
@@ -165,7 +175,10 @@ void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicL
         }
     }
 
-    appendNativeGeometryPartsToModel( model, scaleTransform );
+    if ( includeSurfaceColor )
+    {
+        appendNativeGeometryPartsToModel( model, scaleTransform );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
