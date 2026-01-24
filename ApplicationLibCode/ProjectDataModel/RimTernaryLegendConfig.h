@@ -85,9 +85,6 @@ private:
     caf::PdmField<double> userDefinedMaxValueSwat;
     caf::PdmField<double> userDefinedMinValueSwat;
 
-    caf::PdmField<bool>    applyLocalMinMax;
-    caf::PdmField<bool>    applyGlobalMinMax;
-    caf::PdmField<bool>    applyFullRangeMinMax;
     caf::PdmField<QString> ternaryRangeSummary;
 
     caf::PdmField<bool> m_showLegend;

@@ -22,7 +22,6 @@
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseResultDefinition.h"
 
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimResultSelectionUi, "RimResultSelectionUi" );

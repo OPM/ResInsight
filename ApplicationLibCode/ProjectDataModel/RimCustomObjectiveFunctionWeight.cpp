@@ -30,7 +30,6 @@
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimCustomObjectiveFunctionWeight, "RimCustomObjectiveFunctionWeight" );
@@ -51,10 +50,6 @@ RimCustomObjectiveFunctionWeight::RimCustomObjectiveFunctionWeight()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address" );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton, "SelectObjectiveSummaryAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_objectiveValuesSelectSummaryAddressPushButton );
-    m_objectiveValuesSelectSummaryAddressPushButton = false;
 
     CAF_PDM_InitField( &m_weightValue, "WeightValue", 1.0, "Weight" );
     m_weightValue.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
@@ -143,38 +138,6 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
     {
         updateAddressesUiField();
     }
-    else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
-    {
-        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
-        RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
-        RimSummaryEnsemble* candidateEnsemble = parentCurveSet()->summaryEnsemble();
-
-        std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
-        {
-            candidateAddresses.push_back( address->address() );
-        }
-
-        dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
-
-        if ( dlg.exec() == QDialog::Accepted )
-        {
-            auto curveSelection = dlg.curveSelection();
-            if ( !curveSelection.empty() )
-            {
-                m_objectiveValuesSummaryAddresses.deleteChildren();
-                for ( auto address : curveSelection )
-                {
-                    RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-                    summaryAddress->setAddress( address.summaryAddressY() );
-                    m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
-                }
-            }
-        }
-        updateAddressesUiField();
-        m_objectiveValuesSelectSummaryAddressPushButton = false;
-        parentObjectiveFunction()->onWeightChanged();
-    }
     else if ( changedField == &m_weightValue )
     {
         parentObjectiveFunction()->onWeightChanged();
@@ -191,7 +154,7 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
 void RimCustomObjectiveFunctionWeight::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_objectiveValuesSummaryAddressesUiField );
-    uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+    uiOrdering.addNewButton( "...", [this]() { selectSummaryAddress(); }, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
     uiOrdering.add( &m_weightValue );
     uiOrdering.add( &m_objectiveFunction );
 
@@ -214,14 +177,6 @@ void RimCustomObjectiveFunctionWeight::defineEditorAttribute( const caf::PdmFiel
         }
 
         myAttr->validator = new QDoubleValidator( 0.0, 9999.0, 2 );
-    }
-    else if ( field == &m_objectiveValuesSelectSummaryAddressPushButton )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "...";
-        }
     }
 }
 
@@ -260,4 +215,39 @@ void RimCustomObjectiveFunctionWeight::updateAddressesUiField()
         addressVector.push_back( address->address() );
     }
     m_objectiveValuesSummaryAddressesUiField = QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomObjectiveFunctionWeight::selectSummaryAddress()
+{
+    RiuSummaryVectorSelectionDialog dlg( nullptr );
+    RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
+    RimSummaryEnsemble* candidateEnsemble = parentCurveSet()->summaryEnsemble();
+
+    std::vector<RifEclipseSummaryAddress> candidateAddresses;
+    for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
+    {
+        candidateAddresses.push_back( address->address() );
+    }
+
+    dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
+
+    if ( dlg.exec() == QDialog::Accepted )
+    {
+        auto curveSelection = dlg.curveSelection();
+        if ( !curveSelection.empty() )
+        {
+            m_objectiveValuesSummaryAddresses.deleteChildren();
+            for ( auto address : curveSelection )
+            {
+                RimSummaryAddress* summaryAddress = new RimSummaryAddress();
+                summaryAddress->setAddress( address.summaryAddressY() );
+                m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
+            }
+        }
+    }
+    updateAddressesUiField();
+    parentObjectiveFunction()->onWeightChanged();
 }

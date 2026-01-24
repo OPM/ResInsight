@@ -75,8 +75,6 @@ public:
 
     RimCaseCollection* parentStatisticsCaseCollection() const;
 
-    caf::PdmField<bool> m_calculateEditCommand;
-
     void populateResultSelectionAfterLoadingGrid();
 
     void setSourceProperties( RiaDefines::ResultCatType propertyType, const std::vector<QString>& propertyNames );

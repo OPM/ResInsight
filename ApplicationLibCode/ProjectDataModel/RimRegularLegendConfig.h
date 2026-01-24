@@ -239,7 +239,6 @@ private:
     caf::PdmField<caf::AppEnum<ColorRangesType>>                   m_colorRangeMode_OBSOLETE;
     caf::PdmField<caf::AppEnum<MappingType>>                       m_mappingMode;
     caf::PdmField<caf::AppEnum<CategoryColorModeType>>             m_categoryColorMode;
-    caf::PdmField<bool>                                            m_resetUserDefinedValuesButton;
     caf::PdmField<bool>                                            m_centerLegendAroundZero;
 
     caf::PdmPtrField<RimColorLegend*> m_colorLegend;

@@ -32,7 +32,6 @@
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivTernaryScalarMapper.h"
 
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 
 #include "cvfqtUtils.h"
@@ -57,18 +56,6 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
                        "",
                        "Switches between automatic and user defined range on the legend",
                        "" );
-
-    CAF_PDM_InitFieldNoDefault( &applyLocalMinMax, "m_applyLocalMinMax", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &applyLocalMinMax );
-    applyLocalMinMax = false;
-
-    CAF_PDM_InitFieldNoDefault( &applyGlobalMinMax, "m_applyGlobalMinMax", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &applyGlobalMinMax );
-    applyGlobalMinMax = false;
-
-    CAF_PDM_InitFieldNoDefault( &applyFullRangeMinMax, "m_applyFullRangeMinMax", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &applyFullRangeMinMax );
-    applyFullRangeMinMax = false;
 
     CAF_PDM_InitFieldNoDefault( &ternaryRangeSummary, "ternaryRangeSummary", "Range summary" );
     ternaryRangeSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -106,40 +93,6 @@ RimTernaryLegendConfig::~RimTernaryLegendConfig()
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &applyLocalMinMax )
-    {
-        userDefinedMaxValueSoil = m_localAutoMax[TERNARY_SOIL_IDX];
-        userDefinedMinValueSoil = m_localAutoMin[TERNARY_SOIL_IDX];
-        userDefinedMaxValueSgas = m_localAutoMax[TERNARY_SGAS_IDX];
-        userDefinedMinValueSgas = m_localAutoMin[TERNARY_SGAS_IDX];
-        userDefinedMaxValueSwat = m_localAutoMax[TERNARY_SWAT_IDX];
-        userDefinedMinValueSwat = m_localAutoMin[TERNARY_SWAT_IDX];
-
-        applyLocalMinMax = false;
-    }
-    else if ( changedField == &applyGlobalMinMax )
-    {
-        userDefinedMaxValueSoil = m_globalAutoMax[TERNARY_SOIL_IDX];
-        userDefinedMinValueSoil = m_globalAutoMin[TERNARY_SOIL_IDX];
-        userDefinedMaxValueSgas = m_globalAutoMax[TERNARY_SGAS_IDX];
-        userDefinedMinValueSgas = m_globalAutoMin[TERNARY_SGAS_IDX];
-        userDefinedMaxValueSwat = m_globalAutoMax[TERNARY_SWAT_IDX];
-        userDefinedMinValueSwat = m_globalAutoMin[TERNARY_SWAT_IDX];
-
-        applyGlobalMinMax = false;
-    }
-    else if ( changedField == &applyFullRangeMinMax )
-    {
-        userDefinedMaxValueSoil = 1.0;
-        userDefinedMinValueSoil = 0.0;
-        userDefinedMaxValueSgas = 1.0;
-        userDefinedMinValueSgas = 0.0;
-        userDefinedMaxValueSwat = 1.0;
-        userDefinedMinValueSwat = 0.0;
-
-        applyFullRangeMinMax = false;
-    }
-
     updateLabelText();
     updateLegend();
 
@@ -276,9 +229,36 @@ void RimTernaryLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
             ternaryGroup->add( &userDefinedMaxValueSoil );
         }
 
-        ternaryGroupContainer->add( &applyLocalMinMax );
-        ternaryGroupContainer->add( &applyGlobalMinMax );
-        ternaryGroupContainer->add( &applyFullRangeMinMax );
+        ternaryGroupContainer->addNewButton( "Apply local min/max values",
+                                             [this]()
+                                             {
+                                                 userDefinedMaxValueSoil = m_localAutoMax[TERNARY_SOIL_IDX];
+                                                 userDefinedMinValueSoil = m_localAutoMin[TERNARY_SOIL_IDX];
+                                                 userDefinedMaxValueSgas = m_localAutoMax[TERNARY_SGAS_IDX];
+                                                 userDefinedMinValueSgas = m_localAutoMin[TERNARY_SGAS_IDX];
+                                                 userDefinedMaxValueSwat = m_localAutoMax[TERNARY_SWAT_IDX];
+                                                 userDefinedMinValueSwat = m_localAutoMin[TERNARY_SWAT_IDX];
+                                             } );
+        ternaryGroupContainer->addNewButton( "Apply global min/max values",
+                                             [this]()
+                                             {
+                                                 userDefinedMaxValueSoil = m_globalAutoMax[TERNARY_SOIL_IDX];
+                                                 userDefinedMinValueSoil = m_globalAutoMin[TERNARY_SOIL_IDX];
+                                                 userDefinedMaxValueSgas = m_globalAutoMax[TERNARY_SGAS_IDX];
+                                                 userDefinedMinValueSgas = m_globalAutoMin[TERNARY_SGAS_IDX];
+                                                 userDefinedMaxValueSwat = m_globalAutoMax[TERNARY_SWAT_IDX];
+                                                 userDefinedMinValueSwat = m_globalAutoMin[TERNARY_SWAT_IDX];
+                                             } );
+        ternaryGroupContainer->addNewButton( "Apply full range",
+                                             [this]()
+                                             {
+                                                 userDefinedMaxValueSoil = 1.0;
+                                                 userDefinedMinValueSoil = 0.0;
+                                                 userDefinedMaxValueSgas = 1.0;
+                                                 userDefinedMinValueSgas = 0.0;
+                                                 userDefinedMaxValueSwat = 1.0;
+                                                 userDefinedMinValueSwat = 0.0;
+                                             } );
     }
     else
     {
@@ -310,30 +290,6 @@ void RimTernaryLegendConfig::setTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( &applyLocalMinMax == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Apply local min/max values";
-        }
-    }
-    else if ( &applyGlobalMinMax == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Apply global min/max values";
-        }
-    }
-    else if ( &applyFullRangeMinMax == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Apply full range";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

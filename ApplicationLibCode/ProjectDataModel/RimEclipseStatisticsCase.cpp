@@ -45,7 +45,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
@@ -80,10 +79,6 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     : RimEclipseCase()
 {
     CAF_PDM_InitScriptableObject( "Case Group Statistics", ":/Histogram16x16.png" );
-
-    CAF_PDM_InitFieldNoDefault( &m_calculateEditCommand, "m_editingAllowed", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_calculateEditCommand );
-    m_calculateEditCommand = false;
 
     CAF_PDM_InitField( &m_selectionSummary, "SelectionSummary", QString( "" ), "Summary of Calculation Setup" );
     m_selectionSummary.xmlCapability()->disableIO();
@@ -491,7 +486,19 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_caseUserDescription );
     uiOrdering.add( &m_caseId );
 
-    uiOrdering.add( &m_calculateEditCommand );
+    QString buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)" : "Compute";
+    uiOrdering.addNewButton( buttonText,
+                             [this]()
+                             {
+                                 if ( hasComputedStatistics() )
+                                 {
+                                     clearComputedStatistics();
+                                 }
+                                 else
+                                 {
+                                     computeStatisticsAndUpdateViews();
+                                 }
+                             } );
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary of Calculation Setup" );
@@ -718,19 +725,6 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
     {
     }
 
-    if ( &m_calculateEditCommand == changedField )
-    {
-        if ( hasComputedStatistics() )
-        {
-            clearComputedStatistics();
-        }
-        else
-        {
-            computeStatisticsAndUpdateViews();
-        }
-        m_calculateEditCommand = false;
-    }
-
     if ( &m_dataSourceForStatistics == changedField && m_gridCalculation() == nullptr )
     {
         auto calculations = RimProject::current()->gridCalculationCollection()->calculations();
@@ -867,15 +861,6 @@ void RimEclipseStatisticsCase::defineEditorAttribute( const caf::PdmFieldHandle*
         if ( textEditAttrib )
         {
             textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
-
-    if ( &m_calculateEditCommand == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)" : "Compute";
         }
     }
 }

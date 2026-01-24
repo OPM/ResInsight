@@ -66,12 +66,12 @@ private:
     RimCustomObjectiveFunction* parentObjectiveFunction() const;
 
     void updateAddressesUiField();
+    void selectSummaryAddress();
 
 private:
     caf::PdmProxyValueField<QString>                                m_title;
     caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
     caf::PdmField<QString>                                          m_objectiveValuesSummaryAddressesUiField;
-    caf::PdmField<bool>                                             m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunction;
     caf::PdmField<double>                                           m_weightValue;
 };

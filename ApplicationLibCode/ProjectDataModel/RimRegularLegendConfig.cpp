@@ -61,7 +61,6 @@
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
 #include "cvfMath.h"
@@ -203,9 +202,6 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     m_scalarMapperLegend    = new caf::OverlayScalarMapperLegend( standardFont );
     m_categoryLegend        = new caf::CategoryLegend( standardFont, m_categoryMapper.p() );
 
-    CAF_PDM_InitField( &m_resetUserDefinedValuesButton, "ResetDefaultValues", false, "Reset Default Values" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_resetUserDefinedValuesButton );
-
     CAF_PDM_InitField( &m_centerLegendAroundZero, "CenterLegendAroundZero", false, "Center Legend Around Zero" );
 
     updateFieldVisibility();
@@ -280,13 +276,6 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     if ( ( changedField == &m_colorLegend || changedField == &m_mappingMode ) && m_mappingMode() == MappingType::CATEGORY_INTEGER )
     {
         updateCategoryItems();
-    }
-
-    if ( changedField == &m_resetUserDefinedValuesButton )
-    {
-        resetUserDefinedValues();
-
-        m_resetUserDefinedValuesButton = false;
     }
 
     updateLegend();
@@ -374,10 +363,6 @@ void RimRegularLegendConfig::sendChangedSignal( const caf::PdmFieldHandle* chang
     else if ( changedField == &m_colorLegend )
     {
         changed.send( ChangeType::COLORS );
-    }
-    else if ( changedField == &m_resetUserDefinedValuesButton )
-    {
-        changed.send( ChangeType::ALL );
     }
 }
 
@@ -686,14 +671,6 @@ caf::PdmFieldHandle* RimRegularLegendConfig::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( &m_resetUserDefinedValuesButton == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Reset User Defined Values";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1309,7 +1286,12 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         mappingGr->add( &m_categoryColorMode );
         mappingGr->add( &m_centerLegendAroundZero );
 
-        uiOrdering.add( &m_resetUserDefinedValuesButton );
+        uiOrdering.addNewButton( "Reset User Defined Values",
+                                 [this]()
+                                 {
+                                     resetUserDefinedValues();
+                                     changed.send( RimLegendConfigChangeType::ALL );
+                                 } );
     }
 
     updateFieldVisibility();
