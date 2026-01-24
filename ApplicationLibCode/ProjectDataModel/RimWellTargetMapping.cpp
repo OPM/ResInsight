@@ -129,10 +129,6 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_transmissibility, "Transmissibility", 0.0, "Transmissibility" );
     m_transmissibility.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_resetDefaultButton, "ResetDefaultButton", true, "Reset to Default" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_resetDefaultButton );
-    m_resetDefaultButton.xmlCapability()->disableIO();
-
     CAF_PDM_InitField( &m_maxIterations, "Iterations", 100000, "Max Iterations" );
     CAF_PDM_InitField( &m_maxNumTargets, "MaxNumTargets", 5, "Maximum Number of Well Targets" );
 
@@ -146,10 +142,6 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_cellCountI, "CellCountI", 100, "Cell Count I" );
     CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 100, "Cell Count J" );
     CAF_PDM_InitField( &m_cellCountK, "CellCountK", 10, "Cell Count K" );
-
-    CAF_PDM_InitField( &m_generateButton, "GenerateButton", true, "Generate" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_generateButton );
-    m_generateButton.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_filterView, "FilterView", "Filter By View" );
 
@@ -191,41 +183,6 @@ RimWellTargetMapping::~RimWellTargetMapping()
 void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateAllBoundaries();
-
-    if ( changedField == &m_generateButton )
-    {
-        auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
-        if ( hasEnsembleParent )
-        {
-            generateEnsembleStatistics();
-        }
-        else if ( auto eclipseCase = firstCase() )
-        {
-            generateCandidates( eclipseCase );
-            if ( auto views = eclipseCase->reservoirViews(); !views.empty() )
-            {
-                auto eclipseView = views.front();
-                eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
-                eclipseView->cellResult()->setResultVariable( RigWellTargetMapping::wellTargetResultName() );
-                eclipseView->cellResult()->updateConnectedEditors();
-
-                if ( eclipseView->eclipsePropertyFilterCollection()->propertyFilters().empty() )
-                {
-                    eclipseView->eclipsePropertyFilterCollection()->addFilterLinkedToCellResult();
-                    eclipseView->eclipsePropertyFilterCollection()->updateConnectedEditors();
-                }
-
-                if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
-                {
-                    RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
-                }
-            }
-        }
-    }
-    else if ( changedField == &m_resetDefaultButton )
-    {
-        resetMinimumCellValuesToDefault();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,22 +342,6 @@ void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* fie
         }
     }
 
-    if ( field == &m_generateButton )
-    {
-        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            attrib->m_buttonText = "Generate";
-        }
-    }
-
-    if ( field == &m_resetDefaultButton )
-    {
-        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            attrib->m_buttonText = "Reset to Default";
-        }
-    }
-
     if ( ( &m_userDefinedFloodingOil == field ) || ( &m_userDefinedFloodingGas == field ) )
     {
         if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
@@ -526,7 +467,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     minimumCellValuesGroup->add( &m_pressure );
     minimumCellValuesGroup->add( &m_permeability );
     minimumCellValuesGroup->add( &m_transmissibility );
-    minimumCellValuesGroup->add( &m_resetDefaultButton );
+    minimumCellValuesGroup->addNewButton( "Reset to Default", [this]() { resetMinimumCellValuesToDefault(); } );
 
     if ( hasEnsembleParent )
     {
@@ -540,7 +481,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     advancedGroup->add( &m_maxNumTargets );
     advancedGroup->setCollapsedByDefault();
 
-    uiOrdering.add( &m_generateButton );
+    uiOrdering.addNewButton( "Generate", [this]() { onGenerateButtonClicked(); } );
 
     uiOrdering.skipRemainingFields();
 
@@ -689,6 +630,40 @@ void RimWellTargetMapping::resetMinimumCellValuesToDefault()
     m_pressure         = std::clamp( m_defaultPressure, m_minimumPressure, m_maximumPressure );
     m_permeability     = std::clamp( m_defaultPermeability, m_minimumPermeability, m_maximumPermeability );
     m_transmissibility = std::clamp( m_defaultTransmissibility, std::max( m_minimumTransmissibility, 0.1 ), m_maximumTransmissibility );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetMapping::onGenerateButtonClicked()
+{
+    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
+    if ( hasEnsembleParent )
+    {
+        generateEnsembleStatistics();
+    }
+    else if ( auto eclipseCase = firstCase() )
+    {
+        generateCandidates( eclipseCase );
+        if ( auto views = eclipseCase->reservoirViews(); !views.empty() )
+        {
+            auto eclipseView = views.front();
+            eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
+            eclipseView->cellResult()->setResultVariable( RigWellTargetMapping::wellTargetResultName() );
+            eclipseView->cellResult()->updateConnectedEditors();
+
+            if ( eclipseView->eclipsePropertyFilterCollection()->propertyFilters().empty() )
+            {
+                eclipseView->eclipsePropertyFilterCollection()->addFilterLinkedToCellResult();
+                eclipseView->eclipsePropertyFilterCollection()->updateConnectedEditors();
+            }
+
+            if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
+            {
+                RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

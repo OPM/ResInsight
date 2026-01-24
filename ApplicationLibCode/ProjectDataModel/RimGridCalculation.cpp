@@ -55,7 +55,6 @@
 #include "expressionparser/ExpressionParser.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QCheckBox>
@@ -104,9 +103,6 @@ RimGridCalculation::RimGridCalculation()
 
     CAF_PDM_InitFieldNoDefault( &m_nonVisibleResultAddress, "NonVisibleResultAddress", "" );
     m_nonVisibleResultAddress = new RimEclipseResultAddress;
-
-    CAF_PDM_InitField( &m_editNonVisibleResultAddress, "EditNonVisibleResultAddress", false, "Edit" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editNonVisibleResultAddress );
 
     CAF_PDM_InitFieldNoDefault( &m_nonVisibleResultText, "NonVisibleResultText", "" );
     m_nonVisibleResultText.registerGetMethod( this, &RimGridCalculation::nonVisibleResultAddressText );
@@ -362,7 +358,7 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
         {
             filterGroup->add( &m_nonVisibleResultText );
-            filterGroup->add( &m_editNonVisibleResultAddress, { .newRow = false } );
+            filterGroup->addNewButton( "Edit", [this]() { onEditNonVisibleResultAddressButtonPressed(); }, { .newRow = false } );
         }
         else if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::USER_DEFINED )
             filterGroup->add( &m_defaultValue );
@@ -500,43 +496,20 @@ void RimGridCalculation::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimGridCalculation::onEditNonVisibleResultAddressButtonPressed()
 {
-    RimUserDefinedCalculation::fieldChangedByUi( changedField, oldValue, newValue );
+    auto eclipseCase = m_nonVisibleResultAddress->eclipseCase();
+    if ( !eclipseCase ) eclipseCase = m_destinationCase;
 
-    if ( changedField == &m_editNonVisibleResultAddress )
+    RimResultSelectionUi selectionUi;
+    selectionUi.setEclipseResultAddress( eclipseCase, m_nonVisibleResultAddress->resultType(), m_nonVisibleResultAddress->resultName() );
+
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &selectionUi, "Select Result", "" );
+    if ( propertyDialog.exec() == QDialog::Accepted )
     {
-        auto eclipseCase = m_nonVisibleResultAddress->eclipseCase();
-        if ( !eclipseCase ) eclipseCase = m_destinationCase;
-
-        RimResultSelectionUi selectionUi;
-        selectionUi.setEclipseResultAddress( eclipseCase, m_nonVisibleResultAddress->resultType(), m_nonVisibleResultAddress->resultName() );
-
-        caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &selectionUi, "Select Result", "" );
-        if ( propertyDialog.exec() == QDialog::Accepted )
-        {
-            m_nonVisibleResultAddress->setEclipseCase( selectionUi.eclipseCase() );
-            m_nonVisibleResultAddress->setResultType( selectionUi.resultType() );
-            m_nonVisibleResultAddress->setResultName( selectionUi.resultVariable() );
-        }
-
-        m_editNonVisibleResultAddress = false;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCalculation::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RimUserDefinedCalculation::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_editNonVisibleResultAddress )
-    {
-        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            attrib->m_buttonText = "Edit";
-        }
+        m_nonVisibleResultAddress->setEclipseCase( selectionUi.eclipseCase() );
+        m_nonVisibleResultAddress->setResultType( selectionUi.resultType() );
+        m_nonVisibleResultAddress->setResultName( selectionUi.resultVariable() );
     }
 }
 

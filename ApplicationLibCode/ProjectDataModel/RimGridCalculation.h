@@ -131,12 +131,11 @@ protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     void onVariableUpdated( const SignalEmitter* emitter );
     bool allSourceCasesAreEqualToDestinationCase() const;
+    void onEditNonVisibleResultAddressButtonPressed();
 
     static std::pair<bool, QStringList> createStatisticsText( const std::vector<std::vector<double>>& values );
 
@@ -154,7 +153,6 @@ private:
 
     caf::PdmProxyValueField<QString>             m_nonVisibleResultText;
     caf::PdmChildField<RimEclipseResultAddress*> m_nonVisibleResultAddress;
-    caf::PdmField<bool>                          m_editNonVisibleResultAddress;
 
     caf::PdmField<bool> m_applyToAllCases_OBSOLETE;
 

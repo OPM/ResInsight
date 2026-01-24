@@ -88,7 +88,6 @@ protected:
 protected:
     caf::PdmField<QString> m_description;
     caf::PdmField<QString> m_expression;
-    caf::PdmField<bool>    m_helpButton;
     caf::PdmField<QString> m_helpText;
     caf::PdmField<QString> m_unit;
 

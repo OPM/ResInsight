@@ -30,7 +30,6 @@
 
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -52,9 +51,6 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
 
     CAF_PDM_InitField( &m_expression, "Expression", QString( "" ), "" );
     m_expression.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_helpButton, "HelpButton", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_helpButton );
 
     CAF_PDM_InitFieldNoDefault( &m_helpText,
                                 "Label",
@@ -305,16 +301,6 @@ void RimUserDefinedCalculation::attachToWidget()
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedCalculation::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_helpButton )
-    {
-        m_helpButton = false;
-
-        QString urlString = "https://resinsight.org/calculated-data/calculatorexpressions/";
-        RiaNetworkTools::openUrl( urlString );
-
-        return;
-    }
-
     m_isDirty = true;
 
     PdmObject::fieldChangedByUi( changedField, oldValue, newValue );
@@ -325,7 +311,12 @@ void RimUserDefinedCalculation::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_helpButton );
+    uiOrdering.addNewButton( "Open Help Page",
+                             []()
+                             {
+                                 QString urlString = "https://resinsight.org/calculated-data/calculatorexpressions/";
+                                 RiaNetworkTools::openUrl( urlString );
+                             } );
     uiOrdering.add( &m_description );
     uiOrdering.add( &m_expression );
     uiOrdering.add( &m_helpText );
@@ -397,14 +388,6 @@ void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle
         if ( myAttr )
         {
             myAttr->enableDropTarget = true;
-        }
-    }
-    else if ( field == &m_helpButton )
-    {
-        auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Open Help Page";
         }
     }
     else if ( field == &m_helpText )
