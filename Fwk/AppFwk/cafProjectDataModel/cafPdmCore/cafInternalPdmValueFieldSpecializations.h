@@ -13,6 +13,28 @@
 namespace caf
 {
 //==================================================================================================
+/// Base class providing default implementations for PdmValueFieldSpecialization methods.
+//==================================================================================================
+struct PdmValueFieldSpecializationDefaults
+{
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        return variantValue == variantValue2;
+    }
+};
+
+//==================================================================================================
+/// Helper base class providing standard QVariant conversion for simple types.
+/// Useful for types that only need custom isEqual (like float/double with epsilon comparison).
+//==================================================================================================
+template <typename T>
+struct PdmValueFieldSpecializationStdConversion
+{
+    static QVariant convert( const T& value ) { return QVariant::fromValue( value ); }
+    static void     setFromVariant( const QVariant& variantValue, T& value ) { value = variantValue.value<T>(); }
+};
+
+//==================================================================================================
 /// A proxy class that implements the generic QVariant interface for a field
 ///
 /// This class collects methods that need specialization when introducing a new type in a PdmField.
@@ -47,7 +69,7 @@ public:
 /// Partial specialization for caf::AppEnum
 //==================================================================================================
 template <typename T>
-class PdmValueFieldSpecialization<caf::AppEnum<T>>
+class PdmValueFieldSpecialization<caf::AppEnum<T>> : public PdmValueFieldSpecializationDefaults
 {
 public:
     static QVariant convert( const caf::AppEnum<T>& value )
@@ -60,11 +82,6 @@ public:
     static void setFromVariant( const QVariant& variantValue, caf::AppEnum<T>& value )
     {
         value = static_cast<T>( variantValue.toInt() );
-    }
-
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
     }
 };
 
@@ -97,7 +114,7 @@ public:
 /// Partial specialization for std::vector
 //==================================================================================================
 template <typename T>
-class PdmValueFieldSpecialization<std::vector<T>>
+class PdmValueFieldSpecialization<std::vector<T>> : public PdmValueFieldSpecializationDefaults
 {
 public:
     static QVariant convert( const std::vector<T>& value )
@@ -127,18 +144,13 @@ public:
             }
         }
     }
-
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
 };
 
 //==================================================================================================
 /// Partial specialization for std::pair
 //==================================================================================================
 template <typename T, typename U>
-class PdmValueFieldSpecialization<std::pair<T, U>>
+class PdmValueFieldSpecialization<std::pair<T, U>> : public PdmValueFieldSpecializationDefaults
 {
 public:
     static QVariant convert( const std::pair<T, U>& value )
@@ -168,11 +180,6 @@ public:
             }
         }
     }
-
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
 };
 
 //==================================================================================================
@@ -199,13 +206,9 @@ public:
 /// Partial specialization for float
 //==================================================================================================
 template <>
-class PdmValueFieldSpecialization<float>
+class PdmValueFieldSpecialization<float> : public PdmValueFieldSpecializationStdConversion<float>
 {
 public:
-    static QVariant convert( const float& value ) { return QVariant::fromValue( value ); }
-
-    static void setFromVariant( const QVariant& variantValue, float& value ) { value = variantValue.value<float>(); }
-
     static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
         // See PdmFieldWriter::writeFieldData for the precision used when writing float values
@@ -220,13 +223,9 @@ public:
 /// Partial specialization for double
 //==================================================================================================
 template <>
-class PdmValueFieldSpecialization<double>
+class PdmValueFieldSpecialization<double> : public PdmValueFieldSpecializationStdConversion<double>
 {
 public:
-    static QVariant convert( const double& value ) { return QVariant::fromValue( value ); }
-
-    static void setFromVariant( const QVariant& variantValue, double& value ) { value = variantValue.value<double>(); }
-
     static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
         // See PdmFieldWriter::writeFieldData for the precision used when writing double values
