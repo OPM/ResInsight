@@ -33,7 +33,6 @@
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathCompletions.h"
 
-
 #include <algorithm>
 #include <map>
 
