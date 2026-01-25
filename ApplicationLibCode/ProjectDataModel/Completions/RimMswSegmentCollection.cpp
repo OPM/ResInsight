@@ -33,7 +33,6 @@
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathCompletions.h"
 
-#include "cafPdmUiButton.h"
 
 #include <algorithm>
 #include <map>

@@ -53,7 +53,6 @@
 #include "qwt_scale_draw.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiGroup.h"
@@ -517,10 +516,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
     selVectorsGrp->addNewLabel( createLabelText(), { .newRow = false, .totalColumnSpan = 4 } );
-    auto showVectorSelection = selVectorsGrp->addNewButton( "...",
-                                                            [this]() { RimAnalysisPlot::showSelectVariablesDialog(); },
-                                                            { .newRow = false, .totalColumnSpan = 1 } );
-    showVectorSelection->setAlignment( Qt::AlignRight );
+    selVectorsGrp->addNewButton( "...", [this]() { RimAnalysisPlot::showSelectVariablesDialog(); }, { .newRow = false, .totalColumnSpan = 1 } );
 
     selVectorsGrp->add( &m_referenceCase );
 

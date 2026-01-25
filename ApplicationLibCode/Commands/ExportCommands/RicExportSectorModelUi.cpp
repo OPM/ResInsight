@@ -31,7 +31,6 @@
 #include "RimTools.h"
 #include "Tools/RimEclipseViewTools.h"
 
-#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
@@ -229,13 +228,12 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     else if ( uiConfigName == m_pageNames[WizardPageEnum::KeywordAdjustments] )
     {
         uiOrdering.add( &m_keywordsToRemove );
-        auto button = uiOrdering.addNewButton( "Reset to Default",
-                                               [this]()
-                                               {
-                                                   setDefaultKeywordsToRemove();
-                                                   updateConnectedEditors();
-                                               } );
-        button->setAlignment( Qt::AlignRight );
+        uiOrdering.addNewButton( "Reset to Default",
+                                 [this]()
+                                 {
+                                     setDefaultKeywordsToRemove();
+                                     updateConnectedEditors();
+                                 } );
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::SimulationJob] )
     {

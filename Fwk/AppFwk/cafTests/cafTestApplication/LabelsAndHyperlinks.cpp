@@ -80,7 +80,6 @@ void LabelsAndHyperlinks::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
                                                         msgBox->show();
                                                     } );
         iconButton->setIconFromResourceString( ":/cafCommandFeatures/Delete.svg" );
-        iconButton->setAlignment( Qt::AlignRight );
     }
     else
     {
