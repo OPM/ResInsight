@@ -70,7 +70,6 @@
 #include "cafDataLoader.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
-#include "cafPdmUiButton.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
@@ -557,8 +556,7 @@ void RimWellPathCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* mswSegmentGroup = uiOrdering.addNewGroup( "MSW Segment Visualization" );
     mswSegmentGroup->add( &m_mswShowBands );
     mswSegmentGroup->add( &m_mswEclipseCase );
-    auto updateButton = mswSegmentGroup->addNewButton( "Update Segments", [this]() { updateMswSegments(); } );
-    updateButton->setAlignment( Qt::AlignRight );
+    mswSegmentGroup->addNewButton( "Update Segments", [this]() { updateMswSegments(); } );
     uiOrdering.skipRemainingFields();
 }
 

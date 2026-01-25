@@ -360,8 +360,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
             if ( createOpenPostionButton )
             {
-                auto openSelectButton = wellGrp->addNewButton( "Select Open Keyword Position", [this]() { selectOpenWellPosition(); } );
-                openSelectButton->setAlignment( Qt::AlignRight );
+                wellGrp->addNewButton( "Select Open Keyword Position", [this]() { selectOpenWellPosition(); } );
             }
         }
     }
@@ -399,8 +398,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     auto advGrp = uiOrdering.addNewGroup( "Advanced" );
     advGrp->setCollapsedByDefault();
     advGrp->add( &m_currentRunId );
-    auto resetRunIdButton = advGrp->addNewButton( "Reset Ensemble Run Id", [this]() { resetEnsembleRunId(); } );
-    resetRunIdButton->setAlignment( Qt::AlignRight );
+    advGrp->addNewButton( "Reset Ensemble Run Id", [this]() { resetEnsembleRunId(); } );
 
     uiOrdering.skipRemainingFields();
 }

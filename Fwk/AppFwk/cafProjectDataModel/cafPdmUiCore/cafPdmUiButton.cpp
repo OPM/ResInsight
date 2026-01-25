@@ -43,7 +43,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiButton::PdmUiButton()
-    : m_alignment( Qt::AlignLeft | Qt::AlignTop )
+    : m_alignment( Qt::AlignRight )
 {
 }
 
@@ -51,7 +51,7 @@ PdmUiButton::PdmUiButton()
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiButton::PdmUiButton( const QString& buttonText, const ClickCallback& callback )
-    : m_alignment( Qt::AlignLeft | Qt::AlignTop )
+    : m_alignment( Qt::AlignRight )
     , m_clickCallback( callback )
 {
     setUiName( buttonText );
