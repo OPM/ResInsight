@@ -179,7 +179,7 @@ def test_10k_intersection_add_well_perforation_interval_with_valves(
     assert perf_interval.skin_factor == skin_factor
 
     valve_templates = rips_instance.project.valve_templates()
-    assert len(valve_templates.valve_definitions()) == 3
+    assert len(valve_templates.valve_definitions()) == 4
 
     assert len(perf_interval.valves()) == 0
 
@@ -255,7 +255,7 @@ def test_valve_template_creation(rips_instance, initialize_test):
 
     # Check initial state - should have 3 default templates
     initial_count = len(valve_templates.valve_definitions())
-    assert initial_count == 3
+    assert initial_count == 4
 
     # Test creating ICD template with default values
     icd_template = valve_templates.add_template(completion_type="ICD")
