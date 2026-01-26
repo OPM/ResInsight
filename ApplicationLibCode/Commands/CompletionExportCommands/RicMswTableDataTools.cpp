@@ -294,7 +294,8 @@ void RicMswTableDataTools::collectValveWelsegsSegment( RigMswTableData&         
     double endMD   = 0.0;
 
     if ( valve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
-         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
+         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD ||
+         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_SICD )
     {
         CVF_ASSERT( segments.size() > 1 );
 
@@ -564,7 +565,8 @@ void RicMswTableDataTools::collectCompsegData( RigMswTableData& tableData, RicMs
     std::set<RigCompletionData::CompletionType> perforationTypes = { RigCompletionData::CompletionType::PERFORATION,
                                                                      RigCompletionData::CompletionType::PERFORATION_ICD,
                                                                      RigCompletionData::CompletionType::PERFORATION_ICV,
-                                                                     RigCompletionData::CompletionType::PERFORATION_AICD };
+                                                                     RigCompletionData::CompletionType::PERFORATION_AICD,
+                                                                     RigCompletionData::CompletionType::PERFORATION_SICD };
 
     std::set<RigCompletionData::CompletionType> fishbonesTypes = { RigCompletionData::CompletionType::FISHBONES_ICD,
                                                                    RigCompletionData::CompletionType::FISHBONES };
@@ -605,7 +607,8 @@ void RicMswTableDataTools::collectCompsegDataByType( RigMswTableData&           
             {
                 bool isPerforationValve = completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
                                           completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD ||
-                                          completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV;
+                                          completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV ||
+                                          completion->completionType() == RigCompletionData::CompletionType::PERFORATION_SICD;
 
                 if ( isPerforationValve )
                 {
@@ -808,48 +811,107 @@ void RicMswTableDataTools::collectWsegAicdData( RigMswTableData& tableData, RicM
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Helper function to collect WSEGAICD data recursively through branches
+///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectWsegAicdDataRecursively( RigMswTableData&                   tableData,
-                                                           RicMswExportInfo&                  exportInfo,
-                                                           gsl::not_null<const RicMswBranch*> branch )
+void RicMswTableDataTools::collectWsegSicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo )
+{
+    std::map<size_t, std::vector<SicdWsegvalveData>> sicdValveData;
+    generateWsegSicdTableRecursively( exportInfo, exportInfo.mainBoreBranch(), sicdValveData );
+
+    // Export data for each cell with SICD valves
+
+    for ( auto [globalCellIndex, sicdDataForSameCell] : sicdValveData )
+    {
+        if ( sicdDataForSameCell.empty() ) continue;
+
+        double      accumulatedFlowScalingFactorDivisor = 0.0;
+        QStringList comments;
+
+        // See RicMswSICDAccumulator::accumulateValveParameters for similar accumulation for multiple valves in same
+        // segment
+
+        for ( const auto& aicdData : sicdDataForSameCell )
+        {
+            accumulatedFlowScalingFactorDivisor += 1.0 / aicdData.m_flowScalingFactor;
+            comments.push_back( aicdData.m_comment );
+        }
+
+        WsegsicdRow row;
+
+        auto commentsCombined = comments.join( "; " );
+        row.description       = commentsCombined.toStdString();
+
+        auto firstDataObject = sicdDataForSameCell.front();
+
+        row.well     = firstDataObject.m_wellName.toStdString(); // #1
+        row.segment1 = firstDataObject.m_segmentNumber; // #2
+        row.segment2 = firstDataObject.m_segmentNumber; // #3
+
+        std::array<double, SICD_NUM_PARAMS> values = firstDataObject.m_values;
+
+        row.strength = values[SICD_STRENGTH]; // #4 : Strength
+
+        double flowScalingFactor = 1.0 / accumulatedFlowScalingFactorDivisor;
+        row.length               = flowScalingFactor; // #5 : Length is used to store the flow scaling factor
+
+        auto setOptional = []( double value ) -> std::optional<double>
+        {
+            if ( value == RicMswExportInfo::defaultDoubleValue() ) return std::nullopt;
+
+            return value;
+        };
+
+        row.densityCali   = setOptional( values[SICD_CALIBRATION_DENSITY] ); //   #6
+        row.viscosityCali = setOptional( values[SICD_CALIBRATION_VISCOSITY] ); // #7
+        row.criticalValue = setOptional( values[SICD_EML_CRT] ); //               #8
+        row.widthTrans    = setOptional( values[SICD_EML_TRANS] ); //             #9
+        row.maxViscRatio  = setOptional( values[SICD_EML_MAX] ); //               #10
+
+        row.methodScalingFactor = 1; // #11 : Always use method "b. Scale factor". The value of the
+                                     // scale factor is given in item #5
+
+        row.maxAbsRate = values[SICD_MAX_CALIB_RATE]; //                   #12
+        row.status     = firstDataObject.m_isOpen ? "OPEN" : "SHUT"; //    #13
+
+        tableData.addWsegsicdRow( row );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswTableDataTools::generateWsegSicdTableRecursively( RicMswExportInfo&                                 exportInfo,
+                                                             gsl::not_null<const RicMswBranch*>                branch,
+                                                             std::map<size_t, std::vector<SicdWsegvalveData>>& sicdValveData )
 {
     for ( auto segment : branch->segments() )
     {
         for ( auto completion : segment->completions() )
         {
-            if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
+            if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_SICD )
             {
-                auto aicd = static_cast<const RicMswPerforationAICD*>( completion );
-                if ( aicd->isValid() )
+                auto sicd = static_cast<const RicMswPerforationSICD*>( completion );
+                if ( sicd->isValid() )
                 {
                     int segmentNumber = -1;
-                    for ( auto seg : aicd->segments() )
+                    for ( auto seg : sicd->segments() )
                     {
                         if ( seg->segmentNumber() > -1 ) segmentNumber = seg->segmentNumber();
                         if ( seg->intersections().empty() ) continue;
 
+                        size_t cellIndex = seg->intersections().front()->globalCellIndex();
+
                         auto wellName = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport();
-                        auto comment  = aicd->label();
-
-                        WsegaicdRow row;
-                        row.well     = wellName.toStdString();
-                        row.segment1 = segmentNumber;
-                        row.segment2 = segmentNumber;
-                        row.strength = aicd->flowScalingFactor();
-                        row.length   = aicd->length();
-
-                        // Extract AICD-specific parameters from the values array
-                        // auto values = aicd->values();
-
-                        tableData.addWsegaicdRow( row );
+                        auto comment  = sicd->label();
+                        sicdValveData[cellIndex].push_back(
+                            SicdWsegvalveData( wellName, comment, segmentNumber, sicd->flowScalingFactor(), sicd->isOpen(), sicd->values() ) );
                     }
                 }
                 else
                 {
-                    RiaLogging::error( QString( "Export AICD Valve (%1): Valve is invalid. At least one required "
+                    RiaLogging::error( QString( "Export SICD Valve (%1): Valve is invalid. At least one required "
                                                 "template parameter is not set." )
-                                           .arg( aicd->label() ) );
+                                           .arg( sicd->label() ) );
                 }
             }
         }
@@ -857,6 +919,6 @@ void RicMswTableDataTools::collectWsegAicdDataRecursively( RigMswTableData&     
 
     for ( auto childBranch : branch->branches() )
     {
-        collectWsegAicdDataRecursively( tableData, exportInfo, childBranch );
+        generateWsegSicdTableRecursively( exportInfo, childBranch, sicdValveData );
     }
 }

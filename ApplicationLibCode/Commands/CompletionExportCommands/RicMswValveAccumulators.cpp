@@ -199,3 +199,114 @@ double RicMswAICDAccumulator::accumulatedLength() const
 {
     return m_accumulatedLength;
 }
+
+//////////////////////////////////////////////////////////////
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswSICDAccumulator::RicMswSICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem )
+    : RicMswValveAccumulator( valve, unitSystem )
+    , m_deviceOpen( false )
+    , m_accumulatedLength( 0.0 )
+    , m_accumulatedFlowScalingFactorDivisor( 0.0 )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Accumulates weighted SICD (Spiral Inflow Control Device) valve parameters based on the
+/// overlap between valve locations and perforation segments. Calculates length-weighted means
+/// of SICD parameters and flow scaling factors for later aggregation into a "super" SICD valve.
+///
+/// Only processes open SICD devices with valid parameters. All SICD parameters (strength,
+/// exponents, viscosity function parameters, etc.) are accumulated using weighted means based
+/// on overlap length. Flow scaling factor is computed according to issue #6126:
+/// flowScalingFactor = 1 / (lengthFraction * aicdCount).
+///
+/// wellPathValve              The valve to process (must be AICD type with valid parameters)
+/// overlapLength              Length of overlap between valve and perforation segment
+/// perforationCompsegsLength  Total length of perforation COMPSEGS for weighting
+//--------------------------------------------------------------------------------------------------
+bool RicMswSICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength )
+{
+    const double eps = 1.0e-8;
+
+    CVF_ASSERT( wellPathValve );
+    if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::SICD && overlapLength > eps )
+    {
+        const RimWellPathSicdParameters* params = wellPathValve->sicdParameters();
+        if ( params->isValid() )
+        {
+            m_valid      = true;
+            m_deviceOpen = m_deviceOpen || params->isOpen();
+            if ( params->isOpen() )
+            {
+                std::array<double, SICD_NUM_PARAMS> values = params->doubleValues();
+                for ( size_t i = 0; i < (size_t)SICD_NUM_PARAMS; ++i )
+                {
+                    if ( RiaStatisticsTools::isValidNumber( values[i] ) )
+                    {
+                        m_meanCalculators[i].addValueAndWeight( values[i], overlapLength );
+                    }
+                }
+
+                m_accumulatedLength += overlapLength / perforationCompsegsLength;
+
+                size_t sicdCount      = wellPathValve->valveLocations().size();
+                double lengthFraction = overlapLength / perforationCompsegsLength;
+                double divisor        = lengthFraction * sicdCount;
+                m_accumulatedFlowScalingFactorDivisor += divisor;
+
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswSICDAccumulator::applyToSuperValve()
+{
+    const double eps  = 1.0e-8;
+    auto         sicd = dynamic_cast<RicMswPerforationSICD*>( m_valve );
+
+    if ( sicd && m_valid && m_accumulatedLength > eps )
+    {
+        std::array<double, SICD_NUM_PARAMS> values;
+
+        for ( size_t i = 0; i < (size_t)SICD_NUM_PARAMS; i++ )
+        {
+            if ( m_meanCalculators[i].validAggregatedWeight() )
+            {
+                values[i] = m_meanCalculators[i].weightedMean();
+            }
+            else
+            {
+                values[i] = std::numeric_limits<double>::infinity();
+            }
+        }
+        sicd->setIsValid( m_valid );
+        sicd->setIsOpen( m_deviceOpen );
+        sicd->setLength( m_accumulatedLength );
+
+        double flowScalingFactor = 0.0;
+        if ( m_accumulatedFlowScalingFactorDivisor > eps )
+        {
+            flowScalingFactor = 1.0 / m_accumulatedFlowScalingFactorDivisor;
+        }
+
+        sicd->setflowScalingFactor( flowScalingFactor );
+
+        sicd->values() = values;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicMswSICDAccumulator::accumulatedLength() const
+{
+    return m_accumulatedLength;
+}

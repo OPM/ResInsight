@@ -58,6 +58,7 @@ public:
         PERFORATION_ICD,
         PERFORATION_AICD,
         PERFORATION_ICV,
+        PERFORATION_SICD,
         CT_UNDEFINED
     };
 

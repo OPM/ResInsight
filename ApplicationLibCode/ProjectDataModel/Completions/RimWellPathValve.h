@@ -23,6 +23,7 @@
 #include "RimValveTemplate.h"
 #include "RimWellPathAicdParameters.h"
 #include "RimWellPathComponentInterface.h"
+#include "RimWellPathSicdParameters.h"
 
 #include "cafPdmObject.h"
 
@@ -57,6 +58,7 @@ public:
     void                             setValveTemplate( RimValveTemplate* valveTemplate );
     void                             applyValveLabelAndIcon();
     const RimWellPathAicdParameters* aicdParameters() const;
+    const RimWellPathSicdParameters* sicdParameters() const;
 
     static double convertOrificeDiameter( double                        orificeDiameterUi,
                                           RiaDefines::EclipseUnitSystem wellPathUnitSystem,

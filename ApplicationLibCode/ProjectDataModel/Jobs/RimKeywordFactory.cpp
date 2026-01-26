@@ -384,6 +384,44 @@ Opm::DeckKeyword wsegaicdKeyword( const RigMswTableData& mswData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword wsegsicdKeyword( const RigMswTableData& mswData )
+{
+    if ( !mswData.hasWsegsicdData() )
+    {
+        return Opm::DeckKeyword();
+    }
+
+    using W = Opm::ParserKeywords::WSEGSICD;
+
+    Opm::DeckKeyword newKw( ( W() ) );
+
+    for ( auto& waRow : mswData.wsegsicdData() )
+    {
+        std::vector<Opm::DeckItem> items;
+
+        items.push_back( RifOpmDeckTools::item( W::WELL::itemName, waRow.well ) );
+        items.push_back( RifOpmDeckTools::item( W::SEGMENT1::itemName, waRow.segment1 ) );
+        items.push_back( RifOpmDeckTools::item( W::SEGMENT2::itemName, waRow.segment2 ) );
+        items.push_back( RifOpmDeckTools::item( W::STRENGTH::itemName, waRow.strength ) );
+        items.push_back( RifOpmDeckTools::optionalItem( W::LENGTH::itemName, waRow.length ) );
+        items.push_back( RifOpmDeckTools::optionalItem( W::DENSITY_CALI::itemName, waRow.densityCali ) );
+        items.push_back( RifOpmDeckTools::optionalItem( W::VISCOSITY_CALI::itemName, waRow.viscosityCali ) );
+        items.push_back( RifOpmDeckTools::optionalItem( W::CRITICAL_VALUE::itemName, waRow.criticalValue ) );
+        items.push_back( RifOpmDeckTools::optionalItem( W::WIDTH_TRANS::itemName, waRow.widthTrans ) );
+        items.push_back( RifOpmDeckTools::optionalItem( W::MAX_VISC_RATIO::itemName, waRow.maxViscRatio ) );
+        items.push_back( RifOpmDeckTools::optionalItem( W::METHOD_SCALING_FACTOR::itemName, waRow.methodScalingFactor ) );
+        items.push_back( RifOpmDeckTools::item( W::MAX_ABS_RATE::itemName, waRow.maxAbsRate ) );
+        items.push_back( RifOpmDeckTools::optionalItem( W::STATUS::itemName, waRow.status ) );
+
+        newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    return newKw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid, const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refinement )
 {
     if ( mainGrid == nullptr )

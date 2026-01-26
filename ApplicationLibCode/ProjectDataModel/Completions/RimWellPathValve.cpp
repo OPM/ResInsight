@@ -239,6 +239,18 @@ const RimWellPathAicdParameters* RimWellPathValve::aicdParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimWellPathSicdParameters* RimWellPathValve::sicdParameters() const
+{
+    if ( m_valveTemplate() )
+    {
+        return m_valveTemplate()->sicdParameters();
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimWellPathValve::convertOrificeDiameter( double                        orificeDiameterWellPathUnits,
                                                  RiaDefines::EclipseUnitSystem wellPathUnits,
                                                  RiaDefines::EclipseUnitSystem unitSystem )

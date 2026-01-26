@@ -354,3 +354,91 @@ RigCompletionData::CompletionType RicMswTieInICV::completionType() const
 {
     return RigCompletionData::CompletionType::PERFORATION_ICV;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswPerforationSICD::RicMswPerforationSICD( const QString&          label,
+                                              const RimWellPath*      wellPath,
+                                              double                  startMD,
+                                              double                  startTVD,
+                                              const RimWellPathValve* wellPathValve )
+    : RicMswValve( label, wellPath, startMD, startTVD, wellPathValve )
+    , m_deviceOpen( false )
+    , m_length( 0.0 )
+    , m_flowScalingFactor( 0.0 )
+{
+    m_parameters.fill( std::numeric_limits<double>::infinity() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RicMswPerforationSICD::completionType() const
+{
+    return RigCompletionData::CompletionType::PERFORATION_SICD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicMswPerforationSICD::isOpen() const
+{
+    return m_deviceOpen;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswPerforationSICD::setIsOpen( bool deviceOpen )
+{
+    m_deviceOpen = deviceOpen;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicMswPerforationSICD::length() const
+{
+    return m_length;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswPerforationSICD::setLength( double length )
+{
+    m_length = length;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicMswPerforationSICD::flowScalingFactor() const
+{
+    return m_flowScalingFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswPerforationSICD::setflowScalingFactor( double scalingFactor )
+{
+    m_flowScalingFactor = scalingFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::array<double, SICD_NUM_PARAMS>& RicMswPerforationSICD::values() const
+{
+    return m_parameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<double, SICD_NUM_PARAMS>& RicMswPerforationSICD::values()
+{
+    return m_parameters;
+}

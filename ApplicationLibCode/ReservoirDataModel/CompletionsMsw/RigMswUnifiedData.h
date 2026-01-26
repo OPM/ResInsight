@@ -42,6 +42,7 @@ public:
     std::vector<CompsegsRow> getAllCompsegsRows( bool lgrOnly = false ) const;
     std::vector<WsegvalvRow> getAllWsegvalvRows() const;
     std::vector<WsegaicdRow> getAllWsegaicdRows() const;
+    std::vector<WsegsicdRow> getAllWsegsicdRows() const;
 
     // Metadata and analysis
     bool                     isEmpty() const { return m_wellDataList.empty(); }

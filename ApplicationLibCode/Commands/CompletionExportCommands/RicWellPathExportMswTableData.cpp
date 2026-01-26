@@ -143,6 +143,7 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
 
     RicMswTableDataTools::collectWsegvalvData( tableData, exportInfo );
     RicMswTableDataTools::collectWsegAicdData( tableData, exportInfo );
+    RicMswTableDataTools::collectWsegSicdData( tableData, exportInfo );
 
     return tableData;
 }
@@ -598,9 +599,9 @@ bool RicWellPathExportMswTableData::generateWellSegmentsForMswExportInfo( const 
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    assignValveContributionsToSuperICDsOrAICDs( branch, perforationIntervals, filteredIntersections, activeCellInfo, exportInfo->unitSystem() );
+    assignValveContributionsToSuperXICDs( branch, perforationIntervals, filteredIntersections, activeCellInfo, exportInfo->unitSystem() );
     moveIntersectionsToICVs( branch, perforationIntervals, exportInfo->unitSystem() );
-    moveIntersectionsToSuperICDsOrAICDs( branch );
+    moveIntersectionsToSuperXICDs( branch );
 
     exportInfo->setHasSubGridIntersections( exportInfo->hasSubGridIntersections() || foundSubGridIntersections );
     branch->sortSegments();
@@ -869,9 +870,11 @@ void RicWellPathExportMswTableData::createValveCompletions( gsl::not_null<RicMsw
         std::unique_ptr<RicMswPerforationICV>  ICV;
         std::unique_ptr<RicMswPerforationICD>  superICD;
         std::unique_ptr<RicMswPerforationAICD> superAICD;
+        std::unique_ptr<RicMswPerforationSICD> superSICD;
 
         double totalICDOverlap  = 0.0;
         double totalAICDOverlap = 0.0;
+        double totalSICDOverlap = 0.0;
 
         for ( const RimPerforationInterval* interval : perforationIntervals )
         {
@@ -907,6 +910,15 @@ void RicWellPathExportMswTableData::createValveCompletions( gsl::not_null<RicMsw
 
                             superAICD = std::make_unique<RicMswPerforationAICD>( valveLabel, wellPath, exportStartMD, exportStartTVD, valve );
                             superAICD->addSegment( std::move( subSegment ) );
+                        }
+                        else if ( valve->componentType() == RiaDefines::WellPathComponentType::SICD )
+                        {
+                            QString valveLabel = QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
+                            auto    subSegment =
+                                std::make_unique<RicMswSegment>( "Valve segment", exportStartMD, exportEndMD, exportStartTVD, exportEndTVD );
+
+                            superSICD = std::make_unique<RicMswPerforationSICD>( valveLabel, wellPath, exportStartMD, exportStartTVD, valve );
+                            superSICD->addSegment( std::move( subSegment ) );
                         }
                         else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICD )
                         {
@@ -945,10 +957,23 @@ void RicWellPathExportMswTableData::createValveCompletions( gsl::not_null<RicMsw
                         superAICD = std::make_unique<RicMswPerforationAICD>( valveLabel, wellPath, exportStartMD, exportStartTVD, valve );
                         superAICD->addSegment( std::move( subSegment ) );
                     }
+                    else if ( overlap > 0.0 && ( valve->componentType() == RiaDefines::WellPathComponentType::SICD && !superSICD ) )
+                    {
+                        QString valveLabel = QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
+
+                        auto subSegment =
+                            std::make_unique<RicMswSegment>( "Valve segment", exportStartMD, exportEndMD, exportStartTVD, exportEndTVD );
+                        superSICD = std::make_unique<RicMswPerforationSICD>( valveLabel, wellPath, exportStartMD, exportStartTVD, valve );
+                        superSICD->addSegment( std::move( subSegment ) );
+                    }
 
                     if ( valve->componentType() == RiaDefines::WellPathComponentType::AICD )
                     {
                         totalAICDOverlap += overlap;
+                    }
+                    else if ( valve->componentType() == RiaDefines::WellPathComponentType::SICD )
+                    {
+                        totalSICDOverlap += overlap;
                     }
                     else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICD )
                     {
@@ -964,11 +989,16 @@ void RicWellPathExportMswTableData::createValveCompletions( gsl::not_null<RicMsw
         }
         else
         {
-            if ( totalICDOverlap > 0.0 || totalAICDOverlap > 0.0 )
+            if ( totalICDOverlap > 0.0 || totalAICDOverlap > 0.0 || totalSICDOverlap > 0.0 )
             {
-                if ( totalAICDOverlap > totalICDOverlap )
+                // pick valve with largest overlap
+                if ( totalAICDOverlap >= totalSICDOverlap && totalAICDOverlap >= totalICDOverlap )
                 {
                     segment->addCompletion( std::move( superAICD ) );
+                }
+                else if ( totalSICDOverlap >= totalAICDOverlap && totalSICDOverlap >= totalICDOverlap )
+                {
+                    segment->addCompletion( std::move( superSICD ) );
                 }
                 else
                 {
@@ -982,11 +1012,11 @@ void RicWellPathExportMswTableData::createValveCompletions( gsl::not_null<RicMsw
 
 //--------------------------------------------------------------------------------------------------
 /// Aggregates individual valve parameters from perforation intervals into segment-level "super"
-/// valves (ICDs or AICDs) for MSW export. Calculates weighted averages based on overlap with
+/// valves (ICDs or AICDs or SICDs) for MSW export. Calculates weighted averages based on overlap with
 /// active reservoir cells.
 ///
 /// Key steps:
-/// 1. Setup Phase: Creates accumulator objects (ICD or AICD) for each segment containing a super valve
+/// 1. Setup Phase: Creates accumulator objects (ICD/AICD/SICD) for each segment containing a super valve
 /// 2. First Pass: Calculates total perforation length overlapping with active cells for each valve
 /// 3. Second Pass: For each valve, calculates overlap with segments and accumulates parameters
 ///    weighted by overlap length. Only considers overlaps with active cells.
@@ -994,12 +1024,11 @@ void RicWellPathExportMswTableData::createValveCompletions( gsl::not_null<RicMsw
 /// 5. Label Update: Appends contributor valve names to super valve labels for documentation
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswTableData::assignValveContributionsToSuperICDsOrAICDs(
-    gsl::not_null<RicMswBranch*>                      branch,
-    const std::vector<const RimPerforationInterval*>& perforationIntervals,
-    const std::vector<WellPathCellIntersectionInfo>&  wellPathIntersections,
-    const RigActiveCellInfo*                          activeCellInfo,
-    RiaDefines::EclipseUnitSystem                     unitSystem )
+void RicWellPathExportMswTableData::assignValveContributionsToSuperXICDs( gsl::not_null<RicMswBranch*> branch,
+                                                                          const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                                                          const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
+                                                                          const RigActiveCellInfo*      activeCellInfo,
+                                                                          RiaDefines::EclipseUnitSystem unitSystem )
 {
     using ValveContributionMap = std::map<RicMswCompletion*, std::vector<const RimWellPathValve*>>;
 
@@ -1026,6 +1055,10 @@ void RicWellPathExportMswTableData::assignValveContributionsToSuperICDsOrAICDs(
         else if ( dynamic_cast<RicMswPerforationAICD*>( superValve ) )
         {
             accumulators[segment] = std::make_unique<RicMswAICDAccumulator>( superValve, unitSystem );
+        }
+        else if ( dynamic_cast<RicMswPerforationSICD*>( superValve ) )
+        {
+            accumulators[segment] = std::make_unique<RicMswSICDAccumulator>( superValve, unitSystem );
         }
     }
 
@@ -1175,7 +1208,7 @@ void RicWellPathExportMswTableData::moveIntersectionsToICVs( gsl::not_null<RicMs
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswTableData::moveIntersectionsToSuperICDsOrAICDs( gsl::not_null<RicMswBranch*> branch )
+void RicWellPathExportMswTableData::moveIntersectionsToSuperXICDs( gsl::not_null<RicMswBranch*> branch )
 {
     for ( auto segment : branch->segments() )
     {
@@ -1184,7 +1217,8 @@ void RicWellPathExportMswTableData::moveIntersectionsToSuperICDsOrAICDs( gsl::no
         for ( auto completion : segment->completions() )
         {
             if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
-                 completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
+                 completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD ||
+                 completion->completionType() == RigCompletionData::CompletionType::PERFORATION_SICD )
             {
                 superValve = completion;
             }

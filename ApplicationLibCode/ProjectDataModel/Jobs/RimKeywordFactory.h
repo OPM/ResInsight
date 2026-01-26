@@ -59,6 +59,7 @@ Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData, int& maxSegment
 Opm::DeckKeyword compsegsKeyword( const RigMswTableData& mswData );
 Opm::DeckKeyword wsegvalvKeyword( const RigMswTableData& mswData );
 Opm::DeckKeyword wsegaicdKeyword( const RigMswTableData& mswData );
+Opm::DeckKeyword wsegsicdKeyword( const RigMswTableData& mswData );
 
 Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid,
                                 const cvf::Vec3st& min        = cvf::Vec3st::ZERO,

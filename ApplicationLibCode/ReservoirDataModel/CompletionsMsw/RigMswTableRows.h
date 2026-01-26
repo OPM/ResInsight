@@ -138,3 +138,27 @@ struct WsegaicdRow
 
     std::string                 description;
 };
+
+//==================================================================================================
+/// Row structure for WSEGSICD table data
+//==================================================================================================
+struct WsegsicdRow
+{
+    // type                     variableName;       // Opm::ParserKeywords::WSEGSICD::...
+
+    std::string                 well;               //  1 WELNAME
+    int                         segment1;           //  2 ISEG1
+    int                         segment2;           //  3 ISEG2
+    double                      strength;           //  4 ICDSTREN
+    std::optional<double>       length;             //  5 ICDLEN
+    std::optional<double>       densityCali;        //  6 CALDEN
+    std::optional<double>       viscosityCali;      //  7 CALVISC
+    std::optional<double>       criticalValue;      //  8 EMLCRT
+    std::optional<double>       widthTrans;         //  9 EMLTRANS
+    std::optional<double>       maxViscRatio;       // 10 EMLMAX
+    std::optional<int>          methodScalingFactor;// 11 NSCALFAC
+    double                      maxAbsRate;         // 12 CALRATE
+    std::optional<std::string>  status;             // 13 STATUS
+
+    std::string                 description;
+};

@@ -111,7 +111,8 @@ RigCompletionData& RigCompletionData::operator=( const RigCompletionData& other 
 //--------------------------------------------------------------------------------------------------
 bool RigCompletionData::isPerforationValve( CompletionType type )
 {
-    return type == CompletionType::PERFORATION_AICD || type == CompletionType::PERFORATION_ICD || type == CompletionType::PERFORATION_ICV;
+    return type == CompletionType::PERFORATION_AICD || type == CompletionType::PERFORATION_ICD || type == CompletionType::PERFORATION_ICV ||
+           type == CompletionType::PERFORATION_SICD;
 }
 
 //--------------------------------------------------------------------------------------------------

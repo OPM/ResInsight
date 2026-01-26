@@ -35,15 +35,17 @@ RimWellPathSicdParameters::RimWellPathSicdParameters()
 {
     CAF_PDM_InitScriptableObject( "RimWellPathSicdParameters" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_strength, "Strength", "Strength of the SICD device" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_length, "Length", "Length of the SICD device" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_calibrationDensity, "CalibrationDensity", "Calibration Fluid Density" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_calibrationViscosity, "CalibrationViscosity", "Calibration Fluid Viscosity" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_emlCrt, "EmlCrt", "Local Water in Liquid Fraction (EMLCRT)" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_emlTrans, "EmlTrans", "Width of Transition Zone (EMLTRNS)" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_emlMax, "EmlMax", "Max Emulsion Viscosity to Cont Phase Viscosity (EMLMAX)" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_scaleFactorType, "ScaleFactorType", "Scale Factor Method (NSCALFAC)" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_maxCalibRate, "MaxCalibRate", "Max Surface Flow Rate (CALRATE)" );
+    CAF_PDM_InitScriptableField( &m_sicdParameterFields[SICD_STRENGTH], "Strength", std::optional<double>( 1.0 ), "Strength of the SICD device" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_sicdParameterFields[SICD_CALIBRATION_DENSITY], "CalibrationDensity", "Calibration Fluid Density" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_sicdParameterFields[SICD_CALIBRATION_VISCOSITY],
+                                          "CalibrationViscosity",
+                                          "Calibration Fluid Viscosity" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_sicdParameterFields[SICD_EML_CRT], "EmlCrt", "Local Water in Liquid Fraction (EMLCRT)" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_sicdParameterFields[SICD_EML_TRANS], "EmlTrans", "Width of Transition Zone (EMLTRNS)" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_sicdParameterFields[SICD_EML_MAX],
+                                          "EmlMax",
+                                          "Max Emulsion Viscosity to Cont Phase Viscosity (EMLMAX)" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_sicdParameterFields[SICD_MAX_CALIB_RATE], "MaxCalibRate", "Max Surface Flow Rate (CALRATE)" );
     CAF_PDM_InitScriptableField( &m_deviceOpen, "DeviceOpen", true, "Device Open?" );
 }
 
@@ -59,7 +61,7 @@ RimWellPathSicdParameters::~RimWellPathSicdParameters()
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathSicdParameters::isValid() const
 {
-    return true;
+    return m_sicdParameterFields[SICD_STRENGTH].value().has_value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,24 +82,40 @@ void RimWellPathSicdParameters::defineUiOrdering( QString uiConfigName, caf::Pdm
     uiOrdering.add( &m_deviceOpen );
     m_deviceOpen.uiCapability()->setUiReadOnly( readOnly );
 
-    uiOrdering.add( &m_strength );
-    m_strength.uiCapability()->setUiReadOnly( readOnly );
-    uiOrdering.add( &m_length );
-    m_length.uiCapability()->setUiReadOnly( readOnly );
-    uiOrdering.add( &m_calibrationDensity );
-    m_calibrationDensity.uiCapability()->setUiReadOnly( readOnly );
-    uiOrdering.add( &m_calibrationViscosity );
-    m_calibrationViscosity.uiCapability()->setUiReadOnly( readOnly );
-    uiOrdering.add( &m_emlCrt );
-    m_emlCrt.uiCapability()->setUiReadOnly( readOnly );
-    uiOrdering.add( &m_emlTrans );
-    m_emlTrans.uiCapability()->setUiReadOnly( readOnly );
-    uiOrdering.add( &m_emlMax );
-    m_emlMax.uiCapability()->setUiReadOnly( readOnly );
-    uiOrdering.add( &m_scaleFactorType );
-    m_scaleFactorType.uiCapability()->setUiReadOnly( readOnly );
-    uiOrdering.add( &m_maxCalibRate );
-    m_maxCalibRate.uiCapability()->setUiReadOnly( readOnly );
+    for ( int i = 0; i < (int)SICD_NUM_PARAMS; i++ )
+    {
+        uiOrdering.add( &m_sicdParameterFields[(SICDParameters)i] );
+        m_sicdParameterFields[(SICDParameters)i].uiCapability()->setUiReadOnly( readOnly );
+    }
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathSicdParameters::setValue( SICDParameters parameter, double value )
+{
+    m_sicdParameterFields[parameter].setValue( value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<double, SICD_NUM_PARAMS> RimWellPathSicdParameters::doubleValues() const
+{
+    std::array<double, SICD_NUM_PARAMS> doubleValues;
+    for ( int i = 0; i < (int)SICD_NUM_PARAMS; ++i )
+    {
+        std::optional<double> dValue = m_sicdParameterFields[(SICDParameters)i].value();
+        if ( dValue.has_value() )
+        {
+            doubleValues[i] = dValue.value();
+        }
+        else
+        {
+            doubleValues[i] = std::numeric_limits<double>::infinity();
+        }
+    }
+    return doubleValues;
 }

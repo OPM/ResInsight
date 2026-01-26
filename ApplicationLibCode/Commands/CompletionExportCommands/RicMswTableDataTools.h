@@ -21,6 +21,7 @@
 #include "RigCompletionData.h"
 
 #include "RimWellPathAicdParameters.h"
+#include "RimWellPathSicdParameters.h"
 
 #include "cvfVector3.h"
 
@@ -73,6 +74,36 @@ public:
     std::array<double, AICD_NUM_PARAMS> m_values;
 };
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class SicdWsegvalveData
+{
+public:
+    explicit SicdWsegvalveData( const QString&                             wellName,
+                                const QString&                             comment,
+                                int                                        segmentNumber,
+                                double                                     flowScalingFactor,
+                                bool                                       isOpen,
+                                const std::array<double, SICD_NUM_PARAMS>& values )
+        : m_wellName( wellName )
+        , m_comment( comment )
+        , m_segmentNumber( segmentNumber )
+        , m_flowScalingFactor( flowScalingFactor )
+        , m_isOpen( isOpen )
+        , m_values( values )
+
+    {
+    }
+
+    QString                             m_wellName;
+    QString                             m_comment;
+    int                                 m_segmentNumber;
+    double                              m_flowScalingFactor;
+    bool                                m_isOpen;
+    std::array<double, SICD_NUM_PARAMS> m_values;
+};
+
 // New data collection functions (replace formatter versions)
 void collectWelsegsData( RigMswTableData&                              tableData,
                          RicMswExportInfo&                             exportInfo,
@@ -103,10 +134,14 @@ void collectWsegvalvData( RigMswTableData& tableData, RicMswExportInfo& exportIn
 void collectWsegvalvDataRecursively( RigMswTableData& tableData, gsl::not_null<RicMswBranch*> branch, const std::string& wellNameForExport );
 
 void collectWsegAicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo );
-
-void collectWsegAicdDataRecursively( RigMswTableData& tableData, RicMswExportInfo& exportInfo, gsl::not_null<const RicMswBranch*> branch );
+void collectWsegSicdData( RigMswTableData& tableData, RicMswExportInfo& exportInfo );
 
 // Helper functions for data collection
+
+// void collectWsegAicdDataRecursively( RigMswTableData& tableData, RicMswExportInfo& exportInfo, gsl::not_null<const RicMswBranch*> branch
+// ); void collectWsegSicdDataRecursively( RigMswTableData& tableData, RicMswExportInfo& exportInfo, gsl::not_null<const RicMswBranch*>
+// branch );
+
 void collectWelsegsSegment( RigMswTableData&                              tableData,
                             RicMswSegment*                                segment,
                             const RicMswSegment*                          previousSegment,
@@ -145,5 +180,9 @@ void collectCompletionWelsegsSegments( RigMswTableData&                         
 void generateWsegAicdTableRecursively( RicMswExportInfo&                                 exportInfo,
                                        gsl::not_null<const RicMswBranch*>                branch,
                                        std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData );
+
+void generateWsegSicdTableRecursively( RicMswExportInfo&                                 exportInfo,
+                                       gsl::not_null<const RicMswBranch*>                branch,
+                                       std::map<size_t, std::vector<SicdWsegvalveData>>& sicdValveData );
 
 } // namespace RicMswTableDataTools

@@ -112,6 +112,22 @@ std::vector<WsegaicdRow> RigMswUnifiedData::getAllWsegaicdRows() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<WsegsicdRow> RigMswUnifiedData::getAllWsegsicdRows() const
+{
+    std::vector<WsegsicdRow> allRows;
+
+    for ( const auto& wellData : m_wellDataList )
+    {
+        const auto& wellRows = wellData.wsegsicdData();
+        allRows.insert( allRows.end(), wellRows.begin(), wellRows.end() );
+    }
+
+    return allRows;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigMswUnifiedData::hasAnyLgrData() const
 {
     return std::any_of( m_wellDataList.begin(), m_wellDataList.end(), []( const RigMswTableData& wellData ) { return wellData.hasLgrData(); } );

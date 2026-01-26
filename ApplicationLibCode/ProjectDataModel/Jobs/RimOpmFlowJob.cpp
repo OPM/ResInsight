@@ -1108,6 +1108,7 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
     auto compsegsKw  = RimKeywordFactory::compsegsKeyword( mswDataResult.value() );
     auto wsegvalvKw  = RimKeywordFactory::wsegvalvKeyword( mswDataResult.value() );
     auto wsegaicdKw  = RimKeywordFactory::wsegaicdKeyword( mswDataResult.value() );
+    auto wsegsicdKw  = RimKeywordFactory::wsegsicdKeyword( mswDataResult.value() );
 
     if ( welsegsKw.empty() || compsegsKw.empty() )
     {
@@ -1127,6 +1128,10 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         if ( !wsegaicdKw.empty() )
         {
             if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegaicdKw, compsegsKw.name() ) ) return failure;
+        }
+        if ( !wsegsicdKw.empty() )
+        {
+            if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegsicdKw, compsegsKw.name() ) ) return failure;
         }
 
         mergePosition = 0;
@@ -1148,6 +1153,12 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
         if ( !wsegaicdKw.empty() )
         {
             mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegaicdKw );
+            if ( mergePosition < 0 ) return failure;
+            mergePosition++;
+        }
+        if ( !wsegsicdKw.empty() )
+        {
+            mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegsicdKw );
             if ( mergePosition < 0 ) return failure;
             mergePosition++;
         }

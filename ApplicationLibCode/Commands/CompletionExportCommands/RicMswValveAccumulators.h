@@ -20,6 +20,7 @@
 #include "RiaDefines.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RimWellPathAicdParameters.h"
+#include "RimWellPathSicdParameters.h"
 
 #include <array>
 
@@ -80,6 +81,24 @@ public:
 private:
     bool                                                           m_deviceOpen;
     std::array<RiaWeightedMeanCalculator<double>, AICD_NUM_PARAMS> m_meanCalculators;
+    double                                                         m_accumulatedLength;
+    double                                                         m_accumulatedFlowScalingFactorDivisor;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswSICDAccumulator : public RicMswValveAccumulator
+{
+public:
+    RicMswSICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem );
+    bool accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength ) override;
+    void   applyToSuperValve() override;
+    double accumulatedLength() const;
+
+private:
+    bool                                                           m_deviceOpen;
+    std::array<RiaWeightedMeanCalculator<double>, SICD_NUM_PARAMS> m_meanCalculators;
     double                                                         m_accumulatedLength;
     double                                                         m_accumulatedFlowScalingFactorDivisor;
 };

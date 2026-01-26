@@ -224,6 +224,9 @@ void RicMswTableFormatterTools::writeWelsegsCompletionCommentHeader( RifTextData
         case RigCompletionData::CompletionType::PERFORATION_AICD:
             optionalCommentText = "Perforation Segments - AICD";
             break;
+        case RigCompletionData::CompletionType::PERFORATION_SICD:
+            optionalCommentText = "Perforation Segments - SICD";
+            break;
         case RigCompletionData::CompletionType::PERFORATION_ICV:
             optionalCommentText = "Perforation Segments - ICV";
             break;
@@ -301,7 +304,8 @@ void RicMswTableFormatterTools::generateCompsegTable( RifTextDataTableFormatter&
             {
                 bool isPerforationValve = completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
                                           completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD ||
-                                          completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV;
+                                          completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV ||
+                                          completion->completionType() == RigCompletionData::CompletionType::PERFORATION_SICD;
 
                 if ( isPerforationValve )
                 {
@@ -699,7 +703,8 @@ void RicMswTableFormatterTools::writeValveWelsegsSegment( const RicMswSegment*  
     double endMD   = 0.0;
 
     if ( valve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
-         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
+         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD ||
+         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_SICD )
     {
         CVF_ASSERT( segments.size() > 1 );
 

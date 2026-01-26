@@ -72,6 +72,14 @@ void RigMswTableData::addWsegaicdRow( const WsegaicdRow& row )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigMswTableData::addWsegsicdRow( const WsegsicdRow& row )
+{
+    m_wsegsicdData.push_back( row );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigMswTableData::hasLgrData() const
 {
     return std::any_of( m_compsegsData.begin(), m_compsegsData.end(), []( const CompsegsRow& row ) { return row.isLgrGrid(); } );

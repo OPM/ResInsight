@@ -130,7 +130,7 @@ private:
                                         const RimWellPath*                                wellPath,
                                         RiaDefines::EclipseUnitSystem                     unitSystem );
 
-    static void assignValveContributionsToSuperICDsOrAICDs( gsl::not_null<RicMswBranch*>                      branch,
+    static void assignValveContributionsToSuperXICDs( gsl::not_null<RicMswBranch*>                      branch,
                                                             const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                                             const std::vector<WellPathCellIntersectionInfo>&  wellPathIntersections,
                                                             const RigActiveCellInfo*                          activeCellInfo,
@@ -140,7 +140,7 @@ private:
                                          const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                          RiaDefines::EclipseUnitSystem                     unitSystem );
 
-    static void moveIntersectionsToSuperICDsOrAICDs( gsl::not_null<RicMswBranch*> branch );
+    static void moveIntersectionsToSuperXICDs( gsl::not_null<RicMswBranch*> branch );
 
     static void assignFishbonesLateralIntersections( const RimEclipseCase*         eclipseCase,
                                                      const RimWellPath*            wellPath,

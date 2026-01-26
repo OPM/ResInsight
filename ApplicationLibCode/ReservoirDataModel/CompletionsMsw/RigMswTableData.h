@@ -37,6 +37,7 @@ public:
     const std::vector<CompsegsRow>& compsegsData() const { return m_compsegsData; }
     const std::vector<WsegvalvRow>& wsegvalvData() const { return m_wsegvalvData; }
     const std::vector<WsegaicdRow>& wsegaicdData() const { return m_wsegaicdData; }
+    const std::vector<WsegsicdRow>& wsegsicdData() const { return m_wsegsicdData; }
 
     // Data modification
     void setWelsegsHeader( const WelsegsHeader& header );
@@ -44,6 +45,7 @@ public:
     void addCompsegsRow( const CompsegsRow& row );
     void addWsegvalvRow( const WsegvalvRow& row );
     void addWsegaicdRow( const WsegaicdRow& row );
+    void addWsegsicdRow( const WsegsicdRow& row );
 
     // Metadata
     std::string                   wellName() const { return m_wellName; }
@@ -56,6 +58,7 @@ public:
     bool hasCompsegsData() const { return !m_compsegsData.empty(); }
     bool hasWsegvalvData() const { return !m_wsegvalvData.empty(); }
     bool hasWsegaicdData() const { return !m_wsegaicdData.empty(); }
+    bool hasWsegsicdData() const { return !m_wsegsicdData.empty(); }
 
     // Filtering for LGR data
     std::vector<CompsegsRow> mainGridCompsegsData() const;
@@ -74,4 +77,5 @@ private:
     std::vector<CompsegsRow> m_compsegsData;
     std::vector<WsegvalvRow> m_wsegvalvData;
     std::vector<WsegaicdRow> m_wsegaicdData;
+    std::vector<WsegsicdRow> m_wsegsicdData;
 };

@@ -142,6 +142,48 @@ void formatWsegaicdRows( RifTextDataTableFormatter& formatter, const std::vector
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Helper function to format WSEGSICD data rows
+//--------------------------------------------------------------------------------------------------
+void formatWsegsicdRows( RifTextDataTableFormatter& formatter, const std::vector<WsegsicdRow>& rows )
+{
+    for ( const auto& row : rows )
+    {
+        formatter.addStdString( row.well );
+        formatter.add( row.segment1 );
+        formatter.add( row.segment2 );
+        formatter.add( row.strength );
+        formatter.addOptionalValue( row.length );
+        formatter.addOptionalValue( row.densityCali );
+        formatter.addOptionalValue( row.viscosityCali );
+        formatter.addOptionalValue( row.criticalValue );
+        formatter.addOptionalValue( row.widthTrans );
+        formatter.addOptionalValue( row.maxViscRatio );
+
+        if ( row.methodScalingFactor.has_value() )
+        {
+            formatter.add( row.methodScalingFactor.value() );
+        }
+        else
+        {
+            formatter.add( formatter.defaultMarker() );
+        }
+
+        formatter.add( row.maxAbsRate );
+
+        if ( row.status.has_value() )
+        {
+            formatter.addStdString( row.status.value() );
+        }
+        else
+        {
+            formatter.addStdString( "OPEN" );
+        }
+
+        formatter.rowCompleted();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Helper function to create COMPSEGS headers
 //--------------------------------------------------------------------------------------------------
 std::vector<RifTextDataTableColumn> createCompsegsHeader( bool isLgrData )
@@ -292,6 +334,44 @@ void RigMswDataFormatter::addWsegaicdHeader( RifTextDataTableFormatter& formatte
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMswDataFormatter::addWsegsicdHeader( RifTextDataTableFormatter& formatter )
+{
+    // Write out header for SICD table
+
+    std::vector<QString> columnDescriptions = { "Well Name",
+                                                "Segment Number",
+                                                "Segment Number",
+                                                "Strength of SICD",
+                                                "Flow Scaling Factor for SICD",
+                                                "Density of Calibration Fluid",
+                                                "Viscosity of Calibration Fluid",
+                                                "Critical water in liquid fraction for emulsions viscosity model",
+                                                "Emulsion viscosity transition region",
+                                                "Max ratio of emulsion viscosity to continuous phase viscosity",
+                                                "Flow scaling factor method",
+                                                "Maximum flow rate for SICD device",
+                                                "Device OPEN/SHUT" };
+
+    formatter.keyword( "WSEGSICD" );
+    formatter.comment( "Column Overview:" );
+    for ( size_t i = 0; i < columnDescriptions.size(); ++i )
+    {
+        formatter.comment( QString( "%1: %2" ).arg( i + 1, 2, 10, QChar( '0' ) ).arg( columnDescriptions[i] ) );
+    }
+
+    std::vector<RifTextDataTableColumn> header;
+    for ( size_t i = 1; i <= 13; i++ )
+    {
+        QString                cName = QString( "%1" ).arg( i, 2, 10, QChar( '0' ) );
+        RifTextDataTableColumn col( cName, RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_CONSISE ), RIGHT );
+        header.push_back( col );
+    }
+    formatter.header( header );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Format COMPSEGS table for a single well
 //--------------------------------------------------------------------------------------------------
 void RigMswDataFormatter::formatCompsegsTable( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData, bool isLgrData )
@@ -365,6 +445,23 @@ void RigMswDataFormatter::formatWsegaicdTable( RifTextDataTableFormatter& format
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Format WSEGSICD table for a single well
+//--------------------------------------------------------------------------------------------------
+void RigMswDataFormatter::formatWsegsicdTable( RifTextDataTableFormatter& formatter, const RigMswTableData& tableData )
+{
+    if ( !tableData.hasWsegsicdData() ) return;
+
+    RifTextDataTableFormatter tightFormatter( formatter );
+    tightFormatter.setColumnSpacing( 1 );
+    tightFormatter.setTableRowPrependText( "   " );
+
+    addWsegsicdHeader( tightFormatter );
+
+    formatWsegsicdRows( tightFormatter, tableData.wsegsicdData() );
+    tightFormatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Format WELSEGS table for unified data (multiple wells)
 //--------------------------------------------------------------------------------------------------
 void RigMswDataFormatter::formatWelsegsTable( RifTextDataTableFormatter& formatter, const RigMswUnifiedData& unifiedData )
@@ -406,7 +503,25 @@ void RigMswDataFormatter::formatWsegaicdTable( RifTextDataTableFormatter& format
 
     addWsegaicdHeader( tightFormatter );
 
-    formatWsegaicdRows( tightFormatter, unifiedData.getAllWsegaicdRows() );
+    formatWsegaicdRows( tightFormatter, rows );
+    tightFormatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Format WSEGSICD table for unified data (multiple wells)
+//--------------------------------------------------------------------------------------------------
+void RigMswDataFormatter::formatWsegsicdTable( RifTextDataTableFormatter& formatter, const RigMswUnifiedData& unifiedData )
+{
+    auto rows = unifiedData.getAllWsegsicdRows();
+    if ( rows.empty() ) return;
+
+    RifTextDataTableFormatter tightFormatter( formatter );
+    tightFormatter.setColumnSpacing( 1 );
+    tightFormatter.setTableRowPrependText( "   " );
+
+    addWsegsicdHeader( tightFormatter );
+
+    formatWsegsicdRows( tightFormatter, rows );
     tightFormatter.tableCompleted();
 }
 
@@ -422,6 +537,7 @@ void RigMswDataFormatter::formatMswTables( RifTextDataTableFormatter& formatter,
 
     formatWsegvalvTable( formatter, tableData );
     formatWsegaicdTable( formatter, tableData );
+    formatWsegsicdTable( formatter, tableData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -439,4 +555,5 @@ void RigMswDataFormatter::formatMswTables( RifTextDataTableFormatter& formatter,
 
     formatWsegvalvTable( formatter, unifiedData );
     formatWsegaicdTable( formatter, unifiedData );
+    formatWsegsicdTable( formatter, unifiedData );
 }

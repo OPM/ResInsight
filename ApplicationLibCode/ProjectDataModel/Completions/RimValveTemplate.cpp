@@ -152,6 +152,14 @@ const RimWellPathAicdParameters* RimValveTemplate::aicdParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimWellPathSicdParameters* RimValveTemplate::sicdParameters() const
+{
+    return m_sicdParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimValveTemplate::typeLabel() const
 {
     return m_type().uiText();
@@ -198,6 +206,17 @@ void RimValveTemplate::setAicdParameter( AICDParameters parameter, double value 
     if ( m_aicdParameters() )
     {
         m_aicdParameters()->setValue( parameter, value );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimValveTemplate::setSicdParameter( SICDParameters parameter, double value )
+{
+    if ( m_sicdParameters() )
+    {
+        m_sicdParameters()->setValue( parameter, value );
     }
 }
 

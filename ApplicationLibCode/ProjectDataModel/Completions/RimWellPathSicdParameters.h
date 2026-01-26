@@ -21,6 +21,20 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <array>
+
+enum SICDParameters
+{
+    SICD_STRENGTH = 0,
+    SICD_CALIBRATION_DENSITY,
+    SICD_CALIBRATION_VISCOSITY,
+    SICD_EML_CRT,
+    SICD_EML_TRANS,
+    SICD_EML_MAX,
+    SICD_MAX_CALIB_RATE,
+    SICD_NUM_PARAMS
+};
+
 class RimWellPathSicdParameters : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -30,20 +44,16 @@ public:
     ~RimWellPathSicdParameters() override;
     bool isValid() const;
 
+    void                                setValue( SICDParameters parameter, double value );
+    std::array<double, SICD_NUM_PARAMS> doubleValues() const;
+
     bool isOpen() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmField<double>                m_strength;
-    caf::PdmField<double>                m_length;
-    caf::PdmField<std::optional<double>> m_calibrationDensity;
-    caf::PdmField<std::optional<double>> m_calibrationViscosity;
-    caf::PdmField<std::optional<double>> m_emlCrt;
-    caf::PdmField<std::optional<double>> m_emlTrans;
-    caf::PdmField<std::optional<double>> m_emlMax;
-    caf::PdmField<std::optional<int>>    m_scaleFactorType;
-    caf::PdmField<std::optional<double>> m_maxCalibRate;
-    caf::PdmField<bool>                  m_deviceOpen;
+    std::array<caf::PdmField<std::optional<double>>, SICD_NUM_PARAMS> m_sicdParameterFields;
+
+    caf::PdmField<bool> m_deviceOpen;
 };
