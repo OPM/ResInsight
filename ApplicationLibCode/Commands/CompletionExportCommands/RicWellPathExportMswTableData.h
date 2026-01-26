@@ -131,10 +131,10 @@ private:
                                         RiaDefines::EclipseUnitSystem                     unitSystem );
 
     static void assignValveContributionsToSuperXICDs( gsl::not_null<RicMswBranch*>                      branch,
-                                                            const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                                            const std::vector<WellPathCellIntersectionInfo>&  wellPathIntersections,
-                                                            const RigActiveCellInfo*                          activeCellInfo,
-                                                            RiaDefines::EclipseUnitSystem                     unitSystem );
+                                                      const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                                      const std::vector<WellPathCellIntersectionInfo>&  wellPathIntersections,
+                                                      const RigActiveCellInfo*                          activeCellInfo,
+                                                      RiaDefines::EclipseUnitSystem                     unitSystem );
 
     static void moveIntersectionsToICVs( gsl::not_null<RicMswBranch*>                      branch,
                                          const std::vector<const RimPerforationInterval*>& perforationIntervals,
