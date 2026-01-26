@@ -138,10 +138,6 @@ void collectWsegSicdData( RigMswTableData& tableData, RicMswExportInfo& exportIn
 
 // Helper functions for data collection
 
-// void collectWsegAicdDataRecursively( RigMswTableData& tableData, RicMswExportInfo& exportInfo, gsl::not_null<const RicMswBranch*> branch
-// ); void collectWsegSicdDataRecursively( RigMswTableData& tableData, RicMswExportInfo& exportInfo, gsl::not_null<const RicMswBranch*>
-// branch );
-
 void collectWelsegsSegment( RigMswTableData&                              tableData,
                             RicMswSegment*                                segment,
                             const RicMswSegment*                          previousSegment,

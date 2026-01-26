@@ -827,9 +827,6 @@ void RicMswTableDataTools::collectWsegSicdData( RigMswTableData& tableData, RicM
         double      accumulatedFlowScalingFactorDivisor = 0.0;
         QStringList comments;
 
-        // See RicMswSICDAccumulator::accumulateValveParameters for similar accumulation for multiple valves in same
-        // segment
-
         for ( const auto& aicdData : sicdDataForSameCell )
         {
             accumulatedFlowScalingFactorDivisor += 1.0 / aicdData.m_flowScalingFactor;
