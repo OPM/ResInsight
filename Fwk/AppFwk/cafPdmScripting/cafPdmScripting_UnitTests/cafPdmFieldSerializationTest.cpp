@@ -99,6 +99,54 @@ TEST( PdmFieldSerialization, StringListQuoted )
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
+TEST( PdmFieldSerialization, StringListWithBackslashes )
+{
+    // Test that Windows paths with backslashes are properly preserved when stringsAreQuoted = false
+    // This is the typical case when paths are sent from Python via gRPC
+    QString source = R"([C:\Users\file.txt, D:\Data\project.txt])";
+
+    QTextStream          stream( &source );
+    std::vector<QString> destination;
+
+    caf::PdmScriptIOMessages messages;
+    bool                     stringsAreQuoted = false; // Strings in lists from Python are not quoted
+
+    caf::PdmFieldScriptingCapabilityIOHandler<std::vector<QString>>::writeToField( destination,
+                                                                                   stream,
+                                                                                   &messages,
+                                                                                   stringsAreQuoted );
+
+    EXPECT_EQ( (size_t)2, destination.size() );
+    EXPECT_STREQ( "C:\\Users\\file.txt", destination[0].toStdString().c_str() );
+    EXPECT_STREQ( "D:\\Data\\project.txt", destination[1].toStdString().c_str() );
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmFieldSerialization, StringListQuotedWithEscapedBackslashes )
+{
+    // When strings ARE quoted (e.g., from command files), backslashes should be escaped
+    // and the escape sequences should be processed
+    QString source = R"(["C:\\Users\\file.txt", "D:\\Data\\project.txt"])";
+
+    QTextStream          stream( &source );
+    std::vector<QString> destination;
+
+    caf::PdmScriptIOMessages messages;
+    bool                     stringsAreQuoted = true;
+
+    caf::PdmFieldScriptingCapabilityIOHandler<std::vector<QString>>::writeToField( destination,
+                                                                                   stream,
+                                                                                   &messages,
+                                                                                   stringsAreQuoted );
+
+    EXPECT_EQ( (size_t)2, destination.size() );
+    EXPECT_STREQ( "C:\\Users\\file.txt", destination[0].toStdString().c_str() );
+    EXPECT_STREQ( "D:\\Data\\project.txt", destination[1].toStdString().c_str() );
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 TEST( PdmFieldSerialization, ValueList )
 {
     std::vector<float> floatValues = { 1.5, 0.0001, 1.77e10 };
