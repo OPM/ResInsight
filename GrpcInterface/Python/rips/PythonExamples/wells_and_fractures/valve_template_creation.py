@@ -44,17 +44,44 @@ def main():
     print(f"   Orifice Diameter: {icv_template.orifice_diameter}")
     print(f"   Flow Coefficient: {icv_template.flow_coefficient}")
 
-    # Create an AICD template (as suggested in the issue)
+    # Create an AICD template
     print("\n3. Creating AICD template as suggested in issue #12773")
     aicd_template = valve_templates.add_template(
         completion_type="AICD",
-        orifice_diameter=7.3,
-        flow_coefficient=0.2,
         user_label="Issue Example AICD",
     )
+
+    aicd_params = aicd_template.aicd_parameters()
+
+    aicd_params.strength_aicd = 0.001
+    aicd_params.density_calibration_fluid = 1000.0
+    aicd_params.viscosity_calibration_fluid = 1.5
+    aicd_params.update()
+
     print(f"   Created: {aicd_template.name}")
-    print(f"   Orifice Diameter: {aicd_template.orifice_diameter}")
-    print(f"   Flow Coefficient: {aicd_template.flow_coefficient}")
+    print(f"   Strength: {aicd_params.strength_aicd}")
+    print(f"   Calibration Fluid Density: {aicd_params.density_calibration_fluid}")
+    print(f"   Calibration Fluid Viscosity: {aicd_params.viscosity_calibration_fluid}")
+
+    # Create an SICD template
+    print("\n4. Creating SICD template")
+    sicd_template = valve_templates.add_template(
+        completion_type="SICD",
+        user_label="Example SICD",
+    )
+
+    sicd_params = sicd_template.sicd_parameters()
+
+    sicd_params.strength = 0.001
+    sicd_params.calibration_density = 1000.0
+    sicd_params.update()
+
+    print(f"   Created: {sicd_template.name}")
+    print(f"   Strength: {sicd_params.strength}")
+    print(f"   Calibration Fluid Density: {sicd_params.calibration_density}")
+
+    print("SICD template:" + str(dir(sicd_template)))
+    print("SICD params:" + str(dir(sicd_params)))
 
     # Show all valve templates
     current_templates = valve_templates.valve_definitions()
@@ -64,7 +91,7 @@ def main():
         print(f"   {i + 1}. {template.name}")
 
     # Example of using the new template in a completion (requires a loaded case with well paths)
-    print("\n4. Example usage in well completion (requires loaded case)")
+    print("\n5. Example usage in well completion (requires loaded case)")
     try:
         # This assumes you have a case loaded with well paths
         well_paths = resinsight.project.well_paths()
@@ -77,12 +104,33 @@ def main():
                 start_md=2450, end_md=2500, diameter=0.25, skin_factor=0.1
             )
 
-            # Add a valve using our new template
+            # Add a valve using our new AICD template
             valve = perf_interval.add_valve(
                 template=aicd_template, start_md=2451, end_md=2499, valve_count=3
             )
             print(f"   Created valve: {valve.name}")
             print(f"   Number of valves in interval: {len(perf_interval.valves())}")
+
+            # Add a perforation interval
+            perf_interval_2 = well_path.append_perforation_interval(
+                start_md=2510, end_md=2560, diameter=0.2, skin_factor=0.12
+            )
+
+            # Add a valve using our new SICD template
+            valve = perf_interval_2.add_valve(
+                template=sicd_template, start_md=2510, end_md=2560, valve_count=2
+            )
+
+            valve_template = valve.valve_template
+
+            print(valve_template)
+
+            valve_sicd_params = valve_template.sicd_parameters()
+
+            print(f"   Created valve: {valve.name}")
+            print(f"   Valve SICD strength: {valve_sicd_params.strength}")
+            print(f"   Number of valves in interval: {len(perf_interval.valves())}")
+
         else:
             print("   No well paths available - skipping completion example")
             print("   Load a case with well paths to see this in action")
@@ -92,15 +140,6 @@ def main():
         print("   This is expected if no case/well paths are loaded")
 
     print("\nExample completed successfully!")
-    print("\nAPI Usage Summary:")
-    print("- valve_templates.add_template(completion_type='ICD')  # Use defaults")
-    print(
-        "- valve_templates.add_template(completion_type='AICD', orifice_diameter=7.3, flow_coefficient=0.2)"
-    )
-    print(
-        "- valve_templates.add_template(completion_type='ICV', user_label='My Custom Template')"
-    )
-
 
 if __name__ == "__main__":
     main()

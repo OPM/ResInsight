@@ -3310,7 +3310,8 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
                                                                                { RiaDefines::WellPathComponentType::AICD, 8 },
                                                                                { RiaDefines::WellPathComponentType::ICV, 9 },
                                                                                { RiaDefines::WellPathComponentType::MSW_SEGMENT, 10 },
-                                                                               { RiaDefines::WellPathComponentType::SICD, 11 } };
+                                                                               { RiaDefines::WellPathComponentType::SICD, 11 },
+                                                                               { RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT, 12 } };
 
         std::stable_sort( allWellPathComponents.begin(),
                           allWellPathComponents.end(),
@@ -3320,6 +3321,11 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
         std::set<QString> completionsAssignedToLegend;
         for ( const RimWellPathComponentInterface* component : allWellPathComponents )
         {
+            if ( component->componentType() == RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT )
+            {
+                continue;
+            }
+
             std::unique_ptr<RiuWellPathComponentPlotItem> plotItem( new RiuWellPathComponentPlotItem( wellPathAttributeSource(), component ) );
             QString legendTitle        = plotItem->legendTitle();
             bool    contributeToLegend = m_wellPathCompletionsInLegend() && !completionsAssignedToLegend.count( legendTitle );
