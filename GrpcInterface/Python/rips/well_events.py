@@ -166,6 +166,126 @@ def load_events_from_config(
 
 
 @add_method(WellEventTimeline)
+def add_keyword_event(
+    self,
+    event_date: str,
+    well_name: str,
+    keyword_name: str,
+    keyword_data: dict,
+) -> "WellEventKeyword":
+    """Add a well keyword event with arbitrary keyword data.
+
+    This is a convenience method that automatically infers types from Python
+    values and calls the underlying GRPC method with parallel arrays.
+
+    Type inference rules:
+    - str → STRING
+    - int → INT
+    - float → DOUBLE
+
+    Arguments:
+        event_date (str): Date string in YYYY-MM-DD format
+        well_name (str): Well name
+        keyword_name (str): Keyword name (e.g., "WCONHIST", "WELTARG", "WRFTPLT")
+        keyword_data (dict): Dictionary mapping keyword item names to values
+
+    Returns:
+        WellEventKeyword: The created keyword event object
+
+    Raises:
+        TypeError: If keyword_data contains unsupported value types
+
+    Example:
+        ```python
+        # Get the timeline
+        well_path = project.well_paths()[0]
+        timeline = well_path.event_timeline()
+
+        # Add WCONHIST - Historical production data
+        timeline.add_keyword_event(
+            event_date="2018-04-01",
+            well_name="A1",
+            keyword_name="WCONHIST",
+            keyword_data={
+                "WELL": "A1",
+                "STATUS": "OPEN",
+                "CMODE": "RESV",
+                "ORAT": 3999.98999,
+                "WRAT": 0.01,
+                "GRAT": 550678.438,
+                "VFP_TABLE": 1
+            }
+        )
+
+        # Add WELTARG - Change target
+        timeline.add_keyword_event(
+            event_date="2018-05-01",
+            well_name="A1",
+            keyword_name="WELTARG",
+            keyword_data={
+                "WELL": "A1",
+                "CMODE": "ORAT",
+                "NEW_VALUE": 5000.0
+            }
+        )
+
+        # Add WRFTPLT - Enable RFT output
+        timeline.add_keyword_event(
+            event_date="2018-06-01",
+            well_name="A1",
+            keyword_name="WRFTPLT",
+            keyword_data={
+                "WELL": "A1",
+                "OUTPUT_RFT": "YES",
+                "OUTPUT_PLT": "NO"
+            }
+        )
+
+        # Generate schedule
+        case = project.cases()[0]
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        print(schedule_text)
+        ```
+    """
+    # Type inference and conversion
+    item_names = []
+    item_types = []
+    item_values = []
+
+    for name, value in keyword_data.items():
+        item_names.append(name)
+
+        if isinstance(value, str):
+            item_types.append("STRING")
+            item_values.append(value)
+        elif isinstance(value, bool):
+            # Handle bool before int (bool is subclass of int in Python)
+            item_types.append("INT")
+            item_values.append("1" if value else "0")
+        elif isinstance(value, int):
+            item_types.append("INT")
+            item_values.append(str(value))
+        elif isinstance(value, float):
+            item_types.append("DOUBLE")
+            item_values.append(str(value))
+        else:
+            raise TypeError(
+                f"Unsupported type for keyword item '{name}': {type(value).__name__}. "
+                "Supported types: str, int, float, bool"
+            )
+
+    # Call GRPC method with parallel arrays
+    return self.add_keyword_event_pb(
+        event_date=event_date,
+        well_name=well_name,
+        keyword_name=keyword_name,
+        item_names=item_names,
+        item_types=item_types,
+        item_values=item_values,
+    )
+
+
+@add_method(WellEventTimeline)
 def generate_schedule_text(self, eclipse_case: Case) -> str:
     """Generate Eclipse schedule text for all wells in the collection.
 

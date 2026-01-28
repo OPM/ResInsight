@@ -28,6 +28,7 @@
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
 #include "RimEclipseCase.h"
 #include "RimWellEventControl.h"
+#include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventState.h"
 #include "RimWellEventTimeline.h"
@@ -473,6 +474,19 @@ QString RicScheduleDataGenerator::generateWellControlForWell( const RimWellEvent
 
                 result += deckKeywordToString( kw );
                 result += "\n";
+            }
+        }
+        else if ( event->eventType() == RimWellEvent::EventType::KEYWORD )
+        {
+            auto* keywordEvent = dynamic_cast<RimWellEventKeyword*>( event );
+            if ( keywordEvent )
+            {
+                QString keywordStr = keywordEvent->generateScheduleKeyword( well.name() );
+                if ( !keywordStr.isEmpty() )
+                {
+                    result += keywordStr;
+                    result += "\n";
+                }
             }
         }
         // Note: WSTATE and WTYPE events could generate WELOPEN keywords if needed
