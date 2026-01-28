@@ -97,6 +97,55 @@ def main():
     )
     print("   Added state event on 2024-02-15 (OPEN)")
 
+    # Add well keyword events (arbitrary Eclipse keywords)
+    print("\n   Adding well keyword events...")
+
+    # Example 1: WCONHIST - Historical production data
+    _wconhist_event = timeline.add_keyword_event(
+        event_date="2024-01-15",
+        well_path=well_path,
+        keyword_name="WCONHIST",
+        keyword_data={
+            "WELL": well_path.name,
+            "STATUS": "OPEN",
+            "CMODE": "RESV",
+            "ORAT": 3999.99,
+            "WRAT": 0.01,
+            "GRAT": 550678.44,
+            "VFP_TABLE": 1,
+        },
+    )
+    print(
+        "   Added WCONHIST event on 2024-01-15 (historical production control)"
+    )
+
+    # Example 2: WELTARG - Well target change
+    _weltarg_event = timeline.add_keyword_event(
+        event_date="2024-05-01",
+        well_path=well_path,
+        keyword_name="WELTARG",
+        keyword_data={
+            "WELL": well_path.name,
+            "CMODE": "ORAT",
+            "NEW_VALUE": 5000.0,
+        },
+    )
+    print("   Added WELTARG event on 2024-05-01 (well target change)")
+
+    # Example 3: WRFTPLT - RFT/PLT output control
+    _wrftplt_event = timeline.add_keyword_event(
+        event_date="2024-06-01",
+        well_path=well_path,
+        keyword_name="WRFTPLT",
+        keyword_data={
+            "WELL": well_path.name,
+            "OUTPUT_RFT": "YES",
+            "OUTPUT_PLT": "NO",
+            "OUTPUT_SEGMENT": "NO",
+        },
+    )
+    print("   Added WRFTPLT event on 2024-06-01 (RFT/PLT output control)")
+
     # Demonstrate applying events up to different dates
     print("\n3. Applying events up to March 15, 2024...")
     print("   This will create completions from events dated on or before March 15")
@@ -163,7 +212,7 @@ def main():
 
             # Validate expected keywords are present
             print("\n7. Validating generated Eclipse keywords...")
-            expected_keywords = ["DATES", "WELSEGS", "COMPSEGS"]
+            expected_keywords = ["DATES", "WELSEGS", "COMPSEGS", "WCONHIST", "WELTARG", "WRFTPLT"]
             found_keywords = [kw for kw in expected_keywords if kw in schedule_text]
 
             print(f"   Keywords found: {', '.join(found_keywords)}")
@@ -200,6 +249,9 @@ def main():
             print(f"   - WELSEGS entries: {schedule_text.count('WELSEGS')}")
             print(f"   - COMPSEGS entries: {schedule_text.count('COMPSEGS')}")
             print(f"   - WSEGVALV entries: {schedule_text.count('WSEGVALV')}")
+            print(f"   - WCONHIST entries: {schedule_text.count('WCONHIST')}")
+            print(f"   - WELTARG entries: {schedule_text.count('WELTARG')}")
+            print(f"   - WRFTPLT entries: {schedule_text.count('WRFTPLT')}")
 
             # Save to file
             output_file = "generated_schedule.sch"
@@ -235,6 +287,12 @@ def main():
         "- timeline.add_tubing_event(event_date='2024-01-01', well_name='WellA', ...)"
     )
     print("- timeline.add_valve_event(event_date='2024-01-01', well_name='WellA', ...)")
+    print("- timeline.add_keyword_event(  # Arbitrary Eclipse keywords:")
+    print("      event_date='2024-01-01',")
+    print("      well_name='WellA',")
+    print("      keyword_name='WCONHIST',  # WCONHIST, WELTARG, WRFTPLT, etc.")
+    print("      keyword_data={'WELL': 'WellA', 'ORAT': 1000.0, ...}")
+    print("  )")
     print("- timeline.set_timestamp(timestamp='2024-06-01')  # Apply events up to date")
     print("- schedule_text = timeline.generate_schedule_text(eclipse_case=case)")
     print("  # Generate Eclipse schedule text")
