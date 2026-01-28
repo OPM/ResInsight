@@ -196,7 +196,11 @@ def test_10k_intersection_add_well_perforation_interval_with_valves(
     assert valve
     assert valve.name == "1 AICD: 2451 - 2459"
 
+    valve_template = valve.template()
+    assert valve_template.name == valve_templates.valve_definitions()[0].name
+
     assert len(perf_interval.valves()) == 1
+
 
 def test_10k_intersection_add_well_perforation_interval_with_valves_2(
     rips_instance, initialize_test
@@ -246,7 +250,7 @@ def test_10k_intersection_add_well_perforation_interval_with_valves_2(
 
     valve_start_md = start_md + 1
     valve_end_md = end_md - 1
-    valve_count = 5
+    valve_count = 1
     valve = perf_interval.add_valve(
         template=sicd_template,
         start_md=valve_start_md,
@@ -255,10 +259,12 @@ def test_10k_intersection_add_well_perforation_interval_with_valves_2(
     )
 
     assert valve
-    assert valve.name == "5 SICDs: 2451 - 2459"
+    assert valve.name == "1 SICD: 2451 - 2459"
+
+    valve_template = valve.template()
+    assert valve_template.name == valve_templates.valve_definitions()[3].name
 
     assert len(perf_interval.valves()) == 1
-
 
 
 def test_10k_intersection_add_well_perforation_interval_with_invalid_valves(
