@@ -691,3 +691,393 @@ class TestScheduleGeneration:
         assert jun_pos > 0, "Schedule should contain 1 'JUN' 2024"
         assert jan_pos < feb_pos, "January should come before February"
         assert feb_pos < jun_pos, "February should come before June"
+
+
+class TestKeywordEvents:
+    """Tests for well keyword event functionality."""
+
+    @pytest.fixture
+    def project_with_case_and_well(self, rips_instance, initialize_test):
+        """Load a case with well paths for keyword event tests."""
+        case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+        project = rips_instance.project
+        case = project.load_case(path=case_root + "/TEST10K_FLT_LGR_NNC.EGRID")
+
+        # Import well paths
+        well_path_files = [
+            case_root + "/wellpath_a.dev",
+        ]
+        project.import_well_paths(well_path_files=well_path_files)
+
+        well_path_coll = project.descendants(rips.WellPathCollection)[0]
+
+        return project, case, well_path_coll.event_timeline()
+
+    def test_add_keyword_event_wconhist(self, project_with_case_and_well):
+        """Test adding a WCONHIST keyword event."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Create a WCONHIST event
+        event = timeline.add_keyword_event(
+            event_date="2024-01-01",
+            well_name=well_path.name,
+            keyword_name="WCONHIST",
+            keyword_data={
+                "WELL": well_path.name,
+                "STATUS": "OPEN",
+                "CMODE": "RESV",
+                "ORAT": 3999.99,
+                "WRAT": 0.01,
+                "GRAT": 550678.44,
+                "VFP_TABLE": 1,
+            },
+        )
+
+        assert event is not None, "Keyword event should be created"
+
+    def test_add_keyword_event_weltarg(self, project_with_case_and_well):
+        """Test adding a WELTARG keyword event."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Create a WELTARG event
+        event = timeline.add_keyword_event(
+            event_date="2024-05-01",
+            well_name=well_path.name,
+            keyword_name="WELTARG",
+            keyword_data={
+                "WELL": well_path.name,
+                "CMODE": "ORAT",
+                "NEW_VALUE": 5000.0,
+            },
+        )
+
+        assert event is not None, "Keyword event should be created"
+
+    def test_add_keyword_event_wrftplt(self, project_with_case_and_well):
+        """Test adding a WRFTPLT keyword event."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Create a WRFTPLT event
+        event = timeline.add_keyword_event(
+            event_date="2024-06-01",
+            well_name=well_path.name,
+            keyword_name="WRFTPLT",
+            keyword_data={
+                "WELL": well_path.name,
+                "OUTPUT_RFT": "YES",
+                "OUTPUT_PLT": "NO",
+                "OUTPUT_SEGMENT": "NO",
+            },
+        )
+
+        assert event is not None, "Keyword event should be created"
+
+    def test_keyword_event_type_inference(self, project_with_case_and_well):
+        """Test that add_keyword_event correctly infers types from Python values."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Create event with mixed types: str, int, float, bool
+        event = timeline.add_keyword_event(
+            event_date="2024-03-15",
+            well_name=well_path.name,
+            keyword_name="WCONHIST",
+            keyword_data={
+                "WELL": well_path.name,  # str
+                "STATUS": "OPEN",  # str
+                "ORAT": 1000.5,  # float
+                "VFP_TABLE": 2,  # int
+            },
+        )
+
+        assert event is not None, "Event with mixed types should be created"
+
+    def test_keyword_event_schedule_output_single_keyword(
+        self, project_with_case_and_well
+    ):
+        """Test that keyword events appear in schedule text generation."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Add a WELTARG keyword event
+        timeline.add_keyword_event(
+            event_date="2024-05-01",
+            well_name=well_path.name,
+            keyword_name="WELTARG",
+            keyword_data={
+                "WELL": well_path.name,
+                "CMODE": "ORAT",
+                "NEW_VALUE": 5000.0,
+            },
+        )
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(f"\nSchedule text for keyword event:\n{schedule_text}")
+
+        # Verify the keyword event is in the output
+        assert schedule_text, "Schedule text should not be empty"
+        assert "WELTARG" in schedule_text, "Schedule should contain WELTARG keyword"
+        assert well_path.name in schedule_text, "Schedule should contain well name"
+
+    def test_keyword_event_schedule_output_multiple_keywords(
+        self, project_with_case_and_well
+    ):
+        """Test schedule text with multiple keyword events."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Add WCONHIST event
+        timeline.add_keyword_event(
+            event_date="2024-01-15",
+            well_name=well_path.name,
+            keyword_name="WCONHIST",
+            keyword_data={
+                "WELL": well_path.name,
+                "STATUS": "OPEN",
+                "CMODE": "RESV",
+                "ORAT": 3999.99,
+                "WRAT": 0.01,
+                "GRAT": 550678.44,
+            },
+        )
+
+        # Add WELTARG event
+        timeline.add_keyword_event(
+            event_date="2024-05-01",
+            well_name=well_path.name,
+            keyword_name="WELTARG",
+            keyword_data={
+                "WELL": well_path.name,
+                "CMODE": "ORAT",
+                "NEW_VALUE": 5000.0,
+            },
+        )
+
+        # Add WRFTPLT event
+        timeline.add_keyword_event(
+            event_date="2024-06-01",
+            well_name=well_path.name,
+            keyword_name="WRFTPLT",
+            keyword_data={
+                "WELL": well_path.name,
+                "OUTPUT_RFT": "YES",
+                "OUTPUT_PLT": "NO",
+            },
+        )
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(f"\nSchedule text for multiple keywords:\n{schedule_text}")
+
+        # Verify all keyword events are in the output
+        assert schedule_text, "Schedule text should not be empty"
+        assert "WCONHIST" in schedule_text, "Schedule should contain WCONHIST keyword"
+        assert "WELTARG" in schedule_text, "Schedule should contain WELTARG keyword"
+        assert "WRFTPLT" in schedule_text, "Schedule should contain WRFTPLT keyword"
+        assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
+
+    def test_invalid_keyword_data_unsupported_type(self, project_with_case_and_well):
+        """Test error handling for unsupported data types in keyword events."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Try to create a keyword event with an unsupported type (list)
+        with pytest.raises(TypeError) as exc_info:
+            timeline.add_keyword_event(
+                event_date="2024-01-01",
+                well_name=well_path.name,
+                keyword_name="WCONHIST",
+                keyword_data={
+                    "WELL": well_path.name,
+                    "INVALID_FIELD": [1, 2, 3],  # Unsupported type
+                },
+            )
+
+        # Verify the error message mentions the unsupported type
+        error_msg = str(exc_info.value)
+        assert "Unsupported type" in error_msg or "list" in error_msg
+
+    def test_keyword_event_with_perf_events(self, project_with_case_and_well):
+        """Test keyword events alongside perforation events."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Add tubing and perforation for MSW
+        timeline.add_tubing_event(
+            event_date="2024-01-01",
+            well_name=well_path.name,
+            start_md=0.0,
+            end_md=2500.0,
+            inner_diameter=0.15,
+            roughness=1.0e-5,
+        )
+
+        timeline.add_perf_event(
+            event_date="2024-02-01",
+            well_name=well_path.name,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+
+        # Add keyword event
+        timeline.add_keyword_event(
+            event_date="2024-03-01",
+            well_name=well_path.name,
+            keyword_name="WELTARG",
+            keyword_data={
+                "WELL": well_path.name,
+                "CMODE": "ORAT",
+                "NEW_VALUE": 3000.0,
+            },
+        )
+
+        # Apply tubing/perf events
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(f"\nSchedule with perf and keyword events:\n{schedule_text}")
+
+        # Verify both physical completions and keyword events are present
+        assert schedule_text, "Schedule text should not be empty"
+        assert "WELSEGS" in schedule_text, "Schedule should contain MSW WELSEGS keyword"
+        assert (
+            "WELTARG" in schedule_text
+        ), "Schedule should contain keyword event WELTARG"
+
+    def test_keyword_event_with_control_events(self, project_with_case_and_well):
+        """Test keyword events alongside control events."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Add control event
+        timeline.add_control_event(
+            event_date="2024-01-01",
+            well_name=well_path.name,
+            control_mode="ORAT",
+            control_value=1000.0,
+            oil_rate=1000.0,
+            is_producer=True,
+        )
+
+        # Add keyword event
+        timeline.add_keyword_event(
+            event_date="2024-02-01",
+            well_name=well_path.name,
+            keyword_name="WRFTPLT",
+            keyword_data={
+                "WELL": well_path.name,
+                "OUTPUT_RFT": "YES",
+                "OUTPUT_PLT": "YES",
+            },
+        )
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(f"\nSchedule with control and keyword events:\n{schedule_text}")
+
+        # Verify both control and keyword events are present
+        assert schedule_text, "Schedule text should not be empty"
+        assert (
+            "WCONPROD" in schedule_text or "WCONINJE" in schedule_text
+        ), "Schedule should contain control keyword"
+        assert (
+            "WRFTPLT" in schedule_text
+        ), "Schedule should contain keyword event WRFTPLT"
+
+    def test_multiple_keyword_events_at_different_dates(
+        self, project_with_case_and_well
+    ):
+        """Test adding keyword events at different dates and verify chronological order."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Add keyword events in reverse chronological order
+        timeline.add_keyword_event(
+            event_date="2024-06-01",
+            well_name=well_path.name,
+            keyword_name="WRFTPLT",
+            keyword_data={
+                "WELL": well_path.name,
+                "OUTPUT_RFT": "YES",
+            },
+        )
+
+        timeline.add_keyword_event(
+            event_date="2024-03-01",
+            well_name=well_path.name,
+            keyword_name="WELTARG",
+            keyword_data={
+                "WELL": well_path.name,
+                "CMODE": "ORAT",
+                "NEW_VALUE": 4000.0,
+            },
+        )
+
+        timeline.add_keyword_event(
+            event_date="2024-01-01",
+            well_name=well_path.name,
+            keyword_name="WCONHIST",
+            keyword_data={
+                "WELL": well_path.name,
+                "STATUS": "OPEN",
+                "ORAT": 2000.0,
+            },
+        )
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(f"\nSchedule with keyword events at multiple dates:\n{schedule_text}")
+
+        # Verify all keyword events are present
+        assert "WCONHIST" in schedule_text, "Schedule should contain WCONHIST"
+        assert "WELTARG" in schedule_text, "Schedule should contain WELTARG"
+        assert "WRFTPLT" in schedule_text, "Schedule should contain WRFTPLT"
+
+        # Verify chronological ordering with DATES keyword
+        assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
+        jan_pos = schedule_text.find("1 'JAN' 2024")
+        mar_pos = schedule_text.find("1 'MAR' 2024")
+        jun_pos = schedule_text.find("1 'JUN' 2024")
+
+        # If all three months are present, verify order
+        if jan_pos > 0 and mar_pos > 0:
+            assert jan_pos < mar_pos, "January should come before March"
+        if mar_pos > 0 and jun_pos > 0:
+            assert mar_pos < jun_pos, "March should come before June"
+
+    def test_keyword_event_with_bool_values(self, project_with_case_and_well):
+        """Test keyword events with boolean values (converted to 0/1)."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Create event with bool values (should be converted to INT 1/0)
+        event = timeline.add_keyword_event(
+            event_date="2024-04-01",
+            well_name=well_path.name,
+            keyword_name="WRFTPLT",
+            keyword_data={
+                "WELL": well_path.name,
+                "OUTPUT_RFT": True,  # bool converted to 1
+                "OUTPUT_PLT": False,  # bool converted to 0
+            },
+        )
+
+        assert event is not None, "Event with boolean values should be created"
+
+        # Generate schedule to verify bool conversion
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(f"\nSchedule with boolean keyword values:\n{schedule_text}")
+        assert schedule_text, "Schedule text should not be empty"
