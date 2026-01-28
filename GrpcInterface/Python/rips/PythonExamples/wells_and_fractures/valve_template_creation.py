@@ -80,9 +80,6 @@ def main():
     print(f"   Strength: {sicd_params.strength}")
     print(f"   Calibration Fluid Density: {sicd_params.calibration_density}")
 
-    print("SICD template:" + str(dir(sicd_template)))
-    print("SICD params:" + str(dir(sicd_params)))
-
     # Show all valve templates
     current_templates = valve_templates.valve_definitions()
     print(f"\nTotal valve templates now: {len(current_templates)}")
@@ -117,19 +114,16 @@ def main():
             )
 
             # Add a valve using our new SICD template
-            valve = perf_interval_2.add_valve(
-                template=sicd_template, start_md=2510, end_md=2560, valve_count=2
+            valve2 = perf_interval_2.add_valve(
+                template=sicd_template, start_md=2510, end_md=2560, valve_count=5
             )
 
-            valve_template = valve.valve_template
+            valve_templ = valve2.template()
+            valve_sicd_params = valve_templ.sicd_parameters()
 
-            print(valve_template)
-
-            valve_sicd_params = valve_template.sicd_parameters()
-
-            print(f"   Created valve: {valve.name}")
+            print(f"   Created valve: {valve2.name}")
             print(f"   Valve SICD strength: {valve_sicd_params.strength}")
-            print(f"   Number of valves in interval: {len(perf_interval.valves())}")
+            print(f"   Number of valves in interval: {len(perf_interval_2.valves())}")
 
         else:
             print("   No well paths available - skipping completion example")
