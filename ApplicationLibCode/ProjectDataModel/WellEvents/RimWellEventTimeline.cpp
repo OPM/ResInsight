@@ -305,11 +305,6 @@ bool RimWellEventTimeline::applyEventsUpToDate( const QDateTime& date )
     // Apply each event based on its type
     for ( RimWellEvent* event : eventsToApply )
     {
-        if ( !event )
-        {
-            continue;
-        }
-
         // Find the well path by name
         RimWellPath* wellPath = wellPathCollection->wellPathByName( event->wellName() );
         if ( !wellPath )

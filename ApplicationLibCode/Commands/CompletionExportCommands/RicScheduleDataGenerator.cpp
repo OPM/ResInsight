@@ -27,6 +27,7 @@
 
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
 #include "RimEclipseCase.h"
+#include "RimMswCompletionParameters.h"
 #include "RimWellEventControl.h"
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
@@ -281,10 +282,22 @@ QString RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline
                                                       RimWellPath&                wellPath,
                                                       const QDateTime&            date )
 {
-    // Get valve and tubing events at this exact date for this well
-    auto events = timeline.getEventsAtDate( date );
+    // Check if the well has MSW configured (from any previous tubing events applied via set_timestamp)
+    // If MSW is enabled, we should generate WELSEGS/COMPSEGS instead of COMPDAT
+    auto* mswParams = wellPath.mswCompletionParameters();
+    if ( !mswParams )
+    {
+        return QString();
+    }
 
-    bool hasMswEvents = false;
+    // Check if MSW is enabled via interval-based diameter/roughness settings
+    bool hasMswConfigured = mswParams->isUsingIntervalSpecificValues();
+
+    // Also check if there are valve or tubing events at this specific date for this well
+    // (these trigger updates to the MSW configuration)
+    auto events        = timeline.getEventsAtDate( date );
+    bool hasMswEvents  = false;
+    bool hasPerfEvents = false;
     for ( auto* event : events )
     {
         if ( event->wellName() != wellPath.name() ) continue;
@@ -292,14 +305,17 @@ QString RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline
         if ( event->eventType() == RimWellEvent::EventType::VALVE || event->eventType() == RimWellEvent::EventType::TUBING )
         {
             hasMswEvents = true;
-            break;
+        }
+        else if ( event->eventType() == RimWellEvent::EventType::PERF )
+        {
+            hasPerfEvents = true;
         }
     }
 
-    if ( !hasMswEvents ) return QString();
-
     // Extract MSW data using the existing infrastructure
-    int  timeStep            = 0;
+    // Use timeStep = -1 to disable date filtering (similar to ignoreDates=true for COMPDAT)
+    // This ensures perforations created from events are included regardless of their custom start dates
+    int  timeStep            = -1;
     bool exportAfterMainBore = true;
     auto mswDataResult       = RicWellPathExportMswTableData::extractSingleWellMswData( &eclipseCase,
                                                                                   &wellPath,
