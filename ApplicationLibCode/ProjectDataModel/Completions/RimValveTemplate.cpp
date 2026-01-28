@@ -336,8 +336,7 @@ void RimValveTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "MSW AICD Parameters" );
         m_aicdParameters->uiOrdering( uiConfigName, *group );
     }
-
-    if ( m_type() == RiaDefines::WellPathComponentType::SICD )
+    else if ( m_type() == RiaDefines::WellPathComponentType::SICD )
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "MSW SICD Parameters" );
         m_sicdParameters->uiOrdering( uiConfigName, *group );
