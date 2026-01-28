@@ -165,10 +165,14 @@ def load_events_from_config(
                         )
 
 
+# Store the original GRPC add_keyword_event method before wrapping
+_original_add_keyword_event = WellEventTimeline.add_keyword_event
+
+
 @add_method(WellEventTimeline)
-def add_keyword_event(
+def add_keyword_event_with_dict(
     self,
-    event_date: str,
+    event_date,
     well_name: str,
     keyword_name: str,
     keyword_data: dict,
@@ -182,9 +186,10 @@ def add_keyword_event(
     - str → STRING
     - int → INT
     - float → DOUBLE
+    - bool → INT (1 or 0)
 
     Arguments:
-        event_date (str): Date string in YYYY-MM-DD format
+        event_date: Date string in YYYY-MM-DD format, date, or datetime object
         well_name (str): Well name
         keyword_name (str): Keyword name (e.g., "WCONHIST", "WELTARG", "WRFTPLT")
         keyword_data (dict): Dictionary mapping keyword item names to values
@@ -274,15 +279,23 @@ def add_keyword_event(
                 "Supported types: str, int, float, bool"
             )
 
-    # Call GRPC method with parallel arrays
-    return self.add_keyword_event_pb(
-        event_date=event_date,
+    # Format date
+    date_str = _format_date(event_date)
+
+    # Call original GRPC method with parallel arrays
+    return _original_add_keyword_event(
+        self,
+        event_date=date_str,
         well_name=well_name,
         keyword_name=keyword_name,
         item_names=item_names,
         item_types=item_types,
         item_values=item_values,
     )
+
+
+# Replace the add_keyword_event method with our enhanced version
+WellEventTimeline.add_keyword_event = add_keyword_event_with_dict
 
 
 @add_method(WellEventTimeline)
