@@ -147,7 +147,10 @@ void RimWellPathCompletionSettings::initAfterRead()
         {
             if ( RiaStdStringTools::toDouble( refDepth, tmpValue ) )
             {
-                m_referenceDepth = std::optional<double>( tmpValue );
+                if ( tmpValue != 0.0 )
+                {
+                    m_referenceDepth = std::optional<double>( tmpValue );
+                }
             }
         }
 
@@ -156,7 +159,10 @@ void RimWellPathCompletionSettings::initAfterRead()
         {
             if ( RiaStdStringTools::toDouble( radius, tmpValue ) )
             {
-                m_drainageRadius = std::optional<double>( tmpValue );
+                if ( tmpValue != 0.0 )
+                {
+                    m_drainageRadius = std::optional<double>( tmpValue );
+                }
             }
         }
     }
@@ -223,6 +229,11 @@ QString RimWellPathCompletionSettings::groupNameForExport() const
 //--------------------------------------------------------------------------------------------------
 std::optional<double> RimWellPathCompletionSettings::referenceDepth() const
 {
+    // zero values not allowed, make sure we use default value
+    if ( m_referenceDepth().has_value() && ( m_referenceDepth.value() == 0.0 ) )
+    {
+        return std::nullopt;
+    }
     return m_referenceDepth;
 }
 
@@ -231,6 +242,11 @@ std::optional<double> RimWellPathCompletionSettings::referenceDepth() const
 //--------------------------------------------------------------------------------------------------
 std::optional<double> RimWellPathCompletionSettings::drainageRadius() const
 {
+    // zero values not allowed, make sure we use default value
+    if ( m_drainageRadius().has_value() && ( m_drainageRadius.value() == 0.0 ) )
+    {
+        return std::nullopt;
+    }
     return m_drainageRadius;
 }
 
@@ -263,7 +279,10 @@ void RimWellPathCompletionSettings::setGroupName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletionSettings::referenceDepthForExport() const
 {
-    if ( m_referenceDepth().has_value() ) return QString::number( m_referenceDepth().value() );
+    if ( m_referenceDepth().has_value() && ( m_referenceDepth.value() != 0.0 ) )
+    {
+        return QString::number( m_referenceDepth().value() );
+    }
     return "1*";
 }
 
@@ -291,7 +310,10 @@ QString RimWellPathCompletionSettings::wellTypeNameForExport() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletionSettings::drainageRadiusForExport() const
 {
-    if ( m_drainageRadius().has_value() ) return QString::number( m_drainageRadius().value() );
+    if ( m_drainageRadius().has_value() && ( m_drainageRadius.value() != 0.0 ) )
+    {
+        return QString::number( m_drainageRadius().value() );
+    }
     return "1*";
 }
 
