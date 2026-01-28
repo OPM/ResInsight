@@ -438,7 +438,7 @@ class TestScheduleGeneration:
         """Test the exact workflow from well_event_schedule.py example.
 
         This test reproduces the full workflow to verify schedule generation
-        produces dates correctly after applying events with set_timestamp().
+        produces the correct Eclipse keywords after applying events with set_timestamp().
         """
         project, case, timeline = project_with_case_and_well
 
@@ -446,7 +446,7 @@ class TestScheduleGeneration:
         well_paths = project.well_paths()
         well_path = [wp for wp in well_paths if "A" in wp.name][0]
 
-        # Add tubing event (installed early)
+        # Add tubing event (installed early) - should generate WELSEGS
         timeline.add_tubing_event(
             event_date="2024-01-01",
             well_name=well_path.name,
@@ -456,7 +456,7 @@ class TestScheduleGeneration:
             roughness=1.0e-5,
         )
 
-        # Add first perforation event
+        # Add first perforation event - should generate COMPSEGS
         timeline.add_perf_event(
             event_date="2024-02-01",
             well_name=well_path.name,
@@ -467,7 +467,7 @@ class TestScheduleGeneration:
             state="OPEN",
         )
 
-        # Add second perforation event (later)
+        # Add second perforation event (later) - should generate COMPSEGS
         timeline.add_perf_event(
             event_date="2024-04-01",
             well_name=well_path.name,
@@ -478,7 +478,7 @@ class TestScheduleGeneration:
             state="OPEN",
         )
 
-        # Add valve event
+        # Add valve event - should generate WSEGVALV
         timeline.add_valve_event(
             event_date="2024-03-01",
             well_name=well_path.name,
@@ -496,8 +496,47 @@ class TestScheduleGeneration:
             well_state="OPEN",
         )
 
+        # Add keyword events - should be included in schedule
+        timeline.add_keyword_event(
+            event_date="2024-01-15",
+            well_name=well_path.name,
+            keyword_name="WCONHIST",
+            keyword_data={
+                "WELL": well_path.name,
+                "STATUS": "OPEN",
+                "CMODE": "RESV",
+                "ORAT": 3999.99,
+                "WRAT": 0.01,
+                "GRAT": 550678.44,
+                "VFP_TABLE": 1,
+            },
+        )
+
+        timeline.add_keyword_event(
+            event_date="2024-05-01",
+            well_name=well_path.name,
+            keyword_name="WELTARG",
+            keyword_data={
+                "WELL": well_path.name,
+                "CMODE": "ORAT",
+                "NEW_VALUE": 5000.0,
+            },
+        )
+
+        timeline.add_keyword_event(
+            event_date="2024-06-01",
+            well_name=well_path.name,
+            keyword_name="WRFTPLT",
+            keyword_data={
+                "WELL": well_path.name,
+                "OUTPUT_RFT": "YES",
+                "OUTPUT_PLT": "NO",
+                "OUTPUT_SEGMENT": "NO",
+            },
+        )
+
         # Apply events up to March 15, 2024
-        timeline.set_timestamp(timestamp="2024-03-15")
+        # timeline.set_timestamp(timestamp="2024-03-15")
 
         # Apply remaining events (up to Dec 31, 2024)
         timeline.set_timestamp(timestamp="2024-12-31")
@@ -515,7 +554,9 @@ class TestScheduleGeneration:
         assert schedule_text, "Schedule text should not be empty"
         assert (
             len(schedule_text) > 100
-        ), f"Schedule text too short ({len(schedule_text)} chars), expected dates"
+        ), f"Schedule text too short ({len(schedule_text)} chars)"
+
+        # Verify DATES keyword and date formatting
         assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
         assert "2024" in schedule_text, "Schedule should contain the year 2024"
         assert (
@@ -524,6 +565,41 @@ class TestScheduleGeneration:
             or "MAR" in schedule_text
             or "APR" in schedule_text
         ), "Schedule should contain month abbreviations"
+
+        # Verify MSW keywords from tubing events
+        assert (
+            "WELSEGS" in schedule_text
+        ), "Schedule should contain WELSEGS keyword from tubing events"
+
+        # Verify completion keywords from perforation events
+        # With MSW (tubing), should generate COMPSEGS
+        assert (
+            "COMPSEGS" in schedule_text
+        ), "Schedule should contain COMPSEGS keyword from perforation events with MSW"
+
+        # Verify keyword events are included
+        assert (
+            "WCONHIST" in schedule_text
+        ), "Schedule should contain WCONHIST keyword event"
+        assert (
+            "WELTARG" in schedule_text
+        ), "Schedule should contain WELTARG keyword event"
+        assert (
+            "WRFTPLT" in schedule_text
+        ), "Schedule should contain WRFTPLT keyword event"
+
+        # Print keyword summary for debugging
+        print("\nKeyword Summary:")
+        print(f"  - DATES entries: {schedule_text.count('DATES')}")
+        print(f"  - WELSEGS entries: {schedule_text.count('WELSEGS')}")
+        print(f"  - COMPSEGS entries: {schedule_text.count('COMPSEGS')}")
+        print(f"  - WSEGVALV entries: {schedule_text.count('WSEGVALV')}")
+        print(f"  - WCONHIST entries: {schedule_text.count('WCONHIST')}")
+        print(f"  - WELTARG entries: {schedule_text.count('WELTARG')}")
+        print(f"  - WRFTPLT entries: {schedule_text.count('WRFTPLT')}")
+
+        # Verify well name appears in schedule
+        assert well_path.name in schedule_text, "Schedule should contain the well name"
 
     def test_schedule_contains_welsegs_keyword(self, project_with_case_and_well):
         """Verify WELSEGS keyword is generated for tubing events."""

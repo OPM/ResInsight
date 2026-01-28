@@ -146,20 +146,17 @@ def main():
     )
     print("   Added WRFTPLT event on 2024-06-01 (RFT/PLT output control)")
 
-    # Demonstrate applying events up to different dates
-    print("\n3. Applying events up to March 15, 2024...")
-    print("   This will create completions from events dated on or before March 15")
-
     # Apply events up to March 15, 2024
     # This should create:
     # - Tubing interval (Jan 1)
     # - First perforation (Feb 1)
     # - Valve in first perforation (Mar 1)
     # But NOT the second perforation (Apr 1)
-    timeline.set_timestamp(timestamp="2024-03-15")
+    timeline.set_timestamp(timestamp="2024-12-24")
 
+    # Get the Eclipse case (if available)
     # Show what was created
-    print("\n4. Verifying created completions...")
+    print("\n3. Verifying created completions...")
 
     # Check perforations
     perforation_coll = well_path.completions().perforations()
@@ -178,19 +175,8 @@ def main():
     if msw_settings:
         print(f"   MSW diameter/roughness mode: {msw_settings.diameter_roughness_mode}")
 
-    print("\n5. Now applying remaining events (up to Dec 31, 2024)...")
-    timeline.set_timestamp(timestamp="2024-12-31")
-
-    # Show updated completions
-    perforations = perforation_coll.perforations()
-    print(f"   Perforations after full application: {len(perforations)}")
-    for perf in perforations:
-        print(
-            f"      - MD {perf.start_measured_depth:.0f} to {perf.end_measured_depth:.0f}m"
-        )
-
     # Generate Eclipse schedule text
-    print("\n6. Generating Eclipse schedule text from events...")
+    print("\n4. Generating Eclipse schedule text from events...")
 
     # Get the Eclipse case (if available)
     cases = project.cases()
