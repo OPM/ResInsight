@@ -42,7 +42,8 @@ public:
         TUBING,
         WSTATE,
         WTYPE,
-        WCONTROL
+        WCONTROL,
+        KEYWORD
     };
 
     RimWellEvent();

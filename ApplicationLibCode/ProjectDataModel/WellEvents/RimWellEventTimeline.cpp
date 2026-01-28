@@ -19,6 +19,7 @@
 #include "RimWellEventTimeline.h"
 
 #include "RimWellEventControl.h"
+#include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventState.h"
 #include "RimWellEventTubing.h"
@@ -221,6 +222,20 @@ RimWellEventControl* RimWellEventTimeline::addControlEvent( const QString& wellN
     auto* event = new RimWellEventControl();
     event->setWellName( wellName );
     event->setEventDate( date );
+    m_events.push_back( event );
+    updateConnectedEditors();
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellEventKeyword* RimWellEventTimeline::addKeywordEvent( const QString& wellName, const QDateTime& date, const QString& keywordName )
+{
+    auto* event = new RimWellEventKeyword();
+    event->setWellName( wellName );
+    event->setEventDate( date );
+    event->setKeywordName( keywordName );
     m_events.push_back( event );
     updateConnectedEditors();
     return event;
