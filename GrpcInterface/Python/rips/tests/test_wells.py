@@ -198,6 +198,7 @@ def test_10k_intersection_add_well_perforation_interval_with_valves(
 
     assert len(perf_interval.valves()) == 1
 
+
 def test_10k_intersection_add_well_perforation_interval_with_valves_2(
     rips_instance, initialize_test
 ):
@@ -258,7 +259,6 @@ def test_10k_intersection_add_well_perforation_interval_with_valves_2(
     assert valve.name == "5 SICDs: 2451 - 2459"
 
     assert len(perf_interval.valves()) == 1
-
 
 
 def test_10k_intersection_add_well_perforation_interval_with_invalid_valves(
