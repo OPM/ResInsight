@@ -142,6 +142,28 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
+class RimcWellEventTimeline_addKeywordEvent : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_addKeywordEvent( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>              m_eventDate;
+    caf::PdmField<QString>              m_wellName;
+    caf::PdmField<QString>              m_keywordName;
+    caf::PdmField<std::vector<QString>> m_itemNames;
+    caf::PdmField<std::vector<QString>> m_itemTypes;
+    caf::PdmField<std::vector<QString>> m_itemValues;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RimcWellEventTimeline_setTimestamp : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
