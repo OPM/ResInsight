@@ -321,6 +321,121 @@ TEST( RiaStdStringToolsTest, TestInvalidRangeStrings )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, ValuesFromRangeSelectionWithExclusion )
+{
+    {
+        // Test basic exclusion with single value
+        std::string   testString     = "4-5, 10";
+        std::set<int> expectedValues = { 4, 5, 10 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion with range
+        std::string   testString     = "1-10, !5-7";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 8, 9, 10 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion with single values
+        std::string   testString     = "1-10, !5, !7";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 6, 8, 9, 10 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion with spaces
+        std::string   testString     = "1-10,  !5-7";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 8, 9, 10 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion with step values
+        std::string   testString     = "1-10:2, !5";
+        std::set<int> expectedValues = { 1, 3, 7, 9 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion when value is not in the set
+        std::string   testString     = "1-5, !10";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 5 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test multiple exclusion ranges
+        std::string   testString     = "1-20, !3-5, !15-17";
+        std::set<int> expectedValues = { 1, 2, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, ValuesFromRangeSelectionWithExclusionMinMax )
+{
+    int minimumValue = 1;
+    int maximumValue = 20;
+
+    {
+        // Test exclusion with open ended ranges
+        std::string   testString     = "-10, !5-7";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 8, 9, 10 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString, minimumValue, maximumValue );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion with multiple ranges
+        std::string   testString     = "1-20, !5-7, !15-17";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString, minimumValue, maximumValue );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion with open-ended start range
+        std::string   testString     = "10-, !15-17";
+        std::set<int> expectedValues = { 10, 11, 12, 13, 14, 18, 19, 20 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString, minimumValue, maximumValue );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RiaStdStringToolsTest, TestToDouble )
 {
     {

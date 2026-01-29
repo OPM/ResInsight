@@ -387,12 +387,22 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s 
     try
     {
         std::set<int>      result;
+        std::set<int>      exclusions;
         std::istringstream stringStream( s );
         std::string        token;
 
         while ( std::getline( stringStream, token, ',' ) )
         {
             token = RiaStdStringTools::trimString( token );
+
+            // Check if this is an exclusion token
+            bool isExclusion = false;
+            if ( !token.empty() && token[0] == '!' )
+            {
+                isExclusion = true;
+                token       = token.substr( 1 ); // Remove the '!' prefix
+                token       = RiaStdStringTools::trimString( token );
+            }
 
             std::istringstream tokenStream( token );
             int                startIndex, endIndex;
@@ -421,14 +431,34 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s 
 
                     for ( int i = startIndex; i <= endIndex; i += step )
                     {
-                        result.insert( i );
+                        if ( isExclusion )
+                        {
+                            exclusions.insert( i );
+                        }
+                        else
+                        {
+                            result.insert( i );
+                        }
                     }
                 }
                 else
                 {
-                    result.insert( startIndex );
+                    if ( isExclusion )
+                    {
+                        exclusions.insert( startIndex );
+                    }
+                    else
+                    {
+                        result.insert( startIndex );
+                    }
                 }
             }
+        }
+
+        // Remove excluded values from result
+        for ( int excluded : exclusions )
+        {
+            result.erase( excluded );
         }
 
         return result;
@@ -457,12 +487,22 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
     try
     {
         std::set<int>     result;
+        std::set<int>     exclusions;
         std::stringstream stringStream( s );
         std::string       token;
 
         while ( std::getline( stringStream, token, ',' ) )
         {
             token = RiaStdStringTools::trimString( token );
+
+            // Check if this is an exclusion token
+            bool isExclusion = false;
+            if ( !token.empty() && token[0] == '!' )
+            {
+                isExclusion = true;
+                token       = token.substr( 1 ); // Remove the '!' prefix
+                token       = RiaStdStringTools::trimString( token );
+            }
 
             // Check for range
             size_t dashPos = token.find( '-' );
@@ -477,14 +517,34 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
                 }
                 for ( int i = startIndex; i <= endIndex; ++i )
                 {
-                    result.insert( i );
+                    if ( isExclusion )
+                    {
+                        exclusions.insert( i );
+                    }
+                    else
+                    {
+                        result.insert( i );
+                    }
                 }
             }
             else
             {
                 // Check for individual numbers
-                result.insert( std::stoi( token ) );
+                if ( isExclusion )
+                {
+                    exclusions.insert( std::stoi( token ) );
+                }
+                else
+                {
+                    result.insert( std::stoi( token ) );
+                }
             }
+        }
+
+        // Remove excluded values from result
+        for ( int excluded : exclusions )
+        {
+            result.erase( excluded );
         }
 
         return result;
