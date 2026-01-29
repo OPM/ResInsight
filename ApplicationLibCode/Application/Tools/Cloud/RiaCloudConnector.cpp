@@ -133,6 +133,16 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
 //--------------------------------------------------------------------------------------------------
 RiaCloudConnector::~RiaCloudConnector()
 {
+    // Disconnect all signals to prevent callbacks during destruction
+    if ( m_authCodeFlow )
+    {
+        m_authCodeFlow->disconnect();
+    }
+
+    if ( m_networkAccessManager )
+    {
+        m_networkAccessManager->disconnect();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

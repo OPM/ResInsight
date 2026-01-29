@@ -184,6 +184,12 @@ void RiaOpenTelemetryManager::shutdown()
         m_healthTimer->stop();
     }
 
+    // Disconnect network manager to prevent callbacks during shutdown
+    if ( m_networkAccessManager )
+    {
+        m_networkAccessManager->disconnect();
+    }
+
     // Flush pending events
     flushPendingEvents();
 

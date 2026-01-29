@@ -54,6 +54,17 @@ RiaOsduConnector::RiaOsduConnector( QObject*       parent,
 //--------------------------------------------------------------------------------------------------
 RiaOsduConnector::~RiaOsduConnector()
 {
+    // Abort all pending network replies to prevent threading issues during destruction
+    QMutexLocker lock( &m_repliesMutex );
+    for ( auto& [id, reply] : m_replies )
+    {
+        if ( !reply.isNull() )
+        {
+            reply->disconnect();
+            reply->abort();
+        }
+    }
+    m_replies.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
