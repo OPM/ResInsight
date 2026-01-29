@@ -431,6 +431,72 @@ TEST( RiaStdStringToolsTest, ValuesFromRangeSelectionWithExclusionMinMax )
 
         ASSERT_EQ( expectedValues, actualValues );
     }
+
+    {
+        // Test invalid open-ended exclusion ranges (should be ignored)
+        std::string   testString     = "1-20, !-5, !15-";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString, minimumValue, maximumValue );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, ValuesFromRangeSelectionEdgeCases )
+{
+    {
+        // Test empty exclusion token (should be ignored)
+        std::string   testString     = "1-10, !";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test empty exclusion token with spaces (should be ignored)
+        std::string   testString     = "1-10, !  ";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion-only input (should return empty set)
+        std::string   testString     = "!5-7";
+        std::set<int> expectedValues = {};
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test overlapping exclusions
+        std::string   testString     = "1-10, !3-7, !5-9";
+        std::set<int> expectedValues = { 1, 2, 10 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
+
+    {
+        // Test exclusion with step values in the exclusion range
+        std::string   testString     = "1-20, !5-15:2";
+        std::set<int> expectedValues = { 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 17, 18, 19, 20 };
+
+        auto actualValues = RiaStdStringTools::valuesFromRangeSelection( testString );
+
+        ASSERT_EQ( expectedValues, actualValues );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

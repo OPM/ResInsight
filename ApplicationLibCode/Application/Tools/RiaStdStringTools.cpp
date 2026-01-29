@@ -404,6 +404,9 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s 
                 token       = RiaStdStringTools::trimString( token );
             }
 
+            // Skip empty tokens
+            if ( token.empty() ) continue;
+
             std::istringstream tokenStream( token );
             int                startIndex, endIndex;
             char               dash, colon;
@@ -504,10 +507,19 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
                 token       = RiaStdStringTools::trimString( token );
             }
 
+            // Skip empty tokens
+            if ( token.empty() ) continue;
+
             // Check for range
             size_t dashPos = token.find( '-' );
             if ( dashPos != std::string::npos )
             {
+                // For exclusions, don't allow open-ended ranges
+                if ( isExclusion && ( dashPos == 0 || dashPos == token.size() - 1 ) )
+                {
+                    continue; // Skip invalid exclusion ranges
+                }
+
                 int startIndex = ( dashPos == 0 ) ? minVal : std::stoi( token.substr( 0, dashPos ) );
                 int endIndex   = ( dashPos == token.size() - 1 ) ? maxVal : std::stoi( token.substr( dashPos + 1 ) );
                 if ( startIndex > endIndex )
