@@ -3,6 +3,9 @@
 #include "cafAppEnum.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmValueField.h"
+
+#include <QVariant>
 
 // Define a test enum
 enum class TestEnumType
@@ -141,4 +144,39 @@ TEST( AppEnumTest, EnumSubsetNotSet )
     TestObject3 obj;
     auto        retrievedSubset = caf::AppEnum<TestEnumType>::enumSubset( &obj.m_enumField );
     EXPECT_TRUE( retrievedSubset.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test that AppEnum toQVariant returns the text value, not integer
+//--------------------------------------------------------------------------------------------------
+TEST( AppEnumTest, ToQVariantReturnsText )
+{
+    TestObject1 obj;
+
+    // Get the field as a PdmValueField
+    caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( obj.findField( "EnumField" ) );
+    ASSERT_NE( nullptr, valueField );
+
+    // Test VALUE_A
+    obj.m_enumField = TestEnumType::VALUE_A;
+    QVariant varA   = valueField->toQVariant();
+    EXPECT_EQ( QVariant::String, varA.type() );
+    EXPECT_EQ( QString( "VALUE_A" ), varA.toString() );
+
+    // Test VALUE_C
+    obj.m_enumField = TestEnumType::VALUE_C;
+    QVariant varC   = valueField->toQVariant();
+    EXPECT_EQ( QVariant::String, varC.type() );
+    EXPECT_EQ( QString( "VALUE_C" ), varC.toString() );
+
+    // Test VALUE_E
+    obj.m_enumField = TestEnumType::VALUE_E;
+    QVariant varE   = valueField->toQVariant();
+    EXPECT_EQ( QVariant::String, varE.type() );
+    EXPECT_EQ( QString( "VALUE_E" ), varE.toString() );
+
+    // Test round-trip: setFromQVariant should restore the enum value
+    QVariant textVariant( QString( "VALUE_B" ) );
+    valueField->setFromQVariant( textVariant );
+    EXPECT_EQ( TestEnumType::VALUE_B, obj.m_enumField() );
 }

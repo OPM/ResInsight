@@ -72,16 +72,11 @@ template <typename T>
 class PdmValueFieldSpecialization<caf::AppEnum<T>> : public PdmValueFieldSpecializationDefaults
 {
 public:
-    static QVariant convert( const caf::AppEnum<T>& value )
-    {
-        T enumValue = value;
-        // Explicit cast to an int before storage in a QVariant. This allows the use of enum class instead of enum
-        return QVariant( static_cast<int>( enumValue ) );
-    }
+    static QVariant convert( const caf::AppEnum<T>& value ) { return QVariant( value.text() ); }
 
     static void setFromVariant( const QVariant& variantValue, caf::AppEnum<T>& value )
     {
-        value = static_cast<T>( variantValue.toInt() );
+        value.setFromText( variantValue.toString() );
     }
 };
 
