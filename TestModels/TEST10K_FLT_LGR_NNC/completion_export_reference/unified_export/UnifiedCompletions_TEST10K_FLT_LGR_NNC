@@ -46,7 +46,7 @@
 -- WELL    GROUP          BHP    PHASE  DRAIN  INFLOW  OPEN  CROSS  PVT    HYDS  FIP 
 -- NAME    NAME   I   J   DEPTH  FLUID  AREA   EQUANS  SHUT  FLOW   TABLE  DENS  REGN
 WELSPECS
-   Well-1  1*     28  41  1*     OIL    0      STD     STOP  YES    0      SEG   0    /
+   Well-1  1*     28  41  1*     OIL    1*     STD     STOP  YES    0      SEG   0    /
 /
 -- WELL                         OPEN   SAT   CONN           WELL      KH             SKIN      D      DIR
 -- NAME     I    J    K1   K2   SHUT   TAB   FACT           DIA       FACT           FACT      FACT   PEN
