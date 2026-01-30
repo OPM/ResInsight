@@ -12,6 +12,7 @@ from datetime import date, datetime
 from .pdmobject import add_method
 from .resinsight_classes import Case
 from .generated.generated_classes import (
+    WellEventKeyword,
     WellEventTimeline,
 )
 
@@ -350,5 +351,7 @@ def generate_schedule_text(self, eclipse_case: Case) -> str:
     """
     container = self.generate_schedule(eclipse_case_id=eclipse_case.id)
     if container and container.values:
-        return container.values[0]
+        # Workaround: Concatenate all values in case the schedule text
+        # was split by comma parsing in the gRPC layer
+        return "".join(container.values)
     return ""
