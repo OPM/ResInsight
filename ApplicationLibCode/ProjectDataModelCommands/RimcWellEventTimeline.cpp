@@ -493,12 +493,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
         return std::unexpected( QString( "No events found in timeline" ) );
     }
 
-    // Get all well paths from the collection and generate schedule for all of them
-    std::vector<RimWellPath*> allWellPaths = wellPathCollection->descendantsOfType<RimWellPath>();
+    // Get only well paths that have events in the timeline
+    std::vector<RimWellPath*> wellPathsWithEvents = timeline->getWellPathsWithEvents();
 
-    if ( allWellPaths.empty() )
+    if ( wellPathsWithEvents.empty() )
     {
-        return std::unexpected( QString( "No well paths found in collection" ) );
+        return std::unexpected( QString( "No well paths with events found" ) );
     }
 
     RicScheduleDataGenerator::Options options;
@@ -507,7 +507,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
     options.includeWellControl = true;
     options.includeComments    = true;
 
-    QString scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, allWellPaths, dates, options );
+    QString scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, wellPathsWithEvents, dates, options );
 
     // Return the schedule text in a data container
     auto* dataObject           = new RimcDataContainerString();

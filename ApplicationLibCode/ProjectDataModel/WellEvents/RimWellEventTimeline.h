@@ -56,6 +56,7 @@ public:
     std::vector<RimWellEvent*> getEventsAtDate( const QDateTime& date ) const;
     std::vector<RimWellEvent*> getEventsByType( RimWellEvent::EventType type ) const;
     std::vector<RimWellEvent*> getEventsUpToDate( const QDateTime& date ) const;
+    std::vector<RimWellPath*>  getWellPathsWithEvents() const;
 
     // Add event methods (return the created event for further configuration)
     RimWellEventPerf*    addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );

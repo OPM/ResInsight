@@ -152,6 +152,24 @@ std::vector<RimWellEvent*> RimWellEventTimeline::getEventsUpToDate( const QDateT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellEventTimeline::getWellPathsWithEvents() const
+{
+    std::set<RimWellPath*> uniqueWellPaths;
+
+    for ( auto& event : m_events )
+    {
+        if ( event && event->wellPath() )
+        {
+            uniqueWellPaths.insert( event->wellPath() );
+        }
+    }
+
+    return std::vector<RimWellPath*>( uniqueWellPaths.begin(), uniqueWellPaths.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellEventPerf* RimWellEventTimeline::addPerforationEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventPerf();

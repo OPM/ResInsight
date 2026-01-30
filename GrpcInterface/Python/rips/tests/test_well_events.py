@@ -296,6 +296,7 @@ class TestScheduleGeneration:
         # Import well paths
         well_path_files = [
             case_root + "/wellpath_a.dev",
+            case_root + "/wellpath_b.dev",
         ]
         project.import_well_paths(well_path_files=well_path_files)
 
@@ -598,8 +599,30 @@ class TestScheduleGeneration:
         print(f"  - WELTARG entries: {schedule_text.count('WELTARG')}")
         print(f"  - WRFTPLT entries: {schedule_text.count('WRFTPLT')}")
 
-        # Verify well name appears in schedule
-        assert well_path.name in schedule_text, "Schedule should contain the well name"
+        # Verify well A appears in schedule (Eclipse format has no spaces)
+        # Eclipse well names typically don't have spaces, so check for both formats
+        well_name_in_schedule = well_path.name.replace(" ", "")
+        assert (
+            well_name_in_schedule in schedule_text or well_path.name in schedule_text
+        ), f"Schedule should contain well A name ({well_path.name} or {well_name_in_schedule})"
+
+        # Verify well B (index 1) does NOT appear in schedule
+        well_paths = project.well_paths()
+        well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
+
+        # Check that well B doesn't appear in either format (with or without spaces)
+        well_b_name_in_schedule = well_path_b.name.replace(" ", "")
+        assert (
+            well_b_name_in_schedule not in schedule_text
+            and well_path_b.name not in schedule_text
+        ), (
+            f"Schedule should NOT contain well B name ({well_path_b.name} or {well_b_name_in_schedule}) "
+            f"since no events were added for it"
+        )
+
+        print(
+            f"\n✓ Verified: Well B ({well_path_b.name}) correctly excluded from schedule"
+        )
 
     def test_schedule_contains_welsegs_keyword(self, project_with_case_and_well):
         """Verify WELSEGS keyword is generated for tubing events."""
@@ -623,7 +646,11 @@ class TestScheduleGeneration:
         assert (
             "WELSEGS" in schedule_text
         ), "Schedule should contain WELSEGS keyword for tubing events"
-        assert well_path.name in schedule_text, "Schedule should contain well name"
+        # Eclipse well names typically don't have spaces
+        well_name_no_spaces = well_path.name.replace(" ", "")
+        assert (
+            well_name_no_spaces in schedule_text or well_path.name in schedule_text
+        ), f"Schedule should contain well name ({well_path.name} or {well_name_no_spaces})"
 
     def test_schedule_contains_wsegvalv_keyword(self, project_with_case_and_well):
         """Verify WSEGVALV keyword is generated for valve events."""
@@ -782,6 +809,7 @@ class TestKeywordEvents:
         # Import well paths
         well_path_files = [
             case_root + "/wellpath_a.dev",
+            case_root + "/wellpath_b.dev",
         ]
         project.import_well_paths(well_path_files=well_path_files)
 
@@ -898,7 +926,11 @@ class TestKeywordEvents:
         # Verify the keyword event is in the output
         assert schedule_text, "Schedule text should not be empty"
         assert "WELTARG" in schedule_text, "Schedule should contain WELTARG keyword"
-        assert well_path.name in schedule_text, "Schedule should contain well name"
+        # Eclipse well names typically don't have spaces
+        well_name_no_spaces = well_path.name.replace(" ", "")
+        assert (
+            well_name_no_spaces in schedule_text or well_path.name in schedule_text
+        ), f"Schedule should contain well name ({well_path.name} or {well_name_no_spaces})"
 
     def test_keyword_event_schedule_output_multiple_keywords(
         self, project_with_case_and_well

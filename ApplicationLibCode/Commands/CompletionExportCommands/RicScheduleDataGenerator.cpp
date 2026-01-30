@@ -69,17 +69,17 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
     // List wells
     if ( options.includeComments )
     {
-        result += "-- Wells: ";
-        QStringList wellNames;
-        for ( const auto* well : wellPaths )
-        {
-            if ( well )
-            {
-                wellNames.append( well->name() );
-            }
-        }
-        result += wellNames.join( ", " );
-        result += "\n--\n\n";
+        // result += "-- Wells: ";
+        // QStringList wellNames;
+        // for ( const auto* well : wellPaths )
+        // {
+        //     if ( well )
+        //     {
+        //         wellNames.append( well->name() );
+        //     }
+        // }
+        // result += wellNames.join( ", " );
+        // result += "\n--\n\n";
     }
 
     // Generate section for each date
