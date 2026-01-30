@@ -41,7 +41,9 @@ RimWellEventKeywordItem::RimWellEventKeywordItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventKeywordItem::~RimWellEventKeywordItem() {}
+RimWellEventKeywordItem::~RimWellEventKeywordItem()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -96,7 +98,7 @@ void RimWellEventKeywordItem::setItemName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 void RimWellEventKeywordItem::setStringValue( const QString& value )
 {
-    m_itemType = ItemType::STRING;
+    m_itemType    = ItemType::STRING;
     m_stringValue = value;
 }
 
@@ -114,7 +116,7 @@ void RimWellEventKeywordItem::setIntValue( int value )
 //--------------------------------------------------------------------------------------------------
 void RimWellEventKeywordItem::setDoubleValue( double value )
 {
-    m_itemType = ItemType::DOUBLE;
+    m_itemType    = ItemType::DOUBLE;
     m_doubleValue = value;
 }
 
@@ -138,12 +140,12 @@ Opm::DeckItem RimWellEventKeywordItem::toDeckItem() const
 
 namespace caf
 {
-    template <>
-    void AppEnum<RimWellEventKeywordItem::ItemType>::setUp()
-    {
-        addItem( RimWellEventKeywordItem::ItemType::STRING, "STRING", "String" );
-        addItem( RimWellEventKeywordItem::ItemType::INTEGER, "INTEGER", "Integer" );
-        addItem( RimWellEventKeywordItem::ItemType::DOUBLE, "DOUBLE", "Double" );
-        setDefault( RimWellEventKeywordItem::ItemType::STRING );
-    }
+template <>
+void AppEnum<RimWellEventKeywordItem::ItemType>::setUp()
+{
+    addItem( RimWellEventKeywordItem::ItemType::STRING, "STRING", "String" );
+    addItem( RimWellEventKeywordItem::ItemType::INTEGER, "INTEGER", "Integer" );
+    addItem( RimWellEventKeywordItem::ItemType::DOUBLE, "DOUBLE", "Double" );
+    setDefault( RimWellEventKeywordItem::ItemType::STRING );
+}
 } // namespace caf

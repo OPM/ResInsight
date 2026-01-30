@@ -26,7 +26,7 @@
 
 namespace Opm
 {
-    class DeckKeyword;
+class DeckKeyword;
 }
 
 //==================================================================================================
@@ -44,7 +44,7 @@ public:
 
     // Keyword management
     QString keywordName() const;
-    void setKeywordName( const QString& keyword );
+    void    setKeywordName( const QString& keyword );
 
     // Item management
     void addStringItem( const QString& name, const QString& value );
@@ -64,6 +64,6 @@ protected:
 private:
     Opm::DeckKeyword toDeckKeyword() const;
 
-    caf::PdmField<QString>                                      m_keywordName;
-    caf::PdmChildArrayField<class RimWellEventKeywordItem*>   m_items;
+    caf::PdmField<QString>                                  m_keywordName;
+    caf::PdmChildArrayField<class RimWellEventKeywordItem*> m_items;
 };

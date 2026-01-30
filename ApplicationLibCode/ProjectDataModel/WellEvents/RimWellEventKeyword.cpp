@@ -18,19 +18,19 @@
 
 #include "RimWellEventKeyword.h"
 
-#include "RimWellEventKeywordItem.h"
 #include "RiaLogging.h"
+#include "RimWellEventKeywordItem.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include "opm/input/eclipse/Deck/DeckKeyword.hpp"
+#include "opm/input/eclipse/Deck/DeckOutput.hpp"
+#include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
-#include "opm/input/eclipse/Deck/DeckKeyword.hpp"
-#include "opm/input/eclipse/Deck/DeckRecord.hpp"
-#include "opm/input/eclipse/Deck/DeckOutput.hpp"
 
 #include <sstream>
 
@@ -52,7 +52,9 @@ RimWellEventKeyword::RimWellEventKeyword()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventKeyword::~RimWellEventKeyword() {}
+RimWellEventKeyword::~RimWellEventKeyword()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -124,15 +126,15 @@ std::vector<RimWellEventKeywordItem*> RimWellEventKeyword::items() const
 //--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword RimWellEventKeyword::toDeckKeyword() const
 {
-    QString     keyword    = m_keywordName().toUpper();
+    QString     keyword     = m_keywordName().toUpper();
     std::string keywordName = keyword.toStdString();
 
     // Generic approach - works for any OPM keyword
     try
     {
-        Opm::Parser parser; // Has all builtin keywords registered
+        Opm::Parser               parser; // Has all builtin keywords registered
         const Opm::ParserKeyword& parserKw = parser.getKeyword( keywordName );
-        Opm::DeckKeyword           kw( parserKw );
+        Opm::DeckKeyword          kw( parserKw );
 
         // Build items from stored data
         std::vector<Opm::DeckItem> deckItems;

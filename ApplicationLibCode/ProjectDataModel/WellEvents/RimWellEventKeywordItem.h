@@ -27,7 +27,7 @@
 
 namespace Opm
 {
-    class DeckItem;
+class DeckItem;
 }
 
 //==================================================================================================
@@ -51,11 +51,11 @@ public:
     ~RimWellEventKeywordItem() override;
 
     // Getters
-    QString itemName() const;
+    QString  itemName() const;
     ItemType itemType() const;
-    QString stringValue() const;
-    int intValue() const;
-    double doubleValue() const;
+    QString  stringValue() const;
+    int      intValue() const;
+    double   doubleValue() const;
 
     // Setters
     void setItemName( const QString& name );
@@ -67,15 +67,15 @@ public:
     Opm::DeckItem toDeckItem() const;
 
 private:
-    caf::PdmField<QString>                    m_itemName;
-    caf::PdmField<caf::AppEnum<ItemType>>    m_itemType;
-    caf::PdmField<QString>                    m_stringValue;
-    caf::PdmField<int>                        m_intValue;
-    caf::PdmField<double>                     m_doubleValue;
+    caf::PdmField<QString>                m_itemName;
+    caf::PdmField<caf::AppEnum<ItemType>> m_itemType;
+    caf::PdmField<QString>                m_stringValue;
+    caf::PdmField<int>                    m_intValue;
+    caf::PdmField<double>                 m_doubleValue;
 };
 
 namespace caf
 {
-    template <>
-    void caf::AppEnum<RimWellEventKeywordItem::ItemType>::setUp();
+template <>
+void caf::AppEnum<RimWellEventKeywordItem::ItemType>::setUp();
 } // namespace caf
