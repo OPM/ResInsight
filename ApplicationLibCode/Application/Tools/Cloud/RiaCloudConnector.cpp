@@ -30,7 +30,9 @@
 #include <QLabel>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QProcessEnvironment>
 #include <QPushButton>
+#include <QSslConfiguration>
 #include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
@@ -51,6 +53,54 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
     , m_scopes( scopes )
     , m_clientId( clientId )
 {
+    // Workaround for OpenSSL 3.x crash on RHEL8: The x25519 key generation in TLS 1.3
+    // can crash due to thread-local storage issues. Using TLS 1.2 avoids this issue.
+    // Must be set before creating network manager.
+    // The SSL protocol can be configured via RESINSIGHT_SSL_PROTOCOL environment variable.
+    // Valid values: TlsV1_0, TlsV1_0OrLater, TlsV1_1, TlsV1_1OrLater, TlsV1_2, TlsV1_2OrLater,
+    //               TlsV1_3, TlsV1_3OrLater, AnyProtocol, SecureProtocols
+    QString sslProtocolEnv = QProcessEnvironment::systemEnvironment().value( "RESINSIGHT_SSL_PROTOCOL" );
+    if ( !sslProtocolEnv.isEmpty() )
+    {
+        QSsl::SslProtocol protocol    = QSsl::SecureProtocols;
+        bool              validOption = true;
+
+        if ( sslProtocolEnv == "TlsV1_0" )
+            protocol = QSsl::TlsV1_0;
+        else if ( sslProtocolEnv == "TlsV1_0OrLater" )
+            protocol = QSsl::TlsV1_0OrLater;
+        else if ( sslProtocolEnv == "TlsV1_1" )
+            protocol = QSsl::TlsV1_1;
+        else if ( sslProtocolEnv == "TlsV1_1OrLater" )
+            protocol = QSsl::TlsV1_1OrLater;
+        else if ( sslProtocolEnv == "TlsV1_2" )
+            protocol = QSsl::TlsV1_2;
+        else if ( sslProtocolEnv == "TlsV1_2OrLater" )
+            protocol = QSsl::TlsV1_2OrLater;
+        else if ( sslProtocolEnv == "TlsV1_3" )
+            protocol = QSsl::TlsV1_3;
+        else if ( sslProtocolEnv == "TlsV1_3OrLater" )
+            protocol = QSsl::TlsV1_3OrLater;
+        else if ( sslProtocolEnv == "AnyProtocol" )
+            protocol = QSsl::AnyProtocol;
+        else if ( sslProtocolEnv == "SecureProtocols" )
+            protocol = QSsl::SecureProtocols;
+        else
+            validOption = false;
+
+        if ( validOption )
+        {
+            RiaLogging::info( QString( "Setting SSL protocol to %1 (from RESINSIGHT_SSL_PROTOCOL)" ).arg( sslProtocolEnv ) );
+            QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+            sslConfig.setProtocol( protocol );
+            QSslConfiguration::setDefaultConfiguration( sslConfig );
+        }
+        else
+        {
+            RiaLogging::warning( QString( "Invalid RESINSIGHT_SSL_PROTOCOL value: %1" ).arg( sslProtocolEnv ) );
+        }
+    }
+
     m_authCodeFlow         = new QOAuth2AuthorizationCodeFlow( this );
     m_networkAccessManager = new QNetworkAccessManager( this );
     m_authCodeFlow->setNetworkAccessManager( m_networkAccessManager );
