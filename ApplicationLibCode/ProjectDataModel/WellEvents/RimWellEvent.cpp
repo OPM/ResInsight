@@ -18,6 +18,8 @@
 
 #include "RimWellEvent.h"
 
+#include "RimWellPath.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDateEditor.h"
@@ -32,7 +34,7 @@ RimWellEvent::RimWellEvent()
     CAF_PDM_InitScriptableObject( "Well Event", "", "", "WellEvent" );
 
     CAF_PDM_InitField( &m_eventDate, "EventDate", QDateTime(), "Event Date" );
-    CAF_PDM_InitScriptableField( &m_wellName, "WellName", QString(), "Well Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,17 +63,29 @@ void RimWellEvent::setEventDate( const QDateTime& date )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellEvent::wellName() const
+RimWellPath* RimWellEvent::wellPath() const
 {
-    return m_wellName();
+    return m_wellPath();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellEvent::setWellName( const QString& wellName )
+void RimWellEvent::setWellPath( RimWellPath* wellPath )
 {
-    m_wellName = wellName;
+    m_wellPath = wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellEvent::wellName() const
+{
+    if ( m_wellPath() )
+    {
+        return m_wellPath()->name();
+    }
+    return QString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +93,6 @@ void RimWellEvent::setWellName( const QString& wellName )
 //--------------------------------------------------------------------------------------------------
 void RimWellEvent::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_wellName );
+    uiOrdering.add( &m_wellPath );
     uiOrdering.add( &m_eventDate );
 }

@@ -58,13 +58,13 @@ public:
     std::vector<RimWellEvent*> getEventsUpToDate( const QDateTime& date ) const;
 
     // Add event methods (return the created event for further configuration)
-    RimWellEventPerf*    addPerforationEvent( const QString& wellName, const QDateTime& date );
-    RimWellEventValve*   addValveEvent( const QString& wellName, const QDateTime& date );
-    RimWellEventTubing*  addTubingEvent( const QString& wellName, const QDateTime& date );
-    RimWellEventState*   addStateEvent( const QString& wellName, const QDateTime& date );
-    RimWellEventType*    addTypeEvent( const QString& wellName, const QDateTime& date );
-    RimWellEventControl* addControlEvent( const QString& wellName, const QDateTime& date );
-    RimWellEventKeyword* addKeywordEvent( const QString& wellName, const QDateTime& date, const QString& keywordName );
+    RimWellEventPerf*    addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventValve*   addValveEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventTubing*  addTubingEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventState*   addStateEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventType*    addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventControl* addControlEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventKeyword* addKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
 
     // Generic add event method
     void addEvent( RimWellEvent* event );

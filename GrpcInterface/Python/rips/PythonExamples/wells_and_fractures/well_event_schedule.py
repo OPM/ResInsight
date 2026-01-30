@@ -45,7 +45,7 @@ def main():
     # Add tubing event (installed early)
     _tubing_event = timeline.add_tubing_event(
         event_date="2024-01-01",
-        well_name=well_path.name,
+        well_path=well_path,
         start_md=0.0,
         end_md=2500.0,
         inner_diameter=0.15,
@@ -56,7 +56,7 @@ def main():
     # Add first perforation event
     _perf_event1 = timeline.add_perf_event(
         event_date="2024-02-01",
-        well_name=well_path.name,
+        well_path=well_path,
         start_md=2000.0,
         end_md=2200.0,
         diameter=0.1,
@@ -68,7 +68,7 @@ def main():
     # Add second perforation event (later)
     _perf_event2 = timeline.add_perf_event(
         event_date="2024-04-01",
-        well_name=well_path.name,
+        well_path=well_path,
         start_md=2400.0,
         end_md=2600.0,
         diameter=0.1,
@@ -80,7 +80,7 @@ def main():
     # Add valve event (requires existing perforation)
     _valve_event = timeline.add_valve_event(
         event_date="2024-03-01",
-        well_name=well_path.name,
+        well_path=well_path,
         measured_depth=2100.0,
         valve_type="ICV",
         state="OPEN",
@@ -92,7 +92,7 @@ def main():
     # Add state events (for documentation, not applied to completions)
     _state_event = timeline.add_state_event(
         event_date="2024-02-15",
-        well_name=well_path.name,
+        well_path=well_path,
         well_state="OPEN",
     )
     print("   Added state event on 2024-02-15 (OPEN)")
