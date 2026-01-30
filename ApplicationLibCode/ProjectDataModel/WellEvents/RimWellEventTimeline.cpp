@@ -170,6 +170,32 @@ std::vector<RimWellPath*> RimWellEventTimeline::getWellPathsWithEvents() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellEventTimeline::getWellPathsWithEventsUpToDate( const QDateTime& date ) const
+{
+    std::set<RimWellPath*> uniqueWellPaths;
+
+    for ( auto& event : m_events )
+    {
+        if ( event && event->wellPath() && event->eventDate().isValid() && event->eventDate() <= date )
+        {
+            uniqueWellPaths.insert( event->wellPath() );
+        }
+    }
+
+    return std::vector<RimWellPath*>( uniqueWellPaths.begin(), uniqueWellPaths.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RimWellEventTimeline::lastAppliedTimestamp() const
+{
+    return m_lastAppliedTimestamp;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellEventPerf* RimWellEventTimeline::addPerforationEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventPerf();
@@ -303,6 +329,9 @@ size_t RimWellEventTimeline::eventCount() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellEventTimeline::applyEventsUpToDate( const QDateTime& date )
 {
+    // Store the timestamp for later use in schedule generation
+    m_lastAppliedTimestamp = date;
+
     // Get events up to the specified date (already sorted by date)
     std::vector<RimWellEvent*> eventsToApply = getEventsUpToDate( date );
 

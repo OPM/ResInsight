@@ -57,6 +57,7 @@ public:
     std::vector<RimWellEvent*> getEventsByType( RimWellEvent::EventType type ) const;
     std::vector<RimWellEvent*> getEventsUpToDate( const QDateTime& date ) const;
     std::vector<RimWellPath*>  getWellPathsWithEvents() const;
+    std::vector<RimWellPath*>  getWellPathsWithEventsUpToDate( const QDateTime& date ) const;
 
     // Add event methods (return the created event for further configuration)
     RimWellEventPerf*    addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );
@@ -82,6 +83,9 @@ public:
     // Apply events up to a given date (creates actual completions from event data)
     bool applyEventsUpToDate( const QDateTime& date );
 
+    // Get the last applied timestamp (returns invalid QDateTime if no timestamp was set)
+    QDateTime lastAppliedTimestamp() const;
+
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
@@ -91,4 +95,5 @@ private:
     bool applyValveEvent( RimWellEventValve* event, RimWellPath* wellPath );
 
     caf::PdmChildArrayField<RimWellEvent*> m_events;
+    QDateTime                              m_lastAppliedTimestamp;
 };

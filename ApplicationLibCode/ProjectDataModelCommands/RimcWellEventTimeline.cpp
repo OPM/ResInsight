@@ -38,6 +38,8 @@
 
 #include <QDateTime>
 
+#include <algorithm>
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addPerfEvent, "AddPerfEvent" );
 
 //--------------------------------------------------------------------------------------------------
@@ -486,15 +488,36 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
         return std::unexpected( QString( "Eclipse case with ID %1 not found" ).arg( m_eclipseCaseId() ) );
     }
 
-    // Collect all dates from this timeline
-    std::vector<QDateTime> dates = timeline->getAllEventDates();
+    // Get the last applied timestamp (from set_timestamp call)
+    QDateTime lastTimestamp = timeline->lastAppliedTimestamp();
+
+    // If no timestamp was set, use all events
+    std::vector<QDateTime> dates;
+    std::vector<RimWellPath*> wellPathsWithEvents;
+
+    if ( lastTimestamp.isValid() )
+    {
+        // Filter to only include dates up to the last applied timestamp
+        dates = timeline->getAllEventDates();
+        dates.erase( std::remove_if( dates.begin(),
+                                     dates.end(),
+                                     [&lastTimestamp]( const QDateTime& date ) { return date > lastTimestamp; } ),
+                     dates.end() );
+
+        // Get only well paths that have events up to the last applied timestamp
+        wellPathsWithEvents = timeline->getWellPathsWithEventsUpToDate( lastTimestamp );
+    }
+    else
+    {
+        // No timestamp set - include all events and wells
+        dates               = timeline->getAllEventDates();
+        wellPathsWithEvents = timeline->getWellPathsWithEvents();
+    }
+
     if ( dates.empty() )
     {
         return std::unexpected( QString( "No events found in timeline" ) );
     }
-
-    // Get only well paths that have events in the timeline
-    std::vector<RimWellPath*> wellPathsWithEvents = timeline->getWellPathsWithEvents();
 
     if ( wellPathsWithEvents.empty() )
     {
