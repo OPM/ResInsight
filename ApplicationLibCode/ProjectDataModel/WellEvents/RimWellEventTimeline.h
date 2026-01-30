@@ -64,7 +64,7 @@ public:
     RimWellEventState*   addStateEvent( RimWellPath* wellPath, const QDateTime& date );
     RimWellEventType*    addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
     RimWellEventControl* addControlEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventKeyword* addKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
+    RimWellEventKeyword* addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
 
     // Generic add event method
     void addEvent( RimWellEvent* event );
