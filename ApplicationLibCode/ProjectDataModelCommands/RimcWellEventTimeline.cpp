@@ -492,16 +492,14 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
     QDateTime lastTimestamp = timeline->lastAppliedTimestamp();
 
     // If no timestamp was set, use all events
-    std::vector<QDateTime> dates;
+    std::vector<QDateTime>    dates;
     std::vector<RimWellPath*> wellPathsWithEvents;
 
     if ( lastTimestamp.isValid() )
     {
         // Filter to only include dates up to the last applied timestamp
         dates = timeline->getAllEventDates();
-        dates.erase( std::remove_if( dates.begin(),
-                                     dates.end(),
-                                     [&lastTimestamp]( const QDateTime& date ) { return date > lastTimestamp; } ),
+        dates.erase( std::remove_if( dates.begin(), dates.end(), [&lastTimestamp]( const QDateTime& date ) { return date > lastTimestamp; } ),
                      dates.end() );
 
         // Get only well paths that have events up to the last applied timestamp
