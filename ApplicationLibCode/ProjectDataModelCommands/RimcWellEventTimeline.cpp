@@ -32,6 +32,7 @@
 #include "RimWellPathCollection.h"
 #include "RimcDataContainerString.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -53,7 +54,8 @@ RimcWellEventTimeline_addPerfEvent::RimcWellEventTimeline_addPerfEvent( caf::Pdm
     CAF_PDM_InitScriptableField( &m_endMd, "EndMd", 0.0, "", "", "", "End Measured Depth" );
     CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.216, "", "", "", "Diameter [m]" );
     CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "", "", "", "Skin Factor" );
-    CAF_PDM_InitScriptableField( &m_state, "State", QString( "OPEN" ), "", "", "", "State (OPEN/SHUT)" );
+    auto defaultState = RimWellEventPerf::State::OPEN;
+    CAF_PDM_InitScriptableField( &m_state, "State", defaultState, "", "", "", "State" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,15 +81,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addPerfEvent
     event->setEndMD( m_endMd() );
     event->setDiameter( m_diameter() );
     event->setSkinFactor( m_skinFactor() );
-
-    if ( m_state().toUpper() == "SHUT" )
-    {
-        event->setState( RimWellEventPerf::State::SHUT );
-    }
-    else
-    {
-        event->setState( RimWellEventPerf::State::OPEN );
-    }
+    event->setState( m_state() );
 
     return event;
 }
@@ -113,8 +107,10 @@ RimcWellEventTimeline_addValveEvent::RimcWellEventTimeline_addValveEvent( caf::P
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableField( &m_measuredDepth, "MeasuredDepth", 0.0, "", "", "", "Measured Depth" );
-    CAF_PDM_InitScriptableField( &m_valveType, "ValveType", QString( "ICV" ), "", "", "", "Valve Type (ICV/ICD/AICD)" );
-    CAF_PDM_InitScriptableField( &m_state, "State", QString( "OPEN" ), "", "", "", "State (OPEN/SHUT)" );
+    auto defaultValveType = RimWellEventValve::ValveType::ICV;
+    CAF_PDM_InitScriptableField( &m_valveType, "ValveType", defaultValveType, "", "", "", "Valve Type" );
+    auto defaultState = RimWellEventValve::State::OPEN;
+    CAF_PDM_InitScriptableField( &m_state, "State", defaultState, "", "", "", "State" );
     CAF_PDM_InitScriptableField( &m_flowCoefficient, "FlowCoefficient", 0.7, "", "", "", "Flow Coefficient" );
     CAF_PDM_InitScriptableField( &m_area, "Area", 0.0001, "", "", "", "Area [m2]" );
 }
@@ -141,29 +137,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addValveEven
     event->setMeasuredDepth( m_measuredDepth() );
     event->setFlowCoefficient( m_flowCoefficient() );
     event->setArea( m_area() );
-
-    QString valveTypeUpper = m_valveType().toUpper();
-    if ( valveTypeUpper == "ICD" )
-    {
-        event->setValveType( RimWellEventValve::ValveType::ICD );
-    }
-    else if ( valveTypeUpper == "AICD" )
-    {
-        event->setValveType( RimWellEventValve::ValveType::AICD );
-    }
-    else
-    {
-        event->setValveType( RimWellEventValve::ValveType::ICV );
-    }
-
-    if ( m_state().toUpper() == "SHUT" )
-    {
-        event->setState( RimWellEventValve::State::SHUT );
-    }
-    else
-    {
-        event->setState( RimWellEventValve::State::OPEN );
-    }
+    event->setValveType( m_valveType() );
+    event->setState( m_state() );
 
     return event;
 }
@@ -188,7 +163,8 @@ RimcWellEventTimeline_addStateEvent::RimcWellEventTimeline_addStateEvent( caf::P
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
-    CAF_PDM_InitScriptableField( &m_wellState, "WellState", QString( "OPEN" ), "", "", "", "Well State (OPEN/SHUT/STOP)" );
+    auto defaultWellState = RimWellEventState::WellState::OPEN;
+    CAF_PDM_InitScriptableField( &m_wellState, "WellState", defaultWellState, "", "", "", "Well State" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,20 +186,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addStateEven
     }
 
     auto* event = timeline->addStateEvent( m_wellPath(), date );
-
-    QString stateUpper = m_wellState().toUpper();
-    if ( stateUpper == "SHUT" )
-    {
-        event->setWellState( RimWellEventState::WellState::SHUT );
-    }
-    else if ( stateUpper == "STOP" )
-    {
-        event->setWellState( RimWellEventState::WellState::STOP );
-    }
-    else
-    {
-        event->setWellState( RimWellEventState::WellState::OPEN );
-    }
+    event->setWellState( m_wellState() );
 
     return event;
 }
@@ -248,7 +211,8 @@ RimcWellEventTimeline_addControlEvent::RimcWellEventTimeline_addControlEvent( ca
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
-    CAF_PDM_InitScriptableField( &m_controlMode, "ControlMode", QString( "ORAT" ), "", "", "", "Control Mode (ORAT/WRAT/GRAT/LRAT/BHP/THP)" );
+    auto defaultControlMode = RimWellEventControl::ControlMode::ORAT;
+    CAF_PDM_InitScriptableField( &m_controlMode, "ControlMode", defaultControlMode, "", "", "", "Control Mode" );
     CAF_PDM_InitScriptableField( &m_controlValue, "ControlValue", 0.0, "", "", "", "Control Value" );
     CAF_PDM_InitScriptableField( &m_bhpLimit, "BhpLimit", 0.0, "", "", "", "BHP Limit [bar]" );
     CAF_PDM_InitScriptableField( &m_oilRate, "OilRate", 0.0, "", "", "", "Oil Rate [Sm3/day]" );
@@ -282,36 +246,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addControlEv
     event->setWaterRate( m_waterRate() );
     event->setGasRate( m_gasRate() );
     event->setIsProducer( m_isProducer() );
-
-    QString modeUpper = m_controlMode().toUpper();
-    if ( modeUpper == "WRAT" )
-    {
-        event->setControlMode( RimWellEventControl::ControlMode::WRAT );
-    }
-    else if ( modeUpper == "GRAT" )
-    {
-        event->setControlMode( RimWellEventControl::ControlMode::GRAT );
-    }
-    else if ( modeUpper == "LRAT" )
-    {
-        event->setControlMode( RimWellEventControl::ControlMode::LRAT );
-    }
-    else if ( modeUpper == "BHP" )
-    {
-        event->setControlMode( RimWellEventControl::ControlMode::BHP );
-    }
-    else if ( modeUpper == "THP" )
-    {
-        event->setControlMode( RimWellEventControl::ControlMode::THP );
-    }
-    else if ( modeUpper == "RESV" )
-    {
-        event->setControlMode( RimWellEventControl::ControlMode::RESV );
-    }
-    else
-    {
-        event->setControlMode( RimWellEventControl::ControlMode::ORAT );
-    }
+    event->setControlMode( m_controlMode() );
 
     return event;
 }

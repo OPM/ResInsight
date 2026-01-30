@@ -18,8 +18,13 @@
 
 #pragma once
 
+#include "RimWellEventControl.h"
+#include "RimWellEventPerf.h"
+#include "RimWellEventState.h"
 #include "RimWellEventTimeline.h"
+#include "RimWellEventValve.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectMethod.h"
 #include "cafPdmPtrField.h"
@@ -43,13 +48,13 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString>      m_eventDate;
-    caf::PdmPtrField<RimWellPath*> m_wellPath;
-    caf::PdmField<double>       m_startMd;
-    caf::PdmField<double>       m_endMd;
-    caf::PdmField<double>       m_diameter;
-    caf::PdmField<double>       m_skinFactor;
-    caf::PdmField<QString>      m_state;
+    caf::PdmField<QString>                               m_eventDate;
+    caf::PdmPtrField<RimWellPath*>                       m_wellPath;
+    caf::PdmField<double>                                m_startMd;
+    caf::PdmField<double>                                m_endMd;
+    caf::PdmField<double>                                m_diameter;
+    caf::PdmField<double>                                m_skinFactor;
+    caf::PdmField<caf::AppEnum<RimWellEventPerf::State>> m_state;
 };
 
 //==================================================================================================
@@ -66,13 +71,13 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString>      m_eventDate;
-    caf::PdmPtrField<RimWellPath*> m_wellPath;
-    caf::PdmField<double>       m_measuredDepth;
-    caf::PdmField<QString>      m_valveType;
-    caf::PdmField<QString>      m_state;
-    caf::PdmField<double>       m_flowCoefficient;
-    caf::PdmField<double>       m_area;
+    caf::PdmField<QString>                                    m_eventDate;
+    caf::PdmPtrField<RimWellPath*>                            m_wellPath;
+    caf::PdmField<double>                                     m_measuredDepth;
+    caf::PdmField<caf::AppEnum<RimWellEventValve::ValveType>> m_valveType;
+    caf::PdmField<caf::AppEnum<RimWellEventValve::State>>     m_state;
+    caf::PdmField<double>                                     m_flowCoefficient;
+    caf::PdmField<double>                                     m_area;
 };
 
 //==================================================================================================
@@ -89,9 +94,9 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString>      m_eventDate;
-    caf::PdmPtrField<RimWellPath*> m_wellPath;
-    caf::PdmField<QString>      m_wellState;
+    caf::PdmField<QString>                                    m_eventDate;
+    caf::PdmPtrField<RimWellPath*>                            m_wellPath;
+    caf::PdmField<caf::AppEnum<RimWellEventState::WellState>> m_wellState;
 };
 
 //==================================================================================================
@@ -108,15 +113,15 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString>      m_eventDate;
-    caf::PdmPtrField<RimWellPath*> m_wellPath;
-    caf::PdmField<QString>      m_controlMode;
-    caf::PdmField<double>       m_controlValue;
-    caf::PdmField<double>       m_bhpLimit;
-    caf::PdmField<double>       m_oilRate;
-    caf::PdmField<double>       m_waterRate;
-    caf::PdmField<double>       m_gasRate;
-    caf::PdmField<bool>         m_isProducer;
+    caf::PdmField<QString>                                        m_eventDate;
+    caf::PdmPtrField<RimWellPath*>                                m_wellPath;
+    caf::PdmField<caf::AppEnum<RimWellEventControl::ControlMode>> m_controlMode;
+    caf::PdmField<double>                                         m_controlValue;
+    caf::PdmField<double>                                         m_bhpLimit;
+    caf::PdmField<double>                                         m_oilRate;
+    caf::PdmField<double>                                         m_waterRate;
+    caf::PdmField<double>                                         m_gasRate;
+    caf::PdmField<bool>                                           m_isProducer;
 };
 
 //==================================================================================================
@@ -133,12 +138,12 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString>      m_eventDate;
+    caf::PdmField<QString>         m_eventDate;
     caf::PdmPtrField<RimWellPath*> m_wellPath;
-    caf::PdmField<double>       m_startMd;
-    caf::PdmField<double>       m_endMd;
-    caf::PdmField<double>       m_innerDiameter;
-    caf::PdmField<double>       m_roughness;
+    caf::PdmField<double>          m_startMd;
+    caf::PdmField<double>          m_endMd;
+    caf::PdmField<double>          m_innerDiameter;
+    caf::PdmField<double>          m_roughness;
 };
 
 //==================================================================================================
@@ -156,7 +161,7 @@ public:
 
 private:
     caf::PdmField<QString>              m_eventDate;
-    caf::PdmPtrField<RimWellPath*>         m_wellPath;
+    caf::PdmPtrField<RimWellPath*>      m_wellPath;
     caf::PdmField<QString>              m_keywordName;
     caf::PdmField<std::vector<QString>> m_itemNames;
     caf::PdmField<std::vector<QString>> m_itemTypes;
