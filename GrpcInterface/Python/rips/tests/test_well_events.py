@@ -497,7 +497,7 @@ class TestScheduleGeneration:
         )
 
         # Add keyword events - should be included in schedule
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-01-15",
             well_path=well_path,
             keyword_name="WCONHIST",
@@ -512,7 +512,7 @@ class TestScheduleGeneration:
             },
         )
 
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-05-01",
             well_path=well_path,
             keyword_name="WELTARG",
@@ -523,7 +523,7 @@ class TestScheduleGeneration:
             },
         )
 
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-06-01",
             well_path=well_path,
             keyword_name="WRFTPLT",
@@ -789,13 +789,13 @@ class TestKeywordEvents:
 
         return project, case, well_path_coll.event_timeline()
 
-    def test_add_keyword_event_wconhist(self, project_with_case_and_well):
+    def test_add_well_keyword_event_wconhist(self, project_with_case_and_well):
         """Test adding a WCONHIST keyword event."""
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
         # Create a WCONHIST event
-        event = timeline.add_keyword_event(
+        event = timeline.add_well_keyword_event(
             event_date="2024-01-01",
             well_path=well_path,
             keyword_name="WCONHIST",
@@ -812,13 +812,13 @@ class TestKeywordEvents:
 
         assert event is not None, "Keyword event should be created"
 
-    def test_add_keyword_event_weltarg(self, project_with_case_and_well):
+    def test_add_well_keyword_event_weltarg(self, project_with_case_and_well):
         """Test adding a WELTARG keyword event."""
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
         # Create a WELTARG event
-        event = timeline.add_keyword_event(
+        event = timeline.add_well_keyword_event(
             event_date="2024-05-01",
             well_path=well_path,
             keyword_name="WELTARG",
@@ -831,13 +831,13 @@ class TestKeywordEvents:
 
         assert event is not None, "Keyword event should be created"
 
-    def test_add_keyword_event_wrftplt(self, project_with_case_and_well):
+    def test_add_well_keyword_event_wrftplt(self, project_with_case_and_well):
         """Test adding a WRFTPLT keyword event."""
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
         # Create a WRFTPLT event
-        event = timeline.add_keyword_event(
+        event = timeline.add_well_keyword_event(
             event_date="2024-06-01",
             well_path=well_path,
             keyword_name="WRFTPLT",
@@ -852,12 +852,12 @@ class TestKeywordEvents:
         assert event is not None, "Keyword event should be created"
 
     def test_keyword_event_type_inference(self, project_with_case_and_well):
-        """Test that add_keyword_event correctly infers types from Python values."""
+        """Test that add_well_keyword_event correctly infers types from Python values."""
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
         # Create event with mixed types: str, int, float, bool
-        event = timeline.add_keyword_event(
+        event = timeline.add_well_keyword_event(
             event_date="2024-03-15",
             well_path=well_path,
             keyword_name="WCONHIST",
@@ -879,7 +879,7 @@ class TestKeywordEvents:
         well_path = project.well_paths()[0]
 
         # Add a WELTARG keyword event
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-05-01",
             well_path=well_path,
             keyword_name="WELTARG",
@@ -908,7 +908,7 @@ class TestKeywordEvents:
         well_path = project.well_paths()[0]
 
         # Add WCONHIST event
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-01-15",
             well_path=well_path,
             keyword_name="WCONHIST",
@@ -923,7 +923,7 @@ class TestKeywordEvents:
         )
 
         # Add WELTARG event
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-05-01",
             well_path=well_path,
             keyword_name="WELTARG",
@@ -935,7 +935,7 @@ class TestKeywordEvents:
         )
 
         # Add WRFTPLT event
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-06-01",
             well_path=well_path,
             keyword_name="WRFTPLT",
@@ -965,7 +965,7 @@ class TestKeywordEvents:
 
         # Try to create a keyword event with an unsupported type (list)
         with pytest.raises(TypeError) as exc_info:
-            timeline.add_keyword_event(
+            timeline.add_well_keyword_event(
                 event_date="2024-01-01",
                 well_path=well_path,
                 keyword_name="WCONHIST",
@@ -1004,7 +1004,7 @@ class TestKeywordEvents:
         )
 
         # Add keyword event
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-03-01",
             well_path=well_path,
             keyword_name="WELTARG",
@@ -1046,7 +1046,7 @@ class TestKeywordEvents:
         )
 
         # Add keyword event
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-02-01",
             well_path=well_path,
             keyword_name="WRFTPLT",
@@ -1079,7 +1079,7 @@ class TestKeywordEvents:
         well_path = project.well_paths()[0]
 
         # Add keyword events in reverse chronological order
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-06-01",
             well_path=well_path,
             keyword_name="WRFTPLT",
@@ -1089,7 +1089,7 @@ class TestKeywordEvents:
             },
         )
 
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-03-01",
             well_path=well_path,
             keyword_name="WELTARG",
@@ -1100,7 +1100,7 @@ class TestKeywordEvents:
             },
         )
 
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2024-01-01",
             well_path=well_path,
             keyword_name="WCONHIST",
@@ -1139,7 +1139,7 @@ class TestKeywordEvents:
         well_path = project.well_paths()[0]
 
         # Create event with bool values (should be converted to INT 1/0)
-        event = timeline.add_keyword_event(
+        event = timeline.add_well_keyword_event(
             event_date="2024-04-01",
             well_path=well_path,
             keyword_name="WRFTPLT",

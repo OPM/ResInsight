@@ -149,12 +149,12 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellEventTimeline_addKeywordEvent : public caf::PdmObjectCreationMethod
+class RimcWellEventTimeline_addWellKeywordEvent : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcWellEventTimeline_addKeywordEvent( caf::PdmObjectHandle* self );
+    RimcWellEventTimeline_addWellKeywordEvent( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;

@@ -230,7 +230,7 @@ RimWellEventControl* RimWellEventTimeline::addControlEvent( RimWellPath* wellPat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventKeyword* RimWellEventTimeline::addKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName )
+RimWellEventKeyword* RimWellEventTimeline::addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName )
 {
     auto* event = new RimWellEventKeyword();
     event->setWellPath( wellPath );

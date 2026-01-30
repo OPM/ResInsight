@@ -101,7 +101,7 @@ def main():
     print("\n   Adding well keyword events...")
 
     # Example 1: WCONHIST - Historical production data
-    _wconhist_event = timeline.add_keyword_event(
+    _wconhist_event = timeline.add_well_keyword_event(
         event_date="2024-01-15",
         well_path=well_path,
         keyword_name="WCONHIST",
@@ -120,7 +120,7 @@ def main():
     )
 
     # Example 2: WELTARG - Well target change
-    _weltarg_event = timeline.add_keyword_event(
+    _weltarg_event = timeline.add_well_keyword_event(
         event_date="2024-05-01",
         well_path=well_path,
         keyword_name="WELTARG",
@@ -133,7 +133,7 @@ def main():
     print("   Added WELTARG event on 2024-05-01 (well target change)")
 
     # Example 3: WRFTPLT - RFT/PLT output control
-    _wrftplt_event = timeline.add_keyword_event(
+    _wrftplt_event = timeline.add_well_keyword_event(
         event_date="2024-06-01",
         well_path=well_path,
         keyword_name="WRFTPLT",
@@ -273,7 +273,7 @@ def main():
         "- timeline.add_tubing_event(event_date='2024-01-01', well_name='WellA', ...)"
     )
     print("- timeline.add_valve_event(event_date='2024-01-01', well_name='WellA', ...)")
-    print("- timeline.add_keyword_event(  # Arbitrary Eclipse keywords:")
+    print("- timeline.add_well_keyword_event(  # Arbitrary Eclipse keywords:")
     print("      event_date='2024-01-01',")
     print("      well_name='WellA',")
     print("      keyword_name='WCONHIST',  # WCONHIST, WELTARG, WRFTPLT, etc.")

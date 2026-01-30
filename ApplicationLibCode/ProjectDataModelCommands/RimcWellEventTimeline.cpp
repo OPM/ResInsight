@@ -312,15 +312,15 @@ QString RimcWellEventTimeline_addTubingEvent::classKeywordReturnedType() const
     return RimWellEventTubing::classKeywordStatic();
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addKeywordEvent, "AddKeywordEvent" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addWellKeywordEvent, "AddWellKeywordEvent" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcWellEventTimeline_addKeywordEvent::RimcWellEventTimeline_addKeywordEvent( caf::PdmObjectHandle* self )
+RimcWellEventTimeline_addWellKeywordEvent::RimcWellEventTimeline_addWellKeywordEvent( caf::PdmObjectHandle* self )
     : caf::PdmObjectCreationMethod( self )
 {
-    CAF_PDM_InitObject( "Add Keyword Event", "", "", "Add a well keyword event to the timeline" );
+    CAF_PDM_InitObject( "Add Well Keyword Event", "", "", "Add a well keyword event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
@@ -333,7 +333,7 @@ RimcWellEventTimeline_addKeywordEvent::RimcWellEventTimeline_addKeywordEvent( ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addKeywordEvent::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addWellKeywordEvent::execute()
 {
     auto timeline = self<RimWellEventTimeline>();
 
@@ -360,7 +360,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addKeywordEv
     }
 
     // Create event
-    auto* event = timeline->addKeywordEvent( m_wellPath(), date, m_keywordName() );
+    auto* event = timeline->addWellKeywordEvent( m_wellPath(), date, m_keywordName() );
 
     // Add items with type conversion
     for ( size_t i = 0; i < m_itemNames().size(); ++i )
@@ -405,7 +405,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addKeywordEv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimcWellEventTimeline_addKeywordEvent::classKeywordReturnedType() const
+QString RimcWellEventTimeline_addWellKeywordEvent::classKeywordReturnedType() const
 {
     return RimWellEventKeyword::classKeywordStatic();
 }

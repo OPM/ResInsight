@@ -171,12 +171,12 @@ def load_events_from_config(
                         )
 
 
-# Store the original GRPC add_keyword_event method before wrapping
-_original_add_keyword_event = WellEventTimeline.add_keyword_event
+# Store the original GRPC add_well_keyword_event method before wrapping
+_original_add_well_keyword_event = WellEventTimeline.add_well_keyword_event
 
 
 @add_method(WellEventTimeline)
-def add_keyword_event_with_dict(
+def add_well_keyword_event_with_dict(
     self,
     event_date,
     well_path,
@@ -213,7 +213,7 @@ def add_keyword_event_with_dict(
         timeline = well_path.event_timeline()
 
         # Add WCONHIST - Historical production data
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2018-04-01",
             well_path=well_path,
             keyword_name="WCONHIST",
@@ -229,7 +229,7 @@ def add_keyword_event_with_dict(
         )
 
         # Add WELTARG - Change target
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2018-05-01",
             well_path=well_path,
             keyword_name="WELTARG",
@@ -241,7 +241,7 @@ def add_keyword_event_with_dict(
         )
 
         # Add WRFTPLT - Enable RFT output
-        timeline.add_keyword_event(
+        timeline.add_well_keyword_event(
             event_date="2018-06-01",
             well_path=well_path,
             keyword_name="WRFTPLT",
@@ -289,7 +289,7 @@ def add_keyword_event_with_dict(
     date_str = _format_date(event_date)
 
     # Call original GRPC method with parallel arrays
-    return _original_add_keyword_event(
+    return _original_add_well_keyword_event(
         self,
         event_date=date_str,
         well_path=well_path,
@@ -300,8 +300,8 @@ def add_keyword_event_with_dict(
     )
 
 
-# Replace the add_keyword_event method with our enhanced version
-WellEventTimeline.add_keyword_event = add_keyword_event_with_dict
+# Replace the add_well_keyword_event method with our enhanced version
+WellEventTimeline.add_well_keyword_event = add_well_keyword_event_with_dict
 
 
 @add_method(WellEventTimeline)
