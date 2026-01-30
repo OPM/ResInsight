@@ -312,6 +312,13 @@ QString RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline
         }
     }
 
+    // Only generate MSW output if there are events at this specific date for this well
+    // This ensures wells only appear in schedule sections at their event dates
+    if ( !hasMswEvents && !hasPerfEvents )
+    {
+        return QString();
+    }
+
     // Extract MSW data using the existing infrastructure
     // Use timeStep = -1 to disable date filtering (similar to ignoreDates=true for COMPDAT)
     // This ensures perforations created from events are included regardless of their custom start dates
