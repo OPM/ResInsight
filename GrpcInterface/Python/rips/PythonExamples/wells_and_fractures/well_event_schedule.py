@@ -36,7 +36,6 @@ def main():
 
     print("Well name: ", well_path.name)
 
-
     # Get the event timeline
     print("\n2. Adding well events to the timeline...")
     well_path_coll = project.descendants(rips.WellPathCollection)[0]
@@ -115,9 +114,7 @@ def main():
             "VFP_TABLE": 1,
         },
     )
-    print(
-        "   Added WCONHIST event on 2024-01-15 (historical production control)"
-    )
+    print("   Added WCONHIST event on 2024-01-15 (historical production control)")
 
     # Example 2: WELTARG - Well target change
     _weltarg_event = timeline.add_keyword_event(
@@ -198,7 +195,14 @@ def main():
 
             # Validate expected keywords are present
             print("\n7. Validating generated Eclipse keywords...")
-            expected_keywords = ["DATES", "WELSEGS", "COMPSEGS", "WCONHIST", "WELTARG", "WRFTPLT"]
+            expected_keywords = [
+                "DATES",
+                "WELSEGS",
+                "COMPSEGS",
+                "WCONHIST",
+                "WELTARG",
+                "WRFTPLT",
+            ]
             found_keywords = [kw for kw in expected_keywords if kw in schedule_text]
 
             print(f"   Keywords found: {', '.join(found_keywords)}")
