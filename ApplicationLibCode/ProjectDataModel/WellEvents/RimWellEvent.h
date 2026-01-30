@@ -21,9 +21,12 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include <QDateTime>
 #include <QString>
+
+class RimWellPath;
 
 //==================================================================================================
 ///
@@ -52,8 +55,9 @@ public:
     QDateTime eventDate() const;
     void      setEventDate( const QDateTime& date );
 
-    QString wellName() const;
-    void    setWellName( const QString& wellName );
+    RimWellPath* wellPath() const;
+    void         setWellPath( RimWellPath* wellPath );
+    QString      wellName() const; // Convenience method to get well name
 
     virtual EventType eventType() const                                        = 0;
     virtual QString   generateScheduleKeyword( const QString& wellName ) const = 0;
@@ -62,6 +66,6 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 protected:
-    caf::PdmField<QDateTime> m_eventDate;
-    caf::PdmField<QString>   m_wellName;
+    caf::PdmField<QDateTime>       m_eventDate;
+    caf::PdmPtrField<RimWellPath*> m_wellPath;
 };

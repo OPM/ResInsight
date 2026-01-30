@@ -48,7 +48,7 @@ RimcWellEventTimeline_addPerfEvent::RimcWellEventTimeline_addPerfEvent( caf::Pdm
     CAF_PDM_InitObject( "Add Perforation Event", "", "", "Add a perforation event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
-    CAF_PDM_InitScriptableField( &m_wellName, "WellName", QString(), "", "", "", "Well Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableField( &m_startMd, "StartMd", 0.0, "", "", "", "Start Measured Depth" );
     CAF_PDM_InitScriptableField( &m_endMd, "EndMd", 0.0, "", "", "", "End Measured Depth" );
     CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.216, "", "", "", "Diameter [m]" );
@@ -63,9 +63,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addPerfEvent
 {
     auto timeline = self<RimWellEventTimeline>();
 
-    if ( m_wellName().isEmpty() )
+    if ( !m_wellPath() )
     {
-        return std::unexpected( QString( "Well name is required" ) );
+        return std::unexpected( QString( "Well path is required" ) );
     }
 
     QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
@@ -74,7 +74,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addPerfEvent
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
     }
 
-    auto* event = timeline->addPerforationEvent( m_wellName(), date );
+    auto* event = timeline->addPerforationEvent( m_wellPath(), date );
     event->setStartMD( m_startMd() );
     event->setEndMD( m_endMd() );
     event->setDiameter( m_diameter() );
@@ -111,7 +111,7 @@ RimcWellEventTimeline_addValveEvent::RimcWellEventTimeline_addValveEvent( caf::P
     CAF_PDM_InitObject( "Add Valve Event", "", "", "Add a valve event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
-    CAF_PDM_InitScriptableField( &m_wellName, "WellName", QString(), "", "", "", "Well Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableField( &m_measuredDepth, "MeasuredDepth", 0.0, "", "", "", "Measured Depth" );
     CAF_PDM_InitScriptableField( &m_valveType, "ValveType", QString( "ICV" ), "", "", "", "Valve Type (ICV/ICD/AICD)" );
     CAF_PDM_InitScriptableField( &m_state, "State", QString( "OPEN" ), "", "", "", "State (OPEN/SHUT)" );
@@ -126,13 +126,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addValveEven
 {
     auto timeline = self<RimWellEventTimeline>();
 
+    if ( !m_wellPath() )
+    {
+        return std::unexpected( QString( "Well path is required" ) );
+    }
+
     QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
     if ( !date.isValid() )
     {
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
     }
 
-    auto* event = timeline->addValveEvent( m_wellName, date );
+    auto* event = timeline->addValveEvent( m_wellPath(), date );
     event->setMeasuredDepth( m_measuredDepth() );
     event->setFlowCoefficient( m_flowCoefficient() );
     event->setArea( m_area() );
@@ -182,7 +187,7 @@ RimcWellEventTimeline_addStateEvent::RimcWellEventTimeline_addStateEvent( caf::P
     CAF_PDM_InitObject( "Add State Event", "", "", "Add a well state event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
-    CAF_PDM_InitScriptableField( &m_wellName, "WellName", QString(), "", "", "", "Well Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableField( &m_wellState, "WellState", QString( "OPEN" ), "", "", "", "Well State (OPEN/SHUT/STOP)" );
 }
 
@@ -193,13 +198,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addStateEven
 {
     auto timeline = self<RimWellEventTimeline>();
 
+    if ( !m_wellPath() )
+    {
+        return std::unexpected( QString( "Well path is required" ) );
+    }
+
     QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
     if ( !date.isValid() )
     {
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
     }
 
-    auto* event = timeline->addStateEvent( m_wellName(), date );
+    auto* event = timeline->addStateEvent( m_wellPath(), date );
 
     QString stateUpper = m_wellState().toUpper();
     if ( stateUpper == "SHUT" )
@@ -237,7 +247,7 @@ RimcWellEventTimeline_addControlEvent::RimcWellEventTimeline_addControlEvent( ca
     CAF_PDM_InitObject( "Add Control Event", "", "", "Add a well control event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
-    CAF_PDM_InitScriptableField( &m_wellName, "WellName", QString(), "", "", "", "Well Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableField( &m_controlMode, "ControlMode", QString( "ORAT" ), "", "", "", "Control Mode (ORAT/WRAT/GRAT/LRAT/BHP/THP)" );
     CAF_PDM_InitScriptableField( &m_controlValue, "ControlValue", 0.0, "", "", "", "Control Value" );
     CAF_PDM_InitScriptableField( &m_bhpLimit, "BhpLimit", 0.0, "", "", "", "BHP Limit [bar]" );
@@ -254,13 +264,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addControlEv
 {
     auto timeline = self<RimWellEventTimeline>();
 
+    if ( !m_wellPath() )
+    {
+        return std::unexpected( QString( "Well path is required" ) );
+    }
+
     QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
     if ( !date.isValid() )
     {
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
     }
 
-    auto* event = timeline->addControlEvent( m_wellName(), date );
+    auto* event = timeline->addControlEvent( m_wellPath(), date );
     event->setControlValue( m_controlValue() );
     event->setBhpLimit( m_bhpLimit() );
     event->setOilRate( m_oilRate() );
@@ -320,7 +335,7 @@ RimcWellEventTimeline_addTubingEvent::RimcWellEventTimeline_addTubingEvent( caf:
     CAF_PDM_InitObject( "Add Tubing Event", "", "", "Add a tubing event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
-    CAF_PDM_InitScriptableField( &m_wellName, "WellName", QString(), "", "", "", "Well Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableField( &m_startMd, "StartMd", 0.0, "", "", "", "Start Measured Depth" );
     CAF_PDM_InitScriptableField( &m_endMd, "EndMd", 0.0, "", "", "", "End Measured Depth" );
     CAF_PDM_InitScriptableField( &m_innerDiameter, "InnerDiameter", 0.15, "", "", "", "Inner Diameter [m]" );
@@ -334,13 +349,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addTubingEve
 {
     auto timeline = self<RimWellEventTimeline>();
 
+    if ( !m_wellPath() )
+    {
+        return std::unexpected( QString( "Well path is required" ) );
+    }
+
     QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
     if ( !date.isValid() )
     {
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
     }
 
-    auto* event = timeline->addTubingEvent( m_wellName(), date );
+    auto* event = timeline->addTubingEvent( m_wellPath(), date );
     event->setStartMD( m_startMd() );
     event->setEndMD( m_endMd() );
     event->setInnerDiameter( m_innerDiameter() );
@@ -368,7 +388,7 @@ RimcWellEventTimeline_addKeywordEvent::RimcWellEventTimeline_addKeywordEvent( ca
     CAF_PDM_InitObject( "Add Keyword Event", "", "", "Add a well keyword event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
-    CAF_PDM_InitScriptableField( &m_wellName, "WellName", QString(), "", "", "", "Well Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableField( &m_keywordName, "KeywordName", QString(), "", "", "", "Keyword Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_itemNames, "ItemNames", "", "", "", "Item Names" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_itemTypes, "ItemTypes", "", "", "", "Item Types" );
@@ -382,9 +402,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addKeywordEv
 {
     auto timeline = self<RimWellEventTimeline>();
 
-    if ( m_wellName().isEmpty() )
+    if ( !m_wellPath() )
     {
-        return std::unexpected( QString( "Well name is required" ) );
+        return std::unexpected( QString( "Well path is required" ) );
     }
 
     if ( m_keywordName().isEmpty() )
@@ -405,7 +425,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addKeywordEv
     }
 
     // Create event
-    auto* event = timeline->addKeywordEvent( m_wellName(), date, m_keywordName() );
+    auto* event = timeline->addKeywordEvent( m_wellPath(), date, m_keywordName() );
 
     // Add items with type conversion
     for ( size_t i = 0; i < m_itemNames().size(); ++i )

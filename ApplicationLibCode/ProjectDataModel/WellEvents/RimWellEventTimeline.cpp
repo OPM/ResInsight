@@ -152,10 +152,10 @@ std::vector<RimWellEvent*> RimWellEventTimeline::getEventsUpToDate( const QDateT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventPerf* RimWellEventTimeline::addPerforationEvent( const QString& wellName, const QDateTime& date )
+RimWellEventPerf* RimWellEventTimeline::addPerforationEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventPerf();
-    event->setWellName( wellName );
+    event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
     updateConnectedEditors();
@@ -165,10 +165,10 @@ RimWellEventPerf* RimWellEventTimeline::addPerforationEvent( const QString& well
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventValve* RimWellEventTimeline::addValveEvent( const QString& wellName, const QDateTime& date )
+RimWellEventValve* RimWellEventTimeline::addValveEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventValve();
-    event->setWellName( wellName );
+    event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
     updateConnectedEditors();
@@ -178,10 +178,10 @@ RimWellEventValve* RimWellEventTimeline::addValveEvent( const QString& wellName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventTubing* RimWellEventTimeline::addTubingEvent( const QString& wellName, const QDateTime& date )
+RimWellEventTubing* RimWellEventTimeline::addTubingEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventTubing();
-    event->setWellName( wellName );
+    event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
     updateConnectedEditors();
@@ -191,10 +191,10 @@ RimWellEventTubing* RimWellEventTimeline::addTubingEvent( const QString& wellNam
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventState* RimWellEventTimeline::addStateEvent( const QString& wellName, const QDateTime& date )
+RimWellEventState* RimWellEventTimeline::addStateEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventState();
-    event->setWellName( wellName );
+    event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
     updateConnectedEditors();
@@ -204,10 +204,10 @@ RimWellEventState* RimWellEventTimeline::addStateEvent( const QString& wellName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventType* RimWellEventTimeline::addTypeEvent( const QString& wellName, const QDateTime& date )
+RimWellEventType* RimWellEventTimeline::addTypeEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventType();
-    event->setWellName( wellName );
+    event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
     updateConnectedEditors();
@@ -217,10 +217,10 @@ RimWellEventType* RimWellEventTimeline::addTypeEvent( const QString& wellName, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventControl* RimWellEventTimeline::addControlEvent( const QString& wellName, const QDateTime& date )
+RimWellEventControl* RimWellEventTimeline::addControlEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventControl();
-    event->setWellName( wellName );
+    event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
     updateConnectedEditors();
@@ -230,10 +230,10 @@ RimWellEventControl* RimWellEventTimeline::addControlEvent( const QString& wellN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventKeyword* RimWellEventTimeline::addKeywordEvent( const QString& wellName, const QDateTime& date, const QString& keywordName )
+RimWellEventKeyword* RimWellEventTimeline::addKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName )
 {
     auto* event = new RimWellEventKeyword();
-    event->setWellName( wellName );
+    event->setWellPath( wellPath );
     event->setEventDate( date );
     event->setKeywordName( keywordName );
     m_events.push_back( event );

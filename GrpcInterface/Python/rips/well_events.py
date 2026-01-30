@@ -107,6 +107,7 @@ def load_events_from_config(
                     for perf in perf_events:
                         timeline.add_perf_event(
                             event_date=date_str,
+                            well_path=well,
                             start_md=perf.get("START_MD", 0),
                             end_md=perf.get("END_MD", 0),
                             diameter=perf.get("DIAMETER", 0.216),
@@ -121,6 +122,7 @@ def load_events_from_config(
                     for valve in valve_events:
                         timeline.add_valve_event(
                             event_date=date_str,
+                            well_path=well,
                             measured_depth=valve.get("MD", 0),
                             valve_type=valve.get("TYPE", "ICV"),
                             state=valve.get("STATE", "OPEN"),
@@ -134,6 +136,7 @@ def load_events_from_config(
                 if isinstance(state, str):
                     timeline.add_state_event(
                         event_date=date_str,
+                        well_path=well,
                         well_state=state,
                     )
 
@@ -143,6 +146,7 @@ def load_events_from_config(
                 if isinstance(ctrl, dict):
                     timeline.add_control_event(
                         event_date=date_str,
+                        well_path=well,
                         control_mode=ctrl.get("MODE", "ORAT"),
                         control_value=ctrl.get("VALUE", 0.0),
                         bhp_limit=ctrl.get("BHP_LIMIT", 0.0),
@@ -159,6 +163,7 @@ def load_events_from_config(
                     for tubing in tubing_events:
                         timeline.add_tubing_event(
                             event_date=date_str,
+                            well_path=well,
                             start_md=tubing.get("START_MD", 0),
                             end_md=tubing.get("END_MD", 0),
                             inner_diameter=tubing.get("INNER_DIAMETER", 0.15),
@@ -174,7 +179,7 @@ _original_add_keyword_event = WellEventTimeline.add_keyword_event
 def add_keyword_event_with_dict(
     self,
     event_date,
-    well_name: str,
+    well_path,
     keyword_name: str,
     keyword_data: dict,
 ) -> "WellEventKeyword":
@@ -191,7 +196,7 @@ def add_keyword_event_with_dict(
 
     Arguments:
         event_date: Date string in YYYY-MM-DD format, date, or datetime object
-        well_name (str): Well name
+        well_path (WellPath): The well path object
         keyword_name (str): Keyword name (e.g., "WCONHIST", "WELTARG", "WRFTPLT")
         keyword_data (dict): Dictionary mapping keyword item names to values
 
@@ -210,10 +215,10 @@ def add_keyword_event_with_dict(
         # Add WCONHIST - Historical production data
         timeline.add_keyword_event(
             event_date="2018-04-01",
-            well_name="A1",
+            well_path=well_path,
             keyword_name="WCONHIST",
             keyword_data={
-                "WELL": "A1",
+                "WELL": well_path.name,
                 "STATUS": "OPEN",
                 "CMODE": "RESV",
                 "ORAT": 3999.98999,
@@ -226,10 +231,10 @@ def add_keyword_event_with_dict(
         # Add WELTARG - Change target
         timeline.add_keyword_event(
             event_date="2018-05-01",
-            well_name="A1",
+            well_path=well_path,
             keyword_name="WELTARG",
             keyword_data={
-                "WELL": "A1",
+                "WELL": well_path.name,
                 "CMODE": "ORAT",
                 "NEW_VALUE": 5000.0
             }
@@ -238,10 +243,10 @@ def add_keyword_event_with_dict(
         # Add WRFTPLT - Enable RFT output
         timeline.add_keyword_event(
             event_date="2018-06-01",
-            well_name="A1",
+            well_path=well_path,
             keyword_name="WRFTPLT",
             keyword_data={
-                "WELL": "A1",
+                "WELL": well_path.name,
                 "OUTPUT_RFT": "YES",
                 "OUTPUT_PLT": "NO"
             }
@@ -287,7 +292,7 @@ def add_keyword_event_with_dict(
     return _original_add_keyword_event(
         self,
         event_date=date_str,
-        well_name=well_name,
+        well_path=well_path,
         keyword_name=keyword_name,
         item_names=item_names,
         item_types=item_types,

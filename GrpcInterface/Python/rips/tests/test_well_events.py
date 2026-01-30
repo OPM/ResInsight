@@ -48,7 +48,7 @@ class TestWellEventTimeline:
 
         event = timeline.add_perf_event(
             event_date="2024-01-01",
-            well_name="Test Well Path",
+            well_path=wellpath,
             start_md=1000.0,
             end_md=1500.0,
             diameter=0.1,
@@ -64,7 +64,7 @@ class TestWellEventTimeline:
 
         event = timeline.add_valve_event(
             event_date="2024-01-15",
-            well_name="Test Well Path",
+            well_path=wellpath,
             measured_depth=1250.0,
             valve_type="ICV",
             state="OPEN",
@@ -80,7 +80,7 @@ class TestWellEventTimeline:
 
         event = timeline.add_state_event(
             event_date="2024-02-01",
-            well_name="Test Well Path",
+            well_path=wellpath,
             well_state="OPEN",
         )
 
@@ -92,7 +92,7 @@ class TestWellEventTimeline:
 
         event = timeline.add_control_event(
             event_date="2024-02-01",
-            well_name="Test Well Path",
+            well_path=wellpath,
             control_mode="ORAT",
             control_value=1000.0,
             bhp_limit=150.0,
@@ -108,7 +108,7 @@ class TestWellEventTimeline:
 
         event = timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_name="Test Well Path",
+            well_path=wellpath,
             start_md=500.0,
             end_md=1000.0,
             inner_diameter=0.15,
@@ -150,7 +150,7 @@ class TestWellEventScheduleApplication:
         # Add a perforation event at a valid MD range for Well Path A
         timeline.add_perf_event(
             event_date="2024-01-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -183,7 +183,7 @@ class TestWellEventScheduleApplication:
         # Add a tubing event at a valid MD range for Well Path B
         timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_name=well_path_b.name,
+            well_path=well_path_b,
             start_md=1000.0,
             end_md=2000.0,
             inner_diameter=0.15,
@@ -210,7 +210,7 @@ class TestWellEventScheduleApplication:
         # Add a perforation event in the past
         timeline.add_perf_event(
             event_date="2024-01-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=1800.0,
             end_md=2000.0,
             diameter=0.1,
@@ -221,7 +221,7 @@ class TestWellEventScheduleApplication:
         # Add a perforation event in the future
         timeline.add_perf_event(
             event_date="2024-06-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=2200.0,
             end_md=2400.0,
             diameter=0.1,
@@ -314,7 +314,7 @@ class TestScheduleGeneration:
         # Add tubing to enable MSW
         timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=0.0,
             end_md=2500.0,
             inner_diameter=0.15,
@@ -324,7 +324,7 @@ class TestScheduleGeneration:
         # Add perforation event
         timeline.add_perf_event(
             event_date="2024-01-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -355,7 +355,7 @@ class TestScheduleGeneration:
         # Add tubing for MSW
         timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=0.0,
             end_md=2500.0,
             inner_diameter=0.15,
@@ -365,7 +365,7 @@ class TestScheduleGeneration:
         # Add perforation and control events
         timeline.add_perf_event(
             event_date="2024-01-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -374,7 +374,7 @@ class TestScheduleGeneration:
 
         timeline.add_control_event(
             event_date="2024-01-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             control_mode="ORAT",
             control_value=1000.0,
             bhp_limit=150.0,
@@ -407,7 +407,7 @@ class TestScheduleGeneration:
         # Add events at different dates
         timeline.add_perf_event(
             event_date="2024-01-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=1800.0,
             end_md=2000.0,
             diameter=0.1,
@@ -416,7 +416,7 @@ class TestScheduleGeneration:
 
         timeline.add_perf_event(
             event_date="2024-06-01",
-            well_name=well_path_a.name,
+            well_path=well_path_a,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -449,7 +449,7 @@ class TestScheduleGeneration:
         # Add tubing event (installed early) - should generate WELSEGS
         timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=0.0,
             end_md=2500.0,
             inner_diameter=0.15,
@@ -459,7 +459,7 @@ class TestScheduleGeneration:
         # Add first perforation event - should generate COMPSEGS
         timeline.add_perf_event(
             event_date="2024-02-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -470,7 +470,7 @@ class TestScheduleGeneration:
         # Add second perforation event (later) - should generate COMPSEGS
         timeline.add_perf_event(
             event_date="2024-04-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=2400.0,
             end_md=2600.0,
             diameter=0.1,
@@ -481,7 +481,7 @@ class TestScheduleGeneration:
         # Add valve event - should generate WSEGVALV
         timeline.add_valve_event(
             event_date="2024-03-01",
-            well_name=well_path.name,
+            well_path=well_path,
             measured_depth=2100.0,
             valve_type="ICV",
             state="OPEN",
@@ -492,14 +492,14 @@ class TestScheduleGeneration:
         # Add state event
         timeline.add_state_event(
             event_date="2024-02-15",
-            well_name=well_path.name,
+            well_path=well_path,
             well_state="OPEN",
         )
 
         # Add keyword events - should be included in schedule
         timeline.add_keyword_event(
             event_date="2024-01-15",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WCONHIST",
             keyword_data={
                 "WELL": well_path.name,
@@ -514,7 +514,7 @@ class TestScheduleGeneration:
 
         timeline.add_keyword_event(
             event_date="2024-05-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WELTARG",
             keyword_data={
                 "WELL": well_path.name,
@@ -525,7 +525,7 @@ class TestScheduleGeneration:
 
         timeline.add_keyword_event(
             event_date="2024-06-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WRFTPLT",
             keyword_data={
                 "WELL": well_path.name,
@@ -608,7 +608,7 @@ class TestScheduleGeneration:
 
         timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=0.0,
             end_md=2500.0,
             inner_diameter=0.15,
@@ -633,7 +633,7 @@ class TestScheduleGeneration:
         # Add tubing and valve on same date to simplify test
         timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=0.0,
             end_md=2500.0,
             inner_diameter=0.15,
@@ -643,7 +643,7 @@ class TestScheduleGeneration:
         # Add perforation (MSW needs perforations)
         timeline.add_perf_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -653,7 +653,7 @@ class TestScheduleGeneration:
         # Add valve before perforation interval to avoid overlap
         timeline.add_valve_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             measured_depth=1900.0,
             valve_type="ICV",
             state="OPEN",
@@ -680,7 +680,7 @@ class TestScheduleGeneration:
         # Control events don't require set_timestamp - they don't create physical completions
         timeline.add_control_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             control_mode="ORAT",
             control_value=1000.0,
             bhp_limit=150.0,
@@ -704,7 +704,7 @@ class TestScheduleGeneration:
 
         timeline.add_perf_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -727,7 +727,7 @@ class TestScheduleGeneration:
         # Add control events at different dates (add in reverse order to test sorting)
         timeline.add_control_event(
             event_date="2024-06-01",
-            well_name=well_path.name,
+            well_path=well_path,
             control_mode="ORAT",
             control_value=800.0,
             oil_rate=800.0,
@@ -736,7 +736,7 @@ class TestScheduleGeneration:
 
         timeline.add_control_event(
             event_date="2024-02-01",
-            well_name=well_path.name,
+            well_path=well_path,
             control_mode="ORAT",
             control_value=1000.0,
             oil_rate=1000.0,
@@ -745,7 +745,7 @@ class TestScheduleGeneration:
 
         timeline.add_control_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             control_mode="ORAT",
             control_value=500.0,
             oil_rate=500.0,
@@ -797,7 +797,7 @@ class TestKeywordEvents:
         # Create a WCONHIST event
         event = timeline.add_keyword_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WCONHIST",
             keyword_data={
                 "WELL": well_path.name,
@@ -820,7 +820,7 @@ class TestKeywordEvents:
         # Create a WELTARG event
         event = timeline.add_keyword_event(
             event_date="2024-05-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WELTARG",
             keyword_data={
                 "WELL": well_path.name,
@@ -839,7 +839,7 @@ class TestKeywordEvents:
         # Create a WRFTPLT event
         event = timeline.add_keyword_event(
             event_date="2024-06-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WRFTPLT",
             keyword_data={
                 "WELL": well_path.name,
@@ -859,7 +859,7 @@ class TestKeywordEvents:
         # Create event with mixed types: str, int, float, bool
         event = timeline.add_keyword_event(
             event_date="2024-03-15",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WCONHIST",
             keyword_data={
                 "WELL": well_path.name,  # str
@@ -881,7 +881,7 @@ class TestKeywordEvents:
         # Add a WELTARG keyword event
         timeline.add_keyword_event(
             event_date="2024-05-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WELTARG",
             keyword_data={
                 "WELL": well_path.name,
@@ -910,7 +910,7 @@ class TestKeywordEvents:
         # Add WCONHIST event
         timeline.add_keyword_event(
             event_date="2024-01-15",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WCONHIST",
             keyword_data={
                 "WELL": well_path.name,
@@ -925,7 +925,7 @@ class TestKeywordEvents:
         # Add WELTARG event
         timeline.add_keyword_event(
             event_date="2024-05-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WELTARG",
             keyword_data={
                 "WELL": well_path.name,
@@ -937,7 +937,7 @@ class TestKeywordEvents:
         # Add WRFTPLT event
         timeline.add_keyword_event(
             event_date="2024-06-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WRFTPLT",
             keyword_data={
                 "WELL": well_path.name,
@@ -967,7 +967,7 @@ class TestKeywordEvents:
         with pytest.raises(TypeError) as exc_info:
             timeline.add_keyword_event(
                 event_date="2024-01-01",
-                well_name=well_path.name,
+                well_path=well_path,
                 keyword_name="WCONHIST",
                 keyword_data={
                     "WELL": well_path.name,
@@ -987,7 +987,7 @@ class TestKeywordEvents:
         # Add tubing and perforation for MSW
         timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=0.0,
             end_md=2500.0,
             inner_diameter=0.15,
@@ -996,7 +996,7 @@ class TestKeywordEvents:
 
         timeline.add_perf_event(
             event_date="2024-02-01",
-            well_name=well_path.name,
+            well_path=well_path,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -1006,7 +1006,7 @@ class TestKeywordEvents:
         # Add keyword event
         timeline.add_keyword_event(
             event_date="2024-03-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WELTARG",
             keyword_data={
                 "WELL": well_path.name,
@@ -1038,7 +1038,7 @@ class TestKeywordEvents:
         # Add control event
         timeline.add_control_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             control_mode="ORAT",
             control_value=1000.0,
             oil_rate=1000.0,
@@ -1048,7 +1048,7 @@ class TestKeywordEvents:
         # Add keyword event
         timeline.add_keyword_event(
             event_date="2024-02-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WRFTPLT",
             keyword_data={
                 "WELL": well_path.name,
@@ -1081,7 +1081,7 @@ class TestKeywordEvents:
         # Add keyword events in reverse chronological order
         timeline.add_keyword_event(
             event_date="2024-06-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WRFTPLT",
             keyword_data={
                 "WELL": well_path.name,
@@ -1091,7 +1091,7 @@ class TestKeywordEvents:
 
         timeline.add_keyword_event(
             event_date="2024-03-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WELTARG",
             keyword_data={
                 "WELL": well_path.name,
@@ -1102,7 +1102,7 @@ class TestKeywordEvents:
 
         timeline.add_keyword_event(
             event_date="2024-01-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WCONHIST",
             keyword_data={
                 "WELL": well_path.name,
@@ -1141,7 +1141,7 @@ class TestKeywordEvents:
         # Create event with bool values (should be converted to INT 1/0)
         event = timeline.add_keyword_event(
             event_date="2024-04-01",
-            well_name=well_path.name,
+            well_path=well_path,
             keyword_name="WRFTPLT",
             keyword_data={
                 "WELL": well_path.name,
