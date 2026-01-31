@@ -116,12 +116,22 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathDat
     std::shared_ptr<arrow::io::RandomAccessFile> input = std::make_shared<RifByteArrayArrowRandomAccessFile>( content );
 
     // Open Parquet file reader
+#if ARROW_VERSION_MAJOR >= 20
+    // New API: OpenFile returns arrow::Result
     auto result = parquet::arrow::OpenFile( input, pool );
     if ( !result.ok() )
     {
         return { nullptr, "Unable to read parquet data." };
     }
     std::unique_ptr<parquet::arrow::FileReader> arrow_reader = std::move( result ).ValueOrDie();
+#else
+    // Old API: OpenFile takes output parameter
+    std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
+    if ( !parquet::arrow::OpenFile( input, pool, &arrow_reader ).ok() )
+    {
+        return { nullptr, "Unable to read parquet data." };
+    }
+#endif
 
     // Read entire file as a single Arrow table
     std::shared_ptr<arrow::Table> table;

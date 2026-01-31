@@ -160,7 +160,9 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
     std::shared_ptr<arrow::io::RandomAccessFile> input = std::make_shared<RifByteArrayArrowRandomAccessFile>( contents );
 
     std::shared_ptr<arrow::Table> table;
-    auto                          openResult = parquet::arrow::OpenFile( input, pool );
+#if ARROW_VERSION_MAJOR >= 20
+    // New API: OpenFile returns arrow::Result
+    auto openResult = parquet::arrow::OpenFile( input, pool );
     if ( openResult.ok() )
     {
         std::unique_ptr<parquet::arrow::FileReader> arrow_reader = std::move( openResult ).ValueOrDie();
@@ -179,6 +181,27 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
         RiaLogging::warning(
             QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.status().ToString() ) ) );
     }
+#else
+    // Old API: OpenFile takes output parameter
+    std::unique_ptr<parquet::arrow::FileReader> arrow_reader;
+    if ( auto openResult = parquet::arrow::OpenFile( input, pool, &arrow_reader ); openResult.ok() )
+    {
+        if ( auto readResult = arrow_reader->ReadTable( &table ); readResult.ok() )
+        {
+            RiaLogging::info( QString( "Parquet: Read table successfully for %1" ).arg( messageTag ) );
+        }
+        else
+        {
+            RiaLogging::warning(
+                QString( "Parquet: Error detected during parsing of table. Message: %1" ).arg( QString::fromStdString( readResult.ToString() ) ) );
+        }
+    }
+    else
+    {
+        RiaLogging::warning(
+            QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.ToString() ) ) );
+    }
+#endif
 
     return table;
 }
