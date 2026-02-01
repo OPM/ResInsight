@@ -1,0 +1,50 @@
+name: Bump Dev Version
+
+on:
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Bump RESINSIGHT_DEV_VERSION
+        id: bump-version
+        run: |
+          VERSION_FILE="ResInsightVersion.cmake"
+
+          # Extract current dev version (format: .XX)
+          current_version=$(grep -oP 'set\(RESINSIGHT_DEV_VERSION "\.\K[0-9]+' "$VERSION_FILE")
+
+          # Increment version
+          new_version=$((10#$current_version + 1))
+
+          # Pad with leading zero if needed (format: .XX)
+          new_version_padded=$(printf "%02d" $new_version)
+
+          # Replace in file
+          sed -i "s/set(RESINSIGHT_DEV_VERSION \"\.${current_version}\")/set(RESINSIGHT_DEV_VERSION \".${new_version_padded}\")/" "$VERSION_FILE"
+
+          echo "OLD_VERSION=.${current_version}" >> "$GITHUB_OUTPUT"
+          echo "NEW_VERSION=.${new_version_padded}" >> "$GITHUB_OUTPUT"
+
+          # Extract full version string for commit message
+          major=$(grep -oP 'set\(RESINSIGHT_MAJOR_VERSION \K[0-9]+' "$VERSION_FILE")
+          minor=$(grep -oP 'set\(RESINSIGHT_MINOR_VERSION \K[0-9]+' "$VERSION_FILE")
+          patch=$(grep -oP 'set\(RESINSIGHT_PATCH_VERSION \K[0-9]+' "$VERSION_FILE")
+
+          echo "FULL_VERSION=${major}.${minor}.${patch}-dev.${new_version_padded}" >> "$GITHUB_OUTPUT"
+
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Bump to version ${{ steps.bump-version.outputs.FULL_VERSION }}"
+          title: "Bump to version ${{ steps.bump-version.outputs.FULL_VERSION }}"
+          body: |
+            Automated version bump from `${{ steps.bump-version.outputs.OLD_VERSION }}` to `${{ steps.bump-version.outputs.NEW_VERSION }}`
+          branch: ci-bump-dev-version
+          branch-suffix: timestamp
