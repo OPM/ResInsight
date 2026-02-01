@@ -50,7 +50,9 @@ jobs:
             freetype-devel \
             libX11-devel \
             libXext-devel \
-            libXrender-devel
+            libXrender-devel \
+            flex \
+            bison
 
       - name: Install GCC Toolset 13
         run: |
