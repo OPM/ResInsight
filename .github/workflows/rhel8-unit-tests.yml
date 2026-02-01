@@ -14,13 +14,13 @@ jobs:
   rhel8-build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: registry.access.redhat.com/ubi8/ubi:latest
+      image: rockylinux:8
 
     steps:
       - name: Install EPEL and development tools
         run: |
-          dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-          /usr/bin/crb enable || true
+          dnf install -y epel-release
+          dnf config-manager --set-enabled powertools
           dnf install -y \
             gcc \
             gcc-c++ \
@@ -32,7 +32,7 @@ jobs:
             zip \
             unzip \
             tar \
-            pkg-config \
+            pkgconfig \
             perl \
             which \
             python39 \
