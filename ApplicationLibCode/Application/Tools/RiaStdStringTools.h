@@ -66,10 +66,14 @@ public:
     static std::string removeHtmlTags( const std::string& s );
 
     // Convert the string "1,2,5-8,10" to {1, 2, 5, 6, 7, 8, 10}
+    // Supports exclusion with "!" prefix: "1-10, !4" to {1, 2, 3, 5, 6, 7, 8, 9, 10}
+    // Supports exclusion of ranges: "1-10, !5-7" to {1, 2, 3, 4, 8, 9, 10}
     static std::set<int> valuesFromRangeSelection( const std::string& s );
 
     // Convert the range string with support for open ended expressions. minimum and maximum value will be used to limit the ranges.
     // The input "-3,5-8,10-", min:1, max:12 will produce {1, 2, 3, 5, 6, 7, 8, 10, 11, 12}
+    // Supports exclusion with "!" prefix: "-10, !4", min:1, max:20 will produce {1, 2, 3, 5, 6, 7, 8, 9, 10}
+    // Supports exclusion of ranges: "-10, !5-7", min:1, max:20 will produce {1, 2, 3, 4, 8, 9, 10}
     static std::set<int> valuesFromRangeSelection( const std::string& s, int minimumValue, int maximumValue );
 
     // Create a string from a set of values. {1, 2, 3, 5, 6, 7, 8, 10, 11, 12} will be converted to "1, 2, 3, 5-8, 10-12"

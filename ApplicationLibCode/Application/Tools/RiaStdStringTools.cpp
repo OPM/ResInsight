@@ -387,12 +387,25 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s 
     try
     {
         std::set<int>      result;
+        std::set<int>      exclusions;
         std::istringstream stringStream( s );
         std::string        token;
 
         while ( std::getline( stringStream, token, ',' ) )
         {
             token = RiaStdStringTools::trimString( token );
+
+            // Check if this is an exclusion token
+            bool isExclusion = false;
+            if ( !token.empty() && token[0] == '!' )
+            {
+                isExclusion = true;
+                token       = token.substr( 1 ); // Remove the '!' prefix
+                token       = RiaStdStringTools::trimString( token );
+            }
+
+            // Skip empty tokens
+            if ( token.empty() ) continue;
 
             std::istringstream tokenStream( token );
             int                startIndex, endIndex;
@@ -421,14 +434,34 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s 
 
                     for ( int i = startIndex; i <= endIndex; i += step )
                     {
-                        result.insert( i );
+                        if ( isExclusion )
+                        {
+                            exclusions.insert( i );
+                        }
+                        else
+                        {
+                            result.insert( i );
+                        }
                     }
                 }
                 else
                 {
-                    result.insert( startIndex );
+                    if ( isExclusion )
+                    {
+                        exclusions.insert( startIndex );
+                    }
+                    else
+                    {
+                        result.insert( startIndex );
+                    }
                 }
             }
+        }
+
+        // Remove excluded values from result
+        for ( int excluded : exclusions )
+        {
+            result.erase( excluded );
         }
 
         return result;
@@ -457,6 +490,7 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
     try
     {
         std::set<int>     result;
+        std::set<int>     exclusions;
         std::stringstream stringStream( s );
         std::string       token;
 
@@ -464,10 +498,28 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
         {
             token = RiaStdStringTools::trimString( token );
 
+            // Check if this is an exclusion token
+            bool isExclusion = false;
+            if ( !token.empty() && token[0] == '!' )
+            {
+                isExclusion = true;
+                token       = token.substr( 1 ); // Remove the '!' prefix
+                token       = RiaStdStringTools::trimString( token );
+            }
+
+            // Skip empty tokens
+            if ( token.empty() ) continue;
+
             // Check for range
             size_t dashPos = token.find( '-' );
             if ( dashPos != std::string::npos )
             {
+                // For exclusions, don't allow open-ended ranges
+                if ( isExclusion && ( dashPos == 0 || dashPos == token.size() - 1 ) )
+                {
+                    continue; // Skip invalid exclusion ranges
+                }
+
                 int startIndex = ( dashPos == 0 ) ? minVal : std::stoi( token.substr( 0, dashPos ) );
                 int endIndex   = ( dashPos == token.size() - 1 ) ? maxVal : std::stoi( token.substr( dashPos + 1 ) );
                 if ( startIndex > endIndex )
@@ -477,14 +529,34 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
                 }
                 for ( int i = startIndex; i <= endIndex; ++i )
                 {
-                    result.insert( i );
+                    if ( isExclusion )
+                    {
+                        exclusions.insert( i );
+                    }
+                    else
+                    {
+                        result.insert( i );
+                    }
                 }
             }
             else
             {
                 // Check for individual numbers
-                result.insert( std::stoi( token ) );
+                if ( isExclusion )
+                {
+                    exclusions.insert( std::stoi( token ) );
+                }
+                else
+                {
+                    result.insert( std::stoi( token ) );
+                }
             }
+        }
+
+        // Remove excluded values from result
+        for ( int excluded : exclusions )
+        {
+            result.erase( excluded );
         }
 
         return result;

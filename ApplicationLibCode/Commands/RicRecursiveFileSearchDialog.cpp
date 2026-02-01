@@ -337,7 +337,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     connect( m_treeViewFilterLineEdit, &QLineEdit::returnPressed, m_treeViewFilterButton, &QPushButton::click );
     connect( m_treeViewFilterLineEdit, &QLineEdit::textEdited, m_treeViewFilterButton, &QPushButton::click );
 
-    m_treeViewFilterLineEdit->setPlaceholderText( "Select Realizations: 1, 5-7, 9-18:3" );
+    m_treeViewFilterLineEdit->setPlaceholderText( "Select Realizations: 1, 5-7, !4, 9-18:3" );
 
     m_treeViewFilterLabel->setVisible( false );
     m_treeViewFilterButton->setVisible( false );

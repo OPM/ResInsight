@@ -61,7 +61,12 @@ RimEnsembleFileSet::RimEnsembleFileSet()
     CAF_PDM_InitObject( "Ensemble", ":/SummaryEnsemble.svg", "", "" );
 
     CAF_PDM_InitField( &m_pathPattern, "PathPattern", QString(), "Path Pattern", "", "", "" );
-    CAF_PDM_InitField( &m_realizationSubSet, "RealizationSubSet", QString(), "Realization Filter", "", "", "" );
+    CAF_PDM_InitField( &m_realizationSubSet,
+                       "RealizationSubSet",
+                       QString(),
+                       "Realization Filter",
+                       "",
+                       "Specify realization numbers. Example: 1-5, 8, 11-20, !4 will include 1, 2, 3, 5, 8, 11-20" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleInfo, "EnsembleInfo", "Info" );
     m_ensembleInfo.registerGetMethod( this, &RimEnsembleFileSet::ensembleInfo );
@@ -280,7 +285,7 @@ void RimEnsembleFileSet::defineEditorAttribute( const caf::PdmFieldHandle* field
     {
         if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
         {
-            lineEdAttr->placeholderText = "E.g. 0,1,4-6. Use '*' for all.";
+            lineEdAttr->placeholderText = "E.g. 0,1,4-10,!6. Use '*' for all.";
         }
     }
     else if ( field == &m_ensembleInfo )
