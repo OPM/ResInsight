@@ -20,11 +20,11 @@ jobs:
       - name: Install EPEL and development tools
         run: |
           dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms || true
-          dnf install -y dnf-plugins-core
-          dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled codeready-builder-for-rhel-8-$(arch)-rpms || true
-          dnf groupinstall -y "Development Tools"
+          /usr/bin/crb enable || true
           dnf install -y \
+            gcc \
+            gcc-c++ \
+            make \
             cmake \
             ninja-build \
             git \
