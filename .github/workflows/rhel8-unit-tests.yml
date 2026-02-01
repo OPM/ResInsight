@@ -1,0 +1,112 @@
+name: RHEL8 Unit Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Nightly at 2am UTC
+    - cron: "0 2 * * *"
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  rhel8-build-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.access.redhat.com/ubi8/ubi:latest
+
+    steps:
+      - name: Install EPEL and development tools
+        run: |
+          dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+          dnf config-manager --set-enabled codeready-builder-for-rhel-8-x86_64-rpms || true
+          dnf install -y dnf-plugins-core
+          dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled codeready-builder-for-rhel-8-$(arch)-rpms || true
+          dnf groupinstall -y "Development Tools"
+          dnf install -y \
+            cmake \
+            ninja-build \
+            git \
+            curl \
+            zip \
+            unzip \
+            tar \
+            pkg-config \
+            perl \
+            which \
+            python39 \
+            python39-devel \
+            python39-pip \
+            mesa-libGL-devel \
+            mesa-libEGL-devel \
+            libxkbcommon-devel \
+            libxkbcommon-x11-devel \
+            xcb-util-keysyms-devel \
+            xcb-util-image-devel \
+            xcb-util-wm-devel \
+            xcb-util-renderutil-devel \
+            fontconfig-devel \
+            freetype-devel \
+            libX11-devel \
+            libXext-devel \
+            libXrender-devel
+
+      - name: Install GCC Toolset 13
+        run: |
+          dnf install -y gcc-toolset-13 gcc-toolset-13-gcc-c++
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        run: |
+          alternatives --set python3 /usr/bin/python3.9
+          python3 --version
+          python3 -m pip install --upgrade pip
+          python3 -m pip install grpcio-tools
+
+      - name: Get Python executable path
+        id: python-path
+        run: |
+          echo "PYTHON_EXECUTABLE=$(python3 -c 'import sys; import pathlib; print(pathlib.PurePath(sys.executable).as_posix())')" >> $GITHUB_OUTPUT
+
+      - name: Install Qt 6 using aqtinstall
+        run: |
+          python3 -m pip install aqtinstall
+          python3 -m aqt install-qt linux desktop 6.6.3 gcc_64 -O /opt/Qt --modules qtnetworkauth
+          echo "Qt6_DIR=/opt/Qt/6.6.3/gcc_64" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=/opt/Qt/6.6.3/gcc_64" >> $GITHUB_ENV
+          echo "/opt/Qt/6.6.3/gcc_64/bin" >> $GITHUB_PATH
+
+      - name: Bootstrap vcpkg
+        run: |
+          source /opt/rh/gcc-toolset-13/enable
+          cd ThirdParty/vcpkg
+          ./bootstrap-vcpkg.sh
+
+      - name: Configure CMake
+        env:
+          CC: /opt/rh/gcc-toolset-13/root/usr/bin/gcc
+          CXX: /opt/rh/gcc-toolset-13/root/usr/bin/g++
+        run: |
+          source /opt/rh/gcc-toolset-13/enable
+          cmake -S . -B cmakebuild -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
+            -DRESINSIGHT_ENABLE_UNITY_BUILD=true \
+            -DRESINSIGHT_ENABLE_HDF5=false \
+            -DRESINSIGHT_ENABLE_GRPC=false \
+            -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build
+        run: |
+          source /opt/rh/gcc-toolset-13/enable
+          cmake --build cmakebuild --target ResInsight-tests -- -j$(nproc)
+
+      - name: Run Unit Tests
+        run: |
+          source /opt/rh/gcc-toolset-13/enable
+          ./cmakebuild/ResInsight-tests
