@@ -39,6 +39,7 @@ jobs:
             python39-devel \
             python39-pip \
             mesa-libGL-devel \
+            mesa-libGLU-devel \
             mesa-libEGL-devel \
             libxkbcommon-devel \
             libxkbcommon-x11-devel \
