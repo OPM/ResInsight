@@ -25,9 +25,9 @@ jobs:
               os: windows-2022,
               cc: "cl",
               cxx: "cl",
-              build-python-module: false,
+              build-python-module: true,
               execute-unit-tests: true,
-              execute-pytests: false,
+              execute-pytests: true,
               unity-build: true,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
@@ -276,7 +276,7 @@ jobs:
       - name: Run pytest
         if: matrix.config.execute-pytests
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight${{ runner.os == 'Windows' && '.exe' || '' }}
         run: |
           cd GrpcInterface/Python/rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
