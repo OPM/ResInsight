@@ -91,8 +91,8 @@ class Instance:
         Kill the process with a given pid.
         """
         if hasattr(signal, "CTRL_C_EVENT"):
-            # windows does not have kill
-            os.kill(pid, signal.CTRL_C_EVENT)
+            # windows - use SIGTERM for process termination
+            os.kill(pid, signal.SIGTERM)
         else:
             # linux/unix
             os.kill(pid, signal.SIGKILL)
