@@ -22,6 +22,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,18 +46,60 @@ RMSWell::RMSWell(const std::string& filename)
   getline(file,line2_);
   int line = 0;
   std::string token;
-  std::string wellName = ReadNext<std::string>(file, line);
-  SetWellName(wellName);
-  xpos0_ = ReadNext<double>(file, line);
-  ypos0_ = ReadNext<double>(file, line);      // read wellname and positions
-  try {
-    rkb_ = ReadNext<double>(file, line);
-  } catch (std::exception &) {
-    // Ignore errors: not guaranteed to get rkb
+
+  // Read the entire line containing well name and coordinates
+  // The well name may contain spaces, so we parse from the end to find coordinates first
+  std::string line3;
+  getline(file, line3);
+
+  // Tokenize the line
+  std::istringstream iss(line3);
+  std::vector<std::string> tokens;
+  std::string t;
+  while (iss >> t) {
+    tokens.push_back(t);
   }
-  // getline(file,dummy);// Line may contain a dummy number
-  //-----line shift
-  DiscardRestOfLine(file, line, false);
+
+  // Need at least 3 tokens: wellname (1+), x, y (rkb is optional)
+  if (tokens.size() < 3) {
+    throw FileFormatError("Invalid RMS well format: line 3 must contain well name, x, and y coordinates");
+  }
+
+  // Parse from end to find where coordinates start
+  // Work backwards: try to parse as many trailing numbers as possible (up to 3: x, y, rkb)
+  size_t coordStart = tokens.size();
+  int numCoords = 0;
+
+  for (size_t i = tokens.size(); i > 0 && numCoords < 3; --i) {
+    try {
+      ParseType<double>(tokens[i-1]);
+      coordStart = i - 1;
+      numCoords++;
+    } catch (...) {
+      break;  // Stop when we hit a non-number (part of well name)
+    }
+  }
+
+  // Must have at least x and y coordinates
+  if (numCoords < 2) {
+    throw FileFormatError("Invalid RMS well format: could not parse x and y coordinates");
+  }
+
+  // Well name is everything before the coordinates
+  std::string wellName;
+  for (size_t i = 0; i < coordStart; ++i) {
+    if (i > 0) wellName += " ";
+    wellName += tokens[i];
+  }
+  SetWellName(wellName);
+
+  // Parse coordinates (in order: x, y, [rkb])
+  xpos0_ = ParseType<double>(tokens[coordStart]);
+  ypos0_ = ParseType<double>(tokens[coordStart + 1]);
+  if (coordStart + 2 < tokens.size()) {
+    rkb_ = ParseType<double>(tokens[coordStart + 2]);
+  }
+
   nlog = ReadNext<int>(file, line);          // read number of logs
   DiscardRestOfLine(file, line, false);
   lognames_.resize(nlog+3);

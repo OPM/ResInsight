@@ -41,3 +41,21 @@ TEST( RifRmsWellPathReader, ReadFromFile )
     EXPECT_EQ( 4647u, wellPath->wellPathPoints().size() );
     EXPECT_EQ( 4647u, wellPath->measuredDepths().size() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifRmsWellPathReader, ReadFromFileWithSpaceInName )
+{
+    QString filePath = TEST_DATA_DIRECTORY + "well_with_space.rmswell";
+    auto    wellData = RifRmsWellPathReader::readWellData( filePath );
+    EXPECT_EQ( wellData.m_name, QString( "55 33-1" ) );
+
+    auto wellPath = wellData.m_wellPathGeometry;
+    ASSERT_TRUE( wellPath.notNull() );
+
+    ASSERT_TRUE( wellPath->hasDatumElevation() );
+    EXPECT_DOUBLE_EQ( 25.0, wellPath->datumElevation() );
+    EXPECT_EQ( 2u, wellPath->wellPathPoints().size() );
+    EXPECT_EQ( 2u, wellPath->measuredDepths().size() );
+}
