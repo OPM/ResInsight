@@ -57,7 +57,7 @@ jobs:
 
       - name: Install GCC Toolset 13
         run: |
-          dnf install -y gcc-toolset-13 gcc-toolset-13-gcc-c++ gcc-toolset-13-libatomic-devel gcc-toolset-13-libstdc++-devel
+          dnf install -y gcc-toolset-14 gcc-toolset-14-gcc-c++ gcc-toolset-14-libatomic-devel gcc-toolset-14-libstdc++-devel
 
       - name: Configure git safe directory
         run: |
@@ -90,7 +90,7 @@ jobs:
 
       - name: Bootstrap vcpkg
         run: |
-          source /opt/rh/gcc-toolset-13/enable
+          source /opt/rh/gcc-toolset-14/enable
           cd ThirdParty/vcpkg
           ./bootstrap-vcpkg.sh
 
@@ -109,12 +109,12 @@ jobs:
 
       - name: Configure CMake
         env:
-          CC: /opt/rh/gcc-toolset-13/root/usr/bin/gcc
-          CXX: /opt/rh/gcc-toolset-13/root/usr/bin/g++
+          CC: /opt/rh/gcc-toolset-14/root/usr/bin/gcc
+          CXX: /opt/rh/gcc-toolset-14/root/usr/bin/g++
           VCPKG_FEATURE_FLAGS: "binarycaching"
           VCPKG_BINARY_SOURCES: "clear;x-azblob,https://${{ secrets.AZURE_VCPKG_STORAGE_ACCOUNT }}.blob.core.windows.net/vcpkg-binaries,${{ secrets.AZURE_VCPKG_SAS_TOKEN }},readwrite"
         run: |
-          source /opt/rh/gcc-toolset-13/enable
+          source /opt/rh/gcc-toolset-14/enable
           cmake -S . -B cmakebuild -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
@@ -125,10 +125,10 @@ jobs:
 
       - name: Build
         run: |
-          source /opt/rh/gcc-toolset-13/enable
+          source /opt/rh/gcc-toolset-14/enable
           cmake --build cmakebuild --target ResInsight-tests -- -j$(nproc)
 
       - name: Run Unit Tests
         run: |
-          source /opt/rh/gcc-toolset-13/enable
+          source /opt/rh/gcc-toolset-14/enable
           ./cmakebuild/ResInsight-tests
