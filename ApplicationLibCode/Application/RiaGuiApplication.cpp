@@ -41,10 +41,10 @@
 #include "RiaViewRedrawScheduler.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "EclipseCommands/RicImportEclipseCaseFeature.h"
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
-#include "EclipseCommands/RicImportEclipseCaseFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"

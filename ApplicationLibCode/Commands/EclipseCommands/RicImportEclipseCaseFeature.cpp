@@ -120,8 +120,7 @@ void RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( const QStringLi
                         if ( RimSurfaceInViewCollection* surfInViewColl = view->surfaceInViewCollection() )
                         {
                             // Check if this is a new view or an existing view
-                            bool isNewView =
-                                std::find( viewsBeforeImport.begin(), viewsBeforeImport.end(), view ) == viewsBeforeImport.end();
+                            bool isNewView = std::find( viewsBeforeImport.begin(), viewsBeforeImport.end(), view ) == viewsBeforeImport.end();
 
                             // Get all surface-in-view objects
                             auto allSurfacesInView = surfInViewColl->descendantsIncludingThisOfType<RimSurfaceInView>();
