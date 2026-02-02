@@ -58,6 +58,10 @@ jobs:
         run: |
           dnf install -y gcc-toolset-13 gcc-toolset-13-gcc-c++
 
+      - name: Configure git safe directory
+        run: |
+          git config --global --add safe.directory '*'
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
