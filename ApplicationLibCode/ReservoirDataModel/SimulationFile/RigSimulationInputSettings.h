@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaModelExportDefines.h"
+#include "RigModelPaddingSettings.h"
 
 #include "cafAppEnum.h"
 #include "cafVecIjk.h"
@@ -76,6 +77,10 @@ public:
     QString outputDeckFileName() const;
     void    setOutputDeckFileName( const QString& fileName );
 
+    // Model padding
+    const RigModelPaddingSettings& paddingSettings() const;
+    void                           setPaddingSettings( const RigModelPaddingSettings& settings );
+
 private:
     caf::VecIjk0                 m_min;
     caf::VecIjk0                 m_max;
@@ -86,4 +91,5 @@ private:
     double                       m_porvMultiplier;
     QString                      m_inputDeckFileName;
     QString                      m_outputDeckFileName;
+    RigModelPaddingSettings      m_paddingSettings;
 };

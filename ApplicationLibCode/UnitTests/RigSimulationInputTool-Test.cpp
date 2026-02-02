@@ -27,6 +27,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCaseDataTools.h"
 #include "RigMainGrid.h"
+#include "RigModelPaddingSettings.h"
 #include "RigSimulationInputSettings.h"
 #include "RimEclipseResultCase.h"
 
@@ -1305,4 +1306,126 @@ TEST( RigSimulationInputTool, RefineEDITNNCConnection_CorrespondingSubcells )
     // Connection 3: (1,1,0) -> (1,1,0): (7,9,5) -> (13,17,7)
     EXPECT_EQ( caf::VecIjk0( 7, 9, 5 ), refined[3].cell1 );
     EXPECT_EQ( caf::VecIjk0( 13, 17, 7 ), refined[3].cell2 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test exportSimulationInput with model5 data and model padding
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5WithPadding )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "0_BASE_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model_padded.DATA";
+
+    // Set up export settings for sector export with padding
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive) -> 20x15x10
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Configure padding: 2 upper, 3 lower
+    RigModelPaddingSettings paddingSettings;
+    paddingSettings.setEnabled( true );
+    paddingSettings.setNzUpper( 2 );
+    paddingSettings.setNzLower( 3 );
+    paddingSettings.setTopUpper( 1000.0 );
+    paddingSettings.setBottomLower( 3600.0 );
+    paddingSettings.setUpperPorosity( 0.1 );
+    paddingSettings.setMinLayerThickness( 10.0 );
+    paddingSettings.setVerticalPillars( true );
+    paddingSettings.setMonotonicZcorn( true );
+    paddingSettings.setFillGaps( true );
+    settings.setPaddingSettings( paddingSettings );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Load the exported deck file using RifOpmFlowDeckFile
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    // Get all keywords from the deck
+    std::vector<std::string> allKeywords = deckFile.keywords( false );
+
+    // Verify key keywords exist in the file
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "DIMENS" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "SPECGRID" ) != allKeywords.end() )
+        << "SPECGRID keyword missing from exported file";
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "COORD" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "ZCORN" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "ACTNUM" ) != allKeywords.end() );
+    EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "PORO" ) != allKeywords.end() );
+
+    // Read the file content to verify padded dimensions
+    QFile file( exportFilePath );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    QString fileContent = file.readAll();
+    file.close();
+
+    // Verify dimensions are correct for the padded sector (20x15x15)
+    // Original sector: 20x15x10, with nzUpper=2, nzLower=3: 20x15x(10+2+3) = 20x15x15
+    EXPECT_TRUE( fileContent.contains( " 20 15 15 /" ) ) << "File does not contain expected padded dimensions 20 15 15";
+
+    // Verify SPECGRID/DIMENS show correct padded dimensions
+    auto specgridKw = deckFile.findKeyword( "SPECGRID" );
+    ASSERT_TRUE( specgridKw.has_value() );
+    EXPECT_EQ( 20, specgridKw->getRecord( 0 ).getItem( 0 ).get<int>( 0 ) );
+    EXPECT_EQ( 15, specgridKw->getRecord( 0 ).getItem( 1 ).get<int>( 0 ) );
+    EXPECT_EQ( 15, specgridKw->getRecord( 0 ).getItem( 2 ).get<int>( 0 ) );
+
+    // Verify COORD array size: (NX+1)*(NY+1)*6 = 21*16*6 = 2016 (unchanged by padding)
+    auto coordKw = deckFile.findKeyword( "COORD" );
+    ASSERT_TRUE( coordKw.has_value() );
+    EXPECT_EQ( 2016u, coordKw->getRecord( 0 ).getItem( 0 ).data_size() );
+
+    // Verify ZCORN array size: NX*NY*NZ_new*8 = 20*15*15*8 = 36000
+    auto zcornKw = deckFile.findKeyword( "ZCORN" );
+    ASSERT_TRUE( zcornKw.has_value() );
+    EXPECT_EQ( 36000u, zcornKw->getRecord( 0 ).getItem( 0 ).data_size() );
+
+    // Verify ACTNUM array size: NX*NY*NZ_new = 20*15*15 = 4500
+    auto actnumKw = deckFile.findKeyword( "ACTNUM" );
+    ASSERT_TRUE( actnumKw.has_value() );
+    EXPECT_EQ( 4500u, actnumKw->getRecord( 0 ).getItem( 0 ).data_size() );
 }

@@ -254,12 +254,14 @@ bool RifOpmFlowDeckFile::loadDeck( std::string filename )
     {
         auto deck = Opm::Parser{}.parseFile( filename, internal::defaultParseContext(), errors );
 
+        m_deck     = std::make_unique<Opm::Deck>( deck );
         m_fileDeck = std::make_unique<Opm::FileDeck>( deck );
 
         splitDatesIfNecessary();
     }
     catch ( ... )
     {
+        m_deck.reset();
         m_fileDeck.reset();
         return false;
     }
@@ -1048,6 +1050,22 @@ bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string key
 
     m_fileDeck->insert( insertIdx.value(), includeKw );
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::FileDeck* RifOpmFlowDeckFile::fileDeck()
+{
+    return m_fileDeck.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const Opm::Deck* RifOpmFlowDeckFile::deck() const
+{
+    return m_deck.get();
 }
 
 //--------------------------------------------------------------------------------------------------
