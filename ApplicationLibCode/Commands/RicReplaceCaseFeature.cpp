@@ -24,6 +24,7 @@
 #include "RiaGuiApplication.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "EclipseCommands/RicImportEclipseCaseFeature.h"
 #include "RicImportGeneralDataFeature.h"
 
 #include "RimEclipseCase.h"
@@ -90,6 +91,11 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
     // Use the file base name as case user description
     QFileInfo fileInfoNew( fileName );
     eclipseResultCase->setCaseUserDescription( fileInfoNew.baseName() );
+
+    // Auto-import matching PVD surface files for the replaced case
+    QStringList gridFileNames;
+    gridFileNames << fileName;
+    RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( gridFileNames, {} );
 
     RiaEclipseFileNameTools helper( fileName );
     auto                    summaryFileNames = helper.findSummaryFileCandidates();

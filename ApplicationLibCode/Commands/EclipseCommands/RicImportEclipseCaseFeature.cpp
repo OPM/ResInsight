@@ -77,9 +77,18 @@ void RicImportEclipseCaseFeature::onActionTriggered( bool isChecked )
     }
 
     // Auto-import matching PVD surface files
+    importPvdSurfacesForGridFiles( fileNames, allViewsBefore );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( const QStringList&                  gridFileNames,
+                                                                 const std::vector<RimEclipseView*>& viewsBeforeImport )
+{
     if ( RimSurfaceCollection* surfColl = RimTools::surfaceCollection() )
     {
-        QStringList pvdFilesToImport = findPvdFilesToImport( fileNames );
+        QStringList pvdFilesToImport = findPvdFilesToImport( gridFileNames );
 
         if ( !pvdFilesToImport.isEmpty() )
         {
@@ -100,6 +109,7 @@ void RicImportEclipseCaseFeature::onActionTriggered( bool isChecked )
             }
 
             // Enable newly imported surfaces in new views, disable them in old views
+            RimProject* project = RimProject::current();
             if ( project && !newlyImportedSurfaces.empty() )
             {
                 // Process all views (both old and new)
@@ -110,7 +120,8 @@ void RicImportEclipseCaseFeature::onActionTriggered( bool isChecked )
                         if ( RimSurfaceInViewCollection* surfInViewColl = view->surfaceInViewCollection() )
                         {
                             // Check if this is a new view or an existing view
-                            bool isNewView = std::find( allViewsBefore.begin(), allViewsBefore.end(), view ) == allViewsBefore.end();
+                            bool isNewView =
+                                std::find( viewsBeforeImport.begin(), viewsBeforeImport.end(), view ) == viewsBeforeImport.end();
 
                             // Get all surface-in-view objects
                             auto allSurfacesInView = surfInViewColl->descendantsIncludingThisOfType<RimSurfaceInView>();

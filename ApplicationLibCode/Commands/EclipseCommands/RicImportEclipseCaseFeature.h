@@ -31,10 +31,13 @@ class RicImportEclipseCaseFeature : public RicImportGeneralDataFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static void importPvdSurfacesForGridFiles( const QStringList&                  gridFileNames,
+                                               const std::vector<RimEclipseView*>& viewsBeforeImport );
+    static std::vector<RimEclipseView*> allEclipseViews( RimProject* project );
+    static QStringList                  findPvdFilesToImport( const QStringList& fileNames );
+
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-    static std::vector<RimEclipseView*> allEclipseViews( RimProject* project );
-    static QStringList                  findPvdFilesToImport( const QStringList& fileNames );
 };

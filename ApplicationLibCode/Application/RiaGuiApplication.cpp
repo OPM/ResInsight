@@ -44,6 +44,7 @@
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
+#include "EclipseCommands/RicImportEclipseCaseFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
@@ -777,6 +778,9 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         {
             getOrCreateAndShowMainPlotWindow();
         }
+
+        // Auto-import matching PVD surface files for command-line loaded cases
+        RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( fileNames, {} );
     }
 
     if ( cvf::Option o = progOpt->option( "savesnapshots" ) )
