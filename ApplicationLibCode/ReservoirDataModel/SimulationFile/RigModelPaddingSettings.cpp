@@ -16,178 +16,252 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigSimulationInputSettings.h"
+#include "RigModelPaddingSettings.h"
 
-#include "opm/input/eclipse/Deck/DeckRecord.hpp"
+#include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigSimulationInputSettings::RigSimulationInputSettings()
-    : m_min( caf::VecIjk0::ZERO )
-    , m_max( caf::VecIjk0::ZERO )
-    , m_refinement( 1, 1, 1 )
-    , m_boundaryCondition( RiaModelExportDefines::BoundaryCondition::OPERNUM_OPERATER )
-    , m_porvMultiplier( 1.0e6 )
+RigModelPaddingSettings::RigModelPaddingSettings()
+    : m_enabled( false )
+    , m_nzUpper( 0 )
+    , m_topUpper( 0.0 )
+    , m_upperPorosity( 0.0 )
+    , m_upperEquilnum( 1 )
+    , m_nzLower( 0 )
+    , m_bottomLower( 0.0 )
+    , m_minLayerThickness( 0.1 )
+    , m_fillGaps( false )
+    , m_monotonicZcorn( false )
+    , m_verticalPillars( false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::VecIjk0 RigSimulationInputSettings::min() const
+bool RigModelPaddingSettings::isEnabled() const
 {
-    return m_min;
+    return m_enabled;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::VecIjk0 RigSimulationInputSettings::max() const
+void RigModelPaddingSettings::setEnabled( bool enabled )
 {
-    return m_max;
+    m_enabled = enabled;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setMin( const caf::VecIjk0& min )
+int RigModelPaddingSettings::nzUpper() const
 {
-    m_min = min;
+    return m_nzUpper;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setMax( const caf::VecIjk0& max )
+void RigModelPaddingSettings::setNzUpper( int value )
 {
-    m_max = max;
+    m_nzUpper = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RigSimulationInputSettings::refinement() const
+double RigModelPaddingSettings::topUpper() const
 {
-    return m_refinement;
+    return m_topUpper;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setRefinement( const cvf::Vec3st& refinement )
+void RigModelPaddingSettings::setTopUpper( double value )
 {
-    m_refinement = refinement;
+    m_topUpper = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setKeywordsToRemove( const std::vector<std::string>& keywords )
+double RigModelPaddingSettings::upperPorosity() const
 {
-    m_keywordsToRemove = keywords;
+    return m_upperPorosity;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::string>& RigSimulationInputSettings::keywordsToRemove() const
+void RigModelPaddingSettings::setUpperPorosity( double value )
 {
-    return m_keywordsToRemove;
+    m_upperPorosity = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Opm::DeckRecord> RigSimulationInputSettings::bcpropKeywords() const
+int RigModelPaddingSettings::upperEquilnum() const
 {
-    return m_bcpropKeywords;
+    return m_upperEquilnum;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setBcpropKeywords( const std::vector<Opm::DeckRecord>& keywords )
+void RigModelPaddingSettings::setUpperEquilnum( int value )
 {
-    m_bcpropKeywords = keywords;
+    m_upperEquilnum = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaModelExportDefines::BoundaryCondition RigSimulationInputSettings::boundaryCondition() const
+int RigModelPaddingSettings::nzLower() const
 {
-    return m_boundaryCondition;
+    return m_nzLower;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setBoundaryCondition( RiaModelExportDefines::BoundaryCondition value )
+void RigModelPaddingSettings::setNzLower( int value )
 {
-    m_boundaryCondition = value;
+    m_nzLower = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigSimulationInputSettings::porvMultiplier() const
+double RigModelPaddingSettings::bottomLower() const
 {
-    return m_porvMultiplier;
+    return m_bottomLower;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setPorvMultiplier( double value )
+void RigModelPaddingSettings::setBottomLower( double value )
 {
-    m_porvMultiplier = value;
+    m_bottomLower = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigSimulationInputSettings::inputDeckFileName() const
+double RigModelPaddingSettings::minLayerThickness() const
 {
-    return m_inputDeckFileName;
+    return m_minLayerThickness;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setInputDeckFileName( const QString& fileName )
+void RigModelPaddingSettings::setMinLayerThickness( double value )
 {
-    m_inputDeckFileName = fileName;
+    m_minLayerThickness = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigSimulationInputSettings::outputDeckFileName() const
+bool RigModelPaddingSettings::fillGaps() const
 {
-    return m_outputDeckFileName;
+    return m_fillGaps;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setOutputDeckFileName( const QString& fileName )
+void RigModelPaddingSettings::setFillGaps( bool value )
 {
-    m_outputDeckFileName = fileName;
+    m_fillGaps = value;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigModelPaddingSettings& RigSimulationInputSettings::paddingSettings() const
+bool RigModelPaddingSettings::monotonicZcorn() const
 {
-    return m_paddingSettings;
+    return m_monotonicZcorn;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setPaddingSettings( const RigModelPaddingSettings& settings )
+void RigModelPaddingSettings::setMonotonicZcorn( bool value )
 {
-    m_paddingSettings = settings;
+    m_monotonicZcorn = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigModelPaddingSettings::verticalPillars() const
+{
+    return m_verticalPillars;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigModelPaddingSettings::setVerticalPillars( bool value )
+{
+    m_verticalPillars = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigModelPaddingSettings::validate() const
+{
+    if ( !m_enabled )
+    {
+        return {};
+    }
+
+    QStringList errors;
+
+    // Check upper padding
+    if ( m_nzUpper < 0 )
+    {
+        errors << "Number of upper padding layers cannot be negative.";
+    }
+
+    if ( m_nzUpper > 0 )
+    {
+        if ( m_upperPorosity < 0.0 || m_upperPorosity > 1.0 )
+        {
+            errors << "Upper porosity must be between 0.0 and 1.0.";
+        }
+
+        if ( m_upperEquilnum < 1 )
+        {
+            errors << "Upper EQUILNUM must be at least 1.";
+        }
+    }
+
+    // Check lower padding
+    if ( m_nzLower < 0 )
+    {
+        errors << "Number of lower padding layers cannot be negative.";
+    }
+
+    // Check geometry options
+    if ( m_minLayerThickness <= 0.0 )
+    {
+        errors << "Minimum layer thickness must be positive.";
+    }
+
+    // Check that at least one padding direction is specified
+    if ( m_nzUpper == 0 && m_nzLower == 0 )
+    {
+        errors << "At least one padding direction (upper or lower) must have layers > 0.";
+    }
+
+    return errors.join( "\n" );
 }

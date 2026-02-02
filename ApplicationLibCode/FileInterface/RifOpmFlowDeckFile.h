@@ -29,6 +29,7 @@
 
 namespace Opm
 {
+class Deck;
 class DeckKeyword;
 class DeckItem;
 class DeckRecord;
@@ -91,6 +92,9 @@ public:
 
     bool addIncludeKeyword( std::string section, std::string keyword, std::string filePath );
 
+    Opm::FileDeck*   fileDeck();
+    const Opm::Deck* deck() const;
+
     bool addKeyword( const std::string& section, const Opm::DeckKeyword& keyword );
 
     bool replaceKeyword( const std::string& section, const Opm::DeckKeyword& keyword );
@@ -106,5 +110,6 @@ private:
     void splitDatesIfNecessary();
 
 private:
+    std::unique_ptr<Opm::Deck>     m_deck;
     std::unique_ptr<Opm::FileDeck> m_fileDeck;
 };

@@ -1,9 +1,13 @@
 set(SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RigModelPaddingSettings.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigPadModel.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputSettings.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputTool.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RigModelPaddingSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigPadModel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputTool.cpp
 )

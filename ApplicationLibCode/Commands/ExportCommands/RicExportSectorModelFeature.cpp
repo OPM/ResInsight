@@ -25,6 +25,7 @@
 #include "RicExportEclipseSectorModelFeature.h"
 #include "RicExportSectorModelUi.h"
 
+#include "RigModelPaddingSettings.h"
 #include "RigSimulationInputSettings.h"
 #include "RigSimulationInputTool.h"
 
@@ -117,6 +118,7 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
     settings.setBcpropKeywords( bcpropKeywords );
     settings.setBoundaryCondition( exportSettings->boundaryCondition() );
     settings.setPorvMultiplier( exportSettings->porvMultiplier() );
+    settings.setPaddingSettings( exportSettings->paddingSettings() );
 
     // Get input deck file name from eclipse case
     QFileInfo fi( view->eclipseCase()->gridFileName() );

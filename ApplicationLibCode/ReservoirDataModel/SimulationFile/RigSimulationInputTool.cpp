@@ -21,6 +21,9 @@
 #include "RiaLogging.h"
 #include "RiaNncDefines.h"
 
+#include "RigModelPaddingSettings.h"
+#include "RigPadModel.h"
+
 #include "RifEclipseInputFileTools.h"
 #include "RifOpmDeckTools.h"
 #include "RifOpmFlowDeckFile.h"
@@ -150,6 +153,15 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     if ( auto result = exportEditNncKeyword( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
+    }
+
+    // Apply model padding if enabled
+    if ( settings.paddingSettings().isEnabled() )
+    {
+        if ( auto result = applyModelPadding( deckFile, settings.paddingSettings() ); !result )
+        {
+            return result;
+        }
     }
 
     // Remove SKIP keywords that were used as placeholders for filtered-out keywords
@@ -1776,4 +1788,13 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
     deckFile.replaceKeyword( "EDIT", editnncKw );
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::applyModelPadding( RifOpmFlowDeckFile&            deckFile,
+                                                                        const RigModelPaddingSettings& paddingSettings )
+{
+    return RigPadModel::extendGrid( deckFile, paddingSettings );
 }

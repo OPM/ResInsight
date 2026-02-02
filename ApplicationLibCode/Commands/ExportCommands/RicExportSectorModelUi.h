@@ -31,6 +31,7 @@
 
 #include <map>
 
+class RigModelPaddingSettings;
 class RimKeywordBcprop;
 class RimEclipseCase;
 class RimEclipseView;
@@ -77,6 +78,9 @@ public:
     QString newSimulationJobFolder() const;
     QString newSimulationJobName() const;
 
+    // Model padding settings accessor
+    RigModelPaddingSettings paddingSettings() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
@@ -93,8 +97,9 @@ private:
         GridRefinement     = 2,
         BoundaryConditions = 3,
         KeywordAdjustments = 4,
-        SimulationJob      = 5,
-        TotalPages         = 6
+        ModelPadding       = 5,
+        SimulationJob      = 6,
+        TotalPages         = 7
     };
 
     void           applyBoundaryDefaults();
@@ -124,6 +129,19 @@ private:
     caf::PdmField<double>                      m_porvMultiplier;
 
     caf::PdmField<std::vector<QString>> m_keywordsToRemove;
+
+    // Model padding fields
+    caf::PdmField<bool>   m_enablePadding;
+    caf::PdmField<int>    m_paddingNzUpper;
+    caf::PdmField<double> m_paddingTopUpper;
+    caf::PdmField<double> m_paddingUpperPorosity;
+    caf::PdmField<int>    m_paddingUpperEquilnum;
+    caf::PdmField<int>    m_paddingNzLower;
+    caf::PdmField<double> m_paddingBottomLower;
+    caf::PdmField<double> m_paddingMinThickness;
+    caf::PdmField<bool>   m_paddingFillGaps;
+    caf::PdmField<bool>   m_paddingMonotonicZcorn;
+    caf::PdmField<bool>   m_paddingVerticalPillars;
 
     caf::PdmField<bool>          m_createSimulationJob;
     caf::PdmField<caf::FilePath> m_simulationJobFolder;

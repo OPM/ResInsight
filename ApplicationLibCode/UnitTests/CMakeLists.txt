@@ -8,6 +8,8 @@ endif(MSVC)
 set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Ert-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigModelPaddingSettings-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigPadModel-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputTool-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigBoundingBoxIjk-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifcCommandCore-Test.cpp
