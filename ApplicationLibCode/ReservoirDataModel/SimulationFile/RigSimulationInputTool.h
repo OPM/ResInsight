@@ -31,6 +31,7 @@
 
 class RimEclipseView;
 class RimEclipseCase;
+class RigModelPaddingSettings;
 class RigSimulationInputSettings;
 class RifOpmFlowDeckFile;
 class RigSimWellData;
@@ -152,6 +153,8 @@ private:
 
     static std::expected<void, QString>
         exportEditNncKeyword( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+
+    static std::expected<void, QString> applyModelPadding( RifOpmFlowDeckFile& deckFile, const RigModelPaddingSettings& paddingSettings );
 
     // Utility: Transform global IJK to sector-relative coordinates with refinement
     static caf::VecIjk0 transformToSectorCoordinates( const caf::VecIjk0& globalIjk, const caf::VecIjk0& min, const cvf::Vec3st& refinement );

@@ -24,6 +24,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultTools.h"
 #include "RigMainGrid.h"
+#include "RigModelPaddingSettings.h"
 
 #include "Jobs/RimKeywordBcprop.h"
 #include "RimEclipseCase.h"
@@ -101,6 +102,38 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     m_keywordsToRemove.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     setDefaultKeywordsToRemove();
 
+    // Model padding fields
+    CAF_PDM_InitField( &m_enablePadding, "EnablePadding", false, "Enable Model Padding" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_enablePadding );
+
+    CAF_PDM_InitField( &m_paddingNzUpper, "PaddingNzUpper", 0, "Number of Z Layers" );
+    m_paddingNzUpper.setRange( 0, 100 );
+
+    CAF_PDM_InitField( &m_paddingTopUpper, "PaddingTopUpper", 0.0, "Top Depth" );
+
+    CAF_PDM_InitField( &m_paddingUpperPorosity, "PaddingUpperPorosity", 0.0, "Porosity" );
+    m_paddingUpperPorosity.setRange( 0.0, 1.0 );
+
+    CAF_PDM_InitField( &m_paddingUpperEquilnum, "PaddingUpperEquilnum", 1, "EQUILNUM" );
+    m_paddingUpperEquilnum.setMinValue( 1 );
+
+    CAF_PDM_InitField( &m_paddingNzLower, "PaddingNzLower", 0, "Number of Z Layers" );
+    m_paddingNzLower.setRange( 0, 100 );
+
+    CAF_PDM_InitField( &m_paddingBottomLower, "PaddingBottomLower", 0.0, "Bottom Depth" );
+
+    CAF_PDM_InitField( &m_paddingMinThickness, "PaddingMinThickness", 0.1, "Minimum Layer Thickness" );
+    m_paddingMinThickness.setMinValue( 0.001 );
+
+    CAF_PDM_InitField( &m_paddingFillGaps, "PaddingFillGaps", false, "Fill Gaps in Z Direction" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_paddingFillGaps );
+
+    CAF_PDM_InitField( &m_paddingMonotonicZcorn, "PaddingMonotonicZcorn", false, "Enforce Monotonic Z-Corners" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_paddingMonotonicZcorn );
+
+    CAF_PDM_InitField( &m_paddingVerticalPillars, "PaddingVerticalPillars", false, "Make Pillars Vertical" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_paddingVerticalPillars );
+
     CAF_PDM_InitField( &m_createSimulationJob, "CreateSimulationJob", false, "Create New Simulation Job" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSimulationJob );
     CAF_PDM_InitFieldNoDefault( &m_simulationJobFolder, "SimulationJobFolder", "Working Folder" );
@@ -134,6 +167,9 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     m_pageNames << "Keyword Adjustments";
     m_pageSubtitles << "Set up special handling of certain keywords.";
+
+    m_pageNames << "Model Padding";
+    m_pageSubtitles << "Configure optional Z-direction padding for the sector model grid.";
 
     m_pageNames << "Simulation Job Settings";
     m_pageSubtitles << "Optionally create and/or run a simulation job using the exported sector model.";
@@ -234,6 +270,30 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
                                      setDefaultKeywordsToRemove();
                                      updateConnectedEditors();
                                  } );
+    }
+    else if ( uiConfigName == m_pageNames[WizardPageEnum::ModelPadding] )
+    {
+        uiOrdering.add( &m_enablePadding );
+        uiOrdering.addNewLabel( "" );
+
+        if ( m_enablePadding() )
+        {
+            auto upperGrp = uiOrdering.addNewGroup( "Upper Padding" );
+            upperGrp->add( &m_paddingNzUpper );
+            upperGrp->add( &m_paddingTopUpper );
+            upperGrp->add( &m_paddingUpperPorosity );
+            upperGrp->add( &m_paddingUpperEquilnum );
+
+            auto lowerGrp = uiOrdering.addNewGroup( "Lower Padding" );
+            lowerGrp->add( &m_paddingNzLower );
+            lowerGrp->add( &m_paddingBottomLower );
+
+            auto optionsGrp = uiOrdering.addNewGroup( "Grid Options" );
+            optionsGrp->add( &m_paddingMinThickness );
+            optionsGrp->add( &m_paddingFillGaps );
+            optionsGrp->add( &m_paddingMonotonicZcorn );
+            optionsGrp->add( &m_paddingVerticalPillars );
+        }
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::SimulationJob] )
     {
@@ -478,7 +538,7 @@ void RicExportSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         applyBoundaryDefaults();
     }
-    else if ( ( changedField == &m_boundaryCondition ) || ( changedField == &m_refineGrid ) )
+    else if ( ( changedField == &m_boundaryCondition ) || ( changedField == &m_refineGrid ) || ( changedField == &m_enablePadding ) )
     {
         updateConnectedEditors();
     }
@@ -595,6 +655,26 @@ QString RicExportSectorModelUi::newSimulationJobName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigModelPaddingSettings RicExportSectorModelUi::paddingSettings() const
+{
+    RigModelPaddingSettings settings;
+    settings.setEnabled( m_enablePadding() );
+    settings.setNzUpper( m_paddingNzUpper() );
+    settings.setTopUpper( m_paddingTopUpper() );
+    settings.setUpperPorosity( m_paddingUpperPorosity() );
+    settings.setUpperEquilnum( m_paddingUpperEquilnum() );
+    settings.setNzLower( m_paddingNzLower() );
+    settings.setBottomLower( m_paddingBottomLower() );
+    settings.setMinLayerThickness( m_paddingMinThickness() );
+    settings.setFillGaps( m_paddingFillGaps() );
+    settings.setMonotonicZcorn( m_paddingMonotonicZcorn() );
+    settings.setVerticalPillars( m_paddingVerticalPillars() );
+    return settings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<QString, QString> RicExportSectorModelUi::validate( const QString& configName ) const
 {
     std::map<QString, QString> fieldErrors;
@@ -693,6 +773,18 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
             if ( kw.contains( ' ' ) )
             {
                 fieldErrors[m_keywordsToRemove.keyword()] = "Keywords to remove cannot contain spaces: " + kw;
+            }
+        }
+    }
+    else if ( configName == m_pageNames[WizardPageEnum::ModelPadding] )
+    {
+        if ( m_enablePadding() )
+        {
+            auto settings   = paddingSettings();
+            auto errMessage = settings.validate();
+            if ( !errMessage.isEmpty() )
+            {
+                fieldErrors[m_enablePadding.keyword()] = errMessage;
             }
         }
     }
