@@ -441,6 +441,10 @@ bool RimWellEventTimeline::applyTubingEvent( RimWellEventTubing* event, RimWellP
 
     if ( interval )
     {
+        // Set the custom start date based on the event date
+        interval->enableCustomStartDate( true );
+        interval->setCustomStartDate( event->eventDate().date() );
+
         mswParams->updateConnectedEditors();
         return true;
     }
@@ -523,6 +527,10 @@ bool RimWellEventTimeline::applyValveEvent( RimWellEventValve* event, RimWellPat
     targetPerf->addValve( valve );
 
     valve->setMeasuredDepthAndCount( valveMD, 0, 1 );
+
+    // Set the custom start date based on the event date
+    valve->enableCustomStartDate( true );
+    valve->setCustomStartDate( event->eventDate().date() );
 
     // Map the event valve type to the RiaDefines type and find a matching template
     RiaDefines::WellPathComponentType valveComponentType;
