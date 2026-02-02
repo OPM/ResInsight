@@ -549,10 +549,11 @@ class TestScheduleGeneration:
         """Test that wells only appear in schedule sections at their event dates, not earlier.
 
         Scenario:
-        - Add tubing + perf event for well A at 2024-01-01
-        - Add tubing + perf event for well B at 2024-03-01
-        - Set timestamp to 2024-12-31 (after both events)
-        - Verify well A appears in January section but NOT in March section
+        - Add tubing + perf event for well A at 2024-01-01 (depth 2000-2200)
+        - Add tubing + perf event for well B at 2024-03-01 (depth 1500-1700)
+        - Add another perf event for well A at 2024-04-01 (depth 1800-2000, different depth)
+        - Set timestamp to 2024-12-31 (after all events)
+        - Verify well A appears in January and April sections with different COMPSEGS
         - Verify well B appears in March section but NOT in January section
         """
         project, case, timeline = project_with_case_and_well
@@ -562,7 +563,7 @@ class TestScheduleGeneration:
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Add tubing + perforation for well A at 2024-01-01
+        # Add tubing + perforation for well A at 2024-01-01 (depth 2000-2200)
         timeline.add_tubing_event(
             event_date="2024-01-01",
             well_path=well_path_a,
@@ -581,7 +582,7 @@ class TestScheduleGeneration:
             state="OPEN",
         )
 
-        # Add tubing + perforation for well B at 2024-03-01
+        # Add tubing + perforation for well B at 2024-03-01 (depth 1500-1700)
         timeline.add_tubing_event(
             event_date="2024-03-01",
             well_path=well_path_b,
@@ -600,13 +601,25 @@ class TestScheduleGeneration:
             state="OPEN",
         )
 
-        # Set timestamp to 2024-12-31 (after both events)
+        # Add another perforation for well A at 2024-04-01 at a different depth (1800-2000)
+        timeline.add_perf_event(
+            event_date="2024-04-01",
+            well_path=well_path_a,
+            start_md=1800.0,
+            end_md=2000.0,
+            diameter=0.1,
+            skin_factor=0.3,
+            state="OPEN",
+        )
+
+        # Set timestamp to 2024-12-31 (after all events)
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
         schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        print(schedule_text)
 
-        # Verify schedule is generated with both dates
+        # Verify schedule is generated with all dates
         assert schedule_text, "Schedule text should not be empty"
         assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
         assert (
@@ -615,23 +628,30 @@ class TestScheduleGeneration:
         assert (
             "1 'MAR' 2024" in schedule_text or "1 MAR 2024" in schedule_text
         ), "Schedule should contain March date"
+        assert (
+            "1 'APR' 2024" in schedule_text or "1 APR 2024" in schedule_text
+        ), "Schedule should contain April date"
 
         # Split schedule into date sections for easier verification
         # The schedule format is: DATES\n <date> /\n/\n\n<keywords>...\n\nDATES\n <next date>
         date_sections = schedule_text.split("DATES\n")
 
-        # Find the January and March sections
+        # Find the January, March, and April sections
         january_section = None
         march_section = None
+        april_section = None
 
         for section in date_sections:
             if "1 'JAN' 2024" in section or "1 JAN 2024" in section:
                 january_section = section
             elif "1 'MAR' 2024" in section or "1 MAR 2024" in section:
                 march_section = section
+            elif "1 'APR' 2024" in section or "1 APR 2024" in section:
+                april_section = section
 
         assert january_section is not None, "Could not find January date section"
         assert march_section is not None, "Could not find March date section"
+        assert april_section is not None, "Could not find April date section"
 
         # Get well names (Eclipse removes spaces)
         well_a_name = well_path_a.name.replace(" ", "")
@@ -653,14 +673,58 @@ class TestScheduleGeneration:
             well_b_name in march_section or well_path_b.name in march_section
         ), f"Well B ({well_path_b.name}) should appear in March section"
 
-        # Verify well A does NOT appear in March section (its events are in January)
-        # Note: Well A might appear if MSW data spans multiple dates, so we check for NEW events only
-        # by looking for COMPDAT or COMPSEGS keywords specific to well A in the March section
-        # For this test, we're primarily concerned that well B doesn't appear in January
+        # Verify well A appears in April section
+        assert (
+            well_a_name in april_section or well_path_a.name in april_section
+        ), f"Well A ({well_path_a.name}) should appear in April section"
 
-        print("\n✓ Verified: Well A appears in January section (its event date)")
+        # Verify COMPSEGS for well A is present in both January and April sections
+        assert (
+            "COMPSEGS" in january_section
+        ), "January section should contain COMPSEGS for well A"
+        assert (
+            "COMPSEGS" in april_section
+        ), "April section should contain COMPSEGS for well A"
+
+        # Extract COMPSEGS sections for well A from January and April
+        # COMPSEGS format: COMPSEGS\n 'WellName' /\n <data lines> /\n
+        january_compsegs_start = january_section.find("COMPSEGS")
+        january_compsegs_end = january_section.find("/\n\n", january_compsegs_start)
+        january_compsegs = (
+            january_section[january_compsegs_start:january_compsegs_end]
+            if january_compsegs_start != -1 and january_compsegs_end != -1
+            else ""
+        )
+
+        april_compsegs_start = april_section.find("COMPSEGS")
+        april_compsegs_end = april_section.find("/\n\n", april_compsegs_start)
+        april_compsegs = (
+            april_section[april_compsegs_start:april_compsegs_end]
+            if april_compsegs_start != -1 and april_compsegs_end != -1
+            else ""
+        )
+
+        # Verify COMPSEGS content is different between January and April
+        assert january_compsegs != april_compsegs, (
+            "COMPSEGS for well A should be different in January and April sections "
+            "(January has perfs at 2000-2200, April adds perfs at 1800-2000)"
+        )
+
+        # Verify January COMPSEGS contains the 2000-2200 range
+        assert (
+            "2000" in january_compsegs and "2200" in january_compsegs
+        ), "January COMPSEGS should contain perforation range 2000-2200"
+
+        # Verify April COMPSEGS contains the 1800-2000 range
+        assert (
+            "1800" in april_compsegs and "2000" in april_compsegs
+        ), "April COMPSEGS should contain perforation range 1800-2000"
+
+        print("\n✓ Verified: Well A appears in January section (event at 2000-2200)")
         print("✓ Verified: Well B does NOT appear in January section")
         print("✓ Verified: Well B appears in March section (its event date)")
+        print("✓ Verified: Well A appears in April section (event at 1800-2000)")
+        print("✓ Verified: COMPSEGS for well A is different in January vs April")
 
     def test_example_workflow_schedule_generation(self, project_with_case_and_well):
         """Test the exact workflow from well_event_schedule.py example.
