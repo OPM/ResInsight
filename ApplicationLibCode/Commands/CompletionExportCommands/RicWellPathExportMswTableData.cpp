@@ -25,7 +25,6 @@
 #include "RicMswCompletions.h"
 #include "RicMswExportInfo.h"
 #include "RicMswTableDataTools.h"
-#include "RicMswTableFormatterTools.h"
 #include "RicMswValveAccumulators.h"
 
 #include "CompletionsMsw/RigMswTableData.h"
@@ -397,9 +396,9 @@ void RicWellPathExportMswTableData::appendFishbonesMswExportInfo( const RimEclip
         for ( const auto& [subIndex, lateralIndices] : subAndLateralIndices )
         {
             const double subEndMd      = subs->measuredDepth( subIndex );
-            const double subEndTvd     = RicMswTableFormatterTools::tvdFromMeasuredDepth( branch->wellPath(), subEndMd );
+            const double subEndTvd     = RicMswTableDataTools::tvdFromMeasuredDepth( branch->wellPath(), subEndMd );
             const double startValveMd  = subEndMd - internal::VALVE_SEGMENT_LENGTH;
-            const double startValveTvd = RicMswTableFormatterTools::tvdFromMeasuredDepth( branch->wellPath(), startValveMd );
+            const double startValveTvd = RicMswTableDataTools::tvdFromMeasuredDepth( branch->wellPath(), startValveMd );
 
             {
                 // Add completion for ICD. Insert the segment at the end of the fishbone section. The laterals flows into the ICD
@@ -897,8 +896,8 @@ void RicWellPathExportMswTableData::createValveCompletions( gsl::not_null<RicMsw
                     double exportStartMD = valveMD;
                     double exportEndMD   = valveMD + internal::VALVE_SEGMENT_LENGTH;
 
-                    double exportStartTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, exportStartMD );
-                    double exportEndTVD   = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, exportEndMD );
+                    double exportStartTVD = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, exportStartMD );
+                    double exportEndTVD   = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, exportEndMD );
 
                     if ( segment->startMD() <= valveMD && valveMD < segment->endMD() )
                     {
@@ -1267,7 +1266,7 @@ void RicWellPathExportMswTableData::moveIntersectionsToSuperXICDs( gsl::not_null
                     double midpoint = ( segment->startMD() + segment->endMD() ) * 0.5;
 
                     // Set the output MD to the midpoint of the segment, this info is used when exporting WELSEGS in
-                    // RicMswTableFormatterTools::writeValveWelsegsSegment
+                    // RicMswTableDataTools::writeValveWelsegsSegment
                     completionPtr->segments()[0]->setOutputMD( midpoint );
                 }
                 completionPtr->addSegment( std::move( valveInflowSegment ) );
@@ -1582,12 +1581,11 @@ std::unique_ptr<RicMswBranch> RicWellPathExportMswTableData::createChildMswBranc
         if ( branchStartingWithValve )
         {
             const auto segmentEndMd = initialChildMD + internal::VALVE_SEGMENT_LENGTH;
-            auto       dummySegment =
-                std::make_unique<RicMswSegment>( QString( "%1 segment" ).arg( outletValve->componentLabel() ),
-                                                 initialChildMD,
-                                                 segmentEndMd,
-                                                 initialChildTVD,
-                                                 RicMswTableFormatterTools::tvdFromMeasuredDepth( childWellPath, segmentEndMd ) );
+            auto       dummySegment = std::make_unique<RicMswSegment>( QString( "%1 segment" ).arg( outletValve->componentLabel() ),
+                                                                 initialChildMD,
+                                                                 segmentEndMd,
+                                                                 initialChildTVD,
+                                                                 RicMswTableDataTools::tvdFromMeasuredDepth( childWellPath, segmentEndMd ) );
             branchStartingWithValve->addSegment( std::move( dummySegment ) );
 
             return branchStartingWithValve;

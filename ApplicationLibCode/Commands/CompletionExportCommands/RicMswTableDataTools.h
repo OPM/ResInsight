@@ -181,4 +181,11 @@ void generateWsegSicdTableRecursively( RicMswExportInfo&                        
                                        gsl::not_null<const RicMswBranch*>                branch,
                                        std::map<size_t, std::vector<SicdWsegvalveData>>& sicdValveData );
 
+std::vector<std::pair<double, double>> createSubSegmentMDPairs( double                                        startMD,
+                                                                double                                        endMD,
+                                                                double                                        maxSegmentLength,
+                                                                const std::vector<std::pair<double, double>>& customSegmentIntervals = {} );
+
+double tvdFromMeasuredDepth( gsl::not_null<const RimWellPath*> wellPath, double measuredDepth );
+
 } // namespace RicMswTableDataTools
