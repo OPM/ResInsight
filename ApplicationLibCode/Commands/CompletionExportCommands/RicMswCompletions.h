@@ -31,6 +31,7 @@
 
 #include <memory>
 
+class RimPerforationInterval;
 class RimWellPathValve;
 
 //==================================================================================================
@@ -78,8 +79,18 @@ public:
 class RicMswPerforation : public RicMswCompletion
 {
 public:
-    RicMswPerforation( const QString& label, const RimWellPath* wellPath, double startMD, double startTVD, size_t index = cvf::UNDEFINED_SIZE_T );
+    RicMswPerforation( const QString&                label,
+                       const RimWellPath*            wellPath,
+                       double                        startMD,
+                       double                        startTVD,
+                       const RimPerforationInterval* perforationInterval = nullptr,
+                       size_t                        index               = cvf::UNDEFINED_SIZE_T );
     RigCompletionData::CompletionType completionType() const override;
+
+    const RimPerforationInterval* perforationInterval() const;
+
+private:
+    const RimPerforationInterval* m_perforationInterval;
 };
 
 //==================================================================================================
