@@ -57,7 +57,7 @@ jobs:
 
       - name: Install GCC Toolset 13
         run: |
-          dnf install -y gcc-toolset-13 gcc-toolset-13-gcc-c++ gcc-toolset-13-libatomic-devel
+          dnf install -y gcc-toolset-13 gcc-toolset-13-gcc-c++ gcc-toolset-13-libatomic-devel gcc-toolset-13-libstdc++-devel
 
       - name: Configure git safe directory
         run: |
