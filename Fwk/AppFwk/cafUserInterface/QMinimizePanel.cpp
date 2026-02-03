@@ -94,7 +94,7 @@ QIcon createExpandDownIcon()
 
 static const QIcon& expandDownIcon()
 {
-    static QIcon expandDownIcon( createExpandDownIcon() );
+    static QIcon expandDownIcon( QApplication::style()->standardIcon( QStyle::SP_TitleBarUnshadeButton ) );
     return expandDownIcon;
 }
 
@@ -142,7 +142,7 @@ QIcon createExpandUpIcon()
 
 static const QIcon& expandUpIcon()
 {
-    static QIcon expandUpIcon( createExpandUpIcon() );
+    static QIcon expandUpIcon( QApplication::style()->standardIcon( QStyle::SP_TitleBarShadeButton ) );
     return expandUpIcon;
 }
 
@@ -399,14 +399,14 @@ void QMinimizePanel::initialize( const QString& title )
         m_titleFrame->setStyleSheet( titleFrameStyleSheet() );
 
         QHBoxLayout* titleLayout = new QHBoxLayout();
-        titleLayout->setContentsMargins( 4, 2, 0, 2 );
+        titleLayout->setContentsMargins( 4, 2, 6, 2 );
         m_titleFrame->setLayout( titleLayout );
         m_titleFrame->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
         {
             m_titleLabel               = new QLabel( title );
             QPalette titleLabelPalette = m_titleLabel->palette();
             m_titleLabel->setPalette( titleLabelPalette );
-            titleLayout->addWidget( m_titleLabel, 1, Qt::AlignLeft );
+            titleLayout->addWidget( m_titleLabel, 1, Qt::AlignLeft | Qt::AlignVCenter );
         }
         {
             m_collapseButton = new QPushButton();
@@ -414,9 +414,10 @@ void QMinimizePanel::initialize( const QString& title )
             m_collapseButton->setIcon( m_collapseIcon );
             m_collapseButton->setDefault( false );
             m_collapseButton->setAutoDefault( false );
-            m_collapseButton->setIconSize( QSize( 16, 16 ) );
-            m_collapseButton->setMaximumSize( QSize( 16, 16 ) );
-            titleLayout->addWidget( m_collapseButton, 0, Qt::AlignRight );
+            m_collapseButton->setStyleSheet(
+                "QPushButton { background: transparent; border: none; padding: 0px; margin: 0px; }"
+                "QPushButton:hover { background: rgba(0, 0, 0, 30); }" );
+            titleLayout->addWidget( m_collapseButton );
         }
     }
     {
