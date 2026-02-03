@@ -53,7 +53,8 @@ jobs:
             libXext-devel \
             libXrender-devel \
             flex \
-            bison
+            bison \
+            xz
 
       - name: Install GCC Toolset 14
         run: |
@@ -63,9 +64,13 @@ jobs:
         run: |
           source /opt/rh/gcc-toolset-14/enable
 
-          # Get GCC version
-          GCC_VERSION=$(gcc -dumpversion)
-          echo "GCC version: $GCC_VERSION"
+          # Get full GCC version (e.g., 14.2.1)
+          GCC_FULL_VERSION=$(gcc -dumpfullversion)
+          # Get major.minor version for download (e.g., 14.2.0 - releases use .0 patch)
+          GCC_MAJOR_MINOR=$(echo $GCC_FULL_VERSION | cut -d. -f1,2)
+          GCC_VERSION="${GCC_MAJOR_MINOR}.0"
+          echo "GCC full version: $GCC_FULL_VERSION"
+          echo "GCC download version: $GCC_VERSION"
 
           # Download GCC source
           cd /tmp
