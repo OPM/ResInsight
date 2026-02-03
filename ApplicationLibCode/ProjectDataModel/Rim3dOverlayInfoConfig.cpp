@@ -340,14 +340,37 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         }
         else if ( eclipseView->mainGrid() )
         {
-            QString totCellCount = localeWithSpaceAsGroupSeparator.toString( static_cast<int>( eclipseView->mainGrid()->totalCellCount() ) );
+            auto   mainGrid  = eclipseView->mainGrid();
+            size_t cellCount = mainGrid->totalCellCount();
+            if ( mainGrid->isRadial() )
+            {
+                cellCount -= mainGrid->totalTemporaryGridCellCount();
+            }
+            QString totCellCount = localeWithSpaceAsGroupSeparator.toString( static_cast<int>( cellCount ) );
 
-            size_t mxActCellCount =
-                eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount();
-            size_t frActCellCount = eclipseView->eclipseCase()
-                                        ->eclipseCaseData()
-                                        ->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )
-                                        ->reservoirActiveCellCount();
+            auto activeCellInfoMatrix =
+                eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            auto activeCellInfoFracture =
+                eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+            size_t mxActCellCount = activeCellInfoMatrix->reservoirActiveCellCount();
+            size_t frActCellCount = activeCellInfoFracture->reservoirActiveCellCount();
+
+            if ( mainGrid->isRadial() )
+            {
+                // Exclude active cells from temporary grids
+                for ( size_t i = 0; i < mainGrid->gridCount(); i++ )
+                {
+                    if ( mainGrid->gridByIndex( i )->isTempGrid() )
+                    {
+                        size_t mxTempCount = activeCellInfoMatrix->gridActiveCellCounts( i );
+                        size_t frTempCount = activeCellInfoFracture->gridActiveCellCounts( i );
+
+                        if ( mxTempCount != cvf::UNDEFINED_SIZE_T ) mxActCellCount -= mxTempCount;
+                        if ( frTempCount != cvf::UNDEFINED_SIZE_T ) frActCellCount -= frTempCount;
+                    }
+                }
+            }
 
             QString activeCellCountText;
             if ( frActCellCount > 0 ) activeCellCountText += "Matrix : ";

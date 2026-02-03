@@ -155,6 +155,8 @@ const RigBoundingBoxIjk<caf::VecIjk0>& RigActiveCellInfo::ijkBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::gridActiveCellCounts( size_t gridIndex ) const
 {
+    if ( gridIndex >= m_perGridActiveCellInfo.size() ) return 0;
+
     return m_perGridActiveCellInfo[gridIndex].activeCellCount();
 }
 
