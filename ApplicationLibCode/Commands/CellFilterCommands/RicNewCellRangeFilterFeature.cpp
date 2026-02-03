@@ -26,6 +26,6 @@ CAF_CMD_SOURCE_INIT( RicNewCellRangeFilterFeature, "RicNewCellRangeFilterFeature
 ///
 //--------------------------------------------------------------------------------------------------
 RicNewCellRangeFilterFeature::RicNewCellRangeFilterFeature()
-    : RicNewRangeFilterSliceFeature( "IJK Filter", -1 )
+    : RicNewRangeFilterSliceFeature( "IJK Filter", QString(), -1 )
 {
 }

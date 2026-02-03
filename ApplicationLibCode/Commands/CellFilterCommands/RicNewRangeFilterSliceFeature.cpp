@@ -20,10 +20,14 @@
 
 #include "RiaApplication.h"
 
+#include "RigMainGrid.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimGridView.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -33,9 +37,10 @@
 
 #include <QAction>
 
-RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, int sliceDirection )
+RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, QString radialText, int sliceDirection )
     : m_sliceDirection( sliceDirection )
     , m_sliceText( cmdText )
+    , m_radialText( radialText )
 {
 }
 
@@ -82,5 +87,30 @@ void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 void RicNewRangeFilterSliceFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_Range.png" ) );
-    actionToSetup->setText( m_sliceText );
+
+    if ( !m_radialText.isEmpty() && isMainGridRadial() )
+    {
+        actionToSetup->setText( m_radialText );
+    }
+    else
+    {
+        actionToSetup->setText( m_sliceText );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicNewRangeFilterSliceFeature::isMainGridRadial()
+{
+    RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+    if ( !viewOrComparisonView ) return false;
+
+    auto eclipseView = dynamic_cast<RimEclipseView*>( viewOrComparisonView );
+    if ( !eclipseView || !eclipseView->eclipseCase() ) return false;
+
+    auto mainGrid = eclipseView->eclipseCase()->mainGrid();
+    if ( !mainGrid ) return false;
+
+    return mainGrid->isRadial();
 }

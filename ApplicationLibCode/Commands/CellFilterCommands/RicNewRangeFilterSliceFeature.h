@@ -26,12 +26,15 @@
 class RicNewRangeFilterSliceFeature : public caf::CmdFeature
 {
 protected:
-    RicNewRangeFilterSliceFeature( QString cmdText, int sliceDirection );
+    RicNewRangeFilterSliceFeature( QString cmdText, QString radialText, int sliceDirection );
 
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
+    static bool isMainGridRadial();
+
     QString m_sliceText;
+    QString m_radialText;
     int     m_sliceDirection;
 };

@@ -380,8 +380,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                     if ( isRadialGrid( mainOrComparisonView, m_currentGridIdx ) )
                     {
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Radial Slice", iSliceList );
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Theta Slice", jSliceList );
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Radial (I) Slice", iSliceList );
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Theta (J) Slice", jSliceList );
                     }
                     else
                     {

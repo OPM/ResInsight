@@ -94,9 +94,9 @@ QString RimCellRangeFilter::fullName() const
 {
     bool isRadialGrid = isMainGridRadial();
 
-    auto axisI = isRadialGrid ? "R" : "I";
-    auto axisJ = isRadialGrid ? "θ" : "J";
-    auto axisK = isRadialGrid ? "Z" : "K";
+    auto axisI = isRadialGrid ? "R (I)" : "I";
+    auto axisJ = isRadialGrid ? "θ (J)" : "J";
+    auto axisK = isRadialGrid ? "Z (K)" : "K";
 
     auto makePostfix = [&]() -> QString
     {
@@ -333,13 +333,13 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
         if ( isRadialGrid )
         {
-            label = QString( "I (Radial) Active Cell Range %1 to %2, %3 cells" ).arg( min.x() ).arg( max.x() ).arg( max.x() - min.x() + 1 );
+            label = QString( "Radial (I) Active Cell Range %1 to %2, %3 cells" ).arg( min.x() ).arg( max.x() ).arg( max.x() - min.x() + 1 );
             m_labelI.uiCapability()->setUiName( label );
 
-            label = QString( "J (Angular) Active Cell Range %1 to %2, %3 cells" ).arg( min.y() ).arg( max.y() ).arg( max.y() - min.y() + 1 );
+            label = QString( "Theta (J) Active Cell Range %1 to %2, %3 cells" ).arg( min.y() ).arg( max.y() ).arg( max.y() - min.y() + 1 );
             m_labelJ.uiCapability()->setUiName( label );
 
-            label = QString( "K (Height) Active Cell Range %1 to %2, %3 cells" ).arg( min.z() ).arg( max.z() ).arg( max.z() - min.z() + 1 );
+            label = QString( "Height (K) Active Cell Range %1 to %2, %3 cells" ).arg( min.z() ).arg( max.z() ).arg( max.z() - min.z() + 1 );
             m_labelK.uiCapability()->setUiName( label );
         }
         else
@@ -358,9 +358,9 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     {
         if ( isRadialGrid )
         {
-            m_labelI.uiCapability()->setUiName( "I (Radial)" );
-            m_labelJ.uiCapability()->setUiName( "J (Angular)" );
-            m_labelK.uiCapability()->setUiName( "K (Height)" );
+            m_labelI.uiCapability()->setUiName( "Radial (I)" );
+            m_labelJ.uiCapability()->setUiName( "Theta (J)" );
+            m_labelK.uiCapability()->setUiName( "Height (K)" );
         }
         else
         {

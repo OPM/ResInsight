@@ -26,6 +26,6 @@ CAF_CMD_SOURCE_INIT( RicNewRangeFilterSliceJFeature, "RicNewRangeFilterSliceJFea
 ///
 //--------------------------------------------------------------------------------------------------
 RicNewRangeFilterSliceJFeature::RicNewRangeFilterSliceJFeature()
-    : RicNewRangeFilterSliceFeature( "J Slice", 1 )
+    : RicNewRangeFilterSliceFeature( "J Slice", "Theta (J) Slice", 1 )
 {
 }
