@@ -59,6 +59,39 @@ jobs:
         run: |
           dnf install -y gcc-toolset-14 gcc-toolset-14-gcc-c++ gcc-toolset-14-libatomic-devel gcc-toolset-14-libstdc++-devel
 
+      - name: Build libstdc++exp
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+
+          # Get GCC version
+          GCC_VERSION=$(gcc -dumpversion)
+          echo "GCC version: $GCC_VERSION"
+
+          # Download GCC source
+          cd /tmp
+          curl -LO https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.xz
+          tar xf gcc-${GCC_VERSION}.tar.xz
+
+          # Build libstdc++exp
+          mkdir -p gcc-${GCC_VERSION}/build-libstdcxx
+          cd gcc-${GCC_VERSION}/build-libstdcxx
+
+          ../libstdc++-v3/configure \
+            --prefix=/opt/libstdcxx-exp \
+            --disable-multilib \
+            --disable-libstdcxx-pch \
+            --with-gxx-include-dir=/opt/rh/gcc-toolset-14/root/usr/include/c++/${GCC_VERSION}
+
+          # Build only the experimental library
+          make -C src/experimental -j$(nproc)
+
+          # Install the library
+          mkdir -p /opt/libstdcxx-exp/lib
+          cp src/experimental/.libs/libstdc++exp.a /opt/libstdcxx-exp/lib/
+
+          echo "libstdc++exp built successfully"
+          ls -la /opt/libstdcxx-exp/lib/
+
       - name: Configure git safe directory
         run: |
           git config --global --add safe.directory '*'
@@ -121,7 +154,7 @@ jobs:
             -DRESINSIGHT_ENABLE_UNITY_BUILD=true \
             -DRESINSIGHT_ENABLE_HDF5=false \
             -DRESINSIGHT_ENABLE_GRPC=false \
-            -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64 \
+            -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
             -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
 
       - name: Build
