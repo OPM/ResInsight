@@ -60,7 +60,7 @@ jobs:
         run: |
           dnf install -y gcc-toolset-14 gcc-toolset-14-gcc-c++ gcc-toolset-14-libatomic-devel gcc-toolset-14-libstdc++-devel
 
-      - name: Build libstdc++exp
+      - name: Build libstdc++ with backtrace support
         run: |
           source /opt/rh/gcc-toolset-14/enable
 
@@ -72,29 +72,51 @@ jobs:
           echo "GCC full version: $GCC_FULL_VERSION"
           echo "GCC download version: $GCC_VERSION"
 
+          # Install additional dependencies for backtrace support
+          dnf install -y gmp-devel mpfr-devel libmpc-devel libunwind libunwind-devel elfutils-libelf-devel
+
           # Download GCC source
           cd /tmp
           curl -LO https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.xz
           tar xf gcc-${GCC_VERSION}.tar.xz
 
-          # Build libstdc++exp
-          mkdir -p gcc-${GCC_VERSION}/build-libstdcxx
-          cd gcc-${GCC_VERSION}/build-libstdcxx
+          # Download prerequisites
+          cd gcc-${GCC_VERSION}
+          ./contrib/download_prerequisites
+          cd ..
 
-          ../libstdc++-v3/configure \
-            --prefix=/opt/libstdcxx-exp \
+          # Configure GCC build with backtrace support
+          mkdir -p gcc-${GCC_VERSION}-build
+          cd gcc-${GCC_VERSION}-build
+
+          ../gcc-${GCC_VERSION}/configure \
+            --prefix=/opt/gcc-${GCC_VERSION} \
+            --enable-languages=c++ \
             --disable-multilib \
-            --disable-libstdcxx-pch \
-            --with-gxx-include-dir=/opt/rh/gcc-toolset-14/root/usr/include/c++/${GCC_VERSION}
+            --with-system-zlib \
+            --disable-bootstrap \
+            --enable-libstdcxx-backtrace \
+            --enable-__cxa_atexit \
+            --with-libunwind
 
-          # Build dependencies and experimental library
-          make -j$(nproc)
+          # Build just enough of GCC to get libstdc++
+          echo "Building basic GCC components..."
+          make -j$(nproc) all-gcc
 
-          # Install the library
+          # Build libstdc++ with backtrace support
+          echo "Building libstdc++ with backtrace support..."
+          make -j$(nproc) all-target-libstdc++-v3
+
+          # Install libstdc++
+          echo "Installing libstdc++..."
+          make install-target-libstdc++-v3
+
+          # Copy libstdc++exp.a to expected location
           mkdir -p /opt/libstdcxx-exp/lib
-          cp src/experimental/.libs/libstdc++exp.a /opt/libstdcxx-exp/lib/
+          cp /opt/gcc-${GCC_VERSION}/lib64/libstdc++exp.a /opt/libstdcxx-exp/lib/
 
-          echo "libstdc++exp built successfully"
+          echo "libstdc++ with backtrace support built successfully"
+          ls -la /opt/gcc-${GCC_VERSION}/lib64/
           ls -la /opt/libstdcxx-exp/lib/
 
       - name: Configure git safe directory
