@@ -1083,8 +1083,6 @@ bool RifReaderEclipseOutput::dynamicResult( const QString&                result
 //--------------------------------------------------------------------------------------------------
 std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeStepInfos()
 {
-    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
-
     if ( m_dynamicResultsAccess.notNull() )
     {
         std::vector<QDateTime> timeStepsOnFile;
@@ -1094,9 +1092,22 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
         m_dynamicResultsAccess->timeSteps( &timeStepsOnFile, &daysSinceSimulationStartOnFile );
         reportNumbersOnFile = m_dynamicResultsAccess->reportNumbers();
 
-        if ( timeStepsOnFile.size() != daysSinceSimulationStartOnFile.size() ) return timeStepInfos;
-        if ( timeStepsOnFile.size() != reportNumbersOnFile.size() ) return timeStepInfos;
+        if ( timeStepsOnFile.size() != daysSinceSimulationStartOnFile.size() )
+        {
+            RiaLogging::error( QString( "Time step count mismatch: timeStepsOnFile = %1, daysSinceSimulationStartOnFile = %2" )
+                                   .arg( timeStepsOnFile.size() )
+                                   .arg( daysSinceSimulationStartOnFile.size() ) );
+            return {};
+        }
+        if ( timeStepsOnFile.size() != reportNumbersOnFile.size() )
+        {
+            RiaLogging::error( QString( "Time step count mismatch: timeStepsOnFile = %1, reportNumbersOnFile = %2" )
+                                   .arg( timeStepsOnFile.size() )
+                                   .arg( reportNumbersOnFile.size() ) );
+            return {};
+        }
 
+        std::vector<RigEclipseTimeStepInfo> timeStepInfos;
         for ( size_t i = 0; i < timeStepsOnFile.size(); i++ )
         {
             if ( isTimeStepIncludedByFilter( i ) )
@@ -1105,9 +1116,9 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
                     RigEclipseTimeStepInfo( timeStepsOnFile[i], reportNumbersOnFile[i], daysSinceSimulationStartOnFile[i] ) );
             }
         }
+        return timeStepInfos;
     }
-
-    return timeStepInfos;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
