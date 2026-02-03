@@ -1569,22 +1569,27 @@ std::unique_ptr<RicMswBranch> RicWellPathExportMswTableData::createChildMswBranc
     auto initialChildMD  = childWellPath->wellPathTieIn()->tieInMeasuredDepth();
     auto initialChildTVD = -childWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( initialChildMD ).z();
 
+    auto valveMD  = childWellPath->wellPathTieIn()->branchValveMeasuredDepth();
+    auto valveTVD = -childWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( valveMD ).z();
+
+    double offset = ( valveMD == initialChildMD ) ? internal::VALVE_SEGMENT_LENGTH : 0.0;
+
     const RimWellPathValve* outletValve = childWellPath->wellPathTieIn()->outletValve();
     if ( outletValve )
     {
         auto branchStartingWithValve =
             RicMswValve::createTieInValve( QString( "%1 valve for %2" ).arg( outletValve->componentLabel() ).arg( childWellPath->name() ),
                                            childWellPath,
-                                           initialChildMD,
-                                           initialChildTVD,
+                                           valveMD,
+                                           valveTVD,
                                            outletValve );
         if ( branchStartingWithValve )
         {
-            const auto segmentEndMd = initialChildMD + internal::VALVE_SEGMENT_LENGTH;
+            const auto segmentEndMd = initialChildMD + offset;
             auto       dummySegment = std::make_unique<RicMswSegment>( QString( "%1 segment" ).arg( outletValve->componentLabel() ),
-                                                                 initialChildMD,
-                                                                 segmentEndMd,
-                                                                 initialChildTVD,
+                                                 valveMD,
+                                                 segmentEndMd,
+                                                 valveTVD,
                                                                  RicMswTableDataTools::tvdFromMeasuredDepth( childWellPath, segmentEndMd ) );
             branchStartingWithValve->addSegment( std::move( dummySegment ) );
 
