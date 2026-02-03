@@ -1,0 +1,806 @@
+{
+  "NCPUNSL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "CPU time per network solve"
+  },
+  "NCPUNSLT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Total CPU time per network solve"
+  },
+  "NELAPNSL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Elapsed time per network solve"
+  },
+  "NELPNSLT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Total elapsed time per network solve"
+  },
+  "NFAILS": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Solve fails per network"
+  },
+  "NJALL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction all properties"
+  },
+  "NJCHMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction component flow rate"
+  },
+  "NJCHMR_1": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction component 1 molar rate"
+  },
+  "NJCHMR_2": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction component 2 molar rate"
+  },
+  "NJCMPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction component production rate"
+  },
+  "NJCMPR_1": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction component 1 production rate"
+  },
+  "NJCMPR_2": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction component 2 production rate"
+  },
+  "NJEVRAT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction erosional velocity ratio"
+  },
+  "NJGDN": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas density"
+  },
+  "NJGDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas production deliverable rate"
+  },
+  "NJGFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas flow rate"
+  },
+  "NJGIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas injection rate"
+  },
+  "NJGLFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas lift flow rate"
+  },
+  "NJGLIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas lift injection rate"
+  },
+  "NJGLR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas-liquid ratio"
+  },
+  "NJGMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas molar rate"
+  },
+  "NJGMR_1": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas component 1 molar rate"
+  },
+  "NJGMR_2": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas component 2 molar rate"
+  },
+  "NJGOR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas-oil ratio"
+  },
+  "NJGPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas production rate"
+  },
+  "NJGRF": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas removal fraction"
+  },
+  "NJGRFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas removal flow rate"
+  },
+  "NJGTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas tubing density"
+  },
+  "NJGWR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction gas-water ratio"
+  },
+  "NJHMPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction hydrocarbon production rate"
+  },
+  "NJLDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction liquid production deliverable rate"
+  },
+  "NJLGR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction liquid-gas ratio"
+  },
+  "NJLMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction liquid phase molar rate"
+  },
+  "NJLPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction liquid production rate"
+  },
+  "NJMASFL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction mass flowrate"
+  },
+  "NJMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction molar rate"
+  },
+  "NJODN": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil density"
+  },
+  "NJODP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil production deliverable rate"
+  },
+  "NJOFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil flow rate"
+  },
+  "NJOGR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil-gas ratio"
+  },
+  "NJOMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil molar rate"
+  },
+  "NJOPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil production rate"
+  },
+  "NJORF": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil removal fraction"
+  },
+  "NJORFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil removal flow rate"
+  },
+  "NJOTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction oil tubing density"
+  },
+  "NJPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction pressure"
+  },
+  "NJQW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water molar rate"
+  },
+  "NJTEMP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction temperature"
+  },
+  "NJVMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction vapor phase molar rate"
+  },
+  "NJWCT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water cut"
+  },
+  "NJWDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water production deliverable rate"
+  },
+  "NJWFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water flow rate"
+  },
+  "NJWGR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water-gas ratio"
+  },
+  "NJWIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water injection rate"
+  },
+  "NJWMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water molar rate"
+  },
+  "NJWPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water production rate"
+  },
+  "NJWRF": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water removal fraction"
+  },
+  "NJWRFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water removal flow rate"
+  },
+  "NJWTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction water tubing density"
+  },
+  "NJZMF": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Junction total mole fraction"
+  },
+  "NNEWT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Newtons per network solve"
+  },
+  "NNEWTTOT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Cumulated newtons per network solve"
+  },
+  "NPALL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe all properties"
+  },
+  "NPDIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe flow direction"
+  },
+  "NPELEVDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe elevation pressure drop"
+  },
+  "NPERSVEL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe erosional velocity"
+  },
+  "NPEVRAT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe erosional velocity ratio"
+  },
+  "NPFRICDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe friction pressure drop"
+  },
+  "NPGFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe gas flow rate"
+  },
+  "NPGLFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe gas lift flow rate"
+  },
+  "NPLHLDUP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe liquid holdup pressure drop"
+  },
+  "NPMASFL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe mass flowrate"
+  },
+  "NPMASFLO": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe mass flowrate outlet"
+  },
+  "NPMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe molar rate"
+  },
+  "NPMXVMIX": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe mixture velocity"
+  },
+  "NPOFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe oil flow rate"
+  },
+  "NPPRD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe pressure drop"
+  },
+  "NPSLUGFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe slug flow frequency"
+  },
+  "NPSLUGLN": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe slug length"
+  },
+  "NPSLUGVL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe slug velocity"
+  },
+  "NPSPHLQV": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe specific holdup liquid volume"
+  },
+  "NPSSG": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe superficial gas velocity"
+  },
+  "NPVELMXI": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe mixture velocity inlet"
+  },
+  "NPVELMXO": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe mixture velocity outlet"
+  },
+  "NPWFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Pipe water flow rate"
+  },
+  "NSCEVRAT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source erosional velocity ratio"
+  },
+  "NSCGDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source gas production deliverable rate"
+  },
+  "NSCGFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source gas flow rate"
+  },
+  "NSCGIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source gas injection rate"
+  },
+  "NSCGLIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source gas lift injection rate"
+  },
+  "NSCGPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source gas production rate"
+  },
+  "NSCGTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source gas tubing density"
+  },
+  "NSCLDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source liquid production deliverable rate"
+  },
+  "NSCLMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source liquid phase molar rate"
+  },
+  "NSCLPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source liquid production rate"
+  },
+  "NSCMASFL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source mass flowrate"
+  },
+  "NSCODP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source oil production deliverable rate"
+  },
+  "NSCOFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source oil flow rate"
+  },
+  "NSCOPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source oil production rate"
+  },
+  "NSCOTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source oil tubing density"
+  },
+  "NSCPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source pressure"
+  },
+  "NSCQW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source water molar rate"
+  },
+  "NSCTEMP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source temperature"
+  },
+  "NSCVMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source vapor phase molar rate"
+  },
+  "NSCWDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source water production deliverable rate"
+  },
+  "NSCWFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source water flow rate"
+  },
+  "NSCWIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source water injection rate"
+  },
+  "NSCWPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source water production rate"
+  },
+  "NSCWTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Source water tubing density"
+  },
+  "NSKEVRAT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink erosional velocity ratio"
+  },
+  "NSKGDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas production deliverable rate"
+  },
+  "NSKGFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas flow rate"
+  },
+  "NSKGIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas injection rate"
+  },
+  "NSKGLFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas lift flow rate"
+  },
+  "NSKGLIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas lift injection rate"
+  },
+  "NSKGMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas molar rate"
+  },
+  "NSKGMR_1": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas component 1 molar rate"
+  },
+  "NSKGMR_2": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas component 2 molar rate"
+  },
+  "NSKGPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas production rate"
+  },
+  "NSKGTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink gas tubing density"
+  },
+  "NSKLDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink liquid production deliverable rate"
+  },
+  "NSKLMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink liquid phase molar rate"
+  },
+  "NSKLPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink liquid production rate"
+  },
+  "NSKMASFL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink mass flowrate"
+  },
+  "NSKMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink molar rate"
+  },
+  "NSKODP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink oil production deliverable rate"
+  },
+  "NSKOFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink oil flow rate"
+  },
+  "NSKOMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink oil molar rate"
+  },
+  "NSKOPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink oil production rate"
+  },
+  "NSKOTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink oil tubing density"
+  },
+  "NSKPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink pressure"
+  },
+  "NSKQW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink water molar rate"
+  },
+  "NSKTEMP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink temperature"
+  },
+  "NSKVMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink vapor phase molar rate"
+  },
+  "NSKWDP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink water production deliverable rate"
+  },
+  "NSKWFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink water flow rate"
+  },
+  "NSKWIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink water injection rate"
+  },
+  "NSKWMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink water molar rate"
+  },
+  "NSKWPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink water production rate"
+  },
+  "NSKWTD": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Sink water tubing density"
+  },
+  "NSOLVES": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Solve attempts per network"
+  },
+  "NSPGFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator gas flow rate"
+  },
+  "NSPGIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator gas injection rate"
+  },
+  "NSPGPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator gas production rate"
+  },
+  "NSPLPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator liquid production rate"
+  },
+  "NSPOFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator oil flow rate"
+  },
+  "NSPOPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator oil production rate"
+  },
+  "NSPPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator pressure"
+  },
+  "NSPTEMP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator temperature"
+  },
+  "NSPWFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator water flow rate"
+  },
+  "NSPWIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator water injection rate"
+  },
+  "NSPWPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Separator water production rate"
+  },
+  "NWALL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well all properties"
+  },
+  "NWCHMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well component flow rate"
+  },
+  "NWCHMR_1": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well component 1 molar rate"
+  },
+  "NWCHMR_2": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well component 2 molar rate"
+  },
+  "NWCHMR_3": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well component 3 molar rate"
+  },
+  "NWCMPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well component production rate"
+  },
+  "NWCMPR_1": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well component 1 production rate"
+  },
+  "NWCMPR_2": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well component 2 production rate"
+  },
+  "NWERRG": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas flow rate coupling error"
+  },
+  "NWERRL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well liquid flow rate coupling error"
+  },
+  "NWERRM": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well molar rate coupling error"
+  },
+  "NWERRO": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well oil flow rate coupling error"
+  },
+  "NWERRP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well pressure coupling error"
+  },
+  "NWERRW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well water flow rate coupling error"
+  },
+  "NWGDN": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas density"
+  },
+  "NWGFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas flow rate"
+  },
+  "NWGIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas injection rate"
+  },
+  "NWGIRCW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas injection rate of coupled well"
+  },
+  "NWGLFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas lift flow rate"
+  },
+  "NWGLR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas-liquid ratio"
+  },
+  "NWGOR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas-oil ratio"
+  },
+  "NWGPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas production rate"
+  },
+  "NWGPRCW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas production rate of coupled well"
+  },
+  "NWGWR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well gas-water ratio"
+  },
+  "NWHMPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well hydrocarbon production rate"
+  },
+  "NWLFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well liquid flow rate"
+  },
+  "NWLGR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well liquid-gas ratio"
+  },
+  "NWLPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well liquid production rate"
+  },
+  "NWLPRCW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well liquid production rate of coupled well"
+  },
+  "NWMASFL": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well mass flowrate"
+  },
+  "NWMR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well molar rate"
+  },
+  "NWMRCW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well molar rate of coupled well"
+  },
+  "NWODN": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well oil density"
+  },
+  "NWOFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well oil flow rate"
+  },
+  "NWOGR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well oil-gas ratio"
+  },
+  "NWOIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well oil injection rate"
+  },
+  "NWOPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well oil production rate"
+  },
+  "NWOPRCW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well oil production rate of coupled well"
+  },
+  "NWPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well pressure"
+  },
+  "NWPRCW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well pressure of coupled well"
+  },
+  "NWTEMP": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well temperature"
+  },
+  "NWWCT": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well water cut"
+  },
+  "NWWFR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well water flow rate"
+  },
+  "NWWGR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well water-gas ratio"
+  },
+  "NWWIR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well water injection rate"
+  },
+  "NWWIRCW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well water injection rate of coupled well"
+  },
+  "NWWPR": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well water production rate"
+  },
+  "NWWPRCW": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well water production rate of coupled well"
+  },
+  "NWZMF": {
+    "category": "SUMMARY_NETWORK",
+    "description": "Well total mole fraction"
+  }
+}

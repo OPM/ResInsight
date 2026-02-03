@@ -27,6 +27,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QString>
+#include <QStringList>
 
 #include <unordered_map>
 
@@ -100,16 +101,19 @@ namespace internal
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void importKeywords( const QString& keywordEclipseFilePath, const QString& keyword6XFilePath )
+    void importKeywords( const QStringList& filePaths )
     {
-        auto quantityInfos = internal::importFromFile( keywordEclipseFilePath );
-        auto info6x        = internal::importFromFile( keyword6XFilePath );
+        std::unordered_map<std::string, std::pair<std::string, std::string>> quantityInfos;
 
-        for ( const auto& other : info6x )
+        for ( const auto& filePath : filePaths )
         {
-            if ( !quantityInfos.contains( other.first ) )
+            auto infos = internal::importFromFile( filePath );
+            for ( const auto& info : infos )
             {
-                quantityInfos.insert( other );
+                if ( !quantityInfos.contains( info.first ) )
+                {
+                    quantityInfos.insert( info );
+                }
             }
         }
 
@@ -124,8 +128,9 @@ namespace internal
 //--------------------------------------------------------------------------------------------------
 void RiaQuantityInfoTools::initializeSummaryKeywords()
 {
-    QString keywordEclipseFilePath = ":keywords/keyword-description/keywords_eclipse.json";
-    QString keyword6XFilePath      = ":keywords/keyword-description/keywords_6x.json";
+    QStringList filePaths = { ":keywords/keyword-description/keywords_eclipse.json",
+                              ":keywords/keyword-description/keywords_6x.json",
+                              ":keywords/keyword-description/keywords_network.json" };
 
-    RiaQuantityInfoTools::internal::importKeywords( keywordEclipseFilePath, keyword6XFilePath );
+    RiaQuantityInfoTools::internal::importKeywords( filePaths );
 }

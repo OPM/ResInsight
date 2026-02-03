@@ -2,5 +2,6 @@
     <qresource prefix="/keywords">
         <file>keyword-description/keywords_eclipse.json</file>
         <file>keyword-description/keywords_6x.json</file>
+        <file>keyword-description/keywords_network.json</file>
     </qresource>
 </RCC>
