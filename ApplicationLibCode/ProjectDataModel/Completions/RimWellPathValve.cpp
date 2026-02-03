@@ -52,8 +52,8 @@ RimWellPathValve::RimWellPathValve()
     CAF_PDM_InitFieldNoDefault( &m_valveTemplate, "ValveTemplate", "Valve Template" );
     CAF_PDM_InitScriptableField( &m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD" );
     CAF_PDM_InitFieldNoDefault( &m_multipleValveLocations, "ValveLocations", "Valve Locations" );
-    CAF_PDM_InitField( &m_editValveTemplate, "EditTemplate", false, "Edit" );
-    CAF_PDM_InitField( &m_createValveTemplate, "CreateTemplate", false, "Create" );
+    // CAF_PDM_InitField( &m_editValveTemplate, "EditTemplate", false, "Edit" );
+    // CAF_PDM_InitField( &m_createValveTemplate, "CreateTemplate", false, "Create" );
 
     CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
     CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
@@ -61,10 +61,10 @@ RimWellPathValve::RimWellPathValve()
     m_measuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_multipleValveLocations = new RimMultipleValveLocations;
     m_multipleValveLocations.uiCapability()->setUiTreeChildrenHidden( true );
-    m_editValveTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
-    m_editValveTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
-    m_createValveTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
-    m_createValveTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    // m_editValveTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    // m_editValveTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    // m_createValveTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    // m_createValveTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
     nameField()->uiCapability()->setUiReadOnly( true );
 
@@ -554,15 +554,6 @@ void RimWellPathValve::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         applyValveLabelAndIcon();
         updateConnectedEditors();
     }
-    else if ( changedField == &m_createValveTemplate )
-    {
-        m_createValveTemplate = false;
-        RicNewValveTemplateFeature::createNewValveTemplateForValveAndUpdate( this );
-    }
-    else if ( changedField == &m_editValveTemplate )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( m_valveTemplate() );
-    }
 
     auto perfInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
     if ( perfInterval )
@@ -581,14 +572,14 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.skipRemainingFields( true );
 
-    uiOrdering.add( &m_valveTemplate, { .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    uiOrdering.add( &m_valveTemplate );
 
     {
         if ( m_valveTemplate() != nullptr )
         {
-            uiOrdering.appendToRow( &m_editValveTemplate );
+            uiOrdering.addNewButton( "Edit Template", [this]() { Riu3DMainWindowTools::selectAsCurrentItem( m_valveTemplate() ); } );
         }
-        uiOrdering.appendToRow( &m_createValveTemplate );
+        uiOrdering.addNewButton( "Create Template", [this]() { RicNewValveTemplateFeature::createNewValveTemplateForValveAndUpdate( this ); } );
     }
 
     if ( uiConfigName != "TemplateOnly" )

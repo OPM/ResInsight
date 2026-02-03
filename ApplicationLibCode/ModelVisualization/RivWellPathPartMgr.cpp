@@ -55,6 +55,7 @@
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
+#include "RimWellPathTieIn.h"
 #include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
@@ -69,7 +70,6 @@
 #include "RivTextLabelSourceInfo.h"
 #include "RivWellConnectionFactorPartMgr.h"
 #include "RivWellFracturePartMgr.h"
-#include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "RiuViewer.h"
@@ -469,20 +469,21 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
             }
         }
 
-        appendPerforationValvesToModel( model, perforation, wellPathRadius, displayCoordTransform );
+        appendValvesToModel( model, perforation->valves(), wellPathRadius, displayCoordTransform );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*              model,
-                                                         RimPerforationInterval*           perforation,
-                                                         double                            wellPathRadius,
-                                                         const caf::DisplayCoordTransform* displayCoordTransform )
+void RivWellPathPartMgr::appendValvesToModel( cvf::ModelBasicList*                  model,
+                                              const std::vector<RimWellPathValve*>& valves,
+                                              double                                wellPathRadius,
+                                              const caf::DisplayCoordTransform*     displayCoordTransform )
 {
-    for ( RimWellPathValve* valve : perforation->valves() )
+    for ( auto valve : valves )
     {
+        if ( valve == nullptr ) continue;
         if ( !valve->isChecked() ) continue;
 
         std::vector<double> measuredDepthsRelativeToStartMD;
@@ -512,7 +513,7 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
 
             cvf::Collection<cvf::Part> parts;
             RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, valveColor );
-            for ( auto part : parts )
+            for ( auto& part : parts )
             {
                 part->setSourceInfo( objectSourceInfo.p() );
                 model->addPart( part.p() );
@@ -1023,6 +1024,14 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
     appendFishboneSubsPartsToModel( model, displayCoordTransform, characteristicCellSize );
     appendWellPathAttributesToModel( model, displayCoordTransform, characteristicCellSize );
     appendWellIntegrityIntervalsToModel( model, displayCoordTransform, characteristicCellSize );
+
+    if ( auto tieIn = m_rimWellPath->wellPathTieIn() )
+    {
+        if ( auto valve = tieIn->outletValve() )
+        {
+            appendValvesToModel( model, { valve }, wellPathRadius( characteristicCellSize, wellPathCollection() ), displayCoordTransform );
+        }
+    }
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
     if ( gridView )
