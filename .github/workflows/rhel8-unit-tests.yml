@@ -87,8 +87,8 @@ jobs:
             --disable-libstdcxx-pch \
             --with-gxx-include-dir=/opt/rh/gcc-toolset-14/root/usr/include/c++/${GCC_VERSION}
 
-          # Build only the experimental library
-          make -C src/experimental -j$(nproc)
+          # Build dependencies and experimental library
+          make -j$(nproc)
 
           # Install the library
           mkdir -p /opt/libstdcxx-exp/lib
