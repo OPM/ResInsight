@@ -49,6 +49,7 @@ class Rim3dView;
 class Riv3dWellLogPlanePartMgr;
 class RivWellConnectionFactorPartMgr;
 class RimWellMeasurementInView;
+class RimWellPathValve;
 
 class QDateTime;
 
@@ -104,10 +105,10 @@ private:
                                     double                            characteristicCellSize,
                                     bool                              doFlatten );
 
-    void appendPerforationValvesToModel( cvf::ModelBasicList*              model,
-                                         RimPerforationInterval*           perforation,
-                                         double                            wellPathRadius,
-                                         const caf::DisplayCoordTransform* displayCoordTransform );
+    void appendValvesToModel( cvf::ModelBasicList*                  model,
+                              const std::vector<RimWellPathValve*>& valves,
+                              double                                wellPathRadius,
+                              const caf::DisplayCoordTransform*     displayCoordTransform );
 
     void appendMswSegmentsToModel( cvf::ModelBasicList*              model,
                                    const caf::DisplayCoordTransform* displayCoordTransform,

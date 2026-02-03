@@ -61,6 +61,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
@@ -148,7 +149,7 @@ RimWellPath::RimWellPath()
     m_wellPathAttributes = new RimWellPathAttributeCollection;
     m_wellPathAttributes->uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "well Path Tie-In" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "Well Path Tie-In" );
     m_wellPathTieIn = new RimWellPathTieIn;
     m_wellPathTieIn->connectWellPaths( nullptr, this, 0.0 );
 

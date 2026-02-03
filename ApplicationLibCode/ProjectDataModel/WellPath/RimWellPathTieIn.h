@@ -35,15 +35,20 @@ public:
 
     void         connectWellPaths( RimWellPath* parentWell, RimWellPath* childWell, double tieInMeasuredDepth );
     RimWellPath* parentWell() const;
-    double       tieInMeasuredDepth() const;
-    void         setTieInMeasuredDepth( double measuredDepth );
+
+    double tieInMeasuredDepth() const;
+    void   setTieInMeasuredDepth( double measuredDepth );
+
+    double branchValveMeasuredDepth() const;
+    void   setBranchValveMeasuredDepth( double measuredDepth );
+    void   useDefaultBranchValveMeasuredDepth();
 
     RimWellPath* childWell() const;
     void         updateChildWellGeometry();
 
     void updateFirstTargetFromParentWell();
 
-    const RimWellPathValve* outletValve() const;
+    RimWellPathValve* outletValve() const;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -57,9 +62,10 @@ private:
 private:
     caf::PdmField<QString> m_infoLabel;
 
-    caf::PdmPtrField<RimWellPath*> m_parentWell;
-    caf::PdmPtrField<RimWellPath*> m_childWell;
-    caf::PdmField<double>          m_tieInMeasuredDepth;
+    caf::PdmPtrField<RimWellPath*>         m_parentWell;
+    caf::PdmPtrField<RimWellPath*>         m_childWell;
+    caf::PdmField<double>                  m_tieInMeasuredDepth;
+    caf::PdmField<std::pair<bool, double>> m_customTieInValveMD;
 
     caf::PdmField<bool>                   m_addValveAtConnection;
     caf::PdmChildField<RimWellPathValve*> m_valve;
