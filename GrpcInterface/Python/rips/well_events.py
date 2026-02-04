@@ -6,7 +6,7 @@ in a timeline-based event system. Events can be perforation events, valve events
 tubing changes, well state changes, and production/injection control changes.
 """
 
-from typing import Dict
+from typing import Any, Dict
 from datetime import date, datetime
 
 from .pdmobject import add_method
@@ -17,7 +17,7 @@ from .generated.generated_classes import (
 )
 
 
-def _format_date(event_date) -> str:
+def _format_date(event_date: str | date | datetime) -> str:
     """Convert date to ISO format string (YYYY-MM-DD)."""
     if isinstance(event_date, str):
         return event_date
@@ -31,7 +31,7 @@ def _format_date(event_date) -> str:
         )
 
 
-def parse_well_events_config(config_path: str) -> Dict[str, Dict[str, dict]]:
+def parse_well_events_config(config_path: str) -> Dict[str, Dict[str, Any]]:
     """Parse a YAML configuration file with well events.
 
     The YAML format is organized by well name, then by date:
@@ -71,11 +71,11 @@ def parse_well_events_config(config_path: str) -> Dict[str, Dict[str, dict]]:
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
 
-    return config
+    return config or {}
 
 
 def load_events_from_config(
-    project,
+    project: Any,
     config_path: str,
 ) -> None:
     """Load well events from a YAML configuration file.
@@ -177,12 +177,12 @@ _original_add_well_keyword_event = WellEventTimeline.add_well_keyword_event
 
 @add_method(WellEventTimeline)
 def add_well_keyword_event_with_dict(
-    self,
-    event_date,
-    well_path,
+    self: WellEventTimeline,
+    event_date: str | date | datetime,
+    well_path: Any,
     keyword_name: str,
-    keyword_data: dict,
-) -> "WellEventKeyword":
+    keyword_data: Dict[str, Any],
+) -> WellEventKeyword:
     """Add a well keyword event with arbitrary keyword data.
 
     This is a convenience method that automatically infers types from Python
@@ -301,11 +301,11 @@ def add_well_keyword_event_with_dict(
 
 
 # Replace the add_well_keyword_event method with our enhanced version
-WellEventTimeline.add_well_keyword_event = add_well_keyword_event_with_dict
+WellEventTimeline.add_well_keyword_event = add_well_keyword_event_with_dict  # type: ignore[assignment]
 
 
 @add_method(WellEventTimeline)
-def generate_schedule_text(self, eclipse_case: Case) -> str:
+def generate_schedule_text(self: WellEventTimeline, eclipse_case: Case) -> str:
     """Generate Eclipse schedule text for all wells in the collection.
 
     The timeline is shared across all wells in the well path collection.
