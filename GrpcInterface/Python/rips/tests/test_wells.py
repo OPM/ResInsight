@@ -386,3 +386,25 @@ def test_valve_template_invalid_completion_type(rips_instance, initialize_test):
     # Test invalid completion type
     with pytest.raises(rips.RipsError):
         valve_templates.add_template(completion_type="INVALID_TYPE")
+
+
+def test_import_rmswell_with_w_extension(rips_instance, initialize_test):
+    """Test that .w extension files are correctly imported as RMSWell format."""
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    well_path_file = (
+        "../../../ApplicationLibCode/UnitTests/TestData/RifRmsWellPathReader/55_33-1.w"
+    )
+    well_path_names = rips_instance.project.import_well_paths([well_path_file])
+
+    assert len(well_path_names) == 1
+    wells = rips_instance.project.well_paths()
+    assert len(wells) == 1
+    assert wells[0].name == "55_33-1"
+
+    # Verify well path geometry was read correctly (RMSWell format)
+    # File has 5 points from MD 0-20m, resampled at 1.0m interval gives 21 points
+    result = wells[0].trajectory_properties(resampling_interval=1.0)
+    assert len(result["measured_depth"]) == 21
