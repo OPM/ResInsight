@@ -137,7 +137,8 @@ bool RifWellPathImporter::isJsonFile( const QString& filePath )
 bool RifWellPathImporter::isRmsWellFile( const QString& filePath )
 {
     QFileInfo fileInfo( filePath );
-    return ( fileInfo.suffix().compare( "rmswell" ) == 0 );
+    QString   suffix = fileInfo.suffix().toLower();
+    return ( suffix == "rmswell" || suffix == "w" );
 }
 
 //--------------------------------------------------------------------------------------------------
