@@ -185,21 +185,14 @@ void RimSummaryAddressCollection::addToSubfolder( QString foldername, Collection
 {
     // names with ":" should be split into subfolders
     auto nameSplit = foldername.split( ':' );
-    if ( nameSplit.count() == 1 )
-    {
-        RimSummaryAddressCollection* folder = getOrCreateSubfolder( foldername, folderType );
-        folder->addAddress( address );
-    }
-    else
-    {
-        std::vector<std::pair<QString, CollectionContentType>> folders;
-        for ( const auto& namePart : nameSplit )
-        {
-            folders.push_back( std::make_pair( namePart, folderType ) );
-        }
 
-        addToSubfolderTree( folders, address );
+    std::vector<std::pair<QString, CollectionContentType>> folders;
+    for ( const auto& namePart : nameSplit )
+    {
+        folders.push_back( std::make_pair( namePart, folderType ) );
     }
+
+    addToSubfolderTree( folders, address );
 }
 
 //--------------------------------------------------------------------------------------------------
