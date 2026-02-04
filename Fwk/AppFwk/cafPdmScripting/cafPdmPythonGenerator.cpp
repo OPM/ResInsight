@@ -58,6 +58,7 @@
 #include <list>
 #include <memory>
 #include <set>
+#include <utility>
 
 using namespace caf;
 
@@ -442,7 +443,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     out << "from rips.pdmobject import PdmObjectBase\n";
     out << "import PdmObject_pb2\n";
     out << "import grpc\n";
-    out << "from typing import Optional, Dict, List, Type\n";
+    out << "from typing import Optional, Dict, List, Tuple, Type\n";
     out << "\n";
 
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
@@ -629,6 +630,8 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
         { QString::fromStdString( typeid( std::optional<int> ).name() ), "Optional[int]" },
         { QString::fromStdString( typeid( std::optional<bool> ).name() ), "Optional[bool]" },
         { QString::fromStdString( typeid( std::optional<QString> ).name() ), "Optional[str]" },
+        { QString::fromStdString( typeid( std::pair<bool, double> ).name() ), "Tuple[bool, float]" },
+        { QString::fromStdString( typeid( std::pair<bool, float> ).name() ), "Tuple[bool, float]" },
     };
 
 #ifndef CAF_EXCLUDE_CVF

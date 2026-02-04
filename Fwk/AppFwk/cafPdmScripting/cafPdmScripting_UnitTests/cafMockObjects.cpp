@@ -145,6 +145,8 @@ InheritedDemoObj::InheritedDemoObj()
     CAF_PDM_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_optionalNumber, "OptionalNumber", "Optional Number" );
+    CAF_PDM_InitScriptableField( &m_pairField, "PairField", std::make_pair( false, 0.0 ), "Pair Field" );
+    CAF_PDM_InitScriptableField( &m_pairFloatField, "PairFloatField", std::make_pair( false, 0.0f ), "Pair Float Field" );
     CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_myAppEnum, "MyAppEnumValue", "My App Enum" );
 

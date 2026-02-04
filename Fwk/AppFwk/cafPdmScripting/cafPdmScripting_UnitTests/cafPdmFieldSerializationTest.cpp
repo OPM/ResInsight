@@ -176,6 +176,48 @@ TEST( PdmFieldSerialization, ValueList )
 }
 
 //--------------------------------------------------------------------------------------------------
+// Pair round-trip: C++ → text checks the emitted format; text → C++ verifies parse.
+//--------------------------------------------------------------------------------------------------
+TEST( PdmFieldSerialization, PairBoolDouble )
+{
+    std::pair<bool, double> sourceValue = { true, 3.14 };
+
+    QString     text;
+    QTextStream stream( &text );
+
+    // C++ → text
+    caf::PdmFieldScriptingCapabilityIOHandler<std::pair<bool, double>>::readFromField( sourceValue, stream );
+
+    const QString expected = "(true, 3.140000000000000e+00)";
+    EXPECT_STREQ( expected.toStdString().c_str(), text.toStdString().c_str() );
+
+    // text → C++ (round-trip)
+    std::pair<bool, double>  result;
+    caf::PdmScriptIOMessages messages;
+    caf::PdmFieldScriptingCapabilityIOHandler<std::pair<bool, double>>::writeToField( result, stream, &messages );
+
+    EXPECT_EQ( sourceValue.first, result.first );
+    EXPECT_DOUBLE_EQ( sourceValue.second, result.second );
+}
+
+//--------------------------------------------------------------------------------------------------
+// Parse a hand-written tuple with extra whitespace around delimiters.
+//--------------------------------------------------------------------------------------------------
+TEST( PdmFieldSerialization, PairBoolDouble_ParseWithSpaces )
+{
+    QString     source = "( false , 2.5 )";
+    QTextStream stream( &source );
+
+    std::pair<bool, double>  result;
+    caf::PdmScriptIOMessages messages;
+    caf::PdmFieldScriptingCapabilityIOHandler<std::pair<bool, double>>::writeToField( result, stream, &messages );
+
+    EXPECT_EQ( false, result.first );
+    EXPECT_DOUBLE_EQ( 2.5, result.second );
+    EXPECT_TRUE( messages.m_messages.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
 TEST( PdmFieldSerialization, OptionalValues )
 {

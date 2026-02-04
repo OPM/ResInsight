@@ -46,6 +46,7 @@
 
 #include <QIODevice>
 #include <QTextStream>
+#include <utility>
 
 namespace
 {
@@ -397,6 +398,81 @@ struct PdmFieldScriptingCapabilityIOHandler<std::optional<T>>
             auto realValue = fieldValue.value();
             PdmFieldScriptingCapabilityIOHandler<T>::readFromField( realValue, outputStream, quoteStrings, quoteNonBuiltins );
         }
+    }
+};
+
+template <typename T, typename U>
+struct PdmFieldScriptingCapabilityIOHandler<std::pair<T, U>>
+{
+    static void writeToField( std::pair<T, U>&     fieldValue,
+                              QTextStream&         inputStream,
+                              PdmScriptIOMessages* errorMessageContainer,
+                              bool                 stringsAreQuoted     = true,
+                              bool                 allowExtraCharacters = true )
+    {
+        errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+        QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+        if ( chr == QChar( '(' ) )
+        {
+            QString  firstStr;
+            QString  secondStr;
+            QString* currentStr = &firstStr;
+
+            while ( !inputStream.atEnd() )
+            {
+                errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+                QChar nextChar = errorMessageContainer->peekNextChar( inputStream );
+                if ( nextChar == QChar( ')' ) )
+                {
+                    errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                    break;
+                }
+                else if ( nextChar == QChar( ',' ) && currentStr == &firstStr )
+                {
+                    errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                    currentStr = &secondStr;
+                }
+                else
+                {
+                    *currentStr += errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                }
+            }
+
+            {
+                QTextStream firstStream( &firstStr, QIODevice::ReadOnly );
+                PdmFieldScriptingCapabilityIOHandler<T>::writeToField( fieldValue.first,
+                                                                       firstStream,
+                                                                       errorMessageContainer,
+                                                                       stringsAreQuoted,
+                                                                       allowExtraCharacters );
+            }
+            {
+                QTextStream secondStream( &secondStr, QIODevice::ReadOnly );
+                PdmFieldScriptingCapabilityIOHandler<U>::writeToField( fieldValue.second,
+                                                                       secondStream,
+                                                                       errorMessageContainer,
+                                                                       stringsAreQuoted,
+                                                                       allowExtraCharacters );
+            }
+        }
+        else
+        {
+            errorMessageContainer->addError( "Tuple argument is missing start '('. \"" +
+                                             errorMessageContainer->currentArgument + "\" argument of the command: \"" +
+                                             errorMessageContainer->currentCommand + "\"" );
+        }
+    }
+
+    static void readFromField( const std::pair<T, U>& fieldValue,
+                               QTextStream&           outputStream,
+                               bool                   quoteStrings     = true,
+                               bool                   quoteNonBuiltins = false )
+    {
+        outputStream << "(";
+        PdmFieldScriptingCapabilityIOHandler<T>::readFromField( fieldValue.first, outputStream, quoteStrings, quoteNonBuiltins );
+        outputStream << ", ";
+        PdmFieldScriptingCapabilityIOHandler<U>::readFromField( fieldValue.second, outputStream, quoteStrings, quoteNonBuiltins );
+        outputStream << ")";
     }
 };
 
