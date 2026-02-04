@@ -1,5 +1,9 @@
+import logging
 import os
 import sys
+
+# Configure null handler to prevent "No handler found" warnings
+logging.getLogger("rips").addHandler(logging.NullHandler())
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "generated"))
 
