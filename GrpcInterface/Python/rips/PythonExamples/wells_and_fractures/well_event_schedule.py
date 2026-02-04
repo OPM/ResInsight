@@ -143,6 +143,31 @@ def main():
     )
     print("   Added WRFTPLT event on 2024-06-01 (RFT/PLT output control)")
 
+    # Add schedule-level keyword events (not tied to a well)
+    print("\n   Adding schedule-level keyword events...")
+
+    # Example 4: RPTRST - Report restart settings (schedule-level, not well-specific)
+    _rptrst_event = timeline.add_keyword_event(
+        event_date="2024-01-01",
+        keyword_name="RPTRST",
+        keyword_data={
+            "BASIC": 2,
+            "FREQ": 1,
+        },
+    )
+    print("   Added RPTRST event on 2024-01-01 (report restart settings)")
+
+    # Example 5: GRUPTREE - Group tree definition
+    _gruptree_event = timeline.add_keyword_event(
+        event_date="2024-01-01",
+        keyword_name="GRUPTREE",
+        keyword_data={
+            "CHILD": "OP",
+            "PARENT": "FIELD",
+        },
+    )
+    print("   Added GRUPTREE event on 2024-01-01 (group tree definition)")
+
     # Apply events up to March 15, 2024
     # This should create:
     # - Tubing interval (Jan 1)
@@ -202,6 +227,8 @@ def main():
                 "WCONHIST",
                 "WELTARG",
                 "WRFTPLT",
+                "RPTRST",
+                "GRUPTREE",
             ]
             found_keywords = [kw for kw in expected_keywords if kw in schedule_text]
 
@@ -242,6 +269,8 @@ def main():
             print(f"   - WCONHIST entries: {schedule_text.count('WCONHIST')}")
             print(f"   - WELTARG entries: {schedule_text.count('WELTARG')}")
             print(f"   - WRFTPLT entries: {schedule_text.count('WRFTPLT')}")
+            print(f"   - RPTRST entries: {schedule_text.count('RPTRST')}")
+            print(f"   - GRUPTREE entries: {schedule_text.count('GRUPTREE')}")
 
             # Save to file
             output_file = "generated_schedule.sch"
@@ -277,11 +306,18 @@ def main():
         "- timeline.add_tubing_event(event_date='2024-01-01', well_name='WellA', ...)"
     )
     print("- timeline.add_valve_event(event_date='2024-01-01', well_name='WellA', ...)")
-    print("- timeline.add_well_keyword_event(  # Arbitrary Eclipse keywords:")
+    print("- timeline.add_well_keyword_event(  # Well-specific Eclipse keywords:")
     print("      event_date='2024-01-01',")
-    print("      well_name='WellA',")
+    print("      well_path=well_path,")
     print("      keyword_name='WCONHIST',  # WCONHIST, WELTARG, WRFTPLT, etc.")
     print("      keyword_data={'WELL': 'WellA', 'ORAT': 1000.0, ...}")
+    print("  )")
+    print(
+        "- timeline.add_keyword_event(  # Schedule-level keywords (not tied to wells):"
+    )
+    print("      event_date='2024-01-01',")
+    print("      keyword_name='RPTRST',  # RPTRST, GRUPTREE, RPTSCHED, etc.")
+    print("      keyword_data={'BASIC': 2, 'FREQ': 1}")
     print("  )")
     print("- timeline.set_timestamp(timestamp='2024-06-01')  # Apply events up to date")
     print("- schedule_text = timeline.generate_schedule_text(eclipse_case=case)")

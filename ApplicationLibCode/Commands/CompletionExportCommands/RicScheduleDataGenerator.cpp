@@ -27,6 +27,7 @@
 
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
 #include "RimEclipseCase.h"
+#include "RimKeywordEvent.h"
 #include "RimMswCompletionParameters.h"
 #include "RimWellEventControl.h"
 #include "RimWellEventKeyword.h"
@@ -157,6 +158,25 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     if ( !wellControlData.isEmpty() )
     {
         result += wellControlData;
+    }
+
+    // Process schedule-level keyword events (not tied to a specific well)
+    auto events = timeline.getEventsAtDate( date );
+    for ( auto* event : events )
+    {
+        if ( event->eventType() == RimWellEvent::EventType::SCHEDULE_KEYWORD )
+        {
+            auto* keywordEvent = dynamic_cast<RimKeywordEvent*>( event );
+            if ( keywordEvent )
+            {
+                QString keywordStr = keywordEvent->generateScheduleKeyword( "" );
+                if ( !keywordStr.isEmpty() )
+                {
+                    result += keywordStr;
+                    result += "\n";
+                }
+            }
+        }
     }
 
     return result;

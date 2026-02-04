@@ -33,6 +33,7 @@ class RimWellEventState;
 class RimWellEventType;
 class RimWellEventControl;
 class RimWellEventKeyword;
+class RimKeywordEvent;
 class RimWellPath;
 
 //==================================================================================================
@@ -67,6 +68,7 @@ public:
     RimWellEventType*    addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
     RimWellEventControl* addControlEvent( RimWellPath* wellPath, const QDateTime& date );
     RimWellEventKeyword* addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
+    RimKeywordEvent*     addKeywordEvent( const QDateTime& date, const QString& keywordName );
 
     // Generic add event method
     void addEvent( RimWellEvent* event );

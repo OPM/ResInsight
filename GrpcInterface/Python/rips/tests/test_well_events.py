@@ -1480,3 +1480,224 @@ class TestKeywordEvents:
 
         print(f"\nSchedule with boolean keyword values:\n{schedule_text}")
         assert schedule_text, "Schedule text should not be empty"
+
+
+class TestScheduleKeywordEvents:
+    """Tests for schedule-level keyword event functionality (not tied to wells)."""
+
+    @pytest.fixture
+    def project_with_case_and_well(self, rips_instance, initialize_test):
+        """Load a case with well paths for schedule keyword event tests."""
+        case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+        project = rips_instance.project
+        case = project.load_case(path=case_root + "/TEST10K_FLT_LGR_NNC.EGRID")
+
+        # Import well paths
+        well_path_files = [
+            case_root + "/wellpath_a.dev",
+            case_root + "/wellpath_b.dev",
+        ]
+        project.import_well_paths(well_path_files=well_path_files)
+
+        well_path_coll = project.descendants(rips.WellPathCollection)[0]
+
+        return project, case, well_path_coll.event_timeline()
+
+    def test_add_keyword_event_rptrst(self, project_with_case_and_well):
+        """Test adding a RPTRST schedule keyword event (not tied to a well)."""
+        project, case, timeline = project_with_case_and_well
+
+        # Create a RPTRST event (report restart settings)
+        event = timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="RPTRST",
+            keyword_data={
+                "BASIC": 2,
+                "FREQ": 1,
+            },
+        )
+
+        assert event is not None, "Keyword event should be created"
+
+    def test_add_keyword_event_gruptree(self, project_with_case_and_well):
+        """Test adding a GRUPTREE schedule keyword event."""
+        project, case, timeline = project_with_case_and_well
+
+        # Create a GRUPTREE event (group tree definition)
+        event = timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="GRUPTREE",
+            keyword_data={
+                "CHILD": "OP",
+                "PARENT": "FIELD",
+            },
+        )
+
+        assert event is not None, "GRUPTREE event should be created"
+
+    def test_add_keyword_event_rptsched(self, project_with_case_and_well):
+        """Test adding a RPTSCHED schedule keyword event."""
+        project, case, timeline = project_with_case_and_well
+
+        # Create a RPTSCHED event (report schedule settings)
+        event = timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="RPTSCHED",
+            keyword_data={
+                "FIP": 1,
+                "WELLS": 2,
+            },
+        )
+
+        assert event is not None, "RPTSCHED event should be created"
+
+    def test_keyword_event_schedule_output(self, project_with_case_and_well):
+        """Test that schedule keyword events appear in schedule text generation."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Add a well event to ensure we have a date section
+        timeline.add_control_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            control_mode="ORAT",
+            control_value=1000.0,
+            oil_rate=1000.0,
+            is_producer=True,
+        )
+
+        # Add a schedule-level keyword event (not tied to a well)
+        timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="RPTRST",
+            keyword_data={
+                "BASIC": 2,
+                "FREQ": 1,
+            },
+        )
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(f"\nSchedule text with RPTRST keyword:\n{schedule_text}")
+
+        # Verify the schedule-level keyword is in the output
+        assert schedule_text, "Schedule text should not be empty"
+        assert "RPTRST" in schedule_text, "Schedule should contain RPTRST keyword"
+        assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
+
+    def test_keyword_event_mixed_with_well_events(self, project_with_case_and_well):
+        """Test schedule keyword events alongside well-specific events."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Add tubing and perforation for MSW
+        timeline.add_tubing_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=0.0,
+            end_md=2500.0,
+            inner_diameter=0.15,
+            roughness=1.0e-5,
+        )
+
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+
+        # Add schedule-level keyword event on the same date
+        timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="RPTRST",
+            keyword_data={
+                "BASIC": 2,
+            },
+        )
+
+        # Apply tubing/perf events
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(
+            f"\nSchedule with mixed well and schedule-level keywords:\n{schedule_text}"
+        )
+
+        # Verify both well-specific and schedule-level keywords are present
+        assert schedule_text, "Schedule text should not be empty"
+        assert "WELSEGS" in schedule_text, "Schedule should contain WELSEGS keyword"
+        assert "RPTRST" in schedule_text, "Schedule should contain RPTRST keyword"
+
+    def test_keyword_event_at_multiple_dates(self, project_with_case_and_well):
+        """Test schedule keyword events at different dates."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Add well events at different dates to create date sections
+        timeline.add_control_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            control_mode="ORAT",
+            control_value=1000.0,
+            oil_rate=1000.0,
+            is_producer=True,
+        )
+
+        timeline.add_control_event(
+            event_date="2024-06-01",
+            well_path=well_path,
+            control_mode="ORAT",
+            control_value=800.0,
+            oil_rate=800.0,
+            is_producer=True,
+        )
+
+        # Add schedule-level keyword events at different dates
+        timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="RPTRST",
+            keyword_data={
+                "BASIC": 2,
+            },
+        )
+
+        timeline.add_keyword_event(
+            event_date="2024-06-01",
+            keyword_name="RPTSCHED",
+            keyword_data={
+                "FIP": 1,
+            },
+        )
+
+        # Generate schedule text
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+
+        print(f"\nSchedule with keyword events at multiple dates:\n{schedule_text}")
+
+        # Verify both keywords are present
+        assert schedule_text, "Schedule text should not be empty"
+        assert "RPTRST" in schedule_text, "Schedule should contain RPTRST keyword"
+        assert "RPTSCHED" in schedule_text, "Schedule should contain RPTSCHED keyword"
+        assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
+
+    def test_keyword_event_type_inference(self, project_with_case_and_well):
+        """Test that add_keyword_event correctly infers types from Python values."""
+        project, case, timeline = project_with_case_and_well
+
+        # Create event with mixed types: str, int, float, bool
+        event = timeline.add_keyword_event(
+            event_date="2024-03-15",
+            keyword_name="RPTRST",
+            keyword_data={
+                "BASIC": 2,  # int
+                "FREQ": 1,  # int
+            },
+        )
+
+        assert event is not None, "Event with mixed types should be created"

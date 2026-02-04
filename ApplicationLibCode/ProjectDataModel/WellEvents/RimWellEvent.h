@@ -46,7 +46,8 @@ public:
         WSTATE,
         WTYPE,
         WCONTROL,
-        KEYWORD
+        KEYWORD,
+        SCHEDULE_KEYWORD
     };
 
     RimWellEvent();

@@ -20,6 +20,7 @@
 
 #include "CompletionExportCommands/RicScheduleDataGenerator.h"
 #include "RimEclipseCase.h"
+#include "RimKeywordEvent.h"
 #include "RimProject.h"
 #include "RimWellEventControl.h"
 #include "RimWellEventKeyword.h"
@@ -410,6 +411,98 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addWellKeywo
 QString RimcWellEventTimeline_addWellKeywordEvent::classKeywordReturnedType() const
 {
     return RimWellEventKeyword::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addKeywordEvent, "AddKeywordEvent" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_addKeywordEvent::RimcWellEventTimeline_addKeywordEvent( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Add Keyword Event", "", "", "Add a schedule-level keyword event to the timeline (not tied to a well)" );
+
+    CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
+    CAF_PDM_InitScriptableField( &m_keywordName, "KeywordName", QString(), "", "", "", "Keyword Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_itemNames, "ItemNames", "", "", "", "Item Names" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_itemTypes, "ItemTypes", "", "", "", "Item Types" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_itemValues, "ItemValues", "", "", "", "Item Values" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addKeywordEvent::execute()
+{
+    auto timeline = self<RimWellEventTimeline>();
+
+    if ( m_keywordName().isEmpty() )
+    {
+        return std::unexpected( QString( "Keyword name is required" ) );
+    }
+
+    QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
+    if ( !date.isValid() )
+    {
+        return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
+    }
+
+    // Validate array lengths
+    if ( m_itemNames().size() != m_itemTypes().size() || m_itemNames().size() != m_itemValues().size() )
+    {
+        return std::unexpected( QString( "Item arrays must have same length" ) );
+    }
+
+    // Create event (note: no wellPath parameter)
+    auto* event = timeline->addKeywordEvent( date, m_keywordName() );
+
+    // Add items with type conversion
+    for ( size_t i = 0; i < m_itemNames().size(); ++i )
+    {
+        QString type  = m_itemTypes()[i].toUpper();
+        QString name  = m_itemNames()[i];
+        QString value = m_itemValues()[i];
+
+        if ( type == "STRING" )
+        {
+            event->addStringItem( name, value );
+        }
+        else if ( type == "INT" )
+        {
+            bool ok;
+            int  intValue = value.toInt( &ok );
+            if ( !ok )
+            {
+                return std::unexpected( QString( "Invalid integer value for '%1': %2" ).arg( name ).arg( value ) );
+            }
+            event->addIntItem( name, intValue );
+        }
+        else if ( type == "DOUBLE" )
+        {
+            bool   ok;
+            double doubleValue = value.toDouble( &ok );
+            if ( !ok )
+            {
+                return std::unexpected( QString( "Invalid double value for '%1': %2" ).arg( name ).arg( value ) );
+            }
+            event->addDoubleItem( name, doubleValue );
+        }
+        else
+        {
+            return std::unexpected( QString( "Unknown item type: %1. Must be STRING, INT, or DOUBLE" ).arg( type ) );
+        }
+    }
+
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellEventTimeline_addKeywordEvent::classKeywordReturnedType() const
+{
+    return RimKeywordEvent::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_setTimestamp, "SetTimestamp" );

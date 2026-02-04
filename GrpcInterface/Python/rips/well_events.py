@@ -12,6 +12,7 @@ from datetime import date, datetime
 from .pdmobject import add_method
 from .resinsight_classes import Case
 from .generated.generated_classes import (
+    KeywordEvent,
     WellEventKeyword,
     WellEventTimeline,
 )
@@ -302,6 +303,121 @@ def add_well_keyword_event_with_dict(
 
 # Replace the add_well_keyword_event method with our enhanced version
 WellEventTimeline.add_well_keyword_event = add_well_keyword_event_with_dict  # type: ignore[assignment]
+
+
+# Store the original GRPC add_keyword_event method before wrapping
+_original_add_keyword_event = WellEventTimeline.add_keyword_event
+
+
+@add_method(WellEventTimeline)
+def add_keyword_event_with_dict(
+    self: WellEventTimeline,
+    event_date: str | date | datetime,
+    keyword_name: str,
+    keyword_data: Dict[str, Any],
+) -> KeywordEvent:
+    """Add a schedule-level keyword event (not tied to a specific well path).
+
+    This is for global schedule keywords like RPTRST, GRUPTREE, RPTSCHED, etc.
+    that apply to the entire simulation rather than a specific well.
+
+    Type inference rules:
+    - str → STRING
+    - int → INT
+    - float → DOUBLE
+    - bool → INT (1 or 0)
+
+    Arguments:
+        event_date: Date string in YYYY-MM-DD format, date, or datetime object
+        keyword_name (str): Keyword name (e.g., "RPTRST", "GRUPTREE", "RPTSCHED")
+        keyword_data (dict): Dictionary mapping keyword item names to values
+
+    Returns:
+        KeywordEvent: The created keyword event object
+
+    Raises:
+        TypeError: If keyword_data contains unsupported value types
+
+    Example:
+        ```python
+        # Get the timeline
+        well_path_coll = project.descendants(rips.WellPathCollection)[0]
+        timeline = well_path_coll.event_timeline()
+
+        # Add RPTRST - Report restart settings (schedule-level, not well-specific)
+        timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="RPTRST",
+            keyword_data={
+                "BASIC": 2,
+                "FREQ": 1,
+            }
+        )
+
+        # Add GRUPTREE - Group tree definition
+        timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="GRUPTREE",
+            keyword_data={
+                "CHILD": "OP",
+                "PARENT": "FIELD",
+            }
+        )
+
+        # Add RPTSCHED - Report schedule settings
+        timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="RPTSCHED",
+            keyword_data={
+                "FIP": 1,
+                "WELLS": 2,
+            }
+        )
+        ```
+    """
+    # Type inference and conversion
+    item_names = []
+    item_types = []
+    item_values = []
+
+    for name, value in keyword_data.items():
+        item_names.append(name)
+
+        if isinstance(value, str):
+            item_types.append("STRING")
+            item_values.append(value)
+        elif isinstance(value, bool):
+            # Handle bool before int (bool is subclass of int in Python)
+            item_types.append("INT")
+            item_values.append("1" if value else "0")
+        elif isinstance(value, int):
+            item_types.append("INT")
+            item_values.append(str(value))
+        elif isinstance(value, float):
+            item_types.append("DOUBLE")
+            item_values.append(str(value))
+        else:
+            raise TypeError(
+                f"Unsupported type for keyword item '{name}': {type(value).__name__}. "
+                "Supported types: str, int, float, bool"
+            )
+
+    # Format date
+    date_str = _format_date(event_date)
+
+    # Call original GRPC method with parallel arrays
+    return _original_add_keyword_event(
+        self,
+        event_date=date_str,
+        keyword_name=keyword_name,
+        item_names=item_names,
+        item_types=item_types,
+        item_values=item_values,
+    )
+
+
+# Replace the add_keyword_event method with our enhanced version
+WellEventTimeline.add_keyword_event = add_keyword_event_with_dict  # type: ignore[assignment]
 
 
 @add_method(WellEventTimeline)
