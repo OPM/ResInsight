@@ -208,11 +208,11 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
     }
     else
     {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glEnableVertexAttribArray(ShaderProgram::VERTEX);
-        glEnableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
-        glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
-        glVertexAttribPointer(ShaderProgram::TEX_COORD_2F_0, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
+        cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
+        cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
+        cvfGL->glVertexAttribPointer(ShaderProgram::TEX_COORD_2F_0, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
 
         if (m_shaderProgram.isNull())
         {
@@ -302,7 +302,7 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
             m_shaderProgram->applyUniform(oglContext, alphaUniform);
         }
 
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        cvfGL->glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
 
     if (m_blendMode != NO_BLENDING)
@@ -322,8 +322,8 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
 
     if (!software)
     {
-        glDisableVertexAttribArray(ShaderProgram::VERTEX);
-        glDisableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
+        cvfGL->glDisableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glDisableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
     }
 }
 

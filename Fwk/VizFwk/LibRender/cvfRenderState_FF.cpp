@@ -150,7 +150,9 @@ Color3f RenderStateLighting_FF::ambientIntensity() const
 //--------------------------------------------------------------------------------------------------
 void RenderStateLighting_FF::applyOpenGL(OpenGLContext* oglContext) const
 {
-    if (m_enableLighting)  
+    CVF_CALLSITE_OPENGL(oglContext);
+
+    if (m_enableLighting)
     {
         glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, m_twoSided ? 1 : 0);
         glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,  m_localViewer ? 1 : 0);
@@ -419,17 +421,19 @@ bool RenderStateMaterial_FF::isColorMaterialEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RenderStateMaterial_FF::applyOpenGL(OpenGLContext* oglContext) const
 {
+    CVF_CALLSITE_OPENGL(oglContext);
+
     Color4f ambient(m_ambient, m_alpha);
     Color4f diffuse(m_diffuse, m_alpha);
     Color4f emission(m_emission, m_alpha);
     Color4f specular(m_specular, m_alpha);
-    
+
     CVF_ASSERT(ambient.isValid());
     CVF_ASSERT(diffuse.isValid());
     CVF_ASSERT(emission.isValid());
     CVF_ASSERT(specular.isValid());
     CVF_ASSERT(Math::valueInRange(m_shininess, 0.0f, 128.0f));
-    
+
     if (m_enableColorMaterial)
     {
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -506,6 +510,8 @@ bool RenderStateNormalize_FF::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RenderStateNormalize_FF::applyOpenGL(OpenGLContext* oglContext) const
 {
+    CVF_CALLSITE_OPENGL(oglContext);
+
     if (m_enable)
     {
         glEnable(GL_NORMALIZE);
@@ -616,7 +622,7 @@ void RenderStateTextureMapping_FF::setupTexture(OpenGLContext* oglContext)
         {
             if (oglContext->capabilities()->supportsOpenGL2())
             {
-                glActiveTexture(GL_TEXTURE0);
+                cvfGL->glActiveTexture(GL_TEXTURE0);
             }
 
             m_texture->setupTexture(oglContext);
@@ -636,7 +642,7 @@ void RenderStateTextureMapping_FF::applyOpenGL(OpenGLContext* oglContext) const
 
     if (oglContext->capabilities()->supportsOpenGL2())
     {
-        glActiveTexture(GL_TEXTURE0);
+        cvfGL->glActiveTexture(GL_TEXTURE0);
     }
 
     if (m_texture.notNull() && m_texture->textureOglId() != 0)
@@ -750,6 +756,8 @@ void RenderStateClipPlanes_FF::removeAllPlanes()
 //--------------------------------------------------------------------------------------------------
 void RenderStateClipPlanes_FF::applyOpenGL(OpenGLContext* oglContext) const
 {
+    CVF_CALLSITE_OPENGL(oglContext);
+
     for (size_t idx = 0; idx < m_clipPlanes.size(); idx++)
     {
         if (idx > 5)

@@ -38,45 +38,19 @@
 #pragma once
 
 
-// Currently we utilize GLEW everywhere
-#define CVF_USE_GLEW
+#include <QOpenGLContext>
+#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 
 
-#ifdef CVF_USE_GLEW
+// Define macros that must be used wherever we're going to do OpenGL calls
+// The macro provides a QOpenGLExtraFunctions pointer named cvfGL that can be used to call OpenGL functions
+// Use CVF_CALLSITE_OPENGL when you're going to call OpenGL functions.
+#define CVF_CALLSITE_OPENGL(CURR_OGL_CTX_PTR) \
+    CVF_UNUSED(CURR_OGL_CTX_PTR); \
+    QOpenGLExtraFunctions* cvfGL = QOpenGLContext::currentContext()->extraFunctions()
 
-// Define GLEW_MX for thread safe multi OpenGL context use in GLEW.
-// On WIN32 the GLEW_MX define causes GLEW to store both the function pointers and the GLEW 
-// vars (such as __GLEW_VERSION_1_1 and __GLEW_ARB_draw_buffers) inside GLEWContextStruct.
-// On other platforms GLEW stores the function pointers in global variables while the GLEW vars
-// are stored inside the GLEWContextStruct.
-// We also need to define the glewGetContext() macro - see definition of the CVF_CALLSITE_OPENGL macro above
-#define GLEW_MX
-#define glewGetContext() (cvfLocGLEWCtxPtr)
-
-// Need to define GLEW_STATIC since we're not using GLEW as a DLL
-#define GLEW_STATIC
-#include "glew/GL/glew.h"
-
-#endif // CVF_USE_GLEW
-
-
-// Define macros that must be used wherever we're going to do OpenGL calls (via GLEW)
-// Use CVF_CALLSITE_OPENGL when you're going to call OpenGL functions. If you're going
-// to query GLEW variables (and possibly do OpenGL calls), use CVF_CALLSITE_GLEW instead
-// The reason for having two macros is that most of the time we don't need the pointer
-// to the GLEW structure on non-WIN32 platforms since the actual function pointers
-// are stored in global variables and only the GLEW vars are stored in the struct.
-#define CVF_CALLSITE_GLEW(CURR_OGL_CTX_PTR) \
-    GLEWContextStruct* cvfLocGLEWCtxPtr = CURR_OGL_CTX_PTR->group()->glewContextStruct()
-
-#ifdef WIN32
-#define CVF_CALLSITE_OPENGL(CURR_OGL_CTX_PTR)  CVF_CALLSITE_GLEW(CURR_OGL_CTX_PTR)
-#else
-#define CVF_CALLSITE_OPENGL(CURR_OGL_CTX_PTR)  CVF_UNUSED(CURR_OGL_CTX_PTR)
-#endif    
-
-
-
+// Include standard OpenGL headers for constants and basic types
 #if defined(WIN32) || defined(CVF_LINUX)
 
 // Windows and Linux includes
@@ -101,14 +75,14 @@
 #include "OpenGL/gl.h"
 #include "OpenGL/glu.h"
 
-#endif 
+#endif
 
 
 #include "cvfOpenGLTypes.h"
 #include "cvfString.h"
 #include "cvfCodeLocation.h"
 
-// As long as we're using GLEW we will almost always need the context and context group when doing OpenGL calls
+// Include context and context group for convenience
 #include "cvfOpenGLContext.h"
 #include "cvfOpenGLContextGroup.h"
 
@@ -118,10 +92,10 @@ namespace cvf {
 
 //==================================================================================================
 //
-// Static class providing OpenGL wrappers and helpers 
+// Static class providing OpenGL wrappers and helpers
 //
 //==================================================================================================
-class OpenGL 
+class OpenGL
 {
 public:
     static bool     hasOpenGLError(OpenGLContext* oglContext);
@@ -131,7 +105,7 @@ public:
     static bool     testAndReportOpenGLError(OpenGLContext* oglContext, const char* operation, const CodeLocation& codeLocation);
 
     static void     cvf_check_ogl(OpenGLContext* oglContext, const CodeLocation& codeLocation);
-    
+
     static void	    enableCheckOgl(bool enable);
     static bool	    isCheckOglEnabled();
 

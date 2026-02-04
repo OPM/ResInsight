@@ -351,9 +351,9 @@ void OverlayScaleLegend::renderLegendUsingShaders( OpenGLContext* oglContext, La
         shaderProgram->applyFixedUniforms( oglContext, matrixState );
     }
 
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    glEnableVertexAttribArray( ShaderProgram::VERTEX );
-    glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray );
+    cvfGL->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    cvfGL->glEnableVertexAttribArray( ShaderProgram::VERTEX );
+    cvfGL->glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray );
 
     // Draw axis
     {
@@ -377,9 +377,9 @@ void OverlayScaleLegend::renderLegendUsingShaders( OpenGLContext* oglContext, La
         shaderProgram->applyUniform( oglContext, uniformColor );
 
 #ifdef CVF_OPENGL_ES
-        glDrawElements( GL_LINES, 2, GL_UNSIGNED_SHORT, axisConnects );
+        cvfGL->glDrawElements( GL_LINES, 2, GL_UNSIGNED_SHORT, axisConnects );
 #else
-        glDrawRangeElements( GL_LINES, 0, 3, 2, GL_UNSIGNED_SHORT, axisConnects );
+        cvfGL->glDrawRangeElements( GL_LINES, 0, 3, 2, GL_UNSIGNED_SHORT, axisConnects );
 #endif
     }
 
@@ -409,13 +409,13 @@ void OverlayScaleLegend::renderLegendUsingShaders( OpenGLContext* oglContext, La
         shaderProgram->applyUniform( oglContext, uniformColor );
 
 #ifdef CVF_OPENGL_ES
-        glDrawElements( GL_LINES, 2, GL_UNSIGNED_SHORT, axisConnects );
+        cvfGL->glDrawElements( GL_LINES, 2, GL_UNSIGNED_SHORT, axisConnects );
 #else
-        glDrawRangeElements( GL_LINES, 0, 3, 2, GL_UNSIGNED_SHORT, tickConnects );
+        cvfGL->glDrawRangeElements( GL_LINES, 0, 3, 2, GL_UNSIGNED_SHORT, tickConnects );
 #endif
     }
 
-    glDisableVertexAttribArray( ShaderProgram::VERTEX );
+    cvfGL->glDisableVertexAttribArray( ShaderProgram::VERTEX );
 
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
     shaderProgram->useNoProgram( oglContext );

@@ -280,9 +280,9 @@ void CategoryLegend::renderLegendUsingShaders( OpenGLContext*                ogl
         shaderProgram->applyFixedUniforms( oglContext, matrixState );
     }
 
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    glEnableVertexAttribArray( ShaderProgram::VERTEX );
-    glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray );
+    cvfGL->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    cvfGL->glEnableVertexAttribArray( ShaderProgram::VERTEX );
+    cvfGL->glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray );
 
     // Render color bar as one colored quad per pixel
 
@@ -308,9 +308,9 @@ void CategoryLegend::renderLegendUsingShaders( OpenGLContext*                ogl
                 shaderProgram->applyUniform( oglContext, uniformColor );
 
 #ifdef CVF_OPENGL_ES
-                glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, trianglesConnects );
+                cvfGL->glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, trianglesConnects );
 #else
-                glDrawRangeElements( GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects );
+                cvfGL->glDrawRangeElements( GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects );
 #endif
             }
         }
@@ -332,13 +332,13 @@ void CategoryLegend::renderLegendUsingShaders( OpenGLContext*                ogl
         shaderProgram->applyUniform( oglContext, uniformColor );
 
 #ifdef CVF_OPENGL_ES
-        glDrawElements( GL_LINES, 8, GL_UNSIGNED_SHORT, frameConnects );
+        cvfGL->glDrawElements( GL_LINES, 8, GL_UNSIGNED_SHORT, frameConnects );
 #else
-        glDrawRangeElements( GL_LINES, 0, 3, 8, GL_UNSIGNED_SHORT, frameConnects );
+        cvfGL->glDrawRangeElements( GL_LINES, 0, 3, 8, GL_UNSIGNED_SHORT, frameConnects );
 #endif
     }
 
-    glDisableVertexAttribArray( ShaderProgram::VERTEX );
+    cvfGL->glDisableVertexAttribArray( ShaderProgram::VERTEX );
 
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
     shaderProgram->useNoProgram( oglContext );

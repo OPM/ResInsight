@@ -166,22 +166,22 @@ void RenderStateBlending::applyOpenGL(OpenGLContext* oglContext) const
 
     if (m_enableBlending)
     {
-        glEnable(GL_BLEND);
+        cvfGL->glEnable(GL_BLEND);
     }
     else
     {
-        glDisable(GL_BLEND);
+        cvfGL->glDisable(GL_BLEND);
     }
 
     if ((m_funcSourceRGB == m_funcSourceAlpha) && (m_funcDestinationRGB == m_funcDestinationAlpha))
     {
-        glBlendFunc(blendFuncOpenGL(m_funcSourceRGB), blendFuncOpenGL(m_funcDestinationRGB));
+        cvfGL->glBlendFunc(blendFuncOpenGL(m_funcSourceRGB), blendFuncOpenGL(m_funcDestinationRGB));
     }
     else
     {
         if (openGL2Support)
         {
-            glBlendFuncSeparate(blendFuncOpenGL(m_funcSourceRGB), blendFuncOpenGL(m_funcDestinationRGB), blendFuncOpenGL(m_funcSourceAlpha), blendFuncOpenGL(m_funcDestinationAlpha));
+            cvfGL->glBlendFuncSeparate(blendFuncOpenGL(m_funcSourceRGB), blendFuncOpenGL(m_funcDestinationRGB), blendFuncOpenGL(m_funcSourceAlpha), blendFuncOpenGL(m_funcDestinationAlpha));
         }
         else
         {
@@ -193,14 +193,14 @@ void RenderStateBlending::applyOpenGL(OpenGLContext* oglContext) const
     {
         if (m_equationRGB == m_equationAlpha)
         {
-            glBlendEquation(blendEquationOpenGL(m_equationRGB));
+            cvfGL->glBlendEquation(blendEquationOpenGL(m_equationRGB));
         }
         else
         {
-            glBlendEquationSeparate(blendEquationOpenGL(m_equationRGB), blendEquationOpenGL(m_equationAlpha));
+            cvfGL->glBlendEquationSeparate(blendEquationOpenGL(m_equationRGB), blendEquationOpenGL(m_equationAlpha));
         }
 
-        glBlendColor(m_blendColor.r(), m_blendColor.g(), m_blendColor.b(), m_blendColor.a());
+        cvfGL->glBlendColor(m_blendColor.r(), m_blendColor.g(), m_blendColor.b(), m_blendColor.a());
     }
     else
     {

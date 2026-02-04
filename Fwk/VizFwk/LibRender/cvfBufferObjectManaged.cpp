@@ -86,27 +86,27 @@ ref<BufferObjectManaged> BufferObjectManaged::create(OpenGLContext* oglContext, 
     CVF_CALLSITE_OPENGL(oglContext);
 
     OglId id = 0;
-    glGenBuffers(1, &id);
+    cvfGL->glGenBuffers(1, &id);
     if (id == 0)
     {
         return NULL;
     }
 
-    glBindBuffer(target, id);
+    cvfGL->glBindBuffer(target, id);
 
     // Allocate memory for buffer object AND copy data into it
     // Currently we always use the GL_STATIC_DRAW usage hint for our buffers!
-    glBufferData(target, static_cast<GLsizeiptr>(sizeInBytes), data, GL_STATIC_DRAW);
+    cvfGL->glBufferData(target, static_cast<GLsizeiptr>(sizeInBytes), data, GL_STATIC_DRAW);
 
     // Do we want to unbind after each call?
-    glBindBuffer(target, 0);
+    cvfGL->glBindBuffer(target, 0);
 
-    // Should we always do a check here? 
+    // Should we always do a check here?
     // Only way to detect out-of-memory issues, but not very performance friendly. Is there a better way of detecting errors for this case?
-    cvfGLenum err = glGetError();
+    cvfGLenum err = cvfGL->glGetError();
     if (err != GL_NO_ERROR)
     {
-        glDeleteBuffers(1, &id);
+        cvfGL->glDeleteBuffers(1, &id);
         return NULL;
     }
 
@@ -143,7 +143,7 @@ bool BufferObjectManaged::bindBuffer(OpenGLContext* oglContext) const
 
     if (m_bufferId != 0)
     {
-        glBindBuffer(m_target, m_bufferId);
+        cvfGL->glBindBuffer(m_target, m_bufferId);
 
         // We can probably skip OpenGL error checking here.
         // The only errors resulting from glBindBuffer relate to illegal use of target and calling between glBegin()/glEnd()
@@ -161,7 +161,7 @@ bool BufferObjectManaged::bindBuffer(OpenGLContext* oglContext) const
 void BufferObjectManaged::unbindBuffer(OpenGLContext* oglContext) const
 {
     CVF_CALLSITE_OPENGL(oglContext);
-    glBindBuffer(m_target, 0);
+    cvfGL->glBindBuffer(m_target, 0);
 }
 
 
@@ -171,8 +171,8 @@ void BufferObjectManaged::unbindBuffer(OpenGLContext* oglContext) const
 void BufferObjectManaged::unbindAllBuffers(OpenGLContext* oglContext)
 {
     CVF_CALLSITE_OPENGL(oglContext);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    cvfGL->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 
@@ -194,7 +194,7 @@ void BufferObjectManaged::deleteBuffer(OpenGLContext* oglContext)
 
     if (m_bufferId != 0)
     {
-        glDeleteBuffers(1, &m_bufferId);
+        cvfGL->glDeleteBuffers(1, &m_bufferId);
         m_bufferId = 0;
     }
 

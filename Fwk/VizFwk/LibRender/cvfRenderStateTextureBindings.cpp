@@ -174,7 +174,7 @@ void RenderStateTextureBindings::setupTextures(OpenGLContext* oglContext)
         return;
     }
 
-    glActiveTexture(GL_TEXTURE0);
+    cvfGL->glActiveTexture(GL_TEXTURE0);
 
     int i;
     for (i = 0; i < m_bindingCount; i++)
@@ -183,7 +183,7 @@ void RenderStateTextureBindings::setupTextures(OpenGLContext* oglContext)
 
         if (texture->textureOglId() == 0)
         {
-            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
+            cvfGL->glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
             texture->setupTexture(oglContext);
             CVF_CHECK_OGL(oglContext);
         }
@@ -196,7 +196,7 @@ void RenderStateTextureBindings::setupTextures(OpenGLContext* oglContext)
             {
                 if (oglCaps->hasCapability(OpenGLCapabilities::GENERATE_MIPMAP_FUNC))
                 {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
+                    cvfGL->glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
                     texture->generateMipmap(oglContext);
                     CVF_CHECK_OGL(oglContext);
                 }
@@ -237,7 +237,7 @@ void RenderStateTextureBindings::applyOpenGL(OpenGLContext* oglContext) const
         const Sampler* sampler = m_bindings[i].sampler.p();
         CVF_ASSERT(texture && sampler);
 
-        glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
+        cvfGL->glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
 
         texture->bind(oglContext);
         texture->setupTextureParamsFromSampler(oglContext, *sampler);

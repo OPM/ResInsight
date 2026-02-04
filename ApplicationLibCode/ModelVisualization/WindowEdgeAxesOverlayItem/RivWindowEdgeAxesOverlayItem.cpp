@@ -540,9 +540,9 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
     // Frame vertices
     std::array<Vec3f, 8> vertexArray = frameVertexArray();
 
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    glEnableVertexAttribArray( ShaderProgram::VERTEX );
-    glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray.data() );
+    cvfGL->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    cvfGL->glEnableVertexAttribArray( ShaderProgram::VERTEX );
+    cvfGL->glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray.data() );
 
     // Draw frame background
 
@@ -553,7 +553,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
 
     static const ushort backgroundTriangleIndices[] = { 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 3, 0, 4, 3, 4, 7, 2, 3, 6, 3, 7, 6 };
 
-    glDrawRangeElements( GL_TRIANGLES, 0, 7, 24, GL_UNSIGNED_SHORT, backgroundTriangleIndices );
+    cvfGL->glDrawRangeElements( GL_TRIANGLES, 0, 7, 24, GL_UNSIGNED_SHORT, backgroundTriangleIndices );
 
     // Draw frame border lines
 
@@ -562,7 +562,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
 
     static const ushort frameLineIndices[] = { 7, 4, 4, 5, 5, 6, 6, 7 };
 
-    glDrawRangeElements( GL_LINES, 0, 7, 8, GL_UNSIGNED_SHORT, frameLineIndices );
+    cvfGL->glDrawRangeElements( GL_LINES, 0, 7, 8, GL_UNSIGNED_SHORT, frameLineIndices );
 
     // Render tickmarks
 
@@ -579,7 +579,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
             vertexArray[1][0] = (float)txpos;
             vertexArray[1][1] = m_windowSize.y() - m_frameBorderHeight + m_tickLineLength;
 
-            glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
+            cvfGL->glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
         }
         else
         {
@@ -588,14 +588,14 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
             vertexArray[1][0] = (float)txpos;
             vertexArray[1][1] = m_frameBorderHeight - m_tickLineLength;
 
-            glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
+            cvfGL->glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
 
             vertexArray[0][0] = (float)txpos;
             vertexArray[0][1] = m_windowSize.y() - m_frameBorderHeight;
             vertexArray[1][0] = (float)txpos;
             vertexArray[1][1] = m_windowSize.y() - m_frameBorderHeight + m_tickLineLength;
 
-            glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
+            cvfGL->glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
         }
     }
 
@@ -609,7 +609,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
             vertexArray[0][1] = (float)typos;
             vertexArray[1][0] = m_windowSize.x() - m_frameBorderWidth + m_tickLineLength;
             vertexArray[1][1] = (float)typos;
-            glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
+            cvfGL->glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
         }
         else
         {
@@ -618,18 +618,18 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
             vertexArray[1][0] = m_frameBorderWidth - m_tickLineLength;
             vertexArray[1][1] = (float)typos;
 
-            glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
+            cvfGL->glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
 
             vertexArray[0][0] = m_windowSize.x() - m_frameBorderWidth;
             vertexArray[0][1] = (float)typos;
             vertexArray[1][0] = m_windowSize.x() - m_frameBorderWidth + m_tickLineLength;
             vertexArray[1][1] = (float)typos;
 
-            glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
+            cvfGL->glDrawRangeElements( GL_LINES, 0, 1, 2, GL_UNSIGNED_SHORT, tickLineIndices );
         }
     }
 
-    glDisableVertexAttribArray( ShaderProgram::VERTEX );
+    cvfGL->glDisableVertexAttribArray( ShaderProgram::VERTEX );
 
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
     cvf::ShaderProgram::useNoProgram( oglContext );

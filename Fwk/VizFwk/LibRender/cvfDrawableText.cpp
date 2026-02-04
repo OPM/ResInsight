@@ -443,10 +443,11 @@ bool DrawableText::labelAnchorVisible(OpenGLContext* oglContext, const Vec3d win
 
     // Read out current z buffer contents
     GLubyte bufferBefore[9*4];
-    glReadPixels(coord.x() - 1, coord.y() - 1, 3, 3, GL_RGBA, GL_UNSIGNED_BYTE, bufferBefore);
+    cvfGL->glReadPixels(coord.x() - 1, coord.y() - 1, 3, 3, GL_RGBA, GL_UNSIGNED_BYTE, bufferBefore);
 
     if (softwareRendering)
     {
+        // Fixed-function calls - use direct OpenGL calls (not through cvfGL)
         glPointSize(3);
         glColor3f(0.02f, 0.02f, 0.02f);
         glBegin(GL_POINTS);
@@ -455,15 +456,15 @@ bool DrawableText::labelAnchorVisible(OpenGLContext* oglContext, const Vec3d win
     }
     else
     {
-        glEnableVertexAttribArray(ShaderProgram::VERTEX);
-        glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, worldCoord.ptr());
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, worldCoord.ptr());
 
-        glDrawArrays(GL_POINTS, 0, 1);
+        cvfGL->glDrawArrays(GL_POINTS, 0, 1);
     }
 
     // Now compare with previous z buffer contents to see if marker is visible
     GLubyte bufferAfter[9*4];
-    glReadPixels(coord.x() - 1, coord.y() - 1, 3, 3, GL_RGBA, GL_UNSIGNED_BYTE, bufferAfter);
+    cvfGL->glReadPixels(coord.x() - 1, coord.y() - 1, 3, 3, GL_RGBA, GL_UNSIGNED_BYTE, bufferAfter);
 
     size_t j;
     for (j = 0; j < 9*4; j++)

@@ -108,23 +108,25 @@ void RenderStateStencil::setOperation(Operation stencilFails, Operation stencilP
 //--------------------------------------------------------------------------------------------------
 void RenderStateStencil::applyOpenGL(OpenGLContext* oglContext) const
 {
+    CVF_CALLSITE_OPENGL(oglContext);
+
     if (m_enable)
     {
         GLenum funcOGL = functionOpenGL(m_function);
-        glStencilFunc(funcOGL, m_functionRefValue, m_functionMask);
+        cvfGL->glStencilFunc(funcOGL, m_functionRefValue, m_functionMask);
 
         const GLenum stencilFailsOGL          = operationOpenGL(m_opStencilFails);
         const GLenum stencilPassesDepthFails  = operationOpenGL(m_opStencilPassesDepthFails);
-        const GLenum stencilPassesDepthPasses = operationOpenGL(m_opStencilPassesDepthPasses);        
-        glStencilOp(stencilFailsOGL, stencilPassesDepthFails, stencilPassesDepthPasses);
+        const GLenum stencilPassesDepthPasses = operationOpenGL(m_opStencilPassesDepthPasses);
+        cvfGL->glStencilOp(stencilFailsOGL, stencilPassesDepthFails, stencilPassesDepthPasses);
 
-        glEnable(GL_STENCIL_TEST);
+        cvfGL->glEnable(GL_STENCIL_TEST);
     }
     else
     {
-        glDisable(GL_STENCIL_TEST);
+        cvfGL->glDisable(GL_STENCIL_TEST);
     }
-    
+
     CVF_CHECK_OGL(oglContext);
 }
 

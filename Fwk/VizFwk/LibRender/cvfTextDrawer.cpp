@@ -318,7 +318,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         // Must be set before any texture related OpenGL calls
         if (oglContext->capabilities()->supportsOpenGL2())
         {
-            glActiveTexture(GL_TEXTURE0);
+            cvfGL->glActiveTexture(GL_TEXTURE0);
         }
 
         // Will get turned on during rendering of text, but must be off for background and border
@@ -328,9 +328,9 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     }
     else
     {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glEnableVertexAttribArray(ShaderProgram::VERTEX);
-        glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
+        cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
     }
 
     // Use a fixed line spacing
@@ -401,7 +401,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                     backgroundShader->applyUniform(oglContext, backgroundColor);
 
                     // Draw background
-                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, connects);
+                    cvfGL->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, connects);
                 }
             }
 
@@ -423,7 +423,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                     backgroundShader->applyUniform(oglContext, borderColor);
 
                     // Draw border
-                    glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, lineConnects);
+                    cvfGL->glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, lineConnects);
                 }
             }
         }
@@ -457,11 +457,11 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
             textShader->applyUniform(oglContext, uniformTexture);
         }
 
-        glEnableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
-        glVertexAttribPointer(ShaderProgram::TEX_COORD_2F_0, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
+        cvfGL->glVertexAttribPointer(ShaderProgram::TEX_COORD_2F_0, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
 
         // Setup texture, Note: Each glyph will do additional setup
-        glActiveTexture(GL_TEXTURE0);
+        cvfGL->glActiveTexture(GL_TEXTURE0);
     }
 
     RenderStateBlending blending;
@@ -558,7 +558,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                 }
                 else
                 {
-                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, connects);
+                    cvfGL->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, connects);
                 }
 
                 // Jump to the next character in the string, if any
@@ -591,10 +591,10 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         RenderStateLighting_FF light;
         light.applyOpenGL(oglContext);
     }
-    else    
+    else
     {
-        glDisableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
-        glDisableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glDisableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
+        cvfGL->glDisableVertexAttribArray(ShaderProgram::VERTEX);
 
         ShaderProgram::useNoProgram(oglContext);
     }

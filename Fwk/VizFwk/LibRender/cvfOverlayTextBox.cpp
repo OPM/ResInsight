@@ -191,9 +191,9 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
     }
     else
     {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glEnableVertexAttribArray(ShaderProgram::VERTEX);
-        glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
+        cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
 
         backgroundShader = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram(oglContext);
         if (backgroundShader->useProgram(oglContext))
@@ -234,7 +234,7 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
             // Draw background
             UniformFloat backgroundColor("u_color", Color4f(m_backgroundColor));
             backgroundShader->applyUniform(oglContext, backgroundColor);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            cvfGL->glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         }
     }
 
@@ -259,7 +259,7 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
             line.applyOpenGL(oglContext);
 
             // Draw border
-            glDrawArrays(GL_LINE_LOOP, 0, 4);
+            cvfGL->glDrawArrays(GL_LINE_LOOP, 0, 4);
 
             RenderStateLine resetLine;
             resetLine.applyOpenGL(oglContext);

@@ -257,35 +257,35 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
             {
                 CVF_ASSERT(m_image.isNull());
                 CVF_ASSERT(!m_enableMipmapGeneration);
-                glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+                cvfGL->glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
             }
             else if (m_internalFormat == DEPTH24_STENCIL8)
             {
                 CVF_ASSERT(m_image.isNull());
                 CVF_ASSERT(!m_enableMipmapGeneration);
-                glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
+                cvfGL->glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
             }
             else
             {
                 if (!supportsGenerateMipmapFunc)
                 {
                     // Explicit mipmap generation not supported so must configure before specifying texture image
-                    if (m_enableMipmapGeneration && m_image.notNull())  
+                    if (m_enableMipmapGeneration && m_image.notNull())
                     {
-                        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); 
+                        cvfGL->glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
                         m_hasMipmaps = true;
                     }
                     else
                     {
-                        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE); 
+                        cvfGL->glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
                     }
                 }
 
-                glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image.notNull() ? m_image->ptr() : 0);
+                cvfGL->glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image.notNull() ? m_image->ptr() : 0);
 
                 if (supportsGenerateMipmapFunc && m_enableMipmapGeneration && m_image.notNull())
                 {
-                    glGenerateMipmap(GL_TEXTURE_2D);
+                    cvfGL->glGenerateMipmap(GL_TEXTURE_2D);
                     m_hasMipmaps = true;
                 }
             }
@@ -300,11 +300,11 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
             if (m_internalFormat == DEPTH_COMPONENT16 || m_internalFormat == DEPTH_COMPONENT24 || m_internalFormat == DEPTH_COMPONENT32)
             {
                 CVF_ASSERT(m_image.isNull());
-                glTexImage2D(GL_TEXTURE_RECTANGLE, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+                cvfGL->glTexImage2D(GL_TEXTURE_RECTANGLE, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
             }
             else
             {
-                glTexImage2D(GL_TEXTURE_RECTANGLE, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image.notNull() ? m_image->ptr() : 0);
+                cvfGL->glTexImage2D(GL_TEXTURE_RECTANGLE, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image.notNull() ? m_image->ptr() : 0);
             }
 
             break;
@@ -317,7 +317,7 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
                 uint i;
                 for (i = 0; i < 6; i++)
                 {
-                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+                    cvfGL->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
                 }
             }
             else
@@ -326,12 +326,12 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
                 {
                     if (m_enableMipmapGeneration)
                     {
-                        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE); 
+                        cvfGL->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE);
                         m_hasMipmaps = true;
                     }
                     else
                     {
-                        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_FALSE); 
+                        cvfGL->glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_FALSE);
                     }
                 }
 
@@ -342,12 +342,12 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
                     ref<TextureImage> img = m_cubeMapImages[i];
                     CVF_ASSERT(img.notNull());
 
-                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, img->ptr());
+                    cvfGL->glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_RGBA, GL_UNSIGNED_BYTE, img->ptr());
                 }
 
                 if (supportsGenerateMipmapFunc && m_enableMipmapGeneration)
                 {
-                    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+                    cvfGL->glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
                     m_hasMipmaps = true;
                 }
             }
@@ -369,27 +369,29 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Texture::bind(OpenGLContext* /*oglContext*/) const
+void Texture::bind(OpenGLContext* oglContext) const
 {
+    CVF_CALLSITE_OPENGL(oglContext);
     CVF_ASSERT(OglRc::safeOglId(m_oglRcTexture.p()) != 0);
-    glBindTexture(textureTypeOpenGL(), m_oglRcTexture->oglId());    
+    cvfGL->glBindTexture(textureTypeOpenGL(), m_oglRcTexture->oglId());
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool Texture::isBound(OpenGLContext* /*oglContext*/) const
+bool Texture::isBound(OpenGLContext* oglContext) const
 {
+    CVF_CALLSITE_OPENGL(oglContext);
     GLint currentTextureBinding = 0;
 
     switch (m_textureType)
     {
-        case TEXTURE_2D:        glGetIntegerv(GL_TEXTURE_BINDING_2D, &currentTextureBinding); break;
-        case TEXTURE_RECTANGLE: glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &currentTextureBinding); break;
-        case TEXTURE_CUBE_MAP:  glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &currentTextureBinding); break;
+        case TEXTURE_2D:        cvfGL->glGetIntegerv(GL_TEXTURE_BINDING_2D, &currentTextureBinding); break;
+        case TEXTURE_RECTANGLE: cvfGL->glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &currentTextureBinding); break;
+        case TEXTURE_CUBE_MAP:  cvfGL->glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &currentTextureBinding); break;
     }
 
     if (currentTextureBinding != 0)
@@ -405,11 +407,11 @@ bool Texture::isBound(OpenGLContext* /*oglContext*/) const
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Texture::setupTextureParamsFromSampler(OpenGLContext* oglContext, const Sampler& sampler) const
 {
-    CVF_ASSERT(oglContext);
+    CVF_CALLSITE_OPENGL(oglContext);
     CVF_ASSERT(isBound(oglContext));
 
     cvfGLint oglWrapS = GL_CLAMP_TO_EDGE;
@@ -447,27 +449,27 @@ void Texture::setupTextureParamsFromSampler(OpenGLContext* oglContext, const Sam
     {
         case Sampler::NEAREST:                   oglMagFilter = GL_NEAREST; break;
         case Sampler::LINEAR:                    oglMagFilter = GL_LINEAR; break;
-        case Sampler::NEAREST_MIPMAP_NEAREST:    
-        case Sampler::NEAREST_MIPMAP_LINEAR:     
-        case Sampler::LINEAR_MIPMAP_NEAREST:     
+        case Sampler::NEAREST_MIPMAP_NEAREST:
+        case Sampler::NEAREST_MIPMAP_LINEAR:
+        case Sampler::LINEAR_MIPMAP_NEAREST:
         case Sampler::LINEAR_MIPMAP_LINEAR:      CVF_FAIL_MSG("Illegal mag format"); break;
     }
 
     cvfGLenum textureType = textureTypeOpenGL();
-    glTexParameteri(textureType, GL_TEXTURE_WRAP_S, oglWrapS);
-    glTexParameteri(textureType, GL_TEXTURE_WRAP_T, oglWrapT);
-    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, oglMinFilter);
-    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, oglMagFilter);
+    cvfGL->glTexParameteri(textureType, GL_TEXTURE_WRAP_S, oglWrapS);
+    cvfGL->glTexParameteri(textureType, GL_TEXTURE_WRAP_T, oglWrapT);
+    cvfGL->glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, oglMinFilter);
+    cvfGL->glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, oglMagFilter);
 
     // HACK
     if (m_internalFormat == DEPTH_COMPONENT16 || m_internalFormat == DEPTH_COMPONENT24 || m_internalFormat == DEPTH_COMPONENT32)
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+        cvfGL->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+        cvfGL->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
     }
 
-    // Set these to openGL 
-    //  TODO  TEXTURE_WRAP_R, TEXTURE_BORDER_COLOR, TEXTURE_MIN_LOD, TEXTURE_MAX_LOD, TEXTURE_LOD_BIAS, 
+    // Set these to openGL
+    //  TODO  TEXTURE_WRAP_R, TEXTURE_BORDER_COLOR, TEXTURE_MIN_LOD, TEXTURE_MAX_LOD, TEXTURE_LOD_BIAS,
     //   TEXTURE_COMPARE_MODE, TEXTURE_COMPARE_FUNC
 
     CVF_CHECK_OGL(oglContext);
@@ -591,12 +593,12 @@ void Texture::generateMipmap(OpenGLContext* oglContext)
 
     if (m_textureType == TEXTURE_2D)
     {
-        glGenerateMipmap(GL_TEXTURE_2D);
+        cvfGL->glGenerateMipmap(GL_TEXTURE_2D);
         m_hasMipmaps = true;
     }
     else if (m_textureType == TEXTURE_CUBE_MAP)
     {
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        cvfGL->glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
         m_hasMipmaps = true;
     }
     else

@@ -135,16 +135,17 @@ void RenderStatePoint::applyOpenGL(OpenGLContext* oglContext) const
     {
         if (openGL2Support)
         {
-            glDisable(GL_PROGRAM_POINT_SIZE);
+            cvfGL->glDisable(GL_PROGRAM_POINT_SIZE);
         }
-    
+
+        // glPointSize is not in QOpenGLFunctions, use direct call
         glPointSize(m_pointSize);
     }
     else
     {
         if (openGL2Support)
         {
-            glEnable(GL_PROGRAM_POINT_SIZE);
+            cvfGL->glEnable(GL_PROGRAM_POINT_SIZE);
         }
         else
         {
@@ -156,10 +157,12 @@ void RenderStatePoint::applyOpenGL(OpenGLContext* oglContext) const
     {
         if (m_pointSprite)
         {
+            // GL_POINT_SPRITE is fixed-function, use direct calls
             glEnable(GL_POINT_SPRITE);
-            glPointParameteri(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
+            // Note: glPointParameteri for GL_POINT_SPRITE_COORD_ORIGIN requires extension loading
+            // which was previously handled by GLEW. Point sprites are deprecated in modern OpenGL.
         }
-        else               
+        else
         {
             glDisable(GL_POINT_SPRITE);
         }

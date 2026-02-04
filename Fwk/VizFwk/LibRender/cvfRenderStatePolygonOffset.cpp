@@ -187,22 +187,24 @@ void RenderStatePolygonOffset::configureLineNegativeOffset()
 //--------------------------------------------------------------------------------------------------
 void RenderStatePolygonOffset::applyOpenGL(OpenGLContext* oglContext) const
 {
+    CVF_CALLSITE_OPENGL(oglContext);
+
     if (m_enableFillMode ||
         m_enableLineMode ||
         m_enablePointMode)
     {
-        glPolygonOffset(m_factor, m_units);
+        cvfGL->glPolygonOffset(m_factor, m_units);
     }
 
-    if (m_enableFillMode)   glEnable(GL_POLYGON_OFFSET_FILL);
-    else                    glDisable(GL_POLYGON_OFFSET_FILL);
-        
-    if (m_enableLineMode)   glEnable(GL_POLYGON_OFFSET_LINE);
-    else                    glDisable(GL_POLYGON_OFFSET_LINE);
+    if (m_enableFillMode)   cvfGL->glEnable(GL_POLYGON_OFFSET_FILL);
+    else                    cvfGL->glDisable(GL_POLYGON_OFFSET_FILL);
 
-    if (m_enablePointMode)  glEnable(GL_POLYGON_OFFSET_POINT);
-    else                    glDisable(GL_POLYGON_OFFSET_POINT);
-    
+    if (m_enableLineMode)   cvfGL->glEnable(GL_POLYGON_OFFSET_LINE);
+    else                    cvfGL->glDisable(GL_POLYGON_OFFSET_LINE);
+
+    if (m_enablePointMode)  cvfGL->glEnable(GL_POLYGON_OFFSET_POINT);
+    else                    cvfGL->glDisable(GL_POLYGON_OFFSET_POINT);
+
     CVF_CHECK_OGL(oglContext);
 }
 

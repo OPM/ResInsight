@@ -190,22 +190,22 @@ void DrawableVectors::render(OpenGLContext* oglContext, ShaderProgram* shaderPro
         // Bind VBO for vertex and normal data
         m_glyphVerticesAndNormalsBO->bindBuffer(oglContext);
 
-        glVertexAttribPointer(ShaderProgram::NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, (void*)(sizeof(float)*3));
-        glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, 0);
-        glEnableVertexAttribArray(ShaderProgram::NORMAL);
-        glEnableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glVertexAttribPointer(ShaderProgram::NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, (void*)(sizeof(float)*3));
+        cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, 0);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::NORMAL);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::VERTEX);
 
         m_indicesBO->bindBuffer(oglContext);
     }
     else
     {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glVertexAttribPointer(ShaderProgram::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, m_vectorGlyph->normalArray()->ptr()->ptr());
-        glEnableVertexAttribArray(ShaderProgram::NORMAL);
-        glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, m_vectorGlyph->vertexArray()->ptr()->ptr());
-        glEnableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
+        cvfGL->glVertexAttribPointer(ShaderProgram::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, m_vectorGlyph->normalArray()->ptr()->ptr());
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::NORMAL);
+        cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, m_vectorGlyph->vertexArray()->ptr()->ptr());
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::VERTEX);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        cvfGL->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         ptrOrOffset = m_vectorGlyphPrimSet->indices()->ptr();
     }
 
@@ -224,7 +224,7 @@ void DrawableVectors::render(OpenGLContext* oglContext, ShaderProgram* shaderPro
     // Set the single color to use
     if (m_colorArray.isNull())
     {
-        glUniform3fv(colorUniformLocation, 1, m_singleColor.ptr());
+        cvfGL->glUniform3fv(colorUniformLocation, 1, m_singleColor.ptr());
     }
 
     float vectorMat[16];
@@ -236,20 +236,20 @@ void DrawableVectors::render(OpenGLContext* oglContext, ShaderProgram* shaderPro
         vectorMatrix(i, vectorMat);
 
         // Set this as a uniform to the shader program
-        glUniformMatrix4fv(vectorMatrixUniformLocation, 1, GL_FALSE, vectorMat); 
+        cvfGL->glUniformMatrix4fv(vectorMatrixUniformLocation, 1, GL_FALSE, vectorMat);
 
         if (m_colorArray.notNull())
         {
-            glUniform3fv(colorUniformLocation, 1, m_colorArray->get(i).ptr());
+            cvfGL->glUniform3fv(colorUniformLocation, 1, m_colorArray->get(i).ptr());
         }
 
         // Draw the arrow
-        glDrawRangeElements(GL_TRIANGLES, minIndex, maxIndex, indexCount, GL_UNSIGNED_SHORT, ptrOrOffset);
+        cvfGL->glDrawRangeElements(GL_TRIANGLES, minIndex, maxIndex, indexCount, GL_UNSIGNED_SHORT, ptrOrOffset);
     }
 
     // Cleanup
-    glDisableVertexAttribArray(ShaderProgram::VERTEX);
-    glDisableVertexAttribArray(ShaderProgram::NORMAL);
+    cvfGL->glDisableVertexAttribArray(ShaderProgram::VERTEX);
+    cvfGL->glDisableVertexAttribArray(ShaderProgram::NORMAL);
 
     CVF_CHECK_OGL(oglContext);
 
@@ -269,10 +269,11 @@ void DrawableVectors::render(OpenGLContext* oglContext, ShaderProgram* shaderPro
 //--------------------------------------------------------------------------------------------------
 void DrawableVectors::renderFixedFunction(OpenGLContext* oglContext, const MatrixState& matrixState)
 {
-    CVF_ASSERT(oglContext);
+    CVF_UNUSED(oglContext);
     CVF_ASSERT(m_vertexArray->size() == m_vectorArray->size());
     CVF_ASSERT(m_vectorGlyph.notNull());
 
+    // Fixed-function calls - use direct OpenGL calls (not through cvfGL)
     glEnable(GL_NORMALIZE);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
@@ -315,10 +316,11 @@ void DrawableVectors::renderFixedFunction(OpenGLContext* oglContext, const Matri
 //--------------------------------------------------------------------------------------------------
 void DrawableVectors::renderImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState)
 {
-    CVF_ASSERT(oglContext);
+    CVF_UNUSED(oglContext);
     CVF_ASSERT(m_vertexArray->size() == m_vectorArray->size());
     CVF_ASSERT(m_vectorGlyph.notNull());
 
+    // Fixed-function calls - use direct OpenGL calls (not through cvfGL)
     glEnable(GL_NORMALIZE);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);

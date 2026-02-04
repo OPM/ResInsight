@@ -15,13 +15,6 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-deprecated -Wno-deprecated-declarations")
 endif()
 
-# For now, remove pedantic flag for OSX since it clashes with glew
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	string(REPLACE "-pedantic" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-endif()
-
-
-include_directories(glew)
 
 
 set(CEE_HEADER_FILES
@@ -190,9 +183,12 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+find_package(Qt6 REQUIRED COMPONENTS OpenGL)
+
 target_link_libraries ( ${PROJECT_NAME}
     LibCore
     LibGeometry
+    Qt6::OpenGL
 )
 
 set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})

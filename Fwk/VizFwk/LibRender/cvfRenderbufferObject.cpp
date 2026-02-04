@@ -121,8 +121,8 @@ bool RenderbufferObject::create(OpenGLContext* oglContext)
     m_oglRcBuffer = oglContext->resourceManager()->createOglRcRenderbuffer(oglContext);
     OglId myOglId = OglRc::safeOglId(m_oglRcBuffer.p());
     
-    glBindRenderbuffer(GL_RENDERBUFFER, myOglId);
-    glRenderbufferStorage(GL_RENDERBUFFER, intenalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height));
+    cvfGL->glBindRenderbuffer(GL_RENDERBUFFER, myOglId);
+    cvfGL->glRenderbufferStorage(GL_RENDERBUFFER, intenalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height));
 
     if (CVF_TEST_AND_REPORT_OPENGL_ERROR(oglContext, "Allocate render buffer storage"))
     {

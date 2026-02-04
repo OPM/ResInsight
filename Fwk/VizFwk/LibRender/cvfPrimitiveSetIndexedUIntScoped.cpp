@@ -105,11 +105,11 @@ void PrimitiveSetIndexedUIntScoped::render(OpenGLContext* oglContext) const
     }
     else
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        cvfGL->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         ptrOrOffset = m_indices->ptr() + m_firstElement;
     }
     
-    glDrawElements(primitiveTypeOpenGL(), numIndices, GL_UNSIGNED_INT, ptrOrOffset);
+    cvfGL->glDrawElements(primitiveTypeOpenGL(), numIndices, GL_UNSIGNED_INT, ptrOrOffset);
 
     CVF_CHECK_OGL(oglContext);
 }

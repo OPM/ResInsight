@@ -87,18 +87,18 @@ ImmVbo::ImmVbo(OpenGLContext* oglContext)
 ImmVbo::~ImmVbo()
 {
     CVF_CALLSITE_OPENGL(m_ctx);
-    glDeleteBuffers(1, &m_vboId);
+    cvfGL->glDeleteBuffers(1, &m_vboId);
 }
 
 
 void ImmVbo::init(unsigned int sizeInBytes)
 {
     CVF_CALLSITE_OPENGL(m_ctx);
-    glGenBuffers(1, &m_vboId);
+    cvfGL->glGenBuffers(1, &m_vboId);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+    cvfGL->glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeInBytes, NULL, GL_STATIC_DRAW);
+    cvfGL->glBufferData(GL_ARRAY_BUFFER, sizeInBytes, NULL, GL_STATIC_DRAW);
     m_vboSize = sizeInBytes;
 }
 
@@ -114,16 +114,16 @@ void* ImmVbo::mapWrite(unsigned int sizeInBytes)
         return NULL;
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+    cvfGL->glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
 
     if (m_nextOffset + paddedSize >= m_vboSize)
     {
-        glBufferData(GL_ARRAY_BUFFER, m_vboSize, NULL, GL_STATIC_DRAW);
+        cvfGL->glBufferData(GL_ARRAY_BUFFER, m_vboSize, NULL, GL_STATIC_DRAW);
         m_nextOffset = 0;
         m_lastOffset = 0;
     }
 
-    void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, m_nextOffset, paddedSize, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_INVALIDATE_RANGE_BIT);
+    void* ptr = cvfGL->glMapBufferRange(GL_ARRAY_BUFFER, m_nextOffset, paddedSize, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_INVALIDATE_RANGE_BIT);
     //void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, m_nextOffset, paddedSize, GL_MAP_WRITE_BIT);
 
     m_lastOffset = m_nextOffset;
@@ -138,9 +138,9 @@ void* ImmVbo::mapWrite(unsigned int sizeInBytes)
 void ImmVbo::unmap()
 {
     CVF_CALLSITE_OPENGL(m_ctx);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+    cvfGL->glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
 
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+    cvfGL->glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
 

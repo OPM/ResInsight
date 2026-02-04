@@ -106,17 +106,17 @@ bool RenderStateLine::isSmoothEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RenderStateLine::applyOpenGL(OpenGLContext* oglContext) const
 {
-    CVF_UNUSED(oglContext);
+    CVF_CALLSITE_OPENGL(oglContext);
 
-    glLineWidth(m_lineWidth);
+    cvfGL->glLineWidth(m_lineWidth);
 
     if (m_smooth)
     {
-        glEnable(GL_LINE_SMOOTH);
+        cvfGL->glEnable(GL_LINE_SMOOTH);
     }
     else
     {
-        glDisable(GL_LINE_SMOOTH);
+        cvfGL->glDisable(GL_LINE_SMOOTH);
     }
 }
 

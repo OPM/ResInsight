@@ -107,26 +107,28 @@ RenderStateCullFace::Mode RenderStateCullFace::mode() const
 //--------------------------------------------------------------------------------------------------
 void RenderStateCullFace::applyOpenGL(OpenGLContext* oglContext) const
 {
+    CVF_CALLSITE_OPENGL(oglContext);
+
     if (m_enableCulling)
     {
-        if (m_faceMode == BACK)    
+        if (m_faceMode == BACK)
         {
-            glCullFace(GL_BACK);
+            cvfGL->glCullFace(GL_BACK);
         }
         else if (m_faceMode == FRONT)
         {
-            glCullFace(GL_FRONT);
+            cvfGL->glCullFace(GL_FRONT);
         }
         else
         {
-            glCullFace(GL_FRONT_AND_BACK);
+            cvfGL->glCullFace(GL_FRONT_AND_BACK);
         }
 
-        glEnable(GL_CULL_FACE);
+        cvfGL->glEnable(GL_CULL_FACE);
     }
     else
     {
-        glDisable(GL_CULL_FACE);
+        cvfGL->glDisable(GL_CULL_FACE);
     }
 
     CVF_CHECK_OGL(oglContext);

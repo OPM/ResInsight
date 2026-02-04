@@ -89,9 +89,9 @@ void InternalLegendRenderTools::renderBackgroundUsingShaders( OpenGLContext*    
         Vec3f( 1, size.y(), 0.0f ),
     };
 
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    glEnableVertexAttribArray( ShaderProgram::VERTEX );
-    glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray.data() );
+    cvfGL->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    cvfGL->glEnableVertexAttribArray( ShaderProgram::VERTEX );
+    cvfGL->glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray.data() );
 
     // Draw frame background
 
@@ -102,7 +102,7 @@ void InternalLegendRenderTools::renderBackgroundUsingShaders( OpenGLContext*    
 
     static const ushort backgroundTriangleIndices[] = { 0, 1, 2, 2, 3, 0 };
 
-    glDrawRangeElements( GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_SHORT, backgroundTriangleIndices );
+    cvfGL->glDrawRangeElements( GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_SHORT, backgroundTriangleIndices );
 
     // Draw frame border lines
 
@@ -111,9 +111,9 @@ void InternalLegendRenderTools::renderBackgroundUsingShaders( OpenGLContext*    
 
     static const ushort frameLineIndices[] = { 0, 1, 1, 2, 2, 3, 3, 0 };
 
-    glDrawRangeElements( GL_LINES, 0, 3, 8, GL_UNSIGNED_SHORT, frameLineIndices );
+    cvfGL->glDrawRangeElements( GL_LINES, 0, 3, 8, GL_UNSIGNED_SHORT, frameLineIndices );
 
-    glDisableVertexAttribArray( ShaderProgram::VERTEX );
+    cvfGL->glDisableVertexAttribArray( ShaderProgram::VERTEX );
 
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
     shaderProgram->useNoProgram( oglContext );

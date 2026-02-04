@@ -190,7 +190,7 @@ bool ShaderProgram::linkProgram(OpenGLContext* oglContext)
         }
         
         CVF_ASSERT(shader->shaderOglId() != 0);
-        glAttachShader(m_oglRcProgram->oglId(), shader->shaderOglId());
+        cvfGL->glAttachShader(m_oglRcProgram->oglId(), shader->shaderOglId());
         CVF_CHECK_OGL(oglContext);
 
         m_linkedShaderVersionTicks[i] = shader->compiledVersionTick();
@@ -198,7 +198,7 @@ bool ShaderProgram::linkProgram(OpenGLContext* oglContext)
 
 	bindFixedAttributes(oglContext);
 
-    glLinkProgram(m_oglRcProgram->oglId());
+    cvfGL->glLinkProgram(m_oglRcProgram->oglId());
 
     //Trace::show("%d", glGetAttribLocation(m_programObjID, "cvfa_vertex"));
     //Trace::show("%d", glGetAttribLocation(m_programObjID, "cvfa_normal"));
@@ -206,7 +206,7 @@ bool ShaderProgram::linkProgram(OpenGLContext* oglContext)
     //Trace::show(programInfoLog().toAscii().ptr());
 
     GLint iLinkStatus = 0;
-    glGetProgramiv(m_oglRcProgram->oglId(), GL_LINK_STATUS, &iLinkStatus);
+    cvfGL->glGetProgramiv(m_oglRcProgram->oglId(), GL_LINK_STATUS, &iLinkStatus);
     if (iLinkStatus != GL_TRUE)
     {
         CVF_LOG_RENDER_ERROR(oglContext, String("Error linking shader program '%1', GLSL details:\n%2").arg(programName()).arg(programInfoLog(oglContext)));
@@ -294,7 +294,7 @@ bool ShaderProgram::useProgram(OpenGLContext* oglContext) const
     // will make this method return false.
     CVF_CLEAR_OGL_ERROR(oglContext);
 
-    glUseProgram(m_oglRcProgram->oglId());
+    cvfGL->glUseProgram(m_oglRcProgram->oglId());
 
     // TODO
     // Is there any lightweight way to check if the glUseCall was successful
@@ -315,7 +315,7 @@ void ShaderProgram::useNoProgram(OpenGLContext* oglContext)
     CVF_CALLSITE_OPENGL(oglContext);
     CVF_TIGHT_ASSERT(ShaderProgram::supportedOpenGL(oglContext));
 
-    glUseProgram(0);
+    cvfGL->glUseProgram(0);
 }
 
 
@@ -389,10 +389,10 @@ bool ShaderProgram::validateProgram(OpenGLContext* oglContext) const
         return false;
     }
 
-    glValidateProgram(m_oglRcProgram->oglId());
+    cvfGL->glValidateProgram(m_oglRcProgram->oglId());
 
     GLint validateStatus = GL_FALSE;
-    glGetProgramiv(m_oglRcProgram->oglId(), GL_VALIDATE_STATUS, &validateStatus);
+    cvfGL->glGetProgramiv(m_oglRcProgram->oglId(), GL_VALIDATE_STATUS, &validateStatus);
     if (validateStatus == GL_TRUE)
     {
         return true;
@@ -421,13 +421,13 @@ String ShaderProgram::programInfoLog(OpenGLContext* oglContext) const
         return "Program object not created.";
     }
 
-    if (!glIsProgram(myOglId))
+    if (!cvfGL->glIsProgram(myOglId))
     {
         return "Program object identifier does not correspond to a shader program object.";
     }
 
-    GLint reqBufferSize = 0;    
-    glGetProgramiv(myOglId, GL_INFO_LOG_LENGTH, &reqBufferSize);
+    GLint reqBufferSize = 0;
+    cvfGL->glGetProgramiv(myOglId, GL_INFO_LOG_LENGTH, &reqBufferSize);
 
     if (reqBufferSize > 0)
     {
@@ -435,7 +435,7 @@ String ShaderProgram::programInfoLog(OpenGLContext* oglContext) const
         // This is a good place for using CharArray
         std::vector<GLchar> charBuffer;
         charBuffer.resize(static_cast<size_t>(reqBufferSize + 1));
-        glGetProgramInfoLog(myOglId, reqBufferSize, NULL, &charBuffer[0]);
+        cvfGL->glGetProgramInfoLog(myOglId, reqBufferSize, NULL, &charBuffer[0]);
 
         String logString(&charBuffer[0]);
         return logString;
@@ -507,13 +507,13 @@ void ShaderProgram::applyUniformAtLocation(OpenGLContext* oglContext, int locati
 
     switch (uniform.type())
     {
-        case Uniform::INT:          glUniform1iv(location, valCount, uniform.intPtr());   break;
-        case Uniform::FLOAT:        glUniform1fv(location, valCount, uniform.floatPtr()); break;
-        case Uniform::FLOAT_VEC2:   glUniform2fv(location, valCount, uniform.floatPtr()); break;
-        case Uniform::FLOAT_VEC3:   glUniform3fv(location, valCount, uniform.floatPtr()); break;
-        case Uniform::FLOAT_VEC4:   glUniform4fv(location, valCount, uniform.floatPtr()); break;
+        case Uniform::INT:          cvfGL->glUniform1iv(location, valCount, uniform.intPtr());   break;
+        case Uniform::FLOAT:        cvfGL->glUniform1fv(location, valCount, uniform.floatPtr()); break;
+        case Uniform::FLOAT_VEC2:   cvfGL->glUniform2fv(location, valCount, uniform.floatPtr()); break;
+        case Uniform::FLOAT_VEC3:   cvfGL->glUniform3fv(location, valCount, uniform.floatPtr()); break;
+        case Uniform::FLOAT_VEC4:   cvfGL->glUniform4fv(location, valCount, uniform.floatPtr()); break;
 
-        case Uniform::FLOAT_MAT4:   glUniformMatrix4fv(location, valCount, GL_FALSE, uniform.floatPtr()); break;
+        case Uniform::FLOAT_MAT4:   cvfGL->glUniformMatrix4fv(location, valCount, GL_FALSE, uniform.floatPtr()); break;
 
         case Uniform::UNDEFINED:    CVF_FAIL_MSG("Unhandled type");
     }
@@ -615,25 +615,25 @@ void ShaderProgram::applyFixedUniforms(OpenGLContext* oglContext, const MatrixSt
         FixedUniform fixedUniform = it->first;
         switch (fixedUniform)
         {
-            case PROJECTION_MATRIX:                 glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.projectionMatrix().ptr());            break;
+            case PROJECTION_MATRIX:                 cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.projectionMatrix().ptr());            break;
 
-            case VIEW_MATRIX:                       glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.viewMatrix().ptr());                  break;
-            case VIEW_MATRIX_INVERSE:               glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.viewMatrixInverse().ptr());           break;
+            case VIEW_MATRIX:                       cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.viewMatrix().ptr());                  break;
+            case VIEW_MATRIX_INVERSE:               cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.viewMatrixInverse().ptr());           break;
 
-            case MODEL_MATRIX:                      glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelMatrix().ptr());                 break;
-            case MODEL_MATRIX_INVERSE:              glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelMatrixInverse().ptr());          break;
-            case MODEL_MATRIX_INVERSE_TRANSPOSE:    glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelMatrixInverseTranspose().ptr()); break;
+            case MODEL_MATRIX:                      cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelMatrix().ptr());                 break;
+            case MODEL_MATRIX_INVERSE:              cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelMatrixInverse().ptr());          break;
+            case MODEL_MATRIX_INVERSE_TRANSPOSE:    cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelMatrixInverseTranspose().ptr()); break;
 
-            case MODEL_VIEW_MATRIX:                 glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelViewMatrix().ptr());             break;
-            case MODEL_VIEW_MATRIX_INVERSE:         glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelViewMatrixInverse().ptr());      break;
+            case MODEL_VIEW_MATRIX:                 cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelViewMatrix().ptr());             break;
+            case MODEL_VIEW_MATRIX_INVERSE:         cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelViewMatrixInverse().ptr());      break;
 
-            case MODEL_VIEW_PROJECTION_MATRIX:      glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelViewProjectionMatrix().ptr());   break;
+            case MODEL_VIEW_PROJECTION_MATRIX:      cvfGL->glUniformMatrix4fv(location, 1, GL_FALSE, matrixState.modelViewProjectionMatrix().ptr());   break;
 
-            case NORMAL_MATRIX:                     glUniformMatrix3fv(location, 1, GL_FALSE, matrixState.normalMatrix().ptr());                break;
+            case NORMAL_MATRIX:                     cvfGL->glUniformMatrix3fv(location, 1, GL_FALSE, matrixState.normalMatrix().ptr());                break;
 
-            case VIEWPORT_WIDTH:                    glUniform1i(location,  static_cast<GLint>(matrixState.viewportSize().x()));                 break;
-            case VIEWPORT_HEIGHT:                   glUniform1i(location,  static_cast<GLint>(matrixState.viewportSize().y()));                 break;
-            case PIXEL_HEIGHT_AT_UNIT_DISTANCE:     glUniform1f(location,  matrixState.pixelHeightAtUnitDistance());                            break;
+            case VIEWPORT_WIDTH:                    cvfGL->glUniform1i(location,  static_cast<GLint>(matrixState.viewportSize().x()));                 break;
+            case VIEWPORT_HEIGHT:                   cvfGL->glUniform1i(location,  static_cast<GLint>(matrixState.viewportSize().y()));                 break;
+            case PIXEL_HEIGHT_AT_UNIT_DISTANCE:     cvfGL->glUniform1f(location,  matrixState.pixelHeightAtUnitDistance());                            break;
 
             default:
                 CVF_FAIL_MSG("Unhandled fixed uniform");
@@ -745,8 +745,8 @@ void ShaderProgram::discoverActiveUniforms(OpenGLContext* oglContext)
 
     GLint numActiveUniforms = 0;
     GLint maxUniformNameLength = 0;
-    glGetProgramiv(m_oglRcProgram->oglId(), GL_ACTIVE_UNIFORMS, &numActiveUniforms);
-    glGetProgramiv(m_oglRcProgram->oglId(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
+    cvfGL->glGetProgramiv(m_oglRcProgram->oglId(), GL_ACTIVE_UNIFORMS, &numActiveUniforms);
+    cvfGL->glGetProgramiv(m_oglRcProgram->oglId(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
     if (numActiveUniforms <= 0 || maxUniformNameLength <= 0)
     {
         return;
@@ -761,7 +761,7 @@ void ShaderProgram::discoverActiveUniforms(OpenGLContext* oglContext)
         GLsizei numCharsInName = 0;
         GLint uniformSize = 0;
         GLenum uniformDataType = 0;
-        glGetActiveUniform(m_oglRcProgram->oglId(), i, bufferSize, &numCharsInName, &uniformSize, &uniformDataType, uniformNameBuffer.ptr());
+        cvfGL->glGetActiveUniform(m_oglRcProgram->oglId(), i, bufferSize, &numCharsInName, &uniformSize, &uniformDataType, uniformNameBuffer.ptr());
         CVF_CHECK_OGL(oglContext);
 
         //Trace::show("%d:  uniformSize=%d  uniformDataType=%d  uniformName=%s", i, uniformSize, uniformDataType, uniformNameBuffer.ptr());
@@ -777,7 +777,7 @@ void ShaderProgram::discoverActiveUniforms(OpenGLContext* oglContext)
                 uniformName.resize(bracketPos);
             }    
 
-            int location = glGetUniformLocation(m_oglRcProgram->oglId(), uniformName.c_str());
+            int location = cvfGL->glGetUniformLocation(m_oglRcProgram->oglId(), uniformName.c_str());
             CVF_CHECK_OGL(oglContext);
 
 
@@ -846,7 +846,7 @@ int ShaderProgram::attributeLocation(OpenGLContext* oglContext, const char* name
 
     if (OglRc::safeOglId(m_oglRcProgram.p()) != 0)
     {
-        GLint attribIndex = glGetAttribLocation(m_oglRcProgram->oglId(), name);
+        GLint attribIndex = cvfGL->glGetAttribLocation(m_oglRcProgram->oglId(), name);
         return attribIndex;
     }
 	
@@ -862,10 +862,10 @@ void ShaderProgram::bindFixedAttributes(OpenGLContext* oglContext)
     CVF_CALLSITE_OPENGL(oglContext);
 	CVF_ASSERT(OglRc::safeOglId(m_oglRcProgram.p()) != 0);
 
-    glBindAttribLocation(m_oglRcProgram->oglId(), VERTEX,        "cvfa_vertex");
-    glBindAttribLocation(m_oglRcProgram->oglId(), NORMAL,        "cvfa_normal");
-    glBindAttribLocation(m_oglRcProgram->oglId(), COLOR,         "cvfa_color");
-    glBindAttribLocation(m_oglRcProgram->oglId(), TEX_COORD_2F_0,"cvfa_texCoord");
+    cvfGL->glBindAttribLocation(m_oglRcProgram->oglId(), VERTEX,        "cvfa_vertex");
+    cvfGL->glBindAttribLocation(m_oglRcProgram->oglId(), NORMAL,        "cvfa_normal");
+    cvfGL->glBindAttribLocation(m_oglRcProgram->oglId(), COLOR,         "cvfa_color");
+    cvfGL->glBindAttribLocation(m_oglRcProgram->oglId(), TEX_COORD_2F_0,"cvfa_texCoord");
 
     CVF_CHECK_OGL(oglContext);
 }

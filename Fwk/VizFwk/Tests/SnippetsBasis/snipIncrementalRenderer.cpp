@@ -103,9 +103,9 @@ bool IncrementalRenderer::onInitialize()
     }
 
     // Create a frame-buffer object and a render-buffer object...
-    glGenFramebuffersEXT( 1, &m_frameBuffer );
-    glGenRenderbuffersEXT( 1, &m_depthRenderBuffer );
-    glGenTextures( 1, &m_dynamicTextureID);
+    cvfGL->glGenFramebuffers( 1, &m_frameBuffer );
+    cvfGL->glGenRenderbuffers( 1, &m_depthRenderBuffer );
+    cvfGL->glGenTextures( 1, &m_dynamicTextureID);
     CVF_CHECK_OGL(m_openGLContext.p());
 
     return true;
@@ -173,27 +173,27 @@ void IncrementalRenderer::onPaintEvent(PostEventAction* postEventAction)
     // but without it the geometry will not be sorted properly.
     if (m_renderBuffersDirty)
     {
-        glBindRenderbufferEXT( GL_RENDERBUFFER_EXT, m_depthRenderBuffer );
-        glRenderbufferStorageEXT( GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, vpWidth, vpHeight);
+        cvfGL->glBindRenderbuffer( GL_RENDERBUFFER, m_depthRenderBuffer );
+        cvfGL->glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, vpWidth, vpHeight);
         CVF_CHECK_OGL(m_openGLContext.p());
 
-        // Now, create our dynamic texture. It doesn't actually get loaded with any 
+        // Now, create our dynamic texture. It doesn't actually get loaded with any
         // pixel data, but its texture ID becomes associated with the pixel data
         // contained in the frame-buffer object. This allows us to bind to this data
         // like we would any regular texture.
-        glBindTexture( GL_TEXTURE_2D, m_dynamicTextureID);
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, vpWidth, vpHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+        cvfGL->glBindTexture( GL_TEXTURE_2D, m_dynamicTextureID);
+        cvfGL->glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, vpWidth, vpHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 );
+        cvfGL->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        cvfGL->glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
         CVF_CHECK_OGL(m_openGLContext.p());
     }
 
     // Bind the frame-buffer object and attach to it a render-buffer object set up as a depth-buffer.
-    glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, m_frameBuffer );
+    cvfGL->glBindFramebuffer( GL_FRAMEBUFFER, m_frameBuffer );
     CVF_CHECK_OGL(m_openGLContext.p());
-    glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_depthRenderBuffer );
+    cvfGL->glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthRenderBuffer );
     CVF_CHECK_OGL(m_openGLContext.p());
-    glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_dynamicTextureID, 0 );
+    cvfGL->glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_dynamicTextureID, 0 );
     CVF_CHECK_OGL(m_openGLContext.p());
 
 // 
@@ -202,7 +202,7 @@ void IncrementalRenderer::onPaintEvent(PostEventAction* postEventAction)
     m_renderSequence->render(m_openGLContext.p());
     CVF_CHECK_OGL(m_openGLContext.p());
 
-    glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
+    cvfGL->glBindFramebuffer( GL_FRAMEBUFFER, 0 );
     CVF_CHECK_OGL(m_openGLContext.p());
 
     //     vp->set(0, 0, vpWidth, vpHeight);
@@ -218,21 +218,21 @@ void IncrementalRenderer::onPaintEvent(PostEventAction* postEventAction)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_LIGHTING);
-    
-    glBindTexture( GL_TEXTURE_2D, m_dynamicTextureID );
-    glEnable(GL_TEXTURE_2D);
+    cvfGL->glDisable(GL_DEPTH_TEST);
+    cvfGL->glDisable(GL_CULL_FACE);
+    cvfGL->glDisable(GL_LIGHTING);
+
+    cvfGL->glBindTexture( GL_TEXTURE_2D, m_dynamicTextureID );
+    cvfGL->glEnable(GL_TEXTURE_2D);
     CVF_CHECK_OGL(m_openGLContext.p());
 
     glColor3f(1, 1, 1);
 
     glBegin(GL_QUADS);
-    
+
         glTexCoord2f(0, 0);
         glVertex2f(0, 0);
-      
+
         glTexCoord2f(1, 0);
         glVertex2f((GLfloat)vp->width(), 0);
 

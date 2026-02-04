@@ -39,20 +39,6 @@
 #include "cvfOpenGL.h"
 #include "cvfSystem.h"
 
-// Get rid of warnings from glew
-#ifdef WIN32
-#pragma warning (disable: 4706 4365 4191 4668)
-#endif
-
-CVF_GCC_DIAGNOSTIC_IGNORE("-Wconversion")
-
-#undef glewGetContext
-
-extern "C"
-{
-#include "glew/glew.c"
-}
-
 
 namespace cvf {
 
@@ -63,14 +49,14 @@ namespace cvf {
 /// \class cvf::OpenGL
 /// \ingroup Render
 ///
-/// Static class providing OpenGL wrappers and helpers 
-/// 
+/// Static class providing OpenGL wrappers and helpers
+///
 //==================================================================================================
 
 bool OpenGL::m_enableCheckOgl = true;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool OpenGL::hasOpenGLError(OpenGLContext* oglContext)
 {
@@ -98,7 +84,7 @@ bool OpenGL::hasOpenGLError(OpenGLContext* oglContext)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void OpenGL::clearOpenGLError(OpenGLContext* oglContext)
 {
@@ -108,7 +94,7 @@ void OpenGL::clearOpenGLError(OpenGLContext* oglContext)
     CVF_UNUSED(oglContext);
 
     cvfGLenum err = glGetError();
-    
+
     // Empty all error flags
     while (err != GL_NO_ERROR)
     {
@@ -118,7 +104,7 @@ void OpenGL::clearOpenGLError(OpenGLContext* oglContext)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 String OpenGL::mapOpenGLErrorToString(cvfGLenum errorCode)
 {
@@ -181,7 +167,7 @@ bool OpenGL::testAndReportOpenGLError(OpenGLContext* oglContext, const char* ope
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void OpenGL::cvf_check_ogl(OpenGLContext* oglContext, const CodeLocation& codeLocation)
 {
@@ -210,19 +196,19 @@ void OpenGL::cvf_check_ogl(OpenGLContext* oglContext, const CodeLocation& codeLo
         }
     }
 }
-    
-    
+
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void OpenGL::enableCheckOgl(bool enable)
 {
     m_enableCheckOgl = enable;
 }
 
-    
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool OpenGL::isCheckOglEnabled()
 {

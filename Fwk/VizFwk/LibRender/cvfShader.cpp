@@ -124,7 +124,7 @@ bool Shader::compile(OpenGLContext* oglContext)
 #ifdef _DEBUG
         uint myOglId = OglRc::safeOglId(m_oglRcShader.p());
         GLint status;
-        glGetShaderiv(myOglId, GL_COMPILE_STATUS, &status);
+        cvfGL->glGetShaderiv(myOglId, GL_COMPILE_STATUS, &status);
         CVF_ASSERT(status == GL_TRUE);
 #endif
 
@@ -169,13 +169,13 @@ bool Shader::compile(OpenGLContext* oglContext)
     const char* stringArray[1];
     stringArray[0] = charArr.ptr();
 
-    glShaderSource(myOglId, 1, stringArray, NULL);
+    cvfGL->glShaderSource(myOglId, 1, stringArray, NULL);
     CVF_CHECK_OGL(oglContext);
 
-    glCompileShader(myOglId);
+    cvfGL->glCompileShader(myOglId);
 
     GLint iCompileStatus = 0;
-    glGetShaderiv(myOglId, GL_COMPILE_STATUS, &iCompileStatus);
+    cvfGL->glGetShaderiv(myOglId, GL_COMPILE_STATUS, &iCompileStatus);
     if (iCompileStatus != GL_TRUE)
     {
         String errStr = String("Error compiling shader: '%1'\n").arg(m_shaderName);
@@ -262,13 +262,13 @@ String Shader::shaderInfoLog(OpenGLContext* oglContext) const
         return "Shader object not created.";
     }
 
-    if (!glIsShader(myOglId))
+    if (!cvfGL->glIsShader(myOglId))
     {
         return "Shader object identifier does not correspond to a shader object.";
     }
         
-    GLint reqBufferSize = 0;    
-    glGetShaderiv(myOglId, GL_INFO_LOG_LENGTH, &reqBufferSize);
+    GLint reqBufferSize = 0;
+    cvfGL->glGetShaderiv(myOglId, GL_INFO_LOG_LENGTH, &reqBufferSize);
 
     if (reqBufferSize > 0)
     {
@@ -276,7 +276,7 @@ String Shader::shaderInfoLog(OpenGLContext* oglContext) const
         // This is a good place for using CharArray
         std::vector<GLchar> charBuffer;
         charBuffer.resize(static_cast<size_t>(reqBufferSize + 1));
-        glGetShaderInfoLog(myOglId, reqBufferSize, NULL, &charBuffer[0]);
+        cvfGL->glGetShaderInfoLog(myOglId, reqBufferSize, NULL, &charBuffer[0]);
 
         String logString(&charBuffer[0]);
         return logString;

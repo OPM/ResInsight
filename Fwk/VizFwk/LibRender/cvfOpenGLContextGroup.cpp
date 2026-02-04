@@ -44,14 +44,8 @@
 #include "cvfLogManager.h"
 #include "cvfTrace.h"
 
-#include <memory.h>
-
-#ifdef WIN32
-#pragma warning (push)
-#pragma warning (disable: 4668)
-#include "glew/GL/wglew.h"
-#pragma warning (pop)
-#endif
+#include <QOpenGLContext>
+#include <QSurfaceFormat>
 
 
 namespace cvf {
@@ -65,27 +59,25 @@ namespace cvf {
 /// A context group associates OpenGLContext instances that share OpenGL resources such as
 /// shader objects, textures and buffer objects. Contexts added to the group must be compatible from
 /// OpenGL's perspective - that is they must use identical (pixel) formats.
-/// 
+///
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 OpenGLContextGroup::OpenGLContextGroup()
-:   m_isInitialized(false),
-    m_glewContextStruct(NULL),
-    m_wglewContextStruct(NULL)
+:   m_isInitialized(false)
 {
     //Trace::show("OpenGLContextGroup constructor");
 
     m_resourceManager = new OpenGLResourceManager;
-    m_logger = CVF_GET_LOGGER("cee.cvf.OpenGL"); 
+    m_logger = CVF_GET_LOGGER("cee.cvf.OpenGL");
     m_capabilities = new OpenGLCapabilities;
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 OpenGLContextGroup::~OpenGLContextGroup()
 {
@@ -116,7 +108,7 @@ OpenGLContextGroup::~OpenGLContextGroup()
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool OpenGLContextGroup::isContextGroupInitialized() const
 {
@@ -143,25 +135,13 @@ bool OpenGLContextGroup::initializeContextGroup(OpenGLContext* currentContext)
 
     if (!m_isInitialized)
     {
-#ifdef CVF_USE_GLEW
-
-        if (!initializeGLEW(currentContext))
+        if (!initializeOpenGLFunctions(currentContext))
         {
-            CVF_LOG_ERROR(m_logger.p(), "Failed to intitialize GLEW in context group");
+            CVF_LOG_ERROR(m_logger.p(), "Failed to initialize OpenGL functions in context group");
             return false;
         }
 
-        configureCapabilitiesFromGLEW(currentContext);
-
-#ifdef WIN32
-        if (!initializeWGLEW(currentContext))
-        {
-            CVF_LOG_ERROR(m_logger.p(), "Failed to intitialize WGLEW in context group");
-            return false;
-        }
-#endif
-
-#endif
+        configureCapabilities(currentContext);
 
         CVF_LOG_DEBUG(m_logger.p(), "OpenGL initialized in context group");
         CVF_LOG_DEBUG(m_logger.p(), "  version:  " + m_info.version());
@@ -176,7 +156,7 @@ bool OpenGLContextGroup::initializeContextGroup(OpenGLContext* currentContext)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void OpenGLContextGroup::uninitializeContextGroup()
 {
@@ -187,16 +167,6 @@ void OpenGLContextGroup::uninitializeContextGroup()
 
     // Just replace capabilities with a new object
     m_capabilities = new OpenGLCapabilities;
-
-#ifdef CVF_USE_GLEW
-    delete m_glewContextStruct;
-
-#ifdef WIN32
-    delete m_wglewContextStruct;
-#endif
-#endif
-    m_glewContextStruct = NULL;
-    m_wglewContextStruct = NULL;
 
     m_isInitialized = false;
 }
@@ -234,7 +204,7 @@ void OpenGLContextGroup::contextAboutToBeShutdown(OpenGLContext* currentContextT
 
     // If the ref count on the context is down to 1, there is probably something strange going on.
     // Since one reference to the context is being held by this context group, this means that the
-    // caller isn't holding a reference to the context. In this case the context object will evaporate 
+    // caller isn't holding a reference to the context. In this case the context object will evaporate
     // during the call below, and the caller will most likely get a nasty surprise
     CVF_ASSERT(currentContextToShutdown->refCount() > 1);
 
@@ -252,145 +222,111 @@ void OpenGLContextGroup::contextAboutToBeShutdown(OpenGLContext* currentContextT
 
 
 //--------------------------------------------------------------------------------------------------
-/// Initializes GLEW for this context group
+/// Initializes OpenGL functions for this context group using Qt
 ///
 /// \warning The context passed in \a currentContext must be current!
 //--------------------------------------------------------------------------------------------------
-bool OpenGLContextGroup::initializeGLEW(OpenGLContext* currentContext)
+bool OpenGLContextGroup::initializeOpenGLFunctions(OpenGLContext* currentContext)
 {
-    //Trace::show("OpenGLContextGroup::initializeGLEW()");
+    //Trace::show("OpenGLContextGroup::initializeOpenGLFunctions()");
 
     CVF_ASSERT(currentContext);
-    CVF_ASSERT(m_glewContextStruct == NULL);
 
-#ifdef CVF_USE_GLEW
+    QOpenGLContext* qtCtx = QOpenGLContext::currentContext();
+    if (!qtCtx || !qtCtx->isValid())
+    {
+        CVF_LOG_ERROR(m_logger, "Error initializing OpenGL functions, no valid Qt OpenGL context is current");
+        return false;
+    }
 
-    // Usage of GLEW requires that we have a standard OpenGL implementation available (not any Qt wrapper etc)
-    // Supposedly the version string should always contain at least one '.'
-    // Try and test this by querying the OpenGL version number and assume that there is no OpenGL available if it fails
-    const String sVersion(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+    // Initialize extra functions (OpenGL 3.0+)
+    QOpenGLExtraFunctions* extraFuncs = qtCtx->extraFunctions();
+    if (!extraFuncs)
+    {
+        CVF_LOG_ERROR(m_logger, "Error initializing OpenGL extra functions");
+        return false;
+    }
+    extraFuncs->initializeOpenGLFunctions();
+
+    CVF_CHECK_OGL(currentContext);
+
+    // Query OpenGL info strings
+    const char* versionStr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    const char* vendorStr = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    const char* rendererStr = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+
+    String sVersion = versionStr ? versionStr : "";
+    String sVendor = vendorStr ? vendorStr : "";
+    String sRenderer = rendererStr ? rendererStr : "";
+
     if (sVersion.find(".") == String::npos)
     {
         CVF_LOG_ERROR(m_logger, "Error initializing OpenGL functions, probe for OpenGL version failed. No valid OpenGL context is current");
         return false;
     }
 
-    // Since we're sometimes (when using Core OpenGL) seeing some OGL errors from GLEW, check before and after call to help find them
-    CVF_CHECK_OGL(currentContext);
-
-    // Must allocate memory for struct first since glewInit() call below will try and retrieve it
-    GLEWContextStruct* theContextStruct = new GLEWContextStruct;
-    memset(theContextStruct, 0, sizeof(GLEWContextStruct));
-    GLenum err = glewContextInit(theContextStruct);
-    if (err != GLEW_OK)
-    {
-        CVF_LOG_ERROR(m_logger, String("Error initializing GLEW, glewContextInit() returned %1").arg(err));
-        delete theContextStruct;
-        return false;
-    }
-
-    m_glewContextStruct = theContextStruct;
-
-    CVF_CHECK_OGL(currentContext);
-
-    String sVendor(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-    String sRenderer(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
     m_info.setOpenGLStrings(sVersion, sVendor, sRenderer);
 
-#else
-
-    CVF_FAIL_MSG("Not implemented");
-
-#endif
+    CVF_CHECK_OGL(currentContext);
 
     return true;
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// Initializes GLEW for this context group
+/// Configures the capabilities of this context group by querying Qt
 ///
-/// \warning The context passed in \a currentContext must be current!
+/// \warning The passed context must be current!
 //--------------------------------------------------------------------------------------------------
-bool OpenGLContextGroup::initializeWGLEW(OpenGLContext* currentContext)
+void OpenGLContextGroup::configureCapabilities(OpenGLContext* currentContext)
 {
-    CVF_ASSERT(currentContext);
-    CVF_ASSERT(m_wglewContextStruct == NULL);
+    CVF_UNUSED(currentContext);
 
-#if defined(CVF_USE_GLEW) && defined(WIN32)
-
-    // Since we're sometimes (when using Core OpenGL) seeing some OGL errors from GLEW, check before and after call to help find them
-    CVF_CHECK_OGL(currentContext);
-
-    // Must allocate memory for struct first since glewInit() call below will try and retrieve it
-    WGLEWContextStruct* theContextStruct = new WGLEWContextStruct;
-    memset(theContextStruct, 0, sizeof(WGLEWContextStruct));
-    GLenum err = wglewContextInit(theContextStruct);
-    if (err != GLEW_OK)
+    QOpenGLContext* qtCtx = QOpenGLContext::currentContext();
+    if (!qtCtx)
     {
-        delete theContextStruct;
-        return false;
+        return;
     }
 
-    m_wglewContextStruct = theContextStruct;
-
-    CVF_CHECK_OGL(currentContext);
-
-#else
-
-    CVF_FAIL_MSG("Not implemented");
-
-#endif
-
-    return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Configures the capabilities of this context group by querying GLEW
-///
-/// \warning The passed context must be current and GLEW must already be initialized!
-//--------------------------------------------------------------------------------------------------
-void OpenGLContextGroup::configureCapabilitiesFromGLEW(OpenGLContext* currentContext)
-{
-#ifdef CVF_USE_GLEW
-    CVF_CALLSITE_GLEW(currentContext);
-    CVF_ASSERT(m_glewContextStruct);
+    QSurfaceFormat fmt = qtCtx->format();
+    int majorVer = fmt.majorVersion();
 
     // Simplified config for now, we only differentiate between 1, 2, and 3
-    uint majorVer = 1;
-    if (GLEW_VERSION_2_0) majorVer = 2;
-    if (GLEW_VERSION_3_0) majorVer = 3;
-    m_capabilities->configureOpenGLSupport(majorVer);
+    uint capMajorVer = 1;
+    if (majorVer >= 2) capMajorVer = 2;
+    if (majorVer >= 3) capMajorVer = 3;
+    m_capabilities->configureOpenGLSupport(capMajorVer);
     m_capabilities->setSupportsFixedFunction(true);
 
-
-    if (GLEW_VERSION_3_0 || GLEW_ARB_framebuffer_object)
+    // Check for framebuffer object support
+    if (majorVer >= 3 || qtCtx->hasExtension("GL_ARB_framebuffer_object"))
     {
         m_capabilities->addCapablity(OpenGLCapabilities::FRAMEBUFFER_OBJECT);
         m_capabilities->addCapablity(OpenGLCapabilities::GENERATE_MIPMAP_FUNC);
     }
 
-    if (GLEW_VERSION_3_0 || GLEW_ARB_texture_float)
+    // Check for texture float support
+    if (majorVer >= 3 || qtCtx->hasExtension("GL_ARB_texture_float"))
     {
         m_capabilities->addCapablity(OpenGLCapabilities::TEXTURE_FLOAT);
     }
 
-    if (GLEW_VERSION_3_0 || GLEW_ARB_texture_rg)
+    // Check for texture RG support
+    if (majorVer >= 3 || qtCtx->hasExtension("GL_ARB_texture_rg"))
     {
         m_capabilities->addCapablity(OpenGLCapabilities::TEXTURE_RG);
     }
 
-    if (GLEW_VERSION_3_1 || GLEW_ARB_texture_rectangle)
+    // Check for texture rectangle support
+    if (majorVer >= 3 || qtCtx->hasExtension("GL_ARB_texture_rectangle"))
     {
         m_capabilities->addCapablity(OpenGLCapabilities::TEXTURE_RECTANGLE);
     }
-#endif
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t OpenGLContextGroup::contextCount() const
 {
@@ -399,7 +335,7 @@ size_t OpenGLContextGroup::contextCount() const
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::OpenGLContext* OpenGLContextGroup::context(size_t index)
 {
@@ -408,7 +344,7 @@ cvf::OpenGLContext* OpenGLContextGroup::context(size_t index)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool OpenGLContextGroup::containsContext(const OpenGLContext* context) const
 {
@@ -427,9 +363,9 @@ bool OpenGLContextGroup::containsContext(const OpenGLContext* context) const
 
 //--------------------------------------------------------------------------------------------------
 /// Add an OpenGLContext to this group
-/// 
+///
 /// \warning It is the caller's responsibility to ensure that the context being added is actually
-///          capable of sharing OpenGL resources (display lists etc) with the contexts that are 
+///          capable of sharing OpenGL resources (display lists etc) with the contexts that are
 ///          already in the group. This function will not do any verifications to assert whether this is true.
 //--------------------------------------------------------------------------------------------------
 void OpenGLContextGroup::addContext(OpenGLContext* contextToAdd)
@@ -449,7 +385,7 @@ void OpenGLContextGroup::addContext(OpenGLContext* contextToAdd)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 OpenGLResourceManager* OpenGLContextGroup::resourceManager()
 {
@@ -459,7 +395,7 @@ OpenGLResourceManager* OpenGLContextGroup::resourceManager()
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Logger* OpenGLContextGroup::logger()
 {
@@ -468,7 +404,7 @@ Logger* OpenGLContextGroup::logger()
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 OpenGLCapabilities* OpenGLContextGroup::capabilities()
 {
@@ -478,52 +414,11 @@ OpenGLCapabilities* OpenGLContextGroup::capabilities()
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 OpenGLInfo OpenGLContextGroup::info() const
 {
     return m_info;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-GLEWContextStruct* OpenGLContextGroup::glewContextStruct()
-{
-#ifdef CVF_USE_GLEW
-
-    CVF_TIGHT_ASSERT(this);
-    CVF_TIGHT_ASSERT(m_glewContextStruct);
-    return m_glewContextStruct;
-
-#else
-
-    CVF_FAIL_MSG("Not implemented");
-    return NULL;
-
-#endif
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-WGLEWContextStruct* OpenGLContextGroup::wglewContextStruct()
-{
-#if defined(CVF_USE_GLEW) && defined(WIN32)
-
-    CVF_TIGHT_ASSERT(this);
-    CVF_TIGHT_ASSERT(m_wglewContextStruct);
-    return m_wglewContextStruct;
-
-#else
-
-    CVF_FAIL_MSG("Not implemented");
-    return NULL;
-
-#endif
 }
 
 

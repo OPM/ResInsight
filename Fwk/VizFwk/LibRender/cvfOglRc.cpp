@@ -137,7 +137,7 @@ ref<OglRcShader> OglRcShader::create(OpenGLContext* oglContext, cvfGLenum shader
     CVF_CALLSITE_OPENGL(oglContext);
 
     ref<OglRcShader> rcObj = new OglRcShader;
-    rcObj->m_openGLObjId = glCreateShader(shaderType);
+    rcObj->m_openGLObjId = cvfGL->glCreateShader(shaderType);
     if (rcObj->m_openGLObjId != 0)
     {
         return rcObj;
@@ -156,7 +156,7 @@ void OglRcShader::deleteResource(OpenGLContext* oglContext)
 
     if (m_openGLObjId != 0)
     {
-        glDeleteShader(m_openGLObjId);
+        cvfGL->glDeleteShader(m_openGLObjId);
         m_openGLObjId = 0;
     }
 }
@@ -180,7 +180,7 @@ ref<OglRcProgram> OglRcProgram::create(OpenGLContext* oglContext)
     CVF_CALLSITE_OPENGL(oglContext);
 
     ref<OglRcProgram> rcObj = new OglRcProgram;
-    rcObj->m_openGLObjId = glCreateProgram();
+    rcObj->m_openGLObjId = cvfGL->glCreateProgram();
     if (rcObj->m_openGLObjId != 0)
     {
         return rcObj;
@@ -199,7 +199,7 @@ void OglRcProgram::deleteResource(OpenGLContext* oglContext)
 
     if (m_openGLObjId != 0)
     {
-        glDeleteProgram(m_openGLObjId);
+        cvfGL->glDeleteProgram(m_openGLObjId);
         m_openGLObjId = 0;
     }
 }
@@ -218,10 +218,12 @@ void OglRcProgram::deleteResource(OpenGLContext* oglContext)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<OglRcTexture> OglRcTexture::create(OpenGLContext* /*oglContext*/)
+ref<OglRcTexture> OglRcTexture::create(OpenGLContext* oglContext)
 {
+    CVF_CALLSITE_OPENGL(oglContext);
+
     ref<OglRcTexture> rcObj = new OglRcTexture;
-    glGenTextures(1, &rcObj->m_openGLObjId);
+    cvfGL->glGenTextures(1, &rcObj->m_openGLObjId);
     if (rcObj->m_openGLObjId != 0)
     {
         return rcObj;
@@ -234,11 +236,13 @@ ref<OglRcTexture> OglRcTexture::create(OpenGLContext* /*oglContext*/)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OglRcTexture::deleteResource(OpenGLContext* /*oglContext*/)
+void OglRcTexture::deleteResource(OpenGLContext* oglContext)
 {
+    CVF_CALLSITE_OPENGL(oglContext);
+
     if (m_openGLObjId != 0)
     {
-        glDeleteTextures(1, &m_openGLObjId);
+        cvfGL->glDeleteTextures(1, &m_openGLObjId);
         m_openGLObjId = 0;
     }
 }
@@ -262,7 +266,7 @@ ref<OglRcRenderbuffer> OglRcRenderbuffer::create(OpenGLContext* oglContext)
     CVF_CALLSITE_OPENGL(oglContext);
 
     ref<OglRcRenderbuffer> rcObj = new OglRcRenderbuffer;
-    glGenRenderbuffers(1, &rcObj->m_openGLObjId);
+    cvfGL->glGenRenderbuffers(1, &rcObj->m_openGLObjId);
     if (rcObj->m_openGLObjId != 0)
     {
         return rcObj;
@@ -281,7 +285,7 @@ void OglRcRenderbuffer::deleteResource(OpenGLContext* oglContext)
 
     if (m_openGLObjId != 0)
     {
-        glDeleteRenderbuffers(1, &m_openGLObjId);
+        cvfGL->glDeleteRenderbuffers(1, &m_openGLObjId);
         m_openGLObjId = 0;
     }
 }
@@ -305,7 +309,7 @@ ref<OglRcFramebuffer> OglRcFramebuffer::create(OpenGLContext* oglContext)
     CVF_CALLSITE_OPENGL(oglContext);
 
     ref<OglRcFramebuffer> rcObj = new OglRcFramebuffer;
-    glGenFramebuffers(1, &rcObj->m_openGLObjId);
+    cvfGL->glGenFramebuffers(1, &rcObj->m_openGLObjId);
     if (rcObj->m_openGLObjId != 0)
     {
         return rcObj;
@@ -324,7 +328,7 @@ void OglRcFramebuffer::deleteResource(OpenGLContext* oglContext)
 
     if (m_openGLObjId != 0)
     {
-        glDeleteFramebuffers(1, &m_openGLObjId);
+        cvfGL->glDeleteFramebuffers(1, &m_openGLObjId);
         m_openGLObjId = 0;
     }
 }

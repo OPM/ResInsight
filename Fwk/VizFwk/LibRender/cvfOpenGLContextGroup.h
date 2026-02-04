@@ -43,9 +43,6 @@
 #include "cvfOpenGLCapabilities.h"
 #include "cvfOpenGLInfo.h"
 
-struct GLEWContextStruct;
-struct WGLEWContextStruct;
-
 namespace cvf {
 
 class OpenGLContext;
@@ -54,7 +51,7 @@ class OpenGLResourceManager;
 
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class OpenGLContextGroup : public Object
@@ -76,15 +73,11 @@ public:
 
     OpenGLCapabilities*     capabilities();
     OpenGLInfo              info() const;
-    
-    GLEWContextStruct*      glewContextStruct();
-    WGLEWContextStruct*     wglewContextStruct();
 
 private:
     void                    uninitializeContextGroup();
-    bool                    initializeGLEW(OpenGLContext* currentContext);
-    bool                    initializeWGLEW(OpenGLContext* currentContext);
-    void                    configureCapabilitiesFromGLEW(OpenGLContext* currentContext);
+    bool                    initializeOpenGLFunctions(OpenGLContext* currentContext);
+    void                    configureCapabilities(OpenGLContext* currentContext);
     void                    addContext(OpenGLContext* contextToAdd);
 
 private:
@@ -94,8 +87,6 @@ private:
     ref<Logger>                 m_logger;
     ref<OpenGLCapabilities>     m_capabilities;         // Capabilities of the contexts in this group context
     OpenGLInfo                  m_info;
-    GLEWContextStruct*          m_glewContextStruct;    // Pointer to the GLEW context struct 
-    WGLEWContextStruct*         m_wglewContextStruct;   // Pointer to the GLEW context struct 
 
     friend class OpenGLContext;
 };

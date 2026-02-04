@@ -389,9 +389,9 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
         shaderProgram->applyFixedUniforms(oglContext, matrixState);
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glEnableVertexAttribArray(ShaderProgram::VERTEX);
-    glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
+    cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    cvfGL->glEnableVertexAttribArray(ShaderProgram::VERTEX);
+    cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
 
     // Render colored quads and lines
     size_t numColors = m_levelColors.size();
@@ -418,7 +418,7 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
             UniformFloat uniformColor("u_color", Color4f(Color3f(clr)));
             shaderProgram->applyUniform(oglContext, uniformColor);
 
-            glDrawRangeElements(GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects);
+            cvfGL->glDrawRangeElements(GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects);
         }
 
         // Draw legend lines
@@ -428,11 +428,11 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
             UniformFloat uniformColor("u_color", Color4f(m_lineColor));
             shaderProgram->applyUniform(oglContext, uniformColor);
 
-            glDrawRangeElements(GL_LINES, 0, 5, 8, GL_UNSIGNED_SHORT, linesConnects);
+            cvfGL->glDrawRangeElements(GL_LINES, 0, 5, 8, GL_UNSIGNED_SHORT, linesConnects);
         }
     }
 
-    glDisableVertexAttribArray(ShaderProgram::VERTEX);
+    cvfGL->glDisableVertexAttribArray(ShaderProgram::VERTEX);
 
     CVF_TIGHT_ASSERT(shaderProgram.notNull());
     shaderProgram->useNoProgram(oglContext);

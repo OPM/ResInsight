@@ -227,73 +227,73 @@ void DepthPeelingFront::initRenderTargets(int width, int height)
 {
     CVF_CALLSITE_OPENGL(m_openGLContext.p());
 
-    glGenTextures(2, m_frontDepthTexId);
-    glGenTextures(2, m_frontColorTexId);
-    glGenFramebuffers(2, m_frontFboId);
+    cvfGL->glGenTextures(2, m_frontDepthTexId);
+    cvfGL->glGenTextures(2, m_frontColorTexId);
+    cvfGL->glGenFramebuffers(2, m_frontFboId);
 
     for (int i = 0; i < 2; i++)
     {
-        glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_frontDepthTexId[i]);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        cvfGL->glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_frontDepthTexId[i]);
+        cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        cvfGL->glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         CVF_CHECK_OGL(m_openGLContext.p());
 
-        glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_frontColorTexId[i]);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+        cvfGL->glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_frontColorTexId[i]);
+        cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        cvfGL->glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, 0);
         CVF_CHECK_OGL(m_openGLContext.p());
 
-        glBindFramebuffer(GL_FRAMEBUFFER, m_frontFboId[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE_ARB, m_frontDepthTexId[i], 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, m_frontColorTexId[i], 0);
+        cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_frontFboId[i]);
+        cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE_ARB, m_frontDepthTexId[i], 0);
+        cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, m_frontColorTexId[i], 0);
         CVF_CHECK_OGL(m_openGLContext.p());
     }
 
-    glGenTextures(1, &m_frontColorBlenderTexId);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_frontColorBlenderTexId);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+    cvfGL->glGenTextures(1, &m_frontColorBlenderTexId);
+    cvfGL->glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_frontColorBlenderTexId);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    cvfGL->glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, 0);
     CVF_CHECK_OGL(m_openGLContext.p());
 
-    glGenFramebuffers(1, &m_frontColorBlenderFboId);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_frontColorBlenderFboId);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE_ARB, m_frontDepthTexId[0], 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, m_frontColorBlenderTexId, 0);
+    cvfGL->glGenFramebuffers(1, &m_frontColorBlenderFboId);
+    cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_frontColorBlenderFboId);
+    cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE_ARB, m_frontDepthTexId[0], 0);
+    cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, m_frontColorBlenderTexId, 0);
 
 
     // Setup textures and frame/depth buffer for the opaque model
     // -------------------------------------------------------------------------
-    glGenTextures(1, &m_solidModelDepthTexId);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_solidModelDepthTexId);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    cvfGL->glGenTextures(1, &m_solidModelDepthTexId);
+    cvfGL->glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_solidModelDepthTexId);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    cvfGL->glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     CVF_CHECK_OGL(m_openGLContext.p());
 
-    glGenTextures(1, &m_solidModelColorTexId);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_solidModelColorTexId);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+    cvfGL->glGenTextures(1, &m_solidModelColorTexId);
+    cvfGL->glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_solidModelColorTexId);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    cvfGL->glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    cvfGL->glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, 0);
     CVF_CHECK_OGL(m_openGLContext.p());
 
-    glGenFramebuffers(1, &m_solidModelFboId);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_solidModelFboId);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE_ARB, m_solidModelDepthTexId, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, m_solidModelColorTexId, 0);
+    cvfGL->glGenFramebuffers(1, &m_solidModelFboId);
+    cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_solidModelFboId);
+    cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE_ARB, m_solidModelDepthTexId, 0);
+    cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, m_solidModelColorTexId, 0);
 
     CVF_CHECK_OGL(m_openGLContext.p());
 }
@@ -365,35 +365,35 @@ void DepthPeelingFront::renderFrontToBackPeeling()
     Color3f m_backgroundColor(1.0f, 1.0f, 1.0f);
 
     // Some Qt versions leave this on!!
-    glDisable(GL_BLEND);
+    cvfGL->glDisable(GL_BLEND);
 
     // ---------------------------------------------------------------------
     // 0. Render solid model
     // ---------------------------------------------------------------------
-    glBindFramebuffer(GL_FRAMEBUFFER, m_solidModelFboId);
+    cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_solidModelFboId);
     CVF_CHECK_OGL(m_openGLContext.p());
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    cvfGL->glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-    glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    cvfGL->glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), 1);
+    cvfGL->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glEnable(GL_DEPTH_TEST);
+    cvfGL->glEnable(GL_DEPTH_TEST);
 
     m_progOpaque->useProgram(m_openGLContext.p());
     drawModel(m_solidModel.p(), m_progOpaque.p());
-    glUseProgram(0);
+    cvfGL->glUseProgram(0);
 
     // ---------------------------------------------------------------------
     // 1. Initialize Min Depth Buffer
     // ---------------------------------------------------------------------
 
-    glBindFramebuffer(GL_FRAMEBUFFER, m_frontColorBlenderFboId);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_frontColorBlenderFboId);
+    cvfGL->glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    cvfGL->glClearColor(0, 0, 0, 1);
+    cvfGL->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glEnable(GL_DEPTH_TEST);
+    cvfGL->glEnable(GL_DEPTH_TEST);
 
     m_progInit->useProgram(m_openGLContext.p());
     //  Not accepted by llvm-gcc-4.2: m_progInit->applyUniform(UniformFloat("Alpha", m_opacity));
@@ -402,28 +402,28 @@ void DepthPeelingFront::renderFrontToBackPeeling()
     bindTextureRECT(m_progInit.p(), "SolidDepthTex", m_solidModelDepthTexId, 0);
     drawModel(m_transparentModel.p(), m_progInit.p());
 
-    glUseProgram(0);
+    cvfGL->glUseProgram(0);
 
     CVF_CHECK_OGL(m_openGLContext.p());
 
     // ---------------------------------------------------------------------
     // 2. Depth Peeling + Blending
     // ---------------------------------------------------------------------
-    for (int layer = 1; layer < m_numPasses; layer++) 
+    for (int layer = 1; layer < m_numPasses; layer++)
     {
         // Peel one more layer
         // ---------------------------------------------------------------------
         int currId = layer % 2;
         int prevId = 1 - currId;
 
-        glBindFramebuffer(GL_FRAMEBUFFER, m_frontFboId[currId]);
-        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_frontFboId[currId]);
+        cvfGL->glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-        glClearColor(0, 0, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        cvfGL->glClearColor(0, 0, 0, 0);
+        cvfGL->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
+        cvfGL->glDisable(GL_BLEND);
+        cvfGL->glEnable(GL_DEPTH_TEST);
 
         m_progPeel->useProgram(m_openGLContext.p());
         bindTextureRECT(m_progPeel.p(), "SolidDepthTex", m_solidModelDepthTexId, 0);
@@ -432,27 +432,27 @@ void DepthPeelingFront::renderFrontToBackPeeling()
         UniformFloat uniform("Alpha", m_opacity);
         m_progPeel->applyUniform(m_openGLContext.p(), uniform);
         drawModel(m_transparentModel.p(), m_progPeel.p());
-        glUseProgram(0);
+        cvfGL->glUseProgram(0);
 
         CVF_CHECK_OGL(m_openGLContext.p());
 
         // Blend result
         // ---------------------------------------------------------------------
-        glBindFramebuffer(GL_FRAMEBUFFER, m_frontColorBlenderFboId);
-        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_frontColorBlenderFboId);
+        cvfGL->glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
+        cvfGL->glDisable(GL_DEPTH_TEST);
+        cvfGL->glEnable(GL_BLEND);
 
-        glBlendEquation(GL_FUNC_ADD);
-        glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+        cvfGL->glBlendEquation(GL_FUNC_ADD);
+        cvfGL->glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 
         m_progBlend->useProgram(m_openGLContext.p());
         bindTextureRECT(m_progBlend.p(), "TempTex", m_frontColorTexId[currId], 0);
         drawQuad();
-        glUseProgram(0);
+        cvfGL->glUseProgram(0);
 
-        glDisable(GL_BLEND);
+        cvfGL->glDisable(GL_BLEND);
 
         CVF_CHECK_OGL(m_openGLContext.p());
     }
@@ -461,15 +461,15 @@ void DepthPeelingFront::renderFrontToBackPeeling()
     // 3. Final Pass
     // ---------------------------------------------------------------------
 
-    glBindFramebuffer(GL_FRAMEBUFFER, m_openGLContext->defaultFramebufferObject());
-    glDrawBuffer(GL_BACK);
-    glDisable(GL_DEPTH_TEST);
+    cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_openGLContext->defaultFramebufferObject());
+    cvfGL->glDrawBuffer(GL_BACK);
+    cvfGL->glDisable(GL_DEPTH_TEST);
 
     m_progFinal->useProgram(m_openGLContext.p());
     bindTextureRECT(m_progFinal.p(), "ColorTex", m_frontColorBlenderTexId, 0);
     bindTextureRECT(m_progFinal.p(), "BackgroundAndOpaqueTex", m_solidModelColorTexId, 1);
     drawQuad();
-    glUseProgram(0);
+    cvfGL->glUseProgram(0);
 
     CVF_CHECK_OGL(m_openGLContext.p());
 }
@@ -482,14 +482,14 @@ void DepthPeelingFront::bindTextureRECT(ShaderProgram* shaderProgram, const char
 {
     CVF_CALLSITE_OPENGL(m_openGLContext.p());
 
-    glActiveTexture(GL_TEXTURE0 + texunit);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texid);
+    cvfGL->glActiveTexture(GL_TEXTURE0 + texunit);
+    cvfGL->glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texid);
 
     //  Not accepted by llvm-gcc-4.2: Not accepted by llvm-gcc-4.2: shaderProgram->applyUniform(UniformInt(texname, texunit));
     UniformInt uniform(texname, texunit);
     shaderProgram->applyUniform(m_openGLContext.p(), uniform);
 
-    glActiveTexture(GL_TEXTURE0);
+    cvfGL->glActiveTexture(GL_TEXTURE0);
 }
 
 

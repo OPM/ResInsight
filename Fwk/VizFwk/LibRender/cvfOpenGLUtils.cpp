@@ -50,13 +50,13 @@ namespace cvf {
 /// \class cvf::OpenGLUtils
 /// \ingroup Render
 ///
-/// Static class providing OpenGL helpers 
-/// 
+/// Static class providing OpenGL helpers
+///
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 /// Store the current OpenGL context settings by using OpenGL's built in push methods.
-/// 
+///
 /// Note: This call MUST be matched with a corresponding popOpenGLState() call.
 //--------------------------------------------------------------------------------------------------
 void OpenGLUtils::pushOpenGLState(OpenGLContext* oglContext)
@@ -72,6 +72,7 @@ void OpenGLUtils::pushOpenGLState(OpenGLContext* oglContext)
 
     CVF_CHECK_OGL(oglContext);
 
+    // Fixed-function calls - use direct OpenGL calls (not through cvfGL)
     glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
     CVF_CHECK_OGL(oglContext);
 
@@ -86,7 +87,7 @@ void OpenGLUtils::pushOpenGLState(OpenGLContext* oglContext)
     //  Note: Only preserves matrix stack for texture unit 0
     if (oglCaps->supportsOpenGL2())
     {
-        glActiveTexture(GL_TEXTURE0);
+        cvfGL->glActiveTexture(GL_TEXTURE0);
     }
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
@@ -104,7 +105,7 @@ void OpenGLUtils::pushOpenGLState(OpenGLContext* oglContext)
 
 //--------------------------------------------------------------------------------------------------
 /// Set back the stored OpenGL context settings by using OpenGL's built in pop methods.
-/// 
+///
 /// Note: This call MUST be matched with a corresponding pushOpenGLState() call.
 //--------------------------------------------------------------------------------------------------
 void OpenGLUtils::popOpenGLState(OpenGLContext* oglContext)
@@ -123,8 +124,9 @@ void OpenGLUtils::popOpenGLState(OpenGLContext* oglContext)
     //  Note: Only preserves matrix stack for texture unit 0
     if (oglCaps->supportsOpenGL2())
     {
-        glActiveTexture(GL_TEXTURE0);
+        cvfGL->glActiveTexture(GL_TEXTURE0);
     }
+    // Fixed-function calls - use direct OpenGL calls (not through cvfGL)
     glMatrixMode(GL_TEXTURE);
     glPopMatrix();
     CVF_CHECK_OGL(oglContext);

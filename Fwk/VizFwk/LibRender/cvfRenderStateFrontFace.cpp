@@ -89,13 +89,15 @@ RenderStateFrontFace::Mode RenderStateFrontFace::mode() const
 //--------------------------------------------------------------------------------------------------
 void RenderStateFrontFace::applyOpenGL(OpenGLContext* oglContext) const
 {
-    if (m_faceMode == CW)    
+    CVF_CALLSITE_OPENGL(oglContext);
+
+    if (m_faceMode == CW)
     {
-        glFrontFace(GL_CW);
+        cvfGL->glFrontFace(GL_CW);
     }
-    else 
+    else
     {
-        glFrontFace(GL_CCW);
+        cvfGL->glFrontFace(GL_CCW);
     }
 
     CVF_CHECK_OGL(oglContext);

@@ -271,7 +271,7 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
                     }
                 }
 
-                glFramebufferRenderbuffer(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), GL_RENDERBUFFER, renderBuffer->renderbufferOglId());
+                cvfGL->glFramebufferRenderbuffer(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), GL_RENDERBUFFER, renderBuffer->renderbufferOglId());
 
                 setColorBufferVersionTick(i, renderBuffer->versionTick());
                 attachmentsModified = true;
@@ -302,17 +302,17 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
 
                 if (faceIt != m_colorCubeMapFaces.end())
                 {
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), static_cast<GLenum>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIt->second), texture->textureOglId(), 0);
+                    cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), static_cast<GLenum>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIt->second), texture->textureOglId(), 0);
                 }
                 else
                 {
                     if (texture->textureType() == Texture::TEXTURE_RECTANGLE)
                     {
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), GL_TEXTURE_RECTANGLE, texture->textureOglId(), 0);
+                        cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), GL_TEXTURE_RECTANGLE, texture->textureOglId(), 0);
                     }
                     else
                     {
-                        glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), GL_TEXTURE_2D, texture->textureOglId(), 0);                       
+                        cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), GL_TEXTURE_2D, texture->textureOglId(), 0);
                     }
                 }
 
@@ -355,12 +355,13 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
                 }
             }
 
-            glDrawBuffers(static_cast<GLsizei>(maxAttachmentIndex), drawBuffers);
+            cvfGL->glDrawBuffers(static_cast<GLsizei>(maxAttachmentIndex), drawBuffers);
 
             delete[] drawBuffers;
         }
         else
         {
+            // glDrawBuffer is not in QOpenGLFunctions, use direct call
             glDrawBuffer(GL_NONE);
         }
     }
@@ -380,7 +381,7 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
                 }
             }
 
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthRenderBuffer->renderbufferOglId());
+            cvfGL->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthRenderBuffer->renderbufferOglId());
 
             m_depthAttachmentVersionTick = m_depthRenderBuffer->versionTick();
         }
@@ -400,11 +401,11 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
 
             if (m_depthTexture2d->textureType() == Texture::TEXTURE_2D)
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture2d->textureOglId(), 0);
+                cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture2d->textureOglId(), 0);
             }
             else if (m_depthTexture2d->textureType() == Texture::TEXTURE_RECTANGLE)
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE, m_depthTexture2d->textureOglId(), 0);
+                cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE, m_depthTexture2d->textureOglId(), 0);
             }
             else
             {
@@ -427,7 +428,7 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
                 }
             }
 
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRenderBuffer->renderbufferOglId());
+            cvfGL->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRenderBuffer->renderbufferOglId());
 
             m_depthAttachmentVersionTick = m_depthStencilRenderBuffer->versionTick();
         }
@@ -447,11 +448,11 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
 
             if (m_depthStencilTexture2d->textureType() == Texture::TEXTURE_2D)
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depthStencilTexture2d->textureOglId(), 0);
+                cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depthStencilTexture2d->textureOglId(), 0);
             }
             else if (m_depthStencilTexture2d->textureType() == Texture::TEXTURE_RECTANGLE)
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_RECTANGLE, m_depthStencilTexture2d->textureOglId(), 0);
+                cvfGL->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_RECTANGLE, m_depthStencilTexture2d->textureOglId(), 0);
             }
             else
             {
@@ -474,7 +475,7 @@ void FramebufferObject::bind(OpenGLContext* oglContext) const
     CVF_CALLSITE_OPENGL(oglContext);
 
     CVF_ASSERT(OglRc::safeOglId(m_oglRcBuffer.p()) != 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_oglRcBuffer->oglId());
+    cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, m_oglRcBuffer->oglId());
 }
 
 
@@ -486,10 +487,11 @@ void FramebufferObject::useDefaultWindowFramebuffer(OpenGLContext* oglContext)
     CVF_CALLSITE_OPENGL(oglContext);
 
     const OglId defaultFBO = oglContext->defaultFramebufferObject();
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
+    cvfGL->glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
 
     if (defaultFBO == 0)
     {
+        // glDrawBuffer is not in QOpenGLFunctions, use direct call
         glDrawBuffer(GL_BACK);
     }
 
@@ -584,7 +586,7 @@ bool FramebufferObject::isFramebufferComplete(OpenGLContext* oglContext, String*
     CVF_CALLSITE_OPENGL(oglContext);
 
     bind(oglContext);
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    GLenum status = cvfGL->glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {

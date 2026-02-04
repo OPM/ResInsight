@@ -323,15 +323,15 @@ void RenderSequence::preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext
     // ------------------------------------------------
     if (oglCaps->supportsOpenGL2())
     {
-        glActiveTexture(GL_TEXTURE0);
+        cvfGL->glActiveTexture(GL_TEXTURE0);
     }
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    cvfGL->glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_BLEND);
-    glDisable(GL_STENCIL_TEST);
-    glDisable(GL_SCISSOR_TEST);
+    cvfGL->glDisable(GL_CULL_FACE);
+    cvfGL->glDisable(GL_BLEND);
+    cvfGL->glDisable(GL_STENCIL_TEST);
+    cvfGL->glDisable(GL_SCISSOR_TEST);
 
     CVF_CHECK_OGL(oglContext);
 

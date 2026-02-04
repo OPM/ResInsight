@@ -467,17 +467,17 @@ void VertexBundle::useBundle(OpenGLContext* oglContext, VertexBundleUsage* bundl
         if (m_boVertices.notNull() && m_boVertices->isUploaded())
         {
             m_boVertices->bindBuffer(oglContext);
-            glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, 0);
             //m_attribVertices->setupAttribPointerBufferObject(oglContext, ShaderProgram::VERTEX, 0, 0);
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, m_attribVertices->arrayDataPtrVoid());
+            cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
+            cvfGL->glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, m_attribVertices->arrayDataPtrVoid());
             //m_attribVertices->setupAttribPointerClientMemory(oglContext, ShaderProgram::VERTEX);
         }
 
-        glEnableVertexAttribArray(ShaderProgram::VERTEX);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::VERTEX);
     }
 
     // Normals
@@ -486,17 +486,17 @@ void VertexBundle::useBundle(OpenGLContext* oglContext, VertexBundleUsage* bundl
         if (m_boNormals.notNull() && m_boNormals->isUploaded())
         {
             m_boNormals->bindBuffer(oglContext);
-            glVertexAttribPointer(ShaderProgram::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            cvfGL->glVertexAttribPointer(ShaderProgram::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
             //m_attribNormals->setupAttribPointerBufferObject(oglContext, ShaderProgram::NORMAL, 0, 0);
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glVertexAttribPointer(ShaderProgram::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, m_attribNormals->arrayDataPtrVoid());
+            cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
+            cvfGL->glVertexAttribPointer(ShaderProgram::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, m_attribNormals->arrayDataPtrVoid());
             //m_attribNormals->setupAttribPointerClientMemory(oglContext, ShaderProgram::NORMAL);
         }
 
-        glEnableVertexAttribArray(ShaderProgram::NORMAL);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::NORMAL);
     }
 
     // TextureCoords
@@ -509,11 +509,11 @@ void VertexBundle::useBundle(OpenGLContext* oglContext, VertexBundleUsage* bundl
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
             m_attribTextureCoords->setupAttribPointerClientMemory(oglContext, ShaderProgram::TEX_COORD_2F_0);
         }
 
-        glEnableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
     }
 
     // Colors
@@ -526,11 +526,11 @@ void VertexBundle::useBundle(OpenGLContext* oglContext, VertexBundleUsage* bundl
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
             m_attribColors->setupAttribPointerClientMemory(oglContext, ShaderProgram::COLOR);
         }
 
-        glEnableVertexAttribArray(ShaderProgram::COLOR);
+        cvfGL->glEnableVertexAttribArray(ShaderProgram::COLOR);
     }
 
     // Setup the generic vertex attributes
@@ -552,11 +552,11 @@ void VertexBundle::useBundle(OpenGLContext* oglContext, VertexBundleUsage* bundl
                 }
                 else
                 {
-                    glBindBuffer(GL_ARRAY_BUFFER, 0);
+                    cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
                     va->setupAttribPointerClientMemory(oglContext, static_cast<uint>(attribLocationIndex));
                 }
 
-                glEnableVertexAttribArray(static_cast<GLuint>(attribLocationIndex));
+                cvfGL->glEnableVertexAttribArray(static_cast<GLuint>(attribLocationIndex));
                 bundleUsage->registerUsedGenAttrib(attribLocationIndex);
             }
         }
@@ -590,7 +590,7 @@ void VertexBundle::useBundleFixedFunction(OpenGLContext* oglContext, VertexBundl
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
             const GLvoid* ptrOrOffset = m_attribVertices->arrayDataPtrVoid();
             CVF_TIGHT_ASSERT(ptrOrOffset);
             glVertexPointer(3, GL_FLOAT, 0, ptrOrOffset);
@@ -608,7 +608,7 @@ void VertexBundle::useBundleFixedFunction(OpenGLContext* oglContext, VertexBundl
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
             const GLvoid* ptrOrOffset = m_attribNormals->arrayDataPtrVoid();
             CVF_TIGHT_ASSERT(ptrOrOffset);
             glNormalPointer(GL_FLOAT, 0, ptrOrOffset);
@@ -626,7 +626,7 @@ void VertexBundle::useBundleFixedFunction(OpenGLContext* oglContext, VertexBundl
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
             const GLvoid* ptrOrOffset = m_attribTextureCoords->arrayDataPtrVoid();
             CVF_TIGHT_ASSERT(ptrOrOffset);
             glTexCoordPointer(2, GL_FLOAT, 0, ptrOrOffset);
@@ -644,12 +644,12 @@ void VertexBundle::useBundleFixedFunction(OpenGLContext* oglContext, VertexBundl
         }
         else
         {
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            cvfGL->glBindBuffer(GL_ARRAY_BUFFER, 0);
             const GLvoid* ptrOrOffset = m_attribColors->arrayDataPtrVoid();
             CVF_TIGHT_ASSERT(ptrOrOffset);
             glColorPointer(3, GL_UNSIGNED_BYTE, 0, ptrOrOffset);
         }
-        
+
         glEnableClientState(GL_COLOR_ARRAY);
     }
 
@@ -663,11 +663,12 @@ void VertexBundle::useBundleFixedFunction(OpenGLContext* oglContext, VertexBundl
 void VertexBundle::finishUseBundle(OpenGLContext* oglContext, VertexBundleUsage* bundleUsage) const
 {
     CVF_TIGHT_ASSERT(bundleUsage);
+    CVF_CALLSITE_OPENGL(oglContext);
 
     if (bundleUsage->fixedFunction())
     {
         CVF_TIGHT_ASSERT(oglContext->capabilities()->supportsFixedFunction());
-        
+
         if (m_vertexCount > 0)  glDisableClientState(GL_VERTEX_ARRAY);
         if (m_hasNormals)       glDisableClientState(GL_NORMAL_ARRAY);
         if (m_hasTexCoords)     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -675,19 +676,18 @@ void VertexBundle::finishUseBundle(OpenGLContext* oglContext, VertexBundleUsage*
     }
     else
     {
-        CVF_CALLSITE_OPENGL(oglContext);
         CVF_TIGHT_ASSERT(oglContext->capabilities()->supportsOpenGL2());
 
-        if (m_vertexCount > 0)  glDisableVertexAttribArray(static_cast<GLuint>(ShaderProgram::VERTEX));
-        if (m_hasNormals)       glDisableVertexAttribArray(static_cast<GLuint>(ShaderProgram::NORMAL));
-        if (m_hasTexCoords)     glDisableVertexAttribArray(static_cast<GLuint>(ShaderProgram::TEX_COORD_2F_0));
-        if (m_hasColors)        glDisableVertexAttribArray(static_cast<GLuint>(ShaderProgram::COLOR));
+        if (m_vertexCount > 0)  cvfGL->glDisableVertexAttribArray(static_cast<GLuint>(ShaderProgram::VERTEX));
+        if (m_hasNormals)       cvfGL->glDisableVertexAttribArray(static_cast<GLuint>(ShaderProgram::NORMAL));
+        if (m_hasTexCoords)     cvfGL->glDisableVertexAttribArray(static_cast<GLuint>(ShaderProgram::TEX_COORD_2F_0));
+        if (m_hasColors)        cvfGL->glDisableVertexAttribArray(static_cast<GLuint>(ShaderProgram::COLOR));
 
         if (m_hasGenericAttribs)
         {
             for (size_t i = 0; i < bundleUsage->usedGenAttribCount(); i++)
             {
-                glDisableVertexAttribArray(static_cast<GLuint>(bundleUsage->usedGenAttrib(i)));
+                cvfGL->glDisableVertexAttribArray(static_cast<GLuint>(bundleUsage->usedGenAttrib(i)));
             }
         }
     }

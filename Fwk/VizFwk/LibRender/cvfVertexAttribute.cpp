@@ -94,7 +94,7 @@ void AttribSetupStrategyNormFloat::setupFromBufferObject(OpenGLContext* oglConte
 {
     CVF_CALLSITE_OPENGL(oglContext);
     CVF_TIGHT_ASSERT(oglContext->capabilities()->supportsOpenGL2());
-    glVertexAttribPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, GL_TRUE, static_cast<GLsizei>(strideInBytes), CVF_OGL_BUFFER_OFFSET(bufferOffsetInBytes));
+    cvfGL->glVertexAttribPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, GL_TRUE, static_cast<GLsizei>(strideInBytes), CVF_OGL_BUFFER_OFFSET(bufferOffsetInBytes));
 }
 
 
@@ -107,7 +107,7 @@ void AttribSetupStrategyNormFloat::setupFromClientMemory(OpenGLContext* oglConte
 {
     CVF_CALLSITE_OPENGL(oglContext);
     CVF_TIGHT_ASSERT(oglContext->capabilities()->supportsOpenGL2());
-    glVertexAttribPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, GL_TRUE, 0, ptr);
+    cvfGL->glVertexAttribPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, GL_TRUE, 0, ptr);
 }
 
 
@@ -133,7 +133,7 @@ void AttribSetupStrategyDirectFloat::setupFromBufferObject(OpenGLContext* oglCon
 {
     CVF_CALLSITE_OPENGL(oglContext);
     CVF_TIGHT_ASSERT(oglContext->capabilities()->supportsOpenGL2());
-    glVertexAttribPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, GL_FALSE, static_cast<GLsizei>(strideInBytes), CVF_OGL_BUFFER_OFFSET(bufferOffsetInBytes));
+    cvfGL->glVertexAttribPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, GL_FALSE, static_cast<GLsizei>(strideInBytes), CVF_OGL_BUFFER_OFFSET(bufferOffsetInBytes));
 }
 
 
@@ -146,7 +146,7 @@ void AttribSetupStrategyDirectFloat::setupFromClientMemory(OpenGLContext* oglCon
 {
     CVF_CALLSITE_OPENGL(oglContext);
     CVF_TIGHT_ASSERT(oglContext->capabilities()->supportsOpenGL2());
-    glVertexAttribPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, GL_FALSE, 0, ptr);
+    cvfGL->glVertexAttribPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, GL_FALSE, 0, ptr);
 }
 
 
@@ -175,7 +175,7 @@ void AttribSetupStrategyInt::setupFromBufferObject(OpenGLContext* oglContext, ui
     
     if (oglContext->capabilities()->supportsOpenGLVer(3))
     {
-        glVertexAttribIPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, static_cast<GLsizei>(strideInBytes), CVF_OGL_BUFFER_OFFSET(bufferOffsetInBytes));
+        cvfGL->glVertexAttribIPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, static_cast<GLsizei>(strideInBytes), CVF_OGL_BUFFER_OFFSET(bufferOffsetInBytes));
     }
     else
     {
@@ -186,16 +186,16 @@ void AttribSetupStrategyInt::setupFromBufferObject(OpenGLContext* oglContext, ui
 
 //--------------------------------------------------------------------------------------------------
 /// Sets up vertex attribute pointer from client memory
-/// 
+///
 /// \warning The caller must ensure that no buffer object is currently bound
 //--------------------------------------------------------------------------------------------------
-void AttribSetupStrategyInt::setupFromClientMemory(OpenGLContext* oglContext, uint vertexAttributeIndex, uint compCount, cvfGLenum compTypeOpenGL, const void* ptr) 
+void AttribSetupStrategyInt::setupFromClientMemory(OpenGLContext* oglContext, uint vertexAttributeIndex, uint compCount, cvfGLenum compTypeOpenGL, const void* ptr)
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
     if (oglContext->capabilities()->supportsOpenGLVer(3))
     {
-        glVertexAttribIPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, 0, ptr);
+        cvfGL->glVertexAttribIPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, 0, ptr);
     }
     else
     {
