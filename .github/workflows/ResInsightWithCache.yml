@@ -205,24 +205,11 @@ jobs:
          echo "Executable path: $EXEC_PATH"
          "$EXEC_PATH" --version    
 
-      - name: Check vcpkg secrets
-        shell: bash
-        run: |
-          if [ -z "${{ secrets.AZURE_VCPKG_STORAGE_ACCOUNT }}" ]; then
-            echo "Error: AZURE_VCPKG_STORAGE_ACCOUNT secret is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.AZURE_VCPKG_SAS_TOKEN }}" ]; then
-            echo "Error: AZURE_VCPKG_SAS_TOKEN secret is not set"
-            exit 1
-          fi
-          echo "All required vcpkg secrets are present"
-
       - name: Configure
         shell: bash
         env:
           VCPKG_FEATURE_FLAGS: "binarycaching"
-          VCPKG_BINARY_SOURCES: "clear;x-azblob,https://${{ secrets.AZURE_VCPKG_STORAGE_ACCOUNT }}.blob.core.windows.net/vcpkg-binaries,${{ secrets.AZURE_VCPKG_SAS_TOKEN }},readwrite"
+          VCPKG_BINARY_SOURCES: ${{ secrets.AZURE_VCPKG_STORAGE_ACCOUNT && format('clear;x-azblob,https://{0}.blob.core.windows.net/vcpkg-binaries,{1},readwrite', secrets.AZURE_VCPKG_STORAGE_ACCOUNT, secrets.AZURE_VCPKG_SAS_TOKEN) || 'clear' }}
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
         run: >
