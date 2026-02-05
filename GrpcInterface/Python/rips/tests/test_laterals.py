@@ -107,7 +107,7 @@ def test_append_lateral_with_geometry(rips_instance, initialize_test):
     # Verify the well path objects are still valid regardless of connection result
     assert main_well_path is not None
     assert lateral_well_path is not None
-    
+
     # Check that the lateral has a parent branch
     parent_well = lateral_well_path.parent_branch()
     assert parent_well is not None
