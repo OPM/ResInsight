@@ -65,4 +65,3 @@ if parentWell != None:
 
 if parentWell.parent_branch() == None:
     print("Parent is top level well.")
-
