@@ -96,3 +96,4 @@ QString RimcModeledWellPath_duplicate::classKeywordReturnedType() const
 {
     return RimModeledWellPath::classKeywordStatic();
 }
+

@@ -182,3 +182,17 @@ public:
 private:
     caf::PdmPtrField<RimWellPath*> m_lateral;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_parentBranch : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_parentBranch( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+};
