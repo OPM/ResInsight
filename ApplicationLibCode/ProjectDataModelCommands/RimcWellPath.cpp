@@ -34,7 +34,6 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesDefines.h"
-#include "RimModeledWellPath.h"
 #include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -311,39 +310,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendFishbones::exec
 QString RimcWellPath_appendFishbones::classKeywordReturnedType() const
 {
     return RimFishbones::classKeywordStatic();
-}
-
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_parentBranch, "ParentBranch" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimcWellPath_parentBranch::RimcWellPath_parentBranch( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
-{
-    CAF_PDM_InitObject( "Parent Branch", "", "", "Parent Branch" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_parentBranch::execute()
-{
-    auto wellPath = self<RimWellPath>();
-
-    if ( wellPath->isTopLevelWellPath() ) return nullptr;
-
-    if ( wellPath->wellPathTieIn() ) return wellPath->wellPathTieIn()->parentWell();
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcWellPath_parentBranch::classKeywordReturnedType() const
-{
-    return RimModeledWellPath::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_extractWellPathPropertiesInternal, "ExtractWellPathPropertiesInternal" );

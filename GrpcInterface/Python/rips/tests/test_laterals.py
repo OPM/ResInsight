@@ -28,6 +28,15 @@ def test_append_lateral_from_measured_depth(rips_instance, initialize_test):
     lateral = main_well_path.append_lateral(measured_depth)
     assert lateral is not None
 
+    # Check that the lateral has a parent branch
+    parent_well = lateral.parent_branch()
+    assert parent_well is not None
+    assert parent_well.name == "main_well_check_connection Y1"
+
+    # Check that the main well does not have a parent branch
+    parent_well2 = main_well_path.parent_branch()
+    assert parent_well2 is None
+
 
 def test_append_lateral(rips_instance, initialize_test):
     well_path_coll = rips_instance.project.well_path_collection()
@@ -178,12 +187,3 @@ def test_append_lateral_check_connection(rips_instance, initialize_test):
     assert lateral_well_path is not None
     assert main_well_path.name == "main_well_check_connection"
     assert lateral_well_path.name == "lateral_well_check_connection"
-
-    # Check that the lateral has a parent branch
-    parent_well = lateral_well_path.parent_branch()
-    assert parent_well is not None
-    assert parent_well.name == "main_well_check_connection"
-
-    # Check that the main well does not have a parent branch
-    parent_well2 = main_well_path.parent_branch()
-    assert parent_well2 is None
