@@ -69,6 +69,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressAnalyzer-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaStringPool-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateStringParser-Test.cpp
