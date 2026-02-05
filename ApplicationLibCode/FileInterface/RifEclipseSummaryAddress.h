@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <cstdint>
 #include <map>
 #include <set>
 #include <string>
@@ -179,9 +180,9 @@ private:
 
     SummaryCategory m_category;
     StatisticsType  m_statisticsType;
-    std::string     m_vectorName;
-    std::string     m_name;
-    std::string     m_lgrName;
+    uint32_t        m_vectorNameIdx;
+    uint32_t        m_nameIdx;
+    uint32_t        m_lgrNameIdx;
     int             m_number0;
     int             m_number1;
     int             m_number2;
