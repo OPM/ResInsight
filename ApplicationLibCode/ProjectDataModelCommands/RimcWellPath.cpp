@@ -45,7 +45,6 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathFracture.h"
-#include "RimWellPathTieIn.h"
 
 #include "RigDoglegTools.h"
 #include "RigStimPlanModelTools.h"
