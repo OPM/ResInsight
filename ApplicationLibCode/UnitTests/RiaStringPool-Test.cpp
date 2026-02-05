@@ -95,7 +95,7 @@ TEST( RiaStringPoolTest, ThreadSafety )
     const int numThreads       = 10;
     const int stringsPerThread = 100;
 
-    std::vector<std::thread>                         threads;
+    std::vector<std::thread>                           threads;
     std::vector<std::vector<RiaStringPool::IndexType>> threadResults( numThreads );
 
     // Create threads that all add the same strings
@@ -287,12 +287,7 @@ TEST( RiaStringPoolTest, SimilarStrings )
     auto& pool = RiaStringPool::instance();
 
     // Test strings that are similar but not identical
-    std::vector<std::string> similarStrings = { "WOPT:WELL-1",
-                                                "WOPT:WELL-2",
-                                                "WOPT:WELL-10",
-                                                "WOPT:WELL-1A",
-                                                "WOPT:WELL_1",
-                                                "WOPT: WELL-1" };
+    std::vector<std::string> similarStrings = { "WOPT:WELL-1", "WOPT:WELL-2", "WOPT:WELL-10", "WOPT:WELL-1A", "WOPT:WELL_1", "WOPT: WELL-1" };
 
     std::vector<RiaStringPool::IndexType> indices;
     for ( const auto& str : similarStrings )
@@ -319,18 +314,8 @@ TEST( RiaStringPoolTest, CommonSummaryVectorNames )
     auto& pool = RiaStringPool::instance();
 
     // Test with realistic summary vector names
-    std::vector<std::string> vectorNames = { "FOPT",
-                                             "FWPT",
-                                             "FGPT",
-                                             "FOPR",
-                                             "FWPR",
-                                             "FGPR",
-                                             "WOPT:PROD-1",
-                                             "WWPT:PROD-1",
-                                             "WBHP:PROD-1",
-                                             "WOPT:INJ-1",
-                                             "GOPT:FIELD",
-                                             "BPR:10,15,20" };
+    std::vector<std::string> vectorNames =
+        { "FOPT", "FWPT", "FGPT", "FOPR", "FWPR", "FGPR", "WOPT:PROD-1", "WWPT:PROD-1", "WBHP:PROD-1", "WOPT:INJ-1", "GOPT:FIELD", "BPR:10,15,20" };
 
     // Store indices
     std::vector<RiaStringPool::IndexType> indices;

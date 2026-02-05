@@ -21,8 +21,8 @@
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
 
-#include "RifEclEclipseSummary.h"
 #include "RiaStringPool.h"
+#include "RifEclEclipseSummary.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
 #include <QStringList>
