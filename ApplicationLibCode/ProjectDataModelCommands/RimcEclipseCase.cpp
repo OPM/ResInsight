@@ -85,13 +85,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_importProperties::
 
     if ( auto eclipseCase = self<RimEclipseCase>() )
     {
-        if ( dynamic_cast<RimRoffCase*>( eclipseCase ) || dynamic_cast<RimEclipseResultCase*>( eclipseCase ) )
-        {
-            propertyNames = RifInputPropertyLoader::loadAndSynchronizeInputProperties( eclipseCase->inputPropertyCollection(),
-                                                                                       eclipseCase->eclipseCaseData(),
-                                                                                       absolutePaths,
-                                                                                       false /* no faults */ );
-        }
+        propertyNames = RifInputPropertyLoader::loadAndSynchronizeInputProperties( eclipseCase->inputPropertyCollection(),
+                                                                                   eclipseCase->eclipseCaseData(),
+                                                                                   absolutePaths,
+                                                                                   false /* no faults */ );
     }
 
     auto dataObject            = new RimcDataContainerString();
