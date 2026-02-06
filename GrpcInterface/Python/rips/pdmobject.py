@@ -523,8 +523,10 @@ class PdmObjectBase:
             if child_class_definition is None:
                 return None
 
-            assert class_definition.__name__ == child_class_definition.__name__
-            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
+            assert issubclass(child_class_definition, class_definition)
+            pdm_object = child_class_definition(
+                pb2_object=pb2_object, channel=self.channel()
+            )
             return pdm_object
 
         except grpc.RpcError as exc:
