@@ -24,6 +24,10 @@ jobs:
         with:
           submodules: true
 
+      - uses: TAServers/vcpkg-cache@f645f5b5c4a8a6546911a64b3b02ac86b76f584c
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install Linux dependencies
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
@@ -41,10 +45,17 @@ jobs:
       - name: vcpkg bootstrap
         run: ThirdParty/vcpkg/bootstrap-vcpkg.sh
   
+      - name: Restore vcpkg cache
+        id: vcpkg-cache
+        uses: TAServers/vcpkg-cache@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create compile commands and run clang-tidy
+        # https://clang.llvm.org/extra/doxygen/run-clang-tidy_8py_source.html
         env:
-          VCPKG_FEATURE_FLAGS: "binarycaching"
-          VCPKG_BINARY_SOURCES: "clear;x-azblob,https://${{ secrets.AZURE_VCPKG_STORAGE_ACCOUNT }}.blob.core.windows.net/vcpkg-binaries,${{ secrets.AZURE_VCPKG_SAS_TOKEN }},readwrite"
+          VCPKG_FEATURE_FLAGS: "binarycaching" # Possibly redundant, but explicitly sets the binary caching feature flag
+          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
         run: |
           mkdir build
           cd build
