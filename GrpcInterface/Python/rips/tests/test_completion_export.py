@@ -2,7 +2,6 @@ import sys
 import os
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
 
 import dataroot
 
@@ -69,9 +68,9 @@ def compare_with_reference(
     Raises:
         AssertionError: If files don't match or don't exist
     """
-    assert os.path.exists(
-        export_file_path
-    ), f"Export {file_description} does not exist: {export_file_path}"
+    assert os.path.exists(export_file_path), (
+        f"Export {file_description} does not exist: {export_file_path}"
+    )
 
     with open(export_file_path, "r") as f:
         content = f.read()

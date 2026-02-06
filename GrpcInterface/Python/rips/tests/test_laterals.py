@@ -1,6 +1,5 @@
 import sys
 import os
-import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
@@ -107,9 +106,9 @@ def test_append_lateral_with_geometry(rips_instance, initialize_test):
     except rips.RipsError as e:
         # If it fails, it should be for geometric reasons, not missing geometry
         error_msg = str(e)
-        assert (
-            "No geometry available" not in error_msg
-        ), f"Unexpected geometry error: {error_msg}"
+        assert "No geometry available" not in error_msg, (
+            f"Unexpected geometry error: {error_msg}"
+        )
         # Other geometric errors (like alignment issues) are acceptable for this test
         print(f"Geometric alignment error (expected): {error_msg}")
 
@@ -178,9 +177,9 @@ def test_append_lateral_check_connection(rips_instance, initialize_test):
         print(f"Connection attempt resulted in error: {error_msg}")
 
         # Ensure it's not a "no geometry" error since we provided geometry
-        assert (
-            "No geometry available" not in error_msg
-        ), f"Unexpected geometry error: {error_msg}"
+        assert "No geometry available" not in error_msg, (
+            f"Unexpected geometry error: {error_msg}"
+        )
 
     # Verify both well paths are still valid
     assert main_well_path is not None

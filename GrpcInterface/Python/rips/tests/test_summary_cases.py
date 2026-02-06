@@ -172,10 +172,12 @@ def test_summary_set_values_with_wrong_size(rips_instance, initialize_test):
 
     # Check that the error message is informative
     error_message = str(exc_info.value)
-    assert (
-        "size" in error_message.lower() or "length" in error_message.lower()
-    ), f"Error message should mention size/length mismatch, but got: {error_message}"
+    assert "size" in error_message.lower() or "length" in error_message.lower(), (
+        f"Error message should mention size/length mismatch, but got: {error_message}"
+    )
     assert (
         str(expected_size) in error_message
         or str(len(wrong_size_values)) in error_message
-    ), f"Error message should mention expected ({expected_size}) or received ({len(wrong_size_values)}) size, but got: {error_message}"
+    ), (
+        f"Error message should mention expected ({expected_size}) or received ({len(wrong_size_values)}) size, but got: {error_message}"
+    )

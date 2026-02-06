@@ -112,9 +112,9 @@ def test_export_corner_point_grid_roundtrip(rips_instance, initialize_test):
     )
 
     assert original_case is not None, "Failed to load test case"
-    assert (
-        original_case.name == "BRUGGE_0000"
-    ), f"Expected case name BRUGGE_0000, got {original_case.name}"
+    assert original_case.name == "BRUGGE_0000", (
+        f"Expected case name BRUGGE_0000, got {original_case.name}"
+    )
 
     # Get original geometry data for comparison
     original_active_count = original_case.cell_count().active_cell_count

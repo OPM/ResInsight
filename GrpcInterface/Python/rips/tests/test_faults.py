@@ -1,10 +1,8 @@
 import sys
 import os
 import math
-import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
 
 import dataroot
 

@@ -71,12 +71,12 @@ def test_msw_completion_data_perf_lateral(rips_instance, initialize_test):
 
     # Check WELSEGS header (first entry)
     welsegs_entry = welsegs[0]
-    assert (
-        welsegs_entry.header.well_name == "Well-1"
-    ), "WELSEGS well name should be Well-1"
-    assert (
-        welsegs_entry.header.top_depth > 0
-    ), "Should have positive top depth in WELSEGS"
+    assert welsegs_entry.header.well_name == "Well-1", (
+        "WELSEGS well name should be Well-1"
+    )
+    assert welsegs_entry.header.top_depth > 0, (
+        "Should have positive top depth in WELSEGS"
+    )
     assert welsegs_entry.header.top_length >= 0, "Should have top length in WELSEGS"
     assert welsegs_entry.header.info_type in [
         "ABS",
@@ -135,9 +135,9 @@ def test_msw_completion_data_unified(rips_instance, initialize_test):
     for welsegs_entry in unified_data.welsegs:
         well_names_in_welsegs.add(welsegs_entry.header.well_name)
 
-    assert (
-        len(well_names_in_welsegs) >= 1
-    ), "Should have at least one well in WELSEGS data"
+    assert len(well_names_in_welsegs) >= 1, (
+        "Should have at least one well in WELSEGS data"
+    )
 
     # Verify COMPSEGS (MSW-specific)
     assert len(unified_data.compsegs) > 0, "Should have COMPSEGS in unified MSW data"
@@ -220,13 +220,13 @@ def test_msw_settings_read(rips_instance, initialize_test):
 
     # Verify completion settings
     completion_settings = well_y1.completion_settings()
-    assert (
-        completion_settings.well_name_for_export == "Well-1"
-    ), "Well name for export should be Well-1"
-    assert (
-        completion_settings.group_name_for_export == "PROD_N"
-    ), "Group name should be PROD_N"
+    assert completion_settings.well_name_for_export == "Well-1", (
+        "Well name for export should be Well-1"
+    )
+    assert completion_settings.group_name_for_export == "PROD_N", (
+        "Group name should be PROD_N"
+    )
     assert completion_settings.well_type_for_export == "OIL", "Well type should be OIL"
-    assert (
-        completion_settings.allow_well_cross_flow
-    ), "Allow well cross flow should be True"
+    assert completion_settings.allow_well_cross_flow, (
+        "Allow well cross flow should be True"
+    )

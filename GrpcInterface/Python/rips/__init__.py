@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "generated"))
 
-from .resinsight_classes import *
+from .resinsight_classes import *  # noqa: F403
 
 from .case import Case as Case, EclipseCase as EclipseCase, GeoMechCase as GeoMechCase
 from .grid import Grid as Grid
@@ -17,7 +17,7 @@ from .contour_map import (
 )
 from .well_log_plot import WellLogPlot as WellLogPlot
 from .well_path import WellPath as WellPath
-from . import well_path_collection
+from . import well_path_collection as well_path_collection  # noqa: F401
 from .simulation_well import SimulationWell as SimulationWell
 from .exception import RipsError as RipsError
 from .surface import RegularSurface as RegularSurface
@@ -25,7 +25,7 @@ from .surface import RegularSurface as RegularSurface
 from typing import List
 
 __all__: List[str] = []
-for key in class_dict():
+for key in class_dict():  # noqa: F405
     __all__.append(key)
 
 # Add classes not in resinsight_classes

@@ -392,7 +392,7 @@ def test_import_rmswell_with_w_extension(rips_instance, initialize_test):
     """Test that .w extension files are correctly imported as RMSWell format."""
     case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
     case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
-    case = rips_instance.project.load_case(path=case_path)
+    rips_instance.project.load_case(path=case_path)
 
     well_path_file = (
         "../../../ApplicationLibCode/UnitTests/TestData/RifRmsWellPathReader/55_33-1.w"

@@ -97,13 +97,13 @@ def test_value_unchanged_after_validation_error(rips_instance, initialize_test):
 
     # Value should remain at the previous valid value (42)
     completions_settings_refreshed = well_path.completion_settings()
-    assert (
-        completions_settings_refreshed.well_bore_fluid_pvt_table == 42
-    ), "Field value should not change after failed validation (rollback should occur)"
+    assert completions_settings_refreshed.well_bore_fluid_pvt_table == 42, (
+        "Field value should not change after failed validation (rollback should occur)"
+    )
 
-    assert (
-        completions_settings_refreshed.fluid_in_place_region == 99
-    ), "Field value should not change after failed validation (rollback should occur)"
+    assert completions_settings_refreshed.fluid_in_place_region == 99, (
+        "Field value should not change after failed validation (rollback should occur)"
+    )
 
 
 def test_strict_double_validation_extra_text(rips_instance, initialize_test):
@@ -190,9 +190,9 @@ def test_validation_rollback(rips_instance, initialize_test):
     assert "Extra characters found" in str(exc_info.value)
 
     # Verify rollback: should be back to 5, not 0.99
-    assert (
-        completions_settings.well_bore_fluid_pvt_table == 5
-    ), "Field should rollback to previous valid value after failed update"
+    assert completions_settings.well_bore_fluid_pvt_table == 5, (
+        "Field should rollback to previous valid value after failed update"
+    )
 
 
 def test_enum_validation_message(rips_instance, initialize_test):

@@ -37,7 +37,7 @@ def export_to_text(
 
 
 @add_method(GeoMechContourMap)
-def export_to_text(
+def export_to_text(  # noqa: F811
     self: GeoMechContourMap,
     export_file_name: str = "",
     export_local_coordinates: bool = False,

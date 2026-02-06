@@ -60,8 +60,8 @@ geometry.update()  # Commit updates back to ResInsight
 # Check that lateral is a lateral
 parentWell = lateral.parent_branch()
 
-if parentWell != None:
+if parentWell is not None:
     print("Parent is " + parentWell.name)
 
-if parentWell.parent_branch() == None:
+if parentWell.parent_branch() is None:
     print("Parent is top level well.")

@@ -9,8 +9,6 @@ import rips
 
 import dataroot
 
-import pytest
-
 
 def test_get_completion_data_basic(rips_instance, initialize_test):
     """Test GetCompletionData with a well path and completions"""
@@ -148,7 +146,7 @@ def test_get_completion_data_multiple_intervals(rips_instance, initialize_test):
 
     # Import existing well path
     well_path_file = case_root_path + "/wellpath_a.dev"
-    well_path_names = rips_instance.project.import_well_paths([well_path_file])
+    rips_instance.project.import_well_paths([well_path_file])
     wells = rips_instance.project.well_paths()
     well_path = wells[0]
     well_path.name = "TestMultiInterval"
@@ -223,7 +221,7 @@ def test_get_completion_data_field_validation(rips_instance, initialize_test):
 
     # Import existing well path
     well_path_file = case_root_path + "/wellpath_a.dev"
-    well_path_names = rips_instance.project.import_well_paths([well_path_file])
+    rips_instance.project.import_well_paths([well_path_file])
     wells = rips_instance.project.well_paths()
     well_path = wells[0]
     well_path.name = "FieldValidationTest"
@@ -406,16 +404,16 @@ def test_get_completion_data_stability_comprehensive(rips_instance, initialize_t
         if compdat.HasField("diameter"):
             assert abs(compdat.diameter - 0.25) < 0.001, "Diameter should match input"
         if compdat.HasField("skin_factor"):
-            assert (
-                abs(compdat.skin_factor - 0.1) < 0.001
-            ), "Skin factor should match input"
+            assert abs(compdat.skin_factor - 0.1) < 0.001, (
+                "Skin factor should match input"
+            )
         if compdat.HasField("start_md") and compdat.HasField("end_md"):
-            assert (
-                2190.0 <= compdat.start_md <= 2610.0
-            ), "Start MD should be in expected range"
-            assert (
-                2190.0 <= compdat.end_md <= 2610.0
-            ), "End MD should be in expected range"
+            assert 2190.0 <= compdat.start_md <= 2610.0, (
+                "Start MD should be in expected range"
+            )
+            assert 2190.0 <= compdat.end_md <= 2610.0, (
+                "End MD should be in expected range"
+            )
             assert compdat.end_md >= compdat.start_md, "End MD should be >= start MD"
 
 
@@ -467,12 +465,12 @@ def test_completion_data_regression_reference(rips_instance, initialize_test):
         print("Re-run the test to validate against the reference")
 
         # Validate the generated data has expected structure
-        assert (
-            len(current_results["compdat"]) > 0
-        ), "Should have COMPDAT entries in reference"
-        assert (
-            len(current_results["welspecs"]) > 0
-        ), "Should have WELSPECS entries in reference"
+        assert len(current_results["compdat"]) > 0, (
+            "Should have COMPDAT entries in reference"
+        )
+        assert len(current_results["welspecs"]) > 0, (
+            "Should have WELSPECS entries in reference"
+        )
 
 
 def generate_reference_completion_data(rips_instance):
@@ -594,9 +592,9 @@ def validate_compdat_properties(
         assert compdat.grid_i > 0, f"Entry {i}: Grid I should be positive"
         assert compdat.grid_j > 0, f"Entry {i}: Grid J should be positive"
         assert compdat.upper_k > 0, f"Entry {i}: Upper K should be positive"
-        assert (
-            compdat.lower_k >= compdat.upper_k
-        ), f"Entry {i}: Lower K should be >= upper K"
+        assert compdat.lower_k >= compdat.upper_k, (
+            f"Entry {i}: Lower K should be >= upper K"
+        )
         assert compdat.open_shut_flag in [
             "OPEN",
             "SHUT",
@@ -604,24 +602,24 @@ def validate_compdat_properties(
 
         # Validate optional fields when present
         if compdat.HasField("transmissibility"):
-            assert (
-                compdat.transmissibility >= 0
-            ), f"Entry {i}: Transmissibility should be non-negative"
+            assert compdat.transmissibility >= 0, (
+                f"Entry {i}: Transmissibility should be non-negative"
+            )
 
         if compdat.HasField("diameter") and expected_diameter is not None:
-            assert (
-                abs(compdat.diameter - expected_diameter) < 0.001
-            ), f"Entry {i}: Diameter mismatch"
+            assert abs(compdat.diameter - expected_diameter) < 0.001, (
+                f"Entry {i}: Diameter mismatch"
+            )
 
         if compdat.HasField("skin_factor") and expected_skin is not None:
-            assert (
-                abs(compdat.skin_factor - expected_skin) < 0.001
-            ), f"Entry {i}: Skin factor mismatch"
+            assert abs(compdat.skin_factor - expected_skin) < 0.001, (
+                f"Entry {i}: Skin factor mismatch"
+            )
 
         if compdat.HasField("start_md") and compdat.HasField("end_md"):
-            assert (
-                compdat.end_md >= compdat.start_md
-            ), f"Entry {i}: End MD should be >= start MD"
+            assert compdat.end_md >= compdat.start_md, (
+                f"Entry {i}: End MD should be >= start MD"
+            )
             assert compdat.start_md >= 0, f"Entry {i}: Start MD should be non-negative"
 
         if compdat.HasField("kh"):
@@ -703,7 +701,7 @@ def test_completion_data_reference_failure_simulation(rips_instance, initialize_
     well_path.update()
 
     # Same completion parameters as reference
-    perf_interval = well_path.append_perforation_interval(
+    well_path.append_perforation_interval(
         start_md=2200.0, end_md=2600.0, diameter=0.25, skin_factor=0.1
     )
 
@@ -721,12 +719,12 @@ def test_completion_data_reference_failure_simulation(rips_instance, initialize_
         reference_results = json.load(f)
 
     # This should fail because well names are different
-    assert (
-        modified_results["compdat"] != reference_results["compdat"]
-    ), "Modified data should differ from reference (well name changed)"
-    assert (
-        modified_results["welspecs"] != reference_results["welspecs"]
-    ), "Modified WELSPECS should differ from reference (well name changed)"
+    assert modified_results["compdat"] != reference_results["compdat"], (
+        "Modified data should differ from reference (well name changed)"
+    )
+    assert modified_results["welspecs"] != reference_results["welspecs"], (
+        "Modified WELSPECS should differ from reference (well name changed)"
+    )
 
     print("Reference test correctly detects data changes")
 
@@ -769,9 +767,9 @@ def test_welspecs_grid_name_field(rips_instance, initialize_test):
         # This results in WELSPECS output (not WELSPECL)
         if welspec.HasField("grid_name"):
             # If grid_name field exists, it should be empty for main grid
-            assert (
-                welspec.grid_name.strip() == ""
-            ), "Main grid wells should have empty grid_name"
+            assert welspec.grid_name.strip() == "", (
+                "Main grid wells should have empty grid_name"
+            )
 
         # Verify required WELSPECS fields
         assert welspec.group_name, "Should have group name"
@@ -813,9 +811,7 @@ def test_completion_data_cross_validation(rips_instance, initialize_test):
     start_md = 2400.0
     end_md = 2420.0
 
-    perf_interval = well_path.append_perforation_interval(
-        start_md, end_md, diameter, skin_factor
-    )
+    well_path.append_perforation_interval(start_md, end_md, diameter, skin_factor)
 
     # Get data via gRPC API
     completion_data = well_path.completion_data(case.id)
@@ -835,17 +831,17 @@ def test_completion_data_cross_validation(rips_instance, initialize_test):
 
                 # Also check skin factor for this entry
                 if compdat.HasField("skin_factor"):
-                    assert (
-                        abs(compdat.skin_factor - skin_factor) < 0.001
-                    ), "Skin factor should match"
+                    assert abs(compdat.skin_factor - skin_factor) < 0.001, (
+                        "Skin factor should match"
+                    )
 
                 # Check MD range
                 if compdat.HasField("start_md") and compdat.HasField("end_md"):
-                    assert (
-                        start_md <= compdat.start_md <= end_md + 5
-                    ), "Start MD should be in range"
-                    assert (
-                        start_md <= compdat.end_md <= end_md + 5
-                    ), "End MD should be in range"
+                    assert start_md <= compdat.start_md <= end_md + 5, (
+                        "Start MD should be in range"
+                    )
+                    assert start_md <= compdat.end_md <= end_md + 5, (
+                        "End MD should be in range"
+                    )
 
     assert found_matching_entry, f"Should find COMPDAT entry with diameter {diameter}"

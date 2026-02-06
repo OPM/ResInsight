@@ -67,5 +67,5 @@ for prop in roff_case.available_properties("STATIC_NATIVE"):
 
 try:
     alias_result = roff_case.grid_property("STATIC_NATIVE", "PERMX", 0)
-except:
+except Exception:
     print("Result PERMX no longer exists!")
