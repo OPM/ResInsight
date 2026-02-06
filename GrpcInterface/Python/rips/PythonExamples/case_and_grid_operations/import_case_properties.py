@@ -48,7 +48,9 @@ eqlnum_property_path = os.path.join(
     test_models_path, "reek/reek_box_EQLNUM_property.roffasc"
 )
 
-imported_names = roff_case.import_properties(file_names=[poro_property_path, eqlnum_property_path])
+imported_names = roff_case.import_properties(
+    file_names=[poro_property_path, eqlnum_property_path]
+)
 
 print("Imported properties:")
 for name in imported_names.values:
