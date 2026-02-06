@@ -25,8 +25,45 @@
 #include <cmath>
 #include <numeric>
 
+namespace
+{
+bool isValidQuantile( double quantile )
+{
+    return quantile >= 0.0 && quantile <= 1.0;
+}
+
+bool isValidPercentile( double percentile )
+{
+    return percentile >= 0.0 && percentile <= 100.0;
+}
+
+bool areValidQuantiles( const std::vector<double>& quantiles )
+{
+    return std::all_of( quantiles.begin(), quantiles.end(), isValidQuantile );
+}
+
+bool areValidPercentiles( const std::vector<double>& percentiles )
+{
+    return std::all_of( percentiles.begin(), percentiles.end(), isValidPercentile );
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 /// A function to do basic statistical calculations
+///
+/// Formulas:
+///   mean = sum(x) / n
+///
+///   Standard deviation (population):
+///   stdev = sqrt((n * sum(x^2) - (sum(x))^2)) / n
+///
+///   Which is equivalent to: sqrt(sum((x - mean)^2) / n)
+///
+///   range = max - min
+///
+/// References:
+///   Standard deviation: https://en.wikipedia.org/wiki/Standard_deviation
+///   Rapid calculation method: https://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
 //--------------------------------------------------------------------------------------------------
 
 void RigStatisticsMath::calculateBasicStatistics( const std::vector<double>& values,
@@ -85,8 +122,18 @@ void RigStatisticsMath::calculateBasicStatistics( const std::vector<double>& val
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Algorithm:
-/// https://en.wikipedia.org/wiki/Percentile#Third_variant,_'%22%60UNIQ--postMath-00000052-QINU%60%22'
+/// Calculate statistical curves (P10, P50, P90, mean)
+///
+/// Percentiles (P10, P50, P90) are calculated using linear interpolation:
+///   rank = percentile * (n + 1) - 1
+///   value = sorted[floor(rank)] + frac(rank) * (sorted[floor(rank)+1] - sorted[floor(rank)])
+///
+/// Mean is calculated as:
+///   mean = sum(x) / n
+///
+/// References:
+///   Percentiles: https://en.wikipedia.org/wiki/Percentile#Third_variant,_C_=_0
+///   P10/P50/P90: https://en.wikipedia.org/wiki/Percentile#Definitions
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& values,
                                                    double*                    p10,
@@ -99,12 +146,66 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
 
     if ( values.empty() ) return;
 
-    enum PValue
+    // Use the vector-based implementation
+    std::vector<double> percentiles = { 0.1, 0.5, 0.9 };
+    std::vector<double> results     = calculatePercentiles( values, percentiles, percentileStyle );
+
+    if ( results.size() == 3 )
     {
-        P10,
-        P50,
-        P90
-    };
+        *p10 = results[0];
+        *p50 = results[1];
+        *p90 = results[2];
+    }
+    else
+    {
+        *p10 = HUGE_VAL;
+        *p50 = HUGE_VAL;
+        *p90 = HUGE_VAL;
+    }
+
+    // Calculate mean separately
+    std::vector<double> validValues = values;
+    validValues.erase( std::remove_if( validValues.begin(),
+                                       validValues.end(),
+                                       []( double x ) { return !RiaStatisticsTools::isValidNumber( x ); } ),
+                       validValues.end() );
+
+    if ( !validValues.empty() )
+    {
+        double valueSum = std::accumulate( validValues.begin(), validValues.end(), 0.0 );
+        *mean           = valueSum / validValues.size();
+    }
+    else
+    {
+        *mean = HUGE_VAL;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Calculate percentiles using linear interpolation method
+///
+/// Formula:
+///   rank = percentile * (n + 1) - 1
+///
+///   If rank is not an integer:
+///     value = sorted[floor(rank)] + frac(rank) * (sorted[floor(rank)+1] - sorted[floor(rank)])
+///
+///   Where frac(rank) is the fractional part of rank
+///
+///   Valid for percentiles in range [1/(n+1), n/(n+1)]
+///
+/// References:
+///   https://en.wikipedia.org/wiki/Percentile
+///   https://en.wikipedia.org/wiki/Percentile#Third_variant,_C_=_0
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigStatisticsMath::calculatePercentiles( const std::vector<double>& values,
+                                                             const std::vector<double>& quantiles,
+                                                             PercentileStyle            percentileStyle )
+{
+    CVF_ASSERT( areValidQuantiles( quantiles ) && "Quantiles must be in range [0-1]" );
+
+    std::vector<double> resultValues;
+    if ( values.empty() || quantiles.empty() ) return resultValues;
 
     std::vector<double> sortedValues = values;
 
@@ -113,62 +214,71 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
                                         []( double x ) { return !RiaStatisticsTools::isValidNumber( x ); } ),
                         sortedValues.end() );
 
+    if ( sortedValues.empty() ) return resultValues;
+
     std::sort( sortedValues.begin(), sortedValues.end() );
 
-    double valueSum = std::accumulate( sortedValues.begin(), sortedValues.end(), 0.0 );
+    int valueCount = (int)sortedValues.size();
+    resultValues.reserve( quantiles.size() );
 
-    int    valueCount    = (int)sortedValues.size();
-    double percentiles[] = { 0.1, 0.5, 0.9 };
-    double pValues[]     = { HUGE_VAL, HUGE_VAL, HUGE_VAL };
-
-    for ( int i = P10; i <= P90; i++ )
+    for ( size_t i = 0; i < quantiles.size(); ++i )
     {
+        double quantile = quantiles[i];
+
+        if ( percentileStyle == PercentileStyle::SWITCHED )
+        {
+            quantile = 1.0 - quantile;
+        }
+
+        double value = HUGE_VAL;
+
         // Check valid params
-        if ( ( percentiles[i] < 1.0 / ( (double)valueCount + 1 ) ) || ( percentiles[i] > (double)valueCount / ( (double)valueCount + 1 ) ) )
-            continue;
-
-        double rank = percentiles[i] * ( valueCount + 1 ) - 1;
-        double rankRem;
-        double rankFrac = std::modf( rank, &rankRem );
-        int    rankInt  = static_cast<int>( rankRem );
-
-        if ( rankInt < valueCount - 1 )
+        if ( quantile >= 1.0 / ( static_cast<double>( valueCount ) + 1 ) &&
+             quantile <= static_cast<double>( valueCount ) / ( static_cast<double>( valueCount ) + 1 ) )
         {
-            pValues[i] = sortedValues[rankInt] + rankFrac * ( sortedValues[rankInt + 1] - sortedValues[rankInt] );
+            double rank = quantile * ( valueCount + 1 ) - 1;
+            double rankRem;
+            double rankFrac = std::modf( rank, &rankRem );
+            int    rankInt  = static_cast<int>( rankRem );
+
+            if ( rankInt < valueCount - 1 )
+            {
+                value = sortedValues[rankInt] + rankFrac * ( sortedValues[rankInt + 1] - sortedValues[rankInt] );
+            }
+            else
+            {
+                value = sortedValues.back();
+            }
         }
-        else
-        {
-            pValues[i] = sortedValues.back();
-        }
+
+        resultValues.push_back( value );
     }
 
-    *p50 = pValues[P50];
-
-    if ( percentileStyle == PercentileStyle::REGULAR )
-    {
-        *p10 = pValues[P10];
-        *p90 = pValues[P90];
-    }
-    else
-    {
-        CVF_ASSERT( percentileStyle == PercentileStyle::SWITCHED );
-        *p10 = pValues[P90];
-        *p90 = pValues[P10];
-    }
-
-    *mean = valueSum / valueCount;
+    return resultValues;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Calculate the percentiles of /a inputValues at the pValPosition percentages using the "Nearest Rank"
 /// method. This method treats HUGE_VAL as "undefined" values, and ignores these. Will return HUGE_VAL if
 /// the inputValues does not contain any valid values
+///
+/// Formula (Nearest Rank Method):
+///   index = floor(n * percentile)
+///   value = sorted[index]
+///
+///   Note: pValPositions are expected as percentages (0-100), converted to fraction (0-1) internally
+///
+/// References:
+///   https://en.wikipedia.org/wiki/Percentile#The_nearest-rank_method
+///   https://en.wikipedia.org/wiki/Percentile#First_variant,_C_=_1/2
 //--------------------------------------------------------------------------------------------------
 
 std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const std::vector<double>&         inputValues,
-                                                                        const std::vector<double>&         pValPositions,
+                                                                        const std::vector<double>&         percentiles,
                                                                         RigStatisticsMath::PercentileStyle percentileStyle )
 {
+    CVF_ASSERT( areValidPercentiles( percentiles ) && "Percentiles must be in range [0-100]" );
+
     std::vector<double> sortedValues;
     sortedValues.reserve( inputValues.size() );
 
@@ -182,37 +292,51 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const st
 
     std::sort( sortedValues.begin(), sortedValues.end() );
 
-    std::vector<double> percentiles( pValPositions.size(), HUGE_VAL );
+    std::vector<double> resultValues( percentiles.size(), HUGE_VAL );
     if ( !sortedValues.empty() )
     {
-        for ( size_t i = 0; i < pValPositions.size(); ++i )
+        for ( size_t i = 0; i < percentiles.size(); ++i )
         {
-            double pVal = HUGE_VAL;
+            double quantile = cvf::Math::abs( percentiles[i] ) / 100;
+            if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) quantile = 1.0 - quantile;
 
-            double pValPosition = cvf::Math::abs( pValPositions[i] ) / 100;
-            if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) pValPosition = 1.0 - pValPosition;
+            size_t index = static_cast<size_t>( sortedValues.size() * quantile );
 
-            size_t pValIndex = static_cast<size_t>( sortedValues.size() * pValPosition );
+            if ( index >= sortedValues.size() ) index = sortedValues.size() - 1;
 
-            if ( pValIndex >= sortedValues.size() ) pValIndex = sortedValues.size() - 1;
-
-            pVal           = sortedValues[pValIndex];
-            percentiles[i] = pVal;
+            auto value      = sortedValues[index];
+            resultValues[i] = value;
         }
     }
 
-    return percentiles;
+    return resultValues;
 };
 
 //--------------------------------------------------------------------------------------------------
 /// Calculate the percentiles of /a inputValues at the pValPosition percentages by interpolating input values.
 /// This method treats HUGE_VAL as "undefined" values, and ignores these. Will return HUGE_VAL if
 /// the inputValues does not contain any valid values
+///
+/// Formula (Linear Interpolation Method):
+///   doubleIndex = (n - 1) * percentile
+///   lowerIndex = floor(doubleIndex)
+///   upperIndex = lowerIndex + 1
+///   weight = doubleIndex - lowerIndex
+///
+///   value = (1 - weight) * sorted[lowerIndex] + weight * sorted[upperIndex]
+///
+///   Note: pValPositions are expected as percentages (0-100), convert to fraction (0-1) internally
+///
+/// References:
+///   https://en.wikipedia.org/wiki/Percentile#The_linear_interpolation_between_closest_ranks_method
+///   https://en.wikipedia.org/wiki/Percentile#Second_variant,_C_=_1
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const std::vector<double>&         inputValues,
-                                                                         const std::vector<double>&         pValPositions,
+                                                                         const std::vector<double>&         percentiles,
                                                                          RigStatisticsMath::PercentileStyle percentileStyle )
 {
+    CVF_ASSERT( areValidPercentiles( percentiles ) && "Percentiles must be in range [0-100]" );
+
     std::vector<double> sortedValues;
     sortedValues.reserve( inputValues.size() );
 
@@ -226,17 +350,17 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const s
 
     std::sort( sortedValues.begin(), sortedValues.end() );
 
-    std::vector<double> percentiles( pValPositions.size(), HUGE_VAL );
+    std::vector<double> resultValues( percentiles.size(), HUGE_VAL );
     if ( !sortedValues.empty() )
     {
-        for ( size_t i = 0; i < pValPositions.size(); ++i )
+        for ( size_t i = 0; i < percentiles.size(); ++i )
         {
-            double pVal = HUGE_VAL;
+            double value = HUGE_VAL;
 
-            double pValPosition = cvf::Math::abs( pValPositions[i] ) / 100.0;
-            if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) pValPosition = 1.0 - pValPosition;
+            double quantile = cvf::Math::abs( percentiles[i] ) / 100.0;
+            if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) quantile = 1.0 - quantile;
 
-            double doubleIndex = ( sortedValues.size() - 1 ) * pValPosition;
+            double doubleIndex = ( sortedValues.size() - 1 ) * quantile;
 
             size_t lowerValueIndex = static_cast<size_t>( floor( doubleIndex ) );
             size_t upperValueIndex = lowerValueIndex + 1;
@@ -246,17 +370,17 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const s
 
             if ( upperValueIndex < sortedValues.size() )
             {
-                pVal = ( 1.0 - upperValueWeight ) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
+                value = ( 1.0 - upperValueWeight ) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
             }
             else
             {
-                pVal = sortedValues[lowerValueIndex];
+                value = sortedValues[lowerValueIndex];
             }
-            percentiles[i] = pVal;
+            resultValues[i] = value;
         }
     }
 
-    return percentiles;
+    return resultValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,7 +452,22 @@ void RigHistogramCalculator::addData( const std::vector<float>& data )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Calculate percentile from histogram data
 ///
+/// Formula:
+///   1. Find cumulative count up to target: targetCount = percentile * totalObservations
+///   2. Find bin where cumulative count >= targetCount
+///   3. Interpolate within bin:
+///      unusedFraction = (cumulativeCount - targetCount) / binCount
+///      value = binEndValue - unusedFraction * binWidth
+///
+///   Where:
+///     binWidth = (max - min) / numberOfBins
+///     binEndValue = min + (binIndex + 1) * binWidth
+///
+/// References:
+///   https://en.wikipedia.org/wiki/Histogram
+///   https://en.wikipedia.org/wiki/Percentile#Estimating_percentiles_from_a_histogram
 //--------------------------------------------------------------------------------------------------
 double RigHistogramCalculator::calculatePercentil( double pVal, RigStatisticsMath::PercentileStyle percentileStyle )
 {
@@ -354,7 +493,7 @@ double RigHistogramCalculator::calculatePercentil( double pVal, RigStatisticsMat
         if ( accObsCount >= pValObservationCount )
         {
             double domainValueAtEndOfBin   = m_min + ( binIdx + 1 ) * binWidth;
-            double unusedFractionOfLastBin = (double)( accObsCount - pValObservationCount ) / binObsCount;
+            double unusedFractionOfLastBin = static_cast<double>( accObsCount - pValObservationCount ) / binObsCount;
 
             double histogramBasedEstimate = domainValueAtEndOfBin - unusedFractionOfLastBin * binWidth;
 
