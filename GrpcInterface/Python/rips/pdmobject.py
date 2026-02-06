@@ -18,6 +18,10 @@ from .exception import RipsError
 from typing import Any, Callable, TypeVar, Union, List, Optional, Type
 from typing_extensions import ParamSpec
 
+# TypeVar for generic return types in PdmObjectBase methods
+# Using string bound for forward reference since PdmObjectBase is defined later
+PdmObjectT = TypeVar("PdmObjectT", bound="PdmObjectBase")
+
 
 def camel_to_snake(name: str) -> str:
     s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
@@ -272,13 +276,11 @@ class PdmObjectBase:
                 values.append(self.__convert_from_grpc_value(string))
             return values
 
-    D = TypeVar("D")
-
     def __from_pb2_to_resinsight_classes(
         self,
         pb2_object_list: List[PdmObject_pb2.PdmObject],
-        super_class_definition: Type[D],
-    ) -> List[D]:
+        super_class_definition: Type[PdmObjectT],
+    ) -> List[PdmObjectT]:
         pdm_object_list = []
         from .generated.generated_classes import class_from_keyword
 
@@ -295,7 +297,7 @@ class PdmObjectBase:
             pdm_object_list.append(pdm_object)
         return pdm_object_list
 
-    def descendants(self, class_definition: Type[D]) -> List[D]:
+    def descendants(self, class_definition: Type[PdmObjectT]) -> List[PdmObjectT]:
         """Get a list of all project tree descendants matching the class keyword
         Arguments:
             class_definition[class]: A class definition matching the type of class wanted
@@ -317,7 +319,9 @@ class PdmObjectBase:
                 return []  # Valid empty result
             raise e
 
-    def children(self, child_field: str, class_definition: Type[D]) -> List[D]:
+    def children(
+        self, child_field: str, class_definition: Type[PdmObjectT]
+    ) -> List[PdmObjectT]:
         """Get a list of all direct project tree children inside the provided child_field
         Arguments:
             child_field[str]: A field name
@@ -336,8 +340,8 @@ class PdmObjectBase:
             raise e
 
     def add_new_object(
-        self, class_definition: Type[D], child_field: str = ""
-    ) -> Optional[D]:
+        self, class_definition: Type[PdmObjectT], child_field: str = ""
+    ) -> Optional[PdmObjectT]:
         """Create and add an object to the specified child field
         Arguments:
             class_definition[class]: Class definition of the object to create
@@ -372,7 +376,7 @@ class PdmObjectBase:
                 return None
             raise e
 
-    def ancestor(self, class_definition: Type[D]) -> Optional[D]:
+    def ancestor(self, class_definition: Type[PdmObjectT]) -> Optional[PdmObjectT]:
         """Find the first ancestor that matches the provided class_keyword
         Arguments:
             class_definition[class]: A class definition matching the type of class wanted
@@ -479,11 +483,9 @@ class PdmObjectBase:
         except grpc.RpcError as exc:
             raise RipsError("%s" % exc.details()) from None
 
-    X = TypeVar("X")
-
     def _call_pdm_method_return_value(
-        self, method_name: str, class_definition: Type[X], **kwargs: Any
-    ) -> X:
+        self, method_name: str, class_definition: Type[PdmObjectT], **kwargs: Any
+    ) -> PdmObjectT:
         pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
         for key, value in kwargs.items():
             pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(
@@ -501,8 +503,8 @@ class PdmObjectBase:
             raise RipsError("%s" % exc.details()) from None
 
     def _call_pdm_method_return_optional_value(
-        self, method_name: str, class_definition: Type[X], **kwargs: Any
-    ) -> Optional[X]:
+        self, method_name: str, class_definition: Type[PdmObjectT], **kwargs: Any
+    ) -> Optional[PdmObjectT]:
         pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
         for key, value in kwargs.items():
             pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(
