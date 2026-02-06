@@ -47,7 +47,6 @@ target = geometry.append_well_target(coord)
 coord = [2054.28, -100, 45]
 target = geometry.append_well_target(coord)
 
-
 # Wait 2 second
 print("Wait 2 seconds ...")
 time.sleep(2)
@@ -57,3 +56,12 @@ geometry = well_path.well_path_geometry()
 reference_point = geometry.reference_point
 reference_point[2] += 50
 geometry.update()  # Commit updates back to ResInsight
+
+# Check that lateral is a lateral
+parentWell = lateral.parent_branch()
+
+if parentWell != None:
+    print("Parent is " + parentWell.name)
+
+if parentWell.parent_branch() == None:
+    print("Parent is top level well.")
