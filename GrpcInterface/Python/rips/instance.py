@@ -14,6 +14,7 @@ import tempfile
 import signal
 import sys
 import json
+import subprocess
 
 import grpc
 
@@ -164,7 +165,7 @@ class Instance:
         with tempfile.TemporaryDirectory() as tmp_dir_path:
             port_number_file = tmp_dir_path + "/portnumber.txt"
             parameters: List[str] = [
-                "ResInsight",
+                resinsight_executable,
                 "--server",
                 str(requested_port),
                 "--portnumberfile",
@@ -178,7 +179,8 @@ class Instance:
             for i in range(0, len(parameters)):
                 parameters[i] = str(parameters[i])
 
-            pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
+            process = subprocess.Popen(parameters)
+            pid = process.pid
             if pid:
                 port = Instance.__read_port_number_from_file(
                     port_number_file, init_timeout
