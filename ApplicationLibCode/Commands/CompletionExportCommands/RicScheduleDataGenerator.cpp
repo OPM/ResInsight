@@ -66,7 +66,6 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
     result += "-- Schedule data based on well events\n";
     result += "--\n";
 
-
     // Generate section for each date
     for ( const auto& date : dates )
     {

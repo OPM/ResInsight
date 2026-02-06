@@ -526,8 +526,7 @@ void RicMswTableDataTools::generateWsegAicdTableRecursively( RicMswExportInfo&  
                 auto aicd = static_cast<const RicMswPerforationAICD*>( completion );
 
                 // Filter by export date if specified
-                if ( exportDate.has_value() && aicd->wellPathValve() && !aicd->wellPathValve()->isActiveOnDate( *exportDate ) )
-                    continue;
+                if ( exportDate.has_value() && aicd->wellPathValve() && !aicd->wellPathValve()->isActiveOnDate( *exportDate ) ) continue;
 
                 if ( aicd->isValid() )
                 {
@@ -941,8 +940,7 @@ void RicMswTableDataTools::generateWsegSicdTableRecursively( RicMswExportInfo&  
                 auto sicd = static_cast<const RicMswPerforationSICD*>( completion );
 
                 // Filter by export date if specified
-                if ( exportDate.has_value() && sicd->wellPathValve() && !sicd->wellPathValve()->isActiveOnDate( *exportDate ) )
-                    continue;
+                if ( exportDate.has_value() && sicd->wellPathValve() && !sicd->wellPathValve()->isActiveOnDate( *exportDate ) ) continue;
 
                 if ( sicd->isValid() )
                 {
