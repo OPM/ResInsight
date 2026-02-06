@@ -1587,9 +1587,9 @@ std::unique_ptr<RicMswBranch> RicWellPathExportMswTableData::createChildMswBranc
         {
             const auto segmentEndMd = initialChildMD + offset;
             auto       dummySegment = std::make_unique<RicMswSegment>( QString( "%1 segment" ).arg( outletValve->componentLabel() ),
-                                                 valveMD,
-                                                 segmentEndMd,
-                                                 valveTVD,
+                                                                 valveMD,
+                                                                 segmentEndMd,
+                                                                 valveTVD,
                                                                  RicMswTableDataTools::tvdFromMeasuredDepth( childWellPath, segmentEndMd ) );
             branchStartingWithValve->addSegment( std::move( dummySegment ) );
 
