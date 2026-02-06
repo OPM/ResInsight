@@ -117,10 +117,13 @@ def verify_load_grid_and_separate_properties(
     total_size = dimensions.i * dimensions.j * dimensions.k
 
     # Import properties to case
-    case.import_properties(file_names=list(property_name_and_paths.values()))
+    imported = case.import_properties(file_names=list(property_name_and_paths.values()))
+    imported_names = imported.values
+
     available_properties = case.available_properties("INPUT_PROPERTY")
     for [name, _path] in property_name_and_paths.items():
         assert name in available_properties
+        assert name in imported_names
         property_values = case.active_cell_property("INPUT_PROPERTY", name, 0)
         assert len(property_values) == total_size
 

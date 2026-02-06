@@ -36,6 +36,7 @@ roff_case_path = os.path.join(
 roff_case = resinsight.project.load_case(roff_case_path)
 
 # PORO and EQLNUM should not be among available properties yet
+print("Available properties:")
 for prop in roff_case.available_properties("INPUT_PROPERTY"):
     print(prop)
 
@@ -47,8 +48,13 @@ eqlnum_property_path = os.path.join(
     test_models_path, "reek/reek_box_EQLNUM_property.roffasc"
 )
 
-roff_case.import_properties(file_names=[poro_property_path, eqlnum_property_path])
+imported_names = roff_case.import_properties(file_names=[poro_property_path, eqlnum_property_path])
+
+print("Imported properties:")
+for name in imported_names.values:
+    print(name)
 
 # PORO and EQLNUM should now be among available properties
+print("Available properties:")
 for prop in roff_case.available_properties("INPUT_PROPERTY"):
     print(prop)

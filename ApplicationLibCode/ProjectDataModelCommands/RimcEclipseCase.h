@@ -27,7 +27,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcEclipseCase_importProperties : public caf::PdmVoidObjectMethod
+class RimcEclipseCase_importProperties : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
@@ -35,6 +35,8 @@ public:
     RimcEclipseCase_importProperties( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+    QString classKeywordReturnedType() const override;
 
 private:
     caf::PdmField<std::vector<QString>> m_fileNames;

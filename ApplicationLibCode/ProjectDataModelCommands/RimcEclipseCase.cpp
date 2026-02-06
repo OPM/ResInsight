@@ -22,6 +22,8 @@
 #include "RiaGuiApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
+#include "RifInputPropertyLoader.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -34,7 +36,11 @@
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimProject.h"
+#include "RimRoffCase.h"
+
+#include "RimcDataContainerString.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -43,6 +49,7 @@
 
 #include <expected>
 #include <limits>
+#include <vector>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_importProperties, "import_properties" );
 
@@ -50,7 +57,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_importPropert
 ///
 //--------------------------------------------------------------------------------------------------
 RimcEclipseCase_importProperties::RimcEclipseCase_importProperties( caf::PdmObjectHandle* self )
-    : caf::PdmVoidObjectMethod( self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
 {
     CAF_PDM_InitObject( "Import Properties", "", "", "Import Properties" );
 
@@ -62,8 +69,8 @@ RimcEclipseCase_importProperties::RimcEclipseCase_importProperties( caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_importProperties::execute()
 {
-    std::vector<QString> absolutePaths = m_fileNames;
-    for ( auto& path : absolutePaths )
+    std::vector<QString> absolutePaths;
+    for ( auto path : m_fileNames() )
     {
         QFileInfo projectPathInfo( path );
         if ( !projectPathInfo.exists() )
@@ -71,15 +78,34 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_importProperties::
             QDir startDir( RiaApplication::instance()->startDir() );
             path = startDir.absoluteFilePath( path );
         }
+        absolutePaths.push_back( path );
     }
 
-    QStringList propertyFileNames;
-    std::copy( absolutePaths.begin(), absolutePaths.end(), std::back_inserter( propertyFileNames ) );
+    std::vector<QString> propertyNames;
 
-    auto eclipseCase = self<RimEclipseCase>();
-    eclipseCase->importAsciiInputProperties( propertyFileNames );
+    if ( auto eclipseCase = self<RimEclipseCase>() )
+    {
+        if ( dynamic_cast<RimRoffCase*>( eclipseCase ) || dynamic_cast<RimEclipseResultCase*>( eclipseCase ) )
+        {
+            propertyNames = RifInputPropertyLoader::loadAndSynchronizeInputProperties( eclipseCase->inputPropertyCollection(),
+                                                                                       eclipseCase->eclipseCaseData(),
+                                                                                       absolutePaths,
+                                                                                       false /* no faults */ );
+        }
+    }
 
-    return nullptr;
+    auto dataObject            = new RimcDataContainerString();
+    dataObject->m_stringValues = propertyNames;
+
+    return dataObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcEclipseCase_importProperties::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_exportValuesInternal, "export_values_internal" );

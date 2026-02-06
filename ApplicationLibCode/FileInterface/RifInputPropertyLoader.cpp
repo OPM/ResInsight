@@ -34,12 +34,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifInputPropertyLoader::loadAndSynchronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                                RigEclipseCaseData*                eclipseCaseData,
-                                                                const std::vector<QString>&        filenames,
-                                                                bool                               allowImportOfFaults )
+std::vector<QString> RifInputPropertyLoader::loadAndSynchronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                                                RigEclipseCaseData*                eclipseCaseData,
+                                                                                const std::vector<QString>&        filenames,
+                                                                                bool                               allowImportOfFaults )
 {
-    if ( !inputPropertyCollection || !eclipseCaseData || filenames.empty() ) return;
+    std::vector<QString> loadedProperties;
+
+    if ( !inputPropertyCollection || !eclipseCaseData || filenames.empty() ) return loadedProperties;
 
     std::vector<RimEclipseInputProperty*> existingProperties = inputPropertyCollection->inputProperties.childrenByType();
 
@@ -53,6 +55,8 @@ void RifInputPropertyLoader::loadAndSynchronizeInputProperties( RimEclipseInputP
 
         for ( const auto& [resultName, eclipseKeyword] : resultNamesEclipseKeywords )
         {
+            loadedProperties.push_back( eclipseKeyword );
+
             bool isProperyPresent      = false;
             bool isFaultKeywordPresent = false;
             for ( const auto* propertyObj : existingProperties )
@@ -85,6 +89,8 @@ void RifInputPropertyLoader::loadAndSynchronizeInputProperties( RimEclipseInputP
 
         progInfo.incrementProgress();
     }
+
+    return loadedProperties;
 }
 
 //--------------------------------------------------------------------------------------------------
