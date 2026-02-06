@@ -22,7 +22,6 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
-#include "RimWellPathTieIn.h"
 
 #include "WellPathCommands/RicDuplicateWellPathFeature.h"
 #include "WellPathCommands/RicNewWellPathLateralAtDepthFeature.h"
@@ -98,35 +97,3 @@ QString RimcModeledWellPath_duplicate::classKeywordReturnedType() const
     return RimModeledWellPath::classKeywordStatic();
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimModeledWellPath, RimcModeledWellPath_parentBranch, "ParentBranch" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimcModeledWellPath_parentBranch::RimcModeledWellPath_parentBranch( caf::PdmObjectHandle* self )
-    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
-{
-    CAF_PDM_InitObject( "Parent Branch", "", "", "Parent Branch" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcModeledWellPath_parentBranch::execute()
-{
-    auto wellPath = self<RimModeledWellPath>();
-
-    if ( wellPath->isTopLevelWellPath() ) return nullptr;
-
-    if ( wellPath->wellPathTieIn() ) return wellPath->wellPathTieIn()->parentWell();
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcModeledWellPath_parentBranch::classKeywordReturnedType() const
-{
-    return RimModeledWellPath::classKeywordStatic();
-}

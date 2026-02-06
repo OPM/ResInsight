@@ -187,3 +187,52 @@ def test_append_lateral_check_connection(rips_instance, initialize_test):
     assert lateral_well_path is not None
     assert main_well_path.name == "main_well_check_connection"
     assert lateral_well_path.name == "lateral_well_check_connection"
+
+
+def test_parent_branch_on_imported_well_path(rips_instance, initialize_test):
+    """Test that parent_branch() works on imported (file-based) well paths.
+
+    Imported well paths typically don't have a parent, but the API should
+    work and return None.
+    """
+    well_path_coll = rips_instance.project.well_path_collection()
+
+    # Create an imported well path using coordinates
+    coordinates = [
+        [1000.0, 2000.0, 0.0],
+        [1000.0, 2000.0, -100.0],
+        [1000.0, 2000.0, -500.0],
+    ]
+
+    imported_well_path = well_path_coll.import_well_path_from_points(
+        name="imported_well", coordinates=coordinates
+    )
+
+    assert imported_well_path is not None
+    assert imported_well_path.name == "imported_well"
+
+    # Call parent_branch() on the imported well path
+    # It should return None since imported wells typically don't have a parent
+    parent = imported_well_path.parent_branch()
+    assert parent is None
+
+
+def test_parent_branch_on_dev_file_well_path(rips_instance, initialize_test):
+    """Test that parent_branch() works on well paths imported from .dev files.
+
+    Well paths imported from .dev files are FileWellPath objects and typically
+    don't have a parent. The API should work and return None.
+    """
+    # Import well path from .dev file
+    well_files = [dataroot.PATH + "/TEST10K_FLT_LGR_NNC/wellpath_a.dev"]
+    imported_paths = rips_instance.project.import_well_paths(well_path_files=well_files)
+
+    assert len(imported_paths) == 1
+    file_well_path = imported_paths[0]
+    assert file_well_path is not None
+    assert file_well_path.name == "Well Path A"
+
+    # Call parent_branch() on the file-based well path
+    # It should return None since file-imported wells don't have a parent
+    parent = file_well_path.parent_branch()
+    assert parent is None

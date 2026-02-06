@@ -58,16 +58,3 @@ public:
     QString                                       classKeywordReturnedType() const override;
 };
 
-//==================================================================================================
-///
-//==================================================================================================
-class RimcModeledWellPath_parentBranch : public caf::PdmObjectMethod
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimcModeledWellPath_parentBranch( caf::PdmObjectHandle* self );
-
-    std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    QString                                       classKeywordReturnedType() const override;
-};
