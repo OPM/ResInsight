@@ -11,28 +11,31 @@ jobs:
         with:
           python-version: '3.10'
 
-      # Fork PRs: Check formatting and fail with diff if issues exist
+      # Fork PRs: Check linting and formatting, fail with diff if issues exist
       # (Cannot create fix PR because we don't have write access to fork branches)
-      - name: (Python) Check formatting with black (fork PRs)
+      - name: (Python) Check with ruff (fork PRs)
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
         run: |
-          pip install black
+          pip install ruff
           cd GrpcInterface
-          black --check --diff .
+          ruff check --diff .
+          ruff format --check --diff .
 
       # Same-repo PRs and pushes: Apply fixes and create PR if needed
-      - name: (Python) Use black to do linting
+      - name: (Python) Lint and format with ruff
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: |
-          pip install black
+          pip install ruff
           cd GrpcInterface
-          black .
+          ruff check --fix .
+          ruff format .
       - uses: peter-evans/create-pull-request@v8
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Python code linting changes detected by black"
-          title: "Fixes by black (Python)"
-          branch: python-black-patches
+          commit-message: "Python code linting changes detected by ruff"
+          title: "Fixes by ruff (Python)"
+          branch: python-ruff-patches
           branch-suffix: random
           base: ${{ github.head_ref }}
+
