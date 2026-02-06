@@ -244,7 +244,6 @@ class TestWellEventScheduleApplication:
         assert len(future_perfs) == 0, "Future perforation event should not be applied"
 
 
-
 class TestScheduleGeneration:
     """Tests for schedule text generation."""
 
