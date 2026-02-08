@@ -277,4 +277,12 @@ endif()
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/
           DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+
+  # Install Sumo Explorer FastAPI server
+  install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Python/sumo_explorer_server/
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/sumo_explorer_server
+          FILES_MATCHING
+          PATTERN "*.py"
+          PATTERN "*.txt"
+          PATTERN "*.md")
 endif()
