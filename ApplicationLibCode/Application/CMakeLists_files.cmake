@@ -13,6 +13,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOsdu.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOpm.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumo.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumoExplorer.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.h
@@ -58,6 +59,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOsdu.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOpm.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumo.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumoExplorer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.cpp
