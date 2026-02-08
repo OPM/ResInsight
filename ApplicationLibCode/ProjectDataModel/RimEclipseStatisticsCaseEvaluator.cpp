@@ -264,19 +264,19 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     pValPoss.push_back( m_statisticsConfig.m_pMinPos );
                                     pValPoss.push_back( m_statisticsConfig.m_pMidPos );
                                     pValPoss.push_back( m_statisticsConfig.m_pMaxPos );
-                                    auto pVals =
+                                    auto resultValues =
                                         RigStatisticsMath::calculateNearestRankPercentiles( values,
                                                                                             pValPoss,
                                                                                             RigStatisticsMath::PercentileStyle::SWITCHED );
-                                    if ( pVals.has_value() )
+                                    if ( resultValues.has_value() )
                                     {
-                                        statParams[PMIN] = ( *pVals )[0];
-                                        statParams[PMID] = ( *pVals )[1];
-                                        statParams[PMAX] = ( *pVals )[2];
+                                        statParams[PMIN] = ( *resultValues )[0];
+                                        statParams[PMID] = ( *resultValues )[1];
+                                        statParams[PMAX] = ( *resultValues )[2];
                                     }
                                     else
                                     {
-                                        RiaLogging::warning( QString::fromStdString( pVals.error() ) );
+                                        RiaLogging::warning( QString::fromStdString( resultValues.error() ) );
                                     }
                                 }
                                 else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::HISTOGRAM_ESTIMATED )
