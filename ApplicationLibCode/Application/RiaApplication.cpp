@@ -21,6 +21,7 @@
 #include "Cloud/RiaOsduConnector.h"
 #include "Cloud/RiaSumoConnector.h"
 #include "Cloud/RiaSumoDefines.h"
+#include "Cloud/RiaSumoExplorerConnector.h"
 #include "KeyValueStore/RiaKeyValueStore.h"
 #include "RiaDefines.h"
 #include "RiaOsduDefines.h"
@@ -36,6 +37,7 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSumo.h"
+#include "RiaPreferencesSumoExplorer.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
@@ -1887,6 +1889,27 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
     }
 
     return m_sumoConnector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSumoExplorerConnector* RiaApplication::makeSumoExplorerConnector()
+{
+    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    {
+        return nullptr;
+    }
+
+    if ( !m_sumoExplorerConnector )
+    {
+        auto prefs              = preferences()->sumoExplorerPreferences();
+        m_sumoExplorerConnector = new RiaSumoExplorerConnector( RiuMainWindow::instance(), prefs->pythonPath(), prefs->serverPort() );
+
+        // Note: Auto-start is handled in RiaConnectorTools::configureCloudServices()
+    }
+
+    return m_sumoExplorerConnector;
 }
 
 //--------------------------------------------------------------------------------------------------

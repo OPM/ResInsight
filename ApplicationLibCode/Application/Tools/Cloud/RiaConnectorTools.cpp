@@ -25,6 +25,8 @@
 #include "RiaPreferencesOpenTelemetry.h"
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSumo.h"
+#include "RiaPreferencesSumoExplorer.h"
+#include "RiaSumoExplorerConnector.h"
 
 #include <QDir>
 #include <QFile>
@@ -239,6 +241,24 @@ void RiaConnectorTools::configureCloudServices()
             else
             {
                 RiaLogging::debug( "OpenTelemetry initialization failed or not configured" );
+            }
+        }
+
+        // Start Sumo Explorer server if auto-start is enabled
+        if ( preferences->sumoExplorerPreferences()->autoStartServer() )
+        {
+            RiaLogging::info( "Auto-starting Sumo Explorer server..." );
+            auto* connector = RiaApplication::instance()->makeSumoExplorerConnector();
+            if ( connector && !connector->isServerRunning() )
+            {
+                if ( connector->startServer() )
+                {
+                    RiaLogging::info( "Sumo Explorer server started successfully" );
+                }
+                else
+                {
+                    RiaLogging::warning( QString( "Failed to auto-start Sumo Explorer server: %1" ).arg( connector->lastError() ) );
+                }
             }
         }
     }

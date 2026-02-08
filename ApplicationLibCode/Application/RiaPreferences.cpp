@@ -32,6 +32,7 @@
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSumo.h"
+#include "RiaPreferencesSumoExplorer.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaValidRegExpValidator.h"
@@ -285,6 +286,9 @@ RiaPreferences::RiaPreferences()
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteSumoToken );
     m_deleteSumoToken.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_sumoExplorerPreferences, "sumoExplorerPreferences", "sumoExplorerPreferences" );
+    m_sumoExplorerPreferences = new RiaPreferencesSumoExplorer;
+
     CAF_PDM_InitFieldNoDefault( &m_openTelemetryPreferences, "openTelemetryPreferences", "openTelemetryPreferences" );
     m_openTelemetryPreferences = new RiaPreferencesOpenTelemetry;
 
@@ -526,6 +530,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         sumoGroup->setCollapsedByDefault();
         m_sumoPreferences()->uiOrdering( uiConfigName, *sumoGroup );
         sumoGroup->add( &m_deleteSumoToken );
+
+        caf::PdmUiGroup* sumoExplorerGroup = uiOrdering.addNewGroup( "SUMO Explorer" );
+        sumoExplorerGroup->setCollapsedByDefault();
+        m_sumoExplorerPreferences()->uiOrdering( uiConfigName, *sumoExplorerGroup );
 
         caf::PdmUiGroup* openTelemetryGroup = uiOrdering.addNewGroup( "OpenTelemetry" );
         openTelemetryGroup->setCollapsedByDefault();
@@ -1084,6 +1092,14 @@ RiaPreferencesOsdu* RiaPreferences::osduPreferences() const
 RiaPreferencesSumo* RiaPreferences::sumoPreferences() const
 {
     return m_sumoPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSumoExplorer* RiaPreferences::sumoExplorerPreferences() const
+{
+    return m_sumoExplorerPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

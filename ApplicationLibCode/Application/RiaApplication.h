@@ -71,6 +71,7 @@ class RiuRecentFileActionProvider;
 class RiaArgumentParser;
 class RiaOsduConnector;
 class RiaSumoConnector;
+class RiaSumoExplorerConnector;
 
 namespace caf
 {
@@ -200,8 +201,9 @@ public:
     virtual void              addToRecentFiles( const QString& fileName ) {}
     virtual void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) = 0;
 
-    RiaOsduConnector* makeOsduConnector();
-    RiaSumoConnector* makeSumoConnector();
+    RiaOsduConnector*         makeOsduConnector();
+    RiaSumoConnector*         makeSumoConnector();
+    RiaSumoExplorerConnector* makeSumoExplorerConnector();
 
     RiaKeyValueStore<char>* keyValueStore() const;
 
@@ -268,7 +270,8 @@ protected:
     std::optional<int> m_logLevelFromCommandLine;
 
 private:
-    static RiaApplication*     s_riaApplication;
-    QPointer<RiaOsduConnector> m_osduConnector;
-    QPointer<RiaSumoConnector> m_sumoConnector;
+    static RiaApplication*              s_riaApplication;
+    QPointer<RiaOsduConnector>          m_osduConnector;
+    QPointer<RiaSumoConnector>          m_sumoConnector;
+    QPointer<RiaSumoExplorerConnector>  m_sumoExplorerConnector;
 };
