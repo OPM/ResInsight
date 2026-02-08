@@ -90,13 +90,13 @@ TEST( RigStatisticsMath, RankPercentiles )
     pValPos.push_back( 40 );
     pValPos.push_back( 50 );
     pValPos.push_back( 90 );
-    std::vector<double> pVals =
-        RigStatisticsMath::calculateNearestRankPercentiles( values, pValPos, RigStatisticsMath::PercentileStyle::REGULAR );
+    auto pVals = RigStatisticsMath::calculateNearestRankPercentiles( values, pValPos, RigStatisticsMath::PercentileStyle::REGULAR );
 
-    EXPECT_DOUBLE_EQ( -76092.8157632591000, pVals[0] );
-    EXPECT_DOUBLE_EQ( 2788.2723335651900, pVals[1] );
-    EXPECT_DOUBLE_EQ( 6391.979999097290, pVals[2] );
-    EXPECT_DOUBLE_EQ( 96161.7546348456000, pVals[3] );
+    ASSERT_TRUE( pVals.has_value() );
+    EXPECT_DOUBLE_EQ( -76092.8157632591000, ( *pVals )[0] );
+    EXPECT_DOUBLE_EQ( 2788.2723335651900, ( *pVals )[1] );
+    EXPECT_DOUBLE_EQ( 6391.979999097290, ( *pVals )[2] );
+    EXPECT_DOUBLE_EQ( 96161.7546348456000, ( *pVals )[3] );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,13 +169,13 @@ TEST( RigStatisticsMath, InterpolatedPercentiles )
     pValPos.push_back( 40 );
     pValPos.push_back( 50 );
     pValPos.push_back( 90 );
-    std::vector<double> pVals =
-        RigStatisticsMath::calculateInterpolatedPercentiles( values, pValPos, RigStatisticsMath::PercentileStyle::REGULAR );
+    auto pVals = RigStatisticsMath::calculateInterpolatedPercentiles( values, pValPos, RigStatisticsMath::PercentileStyle::REGULAR );
 
-    EXPECT_DOUBLE_EQ( -72278.340409937548, pVals[0] );
-    EXPECT_DOUBLE_EQ( -2265.6006907818496, pVals[1] );
-    EXPECT_DOUBLE_EQ( 6391.9799990972897, pVals[2] );
-    EXPECT_DOUBLE_EQ( 93073.49128098879, pVals[3] );
+    ASSERT_TRUE( pVals.has_value() );
+    EXPECT_DOUBLE_EQ( -72278.340409937548, ( *pVals )[0] );
+    EXPECT_DOUBLE_EQ( -2265.6006907818496, ( *pVals )[1] );
+    EXPECT_DOUBLE_EQ( 6391.9799990972897, ( *pVals )[2] );
+    EXPECT_DOUBLE_EQ( 93073.49128098879, ( *pVals )[3] );
 }
 
 //--------------------------------------------------------------------------------------------------

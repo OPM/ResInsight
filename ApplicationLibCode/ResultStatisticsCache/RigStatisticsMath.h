@@ -21,7 +21,9 @@
 
 #include <cmath>
 #include <cstddef>
+#include <expected>
 #include <set>
+#include <string>
 #include <vector>
 
 class RigStatisticsMath
@@ -42,16 +44,16 @@ public:
                                            double*                    p90,
                                            double*                    mean,
                                            PercentileStyle            percentileStyle );
-    static std::vector<double>
+    static std::expected<std::vector<double>, std::string>
         calculatePercentiles( const std::vector<double>& values, const std::vector<double>& quantiles, PercentileStyle percentileStyle );
 
-    static std::vector<double> calculateNearestRankPercentiles( const std::vector<double>& inputValues,
-                                                                const std::vector<double>& percentiles,
-                                                                PercentileStyle            percentileStyle );
+    static std::expected<std::vector<double>, std::string> calculateNearestRankPercentiles( const std::vector<double>& inputValues,
+                                                                                            const std::vector<double>& percentiles,
+                                                                                            PercentileStyle            percentileStyle );
 
-    static std::vector<double> calculateInterpolatedPercentiles( const std::vector<double>& inputValues,
-                                                                 const std::vector<double>& percentiles,
-                                                                 PercentileStyle            percentileStyle );
+    static std::expected<std::vector<double>, std::string> calculateInterpolatedPercentiles( const std::vector<double>& inputValues,
+                                                                                             const std::vector<double>& percentiles,
+                                                                                             PercentileStyle            percentileStyle );
 };
 
 //==================================================================================================

@@ -20,6 +20,8 @@
 
 #include "RimEclipseStatisticsCaseEvaluator.h"
 
+#include "RiaLogging.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
@@ -262,13 +264,20 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     pValPoss.push_back( m_statisticsConfig.m_pMinPos );
                                     pValPoss.push_back( m_statisticsConfig.m_pMidPos );
                                     pValPoss.push_back( m_statisticsConfig.m_pMaxPos );
-                                    std::vector<double> pVals =
+                                    auto pVals =
                                         RigStatisticsMath::calculateNearestRankPercentiles( values,
                                                                                             pValPoss,
                                                                                             RigStatisticsMath::PercentileStyle::SWITCHED );
-                                    statParams[PMIN] = pVals[0];
-                                    statParams[PMID] = pVals[1];
-                                    statParams[PMAX] = pVals[2];
+                                    if ( pVals.has_value() )
+                                    {
+                                        statParams[PMIN] = ( *pVals )[0];
+                                        statParams[PMID] = ( *pVals )[1];
+                                        statParams[PMAX] = ( *pVals )[2];
+                                    }
+                                    else
+                                    {
+                                        RiaLogging::warning( QString::fromStdString( pVals.error() ) );
+                                    }
                                 }
                                 else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::HISTOGRAM_ESTIMATED )
                                 {
@@ -285,17 +294,24 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                 else if ( m_statisticsConfig.m_pValMethod ==
                                           RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION )
                                 {
-                                    std::vector<double> pValPoss;
-                                    pValPoss.push_back( m_statisticsConfig.m_pMinPos );
-                                    pValPoss.push_back( m_statisticsConfig.m_pMidPos );
-                                    pValPoss.push_back( m_statisticsConfig.m_pMaxPos );
-                                    std::vector<double> pVals =
+                                    std::vector<double> percentiles;
+                                    percentiles.push_back( m_statisticsConfig.m_pMinPos );
+                                    percentiles.push_back( m_statisticsConfig.m_pMidPos );
+                                    percentiles.push_back( m_statisticsConfig.m_pMaxPos );
+                                    auto resultValues =
                                         RigStatisticsMath::calculateInterpolatedPercentiles( values,
-                                                                                             pValPoss,
+                                                                                             percentiles,
                                                                                              RigStatisticsMath::PercentileStyle::SWITCHED );
-                                    statParams[PMIN] = pVals[0];
-                                    statParams[PMID] = pVals[1];
-                                    statParams[PMAX] = pVals[2];
+                                    if ( resultValues.has_value() )
+                                    {
+                                        statParams[PMIN] = ( *resultValues )[0];
+                                        statParams[PMID] = ( *resultValues )[1];
+                                        statParams[PMAX] = ( *resultValues )[2];
+                                    }
+                                    else
+                                    {
+                                        RiaLogging::warning( QString::fromStdString( resultValues.error() ) );
+                                    }
                                 }
                                 else
                                 {

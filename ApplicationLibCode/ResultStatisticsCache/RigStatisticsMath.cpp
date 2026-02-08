@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <expected>
 #include <numeric>
 
 namespace
@@ -148,13 +149,13 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
 
     // Use the vector-based implementation
     std::vector<double> percentiles = { 0.1, 0.5, 0.9 };
-    std::vector<double> results     = calculatePercentiles( values, percentiles, percentileStyle );
+    auto                results     = calculatePercentiles( values, percentiles, percentileStyle );
 
-    if ( results.size() == 3 )
+    if ( results.has_value() && results->size() == 3 )
     {
-        *p10 = results[0];
-        *p50 = results[1];
-        *p90 = results[2];
+        *p10 = ( *results )[0];
+        *p50 = ( *results )[1];
+        *p90 = ( *results )[2];
     }
     else
     {
@@ -198,14 +199,24 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
 ///   https://en.wikipedia.org/wiki/Percentile
 ///   https://en.wikipedia.org/wiki/Percentile#Third_variant,_C_=_0
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigStatisticsMath::calculatePercentiles( const std::vector<double>& values,
-                                                             const std::vector<double>& quantiles,
-                                                             PercentileStyle            percentileStyle )
+std::expected<std::vector<double>, std::string> RigStatisticsMath::calculatePercentiles( const std::vector<double>& values,
+                                                                                         const std::vector<double>& quantiles,
+                                                                                         PercentileStyle            percentileStyle )
 {
-    CVF_ASSERT( areValidQuantiles( quantiles ) && "Quantiles must be in range [0-1]" );
+    if ( !areValidQuantiles( quantiles ) )
+    {
+        return std::unexpected( "Quantiles must be in range [0-1]" );
+    }
 
-    std::vector<double> resultValues;
-    if ( values.empty() || quantiles.empty() ) return resultValues;
+    if ( values.empty() )
+    {
+        return std::unexpected( "Input values are empty" );
+    }
+
+    if ( quantiles.empty() )
+    {
+        return std::unexpected( "Quantiles are empty" );
+    }
 
     std::vector<double> sortedValues = values;
 
@@ -214,11 +225,15 @@ std::vector<double> RigStatisticsMath::calculatePercentiles( const std::vector<d
                                         []( double x ) { return !RiaStatisticsTools::isValidNumber( x ); } ),
                         sortedValues.end() );
 
-    if ( sortedValues.empty() ) return resultValues;
+    if ( sortedValues.empty() )
+    {
+        return std::unexpected( "No valid values in input" );
+    }
 
     std::sort( sortedValues.begin(), sortedValues.end() );
 
-    int valueCount = (int)sortedValues.size();
+    int                 valueCount = (int)sortedValues.size();
+    std::vector<double> resultValues;
     resultValues.reserve( quantiles.size() );
 
     for ( size_t i = 0; i < quantiles.size(); ++i )
@@ -273,11 +288,25 @@ std::vector<double> RigStatisticsMath::calculatePercentiles( const std::vector<d
 ///   https://en.wikipedia.org/wiki/Percentile#First_variant,_C_=_1/2
 //--------------------------------------------------------------------------------------------------
 
-std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const std::vector<double>&         inputValues,
-                                                                        const std::vector<double>&         percentiles,
-                                                                        RigStatisticsMath::PercentileStyle percentileStyle )
+std::expected<std::vector<double>, std::string>
+    RigStatisticsMath::calculateNearestRankPercentiles( const std::vector<double>&         inputValues,
+                                                        const std::vector<double>&         percentiles,
+                                                        RigStatisticsMath::PercentileStyle percentileStyle )
 {
-    CVF_ASSERT( areValidPercentiles( percentiles ) && "Percentiles must be in range [0-100]" );
+    if ( !areValidPercentiles( percentiles ) )
+    {
+        return std::unexpected( "Percentiles must be in range [0-100]" );
+    }
+
+    if ( inputValues.empty() )
+    {
+        return std::unexpected( "Input values are empty" );
+    }
+
+    if ( percentiles.empty() )
+    {
+        return std::unexpected( "Percentiles are empty" );
+    }
 
     std::vector<double> sortedValues;
     sortedValues.reserve( inputValues.size() );
@@ -290,27 +319,29 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const st
         }
     }
 
+    if ( sortedValues.empty() )
+    {
+        return std::unexpected( "No valid values in input" );
+    }
+
     std::sort( sortedValues.begin(), sortedValues.end() );
 
     std::vector<double> resultValues( percentiles.size(), HUGE_VAL );
-    if ( !sortedValues.empty() )
+    for ( size_t i = 0; i < percentiles.size(); ++i )
     {
-        for ( size_t i = 0; i < percentiles.size(); ++i )
-        {
-            double quantile = cvf::Math::abs( percentiles[i] ) / 100;
-            if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) quantile = 1.0 - quantile;
+        double quantile = cvf::Math::abs( percentiles[i] ) / 100;
+        if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) quantile = 1.0 - quantile;
 
-            size_t index = static_cast<size_t>( sortedValues.size() * quantile );
+        size_t index = static_cast<size_t>( sortedValues.size() * quantile );
 
-            if ( index >= sortedValues.size() ) index = sortedValues.size() - 1;
+        if ( index >= sortedValues.size() ) index = sortedValues.size() - 1;
 
-            auto value      = sortedValues[index];
-            resultValues[i] = value;
-        }
+        auto value      = sortedValues[index];
+        resultValues[i] = value;
     }
 
     return resultValues;
-};
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Calculate the percentiles of /a inputValues at the pValPosition percentages by interpolating input values.
@@ -331,11 +362,25 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const st
 ///   https://en.wikipedia.org/wiki/Percentile#The_linear_interpolation_between_closest_ranks_method
 ///   https://en.wikipedia.org/wiki/Percentile#Second_variant,_C_=_1
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const std::vector<double>&         inputValues,
-                                                                         const std::vector<double>&         percentiles,
-                                                                         RigStatisticsMath::PercentileStyle percentileStyle )
+std::expected<std::vector<double>, std::string>
+    RigStatisticsMath::calculateInterpolatedPercentiles( const std::vector<double>&         inputValues,
+                                                         const std::vector<double>&         percentiles,
+                                                         RigStatisticsMath::PercentileStyle percentileStyle )
 {
-    CVF_ASSERT( areValidPercentiles( percentiles ) && "Percentiles must be in range [0-100]" );
+    if ( !areValidPercentiles( percentiles ) )
+    {
+        return std::unexpected( "Percentiles must be in range [0-100]" );
+    }
+
+    if ( inputValues.empty() )
+    {
+        return std::unexpected( "Input values are empty" );
+    }
+
+    if ( percentiles.empty() )
+    {
+        return std::unexpected( "Percentiles are empty" );
+    }
 
     std::vector<double> sortedValues;
     sortedValues.reserve( inputValues.size() );
@@ -348,36 +393,38 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const s
         }
     }
 
+    if ( sortedValues.empty() )
+    {
+        return std::unexpected( "No valid values in input" );
+    }
+
     std::sort( sortedValues.begin(), sortedValues.end() );
 
     std::vector<double> resultValues( percentiles.size(), HUGE_VAL );
-    if ( !sortedValues.empty() )
+    for ( size_t i = 0; i < percentiles.size(); ++i )
     {
-        for ( size_t i = 0; i < percentiles.size(); ++i )
+        double value = HUGE_VAL;
+
+        double quantile = cvf::Math::abs( percentiles[i] ) / 100.0;
+        if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) quantile = 1.0 - quantile;
+
+        double doubleIndex = ( sortedValues.size() - 1 ) * quantile;
+
+        size_t lowerValueIndex = static_cast<size_t>( floor( doubleIndex ) );
+        size_t upperValueIndex = lowerValueIndex + 1;
+
+        double upperValueWeight = doubleIndex - lowerValueIndex;
+        assert( upperValueWeight < 1.0 );
+
+        if ( upperValueIndex < sortedValues.size() )
         {
-            double value = HUGE_VAL;
-
-            double quantile = cvf::Math::abs( percentiles[i] ) / 100.0;
-            if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) quantile = 1.0 - quantile;
-
-            double doubleIndex = ( sortedValues.size() - 1 ) * quantile;
-
-            size_t lowerValueIndex = static_cast<size_t>( floor( doubleIndex ) );
-            size_t upperValueIndex = lowerValueIndex + 1;
-
-            double upperValueWeight = doubleIndex - lowerValueIndex;
-            assert( upperValueWeight < 1.0 );
-
-            if ( upperValueIndex < sortedValues.size() )
-            {
-                value = ( 1.0 - upperValueWeight ) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
-            }
-            else
-            {
-                value = sortedValues[lowerValueIndex];
-            }
-            resultValues[i] = value;
+            value = ( 1.0 - upperValueWeight ) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
         }
+        else
+        {
+            value = sortedValues[lowerValueIndex];
+        }
+        resultValues[i] = value;
     }
 
     return resultValues;
