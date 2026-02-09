@@ -36,17 +36,22 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimValveTemplate.h"
+#include "RimValveTemplateCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathAicdParameters.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathValve.h"
 
 #include "Riu3DMainWindowTools.h"
+
+#include "cvfMath.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <algorithm>
+#include <cmath>
 #include <set>
 
 CAF_PDM_SOURCE_INIT( RimWellEventTimeline, "WellEventTimeline" );
@@ -530,7 +535,18 @@ bool RimWellEventTimeline::applyValveEvent( const RimWellEventValve& event, RimW
 
     targetPerf->addValve( valve );
 
-    valve->setMeasuredDepthAndCount( valveMD, 0, 1 );
+    // For ICD/AICD valves, the valve range must cover the perforation interval so that
+    // valveLocations() returns a non-empty list and the accumulator can validate the valve.
+    // For ICV, a single point at the valve MD is sufficient.
+    if ( event.valveType() == RimWellEventValve::ValveType::ICV )
+    {
+        valve->setMeasuredDepthAndCount( valveMD, 0, 1 );
+    }
+    else
+    {
+        double perfRange = targetPerf->endMD() - targetPerf->startMD();
+        valve->setMeasuredDepthAndCount( targetPerf->startMD(), perfRange, 1 );
+    }
 
     // Set the custom start date based on the event date
     valve->enableCustomStartDate( true );
@@ -553,16 +569,31 @@ bool RimWellEventTimeline::applyValveEvent( const RimWellEventValve& event, RimW
     // Map the event valve type to the RiaDefines type and find a matching template
     RiaDefines::WellPathComponentType valveComponentType = convertToValveType( event.valveType() );
 
-    // Try to find a matching valve template
+    // Create a new valve template with the event's specific parameters
     if ( RimProject* project = RimProject::current() )
     {
-        for ( auto* tmpl : project->allValveTemplates() )
+        auto collections = project->allValveTemplateCollections();
+        if ( !collections.empty() )
         {
-            if ( tmpl->type() == valveComponentType )
+            auto* tmpl = new RimValveTemplate;
+            tmpl->setType( valveComponentType );
+
+            tmpl->setFlowCoefficient( event.flowCoefficient() );
+            double orifice_mm = 2000.0 * std::sqrt( event.area() / cvf::PI_D );
+            tmpl->setOrificeDiameter( orifice_mm );
+
+            if ( valveComponentType == RiaDefines::WellPathComponentType::AICD )
             {
-                valve->setValveTemplate( tmpl );
-                break;
+                tmpl->setAicdParameter( AICD_STRENGTH, event.aicdStrength() );
+                tmpl->setAicdParameter( AICD_DENSITY_CALIB_FLUID, event.aicdDensityCalibFluid() );
+                tmpl->setAicdParameter( AICD_VISCOSITY_CALIB_FLUID, event.aicdViscosityCalibFluid() );
+                tmpl->setAicdParameter( AICD_VOL_FLOW_EXP, event.aicdVolFlowExp() );
+                tmpl->setAicdParameter( AICD_VISOSITY_FUNC_EXP, event.aicdViscFuncExp() );
             }
+
+            tmpl->setUserLabel( QString( "Event Valve %1" ).arg( event.measuredDepth() ) );
+            collections.front()->addItem( tmpl );
+            valve->setValveTemplate( tmpl );
         }
     }
 
