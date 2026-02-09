@@ -93,7 +93,9 @@ double RimDiameterRoughnessIntervalCollection::getRoughnessAtMD( double md, RiaD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimDiameterRoughnessIntervalCollection::getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const
+double RimDiameterRoughnessIntervalCollection::getDiameterAtMD( double                        md,
+                                                                RiaDefines::EclipseUnitSystem unitSystem,
+                                                                const QDateTime&              exportDate ) const
 {
     for ( auto* interval : intervals() )
     {
@@ -110,7 +112,9 @@ double RimDiameterRoughnessIntervalCollection::getDiameterAtMD( double md, RiaDe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimDiameterRoughnessIntervalCollection::getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const
+double RimDiameterRoughnessIntervalCollection::getRoughnessAtMD( double                        md,
+                                                                 RiaDefines::EclipseUnitSystem unitSystem,
+                                                                 const QDateTime&              exportDate ) const
 {
     for ( auto* interval : intervals() )
     {
