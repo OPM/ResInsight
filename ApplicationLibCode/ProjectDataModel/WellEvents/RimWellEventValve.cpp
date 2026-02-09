@@ -60,6 +60,12 @@ RimWellEventValve::RimWellEventValve()
     CAF_PDM_InitScriptableField( &m_area, "Area", 0.0001, "Area [m2]" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_valveTemplate, "ValveTemplate", "Valve Template" );
 
+    CAF_PDM_InitScriptableField( &m_aicdStrength, "AicdStrength", 0.00021, "AICD Strength" );
+    CAF_PDM_InitScriptableField( &m_aicdDensityCalibFluid, "AicdDensityCalibFluid", 1000.0, "AICD Density of Calibration Fluid [kg/m3]" );
+    CAF_PDM_InitScriptableField( &m_aicdViscosityCalibFluid, "AicdViscosityCalibFluid", 1.0, "AICD Viscosity of Calibration Fluid [cP]" );
+    CAF_PDM_InitScriptableField( &m_aicdVolFlowExp, "AicdVolFlowExp", 2.1, "AICD Volume Flow Rate Exponent" );
+    CAF_PDM_InitScriptableField( &m_aicdViscFuncExp, "AicdViscFuncExp", 0.5, "AICD Viscosity Function Exponent" );
+
     setDeletable( true );
 }
 
@@ -168,6 +174,86 @@ void RimWellEventValve::setArea( double area )
 void RimWellEventValve::setValveTemplate( RimValveTemplate* valveTemplate )
 {
     m_valveTemplate = valveTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellEventValve::aicdStrength() const
+{
+    return m_aicdStrength();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellEventValve::aicdDensityCalibFluid() const
+{
+    return m_aicdDensityCalibFluid();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellEventValve::aicdViscosityCalibFluid() const
+{
+    return m_aicdViscosityCalibFluid();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellEventValve::aicdVolFlowExp() const
+{
+    return m_aicdVolFlowExp();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellEventValve::aicdViscFuncExp() const
+{
+    return m_aicdViscFuncExp();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventValve::setAicdStrength( double value )
+{
+    m_aicdStrength = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventValve::setAicdDensityCalibFluid( double value )
+{
+    m_aicdDensityCalibFluid = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventValve::setAicdViscosityCalibFluid( double value )
+{
+    m_aicdViscosityCalibFluid = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventValve::setAicdVolFlowExp( double value )
+{
+    m_aicdVolFlowExp = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventValve::setAicdViscFuncExp( double value )
+{
+    m_aicdViscFuncExp = value;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -60,6 +60,12 @@ public:
     double            area() const;
     RimValveTemplate* valveTemplate() const;
 
+    double aicdStrength() const;
+    double aicdDensityCalibFluid() const;
+    double aicdViscosityCalibFluid() const;
+    double aicdVolFlowExp() const;
+    double aicdViscFuncExp() const;
+
     // Setters
     void setMeasuredDepth( double md );
     void setValveType( ValveType type );
@@ -67,6 +73,12 @@ public:
     void setFlowCoefficient( double coefficient );
     void setArea( double area );
     void setValveTemplate( RimValveTemplate* valveTemplate );
+
+    void setAicdStrength( double value );
+    void setAicdDensityCalibFluid( double value );
+    void setAicdViscosityCalibFluid( double value );
+    void setAicdVolFlowExp( double value );
+    void setAicdViscFuncExp( double value );
 
     // Override from RimWellEvent
     EventType eventType() const override;
@@ -84,6 +96,12 @@ private:
     caf::PdmField<double>                  m_flowCoefficient;
     caf::PdmField<double>                  m_area;
     caf::PdmPtrField<RimValveTemplate*>    m_valveTemplate;
+
+    caf::PdmField<double> m_aicdStrength;
+    caf::PdmField<double> m_aicdDensityCalibFluid;
+    caf::PdmField<double> m_aicdViscosityCalibFluid;
+    caf::PdmField<double> m_aicdVolFlowExp;
+    caf::PdmField<double> m_aicdViscFuncExp;
 };
 
 namespace caf

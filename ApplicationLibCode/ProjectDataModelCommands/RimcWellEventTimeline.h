@@ -79,6 +79,11 @@ private:
     caf::PdmField<caf::AppEnum<RimWellEventValve::State>>     m_state;
     caf::PdmField<double>                                     m_flowCoefficient;
     caf::PdmField<double>                                     m_area;
+    caf::PdmField<double>                                     m_aicdStrength;
+    caf::PdmField<double>                                     m_aicdDensityCalibFluid;
+    caf::PdmField<double>                                     m_aicdViscosityCalibFluid;
+    caf::PdmField<double>                                     m_aicdVolFlowExp;
+    caf::PdmField<double>                                     m_aicdViscFuncExp;
 };
 
 //==================================================================================================

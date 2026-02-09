@@ -1200,6 +1200,7 @@ void RicWellPathExportMswTableData::moveIntersectionsToICVs( gsl::not_null<RicMs
                         }
                         segment->removeCompletion( perforationPtr );
                     }
+                    perforations.clear();
                 }
             }
         }

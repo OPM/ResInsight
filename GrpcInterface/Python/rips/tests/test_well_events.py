@@ -513,14 +513,18 @@ class TestScheduleGeneration:
         """Test that wells only appear in schedule sections at their event dates, not earlier.
 
         Scenario:
-        - Add tubing + perf event for well A at 2024-01-01 (depth 2000-2200)
-        - Add tubing + perf event for well B at 2024-03-01 (depth 1500-1700)
-        - Add another tubing + perf event for well A at 2024-04-01 (depth 1800-2000, different diameter)
+        - Add tubing + perf + ICV valve for well A at 2024-01-01 (depth 2000-2200, valve at 2100)
+        - Add tubing + perf + ICD valve for well B at 2024-03-01 (depth 1500-1700, valve at 1600)
+        - Add tubing + perf + ICV valve + perf + AICD valve for well A at 2024-04-01
+          (perf 1800-2000 with ICV at 1900, perf 2250-2400 with AICD at 2300)
         - Set timestamp to 2024-12-31 (after all events)
         - Verify well A appears in January and April sections with different COMPSEGS
         - Verify well B appears in March section but NOT in January section
         - Verify each perf event has distinct diameter and skin_factor values
         - Verify April WELSEGS has different inner_diameter than January WELSEGS
+        - Verify WSEGVALV appears in all sections (ICV in Jan/Apr, ICD in Mar produces WSEGVALV)
+        - Verify WSEGAICD appears only in April (AICD valve with valid params), not in Jan or Mar
+        - Verify April WSEGVALV values do NOT leak into January section
         """
         project, case, timeline = project_with_case_and_well
 
@@ -547,6 +551,15 @@ class TestScheduleGeneration:
             skin_factor=0.5,
             state="OPEN",
         )
+        timeline.add_valve_event(
+            event_date="2024-01-01",
+            well_path=well_path_a,
+            measured_depth=2100.0,
+            valve_type="ICV",
+            state="OPEN",
+            flow_coefficient=0.7,
+            area=0.0001,
+        )
 
         # Add tubing + perforation for well B at 2024-03-01 (depth 1500-1700)
         timeline.add_tubing_event(
@@ -566,6 +579,15 @@ class TestScheduleGeneration:
             skin_factor=0.8,
             state="OPEN",
         )
+        timeline.add_valve_event(
+            event_date="2024-03-01",
+            well_path=well_path_b,
+            measured_depth=1600.0,
+            valve_type="ICD",
+            state="OPEN",
+            flow_coefficient=0.6,
+            area=0.00012,
+        )
 
         # Add another tubing + perforation for well A at 2024-04-01 at a different depth (1800-2000)
         timeline.add_tubing_event(
@@ -584,6 +606,38 @@ class TestScheduleGeneration:
             diameter=0.15,
             skin_factor=0.3,
             state="OPEN",
+        )
+        timeline.add_valve_event(
+            event_date="2024-04-01",
+            well_path=well_path_a,
+            measured_depth=1900.0,
+            valve_type="ICV",
+            state="OPEN",
+            flow_coefficient=0.5,
+            area=0.0002,
+        )
+        timeline.add_perf_event(
+            event_date="2024-04-01",
+            well_path=well_path_a,
+            start_md=2250.0,
+            end_md=2400.0,
+            diameter=0.12,
+            skin_factor=0.4,
+            state="OPEN",
+        )
+        timeline.add_valve_event(
+            event_date="2024-04-01",
+            well_path=well_path_a,
+            measured_depth=2300.0,
+            valve_type="AICD",
+            state="OPEN",
+            flow_coefficient=0.6,
+            area=0.00015,
+            aicd_strength=0.00021,
+            aicd_density_calib_fluid=1000.0,
+            aicd_viscosity_calib_fluid=1.0,
+            aicd_vol_flow_exp=2.1,
+            aicd_visc_func_exp=0.5,
         )
 
         # Set timestamp to 2024-12-31 (after all events)
@@ -686,14 +740,15 @@ class TestScheduleGeneration:
             "(January has perfs at 2000-2200, April adds perfs at 1800-2000)"
         )
 
-        # Verify January COMPSEGS contains the 2000-2200 range
-        assert "2000" in january_compsegs and "2200" in january_compsegs, (
-            "January COMPSEGS should contain perforation range 2000-2200"
+        # Verify January COMPSEGS contains the ICV valve depth 2100
+        # (ICV redirects perforation intersections to the valve measured depth)
+        assert "2100" in january_compsegs, (
+            "January COMPSEGS should contain ICV valve depth 2100"
         )
 
-        # Verify April COMPSEGS contains the 1800-2000 range
-        assert "1800" in april_compsegs and "2000" in april_compsegs, (
-            "April COMPSEGS should contain perforation range 1800-2000"
+        # Verify April COMPSEGS contains the ICV valve depth 1900
+        assert "1900" in april_compsegs, (
+            "April COMPSEGS should contain ICV valve depth 1900"
         )
 
         # Verify WELSEGS sections exist for tubing events
@@ -736,6 +791,63 @@ class TestScheduleGeneration:
             "April COMPDAT should contain skin_factor 0.3 from third perf event"
         )
 
+        # Verify WSEGVALV appears in January section (valve event at 2024-01-01)
+        assert "WSEGVALV" in january_section, (
+            "January section should contain WSEGVALV for well A (valve event at 2024-01-01)"
+        )
+
+        # Verify WSEGVALV appears in March section (ICD valve produces WSEGVALV)
+        assert "WSEGVALV" in march_section, (
+            "March section should contain WSEGVALV for ICD valve"
+        )
+
+        # Verify WSEGVALV appears in April section (valve event at 2024-04-01)
+        assert "WSEGVALV" in april_section, (
+            "April section should contain WSEGVALV for well A (valve event at 2024-04-01)"
+        )
+
+        # Verify WSEGAICD appears only in April (AICD valve), not in Jan or Mar
+        assert "WSEGAICD" not in january_section, (
+            "January section should NOT contain WSEGAICD (no AICD valve at January)"
+        )
+        assert "WSEGAICD" not in march_section, (
+            "March section should NOT contain WSEGAICD (well B has no AICD valve)"
+        )
+        assert "WSEGAICD" in april_section, (
+            "April section should contain WSEGAICD for AICD valve"
+        )
+
+        # Verify date scoping: January should have fewer WSEGVALV entries than April.
+        # January: only the Jan valve is active (1 entry).
+        # April: both Jan and Apr valves are active (2 entries, valves are cumulative).
+        # Extract WSEGVALV blocks and count well name entries.
+        jan_wsegvalv_start = january_section.find("WSEGVALV")
+        jan_wsegvalv_end = january_section.find("/\n/\n", jan_wsegvalv_start)
+        jan_wsegvalv = (
+            january_section[jan_wsegvalv_start:jan_wsegvalv_end]
+            if jan_wsegvalv_start != -1 and jan_wsegvalv_end != -1
+            else ""
+        )
+
+        apr_wsegvalv_start = april_section.find("WSEGVALV")
+        apr_wsegvalv_end = april_section.find("/\n/\n", apr_wsegvalv_start)
+        apr_wsegvalv = (
+            april_section[apr_wsegvalv_start:apr_wsegvalv_end]
+            if apr_wsegvalv_start != -1 and apr_wsegvalv_end != -1
+            else ""
+        )
+
+        jan_valve_count = jan_wsegvalv.count(well_a_name)
+        apr_valve_count = apr_wsegvalv.count(well_a_name)
+
+        assert jan_valve_count == 1, (
+            f"January WSEGVALV should have exactly 1 entry (only Jan valve active), got {jan_valve_count}"
+        )
+        assert apr_valve_count == 2, (
+            f"April WSEGVALV should have 2 entries (both valves active), got {apr_valve_count}. "
+            "The April valve should not leak into earlier sections."
+        )
+
         print("\n✓ Verified: Well A appears in January section (event at 2000-2200)")
         print("✓ Verified: Well B does NOT appear in January section")
         print("✓ Verified: Well B appears in March section (its event date)")
@@ -746,6 +858,14 @@ class TestScheduleGeneration:
         )
         print("✓ Verified: April tubing values do NOT leak into January section")
         print("✓ Verified: Distinct perf diameters/skin values in COMPDAT sections")
+        print("✓ Verified: WSEGVALV present in January section (ICV, 1 valve entry)")
+        print("✓ Verified: WSEGVALV present in March section (ICD valve)")
+        print(
+            "✓ Verified: WSEGVALV present in April section (ICV, 2 valve entries, cumulative)"
+        )
+        print("✓ Verified: WSEGAICD present in April section (AICD valve)")
+        print("✓ Verified: WSEGAICD NOT present in January or March sections")
+        print("✓ Verified: April valve does NOT leak into January (date scoping)")
 
     def test_example_workflow_schedule_generation(self, project_with_case_and_well):
         """Test the exact workflow from well_event_schedule.py example.

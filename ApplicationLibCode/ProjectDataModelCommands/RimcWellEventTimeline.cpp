@@ -116,6 +116,11 @@ RimcWellEventTimeline_addValveEvent::RimcWellEventTimeline_addValveEvent( caf::P
     CAF_PDM_InitScriptableField( &m_state, "State", defaultState, "", "", "", "State" );
     CAF_PDM_InitScriptableField( &m_flowCoefficient, "FlowCoefficient", 0.7, "", "", "", "Flow Coefficient" );
     CAF_PDM_InitScriptableField( &m_area, "Area", 0.0001, "", "", "", "Area [m2]" );
+    CAF_PDM_InitScriptableField( &m_aicdStrength, "AicdStrength", 0.00021, "", "", "", "AICD Strength" );
+    CAF_PDM_InitScriptableField( &m_aicdDensityCalibFluid, "AicdDensityCalibFluid", 1000.0, "", "", "", "AICD Density of Calibration Fluid [kg/m3]" );
+    CAF_PDM_InitScriptableField( &m_aicdViscosityCalibFluid, "AicdViscosityCalibFluid", 1.0, "", "", "", "AICD Viscosity of Calibration Fluid [cP]" );
+    CAF_PDM_InitScriptableField( &m_aicdVolFlowExp, "AicdVolFlowExp", 2.1, "", "", "", "AICD Volume Flow Rate Exponent" );
+    CAF_PDM_InitScriptableField( &m_aicdViscFuncExp, "AicdViscFuncExp", 0.5, "", "", "", "AICD Viscosity Function Exponent" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,6 +147,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addValveEven
     event->setArea( m_area() );
     event->setValveType( m_valveType() );
     event->setState( m_state() );
+    event->setAicdStrength( m_aicdStrength() );
+    event->setAicdDensityCalibFluid( m_aicdDensityCalibFluid() );
+    event->setAicdViscosityCalibFluid( m_aicdViscosityCalibFluid() );
+    event->setAicdVolFlowExp( m_aicdVolFlowExp() );
+    event->setAicdViscFuncExp( m_aicdViscFuncExp() );
 
     return event;
 }
