@@ -114,7 +114,7 @@ private:
     void updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack );
 
     void addStackedCurve( const QString&             tracerName,
-                          RiaDefines::DepthType  depthType,
+                          RiaDefines::DepthType      depthType,
                           const std::vector<double>& depthValues,
                           const std::vector<double>& accFlow,
                           RimWellLogTrack*           plotTrack,

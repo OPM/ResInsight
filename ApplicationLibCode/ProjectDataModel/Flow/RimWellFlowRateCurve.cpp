@@ -285,7 +285,7 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&             curveName,
-                                                      RiaDefines::DepthType  depthType,
+                                                      RiaDefines::DepthType      depthType,
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {

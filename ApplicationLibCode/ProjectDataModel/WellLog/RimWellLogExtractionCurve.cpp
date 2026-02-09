@@ -349,7 +349,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
             if ( !wellLogPlot ) return;
 
-            RiaDefines::DepthType depthType   = wellLogPlot->depthType();
+            RiaDefines::DepthType     depthType   = wellLogPlot->depthType();
             RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
             if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
             {

@@ -788,8 +788,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 m_plotCurve->setPerPointLabels( perPointLabels );
 
-                auto propertyValues = curveData()->propertyValuesByIntervals();
-                auto depthValues    = curveData()->depthValuesByIntervals( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, displayUnit );
+                auto propertyValues      = curveData()->propertyValuesByIntervals();
+                auto depthValues         = curveData()->depthValuesByIntervals( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, displayUnit );
                 bool useLogarithmicScale = false;
 
                 if ( !errors.empty() )

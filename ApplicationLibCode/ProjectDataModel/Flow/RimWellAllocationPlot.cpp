@@ -124,9 +124,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     setAsPlotMdiWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
-    m_accumulatedWellFlowPlot->setAvailableDepthTypes( { RiaDefines::DepthType::CONNECTION_NUMBER,
-                                                         RiaDefines::DepthType::TRUE_VERTICAL_DEPTH,
-                                                         RiaDefines::DepthType::PSEUDO_LENGTH } );
+    m_accumulatedWellFlowPlot->setAvailableDepthTypes(
+        { RiaDefines::DepthType::CONNECTION_NUMBER, RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, RiaDefines::DepthType::PSEUDO_LENGTH } );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
     m_accumulatedWellFlowPlot->nameConfig()->setCustomName( "Accumulated Flow Chart" );
@@ -373,7 +372,7 @@ void RimWellAllocationPlot::updateFromWell()
             depthType == RiaDefines::DepthType::CONNECTION_NUMBER     ? wfCalculator->connectionNumbersFromTop( brIdx )
             : depthType == RiaDefines::DepthType::PSEUDO_LENGTH       ? wfCalculator->pseudoLengthFromTop( brIdx )
             : depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth( brIdx )
-                                                                          : std::vector<double>();
+                                                                      : std::vector<double>();
 
         if ( !depthValues.empty() )
         {
@@ -502,7 +501,7 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotT
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::addStackedCurve( const QString&             tracerName,
-                                             RiaDefines::DepthType  depthType,
+                                             RiaDefines::DepthType      depthType,
                                              const std::vector<double>& depthValues,
                                              const std::vector<double>& accFlow,
                                              RimWellLogTrack*           plotTrack,

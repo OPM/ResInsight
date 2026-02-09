@@ -122,7 +122,7 @@ bool RimWellLogCurve::depthValueRangeInData( double* minimumValue, double* maxim
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>& propertyValues,
                                                   const std::vector<double>& depths,
-                                                  RiaDefines::DepthType  depthType,
+                                                  RiaDefines::DepthType      depthType,
                                                   double                     rkbDiff,
                                                   RiaDefines::DepthUnitType  depthUnit,
                                                   bool                       isExtractionCurve,
@@ -137,12 +137,12 @@ void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>& pro
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>&                                      propertyValues,
+void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>&                                  propertyValues,
                                                   const std::map<RiaDefines::DepthType, std::vector<double>>& depths,
-                                                  double                                                          rkbDiff,
-                                                  RiaDefines::DepthUnitType                                       depthUnit,
-                                                  bool                                                            isExtractionCurve,
-                                                  bool                                                            useLogarithmicScale,
+                                                  double                                                      rkbDiff,
+                                                  RiaDefines::DepthUnitType                                   depthUnit,
+                                                  bool                                                        isExtractionCurve,
+                                                  bool                                                        useLogarithmicScale,
 
                                                   const QString& propertyUnit )
 {
@@ -208,7 +208,7 @@ void RimWellLogCurve::setPropertyValuesWithMdAndTVD( const std::vector<double>& 
                                                      const QString&             propertyUnit )
 {
     std::map<RiaDefines::DepthType, std::vector<double>> depths = { { RiaDefines::DepthType::MEASURED_DEPTH, measuredDepths },
-                                                                        { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, tvdMSL } };
+                                                                    { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, tvdMSL } };
     setPropertyValuesAndDepths( propertyValues, depths, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale, propertyUnit );
 }
 

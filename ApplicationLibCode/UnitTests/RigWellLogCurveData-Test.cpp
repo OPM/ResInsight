@@ -42,8 +42,8 @@ TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_first )
     const double              eps            = 1e-6;
 
     // Output data
-    const auto                                               resamplingDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
-    std::vector<double>                                      resampledValues;
+    const auto                                           resamplingDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
+    std::vector<double>                                  resampledValues;
     std::map<RiaDefines::DepthType, std::vector<double>> resampledDepths;
 
     // Target data (resampling with MEASURED_DEPTH)
@@ -92,8 +92,8 @@ TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_second 
     const double              eps            = 1e-6;
 
     // Output data
-    const auto                                               resamplingDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
-    std::vector<double>                                      resampledValues;
+    const auto                                           resamplingDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
+    std::vector<double>                                  resampledValues;
     std::map<RiaDefines::DepthType, std::vector<double>> resampledDepths;
 
     // Target data (resampling with MEASURED_DEPTH)
@@ -152,7 +152,7 @@ TEST( RigWellLogCurveData, CreateResampledValuesAndDepthsTest )
 {
     // Input data
     RiaDefines::DepthType                                      resamplingDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
-    const std::vector<double>                                      targetDepths        = { 0.0, 5.0, 10.0, 15.0 };
+    const std::vector<double>                                  targetDepths        = { 0.0, 5.0, 10.0, 15.0 };
     const std::map<RiaDefines::DepthType, std::vector<double>> originalDepths =
         { { RiaDefines::DepthType::MEASURED_DEPTH, { 0.0, 10.0, 20.0 } },
           { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, { 0.0, 20.0, 40.0 } },
@@ -163,9 +163,9 @@ TEST( RigWellLogCurveData, CreateResampledValuesAndDepthsTest )
     auto result = RigWellLogCurveData::createResampledValuesAndDepths( resamplingDepthType, targetDepths, originalDepths, propertyValues );
 
     // Check the results
-    std::vector<double>&                                      resampledPropertyValues = result.first;
+    std::vector<double>&                                  resampledPropertyValues = result.first;
     std::map<RiaDefines::DepthType, std::vector<double>>& resampledDepths         = result.second;
-    const auto                                                expectedSize            = targetDepths.size();
+    const auto                                            expectedSize            = targetDepths.size();
 
     ASSERT_EQ( resampledDepths.size(), originalDepths.size() );
     ASSERT_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH].size(), expectedSize );
