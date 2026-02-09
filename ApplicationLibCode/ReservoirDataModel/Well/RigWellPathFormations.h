@@ -18,10 +18,11 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+#include "RiaWellLogTrackDefines.h"
+
 #include "cvfMath.h"
 #include "cvfObject.h"
-
-#include "RimWellLogPlot.h"
 
 #include <map>
 #include <utility>
@@ -44,33 +45,16 @@ struct RigWellPathFormation
 class RigWellPathFormations : public cvf::Object
 {
 public:
-    enum FormationLevel
-    {
-        GROUP,
-        LEVEL0,
-        LEVEL1,
-        LEVEL2,
-        LEVEL3,
-        LEVEL4,
-        LEVEL5,
-        LEVEL6,
-        LEVEL7,
-        LEVEL8,
-        LEVEL9,
-        LEVEL10,
-        ALL,
-        UNKNOWN,
-        NONE
-    };
+    using FormationLevel = RiaDefines::WellLogTrackFormationLevel;
 
 public:
     RigWellPathFormations( const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key );
 
-    void depthAndFormationNamesUpToLevel( FormationLevel                level,
-                                          std::vector<QString>*         names,
-                                          std::vector<double>*          depths,
-                                          bool                          includeFluids,
-                                          RimWellLogPlot::DepthTypeEnum depthType ) const;
+    void depthAndFormationNamesUpToLevel( FormationLevel            level,
+                                          std::vector<QString>*     names,
+                                          std::vector<double>*      depths,
+                                          bool                      includeFluids,
+                                          RiaDefines::DepthTypeEnum depthType ) const;
 
     std::vector<FormationLevel> formationsLevelsPresent() const;
 
@@ -95,14 +79,14 @@ private:
     struct LevelAndName
     {
         LevelAndName() = default;
-        LevelAndName( RigWellPathFormations::FormationLevel level, QString name )
+        LevelAndName( FormationLevel level, QString name )
             : level( level )
             , name( name )
         {
         }
 
-        RigWellPathFormations::FormationLevel level;
-        QString                               name;
+        FormationLevel level;
+        QString        name;
     };
 
     enum PickPosition
@@ -116,22 +100,22 @@ private:
                              const FormationLevel&                                               maxLevel,
                              std::vector<QString>*                                               names,
                              std::vector<double>*                                                depths,
-                             RimWellLogPlot::DepthTypeEnum                                       depthType ) const;
+                             RiaDefines::DepthTypeEnum                                           depthType ) const;
 
     void evaluateFluids( const std::vector<RigWellPathFormation>& fluidFormations,
                          std::vector<QString>*                    names,
                          std::vector<double>*                     depths,
-                         RimWellLogPlot::DepthTypeEnum            depthType ) const;
+                         RiaDefines::DepthTypeEnum                depthType ) const;
 
     void evaluateFormationsForOnePosition( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
                                            const FormationLevel&                                               maxLevel,
                                            const PickPosition&                                                 position,
                                            std::map<double, LevelAndName, DepthComp>*                          uniqueListMaker,
-                                           RimWellLogPlot::DepthTypeEnum                                       depthType ) const;
+                                           RiaDefines::DepthTypeEnum                                           depthType ) const;
 
-    void depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*         names,
-                                                         std::vector<double>*          measuredDepths,
-                                                         RimWellLogPlot::DepthTypeEnum depthType ) const;
+    void depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*     names,
+                                                         std::vector<double>*      measuredDepths,
+                                                         RiaDefines::DepthTypeEnum depthType ) const;
 
     bool           isFluid( QString formationName );
     FormationLevel detectLevel( QString formationName );

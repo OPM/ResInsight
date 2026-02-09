@@ -15,7 +15,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatisticsCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFile.h
@@ -41,7 +40,6 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFile.cpp

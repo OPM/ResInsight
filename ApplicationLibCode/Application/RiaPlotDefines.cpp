@@ -107,6 +107,26 @@ void caf::AppEnum<RiaDefines::ReadOutType>::setUp()
     setDefault( RiaDefines::ReadOutType::SNAP_TO_POINT );
 }
 
+template <>
+void AppEnum<RiaDefines::RegionAnnotationType>::setUp()
+{
+    addItem( RiaDefines::RegionAnnotationType::NO_ANNOTATIONS, "NO_ANNOTATIONS", "No Annotations" );
+    addItem( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS, "FORMATIONS", "Formations" );
+    addItem( RiaDefines::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS, "RESULT_PROPERTY", "Result Property" );
+    setDefault( RiaDefines::RegionAnnotationType::NO_ANNOTATIONS );
+}
+
+template <>
+void AppEnum<RiaDefines::RegionDisplay>::setUp()
+{
+    addItem( RiaDefines::DARK_LINES, "DARK_LINES", "Dark Lines" );
+    addItem( RiaDefines::LIGHT_LINES, "LIGHT_LINES", "Light Lines" );
+    addItem( RiaDefines::COLORED_LINES, "COLORED_LINES", "Colored Lines" );
+    addItem( RiaDefines::COLOR_SHADING, "COLOR_SHADING", "Color Shading" );
+    addItem( RiaDefines::COLOR_SHADING_AND_LINES, "SHADING_AND_LINES", "Color Shading and Lines" );
+    setDefault( RiaDefines::COLOR_SHADING_AND_LINES );
+}
+
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------

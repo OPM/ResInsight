@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "RiaWellLogTrackDefines.h"
 #include "RimWellLogPlot.h"
 
 #include "RiaPlotDefines.h"
@@ -30,6 +31,7 @@
 #include "RiuPlotAxis.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -58,6 +60,10 @@ class RigWellLogExtractor;
 class RimEclipseResultDefinition;
 class RimColorLegend;
 class RimEnsembleWellLogCurveSet;
+class RimWellLogPropertyAxisSettings;
+class RimWellLogFormationSettings;
+class RimWellLogRegionAnnotationSettings;
+class RimWellLogWellPathAttributeSettings;
 class RiuPlotAnnotationTool;
 
 struct CurveSamplingPointData
@@ -78,17 +84,6 @@ class RimWellLogTrack : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum TrajectoryType
-    {
-        WELL_PATH,
-        SIMULATION_WELL
-    };
-    enum FormationSource
-    {
-        CASE,
-        WELL_PICK_FILTER
-    };
-
     using RegionAnnotationTypeEnum    = caf::AppEnum<RiaDefines::RegionAnnotationType>;
     using RegionAnnotationDisplayEnum = caf::AppEnum<RiaDefines::RegionDisplay>;
 
@@ -116,19 +111,19 @@ public:
     void    setPropertyValueAxisTitle( const QString& text );
     QString depthAxisTitle() const;
 
-    void           setFormationWellPath( RimWellPath* wellPath );
-    RimWellPath*   formationWellPath() const;
-    void           setFormationSimWellName( const QString& simWellName );
-    QString        formationSimWellName() const;
-    void           setFormationBranchDetection( bool branchDetection );
-    bool           formationBranchDetection() const;
-    void           setFormationBranchIndex( int branchIndex );
-    int            formationBranchIndex() const;
-    void           setFormationCase( RimCase* rimCase );
-    RimCase*       formationNamesCase() const;
-    void           setFormationTrajectoryType( TrajectoryType trajectoryType );
-    TrajectoryType formationTrajectoryType() const;
-    void           setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
+    void                                   setFormationWellPath( RimWellPath* wellPath );
+    RimWellPath*                           formationWellPath() const;
+    void                                   setFormationSimWellName( const QString& simWellName );
+    QString                                formationSimWellName() const;
+    void                                   setFormationBranchDetection( bool branchDetection );
+    bool                                   formationBranchDetection() const;
+    void                                   setFormationBranchIndex( int branchIndex );
+    int                                    formationBranchIndex() const;
+    void                                   setFormationCase( RimCase* rimCase );
+    RimCase*                               formationNamesCase() const;
+    void                                   setFormationTrajectoryType( RiaDefines::WellLogTrackTrajectoryType trajectoryType );
+    RiaDefines::WellLogTrackTrajectoryType formationTrajectoryType() const;
+    void setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
 
     void detachAllCurves() override;
     void reattachAllCurves() override;
@@ -315,18 +310,30 @@ private:
     caf::PdmField<QString>                    m_description;
     caf::PdmChildArrayField<RimWellLogCurve*> m_curves;
 
-    // Property value axis
-    caf::PdmField<bool>                         m_isPropertyAxisEnabled;
-    caf::PdmField<double>                       m_visiblePropertyValueRangeMin;
-    caf::PdmField<double>                       m_visiblePropertyValueRangeMax;
-    caf::PdmField<bool>                         m_isAutoScalePropertyValuesEnabled;
-    caf::PdmField<bool>                         m_isPropertyLogarithmicScaleEnabled;
-    caf::PdmField<bool>                         m_invertPropertyValueAxis;
-    caf::PdmField<RimWellLogPlot::AxisGridEnum> m_propertyValueAxisGridVisibility;
-    caf::PdmField<bool>                         m_propertyAxisMinAndMaxTicksOnly;
-    caf::PdmField<bool>                         m_explicitTickIntervalsPropertyValueAxis;
-    caf::PdmField<double>                       m_majorTickIntervalPropertyAxis;
-    caf::PdmField<double>                       m_minorTickIntervalPropertyAxis;
+    // Property value axis settings
+    caf::PdmChildField<RimWellLogPropertyAxisSettings*> m_propertyAxisSettings;
+
+    // Formation settings
+    caf::PdmChildField<RimWellLogFormationSettings*> m_formationSettings;
+
+    // Region annotation settings
+    caf::PdmChildField<RimWellLogRegionAnnotationSettings*> m_regionAnnotationSettings;
+
+    // Well path attribute settings
+    caf::PdmChildField<RimWellLogWellPathAttributeSettings*> m_wellPathAttributeSettings;
+
+    // OBSOLETE: Property value axis fields (migrated to RimWellLogPropertyAxisSettings)
+    caf::PdmField<bool>                         m_isPropertyAxisEnabled_OBSOLETE;
+    caf::PdmField<double>                       m_visiblePropertyValueRangeMin_OBSOLETE;
+    caf::PdmField<double>                       m_visiblePropertyValueRangeMax_OBSOLETE;
+    caf::PdmField<bool>                         m_isAutoScalePropertyValuesEnabled_OBSOLETE;
+    caf::PdmField<bool>                         m_isPropertyLogarithmicScaleEnabled_OBSOLETE;
+    caf::PdmField<bool>                         m_invertPropertyValueAxis_OBSOLETE;
+    caf::PdmField<RimWellLogPlot::AxisGridEnum> m_propertyValueAxisGridVisibility_OBSOLETE;
+    caf::PdmField<bool>                         m_propertyAxisMinAndMaxTicksOnly_OBSOLETE;
+    caf::PdmField<bool>                         m_explicitTickIntervalsPropertyValueAxis_OBSOLETE;
+    caf::PdmField<double>                       m_majorTickIntervalPropertyAxis_OBSOLETE;
+    caf::PdmField<double>                       m_minorTickIntervalPropertyAxis_OBSOLETE;
 
     // Depth axis
     caf::PdmField<double> m_visibleDepthRangeMin;
@@ -334,34 +341,40 @@ private:
 
     RimFontSizeField m_axisFontSize;
 
-    caf::PdmField<RegionAnnotationTypeEnum>                            m_regionAnnotationType;
-    caf::PdmField<RegionAnnotationDisplayEnum>                         m_regionAnnotationDisplay;
-    caf::PdmPtrField<RimColorLegend*>                                  m_colorShadingLegend;
-    caf::PdmField<int>                                                 m_colorShadingTransparency;
-    caf::PdmField<bool>                                                m_showRegionLabels;
-    RimFontSizeField                                                   m_regionLabelFontSize;
-    caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
-    caf::PdmPtrField<RimCase*>                                         m_formationCase;
-    caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;
-    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceCase;
-    caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceWellPath;
-    caf::PdmField<QString>                                             m_formationSimWellName;
-    caf::PdmField<int>                                                 m_formationBranchIndex;
-    caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
-    caf::PdmField<bool>                                                m_showformationFluids;
-    caf::PdmField<bool>                                                m_formationBranchDetection;
-    caf::PdmField<bool>                                                m_showWellPathAttributes;
-    caf::PdmField<bool>                                                m_showWellPathCompletions;
-    caf::PdmField<bool>                                                m_showWellPathComponentsBothSides;
-    caf::PdmField<bool>                                                m_showWellPathComponentLabels;
-    caf::PdmField<bool>                                                m_wellPathAttributesInLegend;
-    caf::PdmField<bool>                                                m_wellPathCompletionsInLegend;
-    caf::PdmPtrField<RimWellPath*>                                     m_wellPathComponentSource;
-    caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
-    caf::PdmChildField<RimEclipseResultDefinition*>                    m_resultDefinition;
-    caf::PdmField<double>                                              m_overburdenHeight;
-    caf::PdmField<double>                                              m_underburdenHeight;
-    caf::PdmChildField<RimEnsembleWellLogCurveSet*>                    m_ensembleWellLogCurveSet;
+    // OBSOLETE: Region annotation fields (migrated to RimWellLogRegionAnnotationSettings)
+    caf::PdmField<RegionAnnotationTypeEnum>    m_regionAnnotationType_OBSOLETE;
+    caf::PdmField<RegionAnnotationDisplayEnum> m_regionAnnotationDisplay_OBSOLETE;
+    caf::PdmPtrField<RimColorLegend*>          m_colorShadingLegend_OBSOLETE;
+    caf::PdmField<int>                         m_colorShadingTransparency_OBSOLETE;
+    caf::PdmField<bool>                        m_showRegionLabels_OBSOLETE;
+    RimFontSizeField                           m_regionLabelFontSize_OBSOLETE;
+
+    // OBSOLETE: Formation fields (migrated to RimWellLogFormationSettings)
+    caf::PdmField<caf::AppEnum<RiaDefines::WellLogTrackFormationSource>> m_formationSource_OBSOLETE;
+    caf::PdmPtrField<RimCase*>                                           m_formationCase_OBSOLETE;
+    caf::PdmField<caf::AppEnum<RiaDefines::WellLogTrackTrajectoryType>>  m_formationTrajectoryType_OBSOLETE;
+    caf::PdmPtrField<RimWellPath*>                                       m_formationWellPathForSourceCase_OBSOLETE;
+    caf::PdmPtrField<RimWellPath*>                                       m_formationWellPathForSourceWellPath_OBSOLETE;
+    caf::PdmField<QString>                                               m_formationSimWellName_OBSOLETE;
+    caf::PdmField<int>                                                   m_formationBranchIndex_OBSOLETE;
+    caf::PdmField<caf::AppEnum<RiaDefines::WellLogTrackFormationLevel>>  m_formationLevel_OBSOLETE;
+    caf::PdmField<bool>                                                  m_showformationFluids_OBSOLETE;
+    caf::PdmField<bool>                                                  m_formationBranchDetection_OBSOLETE;
+
+    // OBSOLETE: Well path attribute fields (migrated to RimWellLogWellPathAttributeSettings)
+    caf::PdmField<bool>                               m_showWellPathAttributes_OBSOLETE;
+    caf::PdmField<bool>                               m_showWellPathCompletions_OBSOLETE;
+    caf::PdmField<bool>                               m_showWellPathComponentsBothSides_OBSOLETE;
+    caf::PdmField<bool>                               m_showWellPathComponentLabels_OBSOLETE;
+    caf::PdmField<bool>                               m_wellPathAttributesInLegend_OBSOLETE;
+    caf::PdmField<bool>                               m_wellPathCompletionsInLegend_OBSOLETE;
+    caf::PdmPtrField<RimWellPath*>                    m_wellPathComponentSource_OBSOLETE;
+    caf::PdmPtrField<RimWellPathAttributeCollection*> m_wellPathAttributeCollection_OBSOLETE;
+    caf::PdmField<double>                             m_overburdenHeight_OBSOLETE;
+    caf::PdmField<double>                             m_underburdenHeight_OBSOLETE;
+
+    caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
+    caf::PdmChildField<RimEnsembleWellLogCurveSet*> m_ensembleWellLogCurveSet;
 
     caf::PdmField<bool> m_autoCheckStateBasedOnCurveData;
 

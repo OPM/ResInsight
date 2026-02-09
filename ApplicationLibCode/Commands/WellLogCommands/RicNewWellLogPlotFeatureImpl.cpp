@@ -232,11 +232,11 @@ RimWellLogTrack*
 
     if ( wellPathToApply )
     {
-        plotTrack->setFormationTrajectoryType( RimWellLogTrack::WELL_PATH );
+        plotTrack->setFormationTrajectoryType( RiaDefines::WellLogTrackTrajectoryType::WELL_PATH );
     }
     else if ( !simWellToApply.isEmpty() )
     {
-        plotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
+        plotTrack->setFormationTrajectoryType( RiaDefines::WellLogTrackTrajectoryType::SIMULATION_WELL );
     }
 
     if ( !branchDetectionToApply.isPartiallyTrue() )
