@@ -82,14 +82,14 @@ void caf::AppEnum<RiaDefines::EclipseUnitSystem>::setUp()
 }
 
 template <>
-void caf::AppEnum<RiaDefines::DepthTypeEnum>::setUp()
+void caf::AppEnum<RiaDefines::DepthType>::setUp()
 {
-    addItem( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, "MEASURED_DEPTH", "Measured Depth" );
-    addItem( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, "TRUE_VERTICAL_DEPTH", "True Vertical Depth (MSL)" );
-    addItem( RiaDefines::DepthTypeEnum::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
-    addItem( RiaDefines::DepthTypeEnum::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
-    addItem( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, "TRUE_VERTICAL_DEPTH_RKB", "True Vertical Depth (RKB)" );
-    setDefault( RiaDefines::DepthTypeEnum::MEASURED_DEPTH );
+    addItem( RiaDefines::DepthType::MEASURED_DEPTH, "MEASURED_DEPTH", "Measured Depth" );
+    addItem( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, "TRUE_VERTICAL_DEPTH", "True Vertical Depth (MSL)" );
+    addItem( RiaDefines::DepthType::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
+    addItem( RiaDefines::DepthType::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
+    addItem( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB, "TRUE_VERTICAL_DEPTH_RKB", "True Vertical Depth (RKB)" );
+    setDefault( RiaDefines::DepthType::MEASURED_DEPTH );
 }
 
 template <>

@@ -82,8 +82,8 @@ private:
     void connectWellLogCurveChangedToSlots( RimWellLogCurve* wellLogCurve );
     void disconnectWellLogCurveChangedFromSlots( RimWellLogCurve* wellLogCurve );
 
-    std::vector<double> depthValuesFromSource( RiaDefines::DepthTypeEnum depthType ) const;
-    std::vector<double> unionDepthValuesFromCurves( RiaDefines::DepthTypeEnum depthType ) const;
+    std::vector<double> depthValuesFromSource( RiaDefines::DepthType depthType ) const;
+    std::vector<double> unionDepthValuesFromCurves( RiaDefines::DepthType depthType ) const;
 
 private:
     caf::PdmPtrField<RimCase*> m_case;

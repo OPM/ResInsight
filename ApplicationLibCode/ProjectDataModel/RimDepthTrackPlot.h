@@ -70,7 +70,7 @@ public:
     };
 
     using AxisGridEnum  = caf::AppEnum<AxisGridVisibility>;
-    using DepthTypeEnum = RiaDefines::DepthTypeEnum;
+    using DepthTypeEnum = RiaDefines::DepthType;
 
     enum class DepthOrientation_OBSOLETE
     {

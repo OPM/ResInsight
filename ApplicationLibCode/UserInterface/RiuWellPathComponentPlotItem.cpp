@@ -45,7 +45,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     : m_wellPath( wellPath )
     , m_componentType( RiaDefines::WellPathComponentType::WELL_PATH )
     , m_columnOffset( 0.0 )
-    , m_depthType( RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+    , m_depthType( RiaDefines::DepthType::MEASURED_DEPTH )
     , m_depthOrientation( RiaDefines::Orientation::VERTICAL )
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
@@ -63,7 +63,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
 RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* wellPath, const RimWellPathComponentInterface* component )
     : m_wellPath( wellPath )
     , m_columnOffset( 0.0 )
-    , m_depthType( RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+    , m_depthType( RiaDefines::DepthType::MEASURED_DEPTH )
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
@@ -298,7 +298,7 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
     double startDepth = m_startMD;
     double endDepth   = m_endMD;
 
-    if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
+    if ( m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
     {
         endDepth       = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD ).z();
         double rkbDiff = m_wellPath->wellPathGeometry()->rkbDiff();
@@ -310,11 +310,11 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
         if ( m_componentType == RiaDefines::WellPathComponentType::WELL_PATH )
         {
             startDepth = 0.0;
-            if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
+            if ( m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
             {
                 startDepth -= rkbDiff;
             }
-            else if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
+            else if ( m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
             {
                 endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
             }
@@ -322,7 +322,7 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
         else
         {
             startDepth = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_startMD ).z();
-            if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
+            if ( m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
             {
                 startDepth += m_wellPath->wellPathGeometry()->rkbDiff();
                 endDepth += m_wellPath->wellPathGeometry()->rkbDiff();

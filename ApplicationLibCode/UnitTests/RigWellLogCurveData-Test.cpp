@@ -34,17 +34,17 @@
 TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_first )
 {
     // Input data
-    const std::map<RiaDefines::DepthTypeEnum, std::vector<double>> originalDepths =
-        { { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, { 0.0, 20.0, 40.0 } },
-          { RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, { 0.0, 30.0, 60.0 } },
-          { RiaDefines::DepthTypeEnum::PSEUDO_LENGTH, { 0.0, 40.0, 80.0 } } };
+    const std::map<RiaDefines::DepthType, std::vector<double>> originalDepths =
+        { { RiaDefines::DepthType::MEASURED_DEPTH, { 0.0, 20.0, 40.0 } },
+          { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, { 0.0, 30.0, 60.0 } },
+          { RiaDefines::DepthType::PSEUDO_LENGTH, { 0.0, 40.0, 80.0 } } };
     const std::vector<double> propertyValues = { 0.0, 100.0, 150.0 };
     const double              eps            = 1e-6;
 
     // Output data
-    const auto                                               resamplingDepthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
+    const auto                                               resamplingDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
     std::vector<double>                                      resampledValues;
-    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths;
+    std::map<RiaDefines::DepthType, std::vector<double>> resampledDepths;
 
     // Target data (resampling with MEASURED_DEPTH)
     const double targetDepthValue = 10.0; // Halfway between index 0 and 1 for MEASURED_DEPTH in originalDepths
@@ -68,14 +68,14 @@ TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_first )
 
     ASSERT_EQ( resampledDepths.size(), size_t( 3 ) );
 
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH].size(), size_t( 1 ) );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][0], 10.0 );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH].size(), size_t( 1 ) );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH][0], 10.0 );
 
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), size_t( 1 ) );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][0], 15.0 );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH].size(), size_t( 1 ) );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH][0], 15.0 );
 
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH].size(), size_t( 1 ) );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][0], 20.0 );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH].size(), size_t( 1 ) );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH][0], 20.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,17 +84,17 @@ TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_first )
 TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_second )
 {
     // Input data
-    const std::map<RiaDefines::DepthTypeEnum, std::vector<double>> originalDepths =
-        { { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, { 0.0, 20.0, 40.0 } },
-          { RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, { 0.0, 30.0, 60.0 } },
-          { RiaDefines::DepthTypeEnum::PSEUDO_LENGTH, { 0.0, 40.0, 80.0 } } };
+    const std::map<RiaDefines::DepthType, std::vector<double>> originalDepths =
+        { { RiaDefines::DepthType::MEASURED_DEPTH, { 0.0, 20.0, 40.0 } },
+          { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, { 0.0, 30.0, 60.0 } },
+          { RiaDefines::DepthType::PSEUDO_LENGTH, { 0.0, 40.0, 80.0 } } };
     const std::vector<double> propertyValues = { 0.0, 100.0, 150.0 };
     const double              eps            = 1e-6;
 
     // Output data
-    const auto                                               resamplingDepthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
+    const auto                                               resamplingDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
     std::vector<double>                                      resampledValues;
-    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths;
+    std::map<RiaDefines::DepthType, std::vector<double>> resampledDepths;
 
     // Target data (resampling with MEASURED_DEPTH)
     const double firstTargetDepthValue  = 10.0; // Halfway between first and second index for MEASURED_DEPTH in originalDepths
@@ -132,17 +132,17 @@ TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_second 
 
     ASSERT_EQ( resampledDepths.size(), size_t( 3 ) );
 
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH].size(), size_t( 2 ) );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][0], 10.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][1], 30.0 );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH].size(), size_t( 2 ) );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH][0], 10.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH][1], 30.0 );
 
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), size_t( 2 ) );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][0], 15.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][1], 45.0 );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH].size(), size_t( 2 ) );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH][0], 15.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH][1], 45.0 );
 
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH].size(), size_t( 2 ) );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][0], 20.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][1], 60.0 );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH].size(), size_t( 2 ) );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH][0], 20.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH][1], 60.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,12 +151,12 @@ TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_second 
 TEST( RigWellLogCurveData, CreateResampledValuesAndDepthsTest )
 {
     // Input data
-    RiaDefines::DepthTypeEnum                                      resamplingDepthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
+    RiaDefines::DepthType                                      resamplingDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
     const std::vector<double>                                      targetDepths        = { 0.0, 5.0, 10.0, 15.0 };
-    const std::map<RiaDefines::DepthTypeEnum, std::vector<double>> originalDepths =
-        { { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, { 0.0, 10.0, 20.0 } },
-          { RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, { 0.0, 20.0, 40.0 } },
-          { RiaDefines::DepthTypeEnum::PSEUDO_LENGTH, { 0.0, 30.0, 60.0 } } };
+    const std::map<RiaDefines::DepthType, std::vector<double>> originalDepths =
+        { { RiaDefines::DepthType::MEASURED_DEPTH, { 0.0, 10.0, 20.0 } },
+          { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, { 0.0, 20.0, 40.0 } },
+          { RiaDefines::DepthType::PSEUDO_LENGTH, { 0.0, 30.0, 60.0 } } };
     const std::vector<double> propertyValues = { 0.0, 100.0, 200.0 };
 
     // Call the function under test
@@ -164,13 +164,13 @@ TEST( RigWellLogCurveData, CreateResampledValuesAndDepthsTest )
 
     // Check the results
     std::vector<double>&                                      resampledPropertyValues = result.first;
-    std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& resampledDepths         = result.second;
+    std::map<RiaDefines::DepthType, std::vector<double>>& resampledDepths         = result.second;
     const auto                                                expectedSize            = targetDepths.size();
 
     ASSERT_EQ( resampledDepths.size(), originalDepths.size() );
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH].size(), expectedSize );
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), expectedSize );
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH].size(), expectedSize );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH].size(), expectedSize );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH].size(), expectedSize );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH].size(), expectedSize );
 
     ASSERT_EQ( resampledPropertyValues.size(), expectedSize );
 
@@ -180,18 +180,18 @@ TEST( RigWellLogCurveData, CreateResampledValuesAndDepthsTest )
     ASSERT_DOUBLE_EQ( resampledPropertyValues[2], 100.0 );
     ASSERT_DOUBLE_EQ( resampledPropertyValues[3], 150.0 );
 
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][0], 0.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][1], 5.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][2], 10.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][3], 15.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH][0], 0.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH][1], 5.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH][2], 10.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::MEASURED_DEPTH][3], 15.0 );
 
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][0], 0.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][1], 10.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][2], 20.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][3], 30.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH][0], 0.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH][1], 10.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH][2], 20.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::TRUE_VERTICAL_DEPTH][3], 30.0 );
 
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][0], 0.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][1], 15.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][2], 30.0 );
-    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][3], 45.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH][0], 0.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH][1], 15.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH][2], 30.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthType::PSEUDO_LENGTH][3], 45.0 );
 }

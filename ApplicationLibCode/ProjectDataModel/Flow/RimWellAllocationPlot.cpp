@@ -108,7 +108,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault( &m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow" );
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
     m_accumulatedWellFlowPlot->setDepthUnit( RiaDefines::DepthUnitType::UNIT_NONE );
-    m_accumulatedWellFlowPlot->setDepthType( RiaDefines::DepthTypeEnum::CONNECTION_NUMBER );
+    m_accumulatedWellFlowPlot->setDepthType( RiaDefines::DepthType::CONNECTION_NUMBER );
     m_accumulatedWellFlowPlot->setLegendsVisible( false );
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
 
@@ -124,9 +124,9 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     setAsPlotMdiWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
-    m_accumulatedWellFlowPlot->setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
-                                                         RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                                                         RiaDefines::DepthTypeEnum::PSEUDO_LENGTH } );
+    m_accumulatedWellFlowPlot->setAvailableDepthTypes( { RiaDefines::DepthType::CONNECTION_NUMBER,
+                                                         RiaDefines::DepthType::TRUE_VERTICAL_DEPTH,
+                                                         RiaDefines::DepthType::PSEUDO_LENGTH } );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
     m_accumulatedWellFlowPlot->nameConfig()->setCustomName( "Accumulated Flow Chart" );
@@ -351,7 +351,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     auto depthType = accumulatedWellFlowPlot()->depthType();
 
-    if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) return;
+    if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH ) return;
 
     // Create tracks and curves from the calculated data
 
@@ -370,9 +370,9 @@ void RimWellAllocationPlot::updateFromWell()
         accumulatedWellFlowPlot()->addPlot( plotTrack );
 
         const std::vector<double>& depthValues =
-            depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER     ? wfCalculator->connectionNumbersFromTop( brIdx )
-            : depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH       ? wfCalculator->pseudoLengthFromTop( brIdx )
-            : depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth( brIdx )
+            depthType == RiaDefines::DepthType::CONNECTION_NUMBER     ? wfCalculator->connectionNumbersFromTop( brIdx )
+            : depthType == RiaDefines::DepthType::PSEUDO_LENGTH       ? wfCalculator->pseudoLengthFromTop( brIdx )
+            : depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth( brIdx )
                                                                           : std::vector<double>();
 
         if ( !depthValues.empty() )
@@ -382,7 +382,7 @@ void RimWellAllocationPlot::updateFromWell()
             {
                 std::vector<double> curveDepthValues = depthValues;
                 std::vector<double> accFlow;
-                if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
+                if ( depthType == RiaDefines::DepthType::CONNECTION_NUMBER )
                 {
                     accFlow = ( m_flowType == ACCUMULATED ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
                                                           : wfCalculator->tracerFlowPrConnection( tracerName, brIdx ) );
@@ -404,7 +404,7 @@ void RimWellAllocationPlot::updateFromWell()
                         }
                     }
                 }
-                else if ( depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH || depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
+                else if ( depthType == RiaDefines::DepthType::PSEUDO_LENGTH || depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
                 {
                     accFlow = ( m_flowType == ACCUMULATED ? wfCalculator->accumulatedTracerFlowPrPseudoLength( tracerName, brIdx )
                                                           : wfCalculator->tracerFlowPrPseudoLength( tracerName, brIdx ) );
@@ -502,7 +502,7 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotT
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::addStackedCurve( const QString&             tracerName,
-                                             RiaDefines::DepthTypeEnum  depthType,
+                                             RiaDefines::DepthType  depthType,
                                              const std::vector<double>& depthValues,
                                              const std::vector<double>& accFlow,
                                              RimWellLogTrack*           plotTrack,

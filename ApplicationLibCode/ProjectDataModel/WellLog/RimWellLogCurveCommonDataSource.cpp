@@ -421,7 +421,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
             m_uniqueBranchDetection.insert( track->formationBranchDetection() );
             m_uniqueBranchIndices.insert( track->formationBranchIndex() );
 
-            m_uniqueCases.insert( track->formationNamesCase() );
+            m_uniqueCases.insert( track->formationCase() );
             m_uniqueWellPaths.insert( track->formationWellPath() );
         }
     }

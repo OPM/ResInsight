@@ -120,7 +120,7 @@ public:
     void                                   setFormationBranchIndex( int branchIndex );
     int                                    formationBranchIndex() const;
     void                                   setFormationCase( RimCase* rimCase );
-    RimCase*                               formationNamesCase() const;
+    RimCase*                               formationCase() const;
     void                                   setFormationTrajectoryType( RiaDefines::WellLogTrackTrajectoryType trajectoryType );
     RiaDefines::WellLogTrackTrajectoryType formationTrajectoryType() const;
     void setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
@@ -265,7 +265,6 @@ private:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
@@ -300,7 +299,7 @@ private:
     void handleWheelEvent( QWheelEvent* event ) override;
     void doUpdateLayout() override;
 
-    std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthTypeEnum         depthType,
+    std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthType             depthType,
                                                                 const RigGeoMechWellLogExtractor* extractor ) const;
 
     void connectCurveSignals( RimWellLogCurve* curve );

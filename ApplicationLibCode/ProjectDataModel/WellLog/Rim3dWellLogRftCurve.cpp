@@ -82,7 +82,7 @@ void Rim3dWellLogRftCurve::curveValuesAndMds( std::vector<double>* values, std::
 
     // These values are for a simulation well
     *values              = curveData->propertyValues();
-    *measuredDepthValues = curveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH );
+    *measuredDepthValues = curveData->depths( RiaDefines::DepthType::MEASURED_DEPTH );
 }
 
 //--------------------------------------------------------------------------------------------------

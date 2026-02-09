@@ -49,11 +49,11 @@ RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathForma
 //--------------------------------------------------------------------------------------------------
 void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*     names,
                                                                             std::vector<double>*      measuredDepths,
-                                                                            RiaDefines::DepthTypeEnum depthType ) const
+                                                                            RiaDefines::DepthType depthType ) const
 {
     std::map<double, bool, DepthComp> tempMakeVectorUniqueOnMeasuredDepth;
 
-    if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+    if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
     {
         for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
         {
@@ -75,7 +75,7 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
             }
         }
     }
-    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
+    else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
     {
         for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
         {
@@ -106,7 +106,7 @@ void RigWellPathFormations::evaluateFormationsForOnePosition( const std::vector<
                                                               const FormationLevel&                      maxLevel,
                                                               const PickPosition&                        position,
                                                               std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
-                                                              RiaDefines::DepthTypeEnum                  depthType ) const
+                                                              RiaDefines::DepthType                  depthType ) const
 {
     QString postFix;
 
@@ -123,7 +123,7 @@ void RigWellPathFormations::evaluateFormationsForOnePosition( const std::vector<
     {
         double depth;
 
-        if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
         {
             if ( position == TOP )
             {
@@ -134,7 +134,7 @@ void RigWellPathFormations::evaluateFormationsForOnePosition( const std::vector<
                 depth = formation.first.mdBase;
             }
         }
-        else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
         {
             if ( position == TOP )
             {
@@ -164,7 +164,7 @@ void RigWellPathFormations::evaluateFormations( const std::vector<std::pair<RigW
                                                 const FormationLevel&                                               maxLevel,
                                                 std::vector<QString>*                                               names,
                                                 std::vector<double>*                                                depths,
-                                                RiaDefines::DepthTypeEnum                                           depthType ) const
+                                                RiaDefines::DepthType                                           depthType ) const
 {
     std::map<double, LevelAndName, DepthComp> tempMakeVectorUniqueOnDepth;
 
@@ -184,18 +184,18 @@ void RigWellPathFormations::evaluateFormations( const std::vector<std::pair<RigW
 void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormation>& fluidFormations,
                                             std::vector<QString>*                    names,
                                             std::vector<double>*                     depths,
-                                            RiaDefines::DepthTypeEnum                depthType ) const
+                                            RiaDefines::DepthType                depthType ) const
 {
     std::map<double, QString, DepthComp> uniqueListMaker;
 
     for ( const RigWellPathFormation& formation : fluidFormations )
     {
         double depthBase;
-        if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
         {
             depthBase = formation.mdBase;
         }
-        else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
         {
             depthBase = formation.tvdBase;
         }
@@ -208,11 +208,11 @@ void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormati
     for ( const RigWellPathFormation& formation : fluidFormations )
     {
         double depthTop;
-        if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
         {
             depthTop = formation.mdTop;
         }
-        else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
         {
             depthTop = formation.tvdTop;
         }
@@ -236,7 +236,7 @@ void RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel     
                                                              std::vector<QString>*     names,
                                                              std::vector<double>*      depths,
                                                              bool                      includeFluids,
-                                                             RiaDefines::DepthTypeEnum depthType ) const
+                                                             RiaDefines::DepthType depthType ) const
 {
     names->clear();
     depths->clear();

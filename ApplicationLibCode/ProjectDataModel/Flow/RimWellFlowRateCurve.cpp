@@ -270,7 +270,7 @@ void RimWellFlowRateCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 bool RimWellFlowRateCurve::isUsingConnectionNumberDepthType() const
 {
     auto wellLogPlot = firstAncestorOrThisOfType<RimWellLogPlot>();
-    return wellLogPlot && wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
+    return wellLogPlot && wellLogPlot->depthType() == RiaDefines::DepthType::CONNECTION_NUMBER;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,7 +285,7 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&             curveName,
-                                                      RiaDefines::DepthTypeEnum  depthType,
+                                                      RiaDefines::DepthType  depthType,
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {

@@ -349,9 +349,9 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
             if ( !wellLogPlot ) return;
 
-            RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
+            RiaDefines::DepthType depthType   = wellLogPlot->depthType();
             RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
-            if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
+            if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
             {
                 isUsingPseudoLength = false;
             }
@@ -476,7 +476,7 @@ void RimWellLogExtractionCurve::extractData( bool*                        isUsin
         {
             setPropertyValuesAndDepths( curveData.values,
                                         curveData.measuredDepthValues,
-                                        RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                        RiaDefines::DepthType::MEASURED_DEPTH,
                                         0.0,
                                         curveData.depthUnit,
                                         !performDataSmoothing,

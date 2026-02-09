@@ -39,7 +39,7 @@ public:
     ~RimWellFlowRateCurve() override;
 
     void setFlowValuesPrDepthValue( const QString&             curveName,
-                                    RiaDefines::DepthTypeEnum  depthType,
+                                    RiaDefines::DepthType      depthType,
                                     const std::vector<double>& depthValues,
                                     const std::vector<double>& flowRates );
 

@@ -128,7 +128,7 @@ void RimFormationNames::updateConnectedViews()
             for ( RimWellLogTrack* track : tracks )
             {
                 // The track may be referring to the case for other reasons than formations.
-                if ( track->formationNamesCase() == caseObj )
+                if ( track->formationCase() == caseObj )
                 {
                     track->loadDataAndUpdate();
                 }

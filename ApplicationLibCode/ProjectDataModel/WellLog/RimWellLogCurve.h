@@ -76,7 +76,7 @@ protected:
 
     void setPropertyValuesAndDepths( const std::vector<double>& propertyValues,
                                      const std::vector<double>& depths,
-                                     RiaDefines::DepthTypeEnum  depthType,
+                                     RiaDefines::DepthType  depthType,
                                      double                     rkbDiff,
                                      RiaDefines::DepthUnitType  depthUnit,
                                      bool                       isExtractionCurve,
@@ -95,7 +95,7 @@ protected:
     void setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues, const std::vector<double>& depthValues );
 
     void setPropertyValuesAndDepths( const std::vector<double>&                                      propertyValues,
-                                     const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
+                                     const std::map<RiaDefines::DepthType, std::vector<double>>& depths,
                                      double                                                          rkbDiff,
                                      RiaDefines::DepthUnitType                                       depthUnit,
                                      bool                                                            isExtractionCurve,

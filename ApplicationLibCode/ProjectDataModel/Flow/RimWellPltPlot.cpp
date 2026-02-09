@@ -141,7 +141,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_isOnLoad              = true;
     m_plotLegendsHorizontal = false;
 
-    setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::MEASURED_DEPTH } );
+    setAvailableDepthTypes( { RiaDefines::DepthType::MEASURED_DEPTH } );
     setPlotTitleVisible( true );
 }
 
@@ -225,7 +225,7 @@ void RimWellPltPlot::updateFormationsOnPlot() const
         RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
         if ( track )
         {
-            RimCase* formationNamesCase = track->formationNamesCase();
+            RimCase* formationNamesCase = track->formationCase();
 
             if ( !formationNamesCase )
             {

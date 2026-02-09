@@ -224,9 +224,9 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
         {
             caseToApply = commonDataSource->caseToApply();
         }
-        else if ( plotTrack->formationNamesCase() )
+        else if ( plotTrack->formationCase() )
         {
-            caseToApply = plotTrack->formationNamesCase();
+            caseToApply = plotTrack->formationCase();
         }
         else
         {

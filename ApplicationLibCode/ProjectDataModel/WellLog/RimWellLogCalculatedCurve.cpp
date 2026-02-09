@@ -164,7 +164,7 @@ void RimWellLogCalculatedCurve::onLoadDataAndUpdate( bool updateParentPlot )
     }
 
     // Find the data for resampling
-    const auto                depthType    = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
+    const auto                depthType    = RiaDefines::DepthType::MEASURED_DEPTH;
     const std::vector<double> depthValues  = depthValuesFromSource( depthType );
     const auto                depthUnit    = firstCurveData->depthUnit();
     const auto                propertyUnit = firstCurveData->propertyValueUnit();
@@ -207,7 +207,7 @@ void RimWellLogCalculatedCurve::onLoadDataAndUpdate( bool updateParentPlot )
     const bool isExtractionCurve   = false;
 
     // Set curve data
-    auto depthsMap       = std::map<RiaDefines::DepthTypeEnum, std::vector<double>>();
+    auto depthsMap       = std::map<RiaDefines::DepthType, std::vector<double>>();
     depthsMap[depthType] = calculatedDepthValues;
     setPropertyValuesAndDepths( calculatedPropertyValues, depthsMap, 0.0, depthUnit, isExtractionCurve, useLogarithmicScale, propertyUnit );
 
@@ -281,7 +281,7 @@ double RimWellLogCalculatedCurve::calculateValue( double firstValue, double seco
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogCalculatedCurve::depthValuesFromSource( RiaDefines::DepthTypeEnum depthType ) const
+std::vector<double> RimWellLogCalculatedCurve::depthValuesFromSource( RiaDefines::DepthType depthType ) const
 {
     if ( !m_firstWellLogCurve || !m_firstWellLogCurve->curveData() || !m_secondWellLogCurve || !m_secondWellLogCurve->curveData() )
     {
@@ -351,7 +351,7 @@ std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromVectors( cons
 /// indicates enter and exit of k-layer. However, when curves are resampled, this info is not
 /// representative and duplicated depth values are not needed.
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromCurves( RiaDefines::DepthTypeEnum depthType ) const
+std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromCurves( RiaDefines::DepthType depthType ) const
 {
     if ( !m_firstWellLogCurve || !m_firstWellLogCurve->curveData() || !m_secondWellLogCurve || !m_secondWellLogCurve->curveData() )
     {

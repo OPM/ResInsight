@@ -114,7 +114,7 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitField( &m_nameTemplateText, "TemplateText", templateText, "Template Text" );
     CAF_PDM_InitFieldNoDefault( &m_namingMethod, "PlotNamingMethod", "Plot Name" );
 
-    caf::AppEnum<RimDepthTrackPlot::DepthTypeEnum> depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
+    caf::AppEnum<RimDepthTrackPlot::DepthTypeEnum> depthType = RiaDefines::DepthType::MEASURED_DEPTH;
     CAF_PDM_InitScriptableField( &m_depthType, "DepthType", depthType, "Type" );
 
     caf::AppEnum<RiaDefines::DepthUnitType> depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
@@ -158,9 +158,9 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitFieldNoDefault( &m_depthOrientation, "DepthOrientation", "Orientation" );
 
     m_availableDepthUnits = { RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET };
-    m_availableDepthTypes = { RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                              RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                              RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB };
+    m_availableDepthTypes = { RiaDefines::DepthType::MEASURED_DEPTH,
+                              RiaDefines::DepthType::TRUE_VERTICAL_DEPTH,
+                              RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB };
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -1373,28 +1373,28 @@ QString RimDepthTrackPlot::depthAxisTitle() const
 
     switch ( m_depthType.value() )
     {
-        case RiaDefines::DepthTypeEnum::MEASURED_DEPTH:
+        case RiaDefines::DepthType::MEASURED_DEPTH:
             depthTitle = "MD";
             break;
 
-        case RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH:
+        case RiaDefines::DepthType::TRUE_VERTICAL_DEPTH:
             depthTitle = "TVDMSL";
             break;
 
-        case RiaDefines::DepthTypeEnum::PSEUDO_LENGTH:
+        case RiaDefines::DepthType::PSEUDO_LENGTH:
             depthTitle = "PL";
             break;
 
-        case RiaDefines::DepthTypeEnum::CONNECTION_NUMBER:
+        case RiaDefines::DepthType::CONNECTION_NUMBER:
             depthTitle = "Connection";
             break;
 
-        case RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB:
+        case RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB:
             depthTitle = "TVDRKB";
             break;
     }
 
-    if ( m_depthType() == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER ) return depthTitle;
+    if ( m_depthType() == RiaDefines::DepthType::CONNECTION_NUMBER ) return depthTitle;
 
     if ( m_depthUnit == RiaDefines::DepthUnitType::UNIT_METER )
     {

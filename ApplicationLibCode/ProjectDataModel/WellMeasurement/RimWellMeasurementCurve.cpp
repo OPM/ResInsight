@@ -126,7 +126,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 bool useLogarithmicScale = false;
                 setPropertyValuesAndDepths( values,
                                             measuredDepthValues,
-                                            RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                            RiaDefines::DepthType::MEASURED_DEPTH,
                                             0.0,
                                             RiaDefines::DepthUnitType::UNIT_METER,
                                             false,
@@ -150,7 +150,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        RiaDefines::DepthTypeEnum depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
+        RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH;
         if ( wellLogPlot && curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
         {
             depthType = wellLogPlot->depthType();

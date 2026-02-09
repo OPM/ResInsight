@@ -109,7 +109,7 @@ DepthUnitType     fromEclipseUnit( EclipseUnitSystem eclipseUnit );
 EclipseUnitSystem fromDepthUnit( DepthUnitType depthUnit );
 
 // Depth types used for well log plots
-enum class DepthTypeEnum
+enum class DepthType
 {
     MEASURED_DEPTH,
     TRUE_VERTICAL_DEPTH,

@@ -93,7 +93,7 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log" );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    m_depthType = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
+    m_depthType = RiaDefines::DepthType::TRUE_VERTICAL_DEPTH;
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNameOrSimWellName, "WellName", "Well Name" );
     CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index" );
@@ -126,7 +126,7 @@ RimWellRftPlot::RimWellRftPlot()
 
     // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
     // It was developed for regular well log plots and requires some more work for RFT plots.
-    setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH } );
+    setAvailableDepthTypes( { RiaDefines::DepthType::MEASURED_DEPTH, RiaDefines::DepthType::TRUE_VERTICAL_DEPTH } );
 
     m_nameConfig->setCustomName( "RFT Plot" );
     setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
@@ -199,7 +199,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
         RimWellLogTrack* track              = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
         if ( track )
         {
-            formationNamesCase = track->formationNamesCase();
+            formationNamesCase = track->formationCase();
 
             if ( !formationNamesCase )
             {
@@ -747,7 +747,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
     }
 
-    if ( depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+    if ( depthType() == RiaDefines::DepthType::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }
@@ -1276,7 +1276,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
-    if ( depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+    if ( depthType() == RiaDefines::DepthType::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }

@@ -137,15 +137,15 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
                 addDatapointsForBottomOfSegment( tvDepthValues, dummyValues );
             }
 
-            std::map<RiaDefines::DepthTypeEnum, std::vector<double>> validDepths;
+            std::map<RiaDefines::DepthType, std::vector<double>> validDepths;
             if ( values.size() == measuredDepthValues.size() )
             {
-                validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, measuredDepthValues ) );
+                validDepths.insert( std::make_pair( RiaDefines::DepthType::MEASURED_DEPTH, measuredDepthValues ) );
             }
             if ( values.size() == tvDepthValues.size() )
             {
-                validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, tvDepthValues ) );
-                validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvDepthValues ) );
+                validDepths.insert( std::make_pair( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, tvDepthValues ) );
+                validDepths.insert( std::make_pair( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB, tvDepthValues ) );
             }
 
             bool useLogarithmicScale = false;

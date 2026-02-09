@@ -54,7 +54,7 @@ public:
                                           std::vector<QString>*     names,
                                           std::vector<double>*      depths,
                                           bool                      includeFluids,
-                                          RiaDefines::DepthTypeEnum depthType ) const;
+                                          RiaDefines::DepthType depthType ) const;
 
     std::vector<FormationLevel> formationsLevelsPresent() const;
 
@@ -100,22 +100,22 @@ private:
                              const FormationLevel&                                               maxLevel,
                              std::vector<QString>*                                               names,
                              std::vector<double>*                                                depths,
-                             RiaDefines::DepthTypeEnum                                           depthType ) const;
+                             RiaDefines::DepthType                                           depthType ) const;
 
     void evaluateFluids( const std::vector<RigWellPathFormation>& fluidFormations,
                          std::vector<QString>*                    names,
                          std::vector<double>*                     depths,
-                         RiaDefines::DepthTypeEnum                depthType ) const;
+                         RiaDefines::DepthType                depthType ) const;
 
     void evaluateFormationsForOnePosition( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
                                            const FormationLevel&                                               maxLevel,
                                            const PickPosition&                                                 position,
                                            std::map<double, LevelAndName, DepthComp>*                          uniqueListMaker,
-                                           RiaDefines::DepthTypeEnum                                           depthType ) const;
+                                           RiaDefines::DepthType                                           depthType ) const;
 
     void depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*     names,
                                                          std::vector<double>*      measuredDepths,
-                                                         RiaDefines::DepthTypeEnum depthType ) const;
+                                                         RiaDefines::DepthType depthType ) const;
 
     bool           isFluid( QString formationName );
     FormationLevel detectLevel( QString formationName );
