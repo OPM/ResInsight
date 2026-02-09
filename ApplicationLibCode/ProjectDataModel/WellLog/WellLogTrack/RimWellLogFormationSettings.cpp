@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025-     Equinor ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -66,13 +66,6 @@ RimWellLogFormationSettings::RimWellLogFormationSettings()
     CAF_PDM_InitFieldNoDefault( &m_formationLevel, "FormationLevel", "Well Pick Filter" );
 
     CAF_PDM_InitField( &m_showFormationFluids, "ShowFormationFluids", false, "Show Fluids" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogFormationSettings::~RimWellLogFormationSettings()
-{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,19 +307,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFormationSettings::calculateValueOptions
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_formationSource )
-    {
-        options.push_back( caf::PdmOptionItemInfo( "Case", static_cast<int>( RiaDefines::WellLogTrackFormationSource::CASE ) ) );
-        options.push_back( caf::PdmOptionItemInfo( "Well Picks for Well Path",
-                                                   static_cast<int>( RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER ) ) );
-    }
-    else if ( fieldNeedingOptions == &m_formationTrajectoryType )
-    {
-        options.push_back( caf::PdmOptionItemInfo( "Well Path", static_cast<int>( RiaDefines::WellLogTrackTrajectoryType::WELL_PATH ) ) );
-        options.push_back(
-            caf::PdmOptionItemInfo( "Simulation Well", static_cast<int>( RiaDefines::WellLogTrackTrajectoryType::SIMULATION_WELL ) ) );
-    }
-    else if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
+    if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
     {
         RimTools::wellPathOptionItems( &options );
     }
