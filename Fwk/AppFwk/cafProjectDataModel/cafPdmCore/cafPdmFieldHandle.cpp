@@ -135,6 +135,26 @@ std::vector<QString> PdmFieldHandle::keywordAliases() const
 //--------------------------------------------------------------------------------------------------
 QString PdmFieldHandle::validate() const
 {
+    return executeCustomValidation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldHandle::setCustomValidationCallback( std::function<QString()> callback )
+{
+    m_customValidationCallback = std::move( callback );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmFieldHandle::executeCustomValidation() const
+{
+    if ( m_customValidationCallback )
+    {
+        return m_customValidationCallback();
+    }
     return QString();
 }
 

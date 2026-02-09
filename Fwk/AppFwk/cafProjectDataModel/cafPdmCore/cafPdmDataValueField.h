@@ -259,7 +259,7 @@ QString caf::PdmDataValueField<DataType>::validate() const
             return QString( "Value %1 exceeds maximum %2" ).arg( m_fieldValue ).arg( m_maxValue.value() );
         }
     }
-    return QString();
+    return executeCustomValidation();
 }
 
 } // End of namespace caf

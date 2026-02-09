@@ -12,6 +12,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmValueField.h"
 
+#include <memory>
 #include <vector>
 
 class DemoPdmObject : public caf::PdmObjectHandle
@@ -1007,4 +1008,88 @@ TEST( BaseTest, ObjectValidation )
     EXPECT_FALSE( errors["_object"].contains( "strict mode" ) );
 
     delete customObj;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test of custom validation callback
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, CustomValidationCallback )
+{
+    class TestObject : public caf::PdmObjectHandle
+    {
+    public:
+        TestObject()
+        {
+            this->addField( &m_value, "value" );
+            this->addField( &m_rangedValue, "rangedValue" );
+        }
+
+        caf::PdmDataValueField<int> m_value;
+        caf::PdmDataValueField<int> m_rangedValue;
+    };
+
+    auto obj = std::make_unique<TestObject>();
+
+    // A field with no callback is valid by default
+    obj->m_value.setValue( 42 );
+    EXPECT_TRUE( obj->m_value.isValid() );
+    EXPECT_TRUE( obj->m_value.validate().isEmpty() );
+
+    // Registering a callback that returns an error string makes the field invalid
+    obj->m_value.setCustomValidationCallback( []() -> QString { return "Custom error"; } );
+    EXPECT_FALSE( obj->m_value.isValid() );
+    EXPECT_EQ( QString( "Custom error" ), obj->m_value.validate() );
+
+    // Registering a callback that returns empty string keeps the field valid
+    obj->m_value.setCustomValidationCallback( []() -> QString { return QString(); } );
+    EXPECT_TRUE( obj->m_value.isValid() );
+    EXPECT_TRUE( obj->m_value.validate().isEmpty() );
+
+    // The callback can access the field value for conditional validation
+    obj->m_value.setCustomValidationCallback(
+        [&obj]() -> QString
+        {
+            if ( obj->m_value.value() % 2 != 0 )
+            {
+                return "Value must be even";
+            }
+            return QString();
+        } );
+
+    obj->m_value.setValue( 4 );
+    EXPECT_TRUE( obj->m_value.isValid() );
+
+    obj->m_value.setValue( 7 );
+    EXPECT_FALSE( obj->m_value.isValid() );
+    EXPECT_EQ( QString( "Value must be even" ), obj->m_value.validate() );
+
+    // Custom callback works alongside range validation (both must pass)
+    obj->m_rangedValue.setRange( 0, 100 );
+    obj->m_rangedValue.setCustomValidationCallback(
+        [&obj]() -> QString
+        {
+            if ( obj->m_rangedValue.value() % 2 != 0 )
+            {
+                return "Value must be even";
+            }
+            return QString();
+        } );
+
+    // Both range and custom pass
+    obj->m_rangedValue.setValue( 50 );
+    EXPECT_TRUE( obj->m_rangedValue.isValid() );
+
+    // Range fails (custom would pass)
+    obj->m_rangedValue.setValue( 150 );
+    EXPECT_FALSE( obj->m_rangedValue.isValid() );
+    EXPECT_TRUE( obj->m_rangedValue.validate().contains( "exceeds maximum" ) );
+
+    // Custom fails (range would pass)
+    obj->m_rangedValue.setValue( 51 );
+    EXPECT_FALSE( obj->m_rangedValue.isValid() );
+    EXPECT_EQ( QString( "Value must be even" ), obj->m_rangedValue.validate() );
+
+    // Both pass
+    obj->m_rangedValue.setValue( 50 );
+    EXPECT_TRUE( obj->m_rangedValue.isValid() );
 }

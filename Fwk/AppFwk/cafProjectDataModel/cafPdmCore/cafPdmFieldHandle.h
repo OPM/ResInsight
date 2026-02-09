@@ -2,6 +2,7 @@
 
 #include "cafPdmBase.h"
 #include <QString>
+#include <functional>
 #include <vector>
 
 namespace caf
@@ -61,9 +62,11 @@ public:
     // Validation
     virtual QString validate() const;
     bool            isValid() const;
+    void            setCustomValidationCallback( std::function<QString()> callback );
 
 protected:
-    bool isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
+    QString executeCustomValidation() const;
+    bool    isInitializedByInitFieldMacro() const { return m_ownerObject != nullptr; }
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmFieldHandle );
@@ -77,6 +80,8 @@ private:
     std::vector<QString> m_keywordAliases;
 
     std::vector<std::pair<PdmFieldCapability*, bool>> m_capabilities;
+
+    std::function<QString()> m_customValidationCallback;
 };
 
 //--------------------------------------------------------------------------------------------------
