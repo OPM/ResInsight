@@ -190,10 +190,7 @@ public:
 
         if ( !firstCurveData->depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ).empty() )
         {
-            lasFile->AddLog( "TVDMSL",
-                             "M",
-                             "True vertical depth in meters",
-                             firstCurveData->depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
+            lasFile->AddLog( "TVDMSL", "M", "True vertical depth in meters", firstCurveData->depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
 
             if ( m_exportTvdrkb && m_rkbDiff != -1.0 )
             {

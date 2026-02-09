@@ -71,7 +71,7 @@ void RigWellLogCurveData::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues,
                                               const std::vector<double>& depths,
-                                              RiaDefines::DepthType  depthType,
+                                              RiaDefines::DepthType      depthType,
                                               double                     rkbDiff,
                                               RiaDefines::DepthUnitType  depthUnit,
                                               bool                       isExtractionCurve,
@@ -95,12 +95,12 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&                                      xValues,
+void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&                                  xValues,
                                               const std::map<RiaDefines::DepthType, std::vector<double>>& depths,
-                                              double                                                          rkbDiff,
-                                              RiaDefines::DepthUnitType                                       depthUnit,
-                                              bool                                                            isExtractionCurve,
-                                              bool                                                            useLogarithmicScale )
+                                              double                                                      rkbDiff,
+                                              RiaDefines::DepthUnitType                                   depthUnit,
+                                              bool                                                        isExtractionCurve,
+                                              bool                                                        useLogarithmicScale )
 {
     for ( auto it = depths.begin(); it != depths.end(); ++it )
     {
@@ -182,8 +182,7 @@ std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthType depthType
         }
         return tvds;
     }
-    else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH &&
-              m_depths.count( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB ) )
+    else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH && m_depths.count( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB ) )
     {
         std::vector<double> tvds = depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB );
         for ( double& tvdValue : tvds )
@@ -247,7 +246,7 @@ std::vector<double> RigWellLogCurveData::propertyValuesByIntervals() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::depthValuesByIntervals( RiaDefines::DepthType depthType,
+std::vector<double> RigWellLogCurveData::depthValuesByIntervals( RiaDefines::DepthType     depthType,
                                                                  RiaDefines::DepthUnitType destinationDepthUnit ) const
 {
     const std::vector<double> depthValues = RigWellLogCurveData::depthsForDepthUnit( depths( depthType ), m_depthUnit, destinationDepthUnit );
@@ -328,8 +327,8 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 
     if ( isTVDAvailable )
     {
-        std::map<RiaDefines::DepthType, std::vector<double>> resampledDepths =
-            { { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, tvDepths }, { RiaDefines::DepthType::MEASURED_DEPTH, measuredDepths } };
+        std::map<RiaDefines::DepthType, std::vector<double>> resampledDepths = { { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, tvDepths },
+                                                                                 { RiaDefines::DepthType::MEASURED_DEPTH, measuredDepths } };
         reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true, m_useLogarithmicScale );
     }
     else
@@ -352,16 +351,15 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 /// resampledDepths vector for the resampling type. The depth values for remaining depth types
 /// are created by linear interpolation between first and second depth value of the resampling type.
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::createAndAddInterpolatedSegmentValueAndDepths(
-    std::vector<double>&                                            resampledValues,
-    std::map<RiaDefines::DepthType, std::vector<double>>&       resampledDepths,
-    RiaDefines::DepthType                                       resamplingDepthType,
-    double                                                          targetDepthValue,
-    size_t                                                          firstIndex,
-    size_t                                                          secondIndex,
-    const std::map<RiaDefines::DepthType, std::vector<double>>& originalDepths,
-    const std::vector<double>&                                      propertyValues,
-    double                                                          eps )
+void RigWellLogCurveData::createAndAddInterpolatedSegmentValueAndDepths( std::vector<double>& resampledValues,
+                                                                         std::map<RiaDefines::DepthType, std::vector<double>>& resampledDepths,
+                                                                         RiaDefines::DepthType resamplingDepthType,
+                                                                         double                targetDepthValue,
+                                                                         size_t                firstIndex,
+                                                                         size_t                secondIndex,
+                                                                         const std::map<RiaDefines::DepthType, std::vector<double>>& originalDepths,
+                                                                         const std::vector<double>& propertyValues,
+                                                                         double                     eps )
 {
     if ( !originalDepths.contains( resamplingDepthType ) ) return;
 
@@ -418,10 +416,10 @@ bool isRightOf( double x1, double x2, bool reverseOrder, double eps )
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<double>, std::map<RiaDefines::DepthType, std::vector<double>>>
-    RigWellLogCurveData::createResampledValuesAndDepths( RiaDefines::DepthType  resamplingDepthType,
-                                                         const std::vector<double>& targetDepths,
+    RigWellLogCurveData::createResampledValuesAndDepths( RiaDefines::DepthType                                       resamplingDepthType,
+                                                         const std::vector<double>&                                  targetDepths,
                                                          const std::map<RiaDefines::DepthType, std::vector<double>>& originalDepths,
-                                                         const std::vector<double>&                                      propertyValues )
+                                                         const std::vector<double>&                                  propertyValues )
 {
     const double eps = 1.0e-8;
 
@@ -431,7 +429,7 @@ std::pair<std::vector<double>, std::map<RiaDefines::DepthType, std::vector<doubl
 
     bool reverseOrder = resamplingDepthType == RiaDefines::DepthType::CONNECTION_NUMBER;
 
-    std::vector<double>                                      resampledValues;
+    std::vector<double>                                  resampledValues;
     std::map<RiaDefines::DepthType, std::vector<double>> resampledDepths;
 
     size_t segmentSearchStartIdx = 0;
@@ -521,7 +519,7 @@ std::pair<std::vector<double>, std::map<RiaDefines::DepthType, std::vector<doubl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthType  resamplingDepthType,
+cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthType      resamplingDepthType,
                                                                                 const std::vector<double>& depths ) const
 {
     const auto [xValues, resampledDepths] = createResampledValuesAndDepths( resamplingDepthType, depths, m_depths, m_propertyValues );
@@ -629,7 +627,7 @@ void RigWellLogCurveData::splitIntervalAtEmptySpace( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogCurveData::calculateDepthRange( RiaDefines::DepthType depthType,
+bool RigWellLogCurveData::calculateDepthRange( RiaDefines::DepthType     depthType,
                                                RiaDefines::DepthUnitType depthUnit,
                                                double*                   minimumDepth,
                                                double*                   maximumDepth ) const

@@ -47,8 +47,8 @@ RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathForma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*     names,
-                                                                            std::vector<double>*      measuredDepths,
+void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>* names,
+                                                                            std::vector<double>*  measuredDepths,
                                                                             RiaDefines::DepthType depthType ) const
 {
     std::map<double, bool, DepthComp> tempMakeVectorUniqueOnMeasuredDepth;
@@ -106,7 +106,7 @@ void RigWellPathFormations::evaluateFormationsForOnePosition( const std::vector<
                                                               const FormationLevel&                      maxLevel,
                                                               const PickPosition&                        position,
                                                               std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
-                                                              RiaDefines::DepthType                  depthType ) const
+                                                              RiaDefines::DepthType                      depthType ) const
 {
     QString postFix;
 
@@ -164,7 +164,7 @@ void RigWellPathFormations::evaluateFormations( const std::vector<std::pair<RigW
                                                 const FormationLevel&                                               maxLevel,
                                                 std::vector<QString>*                                               names,
                                                 std::vector<double>*                                                depths,
-                                                RiaDefines::DepthType                                           depthType ) const
+                                                RiaDefines::DepthType                                               depthType ) const
 {
     std::map<double, LevelAndName, DepthComp> tempMakeVectorUniqueOnDepth;
 
@@ -184,7 +184,7 @@ void RigWellPathFormations::evaluateFormations( const std::vector<std::pair<RigW
 void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormation>& fluidFormations,
                                             std::vector<QString>*                    names,
                                             std::vector<double>*                     depths,
-                                            RiaDefines::DepthType                depthType ) const
+                                            RiaDefines::DepthType                    depthType ) const
 {
     std::map<double, QString, DepthComp> uniqueListMaker;
 
@@ -232,10 +232,10 @@ void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel            level,
-                                                             std::vector<QString>*     names,
-                                                             std::vector<double>*      depths,
-                                                             bool                      includeFluids,
+void RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel        level,
+                                                             std::vector<QString>* names,
+                                                             std::vector<double>*  depths,
+                                                             bool                  includeFluids,
                                                              RiaDefines::DepthType depthType ) const
 {
     names->clear();

@@ -50,10 +50,10 @@ public:
 public:
     RigWellPathFormations( const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key );
 
-    void depthAndFormationNamesUpToLevel( FormationLevel            level,
-                                          std::vector<QString>*     names,
-                                          std::vector<double>*      depths,
-                                          bool                      includeFluids,
+    void depthAndFormationNamesUpToLevel( FormationLevel        level,
+                                          std::vector<QString>* names,
+                                          std::vector<double>*  depths,
+                                          bool                  includeFluids,
                                           RiaDefines::DepthType depthType ) const;
 
     std::vector<FormationLevel> formationsLevelsPresent() const;
@@ -100,21 +100,21 @@ private:
                              const FormationLevel&                                               maxLevel,
                              std::vector<QString>*                                               names,
                              std::vector<double>*                                                depths,
-                             RiaDefines::DepthType                                           depthType ) const;
+                             RiaDefines::DepthType                                               depthType ) const;
 
     void evaluateFluids( const std::vector<RigWellPathFormation>& fluidFormations,
                          std::vector<QString>*                    names,
                          std::vector<double>*                     depths,
-                         RiaDefines::DepthType                depthType ) const;
+                         RiaDefines::DepthType                    depthType ) const;
 
     void evaluateFormationsForOnePosition( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
                                            const FormationLevel&                                               maxLevel,
                                            const PickPosition&                                                 position,
                                            std::map<double, LevelAndName, DepthComp>*                          uniqueListMaker,
-                                           RiaDefines::DepthType                                           depthType ) const;
+                                           RiaDefines::DepthType                                               depthType ) const;
 
-    void depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*     names,
-                                                         std::vector<double>*      measuredDepths,
+    void depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>* names,
+                                                         std::vector<double>*  measuredDepths,
                                                          RiaDefines::DepthType depthType ) const;
 
     bool           isFluid( QString formationName );

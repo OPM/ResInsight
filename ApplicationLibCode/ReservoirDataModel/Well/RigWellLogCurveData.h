@@ -47,18 +47,18 @@ public:
 
     void setValuesAndDepths( const std::vector<double>& propertyValues,
                              const std::vector<double>& depths,
-                             RiaDefines::DepthType  depthType,
+                             RiaDefines::DepthType      depthType,
                              double                     rkbDiff,
                              RiaDefines::DepthUnitType  depthUnit,
                              bool                       isExtractionCurve,
                              bool                       useLogarithmicScale );
 
-    void setValuesAndDepths( const std::vector<double>&                                      propertyValues,
+    void setValuesAndDepths( const std::vector<double>&                                  propertyValues,
                              const std::map<RiaDefines::DepthType, std::vector<double>>& depths,
-                             double                                                          rkbDiff,
-                             RiaDefines::DepthUnitType                                       depthUnit,
-                             bool                                                            isExtractionCurve,
-                             bool                                                            useLogarithmicScale );
+                             double                                                      rkbDiff,
+                             RiaDefines::DepthUnitType                                   depthUnit,
+                             bool                                                        isExtractionCurve,
+                             bool                                                        useLogarithmicScale );
 
     void setPropertyValueUnit( const QString& propertyValueUnitString );
 
@@ -80,26 +80,26 @@ public:
     std::vector<std::pair<size_t, size_t>> polylineStartStopIndices() const;
 
     cvf::ref<RigWellLogCurveData> calculateResampledCurveData( double newMeasuredDepthStepSize ) const;
-    cvf::ref<RigWellLogCurveData> calculateResampledCurveData( RiaDefines::DepthType  resamplingDepthType,
+    cvf::ref<RigWellLogCurveData> calculateResampledCurveData( RiaDefines::DepthType      resamplingDepthType,
                                                                const std::vector<double>& depths ) const;
 
     // Made static due to unit testing
-    static void createAndAddInterpolatedSegmentValueAndDepths( std::vector<double>&                                      resampledValues,
+    static void createAndAddInterpolatedSegmentValueAndDepths( std::vector<double>&                                  resampledValues,
                                                                std::map<RiaDefines::DepthType, std::vector<double>>& resampledDepths,
-                                                               RiaDefines::DepthType resamplingDepthType,
-                                                               double                    targetDepthValue,
-                                                               size_t                    firstIndex,
-                                                               size_t                    secondIndex,
+                                                               RiaDefines::DepthType                                 resamplingDepthType,
+                                                               double                                                targetDepthValue,
+                                                               size_t                                                firstIndex,
+                                                               size_t                                                secondIndex,
                                                                const std::map<RiaDefines::DepthType, std::vector<double>>& originalDepths,
-                                                               const std::vector<double>& propertyValues,
-                                                               double                     eps );
+                                                               const std::vector<double>&                                  propertyValues,
+                                                               double                                                      eps );
 
     // Made static due to unit testing
     static std::pair<std::vector<double>, std::map<RiaDefines::DepthType, std::vector<double>>>
         createResampledValuesAndDepths( RiaDefines::DepthType                                       resamplingDepthType,
-                                        const std::vector<double>&                                      targetDepths,
+                                        const std::vector<double>&                                  targetDepths,
                                         const std::map<RiaDefines::DepthType, std::vector<double>>& originalDepths,
-                                        const std::vector<double>&                                      propertyValues );
+                                        const std::vector<double>&                                  propertyValues );
 
 private:
     void calculateIntervalsOfContinousValidValues();
@@ -114,11 +114,11 @@ private:
                                            std::vector<std::pair<size_t, size_t>>* intervals );
 
 private:
-    std::vector<double>                                      m_propertyValues;
+    std::vector<double>                                  m_propertyValues;
     std::map<RiaDefines::DepthType, std::vector<double>> m_depths;
-    bool                                                     m_isExtractionCurve;
-    double                                                   m_rkbDiff;
-    bool                                                     m_useLogarithmicScale;
+    bool                                                 m_isExtractionCurve;
+    double                                               m_rkbDiff;
+    bool                                                 m_useLogarithmicScale;
 
     std::vector<std::pair<size_t, size_t>> m_intervalsOfContinousValidValues;
 
