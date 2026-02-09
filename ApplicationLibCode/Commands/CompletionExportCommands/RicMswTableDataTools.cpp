@@ -41,7 +41,8 @@ void RicMswTableDataTools::collectWelsegsData( RigMswTableData&                 
                                                RicMswExportInfo&                             exportInfo,
                                                double                                        maxSegmentLength,
                                                const std::vector<std::pair<double, double>>& customSegmentIntervals,
-                                               bool                                          exportCompletionSegmentsAfterMainBore )
+                                               bool                                          exportCompletionSegmentsAfterMainBore,
+                                               const std::optional<QDateTime>&               exportDate )
 {
     // Set up WELSEGS header
     WelsegsHeader header;
@@ -68,7 +69,8 @@ void RicMswTableDataTools::collectWelsegsData( RigMswTableData&                 
                                    maxSegmentLength,
                                    customSegmentIntervals,
                                    exportCompletionSegmentsAfterMainBore,
-                                   nullptr );
+                                   nullptr,
+                                   exportDate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,8 +82,9 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
                                                           gsl::not_null<int*>                           segmentNumber,
                                                           double                                        maxSegmentLength,
                                                           const std::vector<std::pair<double, double>>& customSegmentIntervals,
-                                                          bool           exportCompletionSegmentsAfterMainBore,
-                                                          RicMswSegment* connectedToSegment )
+                                                          bool                            exportCompletionSegmentsAfterMainBore,
+                                                          RicMswSegment*                  connectedToSegment,
+                                                          const std::optional<QDateTime>& exportDate )
 {
     auto         outletSegment = connectedToSegment;
     RicMswValve* outletValve   = nullptr;
@@ -113,7 +116,16 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
             branchDescription = QString( "Segments on branch %1" ).arg( branch->label() );
         }
 
-        collectWelsegsSegment( tableData, segment, outletSegment, exportInfo, maxSegmentLength, customSegmentIntervals, branch, segmentNumber, branchDescription );
+        collectWelsegsSegment( tableData,
+                               segment,
+                               outletSegment,
+                               exportInfo,
+                               maxSegmentLength,
+                               customSegmentIntervals,
+                               branch,
+                               segmentNumber,
+                               branchDescription,
+                               exportDate );
         outletSegment = segment;
 
         if ( !exportCompletionSegmentsAfterMainBore )
@@ -161,7 +173,8 @@ void RicMswTableDataTools::collectWelsegsDataRecursively( RigMswTableData&      
                                        maxSegmentLength,
                                        customSegmentIntervals,
                                        exportCompletionSegmentsAfterMainBore,
-                                       outletSegmentForChildBranch );
+                                       outletSegmentForChildBranch,
+                                       exportDate );
     }
 }
 
@@ -176,7 +189,8 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&              
                                                   const std::vector<std::pair<double, double>>& customSegmentIntervals,
                                                   gsl::not_null<RicMswBranch*>                  branch,
                                                   int*                                          segmentNumber,
-                                                  QString                                       branchDescription )
+                                                  QString                                       branchDescription,
+                                                  const std::optional<QDateTime>&               exportDate )
 {
     CVF_ASSERT( segment && segmentNumber );
 
@@ -227,8 +241,19 @@ void RicMswTableDataTools::collectWelsegsSegment( RigMswTableData&              
             length = midPointMD;
         }
 
-        const auto linerDiameter   = branch->wellPath()->mswCompletionParameters()->getDiameterAtMD( midPointMD, exportInfo.unitSystem() );
-        const auto roughnessFactor = branch->wellPath()->mswCompletionParameters()->getRoughnessAtMD( midPointMD, exportInfo.unitSystem() );
+        double linerDiameter   = 0.0;
+        double roughnessFactor = 0.0;
+        if ( exportDate.has_value() )
+        {
+            linerDiameter = branch->wellPath()->mswCompletionParameters()->getDiameterAtMD( midPointMD, exportInfo.unitSystem(), *exportDate );
+            roughnessFactor =
+                branch->wellPath()->mswCompletionParameters()->getRoughnessAtMD( midPointMD, exportInfo.unitSystem(), *exportDate );
+        }
+        else
+        {
+            linerDiameter   = branch->wellPath()->mswCompletionParameters()->getDiameterAtMD( midPointMD, exportInfo.unitSystem() );
+            roughnessFactor = branch->wellPath()->mswCompletionParameters()->getRoughnessAtMD( midPointMD, exportInfo.unitSystem() );
+        }
 
         WelsegsRow row;
         row.sourceWellName = branch->wellPath()->name().toStdString();

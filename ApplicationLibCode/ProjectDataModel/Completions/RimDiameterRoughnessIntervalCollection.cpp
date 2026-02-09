@@ -93,6 +93,44 @@ double RimDiameterRoughnessIntervalCollection::getRoughnessAtMD( double md, RiaD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimDiameterRoughnessIntervalCollection::getDiameterAtMD( double                        md,
+                                                                RiaDefines::EclipseUnitSystem unitSystem,
+                                                                const QDateTime&              exportDate ) const
+{
+    for ( auto* interval : intervals() )
+    {
+        if ( interval && interval->containsMD( md ) && interval->isActiveOnDate( exportDate ) )
+        {
+            return interval->diameter( unitSystem );
+        }
+    }
+
+    // Return default if no active interval found at this date
+    return RimMswCompletionParameters::defaultLinerDiameter( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimDiameterRoughnessIntervalCollection::getRoughnessAtMD( double                        md,
+                                                                 RiaDefines::EclipseUnitSystem unitSystem,
+                                                                 const QDateTime&              exportDate ) const
+{
+    for ( auto* interval : intervals() )
+    {
+        if ( interval && interval->containsMD( md ) && interval->isActiveOnDate( exportDate ) )
+        {
+            return interval->roughnessFactor( unitSystem );
+        }
+    }
+
+    // Return default if no active interval found at this date
+    return RimMswCompletionParameters::defaultRoughnessFactor( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimDiameterRoughnessIntervalCollection::coversFullRange( double startMD, double endMD ) const
 {
     if ( isEmpty() ) return false;

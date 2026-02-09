@@ -127,7 +127,8 @@ std::expected<RigMswTableData, std::string>
                                               exportInfo,
                                               mswParameters->maxSegmentLength(),
                                               customSegmentIntervals,
-                                              exportCompletionsAfterMainBoreSegments );
+                                              exportCompletionsAfterMainBoreSegments,
+                                              exportDate );
 
     {
         // Get COMPSEGS for main grid

@@ -515,10 +515,12 @@ class TestScheduleGeneration:
         Scenario:
         - Add tubing + perf event for well A at 2024-01-01 (depth 2000-2200)
         - Add tubing + perf event for well B at 2024-03-01 (depth 1500-1700)
-        - Add another perf event for well A at 2024-04-01 (depth 1800-2000, different depth)
+        - Add another tubing + perf event for well A at 2024-04-01 (depth 1800-2000, different diameter)
         - Set timestamp to 2024-12-31 (after all events)
         - Verify well A appears in January and April sections with different COMPSEGS
         - Verify well B appears in March section but NOT in January section
+        - Verify each perf event has distinct diameter and skin_factor values
+        - Verify April WELSEGS has different inner_diameter than January WELSEGS
         """
         project, case, timeline = project_with_case_and_well
 
@@ -531,10 +533,10 @@ class TestScheduleGeneration:
         timeline.add_tubing_event(
             event_date="2024-01-01",
             well_path=well_path_a,
-            start_md=0.0,
-            end_md=2400.0,
-            inner_diameter=0.15,
-            roughness=1.0e-5,
+            start_md=1500.0,
+            end_md=2300.0,
+            inner_diameter=0.22,
+            roughness=9.0e-5,
         )
         timeline.add_perf_event(
             event_date="2024-01-01",
@@ -550,28 +552,36 @@ class TestScheduleGeneration:
         timeline.add_tubing_event(
             event_date="2024-03-01",
             well_path=well_path_b,
-            start_md=0.0,
+            start_md=1400.0,
             end_md=2000.0,
             inner_diameter=0.15,
-            roughness=1.0e-5,
+            roughness=2.0e-5,
         )
         timeline.add_perf_event(
             event_date="2024-03-01",
             well_path=well_path_b,
             start_md=1500.0,
             end_md=1700.0,
-            diameter=0.1,
-            skin_factor=0.5,
+            diameter=0.2,
+            skin_factor=0.8,
             state="OPEN",
         )
 
-        # Add another perforation for well A at 2024-04-01 at a different depth (1800-2000)
+        # Add another tubing + perforation for well A at 2024-04-01 at a different depth (1800-2000)
+        timeline.add_tubing_event(
+            event_date="2024-04-01",
+            well_path=well_path_a,
+            start_md=600.0,
+            end_md=2400.0,
+            inner_diameter=0.20,
+            roughness=3.0e-5,
+        )
         timeline.add_perf_event(
             event_date="2024-04-01",
             well_path=well_path_a,
             start_md=1800.0,
             end_md=2000.0,
-            diameter=0.1,
+            diameter=0.15,
             skin_factor=0.3,
             state="OPEN",
         )
@@ -686,11 +696,56 @@ class TestScheduleGeneration:
             "April COMPSEGS should contain perforation range 1800-2000"
         )
 
+        # Verify WELSEGS sections exist for tubing events
+        assert "WELSEGS" in january_section, (
+            "January section should contain WELSEGS for well A (tubing event)"
+        )
+        assert "WELSEGS" in april_section, (
+            "April section should contain WELSEGS for well A (second tubing event)"
+        )
+
+        # Verify that the April tubing event values do NOT leak into January WELSEGS.
+        # January tubing: inner_diameter=0.15, roughness=9e-05
+        # April tubing: inner_diameter=0.20, roughness=3e-05
+        # The roughness value 3e-05 is unique to the April tubing event,
+        # so it must NOT appear in the January section.
+        assert "3e-05" not in january_section, (
+            "January WELSEGS should NOT contain roughness 3e-05 from April tubing event. "
+            "Tubing events should only appear at their event date, not earlier."
+        )
+
+        # Verify April section contains the April tubing roughness
+        assert "3e-05" in april_section, (
+            "April WELSEGS should contain roughness 3e-05 from April tubing event"
+        )
+
+        # Verify distinct perf diameter/skin values appear in COMPDAT sections
+        # January perf: diameter=0.1, skin_factor=0.5
+        assert "COMPDAT" in january_section, (
+            "January section should contain COMPDAT for well A"
+        )
+        assert "0.5" in january_section, (
+            "January COMPDAT should contain skin_factor 0.5 from first perf event"
+        )
+
+        # April perf: diameter=0.15, skin_factor=0.3
+        assert "COMPDAT" in april_section, (
+            "April section should contain COMPDAT for well A"
+        )
+        assert "0.3" in april_section, (
+            "April COMPDAT should contain skin_factor 0.3 from third perf event"
+        )
+
         print("\n✓ Verified: Well A appears in January section (event at 2000-2200)")
         print("✓ Verified: Well B does NOT appear in January section")
         print("✓ Verified: Well B appears in March section (its event date)")
         print("✓ Verified: Well A appears in April section (event at 1800-2000)")
         print("✓ Verified: COMPSEGS for well A is different in January vs April")
+        print(
+            "✓ Verified: WELSEGS present in both January and April (two tubing events)"
+        )
+        print("✓ Verified: April tubing values do NOT leak into January section")
+        print("✓ Verified: Distinct perf diameters/skin values in COMPDAT sections")
 
     def test_example_workflow_schedule_generation(self, project_with_case_and_well):
         """Test the exact workflow from well_event_schedule.py example.

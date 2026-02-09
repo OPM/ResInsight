@@ -298,6 +298,34 @@ double RimMswCompletionParameters::getRoughnessAtMD( double md, RiaDefines::Ecli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const
+{
+    if ( isUsingIntervalSpecificValues() && m_diameterRoughnessIntervals() )
+    {
+        return m_diameterRoughnessIntervals()->getDiameterAtMD( md, unitSystem, exportDate );
+    }
+
+    // Fall back to single value
+    return linerDiameter( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const
+{
+    if ( isUsingIntervalSpecificValues() && m_diameterRoughnessIntervals() )
+    {
+        return m_diameterRoughnessIntervals()->getRoughnessAtMD( md, unitSystem, exportDate );
+    }
+
+    // Fall back to single value
+    return roughnessFactor( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimDiameterRoughnessIntervalCollection* RimMswCompletionParameters::diameterRoughnessIntervals() const
 {
     return m_diameterRoughnessIntervals();
