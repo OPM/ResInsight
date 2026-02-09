@@ -243,14 +243,10 @@ QString RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline
     }
 
     // Extract MSW data using the existing infrastructure
-    // Use timeStep = -1 to disable date filtering (similar to ignoreDates=true for COMPDAT)
-    // This ensures perforations created from events are included regardless of their custom start dates
     // Pass the export date to filter valve/perforation output based on their creation dates
-    int  timeStep            = -1;
     bool exportAfterMainBore = true;
     auto mswDataResult       = RicWellPathExportMswTableData::extractSingleWellMswData( &eclipseCase,
                                                                                   &wellPath,
-                                                                                  timeStep,
                                                                                   exportAfterMainBore,
                                                                                   RicWellPathExportMswTableData::CompletionType::ALL,
                                                                                   date );

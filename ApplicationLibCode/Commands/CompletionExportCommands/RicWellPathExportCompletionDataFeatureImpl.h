@@ -132,6 +132,8 @@ public:
                                                                           gsl::not_null<const RimWellPath*>    wellPath,
                                                                           const QString&                       gridName = "" );
 
+    static std::optional<QDateTime> exportDateForTimeStep( const RimEclipseCase* eclipseCase, size_t timeStepIndex );
+
 private:
     static std::vector<RigCompletionData> generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
                                                                              const std::vector<const RimPerforationInterval*>& intervals,
@@ -197,6 +199,4 @@ private:
     static void exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder );
 
     static RimWellPath* topLevelWellPath( const RigCompletionData& completion );
-
-    static std::optional<QDateTime> exportDateForTimeStep( const RimEclipseCase& eclipseCase, size_t timeStepIndex );
 };

@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
+#include "RicWellPathExportCompletionDataFeatureImpl.h"
 #include "RicWellPathExportCompletionsFileTools.h"
 #include "RicWellPathExportMswTableData.h"
 
@@ -43,7 +44,7 @@ namespace internal
 //--------------------------------------------------------------------------------------------------
 RigMswUnifiedData
     extractUnifiedMswData( RimEclipseCase*                  eclipseCase,
-                           int                              timeStep,
+                           const std::optional<QDateTime>&  exportDate,
                            const std::vector<RimWellPath*>& wellPaths,
                            RicWellPathExportMswTableData::CompletionType completionType = RicWellPathExportMswTableData::CompletionType::ALL )
 {
@@ -53,7 +54,7 @@ RigMswUnifiedData
     {
         bool exportAfterMainbore = true;
         auto wellData =
-            RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, timeStep, exportAfterMainbore, completionType );
+            RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, exportAfterMainbore, completionType, exportDate );
         if ( wellData.has_value() )
         {
             unifiedData.addWellData( std::move( wellData.value() ) );
@@ -70,8 +71,9 @@ void exportUnifiedMswData( const RicExportCompletionDataSettingsUi& exportSettin
                            const QString&                           exportFolder,
                            const std::vector<RimWellPath*>&         wellPaths )
 {
-    auto              completionType = RicWellPathExportMswTableData::convertFromExportSettings( exportSettings );
-    RigMswUnifiedData unifiedData = extractUnifiedMswData( exportSettings.caseToApply, exportSettings.timeStep, wellPaths, completionType );
+    auto completionType = RicWellPathExportMswTableData::convertFromExportSettings( exportSettings );
+    auto exportDate = RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( exportSettings.caseToApply, exportSettings.timeStep );
+    RigMswUnifiedData unifiedData = extractUnifiedMswData( exportSettings.caseToApply, exportDate, wellPaths, completionType );
 
     if ( unifiedData.isEmpty() )
     {
@@ -140,11 +142,13 @@ void exportSplitMswData( const RicExportCompletionDataSettingsUi& exportSettings
     for ( const auto& wellPath : wellPaths )
     {
         auto completionType = RicWellPathExportMswTableData::convertFromExportSettings( exportSettings );
+        auto exportDate =
+            RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( exportSettings.caseToApply, exportSettings.timeStep );
         auto wellDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( exportSettings.caseToApply,
                                                                                        wellPath,
-                                                                                       exportSettings.timeStep,
                                                                                        exportSettings.exportCompletionWelspecAfterMainBore(),
-                                                                                       completionType );
+                                                                                       completionType,
+                                                                                       exportDate );
 
         if ( !wellDataResult.has_value() )
         {

@@ -66,7 +66,6 @@ public:
     // The intention is to extract MSW data from a single well. Any handling of multiple wells is supposed to be managed in a different class
     static std::expected<RigMswTableData, std::string> extractSingleWellMswData( RimEclipseCase* eclipseCase,
                                                                                  RimWellPath*    wellPath,
-                                                                                 int             timeStep,
                                                                                  bool exportCompletionsAfterMainBoreSegments = true,
                                                                                  CompletionType completionType = CompletionType::ALL,
                                                                                  const std::optional<QDateTime>& exportDate = std::nullopt );
@@ -84,7 +83,7 @@ private:
     static bool generateWellSegmentsForMswExportInfo( const RimEclipseCase*                            eclipseCase,
                                                       const RimWellPath*                               wellPath,
                                                       bool                                             createSegmentsForPerforations,
-                                                      int                                              timeStep,
+                                                      const std::optional<QDateTime>&                  exportDate,
                                                       double                                           initialMD,
                                                       const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
                                                       gsl::not_null<RicMswExportInfo*>                 exportInfo,
@@ -125,7 +124,7 @@ private:
                                         const std::vector<WellPathCellIntersectionInfo>&  cellSegmentIntersections,
                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                         const RimWellPath*                                wellPath,
-                                        int                                               timeStep,
+                                        const std::optional<QDateTime>&                   exportDate,
                                         const RimEclipseCase*                             eclipseCase,
                                         bool*                                             foundSubGridIntersections );
 
@@ -163,7 +162,7 @@ private:
 
     static std::vector<RigCompletionData> generatePerforationIntersections( gsl::not_null<const RimWellPath*> wellPath,
                                                                             gsl::not_null<const RimPerforationInterval*> perforationInterval,
-                                                                            int                                  timeStep,
+                                                                            const std::optional<QDateTime>&      exportDate,
                                                                             gsl::not_null<const RimEclipseCase*> eclipseCase );
 
     static void assignPerforationIntersections( const std::vector<RigCompletionData>& completionData,

@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 #include "CompletionExportCommands/RicWellPathExportMswTableData.h"
 
 #include "CompletionsMsw/RigMswTableData.h"
@@ -167,8 +168,12 @@ void RimMswSegmentCollection::updateSegments( RimEclipseCase* eclipseCase )
         return;
     }
 
-    constexpr int timeStep        = 0;
-    auto          tableDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, timeStep );
+    auto exportDate      = RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( eclipseCase, 0 );
+    auto tableDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase,
+                                                                                    wellPath,
+                                                                                    true,
+                                                                                    RicWellPathExportMswTableData::CompletionType::ALL,
+                                                                                    exportDate );
 
     if ( !tableDataResult.has_value() )
     {
