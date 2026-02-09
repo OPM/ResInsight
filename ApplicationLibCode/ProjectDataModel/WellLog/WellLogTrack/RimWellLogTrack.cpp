@@ -1197,13 +1197,7 @@ void RimWellLogTrack::onLoadDataAndUpdate()
          m_regionAnnotationSettings->annotationType() == RiaDefines::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
     {
         m_resultDefinition->loadDataAndUpdate();
-        setFormationFieldsUiReadOnly( false );
     }
-    else
-    {
-        setFormationFieldsUiReadOnly( true );
-    }
-    // UI read-only state for region annotation fields is managed by RimWellLogRegionAnnotationSettings
 
     if ( m_plotWidget )
     {
@@ -2526,16 +2520,6 @@ void RimWellLogTrack::updateStackedCurveData()
             zPos -= 1.0;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setFormationFieldsUiReadOnly( bool readOnly /*= true*/ )
-{
-    // Formation fields are now managed by RimWellLogFormationSettings
-    // Region annotation fields are managed by RimWellLogRegionAnnotationSettings
-    // The settings objects handle their own UI read-only state
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -278,8 +278,6 @@ private:
                                                                int                       branchIndex,
                                                                bool                      useBranchDetection );
 
-    void setFormationFieldsUiReadOnly( bool readOnly = true );
-
     void updateRegionAnnotationsOnPlot();
     void updateFormationNamesOnPlot();
     void updateResultPropertyNamesOnPlot();
