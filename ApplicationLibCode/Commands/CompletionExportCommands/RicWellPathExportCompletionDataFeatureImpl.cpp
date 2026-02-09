@@ -211,7 +211,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
                     if ( exportSettings.includePerforations )
                     {
-                        auto exportDate = exportDateForTimeStep( *exportSettings.caseToApply, exportSettings.timeStep );
+                        auto exportDate = exportDateForTimeStep( exportSettings.caseToApply, exportSettings.timeStep );
                         std::vector<RigCompletionData> perforationCompletionData =
                             generatePerforationsCompdatValues( wellPathLateral,
                                                                wellPathLateral->perforationIntervalCollection()->perforations(),
@@ -385,7 +385,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
         exportSettings.includePerforations = true;
         exportSettings.includeFractures    = true;
 
-        auto exportDate = exportDateForTimeStep( *eclipseCase, timeStepIndex );
+        auto exportDate = exportDateForTimeStep( eclipseCase, timeStepIndex );
 
         completionsPerEclipseCell =
             generatePerforationsCompdatValues( wellPath, wellPath->perforationIntervalCollection()->perforations(), exportSettings, exportDate );
@@ -1812,10 +1812,12 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<QDateTime> RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( const RimEclipseCase& eclipseCase,
+std::optional<QDateTime> RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( const RimEclipseCase* eclipseCase,
                                                                                             size_t                timeStepIndex )
 {
-    auto timeSteps = eclipseCase.timeStepDates();
+    if ( !eclipseCase ) return std::nullopt;
+
+    auto timeSteps = eclipseCase->timeStepDates();
     if ( timeStepIndex < timeSteps.size() ) return timeSteps[timeStepIndex];
     return std::nullopt;
 }

@@ -65,7 +65,6 @@ constexpr double VALVE_SEGMENT_LENGTH = 0.1;
 std::expected<RigMswTableData, std::string>
     RicWellPathExportMswTableData::extractSingleWellMswData( RimEclipseCase*                 eclipseCase,
                                                              RimWellPath*                    wellPath,
-                                                             int                             timeStep,
                                                              bool                            exportCompletionsAfterMainBoreSegments,
                                                              CompletionType                  completionType,
                                                              const std::optional<QDateTime>& exportDate )
@@ -92,7 +91,7 @@ std::expected<RigMswTableData, std::string>
     if ( !generateWellSegmentsForMswExportInfo( eclipseCase,
                                                 wellPath,
                                                 createSegmentsForPerforations,
-                                                timeStep,
+                                                exportDate,
                                                 initialMD,
                                                 cellIntersections,
                                                 &exportInfo,
@@ -197,12 +196,11 @@ void RicWellPathExportMswTableData::generateFishbonesMswExportInfoForWell( const
     auto   cellIntersections = generateCellSegments( eclipseCase, wellPath );
     double initialMD         = computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
 
-    int        timeStep                      = 0;
     const bool createSegmentsForPerforations = true;
     if ( !generateWellSegmentsForMswExportInfo( eclipseCase,
                                                 wellPath,
                                                 createSegmentsForPerforations,
-                                                timeStep,
+                                                std::nullopt,
                                                 initialMD,
                                                 cellIntersections,
                                                 exportInfo,
@@ -549,11 +547,11 @@ bool RicWellPathExportMswTableData::appendFracturesMswExportInfo( RimEclipseCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportMswTableData::generateWellSegmentsForMswExportInfo( const RimEclipseCase* eclipseCase,
-                                                                          const RimWellPath*    wellPath,
-                                                                          bool                  createSegmentsForPerforations,
-                                                                          int                   timeStep,
-                                                                          double                initialMD,
+bool RicWellPathExportMswTableData::generateWellSegmentsForMswExportInfo( const RimEclipseCase*           eclipseCase,
+                                                                          const RimWellPath*              wellPath,
+                                                                          bool                            createSegmentsForPerforations,
+                                                                          const std::optional<QDateTime>& exportDate,
+                                                                          double                          initialMD,
                                                                           const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
                                                                           gsl::not_null<RicMswExportInfo*> exportInfo,
                                                                           gsl::not_null<RicMswBranch*>     branch )
@@ -594,7 +592,7 @@ bool RicWellPathExportMswTableData::generateWellSegmentsForMswExportInfo( const 
 
     bool foundSubGridIntersections = false;
 
-    createWellPathSegments( branch, filteredIntersections, perforationIntervals, wellPath, timeStep, eclipseCase, &foundSubGridIntersections );
+    createWellPathSegments( branch, filteredIntersections, perforationIntervals, wellPath, exportDate, eclipseCase, &foundSubGridIntersections );
 
     createValveCompletions( branch, perforationIntervals, wellPath, exportInfo->unitSystem() );
 
@@ -620,7 +618,7 @@ bool RicWellPathExportMswTableData::generateWellSegmentsForMswExportInfo( const 
         if ( generateWellSegmentsForMswExportInfo( eclipseCase,
                                                    childWellPath,
                                                    createSegmentsForPerforations,
-                                                   timeStep,
+                                                   exportDate,
                                                    tieInOnParentWellPath,
                                                    childCellIntersections,
                                                    exportInfo,
@@ -805,7 +803,7 @@ void RicWellPathExportMswTableData::createWellPathSegments( gsl::not_null<RicMsw
                                                             const std::vector<WellPathCellIntersectionInfo>&  cellSegmentIntersections,
                                                             const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                                             const RimWellPath*                                wellPath,
-                                                            int                                               timeStep,
+                                                            const std::optional<QDateTime>&                   exportDate,
                                                             const RimEclipseCase*                             eclipseCase,
                                                             bool*                                             foundSubGridIntersections )
 {
@@ -837,7 +835,7 @@ void RicWellPathExportMswTableData::createWellPathSegments( gsl::not_null<RicMsw
                     auto   intervalCompletion =
                         std::make_unique<RicMswPerforation>( interval->name(), wellPath, overlapStart, overlapStartTVD, interval );
                     std::vector<RigCompletionData> completionData =
-                        generatePerforationIntersections( wellPath, interval, timeStep, eclipseCase );
+                        generatePerforationIntersections( wellPath, interval, exportDate, eclipseCase );
                     assignPerforationIntersections( completionData,
                                                     intervalCompletion.get(),
                                                     cellIntInfo,
@@ -1423,7 +1421,7 @@ void RicWellPathExportMswTableData::assignFractureCompletionsToCellSegment( cons
 std::vector<RigCompletionData>
     RicWellPathExportMswTableData::generatePerforationIntersections( gsl::not_null<const RimWellPath*>            wellPath,
                                                                      gsl::not_null<const RimPerforationInterval*> perforationInterval,
-                                                                     int                                          timeStep,
+                                                                     const std::optional<QDateTime>&              exportDate,
                                                                      gsl::not_null<const RimEclipseCase*>         eclipseCase )
 {
     std::vector<RigCompletionData> completionData;
@@ -1431,8 +1429,7 @@ std::vector<RigCompletionData>
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
-    bool hasDate  = (size_t)timeStep < eclipseCase->timeStepDates().size();
-    bool isActive = !hasDate || perforationInterval->isActiveOnDate( eclipseCase->timeStepDates()[timeStep] );
+    bool isActive = !exportDate.has_value() || perforationInterval->isActiveOnDate( *exportDate );
 
     if ( wellPath->perforationIntervalCollection()->isChecked() && perforationInterval->isChecked() && isActive )
     {
