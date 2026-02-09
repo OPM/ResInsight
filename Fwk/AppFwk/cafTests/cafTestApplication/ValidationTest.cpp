@@ -26,18 +26,36 @@ ValidationTestObject::ValidationTestObject()
     m_percentage.uiCapability()->setUiToolTip( "Valid range: 0 to 100%" );
     m_percentage.setRange( 0.0, 100.0 );
 
-    // Count field: minimum value only (>= 0)
+    // Count field: minimum value only (>= 0) and must be even (custom callback)
     CAF_PDM_InitField( &m_count, "count", 0, "Count", "", "", "" );
-    m_count.uiCapability()->setUiToolTip( "Must be non-negative" );
+    m_count.uiCapability()->setUiToolTip( "Must be non-negative and even" );
     m_count.setMinValue( 0 );
+    m_count.setCustomValidationCallback(
+        [this]() -> QString
+        {
+            if ( m_count() % 2 != 0 )
+            {
+                return "Count must be an even number";
+            }
+            return {};
+        } );
 
     // Name field: no validation
     CAF_PDM_InitField( &m_name, "name", QString( "John Doe" ), "Name", "", "", "" );
     m_name.uiCapability()->setUiToolTip( "Free text field" );
 
-    // Email field: no validation (but could add custom validation in validate())
+    // Email field: custom validation callback
     CAF_PDM_InitField( &m_email, "email", QString( "john@example.com" ), "Email", "", "", "" );
-    m_email.uiCapability()->setUiToolTip( "Email address" );
+    m_email.uiCapability()->setUiToolTip( "Email address (must contain @)" );
+    m_email.setCustomValidationCallback(
+        [this]() -> QString
+        {
+            if ( !m_email().isEmpty() && !m_email().contains( "@" ) )
+            {
+                return "Email must contain @ symbol";
+            }
+            return {};
+        } );
 
     // Range field: -100.0 to 100.0
     CAF_PDM_InitField( &m_rangeField, "rangeField", 0.0, "Range Field", "", "", "" );
@@ -54,15 +72,7 @@ std::map<QString, QString> ValidationTestObject::validate( const QString& config
     auto errors = PdmObject::validate( configName );
 
     // Add custom object-level validation
-
-    // Email validation (basic)
-    if ( !m_email().isEmpty() )
-    {
-        if ( !m_email().contains( "@" ) )
-        {
-            errors["email"] = "Email must contain @ symbol";
-        }
-    }
+    // Note: email validation is handled by a custom validation callback on the field itself
 
     // Name validation
     if ( m_name().isEmpty() )
@@ -135,6 +145,7 @@ void ValidationTestObject::performValidation()
     qDebug() << "Age valid:" << m_age.isValid();
     qDebug() << "Percentage valid:" << m_percentage.isValid();
     qDebug() << "Count valid:" << m_count.isValid();
+    qDebug() << "Email valid:" << m_email.isValid();
 
     // Show validation messages
     if ( !m_temperature.isValid() )
@@ -152,5 +163,9 @@ void ValidationTestObject::performValidation()
     if ( !m_count.isValid() )
     {
         qDebug() << "  Count error:" << m_count.validate();
+    }
+    if ( !m_email.isValid() )
+    {
+        qDebug() << "  Email error:" << m_email.validate();
     }
 }
