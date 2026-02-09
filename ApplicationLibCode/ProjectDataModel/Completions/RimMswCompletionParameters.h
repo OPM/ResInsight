@@ -24,6 +24,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiGroup.h"
 
+#include <QDateTime>
+
 class RimDiameterRoughnessIntervalCollection;
 class RimCustomSegmentIntervalCollection;
 
@@ -91,6 +93,10 @@ public:
 
     double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
     double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
+
+    // Date-aware overloads (only returns values from intervals active on the given date)
+    double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const;
+    double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const;
 
     RimDiameterRoughnessIntervalCollection* diameterRoughnessIntervals() const;
 

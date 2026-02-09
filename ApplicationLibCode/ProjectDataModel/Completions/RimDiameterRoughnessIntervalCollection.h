@@ -21,6 +21,8 @@
 #include "RimDiameterRoughnessInterval.h"
 #include "RimIntervalCollection.h"
 
+#include <QDateTime>
+
 //==================================================================================================
 ///
 /// Collection to manage diameter and roughness intervals for measured depth ranges
@@ -40,6 +42,10 @@ public:
     // Domain-specific lookup methods
     double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
     double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
+
+    // Date-aware lookup methods (only returns values from intervals active on the given date)
+    double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const;
+    double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const;
 
     // Domain-specific validation
     bool coversFullRange( double startMD, double endMD ) const;

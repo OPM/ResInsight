@@ -112,7 +112,8 @@ void collectWelsegsData( RigMswTableData&                              tableData
                          RicMswExportInfo&                             exportInfo,
                          double                                        maxSegmentLength,
                          const std::vector<std::pair<double, double>>& customSegmentIntervals,
-                         bool                                          exportCompletionSegmentsAfterMainBore );
+                         bool                                          exportCompletionSegmentsAfterMainBore,
+                         const std::optional<QDateTime>&               exportDate = std::nullopt );
 
 void collectWelsegsDataRecursively( RigMswTableData&                              tableData,
                                     RicMswExportInfo&                             exportInfo,
@@ -121,7 +122,8 @@ void collectWelsegsDataRecursively( RigMswTableData&                            
                                     double                                        maxSegmentLength,
                                     const std::vector<std::pair<double, double>>& customSegmentIntervals,
                                     bool                                          exportCompletionSegmentsAfterMainBore,
-                                    RicMswSegment*                                connectedToSegment );
+                                    RicMswSegment*                                connectedToSegment,
+                                    const std::optional<QDateTime>&               exportDate = std::nullopt );
 
 void collectCompsegData( RigMswTableData&                tableData,
                          RicMswExportInfo&               exportInfo,
@@ -156,7 +158,8 @@ void collectWelsegsSegment( RigMswTableData&                              tableD
                             const std::vector<std::pair<double, double>>& customSegmentIntervals,
                             gsl::not_null<RicMswBranch*>                  branch,
                             int*                                          segmentNumber,
-                            QString                                       branchDescription );
+                            QString                                       branchDescription,
+                            const std::optional<QDateTime>&               exportDate = std::nullopt );
 
 void collectValveWelsegsSegment( RigMswTableData&                              tableData,
                                  const RicMswSegment*                          outletSegment,
