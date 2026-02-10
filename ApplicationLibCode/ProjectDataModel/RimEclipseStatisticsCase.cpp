@@ -416,7 +416,13 @@ void RimEclipseStatisticsCase::computeStatistics()
     }
 
     bool clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
-    RimEclipseStatisticsCaseEvaluator stat( sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup, clearGridCalculationMemory );
+    RimEclipseStatisticsCaseEvaluator stat( sourceCases,
+                                            timeStepIndices,
+                                            statisticsConfig,
+                                            resultCase,
+                                            gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                            gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
+                                            clearGridCalculationMemory );
 
     if ( m_useZeroAsInactiveCellValue )
     {

@@ -26,6 +26,7 @@
 #include <cmath>
 #include <vector>
 
+class RigActiveCellInfo;
 class RimEclipseCase;
 class RigEclipseCaseData;
 class RigCaseCellResultsData;
@@ -57,7 +58,8 @@ public:
                                        const std::vector<int>&             timeStepIndices,
                                        const RimStatisticsConfig&          statisticsConfig,
                                        RigEclipseCaseData*                 destinationCase,
-                                       RimIdenticalGridCaseGroup*          identicalGridCaseGroup,
+                                       RigActiveCellInfo*                  unionOfMatrixActiveCells,
+                                       RigActiveCellInfo*                  unionOfFractureActiveCells,
                                        bool                                clearGridCalculationMemory );
 
     struct ResSpec
@@ -108,10 +110,11 @@ private:
     std::vector<RimEclipseCase*> m_sourceCases;
     std::vector<int>             m_timeStepIndices;
 
-    size_t                     m_reservoirCellCount;
-    RimStatisticsConfig        m_statisticsConfig;
-    RigEclipseCaseData*        m_destinationCase;
-    RimIdenticalGridCaseGroup* m_identicalGridCaseGroup;
-    bool                       m_useZeroAsInactiveCellValue;
-    bool                       m_clearGridCalculationMemory;
+    size_t              m_reservoirCellCount;
+    RimStatisticsConfig m_statisticsConfig;
+    RigEclipseCaseData* m_destinationCase;
+    RigActiveCellInfo*  m_unionOfMatrixActiveCells;
+    RigActiveCellInfo*  m_unionOfFractureActiveCells;
+    bool                m_useZeroAsInactiveCellValue;
+    bool                m_clearGridCalculationMemory;
 };

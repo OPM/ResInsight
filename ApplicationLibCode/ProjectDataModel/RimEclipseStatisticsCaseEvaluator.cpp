@@ -22,6 +22,7 @@
 
 #include "RiaLogging.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
@@ -32,12 +33,9 @@
 #include "RigStatisticsMath.h"
 
 #include "RimEclipseView.h"
-#include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafProgressInfo.h"
-
-#include <QDebug>
 
 #include <algorithm>
 
@@ -210,6 +208,10 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                     visibility = filterView->currentTotalCellVisibility();
                 }
 
+                auto destinationActiveCellInfo = m_destinationCase->activeCellInfo( poroModel );
+                auto unionActiveCells          = ( poroModel == RiaDefines::PorosityModelType::MATRIX_MODEL ) ? m_unionOfMatrixActiveCells
+                                                                                                              : m_unionOfFractureActiveCells;
+
                 // Loop over the cells in the grid, get the case values, and calculate the cell statistics
 #pragma omp parallel for schedule( dynamic ) firstprivate( statParams, values )
                 for ( int cellIdx = 0; cellIdx < cellCount; cellIdx++ )
@@ -218,7 +220,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
                     if ( visibility.notNull() && !visibility->val( reservoirCellIndex ) ) continue;
 
-                    if ( m_destinationCase->activeCellInfo( poroModel )->isActive( reservoirCellIndex ) )
+                    if ( destinationActiveCellInfo->isActive( reservoirCellIndex ) )
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector
 
@@ -230,7 +232,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                             // Replace huge_val with zero in the statistical computation for the following case
                             if ( m_useZeroAsInactiveCellValue || resultName.toUpper() == "ACTNUM" )
                             {
-                                if ( m_identicalGridCaseGroup->unionOfActiveCells( poroModel )->isActive( reservoirCellIndex ) && val == HUGE_VAL )
+                                if ( unionActiveCells && unionActiveCells->isActive( reservoirCellIndex ) && val == HUGE_VAL )
                                 {
                                     val = 0.0;
                                 }
@@ -404,14 +406,16 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std:
                                                                       const std::vector<int>&             timeStepIndices,
                                                                       const RimStatisticsConfig&          statisticsConfig,
                                                                       RigEclipseCaseData*                 destinationCase,
-                                                                      RimIdenticalGridCaseGroup*          identicalGridCaseGroup,
+                                                                      RigActiveCellInfo*                  unionOfMatrixActiveCells,
+                                                                      RigActiveCellInfo*                  unionOfFractureActiveCells,
                                                                       bool                                clearGridCalculationMemory )
     : m_sourceCases( sourceCases )
     , m_statisticsConfig( statisticsConfig )
     , m_destinationCase( destinationCase )
     , m_reservoirCellCount( 0 )
     , m_timeStepIndices( timeStepIndices )
-    , m_identicalGridCaseGroup( identicalGridCaseGroup )
+    , m_unionOfMatrixActiveCells( unionOfMatrixActiveCells )
+    , m_unionOfFractureActiveCells( unionOfFractureActiveCells )
     , m_useZeroAsInactiveCellValue( false )
     , m_clearGridCalculationMemory( clearGridCalculationMemory )
 {
