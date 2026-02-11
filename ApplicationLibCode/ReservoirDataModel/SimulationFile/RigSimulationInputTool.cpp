@@ -191,28 +191,23 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
     auto keywords = deckFile.keywords( false );
 
     // Sector dimensions (after refinement)
-    std::vector<int> dimens = { static_cast<int>( gridAdapter.cellCountI() ),
-                                static_cast<int>( gridAdapter.cellCountJ() ),
-                                static_cast<int>( gridAdapter.cellCountK() ) };
+    int dimenNx = static_cast<int>( gridAdapter.cellCountI() );
+    int dimenNy = static_cast<int>( gridAdapter.cellCountJ() );
+    int dimenNz = static_cast<int>( gridAdapter.cellCountK() );
 
-    if ( !deckFile.replaceKeyword( "DIMENS", dimens ) )
+    if ( !deckFile.setDimens( dimenNx, dimenNy, dimenNz ) )
     {
         return std::unexpected( "Failed to replace DIMENS keyword in deck file" );
     }
 
     // SPECGRID has the same dimensions plus NUMRES and COORD_TYPE
-    // Format: NX NY NZ (use defaults for NUMRES (1) and  COORD_TYPE: 'F'=Cartesian)
     if ( std::find( keywords.begin(), keywords.end(), "SPECGRID" ) == keywords.end() )
     {
         Opm::DeckKeyword newKw( ( Opm::ParserKeywords::SPECGRID() ) );
         deckFile.addKeyword( "GRID", newKw );
     }
 
-    std::vector<int> specgrid = { static_cast<int>( gridAdapter.cellCountI() ),
-                                  static_cast<int>( gridAdapter.cellCountJ() ),
-                                  static_cast<int>( gridAdapter.cellCountK() ) };
-
-    if ( !deckFile.replaceKeyword( "SPECGRID", specgrid ) )
+    if ( !deckFile.setSpecgrid( dimenNx, dimenNy, dimenNz ) )
     {
         return std::unexpected( "Failed to replace SPECGRID keyword in deck file" );
     }
