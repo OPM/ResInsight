@@ -164,22 +164,7 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
         *p90 = HUGE_VAL;
     }
 
-    // Calculate mean separately
-    std::vector<double> validValues = values;
-    validValues.erase( std::remove_if( validValues.begin(),
-                                       validValues.end(),
-                                       []( double x ) { return !RiaStatisticsTools::isValidNumber( x ); } ),
-                       validValues.end() );
-
-    if ( !validValues.empty() )
-    {
-        double valueSum = std::accumulate( validValues.begin(), validValues.end(), 0.0 );
-        *mean           = valueSum / validValues.size();
-    }
-    else
-    {
-        *mean = HUGE_VAL;
-    }
+    *mean = calculateMean( values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -428,6 +413,26 @@ std::expected<std::vector<double>, std::string>
     }
 
     return resultValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigStatisticsMath::calculateMean( const std::vector<double>& values )
+{
+    std::vector<double> validValues = values;
+    validValues.erase( std::remove_if( validValues.begin(),
+                                       validValues.end(),
+                                       []( double x ) { return !RiaStatisticsTools::isValidNumber( x ); } ),
+                       validValues.end() );
+
+    if ( !validValues.empty() )
+    {
+        double valueSum = std::accumulate( validValues.begin(), validValues.end(), 0.0 );
+        return valueSum / validValues.size();
+    }
+
+    return HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------

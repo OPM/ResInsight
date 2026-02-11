@@ -54,6 +54,8 @@ public:
     static std::expected<std::vector<double>, std::string> calculateInterpolatedPercentiles( const std::vector<double>& inputValues,
                                                                                              const std::vector<double>& percentiles,
                                                                                              PercentileStyle            percentileStyle );
+
+    static double calculateMean( const std::vector<double>& values );
 };
 
 //==================================================================================================

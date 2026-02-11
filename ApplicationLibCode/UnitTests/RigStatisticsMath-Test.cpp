@@ -303,6 +303,54 @@ TEST( RigStatisticsMath, calculateStatisticsCurves )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, calculateMean )
+{
+    // Empty vector should return HUGE_VAL
+    {
+        std::vector<double> values;
+        EXPECT_DOUBLE_EQ( HUGE_VAL, RigStatisticsMath::calculateMean( values ) );
+    }
+
+    // Single value
+    {
+        std::vector<double> values{ 42.0 };
+        EXPECT_DOUBLE_EQ( 42.0, RigStatisticsMath::calculateMean( values ) );
+    }
+
+    // Multiple valid values
+    {
+        std::vector<double> values{ 1.0, 2.0, 3.0, 4.0, 5.0 };
+        EXPECT_DOUBLE_EQ( 3.0, RigStatisticsMath::calculateMean( values ) );
+    }
+
+    // Values with HUGE_VAL entries that should be filtered out
+    {
+        std::vector<double> values{ HUGE_VAL, 10.0, 20.0, -HUGE_VAL, 30.0, HUGE_VAL };
+        EXPECT_DOUBLE_EQ( 20.0, RigStatisticsMath::calculateMean( values ) );
+    }
+
+    // All invalid values should return HUGE_VAL
+    {
+        std::vector<double> values{ HUGE_VAL, -HUGE_VAL, HUGE_VAL };
+        EXPECT_DOUBLE_EQ( HUGE_VAL, RigStatisticsMath::calculateMean( values ) );
+    }
+
+    // Negative values
+    {
+        std::vector<double> values{ -10.0, -20.0, -30.0 };
+        EXPECT_DOUBLE_EQ( -20.0, RigStatisticsMath::calculateMean( values ) );
+    }
+
+    // Mixed positive and negative values summing to zero
+    {
+        std::vector<double> values{ -5.0, 5.0 };
+        EXPECT_DOUBLE_EQ( 0.0, RigStatisticsMath::calculateMean( values ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RigStatisticsMath, DISABLED_performanceTesting )
 {
     RigStatisticsMath::PercentileStyle percentileStyle = RigStatisticsMath::PercentileStyle::REGULAR;
