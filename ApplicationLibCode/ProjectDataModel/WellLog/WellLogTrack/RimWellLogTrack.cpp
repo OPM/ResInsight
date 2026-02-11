@@ -2701,15 +2701,33 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             std::vector<std::pair<double, double>> convertedYValues =
                 RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
-            caf::ColorTable colorTable( m_regionAnnotationSettings->colorShadingLegend()->colorArray() );
-            m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
-                                                  formationNamesToPlot,
-                                                  orientation,
-                                                  convertedYValues,
-                                                  m_regionAnnotationSettings->annotationDisplay(),
-                                                  colorTable,
-                                                  ( ( 100 - m_regionAnnotationSettings->colorShadingTransparency() ) * 255 ) / 100,
-                                                  m_regionAnnotationSettings->showRegionLabels() );
+            // TODO: This is not working as expected, and the colors used are always using the regular legend colors.
+            // The recent refactoring in 93bd0b9c9d768f55c1994385ba431fbbc7a9606f ended up with a nullptr for the color legend in
+            // RimWellLogTrack, which is why we need to fall back to the regular legend colors.
+            // Related to https://github.com/OPM/ResInsight/issues/12974
+            cvf::Color3ubArray colors;
+            if ( m_regionAnnotationSettings->colorShadingLegend() )
+            {
+                colors = m_regionAnnotationSettings->colorShadingLegend()->colorArray();
+            }
+            else if ( auto defaultLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) )
+            {
+                colors = defaultLegend->colorArray();
+            }
+
+            if ( colors.size() > 0 )
+            {
+                caf::ColorTable colorTable( colors );
+
+                m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
+                                                      formationNamesToPlot,
+                                                      orientation,
+                                                      convertedYValues,
+                                                      m_regionAnnotationSettings->annotationDisplay(),
+                                                      colorTable,
+                                                      ( ( 100 - m_regionAnnotationSettings->colorShadingTransparency() ) * 255 ) / 100,
+                                                      m_regionAnnotationSettings->showRegionLabels() );
+            }
         }
     }
 }
