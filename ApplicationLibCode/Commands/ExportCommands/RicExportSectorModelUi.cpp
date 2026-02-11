@@ -348,7 +348,7 @@ void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 void RicExportSectorModelUi::setDefaultKeywordsToRemove()
 {
-    m_keywordsToRemove.setValue( { "ACTION", "ACTIONX", "UDQ" } );
+    m_keywordsToRemove.setValue( { "ACTION", "ACTIONX", "ACTIONW", "BOX", "UDQ" } );
 }
 
 //--------------------------------------------------------------------------------------------------

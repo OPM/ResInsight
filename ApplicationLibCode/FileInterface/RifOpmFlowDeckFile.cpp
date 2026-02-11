@@ -936,8 +936,10 @@ bool RifOpmFlowDeckFile::replaceKeywordAtIndex( const Opm::FileDeck::Index& inde
 //--------------------------------------------------------------------------------------------------
 int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
 {
-    int nRemoved = 0;
+    // special handling of keywords with a potential inner block
+    const std::map<std::string, std::string> blockKeywords = { { "ACTIONX", "ENDACTIO" }, { "BOX", "ENDBOX" }, { "ACTIONW", "ENDACTIO" } };
 
+    int nRemoved = 0;
     if ( m_fileDeck.get() == nullptr ) return nRemoved;
 
     // Find all the matching keywords
@@ -948,6 +950,22 @@ int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
         if ( kw.name() == keywordName )
         {
             skipIndices.push_back( it );
+        }
+        if ( blockKeywords.contains( kw.name() ) )
+        {
+            // If this is a block keyword, we need to skip all keywords until the corresponding end block
+            const std::string endBlockName = blockKeywords.at( kw.name() );
+            while ( it != m_fileDeck->stop() )
+            {
+                const auto& innerKw = m_fileDeck->operator[]( it );
+                if ( innerKw.name() == endBlockName )
+                {
+                    skipIndices.push_back( it );
+                    break;
+                }
+                skipIndices.push_back( it );
+                it++;
+            }
         }
     }
 
