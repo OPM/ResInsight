@@ -19,10 +19,15 @@
 #include "RimEnsembleStatistics.h"
 
 #include "RiaColorTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetInterface.h"
 #include "RimProject.h"
+
+#include "cafPdmUiLineEditor.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimEnsembleStatistics, "RimEnsembleStatistics" );
 
@@ -50,6 +55,9 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     CAF_PDM_InitField( &m_showP50Curve, "ShowP50Curve", false, "P50" );
     CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P90" );
     CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean" );
+    CAF_PDM_InitField( &m_customPercentiles, "CustomPercentiles", QString(), "Custom Percentiles" );
+    m_customPercentiles.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+    m_customPercentiles.setCustomValidationCallback( [this]() -> QString { return validateCustomPercentiles(); } );
     CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels" );
     CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves" );
 
@@ -147,6 +155,41 @@ bool RimEnsembleStatistics::showP90Curve() const
 bool RimEnsembleStatistics::showMeanCurve() const
 {
     return m_showMeanCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleStatistics::customPercentiles() const
+{
+    return m_customPercentiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimEnsembleStatistics::allPercentiles() const
+{
+    std::set<int> uniquePercentiles;
+
+    // Add standard percentiles from checkboxes
+    if ( m_showP10Curve ) uniquePercentiles.insert( 10 );
+    if ( m_showP50Curve ) uniquePercentiles.insert( 50 );
+    if ( m_showP90Curve ) uniquePercentiles.insert( 90 );
+
+    // Parse custom percentiles string
+    QStringList parts = RiaTextStringTools::splitSkipEmptyParts( m_customPercentiles() );
+    for ( const auto& part : parts )
+    {
+        bool ok    = false;
+        int  value = part.trimmed().toInt( &ok );
+        if ( ok && value >= 0 && value <= 100 )
+        {
+            uniquePercentiles.insert( value );
+        }
+    }
+
+    return { uniquePercentiles.begin(), uniquePercentiles.end() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,6 +319,7 @@ void RimEnsembleStatistics::defaultUiOrdering( bool showCrossPlotGroup, caf::Pdm
     group->add( &m_showP50Curve );
     group->add( &m_showMeanCurve );
     group->add( &m_showP10Curve );
+    group->add( &m_customPercentiles );
 
     disableP10Curve( !m_active || !curveSet->hasP10Data() );
     disableP50Curve( !m_active || !curveSet->hasP50Data() );
@@ -283,6 +327,7 @@ void RimEnsembleStatistics::defaultUiOrdering( bool showCrossPlotGroup, caf::Pdm
     disableMeanCurve( !m_active || !curveSet->hasMeanData() );
     m_showCurveLabels.uiCapability()->setUiReadOnly( !m_active );
     m_color.uiCapability()->setUiReadOnly( !m_active );
+    m_customPercentiles.uiCapability()->setUiReadOnly( !m_active );
 
     m_showP10Curve.uiCapability()->setUiName( curveSet->hasP10Data() ? "P10" : "P10 (Needs > 8 curves)" );
     m_showP90Curve.uiCapability()->setUiName( curveSet->hasP90Data() ? "P90" : "P90 (Needs > 8 curves)" );
@@ -326,6 +371,20 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_customPercentiles )
+    {
+        if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
+        {
+            lineEdAttr->placeholderText = "E.g. 5 25 75 95";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatistics::onShowEnsembleCurves() const
 {
     return !m_hideEnsembleCurves;
@@ -337,4 +396,26 @@ bool RimEnsembleStatistics::onShowEnsembleCurves() const
 void RimEnsembleStatistics::onSetShowEnsembleCurves( const bool& enable )
 {
     m_hideEnsembleCurves = !enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleStatistics::validateCustomPercentiles() const
+{
+    QStringList parts = RiaTextStringTools::splitSkipEmptyParts( m_customPercentiles() );
+    for ( const auto& part : parts )
+    {
+        bool ok    = false;
+        int  value = part.trimmed().toInt( &ok );
+        if ( !ok )
+        {
+            return QString( "Invalid percentile value: '%1'" ).arg( part.trimmed() );
+        }
+        if ( value < 0 || value > 100 )
+        {
+            return QString( "Percentile value %1 must be in the range 0 to 100" ).arg( value );
+        }
+    }
+    return {};
 }

@@ -28,8 +28,9 @@ public:
     virtual void updateAllCurves()        = 0;
     virtual void updateStatisticsCurves() = 0;
 
-    virtual bool hasP10Data() const  = 0;
-    virtual bool hasP50Data() const  = 0;
-    virtual bool hasP90Data() const  = 0;
-    virtual bool hasMeanData() const = 0;
+    virtual bool hasP10Data() const               = 0;
+    virtual bool hasP50Data() const               = 0;
+    virtual bool hasP90Data() const               = 0;
+    virtual bool hasMeanData() const              = 0;
+    virtual bool hasPercentileData( int p ) const = 0;
 };

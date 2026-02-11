@@ -80,6 +80,7 @@ RimSummaryAddress::RimSummaryAddress()
 
     CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
     CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
+    CAF_PDM_InitField( &m_percentile, "Percentile", -1, "Percentile" );
 
     m_category             = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
     m_statistics           = RifEclipseSummaryAddressDefines::StatisticsType::NONE;
@@ -138,6 +139,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_cellJ         = addr.cellJ();
     m_cellK         = addr.cellK();
     m_calculationId = addr.id();
+    m_percentile    = addr.percentile();
 
     setUiName( m_vectorName );
     setUiIconFromResourceString( iconResourceText() );
@@ -148,23 +150,25 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryAddress::address() const
 {
-    return RifEclipseSummaryAddress( m_category(),
-                                     m_statistics(),
-                                     m_vectorName().toStdString(),
-                                     m_regionNumber(),
-                                     m_regionNumber2(),
-                                     m_groupName().toStdString(),
-                                     m_networkName().toStdString(),
-                                     m_wellName().toStdString(),
-                                     m_wellSegmentNumber(),
-                                     m_lgrName().toStdString(),
-                                     m_cellI(),
-                                     m_cellJ(),
-                                     m_cellK(),
-                                     m_aquiferNumber,
-                                     m_wellCompletionNumber(),
-                                     m_isErrorResult,
-                                     m_calculationId );
+    auto addr = RifEclipseSummaryAddress( m_category(),
+                                          m_statistics(),
+                                          m_vectorName().toStdString(),
+                                          m_regionNumber(),
+                                          m_regionNumber2(),
+                                          m_groupName().toStdString(),
+                                          m_networkName().toStdString(),
+                                          m_wellName().toStdString(),
+                                          m_wellSegmentNumber(),
+                                          m_lgrName().toStdString(),
+                                          m_cellI(),
+                                          m_cellJ(),
+                                          m_cellK(),
+                                          m_aquiferNumber,
+                                          m_wellCompletionNumber(),
+                                          m_isErrorResult,
+                                          m_calculationId );
+    addr.setPercentile( m_percentile );
+    return addr;
 }
 
 //--------------------------------------------------------------------------------------------------

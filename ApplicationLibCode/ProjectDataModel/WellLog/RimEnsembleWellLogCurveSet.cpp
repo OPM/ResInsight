@@ -1091,6 +1091,15 @@ bool RimEnsembleWellLogCurveSet::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEnsembleWellLogCurveSet::hasPercentileData( int /*p*/ ) const
+{
+    // Custom percentiles are not supported for well log statistics
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RimEnsembleWellLogStatistics* RimEnsembleWellLogCurveSet::ensembleWellLogStatistics() const
 {
     return m_ensembleWellLogStatistics.get();

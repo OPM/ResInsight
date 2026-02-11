@@ -85,4 +85,5 @@ private:
     caf::PdmField<int>     m_calculationId;
     caf::PdmField<int>     m_caseId;
     caf::PdmField<int>     m_ensembleId;
+    caf::PdmField<int>     m_percentile;
 };

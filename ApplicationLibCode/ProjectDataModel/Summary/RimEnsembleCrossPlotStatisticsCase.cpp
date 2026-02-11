@@ -283,6 +283,15 @@ bool RimEnsembleCrossPlotStatisticsCase::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEnsembleCrossPlotStatisticsCase::hasPercentileData( int /*percentile*/ ) const
+{
+    // Custom percentiles are not supported for cross-plot statistics
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RimEnsembleCrossPlotStatisticsCase::unitSystem() const
 {
     if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )

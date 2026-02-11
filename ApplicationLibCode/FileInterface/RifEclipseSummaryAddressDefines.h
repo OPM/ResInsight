@@ -71,7 +71,8 @@ enum class StatisticsType
     P10,
     P50,
     P90,
-    MEAN
+    MEAN,
+    CUSTOM
 };
 
 enum class CurveType

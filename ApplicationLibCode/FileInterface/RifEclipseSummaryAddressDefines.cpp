@@ -30,6 +30,7 @@ void caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>::setUp()
     addItem( RifEclipseSummaryAddressDefines::StatisticsType::P50, "P50", "P50" );
     addItem( RifEclipseSummaryAddressDefines::StatisticsType::P90, "P90", "P90" );
     addItem( RifEclipseSummaryAddressDefines::StatisticsType::MEAN, "MEAN", "Mean" );
+    addItem( RifEclipseSummaryAddressDefines::StatisticsType::CUSTOM, "CUSTOM", "Custom" );
     setDefault( RifEclipseSummaryAddressDefines::StatisticsType::NONE );
 }
 

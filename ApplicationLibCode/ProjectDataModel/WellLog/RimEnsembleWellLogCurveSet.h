@@ -108,6 +108,7 @@ public:
     bool hasP50Data() const override;
     bool hasP90Data() const override;
     bool hasMeanData() const override;
+    bool hasPercentileData( int p ) const override;
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 

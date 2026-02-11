@@ -24,8 +24,11 @@
 #include "RiaTimeHistoryCurveResampler.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "RigStatisticsMath.h"
 
+#include <algorithm>
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +44,7 @@ std::vector<time_t> RimEnsembleStatisticsCase::timeSteps( const RifEclipseSummar
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatisticsCase::hasP10Data() const
 {
-    return !m_p10Data.empty();
+    return hasPercentileData( 10 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +52,7 @@ bool RimEnsembleStatisticsCase::hasP10Data() const
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatisticsCase::hasP50Data() const
 {
-    return !m_p50Data.empty();
+    return hasPercentileData( 50 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +60,7 @@ bool RimEnsembleStatisticsCase::hasP50Data() const
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatisticsCase::hasP90Data() const
 {
-    return !m_p90Data.empty();
+    return hasPercentileData( 90 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,23 +74,55 @@ bool RimEnsembleStatisticsCase::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatisticsCase::hasPercentileData( int percentile ) const
+{
+    if ( percentile < RifEclipseSummaryAddress::MIN_PERCENTILE || percentile > RifEclipseSummaryAddress::MAX_PERCENTILE ) return false;
+
+    auto it = m_percentileData.find( percentile );
+    return it != m_percentileData.end() && !it->second.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<bool, std::vector<double>> RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( resultAddress.isErrorResult() ) return { true, {} };
 
+    if ( resultAddress.statisticsType() == RifEclipseSummaryAddressDefines::StatisticsType::MEAN )
+    {
+        return { true, m_meanData };
+    }
+
+    int percentile = -1;
     switch ( resultAddress.statisticsType() )
     {
         case RifEclipseSummaryAddressDefines::StatisticsType::P10:
-            return { true, m_p10Data };
+            percentile = 10;
+            break;
         case RifEclipseSummaryAddressDefines::StatisticsType::P50:
-            return { true, m_p50Data };
+            percentile = 50;
+            break;
         case RifEclipseSummaryAddressDefines::StatisticsType::P90:
-            return { true, m_p90Data };
-        case RifEclipseSummaryAddressDefines::StatisticsType::MEAN:
-            return { true, m_meanData };
+            percentile = 90;
+            break;
+        case RifEclipseSummaryAddressDefines::StatisticsType::CUSTOM:
+            percentile = resultAddress.percentile();
+            break;
         default:
             return { true, {} };
     }
+
+    if ( percentile >= RifEclipseSummaryAddress::MIN_PERCENTILE && percentile <= RifEclipseSummaryAddress::MAX_PERCENTILE )
+    {
+        auto it = m_percentileData.find( percentile );
+        if ( it != m_percentileData.end() )
+        {
+            return { true, it->second };
+        }
+    }
+
+    return { true, {} };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,9 +167,10 @@ RifSummaryReaderInterface* RimEnsembleStatisticsCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& summaryCases,
                                            const RifEclipseSummaryAddress&     inputAddress,
-                                           bool                                includeIncompleteCurves )
+                                           bool                                includeIncompleteCurves,
+                                           const std::vector<int>&             percentiles )
 {
-    auto hash = RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves );
+    auto hash = RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves, percentiles );
     if ( hash == m_hash ) return;
 
     auto startTime = RiaLogging::currentTime();
@@ -142,6 +178,18 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     m_hash = hash;
 
     clearData();
+
+    m_requestedPercentiles = percentiles;
+
+    // Always include P10, P50, and P90
+    for ( int p : { 10, 50, 90 } )
+    {
+        if ( std::find( m_requestedPercentiles.begin(), m_requestedPercentiles.end(), p ) == m_requestedPercentiles.end() )
+        {
+            m_requestedPercentiles.push_back( p );
+        }
+    }
+    std::sort( m_requestedPercentiles.begin(), m_requestedPercentiles.end() );
 
     if ( !inputAddress.isValid() ) return;
     if ( summaryCases.empty() ) return;
@@ -200,10 +248,13 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 
     m_timeSteps = curveMerger.allXValues();
 
-    m_p10Data.reserve( m_timeSteps.size() );
-    m_p50Data.reserve( m_timeSteps.size() );
-    m_p90Data.reserve( m_timeSteps.size() );
     m_meanData.reserve( m_timeSteps.size() );
+
+    // Initialize percentile storage
+    for ( int p : m_requestedPercentiles )
+    {
+        m_percentileData[p].reserve( m_timeSteps.size() );
+    }
 
     for ( size_t timeStepIndex = 0; timeStepIndex < m_timeSteps.size(); timeStepIndex++ )
     {
@@ -215,12 +266,27 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
             valuesAtTimeStep.push_back( curveValues[curveIdx][timeStepIndex] );
         }
 
-        double p10, p50, p90, mean;
-        RigStatisticsMath::calculateStatisticsCurves( valuesAtTimeStep, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
-        m_p10Data.push_back( p10 );
-        m_p50Data.push_back( p50 );
-        m_p90Data.push_back( p90 );
+        double mean = RigStatisticsMath::calculateMean( valuesAtTimeStep );
         m_meanData.push_back( mean );
+
+        // Calculate percentiles
+        std::vector<double> percentilePositions;
+        for ( int p : m_requestedPercentiles )
+        {
+            percentilePositions.push_back( static_cast<double>( p ) / 100.0 );
+        }
+
+        auto percentileValuesResult =
+            RigStatisticsMath::calculatePercentiles( valuesAtTimeStep, percentilePositions, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+        if ( percentileValuesResult.has_value() )
+        {
+            const auto& percentileValues = *percentileValuesResult;
+            for ( size_t i = 0; i < m_requestedPercentiles.size(); i++ )
+            {
+                m_percentileData[m_requestedPercentiles[i]].push_back( percentileValues[i] );
+            }
+        }
     }
 
     bool showDebugTiming = false;
@@ -250,10 +316,9 @@ RiaDefines::EclipseUnitSystem RimEnsembleStatisticsCase::unitSystem() const
 void RimEnsembleStatisticsCase::clearData()
 {
     m_timeSteps.clear();
-    m_p10Data.clear();
-    m_p50Data.clear();
-    m_p90Data.clear();
     m_meanData.clear();
+    m_percentileData.clear();
+    m_requestedPercentiles.clear();
     m_firstSummaryCase = nullptr;
 }
 

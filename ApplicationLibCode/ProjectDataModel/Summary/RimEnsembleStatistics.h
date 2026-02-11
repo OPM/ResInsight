@@ -23,6 +23,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
+#include <vector>
+
 class RimEnsembleCurveSetInterface;
 
 //==================================================================================================
@@ -44,6 +46,9 @@ public:
     bool showP50Curve() const;
     bool showP90Curve() const;
     bool showMeanCurve() const;
+
+    QString          customPercentiles() const;
+    std::vector<int> allPercentiles() const;
 
     bool showCurveLabels() const;
     void enableCurveLabels( bool enable );
@@ -67,10 +72,12 @@ public:
     void defaultUiOrdering( bool showCrossPlotGroup, caf::PdmUiOrdering& uiOrdering );
 
 private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    bool onShowEnsembleCurves() const;
-    void onSetShowEnsembleCurves( const bool& enable );
+    void    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void    defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    bool    onShowEnsembleCurves() const;
+    void    onSetShowEnsembleCurves( const bool& enable );
+    QString validateCustomPercentiles() const;
 
 private:
     RimEnsembleCurveSetInterface* m_parentCurveSet;
@@ -84,6 +91,7 @@ private:
     caf::PdmField<bool>           m_showP50Curve;
     caf::PdmField<bool>           m_showP90Curve;
     caf::PdmField<bool>           m_showMeanCurve;
+    caf::PdmField<QString>        m_customPercentiles;
     caf::PdmField<bool>           m_showCurveLabels;
     caf::PdmField<bool>           m_includeIncompleteCurves;
     caf::PdmField<bool>           m_customColor;

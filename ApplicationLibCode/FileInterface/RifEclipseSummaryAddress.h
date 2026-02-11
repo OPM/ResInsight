@@ -110,6 +110,8 @@ public:
     bool           isStatistics() const;
     StatisticsType statisticsType() const;
     void           setStatisticsType( StatisticsType type );
+    int            percentile() const;
+    void           setPercentile( int percentile );
 
     int regionNumber() const;
     int regionNumber2() const;
@@ -166,6 +168,10 @@ public:
     std::string                formatUiTextRegionToRegion() const;
     static std::pair<int, int> regionToRegionPairFromUiText( const std::string& s );
 
+    // Percentile constants
+    static constexpr int MIN_PERCENTILE = 0;
+    static constexpr int MAX_PERCENTILE = 100;
+
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 
@@ -188,6 +194,7 @@ private:
     int             m_number2;
     bool            m_isErrorResult;
     int             m_id;
+    int             m_percentile;
 };
 
 QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj );

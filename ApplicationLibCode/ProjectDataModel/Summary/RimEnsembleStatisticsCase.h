@@ -25,6 +25,8 @@
 
 #include "RimSummaryCase.h"
 
+#include <map>
+
 class RifEclipseSummaryAddress;
 
 //==================================================================================================
@@ -37,13 +39,17 @@ public:
     bool hasP50Data() const;
     bool hasP90Data() const;
     bool hasMeanData() const;
+    bool hasPercentileData( int percentile ) const;
 
     QString                       caseName() const override;
     void                          createSummaryReaderInterface() override;
     RifSummaryReaderInterface*    summaryReader() override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
-    void calculate( const std::vector<RimSummaryCase*>& summaryCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
+    void calculate( const std::vector<RimSummaryCase*>& summaryCases,
+                    const RifEclipseSummaryAddress&     inputAddress,
+                    bool                                includeIncompleteCurves,
+                    const std::vector<int>&             percentiles = { 10, 50, 90 } );
 
     std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
@@ -58,11 +64,10 @@ private:
     size_t keywordCount() const override;
 
 private:
-    std::vector<time_t> m_timeSteps;
-    std::vector<double> m_p10Data;
-    std::vector<double> m_p50Data;
-    std::vector<double> m_p90Data;
-    std::vector<double> m_meanData;
+    std::vector<time_t>                m_timeSteps;
+    std::vector<double>                m_meanData;
+    std::map<int, std::vector<double>> m_percentileData;
+    std::vector<int>                   m_requestedPercentiles;
 
     caf::PdmPointer<RimSummaryCase> m_firstSummaryCase;
     size_t                          m_hash = 0;

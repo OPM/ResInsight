@@ -44,6 +44,7 @@ public:
     bool hasP50Data() const;
     bool hasP90Data() const;
     bool hasMeanData() const;
+    bool hasPercentileData( int percentile ) const;
 
     QString                       caseName() const override;
     void                          createSummaryReaderInterface() override;

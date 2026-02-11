@@ -2231,6 +2231,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
                 statCases = group->allSummaryCases();
         }
 
+        auto percentiles = m_statistics->allPercentiles();
+
         if ( isXAxisSummaryVector() )
         {
             m_ensembleStatCaseXY->calculate( statCases,
@@ -2242,7 +2244,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         }
         else
         {
-            m_ensembleStatCaseY->calculate( statCases, summaryAddressY(), m_statistics->includeIncompleteCurves() );
+            m_ensembleStatCaseY->calculate( statCases, summaryAddressY(), m_statistics->includeIncompleteCurves(), percentiles );
         }
     }
 
@@ -2289,6 +2291,16 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
                 return RiaSummaryCurveAddress( xStatAddress, yStatAddress );
             };
 
+            auto getPercentileAddress = []( int percentile, const RifEclipseSummaryAddress& addrY ) -> RiaSummaryCurveAddress
+            {
+                auto xStatAddress = RifEclipseSummaryAddress::timeAddress();
+                auto yStatAddress = addrY;
+                yStatAddress.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::CUSTOM );
+                yStatAddress.setPercentile( percentile );
+
+                return RiaSummaryCurveAddress( xStatAddress, yStatAddress );
+            };
+
             if ( m_statistics->showP10Curve() && m_ensembleStatCaseY->hasP10Data() )
                 addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::P10, dataAddressY ) );
             if ( m_statistics->showP50Curve() && m_ensembleStatCaseY->hasP50Data() )
@@ -2297,6 +2309,18 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
                 addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::P90, dataAddressY ) );
             if ( m_statistics->showMeanCurve() && m_ensembleStatCaseY->hasMeanData() )
                 addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::StatisticsType::MEAN, dataAddressY ) );
+
+            // Add custom percentiles (excluding standard P10/P50/P90 if their checkbox is checked)
+            for ( int p : m_statistics->allPercentiles() )
+            {
+                bool isHandledByCheckbox = ( p == 10 && m_statistics->showP10Curve() ) || ( p == 50 && m_statistics->showP50Curve() ) ||
+                                           ( p == 90 && m_statistics->showP90Curve() );
+
+                if ( !isHandledByCheckbox && m_ensembleStatCaseY->hasPercentileData( p ) )
+                {
+                    addresses.push_back( getPercentileAddress( p, dataAddressY ) );
+                }
+            }
         }
     }
 
@@ -2332,8 +2356,17 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
                 if ( m_statistics->showCurveLabels() )
                 {
-                    curve->setSymbolLabel( QString::fromStdString(
-                        RifEclipseSummaryAddressDefines::statisticsTypeToString( address.summaryAddressY().statisticsType() ) ) );
+                    QString label;
+                    auto    yAddr = address.summaryAddressY();
+                    if ( yAddr.statisticsType() == RifEclipseSummaryAddressDefines::StatisticsType::CUSTOM && yAddr.percentile() >= 0 )
+                    {
+                        label = QString( "P%1" ).arg( yAddr.percentile() );
+                    }
+                    else
+                    {
+                        label = QString::fromStdString( RifEclipseSummaryAddressDefines::statisticsTypeToString( yAddr.statisticsType() ) );
+                    }
+                    curve->setSymbolLabel( label );
                 }
                 curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
             }
@@ -2521,6 +2554,16 @@ bool RimEnsembleCurveSet::hasMeanData() const
     if ( isXAxisSummaryVector() ) return m_ensembleStatCaseXY->hasMeanData();
 
     return m_ensembleStatCaseY->hasMeanData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCurveSet::hasPercentileData( int p ) const
+{
+    if ( isXAxisSummaryVector() ) return m_ensembleStatCaseXY->hasPercentileData( p );
+
+    return m_ensembleStatCaseY->hasPercentileData( p );
 }
 
 //--------------------------------------------------------------------------------------------------

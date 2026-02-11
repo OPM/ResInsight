@@ -21,6 +21,8 @@
 #include <cstddef>
 #include <functional>
 #include <ranges>
+#include <string>
+#include <type_traits>
 
 //==================================================================================================
 //
@@ -31,12 +33,27 @@ namespace RiaHashTools
 {
 //--------------------------------------------------------------------------------------------------
 /// Variadic template function to combine multiple parameters into a single hash
+/// Constrained to non-range types (std::string is excluded as it has std::hash specialization)
 //--------------------------------------------------------------------------------------------------
 template <typename T>
+    requires( !std::ranges::range<T> || std::is_same_v<std::decay_t<T>, std::string> )
 void combineHash( size_t& seed, const T& value )
 {
     // Based on https://www.boost.org/doc/libs/1_84_0/libs/container_hash/doc/html/hash.html#notes_hash_combine
     seed ^= std::hash<T>()( value ) + 0x9e3779b9 + ( seed << 6 ) + ( seed >> 2 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Overload for range types (excluding std::string)
+//--------------------------------------------------------------------------------------------------
+template <std::ranges::range Range>
+    requires( !std::is_same_v<std::decay_t<Range>, std::string> )
+void combineHash( size_t& seed, const Range& range )
+{
+    for ( const auto& elem : range )
+    {
+        combineHash( seed, elem );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
