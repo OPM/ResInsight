@@ -76,8 +76,8 @@ public:
     std::vector<int> wsegdims();
     bool             setWsegdims( int maxMSWells, int maxSegmentsPerWell, int maxBranchesPerWell );
 
-    bool             setSpecgrid( int nx, int ny, int nz );
-    bool             setDimens( int nx, int ny, int nz );
+    bool setSpecgrid( int nx, int ny, int nz );
+    bool setDimens( int nx, int ny, int nz );
 
     std::vector<int> regdims();
     bool             setRegdims( int maxRegions,
