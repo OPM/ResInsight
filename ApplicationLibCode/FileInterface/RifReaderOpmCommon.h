@@ -53,6 +53,14 @@ class ProgressInfo;
 class RifReaderOpmCommon : public RifReaderInterface
 {
 public:
+    struct GridDimensions
+    {
+        size_t i               = 0;
+        size_t j               = 0;
+        size_t k               = 0;
+        size_t activeCellCount = 0;
+    };
+
     RifReaderOpmCommon();
     ~RifReaderOpmCommon() override;
 
@@ -63,6 +71,8 @@ public:
 
     std::vector<QDateTime>          timeStepsOnFile( QString gridFileName );
     std::set<RiaDefines::PhaseType> availablePhases() const override;
+
+    static GridDimensions readGridDimensions( const QString& gridFileName );
 
 protected:
     virtual bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );

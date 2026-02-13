@@ -75,6 +75,31 @@ RifReaderOpmCommon::~RifReaderOpmCommon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifReaderOpmCommon::GridDimensions RifReaderOpmCommon::readGridDimensions( const QString& gridFileName )
+{
+    GridDimensions result;
+
+    try
+    {
+        Opm::EclIO::EGrid opmGrid( gridFileName.toStdString() );
+
+        const auto& dims       = opmGrid.dimension();
+        result.i               = dims[0];
+        result.j               = dims[1];
+        result.k               = dims[2];
+        result.activeCellCount = opmGrid.activeCells();
+    }
+    catch ( std::exception& e )
+    {
+        RiaLogging::debug( QString( "Failed to read grid dimensions from %1: %2" ).arg( gridFileName ).arg( e.what() ) );
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
 {
     caf::ProgressInfo progress( 100, "Reading Grid" );
