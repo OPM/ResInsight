@@ -276,9 +276,7 @@ void RimWellPathValve::setCustomStartDate( const QDate& date )
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathValve::isActiveOnDate( const QDateTime& date ) const
 {
-    if ( m_useCustomStartDate() && date < m_startDate() ) return false;
-
-    return true;
+    return !( m_useCustomStartDate() && date < m_startDate() );
 }
 
 //--------------------------------------------------------------------------------------------------
