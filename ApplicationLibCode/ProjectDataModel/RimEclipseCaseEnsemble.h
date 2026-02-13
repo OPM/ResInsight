@@ -51,7 +51,6 @@ public:
     void removeCase( RimEclipseCase* reservoir );
     bool contains( RimEclipseCase* reservoir ) const;
 
-    RimEclipseCase* findByDescription( const QString& description ) const;
     RimEclipseCase* findByFileName( const QString& gridFileName ) const;
 
     std::vector<RimEclipseCase*> cases() const;

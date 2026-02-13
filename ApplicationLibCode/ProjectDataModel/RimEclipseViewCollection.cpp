@@ -93,6 +93,9 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
 
     view->setEclipseCase( eclipseCase );
 
+    // Configure case provider callback
+    applyCallbackToView( view );
+
     auto prefs = RiaPreferences::current();
     view->faultCollection()->setActive( prefs->enableFaultsByDefault() );
 
@@ -125,6 +128,9 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 void RimEclipseViewCollection::addView( RimEclipseView* view )
 {
+    // Configure case provider callback
+    applyCallbackToView( view );
+
     m_views.push_back( view );
     updateConnectedEditors();
 }
@@ -136,4 +142,38 @@ void RimEclipseViewCollection::removeView( RimEclipseView* view )
 {
     m_views.removeChild( view );
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseViewCollection::setEclipseCaseProvider( std::function<std::vector<RimEclipseCase*>()> provider )
+{
+    // Store the callback for future views
+    if ( provider )
+    {
+        m_eclipseCaseProvider = provider;
+    }
+    else
+    {
+        m_eclipseCaseProvider = nullptr;
+    }
+
+    // Apply the callback to all existing views in the collection
+    for ( auto view : m_views )
+    {
+        applyCallbackToView( view );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseViewCollection::applyCallbackToView( RimEclipseView* view )
+{
+    if ( m_eclipseCaseProvider )
+    {
+        // Use the stored custom callback
+        view->setEclipseCaseProvider( m_eclipseCaseProvider );
+    }
 }

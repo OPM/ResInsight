@@ -55,7 +55,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
     {
         for ( RimIdenticalGridCaseGroup* group : RimProject::current()->activeOilField()->analysisModels()->caseGroups )
         {
-            for ( RimEclipseCase* c : group->statisticsCaseCollection->reservoirs )
+            for ( RimEclipseCase* c : group->statisticsCaseCollection()->reservoirs )
             {
                 caseIds.push_back( c->caseId() );
             }
@@ -67,7 +67,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
         bool foundCase = false;
         for ( RimIdenticalGridCaseGroup* group : RimProject::current()->activeOilField()->analysisModels()->caseGroups )
         {
-            for ( RimEclipseCase* c : group->statisticsCaseCollection->reservoirs )
+            for ( RimEclipseCase* c : group->statisticsCaseCollection()->reservoirs )
             {
                 if ( c->caseId() == caseId )
                 {

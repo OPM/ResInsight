@@ -63,7 +63,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     groupId.uiCapability()->setUiReadOnly( true );
     groupId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
-    CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField" );
+    CAF_PDM_InitFieldNoDefault( &m_statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField" );
 
     CAF_PDM_InitFieldNoDefault( &caseCollection, "CaseCollection", "Source Cases ChildArrayField" );
 
@@ -71,9 +71,9 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     caseCollection->uiCapability()->setUiName( "Source Cases" );
     caseCollection->uiCapability()->setUiIconFromResourceString( ":/Cases16x16.png" );
 
-    statisticsCaseCollection = new RimCaseCollection;
-    statisticsCaseCollection->uiCapability()->setUiName( "Derived Statistics" );
-    statisticsCaseCollection->uiCapability()->setUiIconFromResourceString( ":/Histograms16x16.png" );
+    m_statisticsCaseCollection = new RimCaseCollection;
+    m_statisticsCaseCollection->uiCapability()->setUiName( "Derived Statistics" );
+    m_statisticsCaseCollection->uiCapability()->setUiIconFromResourceString( ":/Histograms16x16.png" );
 
     m_mainGrid = nullptr;
 
@@ -93,8 +93,8 @@ RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
     delete caseCollection;
     caseCollection = nullptr;
 
-    delete statisticsCaseCollection;
-    statisticsCaseCollection = nullptr;
+    delete m_statisticsCaseCollection;
+    m_statisticsCaseCollection = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -344,19 +344,35 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
+RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendEmptyStatisticsCase()
 {
-    bool selectDefaultResults = true;
-    return createStatisticsCase( selectDefaultResults );
+    auto* statsColl = statisticsCaseCollection();
+    if ( !statsColl ) return nullptr;
+
+    RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
+
+    newStatisticsCase->setCaseUserDescription( QString( "Statistics " ) + QString::number( statsColl->reservoirs.size() + 1 ) );
+    statsColl->reservoirs.push_back( newStatisticsCase );
+
+    auto cases = sourceCases();
+    if ( !cases.empty() )
+    {
+        newStatisticsCase->setWellDataSourceCase( cases.front() );
+    }
+
+    newStatisticsCase->openEclipseGridFile();
+    newStatisticsCase->computeActiveCellsBoundingBox();
+    newStatisticsCase->selectAllTimeSteps();
+
+    return newStatisticsCase;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendEmptyStatisticsCase()
+RimCaseCollection* RimIdenticalGridCaseGroup::statisticsCaseCollection() const
 {
-    bool selectDefaultResults = false;
-    return createStatisticsCase( selectDefaultResults );
+    return m_statisticsCaseCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -364,9 +380,9 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendEmptyStatist
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 {
-    for ( size_t i = 0; i < statisticsCaseCollection->reservoirs().size(); i++ )
+    for ( size_t i = 0; i < m_statisticsCaseCollection->reservoirs().size(); i++ )
     {
-        RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
+        RimEclipseCase* rimStaticsCase = m_statisticsCaseCollection->reservoirs[i];
 
         if ( rimStaticsCase->eclipseCaseData() )
         {
@@ -385,9 +401,9 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::clearStatisticsResults()
 {
-    for ( size_t i = 0; i < statisticsCaseCollection->reservoirs().size(); i++ )
+    for ( size_t i = 0; i < m_statisticsCaseCollection->reservoirs().size(); i++ )
     {
-        RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
+        RimEclipseCase* rimStaticsCase = m_statisticsCaseCollection->reservoirs[i];
         if ( !rimStaticsCase ) continue;
 
         if ( rimStaticsCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
@@ -417,32 +433,6 @@ void RimIdenticalGridCaseGroup::clearActiveCellUnions()
 {
     m_unionOfMatrixActiveCells->clear();
     m_unionOfFractureActiveCells->clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createStatisticsCase( bool selectDefaultResults )
-{
-    RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
-
-    newStatisticsCase->setCaseUserDescription( QString( "Statistics " ) + QString::number( statisticsCaseCollection()->reservoirs.size() + 1 ) );
-    statisticsCaseCollection()->reservoirs.push_back( newStatisticsCase );
-
-    if ( selectDefaultResults ) newStatisticsCase->populateResultSelectionAfterLoadingGrid();
-
-    auto reservoirs = caseCollection->reservoirs().childrenByType();
-    if ( !reservoirs.empty() )
-    {
-        auto caseDescription = reservoirs.front()->caseUserDescription();
-        newStatisticsCase->setWellDataSourceCase( caseDescription );
-    }
-
-    newStatisticsCase->openEclipseGridFile();
-    newStatisticsCase->computeActiveCellsBoundingBox();
-    newStatisticsCase->selectAllTimeSteps();
-
-    return newStatisticsCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -509,4 +499,12 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
     {
         return nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimIdenticalGridCaseGroup::sourceCases() const
+{
+    return caseCollection->reservoirs.childrenByType();
 }

@@ -25,7 +25,10 @@
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
 #include "RiaEnsembleNameTools.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimSummaryCaseMainCollection.h"
 
 namespace RimEnsembleFileSetTools
@@ -80,6 +83,33 @@ std::vector<RimEnsembleFileSet*> createEnsembleFileSets( const QStringList& file
     collection->updateAllRequiredEditors();
 
     return fileSets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimReservoirGridEnsemble*> createGridEnsemblesFromFileSets( const std::vector<RimEnsembleFileSet*> fileSets )
+{
+    RimProject*               project         = RimProject::current();
+    RimEclipseCaseCollection* eclipseCaseColl = project->activeOilField()->analysisModels();
+    if ( !eclipseCaseColl ) return {};
+
+    std::vector<RimReservoirGridEnsemble*> ensembles;
+    for ( auto fileSet : fileSets )
+    {
+        auto ensemble = new RimReservoirGridEnsemble();
+        ensemble->setEnsembleFileSet( fileSet );
+
+        project->assignIdToCaseGroup( ensemble );
+        eclipseCaseColl->reservoirGridEnsembles.push_back( ensemble );
+
+        ensemble->loadDataAndUpdate();
+        ensembles.push_back( ensemble );
+    }
+
+    eclipseCaseColl->updateAllRequiredEditors();
+
+    return ensembles;
 }
 
 //--------------------------------------------------------------------------------------------------

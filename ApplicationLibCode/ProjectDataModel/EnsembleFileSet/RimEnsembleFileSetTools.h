@@ -28,11 +28,14 @@
 
 class RimSummaryEnsemble;
 class RimEnsembleFileSet;
+class RimReservoirGridEnsemble;
 
 namespace RimEnsembleFileSetTools
 {
 std::vector<RimSummaryEnsemble*> createSummaryEnsemblesFromFileSets( const std::vector<RimEnsembleFileSet*> fileSets );
 std::vector<RimEnsembleFileSet*> createEnsembleFileSets( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
+
+std::vector<RimReservoirGridEnsemble*> createGridEnsemblesFromFileSets( const std::vector<RimEnsembleFileSet*> fileSets );
 
 RimEnsembleFileSet* createEnsembleFileSetFromOpm( const QString& pathPattern, const QString& name );
 

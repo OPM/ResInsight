@@ -108,16 +108,6 @@ bool RimEclipseCaseEnsemble::contains( RimEclipseCase* reservoir ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimEclipseCaseEnsemble::findByDescription( const QString& caseDescription ) const
-{
-    if ( !m_caseCollection ) return nullptr;
-
-    return m_caseCollection->findByDescription( caseDescription );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseCaseEnsemble::findByFileName( const QString& gridFileName ) const
 {
     for ( RimEclipseCase* rimReservoir : cases() )

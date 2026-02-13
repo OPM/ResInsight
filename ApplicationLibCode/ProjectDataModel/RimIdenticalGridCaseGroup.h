@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RiaPorosityModel.h"
+#include "RimReservoirGridEnsembleBase.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -40,7 +41,7 @@ class RimEclipseStatisticsCase;
 //
 //
 //==================================================================================================
-class RimIdenticalGridCaseGroup : public caf::PdmObject
+class RimIdenticalGridCaseGroup : public caf::PdmObject, public RimReservoirGridEnsembleBase
 {
     CAF_PDM_HEADER_INIT;
 
@@ -51,23 +52,24 @@ public:
     caf::PdmField<QString>                 name;
     caf::PdmField<int>                     groupId;
     caf::PdmChildField<RimCaseCollection*> caseCollection;
-    caf::PdmChildField<RimCaseCollection*> statisticsCaseCollection;
 
     void addCase( RimEclipseCase* reservoir );
     void removeCase( RimEclipseCase* reservoir );
 
     bool contains( RimEclipseCase* reservoir ) const;
 
-    RimEclipseStatisticsCase* createAndAppendStatisticsCase();
     RimEclipseStatisticsCase* createAndAppendEmptyStatisticsCase();
 
-    RimEclipseCase* mainCase();
-    void            loadMainCaseAndActiveCellInfo();
+    RimEclipseCase*    mainCase() override;
+    RimCaseCollection* statisticsCaseCollection() const override;
+    void               loadMainCaseAndActiveCellInfo();
 
-    RigMainGrid* mainGrid();
+    RigMainGrid* mainGrid() override;
 
-    RigActiveCellInfo* unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
-    void               computeUnionOfActiveCells();
+    std::vector<RimEclipseCase*> sourceCases() const override;
+
+    RigActiveCellInfo* unionOfActiveCells( RiaDefines::PorosityModelType porosityType ) override;
+    void               computeUnionOfActiveCells() override;
 
     static bool isStatisticsCaseCollection( RimCaseCollection* rimCaseCollection );
 
@@ -79,9 +81,9 @@ private:
     void clearStatisticsResults();
     void clearActiveCellUnions();
 
-    RimEclipseStatisticsCase* createStatisticsCase( bool selectDefaultResults );
-
 private:
+    caf::PdmChildField<RimCaseCollection*> m_statisticsCaseCollection;
+
     RigMainGrid* m_mainGrid;
 
     cvf::ref<RigActiveCellInfo> m_unionOfMatrixActiveCells;
