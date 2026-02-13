@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <compare>
 #include <cstdint>
 #include <map>
 #include <set>
@@ -180,6 +181,10 @@ private:
     void                             setCellIjk( std::tuple<int, int, int> ijk );
     void                             setCellIjk( int i, int j, int k );
 
+    void setVectorNameIdx( const std::string& str );
+    void setNameIdx( const std::string& str );
+    void setLgrNameIdx( const std::string& str );
+
 private:
     // The ordering the variables are defined in defines how the objects get sorted. Members defined first will be
     // evaluated first. This concept is used by <=> operator.
@@ -195,6 +200,21 @@ private:
     bool            m_isErrorResult;
     int             m_id;
     int             m_percentile;
+
+#ifdef _DEBUG
+    // Debug-only strings mirroring the uint32_t pool indices for easier inspection in debugger.
+    // Wrapped in a struct with trivial comparison so the defaulted <=> is unaffected.
+    struct DebugString
+    {
+        std::string value;
+        auto        operator<=>( const DebugString& ) const { return std::strong_ordering::equal; }
+        bool        operator==( const DebugString& ) const { return true; }
+    };
+
+    DebugString m_vectorNameDbg;
+    DebugString m_nameDbg;
+    DebugString m_lgrNameDbg;
+#endif
 };
 
 QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj );
