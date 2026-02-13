@@ -33,8 +33,7 @@ public:
 
     static RiaPreferencesOsdu* current();
 
-    void setData( const std::map<QString, QString>& keyValuePairs );
-    void setFieldsReadOnly();
+    void setData( const std::map<QString, QString>& keyValuePairs, const QString& configFile );
 
     QString server() const;
     QString dataPartitionId() const;
@@ -43,6 +42,10 @@ public:
     QString clientId() const;
 
 private:
+    void setFieldStates();
+
+private:
+    caf::PdmField<QString> m_configFile;
     caf::PdmField<QString> m_server;
     caf::PdmField<QString> m_dataPartitionId;
     caf::PdmField<QString> m_authority;

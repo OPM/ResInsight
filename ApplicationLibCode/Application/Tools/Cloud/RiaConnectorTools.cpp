@@ -180,8 +180,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         if ( !keyValuePairs.empty() )
         {
             RiaLogging::debug( QString( "Imported OSDU configuration from : '%1'" ).arg( filePath ) );
-            preferences->osduPreferences()->setData( keyValuePairs );
-            preferences->osduPreferences()->setFieldsReadOnly();
+            preferences->osduPreferences()->setData( keyValuePairs, filePath );
             break;
         }
     }
@@ -193,8 +192,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         if ( !keyValuePairs.empty() )
         {
             RiaLogging::debug( QString( "Imported SUMO configuration from : '%1'" ).arg( filePath ) );
-            preferences->sumoPreferences()->setData( keyValuePairs );
-            preferences->sumoPreferences()->setFieldsReadOnly();
+            preferences->sumoPreferences()->setData( keyValuePairs, filePath );
             break;
         }
     }
@@ -206,8 +204,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         if ( !keyValuePairs.empty() )
         {
             RiaLogging::debug( QString( "Imported OpenTelemetry configuration from : '%1'" ).arg( filePath ) );
-            RiaPreferencesOpenTelemetry::current()->setData( keyValuePairs );
-            RiaPreferencesOpenTelemetry::current()->setFieldsReadOnly();
+            RiaPreferencesOpenTelemetry::current()->setData( keyValuePairs, filePath );
             break;
         }
     }

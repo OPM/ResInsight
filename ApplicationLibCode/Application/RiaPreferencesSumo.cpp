@@ -28,10 +28,13 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesSumo, "RiaPreferencesSumo" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesSumo::RiaPreferencesSumo()
 {
+    CAF_PDM_InitField( &m_configFile, "configFile", QString( "No config file detected" ), "Config File" );
     CAF_PDM_InitFieldNoDefault( &m_server, "server", "Server" );
     CAF_PDM_InitFieldNoDefault( &m_authority, "authority", "Authority" );
     CAF_PDM_InitFieldNoDefault( &m_scopes, "scopes", "Scopes" );
     CAF_PDM_InitFieldNoDefault( &m_clientId, "clientId", "Client Id" );
+
+    setFieldStates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,8 +48,10 @@ RiaPreferencesSumo* RiaPreferencesSumo::current()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesSumo::setData( const std::map<QString, QString>& keyValuePairs )
+void RiaPreferencesSumo::setData( const std::map<QString, QString>& keyValuePairs, const QString& configFile )
 {
+    m_configFile = configFile;
+
     for ( const auto& [key, value] : keyValuePairs )
     {
         if ( key == "server" )
@@ -71,12 +76,14 @@ void RiaPreferencesSumo::setData( const std::map<QString, QString>& keyValuePair
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesSumo::setFieldsReadOnly()
+void RiaPreferencesSumo::setFieldStates()
 {
-    m_server.uiCapability()->setUiReadOnly( true );
-    m_authority.uiCapability()->setUiReadOnly( true );
-    m_scopes.uiCapability()->setUiReadOnly( true );
-    m_clientId.uiCapability()->setUiReadOnly( true );
+    std::vector<caf::PdmFieldHandle*> fields = this->fields();
+    for ( auto field : fields )
+    {
+        field->uiCapability()->setUiReadOnly( true );
+        field->xmlCapability()->disableIO();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -28,11 +28,14 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesOsdu, "RiaPreferencesOsdu" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesOsdu::RiaPreferencesOsdu()
 {
+    CAF_PDM_InitField( &m_configFile, "configFile", QString( "No config file detected" ), "Config File" );
     CAF_PDM_InitFieldNoDefault( &m_server, "server", "Server" );
     CAF_PDM_InitFieldNoDefault( &m_dataPartitionId, "dataPartitionId", "Data Partition Id" );
     CAF_PDM_InitFieldNoDefault( &m_authority, "authority", "Authority" );
     CAF_PDM_InitFieldNoDefault( &m_scopes, "scopes", "Scopes" );
     CAF_PDM_InitFieldNoDefault( &m_clientId, "clientId", "Client Id" );
+
+    setFieldStates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,8 +49,10 @@ RiaPreferencesOsdu* RiaPreferencesOsdu::current()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesOsdu::setData( const std::map<QString, QString>& keyValuePairs )
+void RiaPreferencesOsdu::setData( const std::map<QString, QString>& keyValuePairs, const QString& configFile )
 {
+    m_configFile = configFile;
+
     for ( const auto& [key, value] : keyValuePairs )
     {
         if ( key == "server" )
@@ -76,13 +81,14 @@ void RiaPreferencesOsdu::setData( const std::map<QString, QString>& keyValuePair
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesOsdu::setFieldsReadOnly()
+void RiaPreferencesOsdu::setFieldStates()
 {
-    m_server.uiCapability()->setUiReadOnly( true );
-    m_dataPartitionId.uiCapability()->setUiReadOnly( true );
-    m_authority.uiCapability()->setUiReadOnly( true );
-    m_scopes.uiCapability()->setUiReadOnly( true );
-    m_clientId.uiCapability()->setUiReadOnly( true );
+    std::vector<caf::PdmFieldHandle*> fields = this->fields();
+    for ( auto field : fields )
+    {
+        field->uiCapability()->setUiReadOnly( true );
+        field->xmlCapability()->disableIO();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

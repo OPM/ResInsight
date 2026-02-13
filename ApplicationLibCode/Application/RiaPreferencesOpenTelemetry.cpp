@@ -32,7 +32,6 @@ void RiaPreferencesOpenTelemetry::LoggingStateType::setUp()
 {
     addItem( RiaPreferencesOpenTelemetry::LoggingState::DISABLED, "DISABLED", "Disabled" );
     addItem( RiaPreferencesOpenTelemetry::LoggingState::DEFAULT, "DEFAULT", "Default" );
-    addItem( RiaPreferencesOpenTelemetry::LoggingState::ALL, "ALL", "All" );
     setDefault( RiaPreferencesOpenTelemetry::LoggingState::DEFAULT );
 }
 } // namespace caf
@@ -46,7 +45,8 @@ RiaPreferencesOpenTelemetry::RiaPreferencesOpenTelemetry()
 {
     CAF_PDM_InitObject( "OpenTelemetry Configuration", "", "", "Configuration for OpenTelemetry crash reporting and telemetry" );
 
-    CAF_PDM_InitField( &m_loggingState, "loggingState", LoggingStateType( LoggingState::DISABLED ), "Logging State" );
+    CAF_PDM_InitField( &m_configFile, "configFile", QString( "No config file detected" ), "Config File" );
+    CAF_PDM_InitField( &m_loggingState, "loggingState_v1", LoggingStateType( LoggingState::DEFAULT ), "Logging State" );
     CAF_PDM_InitField( &m_connectionString, "connectionString", QString(), "Azure Connection String" );
     m_connectionString.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
@@ -56,13 +56,8 @@ RiaPreferencesOpenTelemetry::RiaPreferencesOpenTelemetry()
     CAF_PDM_InitField( &m_memoryThresholdMb, "memoryThresholdMb", 50, "Memory Threshold (MB)" );
     CAF_PDM_InitField( &m_samplingRate, "samplingRate", 1.0, "Sampling Rate" );
     CAF_PDM_InitField( &m_connectionTimeoutMs, "connectionTimeoutMs", 10000, "Connection Timeout (ms)" );
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaPreferencesOpenTelemetry::~RiaPreferencesOpenTelemetry()
-{
+    setFieldStates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,8 +71,10 @@ RiaPreferencesOpenTelemetry* RiaPreferencesOpenTelemetry::current()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesOpenTelemetry::setData( const std::map<QString, QString>& keyValuePairs )
+void RiaPreferencesOpenTelemetry::setData( const std::map<QString, QString>& keyValuePairs, const QString& configFile )
 {
+    m_configFile = configFile;
+
     for ( const auto& [key, value] : keyValuePairs )
     {
         if ( key == "connection_string" )
@@ -118,7 +115,7 @@ void RiaPreferencesOpenTelemetry::setData( const std::map<QString, QString>& key
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesOpenTelemetry::setFieldsReadOnly()
+void RiaPreferencesOpenTelemetry::setFieldStates()
 {
     std::vector<caf::PdmFieldHandle*> fields = this->fields();
     for ( auto field : fields )
@@ -127,6 +124,7 @@ void RiaPreferencesOpenTelemetry::setFieldsReadOnly()
         if ( field != &m_loggingState )
         {
             field->uiCapability()->setUiReadOnly( true );
+            field->xmlCapability()->disableIO();
         }
     }
 }
@@ -141,13 +139,18 @@ void RiaPreferencesOpenTelemetry::defineUiOrdering( QString uiConfigName, caf::P
     // Only show configuration fields if not disabled
     if ( m_loggingState() != LoggingState::DISABLED )
     {
+        uiOrdering.add( &m_configFile );
         uiOrdering.add( &m_connectionString );
-        uiOrdering.add( &m_batchTimeoutMs );
-        uiOrdering.add( &m_maxBatchSize );
-        uiOrdering.add( &m_maxQueueSize );
-        uiOrdering.add( &m_memoryThresholdMb );
-        uiOrdering.add( &m_samplingRate );
-        uiOrdering.add( &m_connectionTimeoutMs );
+
+        auto group = uiOrdering.addNewGroup( "Configuration" );
+        group->setCollapsedByDefault();
+
+        group->add( &m_batchTimeoutMs );
+        group->add( &m_maxBatchSize );
+        group->add( &m_maxQueueSize );
+        group->add( &m_memoryThresholdMb );
+        group->add( &m_samplingRate );
+        group->add( &m_connectionTimeoutMs );
     }
     uiOrdering.skipRemainingFields();
 }

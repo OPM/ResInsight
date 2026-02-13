@@ -41,18 +41,15 @@ public:
     enum class LoggingState
     {
         DISABLED,
-        DEFAULT,
-        ALL
+        DEFAULT
     };
     using LoggingStateType = caf::AppEnum<LoggingState>;
 
     RiaPreferencesOpenTelemetry();
-    ~RiaPreferencesOpenTelemetry() override;
 
     static RiaPreferencesOpenTelemetry* current();
 
-    void setData( const std::map<QString, QString>& keyValuePairs );
-    void setFieldsReadOnly();
+    void setData( const std::map<QString, QString>& keyValuePairs, const QString& configFile );
 
     // Service name and version are hardcoded, not configurable
     QString serviceName() const;
@@ -72,6 +69,10 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
+    void setFieldStates();
+
+private:
+    caf::PdmField<QString>          m_configFile;
     caf::PdmField<LoggingStateType> m_loggingState;
     caf::PdmField<QString>          m_connectionString;
     caf::PdmField<int>              m_batchTimeoutMs;
