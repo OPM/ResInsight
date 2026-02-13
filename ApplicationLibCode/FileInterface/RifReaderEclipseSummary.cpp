@@ -179,7 +179,7 @@ std::pair<bool, std::vector<double>> RifReaderEclipseSummary::values( const RifE
         return { true, values };
     }
 
-    if ( m_differenceAddresses.count( resultAddress ) )
+    if ( resultAddress.vectorName().contains( RifEclipseSummaryAddressDefines::differenceIdentifier() ) )
     {
         const std::string& quantityName = resultAddress.vectorName();
         auto historyQuantity = quantityName.substr( 0, quantityName.size() - RifEclipseSummaryAddressDefines::differenceIdentifier().size() ) +
@@ -204,8 +204,8 @@ std::pair<bool, std::vector<double>> RifReaderEclipseSummary::values( const RifE
         {
             double diff = nativeValues[i] - historyValues[i];
             values.push_back( diff );
-            m_valuesCache->insertValues( resultAddress, values );
         }
+        m_valuesCache->insertValues( resultAddress, values );
 
         return { true, values };
     }
@@ -278,7 +278,6 @@ void RifReaderEclipseSummary::createAndSetAddresses()
                 candidate.setVectorName( s );
 
                 m_allResultAddresses.insert( candidate );
-                m_differenceAddresses.insert( candidate );
             }
         }
     }

@@ -65,7 +65,6 @@ private:
 
 private:
     std::unique_ptr<RifSummaryReaderInterface> m_summaryReader;
-    std::set<RifEclipseSummaryAddress>         m_differenceAddresses;
 
     RifEnsembleImportConfig m_ensembleImportState;
 
