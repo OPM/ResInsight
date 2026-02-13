@@ -749,14 +749,14 @@ void RiuMainWindow::createToolBars()
 void RiuMainWindow::createDockPanels()
 {
     const int                  nTreeViews        = 3;
-    const std::vector<QString> treeViewTitles    = { "Project Tree", "Calculator Data ", "Scripts/Jobs" };
+    const std::vector<QString> treeViewTitles    = { "Project Tree", "Data Sources", "Scripts/Jobs" };
     const std::vector<QString> treeViewConfigs   = { "MainWindow.ProjectTree", "MainWindow.DataSources", "MainWindow.Scripts" };
     const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::mainWindowProjectTreeName(),
                                                      RiuDockWidgetTools::mainWindowDataSourceTreeName(),
                                                      RiuDockWidgetTools::mainWindowScriptsTreeName() };
 
     const std::vector<ads::DockWidgetArea> defaultDockWidgetArea{ ads::DockWidgetArea::LeftDockWidgetArea,
-                                                                  ads::DockWidgetArea::LeftDockWidgetArea,
+                                                                  ads::DockWidgetArea::RightDockWidgetArea,
                                                                   ads::DockWidgetArea::LeftDockWidgetArea };
 
     createTreeViews( nTreeViews );
