@@ -44,7 +44,7 @@ public:
 
     caf::PdmChildArrayField<RimEclipseCase*> reservoirs;
 
-    RimIdenticalGridCaseGroup* parentCaseGroup();
-    RimReservoirGridEnsemble*  parentGridEnsemble();
-    RimReservoirGridEnsembleBase*    parentGridEnsembleBase();
+    RimIdenticalGridCaseGroup*    parentCaseGroup();
+    RimReservoirGridEnsemble*     parentGridEnsemble();
+    RimReservoirGridEnsembleBase* parentGridEnsembleBase();
 };

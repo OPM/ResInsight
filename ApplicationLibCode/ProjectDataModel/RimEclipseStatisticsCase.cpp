@@ -39,8 +39,8 @@
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimReservoirGridEnsembleBase.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RiuMainWindow.h"
 
