@@ -31,6 +31,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimWellLogPlotCollection.h"
 
@@ -147,10 +148,16 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
         if ( RimIdenticalGridCaseGroup::isStatisticsCaseCollection( caseCollection ) )
         {
             RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
-            CVF_ASSERT( caseGroup );
-
-            caseGroup->statisticsCaseCollection()->reservoirs.removeChild( eclipseCase );
-            caseGroup->updateConnectedEditors();
+            if ( caseGroup )
+            {
+                caseGroup->statisticsCaseCollection()->reservoirs.removeChild( eclipseCase );
+                caseGroup->updateConnectedEditors();
+            }
+            else if ( RimReservoirGridEnsemble* ensemble = caseCollection->parentGridEnsemble() )
+            {
+                caseCollection->reservoirs.removeChild( eclipseCase );
+                ensemble->updateConnectedEditors();
+            }
         }
         else
         {

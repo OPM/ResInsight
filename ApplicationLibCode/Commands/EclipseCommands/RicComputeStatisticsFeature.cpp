@@ -23,7 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseStatisticsCaseCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
+#include "RimReservoirGridEnsembleBase.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
@@ -43,10 +43,8 @@ bool RicComputeStatisticsFeature::isCommandEnabled() const
         RimEclipseStatisticsCase* statisticsCase = selection[0];
         if ( statisticsCase )
         {
-            RimIdenticalGridCaseGroup* gridCaseGroup = statisticsCase->firstAncestorOrThisOfType<RimIdenticalGridCaseGroup>();
-
-            RimCaseCollection* caseCollection = gridCaseGroup ? gridCaseGroup->caseCollection() : nullptr;
-            return caseCollection ? !caseCollection->reservoirs.empty() : false;
+            auto* ensembleBase = statisticsCase->gridEnsembleBase();
+            return ensembleBase ? !ensembleBase->sourceCases().empty() : false;
         }
     }
 

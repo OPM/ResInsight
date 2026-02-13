@@ -24,6 +24,8 @@
 
 #include <QString>
 
+#include <functional>
+
 class RimEclipseView;
 class RimEclipseCase;
 
@@ -44,9 +46,14 @@ public:
 
     std::vector<RimEclipseView*> views() const;
 
+    void setEclipseCaseProvider( std::function<std::vector<RimEclipseCase*>()> provider = nullptr );
+
 private:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    void applyCallbackToView( RimEclipseView* view );
+
 private:
-    caf::PdmChildArrayField<RimEclipseView*> m_views;
+    caf::PdmChildArrayField<RimEclipseView*>      m_views;
+    std::function<std::vector<RimEclipseCase*>()> m_eclipseCaseProvider;
 };

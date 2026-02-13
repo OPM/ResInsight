@@ -36,10 +36,10 @@
 #include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimEclipseView.h"
 #include "RimGridCalculationCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirGridEnsembleBase.h"
 #include "RimSimWellInViewCollection.h"
 
 #include "RiuMainWindow.h"
@@ -126,7 +126,10 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitScriptableField( &m_midPercentile, "MidPercentile", 50.0, "Mid" );
     CAF_PDM_InitScriptableField( &m_highPercentile, "HighPercentile", 90.0, "High" );
 
-    CAF_PDM_InitScriptableField( &m_wellDataSourceCase, "WellDataSourceCase", RiaResultNames::undefinedResultName(), "Well Data Source Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellDataSourceCase, "WellDataSourceCasePtr", "Well Data Source Case" );
+
+    CAF_PDM_InitFieldNoDefault( &obsoleteField_wellDataSourceCase, "WellDataSourceCase", "Well Data Source Case" );
+    obsoleteField_wellDataSourceCase.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitScriptableField( &m_useZeroAsInactiveCellValue, "UseZeroAsInactiveCellValue", false, "Use Zero as Inactive Cell Value" );
 
@@ -150,6 +153,31 @@ RimEclipseStatisticsCase::~RimEclipseStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::initAfterRead()
+{
+    RimEclipseCase::initAfterRead();
+
+    if ( !obsoleteField_wellDataSourceCase().isEmpty() && obsoleteField_wellDataSourceCase() != RiaResultNames::undefinedResultName() )
+    {
+        auto* owner = gridEnsembleBase();
+        if ( owner )
+        {
+            for ( auto* sourceCase : owner->sourceCases() )
+            {
+                if ( sourceCase->caseUserDescription() == obsoleteField_wellDataSourceCase() )
+                {
+                    m_wellDataSourceCase = sourceCase;
+                    break;
+                }
+            }
+        }
+        obsoleteField_wellDataSourceCase = "";
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::setMainGrid( RigMainGrid* mainGrid )
 {
     CVF_ASSERT( mainGrid );
@@ -165,23 +193,23 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 {
     if ( eclipseCaseData() ) return true;
 
+    auto* ensembleBase = gridEnsembleBase();
+    if ( !ensembleBase ) return false;
+
+    RigMainGrid* mainGrid = ensembleBase->mainGrid();
+    if ( !mainGrid ) return false;
+
     cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( this );
-
-    CVF_ASSERT( parentStatisticsCaseCollection() );
-
-    RimIdenticalGridCaseGroup* gridCaseGroup = parentStatisticsCaseCollection()->parentCaseGroup();
-    CVF_ASSERT( gridCaseGroup );
-
-    RigMainGrid* mainGrid = gridCaseGroup->mainGrid();
-
     eclipseCase->setMainGrid( mainGrid );
 
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                    gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+                                    ensembleBase->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                    gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
+                                    ensembleBase->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
 
     setReservoirData( eclipseCase.p() );
+
+    computeCachedData();
 
     loadSimulationWellDataFromSourceCase();
 
@@ -256,10 +284,12 @@ void RimEclipseStatisticsCase::setSourceProperties( RiaDefines::ResultCatType pr
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::selectAllTimeSteps()
 {
-    RimIdenticalGridCaseGroup* idgcg = caseGroup();
-    if ( idgcg && idgcg->mainCase() )
+    auto* ensembleBase = gridEnsembleBase();
+    if ( !ensembleBase ) return;
+
+    if ( RimEclipseCase* mainCase = ensembleBase->mainCase() )
     {
-        int timeStepCount = idgcg->mainCase()->timeStepStrings().size();
+        int timeStepCount = mainCase->timeStepStrings().size();
 
         if ( timeStepCount > 0 )
         {
@@ -274,9 +304,9 @@ void RimEclipseStatisticsCase::selectAllTimeSteps()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::setWellDataSourceCase( const QString& reservoirDescription )
+void RimEclipseStatisticsCase::setWellDataSourceCase( RimEclipseCase* sourceCase )
 {
-    m_wellDataSourceCase = reservoirDescription;
+    m_wellDataSourceCase = sourceCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,9 +319,10 @@ void RimEclipseStatisticsCase::computeStatistics()
         openEclipseGridFile();
     }
 
-    RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
-    CVF_ASSERT( gridCaseGroup );
-    gridCaseGroup->computeUnionOfActiveCells();
+    auto* ensembleBase = gridEnsembleBase();
+    if ( !ensembleBase ) return;
+
+    ensembleBase->computeUnionOfActiveCells();
 
     std::vector<RimEclipseCase*> sourceCases = getSourceCases();
 
@@ -415,8 +446,14 @@ void RimEclipseStatisticsCase::computeStatistics()
                                                                                 calculationName ) );
     }
 
-    bool clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
-    RimEclipseStatisticsCaseEvaluator stat( sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup, clearGridCalculationMemory );
+    bool                              clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
+    RimEclipseStatisticsCaseEvaluator stat( sourceCases,
+                                            timeStepIndices,
+                                            statisticsConfig,
+                                            resultCase,
+                                            ensembleBase->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                            ensembleBase->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
+                                            clearGridCalculationMemory );
 
     if ( m_useZeroAsInactiveCellValue )
     {
@@ -441,36 +478,21 @@ void RimEclipseStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimEclipseStatisticsCase::getSourceCases() const
 {
-    std::vector<RimEclipseCase*> sourceCases;
+    auto* ensembleBase = gridEnsembleBase();
+    if ( !ensembleBase ) return {};
 
-    RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
-    if ( gridCaseGroup )
-    {
-        size_t caseCount = gridCaseGroup->caseCollection->reservoirs.size();
-        for ( size_t i = 0; i < caseCount; i++ )
-        {
-            CVF_ASSERT( gridCaseGroup->caseCollection );
-            CVF_ASSERT( gridCaseGroup->caseCollection->reservoirs[i] );
-
-            RimEclipseCase* sourceCase = gridCaseGroup->caseCollection->reservoirs[i];
-            sourceCases.push_back( sourceCase );
-        }
-    }
-
-    return sourceCases;
+    return ensembleBase->sourceCases();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimEclipseStatisticsCase::caseGroup() const
+RimReservoirGridEnsembleBase* RimEclipseStatisticsCase::gridEnsembleBase() const
 {
-    RimCaseCollection* parentCollection = parentStatisticsCaseCollection();
-    if ( parentCollection )
+    if ( RimCaseCollection* parentCollection = parentStatisticsCaseCollection() )
     {
-        return parentCollection->parentCaseGroup();
+        return parentCollection->parentGridEnsembleBase();
     }
-
     return nullptr;
 }
 
@@ -578,8 +600,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::toOptionList( const QStr
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    RimIdenticalGridCaseGroup* idgcg = caseGroup();
-    if ( !( caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData() ) )
+    auto* ensembleBase = gridEnsembleBase();
+    if ( !ensembleBase ) return {};
+
+    RimEclipseCase* mainCase = ensembleBase->mainCase();
+    if ( !( mainCase && mainCase->eclipseCaseData() ) )
     {
         return {};
     }
@@ -618,13 +643,13 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
         return options;
     }
 
-    RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
+    RigEclipseCaseData* caseData = mainCase->eclipseCaseData();
 
     if ( &m_selectedTimeSteps == fieldNeedingOptions )
     {
         QList<caf::PdmOptionItemInfo> options;
 
-        const auto timeStepStrings = idgcg->mainCase()->timeStepStrings();
+        const auto timeStepStrings = mainCase->timeStepStrings();
 
         int index = 0;
         for ( const auto& text : timeStepStrings )
@@ -700,15 +725,15 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
 
     else if ( &m_wellDataSourceCase == fieldNeedingOptions )
     {
-        QStringList sourceCaseNames;
-        sourceCaseNames += RiaResultNames::undefinedResultName();
+        QList<caf::PdmOptionItemInfo> options;
+        options.push_back( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), nullptr ) );
 
-        for ( size_t i = 0; i < caseGroup()->caseCollection()->reservoirs().size(); i++ )
+        for ( auto* sourceCase : ensembleBase->sourceCases() )
         {
-            sourceCaseNames += caseGroup()->caseCollection()->reservoirs()[i]->caseUserDescription();
+            options.push_back( caf::PdmOptionItemInfo( sourceCase->caseUserDescription(), sourceCase ) );
         }
 
-        return toOptionList( sourceCaseNames );
+        return options;
     }
 
     return RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
@@ -759,8 +784,7 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::loadSimulationWellDataFromSourceCase()
 {
-    // Find or load well data for given case
-    RimEclipseCase* sourceResultCase = caseGroup()->caseCollection()->findByDescription( m_wellDataSourceCase );
+    RimEclipseCase* sourceResultCase = m_wellDataSourceCase();
     if ( sourceResultCase )
     {
         sourceResultCase->openEclipseGridFile();
@@ -1006,13 +1030,16 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::populateResultSelection()
 {
-    RimIdenticalGridCaseGroup* idgcg = caseGroup();
-    if ( !( caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData() ) )
+    auto* ensembleBase = gridEnsembleBase();
+    if ( !ensembleBase ) return;
+
+    RimEclipseCase* mainCase = ensembleBase->mainCase();
+    if ( !( mainCase && mainCase->eclipseCaseData() ) )
     {
         return;
     }
 
-    RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
+    RigEclipseCaseData* caseData = mainCase->eclipseCaseData();
 
     if ( m_selectedDynamicProperties().empty() )
     {

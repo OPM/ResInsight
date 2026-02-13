@@ -36,6 +36,8 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 
+#include <functional>
+
 class RigActiveCellInfo;
 class RigCaseCellResultsData;
 class RigGridBase;
@@ -129,6 +131,8 @@ public:
     void            setEclipseCase( RimEclipseCase* reservoir );
     RimEclipseCase* eclipseCase() const;
     RimCase*        ownerCase() const override;
+
+    void setEclipseCaseProvider( std::function<std::vector<RimEclipseCase*>()> provider );
 
     RigMainGrid* mainGrid() const;
 
@@ -269,4 +273,7 @@ private:
 
     caf::PdmChildField<RimMultipleEclipseResults*> m_additionalResultsForResultInfo;
     caf::PdmChildArrayField<RimCameraPosition*>    m_cameraPositions;
+
+    // Callback for providing available Eclipse cases (used by view collections to filter cases)
+    std::function<std::vector<RimEclipseCase*>()> m_eclipseCaseProvider;
 };

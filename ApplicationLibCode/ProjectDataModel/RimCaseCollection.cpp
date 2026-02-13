@@ -22,6 +22,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimReservoirGridEnsemble.h"
 
 CAF_PDM_SOURCE_INIT( RimCaseCollection, "RimCaseCollection" );
 
@@ -61,15 +62,21 @@ RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimCaseCollection::findByDescription( const QString& caseDescription ) const
+RimReservoirGridEnsemble* RimCaseCollection::parentGridEnsemble()
 {
-    for ( size_t i = 0; i < reservoirs.size(); i++ )
-    {
-        if ( caseDescription == reservoirs[i]->caseUserDescription() )
-        {
-            return reservoirs[i];
-        }
-    }
+    return dynamic_cast<RimReservoirGridEnsemble*>( parentField()->ownerObject() );
+}
 
-    return nullptr;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimReservoirGridEnsembleBase* RimCaseCollection::parentGridEnsembleBase()
+{
+    auto* owner = parentField()->ownerObject();
+
+    if ( auto* caseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>( owner ) )
+    {
+        return caseGroup;
+    }
+    return dynamic_cast<RimReservoirGridEnsemble*>( owner );
 }

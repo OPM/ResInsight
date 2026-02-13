@@ -1626,13 +1626,17 @@ void RimEclipseView::updateLegendRangesTextAndVisibility( RimRegularLegendConfig
         nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(), isUsingOverrideViewer() );
     }
 
-    size_t maxTimeStepCount = eclResultDef->currentGridCellResults()->maxTimeStepCount();
-    if ( eclResultDef->isTernarySaturationSelected() && maxTimeStepCount > 1 )
+    if ( RigCaseCellResultsData* cellResultsData = eclResultDef->currentGridCellResults() )
     {
-        if ( ternaryLegendConfig->showLegend() && ternaryLegendConfig->titledOverlayFrame() )
+        size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
+        if ( eclResultDef->isTernarySaturationSelected() && maxTimeStepCount > 1 )
         {
-            ternaryLegendConfig->setTitle( legendHeading );
-            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( ternaryLegendConfig->titledOverlayFrame(), isUsingOverrideViewer() );
+            if ( ternaryLegendConfig->showLegend() && ternaryLegendConfig->titledOverlayFrame() )
+            {
+                ternaryLegendConfig->setTitle( legendHeading );
+                nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( ternaryLegendConfig->titledOverlayFrame(),
+                                                                            isUsingOverrideViewer() );
+            }
         }
     }
 }
@@ -1655,6 +1659,14 @@ void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
 RimEclipseCase* RimEclipseView::eclipseCase() const
 {
     return m_eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::setEclipseCaseProvider( std::function<std::vector<RimEclipseCase*>()> provider )
+{
+    m_eclipseCaseProvider = provider;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2088,7 +2100,18 @@ QList<caf::PdmOptionItemInfo> RimEclipseView::calculateValueOptions( const caf::
     {
         QList<caf::PdmOptionItemInfo> options;
 
-        for ( auto eclCase : RimEclipseCaseTools::allEclipseGridCases() )
+        // Use callback if provided, otherwise use global case list
+        std::vector<RimEclipseCase*> availableCases;
+        if ( m_eclipseCaseProvider )
+        {
+            availableCases = m_eclipseCaseProvider();
+        }
+        else
+        {
+            availableCases = RimEclipseCaseTools::allEclipseGridCases();
+        }
+
+        for ( auto eclCase : availableCases )
         {
             options.push_back( caf::PdmOptionItemInfo( eclCase->caseUserDescription(), eclCase, false, eclCase->uiIconProvider() ) );
         }

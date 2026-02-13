@@ -28,10 +28,12 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+class RigActiveCellInfo;
 class RigMainGrid;
 class RigSimWellData;
 class RimEclipseResultDefinition;
 class RimEclipseStatisticsCaseCollection;
+class RimReservoirGridEnsembleBase;
 class RimIdenticalGridCaseGroup;
 class RimGridCalculation;
 
@@ -80,12 +82,13 @@ public:
     void setSourceProperties( RiaDefines::ResultCatType propertyType, const std::vector<QString>& propertyNames );
     void selectAllTimeSteps();
 
-    void setWellDataSourceCase( const QString& reservoirDescription );
+    void setWellDataSourceCase( RimEclipseCase* sourceCase );
+
+    RimReservoirGridEnsembleBase* gridEnsembleBase() const;
 
 private:
     void scheduleACTIVEGeometryRegenOnReservoirViews();
 
-    RimIdenticalGridCaseGroup*   caseGroup() const;
     std::vector<RimEclipseCase*> getSourceCases() const;
 
     void populateResultSelection();
@@ -99,6 +102,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void loadSimulationWellDataFromSourceCase();
+    void initAfterRead() override;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void initializeSelectedTimeSteps();
@@ -134,9 +138,12 @@ private:
     caf::PdmField<double>                           m_midPercentile;
     caf::PdmField<double>                           m_highPercentile;
 
-    caf::PdmField<QString> m_wellDataSourceCase;
+    caf::PdmPtrField<RimEclipseCase*> m_wellDataSourceCase;
 
     caf::PdmField<bool> m_useZeroAsInactiveCellValue;
+
+    // Obsolete
+    caf::PdmField<QString> obsoleteField_wellDataSourceCase;
 
     bool m_populateSelectionAfterLoadingGrid;
 };

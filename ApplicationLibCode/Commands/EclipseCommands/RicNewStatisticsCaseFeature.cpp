@@ -24,6 +24,7 @@
 #include "RimEclipseStatisticsCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
+#include "RimReservoirGridEnsembleBase.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -93,30 +94,26 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation( caf::PdmUiItem* uiItem )
 {
-    RimIdenticalGridCaseGroup* caseGroup = nullptr;
+    RimCaseCollection* caseCollection = nullptr;
 
-    if ( dynamic_cast<RimEclipseStatisticsCase*>( uiItem ) )
+    if ( auto* statCase = dynamic_cast<RimEclipseStatisticsCase*>( uiItem ) )
     {
-        RimEclipseStatisticsCase* currentObject = dynamic_cast<RimEclipseStatisticsCase*>( uiItem );
-        caseGroup                               = currentObject->parentStatisticsCaseCollection()->parentCaseGroup();
+        caseCollection = statCase->parentStatisticsCaseCollection();
     }
-    else if ( dynamic_cast<RimCaseCollection*>( uiItem ) )
+    else if ( auto* caseColl = dynamic_cast<RimCaseCollection*>( uiItem ) )
     {
-        RimCaseCollection* statColl = dynamic_cast<RimCaseCollection*>( uiItem );
-        caseGroup                   = statColl->parentCaseGroup();
+        caseCollection = caseColl;
     }
 
-    if ( caseGroup )
-    {
-        RimProject*               proj          = RimProject::current();
-        RimEclipseStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
-        proj->assignCaseIdToCase( createdObject );
+    if ( !caseCollection ) return nullptr;
 
-        caseGroup->updateConnectedEditors();
-        return createdObject;
-    }
-    else
-    {
-        return nullptr;
-    }
+    auto* ensembleBase = caseCollection->parentGridEnsembleBase();
+    if ( !ensembleBase ) return nullptr;
+
+    auto* createdObject = ensembleBase->createAndAppendStatisticsCase();
+    RimProject::current()->assignCaseIdToCase( createdObject );
+
+    caseCollection->parentField()->ownerObject()->uiCapability()->updateConnectedEditors();
+
+    return createdObject;
 }

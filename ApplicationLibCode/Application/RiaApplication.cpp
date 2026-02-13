@@ -86,6 +86,7 @@
 #include "RimOsduWellPathDataLoader.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimScriptCollection.h"
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
@@ -819,6 +820,22 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             for ( auto gridCaseEnsemble : gridCaseEnsembles )
             {
                 auto views = gridCaseEnsemble->viewCollection()->views();
+                for ( auto view : views )
+                {
+                    view->loadDataAndUpdate();
+                }
+            }
+        }
+
+        // Load all reservoir grid ensemble views
+        {
+            auto reservoirGridEnsembles = m_project->activeOilField()->analysisModels()->reservoirGridEnsembles.childrenByType();
+
+            for ( auto gridEnsemble : reservoirGridEnsembles )
+            {
+                gridEnsemble->loadDataAndUpdate();
+
+                auto views = gridEnsemble->allViews();
                 for ( auto view : views )
                 {
                     view->loadDataAndUpdate();

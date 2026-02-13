@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2026     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,33 +18,17 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-class RimEclipseCase;
-class RimReservoirGridEnsembleBase;
-class RimIdenticalGridCaseGroup;
-class RimReservoirGridEnsemble;
-class RimCase;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
-//
-//
-//
+///
 //==================================================================================================
-class RimCaseCollection : public caf::PdmObject
+class RicCreateReservoirGridEnsembleFromFileSetFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimCaseCollection();
-
-    std::vector<RimCase*> cases() const;
-
-    caf::PdmChildArrayField<RimEclipseCase*> reservoirs;
-
-    RimIdenticalGridCaseGroup*    parentCaseGroup();
-    RimReservoirGridEnsemble*     parentGridEnsemble();
-    RimReservoirGridEnsembleBase* parentGridEnsembleBase();
+protected:
+    bool isCommandEnabled() const override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

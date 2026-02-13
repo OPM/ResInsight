@@ -46,6 +46,7 @@ class RimEclipseCase;
 class RimGeoMechCase;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
+class RimReservoirGridEnsemble;
 class RimMeasurement;
 class RimAdvancedSnapshotExportDefinition;
 class RimObservedSummaryData;
@@ -125,6 +126,7 @@ public:
 
     void assignCaseIdToCase( RimCase* reservoirCase );
     void assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup );
+    void assignIdToCaseGroup( RimReservoirGridEnsemble* gridEnsemble );
     void assignViewIdToView( Rim3dView* view );
     void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );

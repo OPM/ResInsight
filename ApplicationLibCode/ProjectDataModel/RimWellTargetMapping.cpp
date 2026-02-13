@@ -42,6 +42,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimRegularGridCase.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -458,7 +459,8 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     resultGroup->add( &m_volumesType );
 
-    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
+    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr ||
+                             firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr;
     if ( !hasEnsembleParent ) uiOrdering.add( &m_filterView );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
@@ -515,7 +517,8 @@ std::vector<double> RimWellTargetMapping::getVisibilityFilter() const
     std::vector<double> filter = {};
 
     // Visibility filter is only valid in the single case setting
-    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
+    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr ||
+                             firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr;
     if ( !hasEnsembleParent )
     {
         auto fc = firstCase();
@@ -548,10 +551,12 @@ std::vector<double> RimWellTargetMapping::getVisibilityFilter() const
 RimEclipseCase* RimWellTargetMapping::firstCase() const
 {
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
-    if ( ensemble && !ensemble->cases().empty() )
-        return ensemble->cases()[0];
-    else
-        return firstAncestorOrThisOfType<RimEclipseCase>();
+    if ( ensemble && !ensemble->cases().empty() ) return ensemble->cases()[0];
+
+    auto reservoirGridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
+    if ( reservoirGridEnsemble && !reservoirGridEnsemble->cases().empty() ) return reservoirGridEnsemble->cases()[0];
+
+    return firstAncestorOrThisOfType<RimEclipseCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -637,10 +642,21 @@ void RimWellTargetMapping::resetMinimumCellValuesToDefault()
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::onGenerateButtonClicked()
 {
-    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
-    if ( hasEnsembleParent )
+    auto hasEclipseCaseEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
+    auto hasGridEnsembleParent        = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr;
+    if ( hasEclipseCaseEnsembleParent )
     {
         generateEnsembleStatistics();
+    }
+    else if ( hasGridEnsembleParent )
+    {
+        // For RimReservoirGridEnsemble, generate for first case
+        // Full ensemble statistics support can be added later
+        if ( auto eclipseCase = firstCase() )
+        {
+            bool setTimeStepInView = true;
+            generateCandidates( eclipseCase, setTimeStepInView );
+        }
     }
     else if ( auto eclipseCase = firstCase() )
     {
