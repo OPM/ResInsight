@@ -17,9 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaNumberFormat.h"
-
 #include "RiuAbstractLegendFrame.h"
+
+#include "cafPdmUiNumberFormat.h"
 
 #include "cvfObject.h"
 #include "cvfRect.h"
@@ -38,14 +38,11 @@ class RiuScalarMapperLegendFrame : public RiuAbstractLegendFrame
     Q_OBJECT
 
 public:
-    using NumberFormat = RiaNumberFormat::NumberFormatType;
-
-public:
     RiuScalarMapperLegendFrame( QWidget* parent, const QString& title, cvf::ScalarMapper* scalarMapper );
     ~RiuScalarMapperLegendFrame() override;
 
     void setTickPrecision( int precision );
-    void setTickFormat( NumberFormat format );
+    void setTickFormat( caf::NumberFormatType format );
     void updateTickValues();
     void setScalarMapper( cvf::ScalarMapper* scalarMapper );
 
@@ -61,5 +58,5 @@ private:
     cvf::cref<cvf::ScalarMapper> m_scalarMapper;
     std::vector<double>          m_tickValues;
     int                          m_tickNumberPrecision;
-    NumberFormat                 m_numberFormat;
+    caf::NumberFormatType        m_numberFormat;
 };

@@ -19,7 +19,6 @@
 #include "RimSummaryPlotAxisFormatter.h"
 
 #include "RiaDefines.h"
-#include "RiaNumberFormat.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"

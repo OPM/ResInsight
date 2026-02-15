@@ -45,6 +45,8 @@
 #include <QString>
 #include <QWidget>
 
+#include <set>
+
 namespace caf
 {
 //==================================================================================================
@@ -58,6 +60,16 @@ class PdmUiCheckBoxAndTextEditor : public PdmUiFieldLabelEditorHandle
 public:
     PdmUiCheckBoxAndTextEditor() {}
     ~PdmUiCheckBoxAndTextEditor() override {}
+
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        static inline const QString DECIMALS      = QStringLiteral( "decimals" );
+        static inline const QString NUMBER_FORMAT = QStringLiteral( "numberFormat" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::DECIMALS, Keys::NUMBER_FORMAT };
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;

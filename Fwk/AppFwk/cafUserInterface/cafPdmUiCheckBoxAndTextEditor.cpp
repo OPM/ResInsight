@@ -41,6 +41,7 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiNumberFormat.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -62,6 +63,24 @@ void PdmUiCheckBoxAndTextEditor::configureAndUpdateUi( const QString& uiConfigNa
 
     m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
+    // Read display format from map-based attributes
+    int decimals     = -1;
+    int numberFormat = static_cast<int>( caf::NumberFormatType::AUTO );
+    if ( auto uiItem = uiField() )
+    {
+        if ( auto val = uiItem->attribute<int>( Keys::DECIMALS, uiConfigName ) )
+        {
+            decimals = val.value();
+        }
+
+        if ( auto val = uiItem->attribute<int>( Keys::NUMBER_FORMAT, uiConfigName ) )
+        {
+            numberFormat = val.value();
+        }
+
+        uiItem->validateAttributes( "PdmUiCheckBoxAndTextEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
+    }
+
     bool    isChecked = false;
     QString textString;
 
@@ -72,8 +91,19 @@ void PdmUiCheckBoxAndTextEditor::configureAndUpdateUi( const QString& uiConfigNa
         QList<QVariant> lst = variantValue.toList();
         if ( lst.size() == 2 )
         {
-            isChecked  = lst[0].toBool();
-            textString = lst[1].toString();
+            isChecked = lst[0].toBool();
+
+            bool   valueOk = false;
+            double value   = lst[1].toDouble( &valueOk );
+            if ( valueOk && decimals >= 0 )
+            {
+                auto fmt   = static_cast<NumberFormatType>( numberFormat );
+                textString = PdmUiNumberFormat::valueToText( value, fmt, decimals );
+            }
+            else
+            {
+                textString = lst[1].toString();
+            }
         }
     }
 

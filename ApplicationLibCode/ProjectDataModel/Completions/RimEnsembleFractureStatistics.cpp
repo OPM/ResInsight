@@ -21,7 +21,6 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
-#include "RiaNumberFormat.h"
 #include "RiaPreferences.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedHarmonicMeanCalculator.h"
@@ -45,6 +44,7 @@
 #include "FractureCommands/RicNewStimPlanFractureTemplateFeature.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmUiNumberFormat.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -1276,12 +1276,12 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
     text += "</thead>";
     text += "<tbody>";
 
-    auto emptyTextOnInf = []( double value, RiaNumberFormat::NumberFormatType numberFormat, int precision )
+    auto emptyTextOnInf = []( double value, caf::NumberFormatType numberFormat, int precision )
     {
         if ( std::isinf( value ) )
             return QString( "" );
         else
-            return RiaNumberFormat::valueToText( value, numberFormat, precision );
+            return caf::PdmUiNumberFormat::valueToText( value, numberFormat, precision );
     };
 
     for ( auto propertyType : propertyTypes )

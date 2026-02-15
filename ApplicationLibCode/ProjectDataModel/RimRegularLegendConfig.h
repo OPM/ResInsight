@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "RiaNumberFormat.h"
-
 #include "RimLegendConfig.h"
 #include "RimLegendConfigChangeType.h"
 
@@ -29,6 +27,7 @@
 #include "cvfObject.h"
 
 #include "cafPdmPtrField.h"
+#include "cafPdmUiNumberFormat.h"
 #include "cafSignal.h"
 
 #include <tuple>
@@ -128,9 +127,9 @@ public:
     void            setMappingMode( MappingType mappingType );
     MappingType     mappingMode() { return m_mappingMode(); }
 
-    void setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat );
+    void setTickNumberFormat( caf::NumberFormatType numberFormat );
 
-    RiaNumberFormat::NumberFormatType tickNumberFormat() const;
+    caf::NumberFormatType tickNumberFormat() const;
 
     int significantDigitsInData() const;
 
@@ -229,17 +228,17 @@ private:
     cvf::Color3ubArray       m_categoryColors;
 
     // Fields
-    caf::PdmField<bool>                                            m_showLegend;
-    caf::PdmField<int>                                             m_numLevels;
-    caf::PdmField<int>                                             m_precision;
-    caf::PdmField<caf::AppEnum<RiaNumberFormat::NumberFormatType>> m_tickNumberFormat;
-    caf::PdmField<RangeModeEnum>                                   m_rangeMode;
-    caf::PdmField<double>                                          m_userDefinedMaxValue;
-    caf::PdmField<double>                                          m_userDefinedMinValue;
-    caf::PdmField<caf::AppEnum<ColorRangesType>>                   m_colorRangeMode_OBSOLETE;
-    caf::PdmField<caf::AppEnum<MappingType>>                       m_mappingMode;
-    caf::PdmField<caf::AppEnum<CategoryColorModeType>>             m_categoryColorMode;
-    caf::PdmField<bool>                                            m_centerLegendAroundZero;
+    caf::PdmField<bool>                                m_showLegend;
+    caf::PdmField<int>                                 m_numLevels;
+    caf::PdmField<int>                                 m_precision;
+    caf::PdmField<caf::AppEnum<caf::NumberFormatType>> m_tickNumberFormat;
+    caf::PdmField<RangeModeEnum>                       m_rangeMode;
+    caf::PdmField<double>                              m_userDefinedMaxValue;
+    caf::PdmField<double>                              m_userDefinedMinValue;
+    caf::PdmField<caf::AppEnum<ColorRangesType>>       m_colorRangeMode_OBSOLETE;
+    caf::PdmField<caf::AppEnum<MappingType>>           m_mappingMode;
+    caf::PdmField<caf::AppEnum<CategoryColorModeType>> m_categoryColorMode;
+    caf::PdmField<bool>                                m_centerLegendAroundZero;
 
     caf::PdmPtrField<RimColorLegend*> m_colorLegend;
     caf::PdmField<bool>               m_selectColorLegendButton;

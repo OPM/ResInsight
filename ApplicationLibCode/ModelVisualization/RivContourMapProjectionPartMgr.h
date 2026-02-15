@@ -20,11 +20,10 @@
 
 #include "ContourMap/RigContourPolygonsTools.h"
 
-#include "RiaNumberFormat.h"
-
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmUiNumberFormat.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
@@ -63,7 +62,7 @@ public:
                                     cvf::ScalarMapper*                                           mapper,
                                     bool                                                         showContourLines,
                                     bool                                                         showContourLabels,
-                                    RiaNumberFormat::NumberFormatType                            numberFormat,
+                                    caf::NumberFormatType                                        numberFormat,
                                     int                                                          precision );
 
     void appendPickPointVisToModel( cvf::ModelBasicList*              model,
@@ -92,10 +91,10 @@ private:
                                                               const caf::DisplayCoordTransform*           displayCoordTransform,
                                                               std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes,
                                                               const std::vector<RigContourPolygonsTools::ContourPolygons>& contourLinePolygons,
-                                                              const RigContourMapGrid&          contourMapGrid,
-                                                              const cvf::ScalarMapper*          scalarMapper,
-                                                              RiaNumberFormat::NumberFormatType numberFormat,
-                                                              int                               precision ) const;
+                                                              const RigContourMapGrid& contourMapGrid,
+                                                              const cvf::ScalarMapper* scalarMapper,
+                                                              caf::NumberFormatType    numberFormat,
+                                                              int                      precision ) const;
 
     cvf::ref<cvf::DrawableGeo> createPickPointVisDrawable( const caf::DisplayCoordTransform* displayCoordTransform,
                                                            const cvf::Vec2d&                 pickPoint,

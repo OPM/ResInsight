@@ -64,6 +64,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLabelEditor.h"
+#include "cafPdmUiNumberFormat.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -1879,7 +1880,7 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
                 anno->setValue( yValue );
 
                 auto scaledValue = yValue / annotationAxis->scaleFactor();
-                auto valueText   = RiaNumberFormat::valueToText( scaledValue, RiaNumberFormat::NumberFormatType::FIXED, 2 );
+                auto valueText   = caf::PdmUiNumberFormat::valueToText( scaledValue, caf::NumberFormatType::FIXED, 2 );
 
                 anno->setName( valueText );
 
