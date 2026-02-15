@@ -16,7 +16,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 set(PROJECT_FILES
     cafUserInterface_UnitTests.cpp cafPdmUiTreeViewModelTest.cpp
     cafPdmUiTreeSelectionQModelTest.cpp cafPdmUiNumberFormatTest.cpp
-    gtest/gtest-all.cpp
+    cafPdmUiCheckBoxAndTextEditorTest.cpp gtest/gtest-all.cpp
 )
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_FILES})
