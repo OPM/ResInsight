@@ -145,7 +145,14 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
-    if ( auto result = filterAndUpdateWellKeywords( &eclipseCase, settings, deckFile ); !result )
+    auto validWellNames = wellNamesToInclude( &eclipseCase, settings );
+
+    if ( auto result = filterAndUpdateWellKeywords( validWellNames, settings, deckFile ); !result )
+    {
+        return result;
+    }
+
+    if ( auto result = updateWellListKeywords( validWellNames, settings, deckFile ); !result )
     {
         return result;
     }
@@ -1269,9 +1276,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processBoxRecord
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords( RimEclipseCase*                   eclipseCase,
-                                                                                  const RigSimulationInputSettings& settings,
-                                                                                  RifOpmFlowDeckFile&               deckFile )
+std::set<std::string> RigSimulationInputTool::wellNamesToInclude( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings )
 {
     // Find wells that intersect with the sector
     auto intersectingWells = findIntersectingWells( eclipseCase, settings.min(), settings.max() );
@@ -1306,6 +1311,102 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                                   return names;
                               }() ) ) );
 
+    return validWellNames;
+}
+
+#pragma optimize( "", off )
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std::set<std::string>&            validWellNames,
+                                                                             const RigSimulationInputSettings& settings,
+                                                                             RifOpmFlowDeckFile&               deckFile )
+{
+    using W = Opm::ParserKeywords::WLIST;
+
+    // gather existing lists
+
+    auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( W::keywordName );
+    if ( keywordsWithIndices.empty() ) return {};
+
+    std::map<std::string, std::set<std::string>> wellLists;
+
+    for ( auto [index, kw] : keywordsWithIndices )
+    {
+        for ( size_t recordIdx = 0; recordIdx < kw.size(); recordIdx++ )
+        {
+            const auto& record = kw.getRecord( recordIdx );
+            if ( record.size() < 3 ) continue;
+
+            const auto& listNameItem = record.getItem( 0 );
+            if ( !listNameItem.hasValue( 0 ) || listNameItem.getType() != Opm::type_tag::string ) continue;
+            std::string listName = listNameItem.get<std::string>( 0 );
+
+            const auto& operationItem = record.getItem( 1 );
+            if ( !operationItem.hasValue( 0 ) || operationItem.getType() != Opm::type_tag::string ) continue;
+            std::string operationName = operationItem.get<std::string>( 0 );
+            if ( operationName != "ADD" && operationName != "NEW" )
+            {
+                RiaLogging::warning(
+                    QString( "Unsupported WLIST operation '%1' in list '%2', skipping" ).arg( operationName.c_str() ).arg( listName.c_str() ) );
+                continue;
+            }
+
+            const auto& wellsItem = record.getItem( 2 );
+            for ( size_t i = 0; i < wellsItem.data_size(); i++ )
+            {
+                std::string wellName = wellsItem.get<std::string>( i );
+                if ( validWellNames.contains( wellName ) )
+                {
+                    wellLists[listName].insert( wellName );
+                }
+            }
+        }
+    }
+
+    // generate new wlist kw with the updated set of wells
+    auto [index, kw] = keywordsWithIndices.front();
+    Opm::DeckKeyword newKw( kw.location(), kw.name() );
+
+    for ( const auto& [listName, wells] : wellLists )
+    {
+        if ( wells.empty() ) continue;
+        std::vector<Opm::DeckItem> items;
+        items.push_back( RifOpmDeckTools::item( "NAME", listName ) );
+        items.push_back( RifOpmDeckTools::item( "ACTION", "NEW" ) );
+        items.push_back( RifOpmDeckTools::item( "WELLS", wells ) );
+        newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    if ( newKw.size() > 0 )
+    {
+        // replace the first wlist kw with the new one, remove remaining kws
+        deckFile.replaceKeywordAtIndex( index, std::move( newKw ) );
+
+        for ( size_t idx = keywordsWithIndices.size() - 1; idx > 0; idx-- )
+        {
+            deckFile.removeKeywordAtIndex( keywordsWithIndices[idx].first );
+        }
+    }
+    else
+    {
+        // No valid wells - remove all WLIST keywords
+        deckFile.removeKeywords( W::keywordName );
+    }
+
+    return {};
+}
+
+#pragma optimize( "", on )
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords( std::set<std::string>&            validWellNames,
+                                                                                  const RigSimulationInputSettings& settings,
+                                                                                  RifOpmFlowDeckFile&               deckFile )
+{
     // List of well-related keywords to filter (keywords that reference well names)
     std::vector<std::string> wellKeywords = { "COMPDAT",  "COMPLUMP", "COMPORD",  "COMPSEGS", "WCONHIST", "WCONINJE", "WCONINJH",
                                               "WCONPROD", "WCYCLE",   "WDFAC",    "WDFACCOR", "WEFAC",    "WELCNTL",  "WELOPEN",
@@ -1361,7 +1462,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                         if ( keywordName == "COMPSEGS" || keywordName == "WELSEGS" )
                         {
                             currentSegmentWell = wellName;
-                            keepSegmentRecords = ( validWellNames.find( wellName ) != validWellNames.end() );
+                            keepSegmentRecords = ( validWellNames.contains( wellName ) );
                         }
                     }
                     else if ( keywordName == "COMPSEGS" || keywordName == "WELSEGS" )
@@ -1371,7 +1472,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                     }
 
                     // Check if this well is in our valid set
-                    if ( ( isWellNameRecord && validWellNames.find( wellName ) != validWellNames.end() ) ||
+                    if ( ( isWellNameRecord && validWellNames.contains( wellName ) ) ||
                          ( !isWellNameRecord && ( keywordName == "COMPSEGS" || keywordName == "WELSEGS" ) && keepSegmentRecords ) )
                     {
                         // For keywords with IJK coordinates, we need to transform them

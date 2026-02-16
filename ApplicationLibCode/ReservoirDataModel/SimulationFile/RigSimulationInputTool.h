@@ -26,6 +26,7 @@
 
 #include <expected>
 #include <functional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -148,8 +149,15 @@ private:
     static std::expected<void, QString>
         addFaultsToDeckFile( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
-    static std::expected<void, QString>
-        filterAndUpdateWellKeywords( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+    static std::expected<void, QString> filterAndUpdateWellKeywords( std::set<std::string>&            validWellNames,
+                                                                     const RigSimulationInputSettings& settings,
+                                                                     RifOpmFlowDeckFile&               deckFile );
+
+    static std::expected<void, QString> updateWellListKeywords( std::set<std::string>&            validWellNames,
+                                                                const RigSimulationInputSettings& settings,
+                                                                RifOpmFlowDeckFile&               deckFile );
+
+    static std::set<std::string> wellNamesToInclude( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings );
 
     static std::expected<void, QString>
         exportEditNncKeyword( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );

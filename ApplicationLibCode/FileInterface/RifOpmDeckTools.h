@@ -19,7 +19,9 @@
 #pragma once
 
 #include <optional>
+#include <set>
 #include <string>
+#include <vector>
 
 namespace Opm
 {
@@ -38,5 +40,7 @@ Opm::DeckItem item( std::string name, double value );
 Opm::DeckItem optionalItem( std::string name, std::optional<float> value );
 Opm::DeckItem optionalItem( std::string name, std::optional<double> value );
 Opm::DeckItem defaultItem( std::string name );
+Opm::DeckItem item( std::string name, std::set<std::string> values );
+Opm::DeckItem item( std::string name, std::vector<std::string> values );
 
 } // namespace RifOpmDeckTools

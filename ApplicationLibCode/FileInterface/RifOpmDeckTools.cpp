@@ -135,4 +135,26 @@ Opm::DeckItem optionalItem( std::string name, std::optional<float> value )
     return defaultItem( name );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem item( std::string name, std::set<std::string> values )
+{
+    Opm::DeckItem item1( name, "" );
+    for ( const auto& value : values )
+        item1.push_back( value );
+    return item1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem item( std::string name, std::vector<std::string> values )
+{
+    Opm::DeckItem item1( name, "" );
+    for ( const auto& value : values )
+        item1.push_back( value );
+    return item1;
+}
+
 } // namespace RifOpmDeckTools

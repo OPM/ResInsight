@@ -987,6 +987,19 @@ bool RifOpmFlowDeckFile::replaceKeywordAtIndex( const Opm::FileDeck::Index& inde
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::removeKeywordAtIndex( const Opm::FileDeck::Index& index )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Erase the keyword at the given index and insert the new one
+    m_fileDeck->erase( index );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Returns number of removed keywords
 //--------------------------------------------------------------------------------------------------
 int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
