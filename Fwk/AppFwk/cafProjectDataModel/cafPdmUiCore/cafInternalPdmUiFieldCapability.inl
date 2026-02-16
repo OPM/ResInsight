@@ -95,6 +95,13 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bo
     {
         typename FieldType::FieldDataType value;
         PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant( uiValue, value );
+
+        // Clamp value if the field has a clampValue method
+        if constexpr ( requires { m_field->clampValue( value ); } )
+        {
+            value = m_field->clampValue( value );
+        }
+
         m_field->setValue( value );
     }
 
