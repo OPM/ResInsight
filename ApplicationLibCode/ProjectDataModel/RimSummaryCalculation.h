@@ -72,6 +72,8 @@ public:
     bool isDistributeToOtherItems() const;
     bool isDistributeToAllCases() const;
 
+    static void substituteVariables( std::vector<SummaryCalculationVariable>& vars, const RifEclipseSummaryAddress& address );
+
 protected:
     RimSummaryCalculationVariable* createVariable() override;
 
@@ -82,8 +84,6 @@ protected:
 
     std::optional<std::pair<std::vector<double>, std::vector<time_t>>> calculateWithSubstitutions( RimSummaryCase* summaryCase,
                                                                                                    const RifEclipseSummaryAddress& addr );
-
-    static void substituteVariables( std::vector<SummaryCalculationVariable>& vars, const RifEclipseSummaryAddress& address );
 
     std::vector<RimSummaryCalculationAddress> allAddressesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                                        const std::set<RifEclipseSummaryAddress>& allResultAddresses ) const;

@@ -262,7 +262,8 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         isHandledBySteppingTools = true;
     }
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION ||
-              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK )
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK ||
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK_LGR )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.blockAsString() );
         newValue                 = QString::fromStdString( address.blockAsString() );
@@ -641,6 +642,55 @@ std::vector<RimSummaryCalculationAddress>
             }
         }
     }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK )
+    {
+        std::set<std::array<int, 3>> uniqueBlocks;
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_BLOCK )
+                           {
+                               uniqueBlocks.insert( { addr.cellI(), addr.cellJ(), addr.cellK() } );
+                           }
+                       } );
+
+        for ( auto block : uniqueBlocks )
+        {
+            addresses.push_back(
+                RimSummaryCalculationAddress( RifEclipseSummaryAddress::blockAddress( name, block[0], block[1], block[2], m_id ) ) );
+        }
+    }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK_LGR )
+    {
+        std::set<std::string> uniqueLgrNames;
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr )
+                       {
+                           if ( addr.category() == SummaryCategory::SUMMARY_BLOCK_LGR ) uniqueLgrNames.insert( addr.lgrName() );
+                       } );
+
+        for ( auto lgrName : uniqueLgrNames )
+        {
+            std::set<std::array<int, 3>> uniqueBlocks;
+            std::for_each( allResultAddresses.begin(),
+                           allResultAddresses.end(),
+                           [&]( const auto& addr )
+                           {
+                               if ( addr.category() == SummaryCategory::SUMMARY_BLOCK_LGR && addr.lgrName() == lgrName )
+                               {
+                                   uniqueBlocks.insert( { addr.cellI(), addr.cellJ(), addr.cellK() } );
+                               }
+                           } );
+
+            for ( auto block : uniqueBlocks )
+            {
+                addresses.push_back( RimSummaryCalculationAddress(
+                    RifEclipseSummaryAddress::blockLgrAddress( name, lgrName, block[0], block[1], block[2], m_id ) ) );
+            }
+        }
+    }
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED )
     {
         addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::importedAddress( name, m_id ) ) );
@@ -696,6 +746,14 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION )
     {
         return RifEclipseSummaryAddress::wellConnectionAddress( name, address.wellName(), address.cellI(), address.cellJ(), address.cellK(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK )
+    {
+        return RifEclipseSummaryAddress::blockAddress( name, address.cellI(), address.cellJ(), address.cellK(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK_LGR )
+    {
+        return RifEclipseSummaryAddress::blockLgrAddress( name, address.lgrName(), address.cellI(), address.cellJ(), address.cellK(), m_id );
     }
     else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED )
     {
