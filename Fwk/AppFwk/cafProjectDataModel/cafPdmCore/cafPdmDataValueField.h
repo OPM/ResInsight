@@ -73,6 +73,16 @@ public:
     {
     };
 
+    // Type trait to detect std::pair<bool, ArithmeticType>
+    template <typename T>
+    struct is_bool_arithmetic_pair : public std::false_type
+    {
+    };
+    template <typename T>
+    struct is_bool_arithmetic_pair<std::pair<bool, T>> : public std::integral_constant<bool, std::is_arithmetic<T>::value>
+    {
+    };
+
     typedef DataType FieldDataType;
     PdmDataValueField()
         : m_fieldValue( DataType() )
@@ -172,6 +182,46 @@ public:
         m_maxValue.reset();
     }
 
+    // Range validation for std::pair<bool, ArithmeticType> - validates the second (value) element
+    template <typename T = DataType>
+    typename std::enable_if<is_bool_arithmetic_pair<T>::value>::type
+        setRange( const typename T::second_type& minValue, const typename T::second_type& maxValue )
+    {
+        m_minValue = DataType( false, std::min( minValue, maxValue ) );
+        m_maxValue = DataType( false, std::max( minValue, maxValue ) );
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<is_bool_arithmetic_pair<T>::value>::type setMinValue( const typename T::second_type& minValue )
+    {
+        m_minValue = DataType( false, minValue );
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<is_bool_arithmetic_pair<T>::value>::type setMaxValue( const typename T::second_type& maxValue )
+    {
+        m_maxValue = DataType( false, maxValue );
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<is_bool_arithmetic_pair<T>::value>::type clearRange()
+    {
+        m_minValue.reset();
+        m_maxValue.reset();
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<is_bool_arithmetic_pair<T>::value>::type clearMinValue()
+    {
+        m_minValue.reset();
+    }
+
+    template <typename T = DataType>
+    typename std::enable_if<is_bool_arithmetic_pair<T>::value>::type clearMaxValue()
+    {
+        m_maxValue.reset();
+    }
+
     // Override validate from PdmFieldHandle
     QString validate() const override;
 
@@ -188,6 +238,19 @@ public:
             if ( m_maxValue.has_value() && clampedValue > m_maxValue.value() )
             {
                 clampedValue = m_maxValue.value();
+            }
+            return clampedValue;
+        }
+        else if constexpr ( is_bool_arithmetic_pair<DataType>::value )
+        {
+            DataType clampedValue = value;
+            if ( m_minValue.has_value() && clampedValue.second < m_minValue.value().second )
+            {
+                clampedValue.second = m_minValue.value().second;
+            }
+            if ( m_maxValue.has_value() && clampedValue.second > m_maxValue.value().second )
+            {
+                clampedValue.second = m_maxValue.value().second;
             }
             return clampedValue;
         }
@@ -257,6 +320,17 @@ QString caf::PdmDataValueField<DataType>::validate() const
         if ( m_maxValue.has_value() && m_fieldValue > m_maxValue.value() )
         {
             return QString( "Value %1 exceeds maximum %2" ).arg( m_fieldValue ).arg( m_maxValue.value() );
+        }
+    }
+    else if constexpr ( is_bool_arithmetic_pair<DataType>::value )
+    {
+        if ( m_minValue.has_value() && m_fieldValue.second < m_minValue.value().second )
+        {
+            return QString( "Value %1 is below minimum %2" ).arg( m_fieldValue.second ).arg( m_minValue.value().second );
+        }
+        if ( m_maxValue.has_value() && m_fieldValue.second > m_maxValue.value().second )
+        {
+            return QString( "Value %1 exceeds maximum %2" ).arg( m_fieldValue.second ).arg( m_maxValue.value().second );
         }
     }
     return executeCustomValidation();
