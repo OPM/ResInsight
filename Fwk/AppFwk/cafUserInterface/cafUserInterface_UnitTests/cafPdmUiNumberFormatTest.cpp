@@ -21,7 +21,7 @@ TEST( PdmUiNumberFormatTest, ValueToText )
         { 3.14159,      "3.14",         NumberFormatType::FIXED,      2 },
         { 0.0,          "0.000",        NumberFormatType::FIXED,      3 },
         { -1.5,         "-1.5",         NumberFormatType::FIXED,      1 },
-        { 1.0 / 3.0,   "0.33333333",    NumberFormatType::FIXED,      8 },
+        { 1.0 / 3.0,    "0.33333333",   NumberFormatType::FIXED,      8 },
         { 3.7,          "4",            NumberFormatType::FIXED,      0 },
         { -2.3,         "-2",           NumberFormatType::FIXED,      0 },
         { 1234567.89,   "1234567.89",   NumberFormatType::FIXED,      2 },

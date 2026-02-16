@@ -1,5 +1,7 @@
 #include "ValidationTest.h"
 
+#include "cafPdmUiDoubleValueEditor.h"
+
 #include <QDebug>
 
 CAF_PDM_SOURCE_INIT( ValidationTestObject, "ValidationTestObject" );
@@ -13,7 +15,7 @@ ValidationTestObject::ValidationTestObject()
 
     // Temperature field: -273.15 to 1000.0 Celsius
     CAF_PDM_InitField( &m_temperature, "temperature", 20.0, "Temperature (°C)", "", "", "" );
-    m_temperature.uiCapability()->setUiToolTip( "Valid range: -273.15 to 1000.0 °C" );
+    //m_temperature.uiCapability()->setUiToolTip( "Valid range: -273.15 to 1000.0 °C" );
     m_temperature.setRange( -273.15, 1000.0 );
 
     // Age field: 0 to 150 years
@@ -23,8 +25,10 @@ ValidationTestObject::ValidationTestObject()
 
     // Percentage field: 0 to 100
     CAF_PDM_InitField( &m_percentage, "percentage", 50.0, "Percentage (%)", "", "", "" );
-    m_percentage.uiCapability()->setUiToolTip( "Valid range: 0 to 100%" );
+    m_percentage.uiCapability()->setUiToolTip( "Valid range: 0 to 100%, 4 significant digits" );
     m_percentage.setRange( 0.0, 100.0 );
+    m_percentage.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 4 );
+    m_percentage.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     // Count field: minimum value only (>= 0) and must be even (custom callback)
     CAF_PDM_InitField( &m_count, "count", 0, "Count", "", "", "" );
@@ -61,6 +65,12 @@ ValidationTestObject::ValidationTestObject()
     CAF_PDM_InitField( &m_rangeField, "rangeField", 0.0, "Range Field", "", "", "" );
     m_rangeField.uiCapability()->setUiToolTip( "Valid range: -100.0 to 100.0" );
     m_rangeField.setRange( -100.0, 100.0 );
+
+    // Toggle+double field with range validation: 0.001 to 1000.0
+    CAF_PDM_InitField( &m_toggleDoubleField, "toggleDoubleField", std::make_pair( false, 1.0 ), "Toggle Double", "", "", "" );
+    m_toggleDoubleField.uiCapability()->setUiToolTip( "Valid range: 0.001 to 1000.0" );
+    m_toggleDoubleField.setRange( 0.001, 1000.0 );
+    m_toggleDoubleField.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------

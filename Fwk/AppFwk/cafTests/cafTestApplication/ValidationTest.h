@@ -32,4 +32,7 @@ public:
 
     // Field with both min and max validation
     caf::PdmField<double> m_rangeField;
+
+    // Toggle+value field with range validation on the value
+    caf::PdmField<std::pair<bool, double>> m_toggleDoubleField;
 };

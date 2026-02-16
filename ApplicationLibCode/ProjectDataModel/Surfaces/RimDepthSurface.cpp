@@ -45,8 +45,14 @@ RimDepthSurface::RimDepthSurface()
 
     CAF_PDM_InitField( &m_depthLowerLimit, "DepthLowerLimit", 0.0, "Lower Limit" );
     m_depthLowerLimit.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_depthLowerLimit.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_depthLowerLimit.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                    static_cast<int>( caf::NumberFormatType::FIXED ) );
     CAF_PDM_InitField( &m_depthUpperLimit, "DepthUpperLimit", 100000.0, "Upper Limit" );
     m_depthUpperLimit.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_depthUpperLimit.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_depthUpperLimit.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                    static_cast<int>( caf::NumberFormatType::FIXED ) );
 
     m_minX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_maxX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -151,8 +157,6 @@ void RimDepthSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 void RimDepthSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
-
-    caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
 
     if ( field == &m_depth )
     {

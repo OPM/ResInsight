@@ -45,7 +45,6 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QDoubleValidator>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -64,13 +63,6 @@ PdmUiDoubleValueEditor::PdmUiDoubleValueEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiDoubleValueEditor::~PdmUiDoubleValueEditor()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_lineEdit.isNull() );
@@ -79,46 +71,10 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-        if ( m_attributes.m_validator )
-        {
-            m_lineEdit->setValidator( m_attributes.m_validator );
-        }
-    }
+    // Validate: warn about unsupported attributes
+    uiField()->validateAttributes( "PdmUiDoubleValueEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
-    {
-        if ( auto val = uiItem->attribute<int>( Keys::DECIMALS, uiConfigName ) )
-        {
-            m_attributes.m_decimals = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<int>( Keys::NUMBER_FORMAT, uiConfigName ) )
-        {
-            m_attributes.m_numberFormat = static_cast<NumberFormatType>( val.value() );
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiDoubleValueEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
-    bool    valueOk = false;
-    double  value   = uiField()->uiValue().toDouble( &valueOk );
-    QString textValue;
-    if ( valueOk )
-    {
-        textValue = PdmUiNumberFormat::valueToText( value, m_attributes.m_numberFormat, m_attributes.m_decimals );
-    }
-    else
-    {
-        textValue = uiField()->uiValue().toString();
-    }
-
-    m_lineEdit->setText( textValue );
+    m_lineEdit->setText( formattedValue() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,9 +110,46 @@ void PdmUiDoubleValueEditor::slotEditingFinished()
 void PdmUiDoubleValueEditor::writeValueToField()
 {
     QString  textValue = m_lineEdit->text();
-    QVariant v;
-    v = textValue;
+    QVariant v         = textValue;
+
     this->setValueToField( v );
+
+    // This is required if the user entered an invalid value, we want to reset the text to the current value in the field
+    m_lineEdit->setText( formattedValue() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmUiDoubleValueEditor::formattedValue()
+{
+    if ( !uiField() )
+    {
+        return {};
+    }
+    auto uiFieldHandle = uiField();
+
+    NumberFormatType numberFormat = NumberFormatType::AUTO;
+    int              precision    = 6;
+
+    if ( auto val = uiFieldHandle->attribute<int>( Keys::DECIMALS ) )
+    {
+        precision = val.value();
+    }
+
+    if ( auto val = uiFieldHandle->attribute<int>( Keys::NUMBER_FORMAT ) )
+    {
+        numberFormat = static_cast<NumberFormatType>( val.value() );
+    }
+
+    bool   valueOk = false;
+    double value   = uiFieldHandle->uiValue().toDouble( &valueOk );
+    if ( valueOk )
+    {
+        return PdmUiNumberFormat::valueToText( value, numberFormat, precision );
+    }
+
+    return uiFieldHandle->uiValue().toString();
 }
 
 } // end namespace caf

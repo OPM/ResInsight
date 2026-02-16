@@ -192,10 +192,9 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void initAfterRead() override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void onLoadDataAndUpdate() override;
-    void updatePlots();
+    void                 initAfterRead() override;
+    void                 onLoadDataAndUpdate() override;
+    void                 updatePlots();
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void uiOrderingForFonts( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering );

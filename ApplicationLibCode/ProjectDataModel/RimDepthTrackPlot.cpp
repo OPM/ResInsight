@@ -124,6 +124,12 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitScriptableField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max" );
     m_minVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_maxVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_minVisibleDepth.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_minVisibleDepth.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                    static_cast<int>( caf::NumberFormatType::FIXED ) );
+    m_maxVisibleDepth.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_maxVisibleDepth.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                    static_cast<int>( caf::NumberFormatType::FIXED ) );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines" );
     CAF_PDM_InitScriptableField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale" );
@@ -1215,17 +1221,6 @@ void RimDepthTrackPlot::initAfterRead()
     }
 
     performAutoNameUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_minVisibleDepth || field == &m_maxVisibleDepth )
-    {
-        caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

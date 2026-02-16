@@ -779,6 +779,74 @@ TEST( BaseTest, FieldRangeValidation )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Test of pair<bool, double> field range validation
+//--------------------------------------------------------------------------------------------------
+TEST( BaseTest, PairBoolDoubleRangeValidation )
+{
+    class TestObject : public caf::PdmObjectHandle
+    {
+    public:
+        TestObject() { this->addField( &m_toggleValue, "toggleValue" ); }
+
+        caf::PdmDataValueField<std::pair<bool, double>> m_toggleValue;
+    };
+
+    TestObject* obj = new TestObject;
+
+    // Test setRange with min only
+    obj->m_toggleValue.setMinValue( 0.00001 );
+
+    obj->m_toggleValue.setValue( std::make_pair( true, 5.0 ) );
+    EXPECT_TRUE( obj->m_toggleValue.isValid() );
+    EXPECT_TRUE( obj->m_toggleValue.validate().isEmpty() );
+
+    obj->m_toggleValue.setValue( std::make_pair( true, 0.0 ) );
+    EXPECT_FALSE( obj->m_toggleValue.isValid() );
+    EXPECT_TRUE( obj->m_toggleValue.validate().contains( "below minimum" ) );
+
+    // Bool state should not affect validation
+    obj->m_toggleValue.setValue( std::make_pair( false, 0.0 ) );
+    EXPECT_FALSE( obj->m_toggleValue.isValid() );
+
+    // Test setRange with both min and max
+    obj->m_toggleValue.setRange( 1.0, 100.0 );
+
+    obj->m_toggleValue.setValue( std::make_pair( true, 50.0 ) );
+    EXPECT_TRUE( obj->m_toggleValue.isValid() );
+
+    obj->m_toggleValue.setValue( std::make_pair( true, 1.0 ) );
+    EXPECT_TRUE( obj->m_toggleValue.isValid() );
+
+    obj->m_toggleValue.setValue( std::make_pair( true, 100.0 ) );
+    EXPECT_TRUE( obj->m_toggleValue.isValid() );
+
+    obj->m_toggleValue.setValue( std::make_pair( true, 0.5 ) );
+    EXPECT_FALSE( obj->m_toggleValue.isValid() );
+    EXPECT_TRUE( obj->m_toggleValue.validate().contains( "below minimum" ) );
+
+    obj->m_toggleValue.setValue( std::make_pair( true, 200.0 ) );
+    EXPECT_FALSE( obj->m_toggleValue.isValid() );
+    EXPECT_TRUE( obj->m_toggleValue.validate().contains( "exceeds maximum" ) );
+
+    // Test clearRange
+    obj->m_toggleValue.clearRange();
+    obj->m_toggleValue.setValue( std::make_pair( true, -1000.0 ) );
+    EXPECT_TRUE( obj->m_toggleValue.isValid() );
+
+    // Test clampValue
+    obj->m_toggleValue.setRange( 0.0, 10.0 );
+    auto clamped = obj->m_toggleValue.clampValue( std::make_pair( true, 15.0 ) );
+    EXPECT_EQ( 10.0, clamped.second );
+    EXPECT_TRUE( clamped.first );
+
+    clamped = obj->m_toggleValue.clampValue( std::make_pair( false, -5.0 ) );
+    EXPECT_EQ( 0.0, clamped.second );
+    EXPECT_FALSE( clamped.first );
+
+    delete obj;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Test of independent min/max value validation
 //--------------------------------------------------------------------------------------------------
 TEST( BaseTest, IndependentMinMaxValidation )

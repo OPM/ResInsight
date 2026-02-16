@@ -71,9 +71,15 @@ RimGridCrossPlotRegressionCurve::RimGridCrossPlotRegressionCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_minExtrapolationRangeX, "MinExtrapolationRangeX", "Min" );
     m_minExtrapolationRangeX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_minExtrapolationRangeX.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_minExtrapolationRangeX.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                           static_cast<int>( caf::NumberFormatType::FIXED ) );
 
     CAF_PDM_InitFieldNoDefault( &m_maxExtrapolationRangeX, "MaxExtrapolationRangeX", "Max" );
     m_maxExtrapolationRangeX.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_maxExtrapolationRangeX.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_maxExtrapolationRangeX.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                           static_cast<int>( caf::NumberFormatType::FIXED ) );
 
     CAF_PDM_InitField( &m_polynomialDegree, "PolynomialDegree", 3, "Degree" );
     m_polynomialDegree.setRange( 1, 50 );
@@ -383,11 +389,6 @@ void RimGridCrossPlotRegressionCurve::defineEditorAttribute( const caf::PdmField
             myAttr->m_decimals = 3;
         }
     }
-    else if ( field == &m_minExtrapolationRangeX || field == &m_maxExtrapolationRangeX )
-    {
-        caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
-    }
-
     else if ( field == &m_expressionText )
     {
         auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );

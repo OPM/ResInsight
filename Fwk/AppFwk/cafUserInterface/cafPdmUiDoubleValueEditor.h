@@ -39,7 +39,6 @@
 #include "cafPdmUiFieldLabelEditorHandle.h"
 #include "cafPdmUiNumberFormat.h"
 
-#include <QDoubleValidator>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -49,38 +48,6 @@
 
 namespace caf
 {
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiDoubleValueEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiDoubleValueEditorAttribute()
-    {
-        m_decimals     = 6;
-        m_numberFormat = NumberFormatType::AUTO;
-    }
-
-    void setFixedWithTwoDecimals()
-    {
-        m_decimals     = 2;
-        m_numberFormat = NumberFormatType::FIXED;
-    }
-
-    // Convenience function to set the number format to fixed with two decimals
-    static void testAndSetFixedWithTwoDecimals( caf::PdmUiEditorAttribute* attr )
-    {
-        if ( auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attr ) )
-        {
-            doubleAttr->setFixedWithTwoDecimals();
-        }
-    }
-
-public:
-    int                        m_decimals;
-    NumberFormatType           m_numberFormat;
-    QPointer<QDoubleValidator> m_validator;
-};
 
 //==================================================================================================
 ///
@@ -92,7 +59,6 @@ class PdmUiDoubleValueEditor : public PdmUiFieldLabelEditorHandle
 
 public:
     PdmUiDoubleValueEditor();
-    ~PdmUiDoubleValueEditor() override;
 
     // Attribute key constants for compile-time safety and discoverability
     struct Keys
@@ -112,12 +78,11 @@ protected slots:
     void slotEditingFinished();
 
 private:
-    void writeValueToField();
+    void    writeValueToField();
+    QString formattedValue();
 
 private:
     QPointer<QLineEdit> m_lineEdit;
-
-    PdmUiDoubleValueEditorAttribute m_attributes;
 };
 
 } // end namespace caf

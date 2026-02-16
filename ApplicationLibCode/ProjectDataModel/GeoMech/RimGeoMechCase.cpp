@@ -129,6 +129,10 @@ RimGeoMechCase::RimGeoMechCase()
     CAF_PDM_InitField( &m_biotCoefficientType, "BiotCoefficientType", defaultBiotCoefficientType, "Biot Coefficient" );
     CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed Coefficient" );
     m_biotFixedCoefficient.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_biotFixedCoefficient.setRange( 0.0, 1.0 );
+    m_biotFixedCoefficient.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_biotFixedCoefficient.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                         static_cast<int>( caf::NumberFormatType::FIXED ) );
 
     CAF_PDM_InitField( &m_biotResultAddress, "BiotResultAddress", QString( "" ), "Value" );
 
@@ -1129,16 +1133,6 @@ void RimGeoMechCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
     if ( field == &m_closeElementPropertyFileCommand )
     {
         dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Close Selected Properties";
-    }
-
-    if ( field == &m_biotFixedCoefficient )
-    {
-        auto uiDoubleValueEditorAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
-        if ( uiDoubleValueEditorAttr )
-        {
-            uiDoubleValueEditorAttr->m_decimals  = 2;
-            uiDoubleValueEditorAttr->m_validator = new QDoubleValidator( 0.0, 1.0, 2 );
-        }
     }
 }
 

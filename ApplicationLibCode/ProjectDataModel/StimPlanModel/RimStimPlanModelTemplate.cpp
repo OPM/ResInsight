@@ -111,9 +111,15 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress" );
     m_verticalStress.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_verticalStress.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_verticalStress.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                   static_cast<int>( caf::NumberFormatType::FIXED ) );
     CAF_PDM_InitScriptableField( &m_verticalStressGradient, "VerticalStressGradient", defaultStressGradient, "Vertical Stress Gradient" );
     CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth" );
     m_stressDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_stressDepth.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::DECIMALS, 2 );
+    m_stressDepth.uiCapability()->setAttribute( caf::PdmUiDoubleValueEditor::Keys::NUMBER_FORMAT,
+                                                static_cast<int>( caf::NumberFormatType::FIXED ) );
 
     CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 70.0, "Temperature [C]" );
     CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient, "ReferenceTemperatureGradient", 0.025, "Temperature Gradient [C/m]" );
@@ -305,11 +311,6 @@ void RimStimPlanModelTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_stressDepth || field == &m_verticalStress )
-    {
-        caf::PdmUiDoubleValueEditorAttribute::testAndSetFixedWithTwoDecimals( attribute );
-    }
-
     if ( field == &m_faciesInitialPressureConfigs )
     {
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
