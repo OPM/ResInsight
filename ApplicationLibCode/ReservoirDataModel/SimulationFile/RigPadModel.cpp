@@ -587,8 +587,7 @@ std::unordered_map<std::string, double> computePropsDefaultValues( const Opm::De
 
     const auto rfunc = Opm::satfunc::getRawFunctionValues( tables, rspec.phases(), rtep );
 
-    auto cvrtPress = [&usys = deck.getActiveUnitSystem()]( const double p )
-    { return usys.from_si( Opm::UnitSystem::measure::pressure, p ); };
+    auto cvrtPress = [&usys = deck.getActiveUnitSystem()]( const double p ) { return usys.from_si( Opm::UnitSystem::measure::pressure, p ); };
 
     std::unordered_map<std::string, double> defaults;
     defaults.insert( {

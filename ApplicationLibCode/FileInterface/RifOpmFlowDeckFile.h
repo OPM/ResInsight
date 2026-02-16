@@ -92,7 +92,7 @@ public:
 
     bool addIncludeKeyword( std::string section, std::string keyword, std::string filePath );
 
-    Opm::FileDeck* fileDeck();
+    Opm::FileDeck*   fileDeck();
     const Opm::Deck* deck() const;
 
     bool addKeyword( const std::string& section, const Opm::DeckKeyword& keyword );
