@@ -48,6 +48,8 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QStyle>
+#include <QTimer>
+#include <QToolTip>
 
 namespace caf
 {
@@ -338,8 +340,13 @@ void PdmUiFieldEditorHandle::applyValidationStyling( QWidget* widget, const QStr
         // Valid - remove error icon if present
         if ( m_validationErrorAction )
         {
-            widget->removeAction( m_validationErrorAction );
+            if ( auto* parentWidget = qobject_cast<QWidget*>( m_validationErrorAction->parent() ) )
+            {
+                parentWidget->removeAction( m_validationErrorAction );
+            }
             delete m_validationErrorAction;
+            m_validationErrorAction = nullptr;
+            QToolTip::hideText();
         }
     }
     else
@@ -353,6 +360,11 @@ void PdmUiFieldEditorHandle::applyValidationStyling( QWidget* widget, const QStr
 
             // For QLineEdit, use TrailingPosition to show icon inside the widget
             QLineEdit* lineEdit = qobject_cast<QLineEdit*>( widget );
+            if ( !lineEdit )
+            {
+                // Search for a QLineEdit child in composite editor widgets (e.g. checkbox + line edit)
+                lineEdit = widget->findChild<QLineEdit*>();
+            }
             if ( lineEdit )
             {
                 m_validationErrorAction = lineEdit->addAction( warningIcon, QLineEdit::TrailingPosition );
@@ -363,6 +375,27 @@ void PdmUiFieldEditorHandle::applyValidationStyling( QWidget* widget, const QStr
                 widget->addAction( m_validationErrorAction );
             }
             m_validationErrorAction->setToolTip( errorMessage );
+
+            // Defer tooltip display until after all UI updates and pending key events are processed.
+            // A 100 ms delay is used because Qt dismisses tooltips on any key event. When the user
+            // presses Enter, both a key press and key release event are generated. A 0 ms delay would
+            // show the tooltip between these events, and the key release would immediately dismiss it.
+            QWidget* tooltipWidget = lineEdit ? static_cast<QWidget*>( lineEdit ) : widget;
+            if ( tooltipWidget->isVisible() )
+            {
+                QPointer<QWidget> safeWidget( tooltipWidget );
+                QString           msg = errorMessage;
+                QTimer::singleShot( 100,
+                                    tooltipWidget,
+                                    [safeWidget, msg]()
+                                    {
+                                        if ( safeWidget )
+                                        {
+                                            QPoint pos = safeWidget->mapToGlobal( QPoint( safeWidget->width(), 0 ) );
+                                            QToolTip::showText( pos, msg, safeWidget );
+                                        }
+                                    } );
+            }
         }
         else
         {
