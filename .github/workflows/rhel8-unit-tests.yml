@@ -1,0 +1,167 @@
+name: RHEL8 Unit Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Nightly at 2am UTC
+    - cron: "0 2 * * *"
+  
+jobs:
+  rhel8-build-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:8
+
+    steps:
+      - name: Install EPEL and development tools
+        run: |
+          dnf install -y epel-release
+          dnf config-manager --set-enabled powertools
+          dnf install -y \
+            gcc \
+            gcc-c++ \
+            make \
+            cmake \
+            ninja-build \
+            git \
+            curl \
+            zip \
+            unzip \
+            tar \
+            pkgconfig \
+            perl \
+            which \
+            python39 \
+            python39-devel \
+            python39-pip \
+            mesa-libGL-devel \
+            mesa-libGLU-devel \
+            mesa-libEGL-devel \
+            libxkbcommon-devel \
+            libxkbcommon-x11-devel \
+            xcb-util-keysyms-devel \
+            xcb-util-image-devel \
+            xcb-util-wm-devel \
+            xcb-util-renderutil-devel \
+            fontconfig-devel \
+            freetype-devel \
+            libX11-devel \
+            libXext-devel \
+            libXrender-devel \
+            flex \
+            bison \
+            xz
+
+      - name: Install GCC Toolset 14
+        run: |
+          dnf install -y gcc-toolset-14 gcc-toolset-14-gcc-c++ gcc-toolset-14-libatomic-devel gcc-toolset-14-libstdc++-devel
+
+      - name: Build libstdc++exp
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+
+          # Get full GCC version (e.g., 14.2.1)
+          GCC_FULL_VERSION=$(gcc -dumpfullversion)
+          # Get major.minor version for download (e.g., 14.2.0 - releases use .0 patch)
+          GCC_MAJOR_MINOR=$(echo $GCC_FULL_VERSION | cut -d. -f1,2)
+          GCC_VERSION="${GCC_MAJOR_MINOR}.0"
+          echo "GCC full version: $GCC_FULL_VERSION"
+          echo "GCC download version: $GCC_VERSION"
+
+          # Download GCC source
+          cd /tmp
+          curl -LO https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.xz
+          tar xf gcc-${GCC_VERSION}.tar.xz
+
+          # Build libstdc++exp
+          mkdir -p gcc-${GCC_VERSION}/build-libstdcxx
+          cd gcc-${GCC_VERSION}/build-libstdcxx
+
+          ../libstdc++-v3/configure \
+            --prefix=/opt/libstdcxx-exp \
+            --disable-multilib \
+            --disable-libstdcxx-pch \
+            --with-gxx-include-dir=/opt/rh/gcc-toolset-14/root/usr/include/c++/${GCC_VERSION}
+
+          # Build the experimental library (use -k to continue past unrelated failures like tzdb.cc)
+          make -k -j$(nproc) || true
+
+          # Verify and install the library
+          if [ ! -f src/experimental/.libs/libstdc++exp.a ]; then
+            echo "ERROR: libstdc++exp.a was not built"
+            exit 1
+          fi
+          mkdir -p /opt/libstdcxx-exp/lib
+          cp src/experimental/.libs/libstdc++exp.a /opt/libstdcxx-exp/lib/
+
+          echo "libstdc++exp built successfully"
+          ls -la /opt/libstdcxx-exp/lib/
+
+      - name: Configure git safe directory
+        run: |
+          git config --global --add safe.directory '*'
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        run: |
+          alternatives --set python3 /usr/bin/python3.9
+          python3 --version
+          python3 -m pip install --upgrade pip
+          python3 -m pip install grpcio-tools
+
+      - name: Get Python executable path
+        id: python-path
+        run: |
+          echo "PYTHON_EXECUTABLE=$(python3 -c 'import sys; import pathlib; print(pathlib.PurePath(sys.executable).as_posix())')" >> $GITHUB_OUTPUT
+
+      - name: Install Qt 6 using aqtinstall
+        run: |
+          python3 -m pip install aqtinstall
+          python3 -m aqt install-qt linux desktop 6.6.3 gcc_64 -O /opt/Qt --modules qtnetworkauth
+          echo "Qt6_DIR=/opt/Qt/6.6.3/gcc_64" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=/opt/Qt/6.6.3/gcc_64" >> $GITHUB_ENV
+          echo "/opt/Qt/6.6.3/gcc_64/bin" >> $GITHUB_PATH
+
+      - name: Bootstrap vcpkg
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          cd ThirdParty/vcpkg
+          ./bootstrap-vcpkg.sh
+
+      - name: Restore vcpkg cache
+        id: vcpkg-cache
+        uses: TAServers/vcpkg-cache@f645f5b5c4a8a6546911a64b3b02ac86b76f584c
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prefix: vcpkg-g++/
+
+      - name: Configure CMake
+        env:
+          CC: /opt/rh/gcc-toolset-14/root/usr/bin/gcc
+          CXX: /opt/rh/gcc-toolset-14/root/usr/bin/g++
+          VCPKG_FEATURE_FLAGS: "binarycaching"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          cmake -S . -B cmakebuild -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
+            -DRESINSIGHT_ENABLE_UNITY_BUILD=true \
+            -DRESINSIGHT_ENABLE_HDF5=false \
+            -DRESINSIGHT_ENABLE_GRPC=false \
+            -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
+            -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          cmake --build cmakebuild --target ResInsight-tests -- -j$(nproc)
+
+      - name: Run Unit Tests
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          ./cmakebuild/ResInsight-tests
