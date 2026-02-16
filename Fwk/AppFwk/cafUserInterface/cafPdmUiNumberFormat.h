@@ -15,6 +15,5 @@ class PdmUiNumberFormat
 {
 public:
     static QString valueToText( double value, NumberFormatType numberFormat, int precision );
-    static QString sprintfFormat( NumberFormatType numberFormat, int precision );
 };
 } // namespace caf

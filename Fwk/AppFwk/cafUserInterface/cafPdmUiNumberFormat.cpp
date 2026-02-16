@@ -25,23 +25,8 @@ QString PdmUiNumberFormat::valueToText( double value, NumberFormatType numberFor
         case NumberFormatType::SCIENTIFIC:
             return QString::number( value, 'e', precision );
         default:
-            return QString::number( value );
+            return QString::number( value, 'g', precision );
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString PdmUiNumberFormat::sprintfFormat( NumberFormatType numberFormat, int precision )
-{
-    switch ( numberFormat )
-    {
-        case NumberFormatType::FIXED:
-            return QString( "%.%1f" ).arg( precision );
-        case NumberFormatType::SCIENTIFIC:
-            return QString( "%.%1e" ).arg( precision );
-        default:
-            return QString( "%.%1g" ).arg( precision );
-    }
-}
 } // namespace caf
