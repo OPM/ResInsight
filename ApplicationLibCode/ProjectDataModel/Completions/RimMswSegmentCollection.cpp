@@ -140,10 +140,19 @@ double RimMswSegmentCollection::referenceDiameter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMswSegmentCollection::updateSegments( RimEclipseCase* eclipseCase )
+void RimMswSegmentCollection::updateSegments( RimWellPath* topLevelWell, RimEclipseCase* eclipseCase )
 {
-    // Clear existing segments before creating new ones
-    clearSegments();
+    if ( !topLevelWell )
+    {
+        RiaLogging::error( "Unable to update MSW segments: no top-level well path provided." );
+        return;
+    }
+
+    if ( !eclipseCase )
+    {
+        RiaLogging::error( "Unable to update MSW segments: no Eclipse case selected." );
+        return;
+    }
 
     auto scheduleRedraw = []()
     {
@@ -153,25 +162,12 @@ void RimMswSegmentCollection::updateSegments( RimEclipseCase* eclipseCase )
         }
     };
 
-    auto* wellPath = firstAncestorOrThisOfType<RimWellPath>();
-    if ( !wellPath )
-    {
-        RiaLogging::error( "Unable to update MSW segments: no well path found." );
-        scheduleRedraw();
-        return;
-    }
+    auto exportDate                             = RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( eclipseCase, 0 );
+    bool exportCompletionsAfterMainBoreSegments = true;
 
-    if ( !eclipseCase )
-    {
-        RiaLogging::error( "Unable to update MSW segments: no Eclipse case selected." );
-        scheduleRedraw();
-        return;
-    }
-
-    auto exportDate      = RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( eclipseCase, 0 );
     auto tableDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase,
-                                                                                    wellPath,
-                                                                                    true,
+                                                                                    topLevelWell,
+                                                                                    exportCompletionsAfterMainBoreSegments,
                                                                                     RicWellPathExportMswTableData::CompletionType::ALL,
                                                                                     exportDate );
 

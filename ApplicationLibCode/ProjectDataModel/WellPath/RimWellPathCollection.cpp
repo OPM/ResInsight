@@ -601,6 +601,8 @@ caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::updateMswSegments()
 {
+    std::set<RimWellPath*> topLevelWells;
+
     for ( const auto& wellPath : m_wellPaths )
     {
         if ( !wellPath ) continue;
@@ -611,7 +613,15 @@ void RimWellPathCollection::updateMswSegments()
         auto* segmentCollection = completions->mswSegmentCollection();
         if ( !segmentCollection ) continue;
 
-        segmentCollection->updateSegments( m_mswEclipseCase() );
+        segmentCollection->clearSegments();
+
+        topLevelWells.insert( wellPath->topLevelWellPath() );
+    }
+
+    // Update segments for all top level wells, which will update the segments for all connected well paths
+    for ( RimWellPath* topLevelWell : topLevelWells )
+    {
+        RimMswSegmentCollection::updateSegments( topLevelWell, m_mswEclipseCase() );
     }
 
     if ( RimProject* project = RimProject::current() )

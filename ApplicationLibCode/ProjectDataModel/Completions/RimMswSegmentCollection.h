@@ -27,6 +27,7 @@
 
 class RimEclipseCase;
 class RimMswSegment;
+class RimWellPath;
 struct WelsegsRow;
 
 //==================================================================================================
@@ -47,7 +48,7 @@ public:
 
     double referenceDiameter() const;
 
-    void updateSegments( RimEclipseCase* eclipseCase );
+    static void updateSegments( RimWellPath* topLevelWell, RimEclipseCase* eclipseCase );
 
 private:
     void populateFromWelsegsData( std::vector<WelsegsRow> welsegsData, double wellTotalDepth );
