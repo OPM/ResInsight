@@ -28,14 +28,8 @@
 #include "RiaPreferencesSummary.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaStdStringTools.h"
-#include "Summary/RiaSummaryCurveDefinition.h"
-#include "Summary/RiaSummaryDefines.h"
-#include "Summary/RiaSummaryPlotTools.h"
-#include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddressDefines.h"
-
-#include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "Annotations/RimTimeAxisAnnotationUpdater.h"
 #include "RimAsciiDataCurve.h"
@@ -58,6 +52,12 @@
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryTimeAxisProperties.h"
+#include "Summary/RiaSummaryAddressCollectionTools.h"
+#include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryDefines.h"
+#include "Summary/RiaSummaryPlotTools.h"
+#include "Summary/RiaSummaryTools.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 #include "Tools/RimPlotAxisTools.h"
 
 #include "RiuPlotAxis.h"
@@ -2260,14 +2260,14 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
     auto summaryCase  = RiaSummaryTools::summaryCaseById( addressCollection->caseId() );
     auto ensembleCase = RiaSummaryTools::ensembleById( addressCollection->ensembleId() );
 
-    std::vector<RiaSummaryCurveDefinition>                     sourceCurveDefs;
-    std::map<RiaSummaryCurveDefinition, std::set<std::string>> newCurveDefsWithObjectNames;
+    std::vector<RiaSummaryCurveDefinition> sourceCurveDefs;
 
     if ( summaryCase && !ensembleCase )
     {
         for ( auto& curve : summaryCurves() )
         {
-            sourceCurveDefs.push_back( curve->curveDefinition() );
+            auto srcDef = curve->curveDefinition();
+            sourceCurveDefs.emplace_back( summaryCase, srcDef.summaryAddressY(), srcDef.isEnsembleCurve() );
         }
     }
 
@@ -2280,61 +2280,19 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
         }
     }
 
-    for ( auto& curveDef : sourceCurveDefs )
+    auto candidateCurveDefs = RiaSummaryAddressCollectionTools::buildCurveDefs( sourceCurveDefs,
+                                                                                droppedName,
+                                                                                addressCollection->contentType(),
+                                                                                RiaPreferencesSummary::current()->appendHistoryVectors() );
+
+    auto existingSummaryCurves  = RiaSummaryAddressCollectionTools::buildAddressCaseMapFromCurves( summaryCurves() );
+    auto existingEnsembleCurves = RiaSummaryAddressCollectionTools::buildAddressEnsembleMapFromCurveSets( curveSets() );
+
+    auto newCurveDefs =
+        RiaSummaryAddressCollectionTools::removeExistingCurveDefs( candidateCurveDefs, existingSummaryCurves, existingEnsembleCurves );
+
+    for ( const auto& curveDef : newCurveDefs )
     {
-        auto       newCurveDef = curveDef;
-        const auto curveAdr    = newCurveDef.summaryAddressY();
-
-        std::string objectIdentifierString;
-        if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ) &&
-             ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL ) )
-        {
-            objectIdentifierString = curveAdr.wellName();
-        }
-        else if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ) &&
-                  ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP ) )
-        {
-            objectIdentifierString = curveAdr.groupName();
-        }
-        else if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK ) &&
-                  ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::NETWORK ) )
-        {
-            objectIdentifierString = curveAdr.networkName();
-        }
-        else if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION ) &&
-                  ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION ) )
-        {
-            objectIdentifierString = std::to_string( curveAdr.regionNumber() );
-        }
-        else if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT ) &&
-                  ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_SEGMENT ) )
-        {
-            objectIdentifierString = std::to_string( curveAdr.wellSegmentNumber() );
-        }
-
-        if ( !objectIdentifierString.empty() )
-        {
-            newCurveDef.setIdentifierText( curveAdr.category(), droppedName );
-
-            newCurveDefsWithObjectNames[newCurveDef].insert( objectIdentifierString );
-            const auto& addr = curveDef.summaryAddressY();
-            if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectors() )
-            {
-                auto historyAddr = addr;
-                historyAddr.setVectorName( addr.vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
-
-                auto historyCurveDef = newCurveDef;
-                historyCurveDef.setSummaryAddressY( historyAddr );
-                newCurveDefsWithObjectNames[historyCurveDef].insert( objectIdentifierString );
-            }
-        }
-    }
-
-    for ( auto& [curveDef, objectNames] : newCurveDefsWithObjectNames )
-    {
-        // Skip adding new curves if the object name is already present for the curve definition
-        if ( objectNames.count( droppedName ) > 0 ) continue;
-
         if ( curveDef.ensemble() )
         {
             auto addresses = curveDef.ensemble()->ensembleSummaryAddresses();
@@ -2387,13 +2345,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
     if ( summaryAddr->isEnsemble() )
     {
-        std::map<RifEclipseSummaryAddress, std::set<RimSummaryEnsemble*>> dataVectorMap;
-
-        for ( auto& curve : curveSets() )
-        {
-            const auto addr = curve->summaryAddressY();
-            dataVectorMap[addr].insert( curve->summaryEnsemble() );
-        }
+        auto dataVectorMap = RiaSummaryAddressCollectionTools::buildAddressEnsembleMapFromCurveSets( curveSets() );
 
         auto ensemble = RiaSummaryTools::ensembleById( summaryAddr->ensembleId() );
         if ( ensemble )
@@ -2424,13 +2376,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
     }
     else
     {
-        std::map<RifEclipseSummaryAddress, std::set<RimSummaryCase*>> dataVectorMap;
-
-        for ( auto& curve : summaryCurves() )
-        {
-            const auto addr = curve->summaryAddressY();
-            dataVectorMap[addr].insert( curve->summaryCaseY() );
-        }
+        auto dataVectorMap = RiaSummaryAddressCollectionTools::buildAddressCaseMapFromCurves( summaryCurves() );
 
         auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
         if ( summaryCase )

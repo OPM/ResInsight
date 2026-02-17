@@ -9,6 +9,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotTemplateTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressCollectionTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -22,6 +23,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotBuilder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryPlotTemplateTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressCollectionTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
