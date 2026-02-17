@@ -35,11 +35,17 @@ RimMswSegment::RimMswSegment()
     CAF_PDM_InitFieldNoDefault( &m_branchNumber, "BranchNumber", "Branch Number" );
     m_branchNumber.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_startMD, "StartMD", "Start MD" );
-    m_startMD.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitFieldNoDefault( &m_joinSegment, "JoinSegment", "Join Segment" );
+    m_joinSegment.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_endMD, "EndMD", "End MD" );
-    m_endMD.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitFieldNoDefault( &m_length, "Length", "Length" );
+    m_length.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_depth, "Depth", "Depth" );
+    m_depth.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_nextSegmentLength, "NextSegmentLength", "Next Segment Length" );
+    m_nextSegmentLength.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_diameter, "Diameter", "Diameter" );
     m_diameter.uiCapability()->setUiReadOnly( true );
@@ -57,13 +63,21 @@ RimMswSegment::~RimMswSegment()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMswSegment::setSegmentData( int segmentNumber, int branchNumber, double startMD, double endMD, double diameter )
+void RimMswSegment::setSegmentData( int    segmentNumber,
+                                    int    branchNumber,
+                                    int    joinSegment,
+                                    double length,
+                                    double depth,
+                                    double nextSegmentLength,
+                                    double diameter )
 {
-    m_segmentNumber = segmentNumber;
-    m_branchNumber  = branchNumber;
-    m_startMD       = startMD;
-    m_endMD         = endMD;
-    m_diameter      = diameter;
+    m_segmentNumber     = segmentNumber;
+    m_branchNumber      = branchNumber;
+    m_joinSegment       = joinSegment;
+    m_length            = length;
+    m_depth             = depth;
+    m_nextSegmentLength = nextSegmentLength;
+    m_diameter          = diameter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +94,38 @@ int RimMswSegment::segmentNumber() const
 int RimMswSegment::branchNumber() const
 {
     return m_branchNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimMswSegment::joinSegment() const
+{
+    return m_joinSegment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswSegment::length() const
+{
+    return m_length;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswSegment::depth() const
+{
+    return m_depth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswSegment::nextSegmentLength() const
+{
+    return m_nextSegmentLength;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,7 +186,7 @@ cvf::Color3f RimMswSegment::defaultComponentColor() const
 //--------------------------------------------------------------------------------------------------
 double RimMswSegment::startMD() const
 {
-    return m_startMD;
+    return m_length;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +194,7 @@ double RimMswSegment::startMD() const
 //--------------------------------------------------------------------------------------------------
 double RimMswSegment::endMD() const
 {
-    return m_endMD;
+    return m_nextSegmentLength;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,8 +202,8 @@ double RimMswSegment::endMD() const
 //--------------------------------------------------------------------------------------------------
 void RimMswSegment::applyOffset( double offsetMD )
 {
-    m_startMD = m_startMD + offsetMD;
-    m_endMD   = m_endMD + offsetMD;
+    // This does not make sense to apply offset to MSW segments, as they are not connected to each other and the start/end MD is only used
+    // for display purposes. So we do nothing here.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,8 +213,10 @@ void RimMswSegment::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add( &m_segmentNumber );
     uiOrdering.add( &m_branchNumber );
-    uiOrdering.add( &m_startMD );
-    uiOrdering.add( &m_endMD );
+    uiOrdering.add( &m_length );
+    uiOrdering.add( &m_depth );
+    uiOrdering.add( &m_nextSegmentLength );
+    uiOrdering.add( &m_joinSegment );
     uiOrdering.add( &m_diameter );
 
     uiOrdering.skipRemainingFields( true );

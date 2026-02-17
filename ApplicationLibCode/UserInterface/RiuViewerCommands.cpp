@@ -836,13 +836,18 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         resultInfoText += "\n\n";
                     }
 
-                    resultInfoText += QString( "Segment: %1\nBranch: %2\nMD: %3 - %4\nDiameter: %5" )
+                    resultInfoText += QString( "Segment     : %1\n"
+                                               "Branch      : %2\n"
+                                               "Join Segment: %3\n"
+                                               "Length      : %4\n"
+                                               "Depth       : %5\n"
+                                               "Diameter    : %6" )
                                           .arg( mswSegment->segmentNumber() )
                                           .arg( mswSegment->branchNumber() )
-                                          .arg( mswSegment->startMD() )
-                                          .arg( mswSegment->endMD() )
+                                          .arg( mswSegment->joinSegment() )
+                                          .arg( mswSegment->length() )
+                                          .arg( mswSegment->depth() )
                                           .arg( mswSegment->diameter() );
-
                     RiuMainWindow::instance()->setResultInfo( resultInfoText );
                     RiuMainWindow::instance()->selectAsCurrentItem( mswSegment, true );
                 }

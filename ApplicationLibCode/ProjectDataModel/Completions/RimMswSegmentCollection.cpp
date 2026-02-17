@@ -104,21 +104,17 @@ void RimMswSegmentCollection::populateFromWelsegsData( std::vector<WelsegsRow> w
     // Sort segments by measured depth (length)
     std::sort( welsegsData.begin(), welsegsData.end(), []( const WelsegsRow& a, const WelsegsRow& b ) { return a.length < b.length; } );
 
-    // Create segments with computed start/end MD
+    // Assign segments data. Start/end measured depth is used for visualization in 2D plots by RimWellPathComponentInterface
     for ( size_t i = 0; i < welsegsData.size(); ++i )
     {
         const auto& row = welsegsData[i];
 
-        double startMD = row.length;
-        double endMD   = ( i + 1 < welsegsData.size() ) ? welsegsData[i + 1].length : wellTotalDepth;
-
-        // Skip if start >= end (invalid interval)
-        if ( startMD >= endMD ) continue;
+        double nextSegmentLength = ( i + 1 < welsegsData.size() ) ? welsegsData[i + 1].length : wellTotalDepth;
 
         double diameter = row.diameter.value_or( 0.1 ); // Default diameter if not specified
 
         auto* segment = new RimMswSegment();
-        segment->setSegmentData( row.segment1, row.branch, startMD, endMD, diameter );
+        segment->setSegmentData( row.segment1, row.branch, row.joinSegment, row.length, row.depth, nextSegmentLength, diameter );
         appendSegment( segment );
     }
 }

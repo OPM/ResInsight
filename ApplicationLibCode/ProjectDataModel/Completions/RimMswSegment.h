@@ -37,10 +37,14 @@ public:
     RimMswSegment();
     ~RimMswSegment() override;
 
-    void setSegmentData( int segmentNumber, int branchNumber, double startMD, double endMD, double diameter );
+    void setSegmentData( int segmentNumber, int branchNumber, int joinSegment, double length, double depth, double nextSegmentLength, double diameter );
 
     int    segmentNumber() const;
     int    branchNumber() const;
+    int    joinSegment() const;
+    double length() const;
+    double depth() const;
+    double nextSegmentLength() const;
     double diameter() const;
 
     // RimWellPathComponentInterface overrides
@@ -59,7 +63,9 @@ protected:
 private:
     caf::PdmField<int>    m_segmentNumber;
     caf::PdmField<int>    m_branchNumber;
-    caf::PdmField<double> m_startMD;
-    caf::PdmField<double> m_endMD;
+    caf::PdmField<int>    m_joinSegment;
+    caf::PdmField<double> m_length;
+    caf::PdmField<double> m_depth;
+    caf::PdmField<double> m_nextSegmentLength;
     caf::PdmField<double> m_diameter;
 };
