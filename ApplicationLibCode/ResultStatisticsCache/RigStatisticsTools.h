@@ -29,7 +29,7 @@
 //
 //
 //==================================================================================================
-class RiaStatisticsTools
+class RigStatisticsTools
 {
 public:
     template <class NumberType>
@@ -50,7 +50,7 @@ public:
         NumberType minValue = std::numeric_limits<NumberType>::max();
         for ( NumberType value : values )
         {
-            if ( RiaStatisticsTools::isValidNumber<NumberType>( value ) )
+            if ( RigStatisticsTools::isValidNumber<NumberType>( value ) )
             {
                 minValue = std::min( minValue, value );
             }
@@ -65,7 +65,7 @@ public:
         NumberType maxValue = -std::numeric_limits<NumberType>::max();
         for ( NumberType value : values )
         {
-            if ( RiaStatisticsTools::isValidNumber<NumberType>( value ) )
+            if ( RigStatisticsTools::isValidNumber<NumberType>( value ) )
             {
                 maxValue = std::max( maxValue, value );
             }

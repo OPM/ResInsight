@@ -18,13 +18,13 @@
 
 #include "gtest/gtest.h"
 
-#include "RiaStatisticsTools.h"
+#include "RigStatisticsTools.h"
 
 #include <QDebug>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaStatisticsTools, NoCorrelation )
+TEST( RigStatisticsTools, NoCorrelation )
 {
     const int           N = 1000;
     std::vector<double> a, b;
@@ -38,14 +38,14 @@ TEST( RiaStatisticsTools, NoCorrelation )
     {
         b.push_back( (double)std::rand() );
     }
-    double correlation = RiaStatisticsTools::pearsonCorrelation( a, b );
+    double correlation = RigStatisticsTools::pearsonCorrelation( a, b );
     EXPECT_LE( correlation, 0.25 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaStatisticsTools, FullCorrelation )
+TEST( RigStatisticsTools, FullCorrelation )
 {
     const int           N = 1000;
     std::vector<double> a, b;
@@ -59,14 +59,14 @@ TEST( RiaStatisticsTools, FullCorrelation )
     {
         b.push_back( i * 2.0 + 1.0 );
     }
-    double correlation = RiaStatisticsTools::pearsonCorrelation( a, b );
+    double correlation = RigStatisticsTools::pearsonCorrelation( a, b );
     EXPECT_NEAR( correlation, 1.0, 1.0e-2 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaStatisticsTools, NegativeCorrelation )
+TEST( RigStatisticsTools, NegativeCorrelation )
 {
     const int           N = 1000;
     std::vector<double> a, b;
@@ -80,14 +80,14 @@ TEST( RiaStatisticsTools, NegativeCorrelation )
     {
         b.push_back( i * -2.0 + 1.0 );
     }
-    double correlation = RiaStatisticsTools::pearsonCorrelation( a, b );
+    double correlation = RigStatisticsTools::pearsonCorrelation( a, b );
     EXPECT_NEAR( correlation, -1.0, 1.0e-2 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaStatisticsTools, MinValue )
+TEST( RigStatisticsTools, MinValue )
 {
     const int           N = 1000;
     std::vector<double> a;
@@ -95,14 +95,14 @@ TEST( RiaStatisticsTools, MinValue )
     {
         a.push_back( static_cast<double>( i ) );
     }
-    double minValue = RiaStatisticsTools::minimumValue( a );
+    double minValue = RigStatisticsTools::minimumValue( a );
     EXPECT_EQ( minValue, 10.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaStatisticsTools, MaxValue )
+TEST( RigStatisticsTools, MaxValue )
 {
     const int           N = 1000;
     std::vector<double> a;
@@ -110,6 +110,6 @@ TEST( RiaStatisticsTools, MaxValue )
     {
         a.push_back( static_cast<double>( i ) );
     }
-    double maxValue = RiaStatisticsTools::maximumValue( a );
+    double maxValue = RigStatisticsTools::maximumValue( a );
     EXPECT_EQ( maxValue, 999.0 );
 }

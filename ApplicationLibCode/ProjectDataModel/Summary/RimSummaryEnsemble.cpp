@@ -22,9 +22,9 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
-#include "RiaStatisticsTools.h"
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
+#include "RigStatisticsTools.h"
 #include "Summary/Ensemble/RimSummaryEnsembleParameterCollection.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryTools.h"
@@ -576,7 +576,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
     for ( auto parameterValuesPair : parameterValues )
     {
         double correlation = 0.0;
-        double pearson     = RiaStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
+        double pearson     = RigStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
         if ( pearson != std::numeric_limits<double>::infinity() ) correlation = pearson;
         correlationResults.push_back( std::make_pair( parameterValuesPair.first, correlation ) );
     }

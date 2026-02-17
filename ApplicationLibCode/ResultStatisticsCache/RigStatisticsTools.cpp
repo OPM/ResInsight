@@ -18,14 +18,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStatisticsTools.h"
+#include "RigStatisticsTools.h"
 
 #include "RigStatisticsMath.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaStatisticsTools::pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues )
+double RigStatisticsTools::pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
     const double eps    = 1.0e-8;
     double       rangeX = 0.0, rangeY = 0.0;

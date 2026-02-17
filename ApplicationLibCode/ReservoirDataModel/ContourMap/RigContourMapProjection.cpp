@@ -18,8 +18,8 @@
 
 #include "RigContourMapProjection.h"
 
-#include "RiaStatisticsTools.h"
 #include "RiaWeightedMeanCalculator.h"
+#include "RigStatisticsTools.h"
 
 #include "RigContourMapCalculator.h"
 #include "RigContourMapGrid.h"
@@ -231,7 +231,7 @@ double RigContourMapProjection::calculateValueInMapCell( unsigned int           
 //--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::maxValue( const std::vector<double>& aggregatedResults )
 {
-    double maxV = RiaStatisticsTools::maximumValue( aggregatedResults );
+    double maxV = RigStatisticsTools::maximumValue( aggregatedResults );
     return maxV != -std::numeric_limits<double>::max() ? maxV : -std::numeric_limits<double>::infinity();
 }
 
@@ -240,7 +240,7 @@ double RigContourMapProjection::maxValue( const std::vector<double>& aggregatedR
 //--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::minValue( const std::vector<double>& aggregatedResults )
 {
-    double minV = RiaStatisticsTools::minimumValue( aggregatedResults );
+    double minV = RigStatisticsTools::minimumValue( aggregatedResults );
     return minV != std::numeric_limits<double>::max() ? minV : std::numeric_limits<double>::infinity();
 }
 

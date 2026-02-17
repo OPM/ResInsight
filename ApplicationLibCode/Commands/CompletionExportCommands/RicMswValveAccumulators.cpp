@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicMswValveAccumulators.h"
 
-#include "RiaStatisticsTools.h"
+#include "RigStatisticsTools.h"
 
 #include "RicMswCompletions.h"
 
@@ -126,7 +126,7 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
                 std::array<double, AICD_NUM_PARAMS> values = params->doubleValues();
                 for ( size_t i = 0; i < (size_t)AICD_NUM_PARAMS; ++i )
                 {
-                    if ( RiaStatisticsTools::isValidNumber( values[i] ) )
+                    if ( RigStatisticsTools::isValidNumber( values[i] ) )
                     {
                         m_meanCalculators[i].addValueAndWeight( values[i], overlapLength );
                     }
@@ -244,7 +244,7 @@ bool RicMswSICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
                 std::array<double, SICD_NUM_PARAMS> values = params->doubleValues();
                 for ( size_t i = 0; i < (size_t)SICD_NUM_PARAMS; ++i )
                 {
-                    if ( RiaStatisticsTools::isValidNumber( values[i] ) )
+                    if ( RigStatisticsTools::isValidNumber( values[i] ) )
                     {
                         m_meanCalculators[i].addValueAndWeight( values[i], overlapLength );
                     }

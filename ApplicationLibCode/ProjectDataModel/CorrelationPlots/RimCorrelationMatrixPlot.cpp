@@ -21,7 +21,7 @@
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaStatisticsTools.h"
+#include "RigStatisticsTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RifCsvDataTableFormatter.h"
@@ -560,7 +560,7 @@ void RimCorrelationMatrixPlot::createMatrix()
 
                     if ( parameterValues.empty() ) continue;
 
-                    correlation = RiaStatisticsTools::pearsonCorrelation( parameterValues, caseValuesAtTimestep );
+                    correlation = RigStatisticsTools::pearsonCorrelation( parameterValues, caseValuesAtTimestep );
 
                     bool validResult = RiaCurveDataTools::isValidValue( correlation, false );
                     if ( validResult )

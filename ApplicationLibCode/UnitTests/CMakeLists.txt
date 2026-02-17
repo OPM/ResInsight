@@ -80,7 +80,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader-Test.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigStatisticsTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifThermalFractureReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryExporter-Test.cpp

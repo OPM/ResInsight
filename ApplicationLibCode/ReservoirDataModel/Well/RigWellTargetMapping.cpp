@@ -1084,16 +1084,16 @@ void RigWellTargetMapping::computeStatisticsAndCreateVectors( RimEclipseCase&   
         double p10, p50, p90, mean;
         RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
-        if ( RiaStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
-        if ( RiaStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
-        if ( RiaStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
-        if ( RiaStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
+        if ( RigStatisticsTools::isValidNumber( p10 ) ) p10Results[i] = p10;
+        if ( RigStatisticsTools::isValidNumber( p50 ) ) p50Results[i] = p50;
+        if ( RigStatisticsTools::isValidNumber( p90 ) ) p90Results[i] = p90;
+        if ( RigStatisticsTools::isValidNumber( mean ) ) meanResults[i] = mean;
 
-        double minValue = RiaStatisticsTools::minimumValue( samples );
-        if ( RiaStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
+        double minValue = RigStatisticsTools::minimumValue( samples );
+        if ( RigStatisticsTools::isValidNumber( minValue ) && minValue < std::numeric_limits<double>::max() ) minResults[i] = minValue;
 
-        double maxValue = RiaStatisticsTools::maximumValue( samples );
-        if ( RiaStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
+        double maxValue = RigStatisticsTools::maximumValue( samples );
+        if ( RigStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
     }
 
     createResultVectorIfDefined( targetCase, resultName + "_P10", p10Results );

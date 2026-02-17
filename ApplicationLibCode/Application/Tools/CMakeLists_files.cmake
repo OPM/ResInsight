@@ -29,7 +29,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogCurveMerger.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaOffshoreSphericalCoords.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedMeanCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaMedianCalculator.h
@@ -92,7 +91,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogCurveMerger.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.cpp

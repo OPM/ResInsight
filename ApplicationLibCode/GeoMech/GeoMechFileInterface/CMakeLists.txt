@@ -24,3 +24,7 @@ target_link_libraries(
   RifGeoMechFileInterface PUBLIC RigGeoMechDataModel LibCore
 )
 target_link_libraries(RifGeoMechFileInterface PRIVATE ResInsightCommonSettings)
+target_include_directories(
+  RifGeoMechFileInterface
+  PRIVATE "$<TARGET_PROPERTY:ApplicationLibCode,INTERFACE_INCLUDE_DIRECTORIES>"
+)

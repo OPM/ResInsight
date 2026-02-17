@@ -117,3 +117,7 @@ target_link_libraries(
                              CommonCode ResultStatisticsCache
 )
 target_link_libraries(RigGeoMechDataModel PRIVATE ResInsightCommonSettings)
+target_include_directories(
+  RigGeoMechDataModel
+  PRIVATE "$<TARGET_PROPERTY:ApplicationLibCode,INTERFACE_INCLUDE_DIRECTORIES>"
+)
