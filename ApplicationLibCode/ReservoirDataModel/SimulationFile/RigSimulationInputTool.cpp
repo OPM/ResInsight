@@ -1330,10 +1330,14 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
     auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( W::keywordName );
     if ( keywordsWithIndices.empty() ) return {};
 
-    std::map<std::string, std::set<std::string>> wellLists;
+    std::set<std::string> existingLists;
 
     for ( auto [index, kw] : keywordsWithIndices )
     {
+        std::map<std::string, std::set<std::string>> wellLists;
+
+        // TODO - fix this
+
         for ( size_t recordIdx = 0; recordIdx < kw.size(); recordIdx++ )
         {
             const auto& record = kw.getRecord( recordIdx );
@@ -1362,37 +1366,36 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
                     wellLists[listName].insert( wellName );
                 }
             }
+
+            Opm::DeckKeyword newKw( kw.location(), kw.name() );
+
+            for ( const auto& [listName, wells] : wellLists )
+            {
+                if ( wells.empty() ) continue;
+                std::vector<Opm::DeckItem> items;
+                items.push_back( RifOpmDeckTools::item( "NAME", listName ) );
+                const std::string action = existingLists.contains( listName ) ? "ADD" : "NEW";
+                items.push_back( RifOpmDeckTools::item( "ACTION", action ) );
+                items.push_back( RifOpmDeckTools::item( "WELLS", wells ) );
+                newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+            }
+
+            if ( newKw.size() > 0 )
+            {
+                // replace the first wlist kw with the new one, remove remaining kws
+                deckFile.replaceKeywordAtIndex( index, std::move( newKw ) );
+            }
+            else
+            {
+                // replace with SKIP kw to remove later
+                deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
+            }
+
+            if ( wellLists.contains( listName ) )
+            {
+                existingLists.insert( listName );
+            }
         }
-    }
-
-    // generate new wlist kw with the updated set of wells
-    auto [index, kw] = keywordsWithIndices.front();
-    Opm::DeckKeyword newKw( kw.location(), kw.name() );
-
-    for ( const auto& [listName, wells] : wellLists )
-    {
-        if ( wells.empty() ) continue;
-        std::vector<Opm::DeckItem> items;
-        items.push_back( RifOpmDeckTools::item( "NAME", listName ) );
-        items.push_back( RifOpmDeckTools::item( "ACTION", "NEW" ) );
-        items.push_back( RifOpmDeckTools::item( "WELLS", wells ) );
-        newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
-    }
-
-    if ( newKw.size() > 0 )
-    {
-        // replace the first wlist kw with the new one, remove remaining kws
-        deckFile.replaceKeywordAtIndex( index, std::move( newKw ) );
-
-        for ( size_t idx = keywordsWithIndices.size() - 1; idx > 0; idx-- )
-        {
-            deckFile.removeKeywordAtIndex( keywordsWithIndices[idx].first );
-        }
-    }
-    else
-    {
-        // No valid wells - remove all WLIST keywords
-        deckFile.removeKeywords( W::keywordName );
     }
 
     return {};
