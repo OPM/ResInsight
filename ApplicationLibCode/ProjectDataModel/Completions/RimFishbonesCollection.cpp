@@ -27,6 +27,7 @@
 #include "RimFishbones.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -381,10 +382,26 @@ void RimFishbonesCollection::computeStartAndEndLocation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
+
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
+    }
 
     updateConnectedEditors();
 }

@@ -44,7 +44,6 @@
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
-#include "RimTools.h"
 #include "RimWellEventTimeline.h"
 #include "RimWellIASettingsCollection.h"
 #include "RimWellLogChannel.h"
@@ -187,7 +186,7 @@ double RimWellPath::wellPathRadius( double characteristicCellSize ) const
 {
     double radius = characteristicCellSize * m_wellPathRadiusScaleFactor();
 
-    RimWellPathCollection* coll = RimTools::wellPathCollection();
+    RimWellPathCollection* coll = RimWellPathCollection::instance();
     if ( coll )
     {
         radius *= coll->wellPathRadiusScaleFactor();
@@ -479,6 +478,11 @@ void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     else
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
+
+        if ( auto wellPathCollection = RimWellPathCollection::instance() )
+        {
+            wellPathCollection->updateMswSegmentsForObject( this );
+        }
     }
 }
 
@@ -832,7 +836,7 @@ void RimWellPath::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiE
         // The nodes for well paths are created by the well path collection object. When a well path object is asked to
         // be updated in the project tree, always rebuild the tree from the well path collection object.
 
-        myAttr->objectForUpdateOfUiTree = RimTools::wellPathCollection();
+        myAttr->objectForUpdateOfUiTree = RimWellPathCollection::instance();
     }
 }
 

@@ -55,6 +55,7 @@ public:
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
 private:
     caf::PdmChildArrayField<RimWellPathFracture*> m_fractures;

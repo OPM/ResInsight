@@ -20,6 +20,7 @@
 
 #include "Rim3dView.h"
 #include "RimProject.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 
 #include "cafPdmObject.h"
@@ -139,8 +140,24 @@ void RimWellPathFractureCollection::fieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
+    }
 }

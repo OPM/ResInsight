@@ -83,6 +83,8 @@ public:
     RimWellPathCollection();
     ~RimWellPathCollection() override;
 
+    static RimWellPathCollection* instance();
+
     enum WellVisibilityType
     {
         FORCE_ALL_OFF,
@@ -154,6 +156,8 @@ public:
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
+    void updateMswSegmentsForObject( caf::PdmObject* changedObject );
+
     static std::pair<cvf::ref<RigWellPath>, QString>
         loadWellPathGeometryFromOsdu( RiaOsduConnector* osduConnector, const QString& wellTrajectoryId, double datumElevation );
 
@@ -172,6 +176,7 @@ private:
 
     std::vector<RimWellPath*> readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
     void                      sortWellsByName();
+    void                      updateMswSegmentsForWellPath( RimWellPath* wellPath );
 
     std::expected<std::vector<RimFileWellPath*>, QString> addWellPathsForFile( const QString& filePath );
 
@@ -202,4 +207,5 @@ private:
 
     caf::PdmPtrField<RimEclipseCase*> m_mswEclipseCase;
     caf::PdmField<bool>               m_mswShowBands;
+    caf::PdmField<bool>               m_mswAutoUpdateSegments;
 };
