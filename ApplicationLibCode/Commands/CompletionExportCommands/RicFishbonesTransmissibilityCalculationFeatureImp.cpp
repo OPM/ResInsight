@@ -23,6 +23,7 @@
 #include "RicMswCompletions.h"
 #include "RicMswExportInfo.h"
 #include "RicMswSegment.h"
+#include "RicTransmissibilityCalculator.h"
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 #include "RicWellPathExportMswTableData.h"
 
@@ -113,9 +114,9 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             }
             else
             {
-                mainBoreDirection = RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( settings.caseToApply,
-                                                                                                            globalCellIndex,
-                                                                                                            wellBorePart.lengthsInCell );
+                mainBoreDirection = RicTransmissibilityCalculator::calculateCellMainDirection( settings.caseToApply,
+                                                                                               globalCellIndex,
+                                                                                               wellBorePart.lengthsInCell );
             }
         }
 
@@ -137,13 +138,13 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             {
                 // No change in transmissibility for main bore
                 auto transmissibilityAndPermeability =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData( settings.caseToApply,
-                                                                                               wellPath,
-                                                                                               wellBorePart.lengthsInCell,
-                                                                                               wellBorePart.skinFactor,
-                                                                                               wellBorePart.wellRadius,
-                                                                                               globalCellIndex,
-                                                                                               settings.useLateralNTG );
+                    RicTransmissibilityCalculator::calculateTransmissibilityData( settings.caseToApply,
+                                                                                  wellPath,
+                                                                                  wellBorePart.lengthsInCell,
+                                                                                  wellBorePart.skinFactor,
+                                                                                  wellBorePart.wellRadius,
+                                                                                  globalCellIndex,
+                                                                                  settings.useLateralNTG );
 
                 transmissibility = transmissibilityAndPermeability.connectionFactor();
                 kh               = transmissibilityAndPermeability.kh();
@@ -151,24 +152,22 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             else
             {
                 // Adjust transmissibility for fishbone laterals
-                auto transmissibilityAndPermeability =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData( settings.caseToApply,
-                                                                                               wellPath,
-                                                                                               wellBorePart.lengthsInCell,
-                                                                                               wellBorePart.skinFactor,
-                                                                                               wellBorePart.wellRadius,
-                                                                                               globalCellIndex,
-                                                                                               settings.useLateralNTG,
-                                                                                               numberOfLaterals,
-                                                                                               mainBoreDirection );
+                auto transmissibilityAndPermeability = RicTransmissibilityCalculator::calculateTransmissibilityData( settings.caseToApply,
+                                                                                                                     wellPath,
+                                                                                                                     wellBorePart.lengthsInCell,
+                                                                                                                     wellBorePart.skinFactor,
+                                                                                                                     wellBorePart.wellRadius,
+                                                                                                                     globalCellIndex,
+                                                                                                                     settings.useLateralNTG,
+                                                                                                                     numberOfLaterals,
+                                                                                                                     mainBoreDirection );
 
                 transmissibility = transmissibilityAndPermeability.connectionFactor();
                 kh               = transmissibilityAndPermeability.kh();
             }
 
-            auto direction = RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( settings.caseToApply,
-                                                                                                     globalCellIndex,
-                                                                                                     wellBorePart.lengthsInCell );
+            auto direction =
+                RicTransmissibilityCalculator::calculateCellMainDirection( settings.caseToApply, globalCellIndex, wellBorePart.lengthsInCell );
 
             completion.setTransAndWPImultBackgroundDataFromFishbone( transmissibility,
                                                                      wellBorePart.skinFactor,

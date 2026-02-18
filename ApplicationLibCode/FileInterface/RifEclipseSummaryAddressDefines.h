@@ -26,7 +26,6 @@
 //==================================================================================================
 namespace RifEclipseSummaryAddressDefines
 {
-// Based on list in ecl_smspec.c and list of types taken from Eclipse Reference Manual ecl_rm_2011.1.pdf
 enum class SummaryCategory
 {
     SUMMARY_INVALID,

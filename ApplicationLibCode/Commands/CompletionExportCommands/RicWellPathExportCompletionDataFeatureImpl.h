@@ -54,70 +54,12 @@ class SubSegmentIntersectionInfo;
 //==================================================================================================
 using QFilePtr = std::shared_ptr<QFile>;
 
-class TransmissibilityData
-{
-public:
-    TransmissibilityData()
-        : m_isValid( false )
-        , m_effectiveH( 0.0 )
-        , m_effectiveK( 0.0 )
-        , m_connectionFactor( 0.0 )
-        , m_kh( 0.0 )
-    {
-    }
-
-    bool isValid() const { return m_isValid; }
-
-    void setData( double effectiveH, double effectiveK, double connectionFactor, double kh )
-    {
-        m_isValid = true;
-
-        m_effectiveH       = effectiveH;
-        m_effectiveK       = effectiveK;
-        m_connectionFactor = connectionFactor;
-        m_kh               = kh;
-    }
-
-    double effectiveH() const { return m_effectiveH; }
-
-    double effectiveK() const { return m_effectiveK; }
-    double connectionFactor() const { return m_connectionFactor; }
-    double kh() const { return m_kh; }
-
-private:
-    bool   m_isValid;
-    double m_effectiveH;
-    double m_effectiveK;
-    double m_connectionFactor;
-    double m_kh;
-};
-
 //==================================================================================================
 ///
 //==================================================================================================
 class RicWellPathExportCompletionDataFeatureImpl
 {
 public:
-    static RigCompletionData::CellDirection
-        calculateCellMainDirection( RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell );
-
-    static TransmissibilityData
-        calculateTransmissibilityData( RimEclipseCase*    eclipseCase,
-                                       const RimWellPath* wellPath,
-                                       const cvf::Vec3d&  internalCellLengths,
-                                       double             skinFactor,
-                                       double             wellRadius,
-                                       size_t             globalCellIndex,
-                                       bool               useLateralNTG,
-                                       size_t             volumeScaleConstant = 1,
-                                       RigCompletionData::CellDirection directionForVolumeScaling = RigCompletionData::CellDirection::DIR_I );
-
-    static double calculateDFactor( RimEclipseCase*                         eclipseCase,
-                                    double                                  effectiveH,
-                                    size_t                                  globalCellIndex,
-                                    const RimNonDarcyPerforationParameters* nonDarcyParameters,
-                                    const double                            effectivePermeability );
-
     static void exportCompletions( const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings );
 
     static std::vector<RigCompletionData> computeStaticCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase );
@@ -139,12 +81,6 @@ private:
                                                                              const std::vector<const RimPerforationInterval*>& intervals,
                                                                              const RicExportCompletionDataSettingsUi&          settings,
                                                                              const std::optional<QDateTime>& exportDate = std::nullopt );
-
-    static double calculateTransmissibilityAsEclipseDoes( RimEclipseCase*                  eclipseCase,
-                                                          double                           skinFactor,
-                                                          double                           wellRadius,
-                                                          size_t                           globalCellIndex,
-                                                          RigCompletionData::CellDirection direction );
 
     static RigCompletionData combineEclipseCellCompletions( const std::vector<RigCompletionData>&    completions,
                                                             const RicExportCompletionDataSettingsUi& settings );

@@ -19,8 +19,8 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "cafAppEnum.h"
-
 #include "cvfAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -28,7 +28,6 @@
 //--------------------------------------------------------------------------------------------------
 double RiaEclipseUnitTools::darcysConstant( RiaDefines::EclipseUnitSystem unitSystem )
 {
-    // See "Cartesian transmissibility calculations" in the "Eclipse Technical Description"
     //     CDARCY Darcys constant
     //         = 0.00852702 (E300); 0.008527 (ECLIPSE 100) (METRIC)
     //         = 0.00112712 (E300); 0.001127 (ECLIPSE 100) (FIELD)

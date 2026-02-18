@@ -18,9 +18,6 @@
 
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 
-#include "RiaEclipseUnitTools.h"
-#include "RiaFilePathTools.h"
-#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaWeightedMeanCalculator.h"
@@ -28,9 +25,9 @@
 
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "RicExportCompletionDataSettingsUi.h"
-#include "RicExportFeatureImpl.h"
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+#include "RicTransmissibilityCalculator.h"
 #include "RicWellPathExportCompletionsFileTools.h"
 #include "RicWellPathExportMswCompletionsImpl.h"
 #include "RicWellPathFractureReportItem.h"
@@ -40,46 +37,26 @@
 #include "RifThermalToStimPlanFractureXmlOutput.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
-#include "RigPerforationTransmissibilityEquations.h"
-#include "RigResultAccessorFactory.h"
-#include "RigTransmissibilityEquations.h"
-#include "RigVirtualPerforationTransmissibilities.h"
-#include "Well/RigWellLogExtractionTools.h"
 #include "Well/RigWellLogExtractor.h"
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimEclipseCase.h"
-#include "RimFileWellPath.h"
-#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFractureTemplate.h"
 #include "RimNonDarcyPerforationParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
-#include "RimProject.h"
-#include "RimSimWellInView.h"
 #include "RimThermalFractureTemplate.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
-#include "RimWellPathValve.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiuMainWindow.h"
 
-#include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
-#include "cafSelectionManager.h"
-#include "cafUtils.h"
-
-#include "cvfPlane.h"
 
 #include <QDir>
 
@@ -551,11 +528,11 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     {
         // calculate trans for main bore - but as Eclipse will do it!
         double transmissibilityEclipseCalculation =
-            RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEclipseDoes( settings.caseToApply(),
-                                                                                                combinedSkinFactor,
-                                                                                                combinedDiameter / 2,
-                                                                                                cellIndexIJK.globalCellIndex(),
-                                                                                                cellDirection );
+            RicTransmissibilityCalculator::calculateTransmissibilityAsEclipseDoes( settings.caseToApply(),
+                                                                                   combinedSkinFactor,
+                                                                                   combinedDiameter / 2,
+                                                                                   cellIndexIJK.globalCellIndex(),
+                                                                                   cellDirection );
 
         double defaultKh = RigCompletionData::defaultValue();
         double wpimult   = combinedTrans / transmissibilityEclipseCalculation;
@@ -1201,20 +1178,23 @@ std::vector<RigCompletionData>
                                               cell.startMD );
 
                 RigCompletionData::CellDirection direction =
-                    calculateCellMainDirection( settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS );
+                    RicTransmissibilityCalculator::calculateCellMainDirection( settings.caseToApply,
+                                                                               cell.globCellIndex,
+                                                                               cell.intersectionLengthsInCellCS );
 
                 double transmissibility = 0.0;
                 double kh               = RigCompletionData::defaultValue();
                 double dFactor          = RigCompletionData::defaultValue();
 
                 {
-                    auto transmissibilityData = calculateTransmissibilityData( settings.caseToApply,
-                                                                               wellPath,
-                                                                               cell.intersectionLengthsInCellCS,
-                                                                               interval->skinFactor(),
-                                                                               interval->diameter( unitSystem ) / 2,
-                                                                               cell.globCellIndex,
-                                                                               settings.useLateralNTG );
+                    auto transmissibilityData =
+                        RicTransmissibilityCalculator::calculateTransmissibilityData( settings.caseToApply,
+                                                                                      wellPath,
+                                                                                      cell.intersectionLengthsInCellCS,
+                                                                                      interval->skinFactor(),
+                                                                                      interval->diameter( unitSystem ) / 2,
+                                                                                      cell.globCellIndex,
+                                                                                      settings.useLateralNTG );
 
                     transmissibility = transmissibilityData.connectionFactor();
                     kh               = transmissibilityData.kh();
@@ -1226,11 +1206,12 @@ std::vector<RigCompletionData>
                         const double effectivePermeability =
                             nonDarcyParameters->gridPermeabilityScalingFactor() * transmissibilityData.effectiveK();
 
-                        dFactor = calculateDFactor( settings.caseToApply,
-                                                    effectiveH,
-                                                    cell.globCellIndex,
-                                                    wellPath->perforationIntervalCollection()->nonDarcyParameters(),
-                                                    effectivePermeability );
+                        dFactor =
+                            RicTransmissibilityCalculator::calculateDFactor( settings.caseToApply,
+                                                                             effectiveH,
+                                                                             cell.globCellIndex,
+                                                                             wellPath->perforationIntervalCollection()->nonDarcyParameters(),
+                                                                             effectivePermeability );
                     }
                 }
 
@@ -1295,330 +1276,6 @@ void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData( std::map<
                                                                                        std::vector<RigCompletionData>{ completion } ) );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigCompletionData::CellDirection RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( RimEclipseCase*   eclipseCase,
-                                                                                                         size_t            globalCellIndex,
-                                                                                                         const cvf::Vec3d& lengthsInCell )
-{
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
-    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
-    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
-    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DZ" ) );
-
-    double xLengthFraction = fabs( lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx( globalCellIndex ) );
-    double yLengthFraction = fabs( lengthsInCell.y() / dyAccessObject->cellScalarGlobIdx( globalCellIndex ) );
-    double zLengthFraction = fabs( lengthsInCell.z() / dzAccessObject->cellScalarGlobIdx( globalCellIndex ) );
-
-    if ( xLengthFraction > yLengthFraction && xLengthFraction > zLengthFraction )
-    {
-        return RigCompletionData::CellDirection::DIR_I;
-    }
-    else if ( yLengthFraction > xLengthFraction && yLengthFraction > zLengthFraction )
-    {
-        return RigCompletionData::CellDirection::DIR_J;
-    }
-    else
-    {
-        return RigCompletionData::CellDirection::DIR_K;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TransmissibilityData
-    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData( RimEclipseCase*                  eclipseCase,
-                                                                               const RimWellPath*               wellPath,
-                                                                               const cvf::Vec3d&                internalCellLengths,
-                                                                               double                           skinFactor,
-                                                                               double                           wellRadius,
-                                                                               size_t                           globalCellIndex,
-                                                                               bool                             useLateralNTG,
-                                                                               size_t                           volumeScaleConstant,
-                                                                               RigCompletionData::CellDirection directionForVolumeScaling )
-{
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
-    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
-    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
-    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DZ" ) );
-
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMX" ) );
-    cvf::ref<RigResultAccessor> permxAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "PERMX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMY" ) );
-    cvf::ref<RigResultAccessor> permyAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "PERMY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMZ" ) );
-    cvf::ref<RigResultAccessor> permzAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "PERMZ" ) );
-
-    if ( dxAccessObject.isNull() || dyAccessObject.isNull() || dzAccessObject.isNull() || permxAccessObject.isNull() ||
-         permyAccessObject.isNull() || permzAccessObject.isNull() )
-    {
-        return TransmissibilityData();
-    }
-
-    double ntg = 1.0;
-    {
-        // Trigger loading from file
-        eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "NTG" ) );
-
-        cvf::ref<RigResultAccessor> ntgAccessObject =
-            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                               0,
-                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                               0,
-                                                               RigEclipseResultAddress( "NTG" ) );
-
-        if ( ntgAccessObject.notNull() )
-        {
-            ntg = ntgAccessObject->cellScalarGlobIdx( globalCellIndex );
-        }
-    }
-    double latNtg = useLateralNTG ? ntg : 1.0;
-
-    double dx    = dxAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double dy    = dyAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double dz    = dzAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double permx = permxAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double permy = permyAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double permz = permzAccessObject->cellScalarGlobIdx( globalCellIndex );
-
-    const double totalKh = RigTransmissibilityEquations::totalKh( permx, permy, permz, internalCellLengths, latNtg, ntg );
-
-    const double effectiveK = RigTransmissibilityEquations::effectiveK( permx, permy, permz, internalCellLengths, latNtg, ntg );
-    const double effectiveH = RigTransmissibilityEquations::effectiveH( internalCellLengths, latNtg, ntg );
-
-    double darcy = RiaEclipseUnitTools::darcysConstant( wellPath->unitSystem() );
-
-    if ( volumeScaleConstant != 1 )
-    {
-        if ( directionForVolumeScaling == RigCompletionData::CellDirection::DIR_I ) dx = dx / volumeScaleConstant;
-        if ( directionForVolumeScaling == RigCompletionData::CellDirection::DIR_J ) dy = dy / volumeScaleConstant;
-        if ( directionForVolumeScaling == RigCompletionData::CellDirection::DIR_K ) dz = dz / volumeScaleConstant;
-    }
-
-    const double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( internalCellLengths.x() * latNtg,
-                                                                                           permy,
-                                                                                           permz,
-                                                                                           dy,
-                                                                                           dz,
-                                                                                           wellRadius,
-                                                                                           skinFactor,
-                                                                                           darcy );
-    const double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( internalCellLengths.y() * latNtg,
-                                                                                           permx,
-                                                                                           permz,
-                                                                                           dx,
-                                                                                           dz,
-                                                                                           wellRadius,
-                                                                                           skinFactor,
-                                                                                           darcy );
-    const double transz = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( internalCellLengths.z() * ntg,
-                                                                                           permy,
-                                                                                           permx,
-                                                                                           dy,
-                                                                                           dx,
-                                                                                           wellRadius,
-                                                                                           skinFactor,
-                                                                                           darcy );
-
-    const double totalConnectionFactor = RigTransmissibilityEquations::totalConnectionFactor( transx, transy, transz );
-
-    TransmissibilityData trData;
-    trData.setData( effectiveH, effectiveK, totalConnectionFactor, totalKh );
-    return trData;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor( RimEclipseCase*                         eclipseCase,
-                                                                     double                                  effectiveH,
-                                                                     size_t                                  globalCellIndex,
-                                                                     const RimNonDarcyPerforationParameters* nonDarcyParameters,
-                                                                     const double                            effectivePermeability )
-{
-    using EQ = RigPerforationTransmissibilityEquations;
-
-    if ( !eclipseCase || !eclipseCase->eclipseCaseData() )
-    {
-        return std::numeric_limits<double>::infinity();
-    }
-
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-
-    double porosity = 0.0;
-    {
-        eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PORO" ) );
-        cvf::ref<RigResultAccessor> poroAccessObject =
-            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                               0,
-                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                               0,
-                                                               RigEclipseResultAddress( "PORO" ) );
-
-        if ( poroAccessObject.notNull() )
-        {
-            porosity = poroAccessObject->cellScalar( globalCellIndex );
-        }
-    }
-
-    const double betaFactor = EQ::betaFactor( nonDarcyParameters->inertialCoefficientBeta0(),
-                                              effectivePermeability,
-                                              nonDarcyParameters->permeabilityScalingFactor(),
-                                              porosity,
-                                              nonDarcyParameters->porosityScalingFactor() );
-
-    const double alpha = RiaDefines::nonDarcyFlowAlpha( eclipseCaseData->unitsType() );
-
-    return EQ::dFactor( alpha,
-                        betaFactor,
-                        effectivePermeability,
-                        effectiveH,
-                        nonDarcyParameters->wellRadius(),
-                        nonDarcyParameters->relativeGasDensity(),
-                        nonDarcyParameters->gasViscosity() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEclipseDoes( RimEclipseCase*                  eclipseCase,
-                                                                                           double                           skinFactor,
-                                                                                           double                           wellRadius,
-                                                                                           size_t                           globalCellIndex,
-                                                                                           RigCompletionData::CellDirection direction )
-{
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
-    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
-    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
-    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                                                    0,
-                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                    0,
-                                                                                                    RigEclipseResultAddress( "DZ" ) );
-
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMX" ) );
-    cvf::ref<RigResultAccessor> permxAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "PERMX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMY" ) );
-    cvf::ref<RigResultAccessor> permyAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "PERMY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMZ" ) );
-    cvf::ref<RigResultAccessor> permzAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "PERMZ" ) );
-
-    double ntg = 1.0;
-    if ( eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "NTG" ) ) )
-    {
-        cvf::ref<RigResultAccessor> ntgAccessObject =
-            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                               0,
-                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                               0,
-                                                               RigEclipseResultAddress( "NTG" ) );
-        ntg = ntgAccessObject->cellScalarGlobIdx( globalCellIndex );
-    }
-
-    double dx    = dxAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double dy    = dyAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double dz    = dzAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double permx = permxAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double permy = permyAccessObject->cellScalarGlobIdx( globalCellIndex );
-    double permz = permzAccessObject->cellScalarGlobIdx( globalCellIndex );
-
-    RiaDefines::EclipseUnitSystem units = eclipseCaseData->unitsType();
-    double                        darcy = RiaEclipseUnitTools::darcysConstant( units );
-
-    double trans = cvf::UNDEFINED_DOUBLE;
-    if ( direction == RigCompletionData::CellDirection::DIR_I )
-    {
-        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dx, permy, permz, dy, dz, wellRadius, skinFactor, darcy );
-    }
-    else if ( direction == RigCompletionData::CellDirection::DIR_J )
-    {
-        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dy, permx, permz, dx, dz, wellRadius, skinFactor, darcy );
-    }
-    else if ( direction == RigCompletionData::CellDirection::DIR_K )
-    {
-        trans =
-            RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dz * ntg, permy, permx, dy, dx, wellRadius, skinFactor, darcy );
-    }
-
-    return trans;
 }
 
 //--------------------------------------------------------------------------------------------------
