@@ -18,8 +18,8 @@ public:
         setId( 42 );
     }
 
-    std::vector<RimSummaryCalculationAddress> testAllAddressesForCategory( SummaryCategory                          category,
-                                                                           const std::set<RifEclipseSummaryAddress>& allResultAddresses ) const
+    std::vector<RimSummaryCalculationAddress>
+        testAllAddressesForCategory( SummaryCategory category, const std::set<RifEclipseSummaryAddress>& allResultAddresses ) const
     {
         return allAddressesForCategory( category, allResultAddresses );
     }
