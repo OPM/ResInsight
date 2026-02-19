@@ -102,7 +102,7 @@ public:
     int     caseDiffIndex() const;
     QString additionalResultText() const;
 
-    void                    loadResult();
+    virtual void            loadResult();
     RigEclipseResultAddress eclipseResultAddress() const;
     void                    setFromEclipseResultAddress( const RigEclipseResultAddress& resultAddress );
     bool                    hasStaticResult() const;
@@ -126,7 +126,7 @@ public:
 
     void updateUiFieldsFromActiveResult();
 
-    bool hasDualPorFractureResult();
+    bool showDualPorosityLabel() const;
 
     static QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType     resultCatType,
                                                                                 const RigCaseCellResultsData* results,
@@ -198,6 +198,7 @@ private:
     caf::PdmField<int>                m_timeLapseBaseTimestep;
     caf::PdmPtrField<RimEclipseCase*> m_differenceCase;
     caf::PdmField<bool>               m_divideByCellFaceArea;
+    caf::PdmField<bool>               m_showDualPorosityLabel;
 
 private:
     void assignFlowSolutionFromCase();

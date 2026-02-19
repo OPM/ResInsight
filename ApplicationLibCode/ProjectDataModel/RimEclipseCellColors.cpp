@@ -27,6 +27,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
+#include "RigMainGrid.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
@@ -109,6 +110,8 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
             cellEdgeColors->updateConnectedEditors();
         }
     }
+
+    updateUiTreeName();
 
     if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
@@ -210,6 +213,7 @@ void RimEclipseCellColors::initAfterRead()
 
     changeLegendConfig( resultVariable() );
 
+    updateUiTreeName();
     updateIconState();
 }
 
@@ -251,6 +255,15 @@ void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::loadResult()
+{
+    RimEclipseResultDefinition::loadResult();
+    updateUiTreeName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendCategorySettings()
 {
     changeLegendConfig( resultVariableUiName() );
@@ -278,6 +291,21 @@ void RimEclipseCellColors::useDiscreteLogLevels( bool enable )
 void RimEclipseCellColors::setAdditionalUiTreeObjects( const std::vector<caf::PdmObject*>& objects )
 {
     m_additionalUiTreeObjects = objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::updateUiTreeName()
+{
+    QString name = "Cell Result";
+    if ( showDualPorosityLabel() && m_eclipseCase && m_eclipseCase->mainGrid() && m_eclipseCase->mainGrid()->isDualPorosity() )
+    {
+        QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText( porosityModel() );
+        name += " [" + porosityModelText + "]";
+    }
+    uiCapability()->setUiName( name );
+    uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

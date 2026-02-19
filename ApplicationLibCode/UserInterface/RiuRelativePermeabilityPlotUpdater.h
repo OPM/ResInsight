@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaPorosityModel.h"
 #include "RiuPlotUpdater.h"
 
 class RiuRelativePermeabilityPlotPanel;
@@ -34,7 +35,10 @@ class RiuRelativePermeabilityPlotUpdater : public RiuPlotUpdater
 public:
     RiuRelativePermeabilityPlotUpdater( RiuRelativePermeabilityPlotPanel* targetPlotPanel );
 
-    static QString constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex );
+    static QString constructCellReferenceText( const RigEclipseCaseData*     eclipseCaseData,
+                                               size_t                        gridIndex,
+                                               size_t                        gridLocalCellIndex,
+                                               RiaDefines::PorosityModelType porosityModel );
 
 protected:
     void     clearPlot() override;

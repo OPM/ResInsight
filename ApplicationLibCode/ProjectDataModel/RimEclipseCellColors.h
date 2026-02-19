@@ -52,6 +52,7 @@ public:
     RimRegularLegendConfig* legendConfig();
     RimTernaryLegendConfig* ternaryLegendConfig();
 
+    void loadResult() override;
     void setResultVariable( const QString& resultName ) override;
 
     void updateIconState();
@@ -78,6 +79,7 @@ private:
     void changeLegendConfig( QString resultVarNameOfNewLegend );
     void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
     static RimRegularLegendConfig* createLegendForResult( int caseId, const QString& resultName, bool useDiscreteLevels, bool isCategoryResult );
+    void updateUiTreeName();
 
     caf::PdmChildArrayField<RimRegularLegendConfig*> m_legendConfigData;
     caf::PdmPtrField<RimRegularLegendConfig*>        m_legendConfigPtrField;

@@ -34,6 +34,7 @@
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
+#include "RigMainGrid.h"
 
 #include "ContourMap/RimContourMapProjection.h"
 #include "ContourMap/RimEclipseContourMapProjection.h"
@@ -114,6 +115,8 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitFieldNoDefault( &m_differenceCase, "DifferenceCase", "Difference Case" );
 
     CAF_PDM_InitField( &m_divideByCellFaceArea, "DivideByCellFaceArea", false, "Divide By Area" );
+
+    CAF_PDM_InitField( &m_showDualPorosityLabel, "ShowDualPorosityLabel", true, "Show Dual Porosity Label" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers" );
     m_selectedInjectorTracers.uiCapability()->setUiHidden( true );
@@ -1477,9 +1480,10 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 {
     uiOrdering.add( &m_resultTypeUiField );
 
-    if ( hasDualPorFractureResult() )
+    if ( m_eclipseCase && m_eclipseCase->mainGrid() && m_eclipseCase->mainGrid()->isDualPorosity() )
     {
         uiOrdering.add( &m_porosityModelUiField );
+        uiOrdering.add( &m_showDualPorosityLabel );
     }
 
     if ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
@@ -1580,6 +1584,14 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::showDualPorosityLabel() const
+{
+    return m_showDualPorosityLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
@@ -1609,19 +1621,6 @@ void RimEclipseResultDefinition::assignFlowSolutionFromCase()
         defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
     }
     setFlowSolution( defaultFlowDiagSolution );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimEclipseResultDefinition::hasDualPorFractureResult()
-{
-    if ( m_eclipseCase && m_eclipseCase->eclipseCaseData() )
-    {
-        return m_eclipseCase->eclipseCaseData()->hasFractureResults();
-    }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1730,7 +1729,7 @@ void RimEclipseResultDefinition::updateLegendTitle( RimRegularLegendConfig* lege
         title += additionalResultTextShort();
     }
 
-    if ( hasDualPorFractureResult() )
+    if ( m_eclipseCase && m_eclipseCase->mainGrid() && m_eclipseCase->mainGrid()->isDualPorosity() )
     {
         QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText( porosityModel() );
 

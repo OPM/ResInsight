@@ -214,6 +214,12 @@ QString RiuResultTextBuilder::geometrySelectionText( const QString& itemSeparato
                 const RigGridBase* grid = eclipseCase->grid( m_gridIndex );
                 if ( grid->ijkFromCellIndex( m_cellIndex, &i, &j, &k ) )
                 {
+                    if ( eclipseCase->mainGrid()->isDualPorosity() &&
+                         m_eclResDef->porosityModel() == RiaDefines::PorosityModelType::FRACTURE_MODEL )
+                    {
+                        k += eclipseCase->mainGrid()->cellCountK();
+                    }
+
                     // Adjust to 1-based Eclipse indexing
                     i++;
                     j++;

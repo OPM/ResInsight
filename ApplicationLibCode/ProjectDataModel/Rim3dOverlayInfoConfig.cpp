@@ -541,7 +541,8 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                 infoText += QString( "<b>Well Disk Property:</b> %1<br>" ).arg( wellCollection->wellDiskPropertyUiText() );
             }
 
-            if ( eclipseView->cellResult()->hasDualPorFractureResult() )
+            if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->mainGrid() &&
+                 eclipseView->eclipseCase()->mainGrid()->isDualPorosity() )
             {
                 QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText( eclipseView->cellResult()->porosityModel() );
 

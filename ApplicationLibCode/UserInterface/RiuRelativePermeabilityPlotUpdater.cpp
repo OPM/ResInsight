@@ -171,6 +171,8 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
         // for the matrix model is used. It will require some changes in the flow diagnostics module to be
         // able support fracture model plotting.
 
+        RiaLogging::warning( "Relative permeability curves for fracture cells is not supported." );
+
         return false;
     }
 
@@ -236,7 +238,7 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
             std::vector<RigFlowDiagDefines::RelPermCurve> relPermCurveArr =
                 eclipseResultCase->flowDiagSolverInterface()->calculateRelPermCurves( gridName, localActiveCellIndex );
 
-            QString cellRefText = constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex );
+            QString cellRefText = constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex, eclipseResDef->porosityModel() );
 
             if ( satnumAccessor.notNull() )
             {
@@ -267,9 +269,10 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
-                                                                        size_t                    gridIndex,
-                                                                        size_t                    gridLocalCellIndex )
+QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const RigEclipseCaseData*     eclipseCaseData,
+                                                                        size_t                        gridIndex,
+                                                                        size_t                        gridLocalCellIndex,
+                                                                        RiaDefines::PorosityModelType porosityModel )
 {
     const size_t       gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
     const RigGridBase* grid      = gridIndex < gridCount ? eclipseCaseData->grid( gridIndex ) : nullptr;
@@ -280,6 +283,15 @@ QString RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( const Ri
         size_t k = 0;
         if ( grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
         {
+            // For dual porosity models, shift K to the fracture section
+            if ( porosityModel == RiaDefines::PorosityModelType::FRACTURE_MODEL )
+            {
+                if ( auto mainGrid = eclipseCaseData->mainGrid() )
+                {
+                    k += mainGrid->cellCountK();
+                }
+            }
+
             // Adjust to 1-based Eclipse indexing
             i++;
             j++;
