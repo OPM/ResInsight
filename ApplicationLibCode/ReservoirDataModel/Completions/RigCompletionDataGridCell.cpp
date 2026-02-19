@@ -55,6 +55,13 @@ RigCompletionDataGridCell::RigCompletionDataGridCell( size_t globalCellIndex, co
             m_localCellIndexJ = j;
             m_localCellIndexK = k;
 
+            // For dual porosity models, the first N K-layers represent MATRIX and K-layers N+1 to 2N represent FRACTURE.
+            // Shift K to the fracture section so exported completion data references the correct K-layer.
+            if ( mainGrid->isDualPorosity() )
+            {
+                m_localCellIndexK += mainGrid->cellCountK();
+            }
+
             if ( grid != mainGrid )
             {
                 m_lgrName = QString::fromStdString( grid->gridName() );

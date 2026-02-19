@@ -455,6 +455,13 @@ void RicWellPathExportMswTableData::appendFishbonesMswExportInfo( const RimEclip
 
                         size_t i, j, k;
                         localGrid->ijkFromCellIndex( localGridCellIndex, &i, &j, &k );
+
+                        // Shift K to fracture section for dual porosity models
+                        if ( mainGrid->isDualPorosity() )
+                        {
+                            k += mainGrid->cellCountK();
+                        }
+
                         caf::VecIjk0 localIJK( i, j, k );
 
                         auto mswIntersect = std::make_shared<RicMswSegmentCellIntersection>( gridName,
@@ -1346,6 +1353,13 @@ void RicWellPathExportMswTableData::assignFishbonesLateralIntersections( const R
 
             size_t i = 0u, j = 0u, k = 0u;
             localGrid->ijkFromCellIndex( localGridCellIndex, &i, &j, &k );
+
+            // For dual porosity models, shift K to the fracture section so exported completion data references the correct K-layer.
+            if ( grid->isDualPorosity() )
+            {
+                k += grid->cellCountK();
+            }
+
             auto subSegment = std::make_unique<RicMswSegment>( "Sub segment",
                                                                previousExitMD,
                                                                cellIntInfo.endMD,

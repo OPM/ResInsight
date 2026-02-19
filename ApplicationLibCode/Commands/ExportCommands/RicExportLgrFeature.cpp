@@ -455,6 +455,14 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPaths( std::vector<Rim
 
     bool isIntersectingOtherLgrs = false;
 
+    // For dual porosity models, localCellIndexK() includes the fracture section offset.
+    // Subtract it here to get the original grid K for LGR bounding box computation.
+    size_t kLayerOffset = 0;
+    if ( auto mainGrid = eclipseCase->mainGrid(); mainGrid && mainGrid->isDualPorosity() )
+    {
+        kLayerOffset = mainGrid->cellCountK();
+    }
+
     int firstLgrId = firstAvailableLgrId( eclipseCase->mainGrid() );
 
     if ( splitType == Lgr::LGR_PER_CELL )
@@ -503,7 +511,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPaths( std::vector<Rim
 
             if ( !intersectingCells.empty() )
             {
-                lgrs.push_back( buildLgr( lgrId, lgrName, wellPath->name(), intersectingCells, refinement ) );
+                lgrs.push_back( buildLgr( lgrId, lgrName, wellPath->name(), intersectingCells, refinement, kLayerOffset ) );
             }
 
             if ( isIntersectingOtherLgrs ) wellsIntersectingOtherLgrs->push_back( wellPath->name() );
@@ -524,11 +532,20 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell( int             
                                                                 LgrNameFactory&                               lgrNameFactory )
 {
     std::vector<LgrInfo> lgrs;
-    int                  lgrId = firstLgrId;
+
+    // For dual porosity models, localCellIndexK() includes the fracture section offset.
+    // Subtract it here to get the original grid K for LGR bounding box computation.
+    size_t kLayerOffset = 0;
+    if ( auto mainGrid = eclipseCase->mainGrid(); mainGrid && mainGrid->isDualPorosity() )
+    {
+        kLayerOffset = mainGrid->cellCountK();
+    }
+
+    int lgrId = firstLgrId;
     for ( const auto& intersectionCell : intersectingCells )
     {
         auto lgrName = lgrNameFactory.newName( "", lgrId );
-        lgrs.push_back( buildLgr( lgrId++, lgrName, wellPath->name(), { intersectionCell }, refinement ) );
+        lgrs.push_back( buildLgr( lgrId++, lgrName, wellPath->name(), { intersectionCell }, refinement, kLayerOffset ) );
     }
     return lgrs;
 }
@@ -545,6 +562,14 @@ std::vector<LgrInfo>
 {
     std::vector<LgrInfo> lgrs;
 
+    // For dual porosity models, localCellIndexK() includes the fracture section offset.
+    // Subtract it here to get the original grid K for LGR bounding box computation.
+    size_t kLayerOffset = 0;
+    if ( auto mainGrid = eclipseCase->mainGrid(); mainGrid && mainGrid->isDualPorosity() )
+    {
+        kLayerOffset = mainGrid->cellCountK();
+    }
+
     std::vector<std::pair<CompletionInfo, IjkBoundingBox>> occupiedBbs;
 
     for ( const auto& complInfo : completionInfo )
@@ -559,7 +584,7 @@ std::vector<LgrInfo>
             for ( const auto& cell : complCells )
             {
                 auto candidateBb = maxBb;
-                candidateBb.addCell( cell.localCellIndexI(), cell.localCellIndexJ(), cell.localCellIndexK() );
+                candidateBb.addCell( cell.localCellIndexI(), cell.localCellIndexJ(), cell.localCellIndexK() - kLayerOffset );
 
                 // Test bounding box
                 bool intersectsExistingBb = false;
@@ -606,12 +631,13 @@ LgrInfo RicExportLgrFeature::buildLgr( int                                      
                                        const QString&                                lgrName,
                                        const QString&                                wellPathName,
                                        const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                       const cvf::Vec3st&                            refinement )
+                                       const cvf::Vec3st&                            refinement,
+                                       size_t                                        kLayerOffset )
 {
     IjkBoundingBox boundingBox;
     for ( const auto& cell : intersectingCells )
     {
-        boundingBox.addCell( cell.localCellIndexI(), cell.localCellIndexJ(), cell.localCellIndexK() );
+        boundingBox.addCell( cell.localCellIndexI(), cell.localCellIndexJ(), cell.localCellIndexK() - kLayerOffset );
     }
 
     return buildLgr( lgrId, lgrName, wellPathName, boundingBox, refinement );

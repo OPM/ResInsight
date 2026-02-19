@@ -211,7 +211,8 @@ private:
                                           const QString&                                lgrName,
                                           const QString&                                wellPathName,
                                           const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                          const cvf::Vec3st&                            refinement );
+                                          const cvf::Vec3st&                            refinement,
+                                          size_t                                        kLayerOffset = 0 );
 
     static LgrInfo buildLgr( int                   lgrId,
                              const QString&        lgrName,
