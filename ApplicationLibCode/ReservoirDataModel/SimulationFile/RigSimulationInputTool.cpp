@@ -1315,8 +1315,6 @@ std::set<std::string> RigSimulationInputTool::wellNamesToInclude( RimEclipseCase
     return validWellNames;
 }
 
-// #pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1426,8 +1424,6 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
 
     return {};
 }
-
-// #pragma optimize( "", on )
 
 //--------------------------------------------------------------------------------------------------
 ///
