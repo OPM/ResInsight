@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaNncDefines.h"
+#include "RiaStdStringTools.h"
 
 #include "RigModelPaddingSettings.h"
 #include "RigPadModel.h"
@@ -1339,6 +1340,7 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
     for ( auto [index, kw] : keywordsWithIndices )
     {
         std::map<std::string, std::set<std::string>> wellLists;
+        std::map<std::string, std::set<std::string>> deleteLists;
 
         // for each list operation in this keyword
         for ( size_t recordIdx = 0; recordIdx < kw.size(); recordIdx++ )
@@ -1355,7 +1357,10 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
             const auto& operationItem = record.getItem( 1 );
             if ( !operationItem.hasValue( 0 ) || operationItem.getType() != Opm::type_tag::string ) continue;
             std::string operationName = operationItem.get<std::string>( 0 );
-            if ( operationName != "ADD" && operationName != "NEW" )
+            operationName             = RiaStdStringTools::toUpper( operationName );
+
+            bool delOperation = operationName == "DEL";
+            if ( operationName != "ADD" && operationName != "NEW" && !delOperation )
             {
                 RiaLogging::warning( QString( "Unsupported %1 operation '%2' in list '%3', skipping" )
                                          .arg( W::keywordName )
@@ -1371,7 +1376,10 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
                 std::string wellName = wellsItem.get<std::string>( i );
                 if ( validWellNames.contains( wellName ) )
                 {
-                    wellLists[listName].insert( wellName );
+                    if ( delOperation )
+                        deleteLists[listName].insert( wellName );
+                    else
+                        wellLists[listName].insert( wellName );
                 }
             }
         }
@@ -1387,6 +1395,16 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
             items.push_back( RifOpmDeckTools::item( "WELLS", wells ) );
             newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
             existingLists.insert( listName );
+        }
+
+        for ( const auto& [listName, wells] : deleteLists )
+        {
+            if ( wells.empty() ) continue;
+            std::vector<Opm::DeckItem> items;
+            items.push_back( RifOpmDeckTools::item( "NAME", listName ) );
+            items.push_back( RifOpmDeckTools::item( "ACTION", "DEL" ) );
+            items.push_back( RifOpmDeckTools::item( "WELLS", wells ) );
+            newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
         }
 
         if ( newKw.size() > 0 )
