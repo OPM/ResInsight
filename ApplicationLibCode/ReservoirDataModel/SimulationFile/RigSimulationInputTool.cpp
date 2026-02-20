@@ -1361,7 +1361,7 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
             if ( operationName != "ADD" && operationName != "NEW" && !delOperation )
             {
                 RiaLogging::warning( QString( "Unsupported %1 operation '%2' in list '%3', skipping" )
-                                         .arg( W::keywordName )
+                                         .arg( W::keywordName.c_str() )
                                          .arg( operationName.c_str() )
                                          .arg( listName.c_str() ) );
                 continue;
@@ -1420,7 +1420,7 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
     }
 
     RiaLogging::info(
-        QString( "Processed keyword '%1': %2 updated, %3 removed" ).arg( W::keywordName ).arg( replacedCount ).arg( removedCount ) );
+        QString( "Processed keyword '%1': %2 updated, %3 removed" ).arg( W::keywordName.c_str() ).arg( replacedCount ).arg( removedCount ) );
 
     return {};
 }
