@@ -89,8 +89,7 @@ void populateReply( RimEclipseCase* eclipseCase, RimWellPath* wellPath, ::rips::
 
     // Multisegment wells
 
-    int  timeStep         = 0;
-    auto mswDataContainer = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath, timeStep );
+    auto mswDataContainer = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase, wellPath );
     if ( mswDataContainer.has_value() )
     {
         auto tables = mswDataContainer.value();
