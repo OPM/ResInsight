@@ -1314,7 +1314,7 @@ std::set<std::string> RigSimulationInputTool::wellNamesToInclude( RimEclipseCase
     return validWellNames;
 }
 
-#pragma optimize( "", off )
+// #pragma optimize( "", off )
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1325,6 +1325,9 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
 {
     using W = Opm::ParserKeywords::WLIST;
 
+    int replacedCount = 0;
+    int removedCount  = 0;
+
     // gather existing lists
 
     auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( W::keywordName );
@@ -1332,31 +1335,36 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
 
     std::set<std::string> existingLists;
 
+    // for each WLIST keyword
     for ( auto [index, kw] : keywordsWithIndices )
     {
         std::map<std::string, std::set<std::string>> wellLists;
 
-        // TODO - fix this
-
+        // for each list operation in this keyword
         for ( size_t recordIdx = 0; recordIdx < kw.size(); recordIdx++ )
         {
             const auto& record = kw.getRecord( recordIdx );
             if ( record.size() < 3 ) continue;
 
+            // the list name
             const auto& listNameItem = record.getItem( 0 );
             if ( !listNameItem.hasValue( 0 ) || listNameItem.getType() != Opm::type_tag::string ) continue;
             std::string listName = listNameItem.get<std::string>( 0 );
 
+            // the list operation
             const auto& operationItem = record.getItem( 1 );
             if ( !operationItem.hasValue( 0 ) || operationItem.getType() != Opm::type_tag::string ) continue;
             std::string operationName = operationItem.get<std::string>( 0 );
             if ( operationName != "ADD" && operationName != "NEW" )
             {
-                RiaLogging::warning(
-                    QString( "Unsupported WLIST operation '%1' in list '%2', skipping" ).arg( operationName.c_str() ).arg( listName.c_str() ) );
+                RiaLogging::warning( QString( "Unsupported %1 operation '%2' in list '%3', skipping" )
+                                         .arg( W::keywordName )
+                                         .arg( operationName.c_str() )
+                                         .arg( listName.c_str() ) );
                 continue;
             }
 
+            // the list of wells to do something with, only include the ones in our valid list
             const auto& wellsItem = record.getItem( 2 );
             for ( size_t i = 0; i < wellsItem.data_size(); i++ )
             {
@@ -1366,42 +1374,42 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
                     wellLists[listName].insert( wellName );
                 }
             }
+        }
+        Opm::DeckKeyword newKw( kw.location(), kw.name() );
 
-            Opm::DeckKeyword newKw( kw.location(), kw.name() );
+        for ( const auto& [listName, wells] : wellLists )
+        {
+            if ( wells.empty() ) continue;
+            std::vector<Opm::DeckItem> items;
+            items.push_back( RifOpmDeckTools::item( "NAME", listName ) );
+            const std::string action = existingLists.contains( listName ) ? "ADD" : "NEW";
+            items.push_back( RifOpmDeckTools::item( "ACTION", action ) );
+            items.push_back( RifOpmDeckTools::item( "WELLS", wells ) );
+            newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+            existingLists.insert( listName );
+        }
 
-            for ( const auto& [listName, wells] : wellLists )
-            {
-                if ( wells.empty() ) continue;
-                std::vector<Opm::DeckItem> items;
-                items.push_back( RifOpmDeckTools::item( "NAME", listName ) );
-                const std::string action = existingLists.contains( listName ) ? "ADD" : "NEW";
-                items.push_back( RifOpmDeckTools::item( "ACTION", action ) );
-                items.push_back( RifOpmDeckTools::item( "WELLS", wells ) );
-                newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
-            }
-
-            if ( newKw.size() > 0 )
-            {
-                // replace the first wlist kw with the new one, remove remaining kws
-                deckFile.replaceKeywordAtIndex( index, std::move( newKw ) );
-            }
-            else
-            {
-                // replace with SKIP kw to remove later
-                deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
-            }
-
-            if ( wellLists.contains( listName ) )
-            {
-                existingLists.insert( listName );
-            }
+        if ( newKw.size() > 0 )
+        {
+            // replace the first wlist kw with the new one, remove remaining kws
+            deckFile.replaceKeywordAtIndex( index, std::move( newKw ) );
+            replacedCount++;
+        }
+        else
+        {
+            // replace with SKIP kw to remove later
+            deckFile.replaceKeywordAtIndex( index, Opm::DeckKeyword( kw.location(), "SKIP" ) );
+            removedCount++;
         }
     }
+
+    RiaLogging::info(
+        QString( "Processed keyword '%1': %2 updated, %3 removed" ).arg( W::keywordName ).arg( replacedCount ).arg( removedCount ) );
 
     return {};
 }
 
-#pragma optimize( "", on )
+// #pragma optimize( "", on )
 
 //--------------------------------------------------------------------------------------------------
 ///
