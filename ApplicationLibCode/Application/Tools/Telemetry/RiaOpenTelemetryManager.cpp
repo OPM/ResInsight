@@ -30,6 +30,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcessEnvironment>
+#include <QRegularExpression>
 #include <QString>
 #include <QSysInfo>
 #include <QTimer>
@@ -226,17 +227,56 @@ static std::string hashUsername( const std::string& username )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaOpenTelemetryManager::isEventAllowed( const std::string& eventName ) const
+{
+    // Crash events are always reported regardless of filter settings
+    if ( eventName.starts_with( "crash." ) ) return true;
+
+    auto* prefs = RiaPreferencesOpenTelemetry::current();
+    if ( !prefs ) return true;
+
+    const QString name = QString::fromStdString( eventName );
+
+    auto matches = []( const QString& name, const QStringList& patterns ) -> bool
+    {
+        for ( const QString& pattern : patterns )
+        {
+            QRegularExpression re( QRegularExpression::wildcardToRegularExpression( pattern.trimmed() ) );
+            if ( re.match( name ).hasMatch() ) return true;
+        }
+        return false;
+    };
+
+    const QStringList allowlist = prefs->eventAllowlist();
+    if ( !allowlist.isEmpty() && !matches( name, allowlist ) ) return false;
+
+    const QStringList denylist = prefs->eventDenylist();
+    if ( !denylist.isEmpty() && matches( name, denylist ) ) return false;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, const std::map<std::string, std::string>& attributes )
 {
-    if ( !isEnabled() || isCircuitBreakerOpen() )
+    const bool isCrashEvent = eventName.starts_with( "crash." );
+
+    if ( !isCrashEvent && ( !isEnabled() || isCircuitBreakerOpen() ) )
+    {
+        return;
+    }
+
+    if ( !isEventAllowed( eventName ) )
     {
         return;
     }
 
     std::unique_lock<std::mutex> lock( m_queueMutex );
 
-    // Check queue size and apply backpressure
-    if ( m_backpressureEnabled && m_eventQueue.size() >= m_maxQueueSize )
+    // Check queue size and apply backpressure (crash events always bypass the queue limit)
+    if ( !isCrashEvent && m_backpressureEnabled && m_eventQueue.size() >= m_maxQueueSize )
     {
         m_healthMetrics.eventsDropped++;
         return;
@@ -246,7 +286,6 @@ void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, co
     // Note: crash events already have real username added in reportCrash()
     std::map<std::string, std::string> enrichedAttributes = attributes;
 
-    bool isCrashEvent = ( eventName == "crash.signal_handler" );
     if ( !isCrashEvent )
     {
         std::lock_guard<std::mutex> configLock( m_configMutex );
