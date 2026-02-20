@@ -24,13 +24,13 @@
 
 #include <QCryptographicHash>
 #include <QJsonArray>
-#include <QRegularExpression>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcessEnvironment>
+#include <QRegularExpression>
 #include <QString>
 #include <QSysInfo>
 #include <QTimer>
@@ -230,8 +230,7 @@ static std::string hashUsername( const std::string& username )
 bool RiaOpenTelemetryManager::isEventAllowed( const std::string& eventName ) const
 {
     // Crash events are always reported regardless of filter settings
-    if ( eventName.starts_with( "crash." ) )
-        return true;
+    if ( eventName.starts_with( "crash." ) ) return true;
 
     auto* prefs = RiaPreferencesOpenTelemetry::current();
     if ( !prefs ) return true;
@@ -249,12 +248,10 @@ bool RiaOpenTelemetryManager::isEventAllowed( const std::string& eventName ) con
     };
 
     const QStringList allowlist = prefs->eventAllowlist();
-    if ( !allowlist.isEmpty() && !matches( name, allowlist ) )
-        return false;
+    if ( !allowlist.isEmpty() && !matches( name, allowlist ) ) return false;
 
     const QStringList denylist = prefs->eventDenylist();
-    if ( !denylist.isEmpty() && matches( name, denylist ) )
-        return false;
+    if ( !denylist.isEmpty() && matches( name, denylist ) ) return false;
 
     return true;
 }
