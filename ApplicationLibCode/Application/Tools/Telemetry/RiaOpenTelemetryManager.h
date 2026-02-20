@@ -145,6 +145,9 @@ private:
     bool isCircuitBreakerOpen() const;
     void resetCircuitBreaker();
 
+    // Event filtering
+    bool isEventAllowed( const std::string& eventName ) const;
+
     // Health monitoring
     void updateHealthMetrics( bool success );
     void sendHealthSpan();

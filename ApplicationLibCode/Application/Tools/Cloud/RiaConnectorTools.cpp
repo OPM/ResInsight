@@ -29,6 +29,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QTextStream>
@@ -140,6 +141,14 @@ std::map<QString, QString> RiaConnectorTools::readKeyValuePairs( const QString& 
         else if ( value.isBool() )
         {
             valueStr = value.toBool() ? "true" : "false";
+        }
+        else if ( value.isArray() )
+        {
+            QJsonArray  arr = value.toArray();
+            QStringList parts;
+            for ( const auto& elem : arr )
+                if ( elem.isString() ) parts << elem.toString();
+            valueStr = parts.join( "," );
         }
 
         keyValuePairs[it.key()] = valueStr;

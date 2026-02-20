@@ -64,6 +64,8 @@ public:
     double       samplingRate() const;
     int          connectionTimeoutMs() const;
     LoggingState loggingState() const;
+    QStringList  eventAllowlist() const;
+    QStringList  eventDenylist() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -81,4 +83,6 @@ private:
     caf::PdmField<int>              m_memoryThresholdMb;
     caf::PdmField<double>           m_samplingRate;
     caf::PdmField<int>              m_connectionTimeoutMs;
+    caf::PdmField<QString>          m_eventAllowlist;
+    caf::PdmField<QString>          m_eventDenylist;
 };

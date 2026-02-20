@@ -56,6 +56,8 @@ RiaPreferencesOpenTelemetry::RiaPreferencesOpenTelemetry()
     CAF_PDM_InitField( &m_memoryThresholdMb, "memoryThresholdMb", 50, "Memory Threshold (MB)" );
     CAF_PDM_InitField( &m_samplingRate, "samplingRate", 1.0, "Sampling Rate" );
     CAF_PDM_InitField( &m_connectionTimeoutMs, "connectionTimeoutMs", 10000, "Connection Timeout (ms)" );
+    CAF_PDM_InitField( &m_eventAllowlist, "eventAllowlist", QString(), "Event Allowlist" );
+    CAF_PDM_InitField( &m_eventDenylist, "eventDenylist", QString(), "Event Denylist" );
 
     setFieldStates();
 }
@@ -105,6 +107,14 @@ void RiaPreferencesOpenTelemetry::setData( const std::map<QString, QString>& key
         {
             m_connectionTimeoutMs = value.toInt();
         }
+        else if ( key == "event_allowlist" )
+        {
+            m_eventAllowlist = value;
+        }
+        else if ( key == "event_denylist" )
+        {
+            m_eventDenylist = value;
+        }
         else
         {
             RiaLogging::warning( QString( "Unknown OpenTelemetry config key: '%1'" ).arg( key ) );
@@ -151,6 +161,8 @@ void RiaPreferencesOpenTelemetry::defineUiOrdering( QString uiConfigName, caf::P
         group->add( &m_memoryThresholdMb );
         group->add( &m_samplingRate );
         group->add( &m_connectionTimeoutMs );
+        group->add( &m_eventAllowlist );
+        group->add( &m_eventDenylist );
     }
     uiOrdering.skipRemainingFields();
 }
@@ -233,4 +245,20 @@ int RiaPreferencesOpenTelemetry::connectionTimeoutMs() const
 RiaPreferencesOpenTelemetry::LoggingState RiaPreferencesOpenTelemetry::loggingState() const
 {
     return m_loggingState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaPreferencesOpenTelemetry::eventAllowlist() const
+{
+    return m_eventAllowlist().split( ',', Qt::SkipEmptyParts );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaPreferencesOpenTelemetry::eventDenylist() const
+{
+    return m_eventDenylist().split( ',', Qt::SkipEmptyParts );
 }
