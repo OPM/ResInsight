@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QString>
 
+#include <map>
 #include <vector>
 
 class RimEclipseCase;
@@ -59,10 +60,19 @@ private:
     static QString
         generateCompdatForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
 
-    // Generate WELSEGS and COMPSEGS for a well at a specific date
-    static QString
-        generateMswForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
+    // Generate WELSEGS and COMPSEGS for a well at a specific date, populating keyword blocks map
+    static void generateMswForWell( const RimWellEventTimeline& timeline,
+                                    RimEclipseCase&             eclipseCase,
+                                    RimWellPath&                well,
+                                    const QDateTime&            date,
+                                    std::map<QString, QString>& keywordBlocks );
 
-    // Generate well control keywords (WCONPROD, WCONINJE, WELOPEN) for a well at a specific date
-    static QString generateWellControlForWell( const RimWellEventTimeline& timeline, const RimWellPath& well, const QDateTime& date );
+    // Generate well control keywords (WCONPROD, WCONINJE, WELOPEN) for a well at a specific date, populating keyword blocks map
+    static void generateWellControlForWell( const RimWellEventTimeline& timeline,
+                                            const RimWellPath&          well,
+                                            const QDateTime&            date,
+                                            std::map<QString, QString>& keywordBlocks );
+
+    // Extract keyword name from the first non-comment line of a keyword block
+    static QString extractKeywordName( const QString& block );
 };

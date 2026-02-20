@@ -34,6 +34,7 @@
 
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 
+#include <map>
 #include <set>
 
 //--------------------------------------------------------------------------------------------------
@@ -95,16 +96,32 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
                                                        const std::vector<RimWellPath*>& wellPaths,
                                                        const QDateTime&                 date )
 {
+    // Keyword priority order for output
+    static const std::vector<QString> keywordOrder = { "WELSPECS",
+                                                       "COMPORD",
+                                                       "GRUPTREE",
+                                                       "COMPDAT",
+                                                       "COMPLUMP",
+                                                       "WELSEGS",
+                                                       "COMPSEGS",
+                                                       "WCONHIST",
+                                                       "WCONINJH",
+                                                       "WCONPROD",
+                                                       "WCONINJE",
+                                                       "WRFTPLT",
+                                                       "TUNING",
+                                                       "RPTSCHED",
+                                                       "RPTRST",
+                                                       "WSEGVALV",
+                                                       "WSEGAICD" };
+
     QString result;
 
     // Generate DATES keyword
     result += RimKeywordFactory::deckKeywordToString( RimKeywordFactory::datesKeyword( date ) ) + "\n";
 
-    // Collect all output for this date
-    QString welspecsData;
-    QString compdatData;
-    QString mswData;
-    QString wellControlData;
+    // Collect all keyword output into a map keyed by keyword name
+    std::map<QString, QString> keywordBlocks;
 
     for ( auto* well : wellPaths )
     {
@@ -113,47 +130,17 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
         QString welspecsKw = generateWelspecsForWell( timeline, eclipseCase, *well, date );
         if ( !welspecsKw.isEmpty() )
         {
-            welspecsData += welspecsKw;
+            keywordBlocks["WELSPECS"] += welspecsKw;
         }
 
         QString wellCompdat = generateCompdatForWell( timeline, eclipseCase, *well, date );
         if ( !wellCompdat.isEmpty() )
         {
-            compdatData += wellCompdat;
+            keywordBlocks["COMPDAT"] += wellCompdat;
         }
 
-        QString wellMsw = generateMswForWell( timeline, eclipseCase, *well, date );
-        if ( !wellMsw.isEmpty() )
-        {
-            mswData += wellMsw;
-        }
-
-        QString wellControl = generateWellControlForWell( timeline, *well, date );
-        if ( !wellControl.isEmpty() )
-        {
-            wellControlData += wellControl;
-        }
-    }
-
-    // Output collected data
-    if ( !welspecsData.isEmpty() )
-    {
-        result += welspecsData;
-    }
-
-    if ( !compdatData.isEmpty() )
-    {
-        result += compdatData;
-    }
-
-    if ( !mswData.isEmpty() )
-    {
-        result += mswData;
-    }
-
-    if ( !wellControlData.isEmpty() )
-    {
-        result += wellControlData;
+        generateMswForWell( timeline, eclipseCase, *well, date, keywordBlocks );
+        generateWellControlForWell( timeline, *well, date, keywordBlocks );
     }
 
     // Process schedule-level keyword events (not tied to a specific well)
@@ -168,10 +155,30 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
                 QString keywordStr = keywordEvent->generateScheduleKeyword( "" );
                 if ( !keywordStr.isEmpty() )
                 {
-                    result += keywordStr;
-                    result += "\n";
+                    keywordBlocks[keywordEvent->keywordName().toUpper()] += keywordStr + "\n";
                 }
             }
+        }
+    }
+
+    // Output keywords in priority order
+    std::set<QString> emitted;
+    for ( const auto& kw : keywordOrder )
+    {
+        auto it = keywordBlocks.find( kw );
+        if ( it != keywordBlocks.end() && !it->second.isEmpty() )
+        {
+            result += it->second;
+            emitted.insert( kw );
+        }
+    }
+
+    // Output remaining keywords not in priority list
+    for ( const auto& [kw, data] : keywordBlocks )
+    {
+        if ( emitted.find( kw ) == emitted.end() && !data.isEmpty() )
+        {
+            result += data;
         }
     }
 
@@ -250,17 +257,18 @@ QString RicScheduleDataGenerator::generateCompdatForWell( const RimWellEventTime
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline& timeline,
-                                                      RimEclipseCase&             eclipseCase,
-                                                      RimWellPath&                wellPath,
-                                                      const QDateTime&            date )
+void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline& timeline,
+                                                   RimEclipseCase&             eclipseCase,
+                                                   RimWellPath&                wellPath,
+                                                   const QDateTime&            date,
+                                                   std::map<QString, QString>& keywordBlocks )
 {
     // Check if the well has MSW configured (from any previous tubing events applied via set_timestamp)
     // If MSW is enabled, we should generate WELSEGS/COMPSEGS instead of COMPDAT
     auto* mswParams = wellPath.mswCompletionParameters();
     if ( !mswParams )
     {
-        return QString();
+        return;
     }
 
     // Also check if there are valve or tubing events at this specific date for this well
@@ -286,7 +294,7 @@ QString RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline
     // This ensures wells only appear in schedule sections at their event dates
     if ( !hasMswEvents && !hasPerfEvents )
     {
-        return QString();
+        return;
     }
 
     // Extract MSW data using the existing infrastructure
@@ -298,11 +306,9 @@ QString RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline
                                                                                   RicWellPathExportMswTableData::CompletionType::ALL,
                                                                                   date );
 
-    if ( !mswDataResult.has_value() ) return QString();
+    if ( !mswDataResult.has_value() ) return;
 
     const auto& mswData = mswDataResult.value();
-
-    QString result;
 
     // Generate WELSEGS keyword
     int              maxSegments = 0;
@@ -310,46 +316,41 @@ QString RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline
     Opm::DeckKeyword welsegsKw   = RimKeywordFactory::welsegsKeyword( mswData, maxSegments, maxBranches );
     if ( welsegsKw.isDataKeyword() || welsegsKw.size() > 0 )
     {
-        result += RimKeywordFactory::deckKeywordToString( welsegsKw );
-        result += "\n";
+        keywordBlocks["WELSEGS"] += RimKeywordFactory::deckKeywordToString( welsegsKw ) + "\n";
     }
 
     // Generate COMPSEGS keyword
     Opm::DeckKeyword compsegsKw = RimKeywordFactory::compsegsKeyword( mswData );
     if ( compsegsKw.isDataKeyword() || compsegsKw.size() > 0 )
     {
-        result += RimKeywordFactory::deckKeywordToString( compsegsKw );
-        result += "\n";
+        keywordBlocks["COMPSEGS"] += RimKeywordFactory::deckKeywordToString( compsegsKw ) + "\n";
     }
 
     // Generate WSEGVALV keyword (for valve events)
     Opm::DeckKeyword wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( mswData );
     if ( wsegvalvKw.isDataKeyword() || wsegvalvKw.size() > 0 )
     {
-        result += RimKeywordFactory::deckKeywordToString( wsegvalvKw );
-        result += "\n";
+        keywordBlocks["WSEGVALV"] += RimKeywordFactory::deckKeywordToString( wsegvalvKw ) + "\n";
     }
 
     // Generate WSEGAICD keyword (if AICD data present)
     Opm::DeckKeyword wsegaicdKw = RimKeywordFactory::wsegaicdKeyword( mswData );
     if ( wsegaicdKw.isDataKeyword() || wsegaicdKw.size() > 0 )
     {
-        result += RimKeywordFactory::deckKeywordToString( wsegaicdKw );
-        result += "\n";
+        keywordBlocks["WSEGAICD"] += RimKeywordFactory::deckKeywordToString( wsegaicdKw ) + "\n";
     }
-
-    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicScheduleDataGenerator::generateWellControlForWell( const RimWellEventTimeline& timeline, const RimWellPath& well, const QDateTime& date )
+void RicScheduleDataGenerator::generateWellControlForWell( const RimWellEventTimeline& timeline,
+                                                           const RimWellPath&          well,
+                                                           const QDateTime&            date,
+                                                           std::map<QString, QString>& keywordBlocks )
 {
     // Get state and control events at this exact date for this well
     auto events = timeline.getEventsAtDate( date );
-
-    QString result;
 
     for ( auto* event : events )
     {
@@ -358,10 +359,28 @@ QString RicScheduleDataGenerator::generateWellControlForWell( const RimWellEvent
         QString keywordStr = RifEventKeywordFormatter::formatWellEvent( event, well.name() );
         if ( !keywordStr.isEmpty() )
         {
-            result += keywordStr;
-            result += "\n";
+            QString kwName = extractKeywordName( keywordStr );
+            if ( !kwName.isEmpty() )
+            {
+                keywordBlocks[kwName] += keywordStr + "\n";
+            }
         }
     }
+}
 
-    return result;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicScheduleDataGenerator::extractKeywordName( const QString& block )
+{
+    const auto lines = block.split( '\n' );
+    for ( const auto& line : lines )
+    {
+        QString trimmed = line.trimmed();
+        if ( !trimmed.isEmpty() && !trimmed.startsWith( "--" ) )
+        {
+            return trimmed;
+        }
+    }
+    return {};
 }
