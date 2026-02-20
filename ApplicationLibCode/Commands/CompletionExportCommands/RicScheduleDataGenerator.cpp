@@ -101,6 +101,7 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     result += RimKeywordFactory::deckKeywordToString( RimKeywordFactory::datesKeyword( date ) ) + "\n";
 
     // Collect all output for this date
+    QString welspecsData;
     QString compdatData;
     QString mswData;
     QString wellControlData;
@@ -108,6 +109,12 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     for ( auto* well : wellPaths )
     {
         if ( !well ) continue;
+
+        QString welspecsKw = generateWelspecsForWell( timeline, eclipseCase, *well, date );
+        if ( !welspecsKw.isEmpty() )
+        {
+            welspecsData += welspecsKw;
+        }
 
         QString wellCompdat = generateCompdatForWell( timeline, eclipseCase, *well, date );
         if ( !wellCompdat.isEmpty() )
@@ -129,6 +136,11 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     }
 
     // Output collected data
+    if ( !welspecsData.isEmpty() )
+    {
+        result += welspecsData;
+    }
+
     if ( !compdatData.isEmpty() )
     {
         result += compdatData;
@@ -162,6 +174,41 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
             }
         }
     }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicScheduleDataGenerator::generateWelspecsForWell( const RimWellEventTimeline& timeline,
+                                                           RimEclipseCase&             eclipseCase,
+                                                           RimWellPath&                well,
+                                                           const QDateTime&            date )
+{
+    // Get perforation events at this exact date for this well
+    auto events = timeline.getEventsAtDate( date );
+
+    bool hasEvents = false;
+    for ( auto* event : events )
+    {
+        if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::VALVE ||
+               event->eventType() == RimWellEvent::EventType::TUBING ) &&
+             event->wellName() == well.name() )
+        {
+            hasEvents = true;
+            break;
+        }
+    }
+
+    if ( !hasEvents ) return QString();
+
+    std::string wellGroupName = well.completionSettings()->groupNameForExport().toStdString();
+    auto        welspecsKw    = RimKeywordFactory::welspecsKeyword( wellGroupName, &eclipseCase, &well );
+
+    QString result;
+    result += RimKeywordFactory::deckKeywordToString( welspecsKw );
+    result += "\n";
 
     return result;
 }

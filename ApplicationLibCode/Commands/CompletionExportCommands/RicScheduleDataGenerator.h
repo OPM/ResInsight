@@ -52,6 +52,9 @@ private:
                                         const std::vector<RimWellPath*>& wellPaths,
                                         const QDateTime&                 date );
 
+    static QString
+        generateWelspecsForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
+
     // Generate COMPDAT for a well at a specific date based on events
     static QString
         generateCompdatForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
