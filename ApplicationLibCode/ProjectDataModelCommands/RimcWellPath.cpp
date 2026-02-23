@@ -44,6 +44,7 @@
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathTieIn.h"
+#include "RimWellPathValve.h"
 
 #include "RigDoglegTools.h"
 #include "RigStimPlanModelTools.h"
@@ -726,4 +727,66 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_parentBranch::execute
 QString RimcWellPath_parentBranch::classKeywordReturnedType() const
 {
     return RimWellPath::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_enableOutletValve, "EnableOutletValve" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_enableOutletValve::RimcWellPath_enableOutletValve( caf::PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
+    CAF_PDM_InitObject( "Enable Outlet Valve", "", "", "Enable Outlet Valve" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_enabled, "Enable", "Enable" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_template, "IcvTemplate", "IcvTemplate" );
+    CAF_PDM_InitScriptableField( &m_useCustomMd, "UseCustomValveMd", false, "Use Custom Valve Md" );
+    CAF_PDM_InitScriptableField( &m_customMd, "CustomValveMd", 0.0, "Outlet Valve Custom Md" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_enableOutletValve::execute()
+{
+    auto              wellPath = self<RimWellPath>();
+    RimWellPathValve* valve    = nullptr;
+
+    if ( wellPath->isTopLevelWellPath() ) return nullptr;
+
+    if ( auto tieIn = wellPath->wellPathTieIn() )
+    {
+        tieIn->setEnableBranchValveAtConnection( m_enabled() );
+        if ( m_enabled() )
+        {
+            if ( m_useCustomMd() )
+            {
+                tieIn->setBranchValveMeasuredDepth( m_customMd() );
+            }
+            else
+            {
+                tieIn->useDefaultBranchValveMeasuredDepth();
+            }
+
+            if ( m_template() and ( m_template->type() == RiaDefines::WellPathComponentType::ICV ) )
+            {
+                tieIn->setBranchValveTemplate( m_template() );
+            }
+
+            valve = tieIn->outletValve();
+        }
+
+        tieIn->updateConnectedEditors();
+    }
+
+    return valve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_enableOutletValve::classKeywordReturnedType() const
+{
+    return RimWellPathValve::classKeywordStatic();
 }

@@ -25,6 +25,7 @@
 
 class RimWellPath;
 class RimWellPathValve;
+class RimValveTemplate;
 
 class RimWellPathTieIn : public caf::PdmObject
 {
@@ -46,6 +47,9 @@ public:
     RimWellPath* childWell() const;
     void         updateChildWellGeometry();
 
+    void setEnableBranchValveAtConnection( bool enable );
+    void setBranchValveTemplate( RimValveTemplate* valveTemplate );
+
     void updateFirstTargetFromParentWell();
 
     RimWellPathValve* outletValve() const;
@@ -65,7 +69,7 @@ private:
     caf::PdmPtrField<RimWellPath*>         m_parentWell;
     caf::PdmPtrField<RimWellPath*>         m_childWell;
     caf::PdmField<double>                  m_tieInMeasuredDepth;
-    caf::PdmField<std::pair<bool, double>> m_customTieInValveMD;
+    caf::PdmField<std::pair<bool, double>> m_customOutletValveMD;
 
     caf::PdmField<bool>                   m_addValveAtConnection;
     caf::PdmChildField<RimWellPathValve*> m_valve;
