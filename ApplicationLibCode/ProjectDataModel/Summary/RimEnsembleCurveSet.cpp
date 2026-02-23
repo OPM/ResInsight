@@ -167,19 +167,16 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleParameterSorting, "EnsembleParameterSorting", "Parameter Sorting" );
 
-    auto defaultLineStyle   = LineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-    auto defaultPointSymbol = PointSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_CROSS );
-
     CAF_PDM_InitFieldNoDefault( &m_useCustomAppearance, "UseCustomAppearance", "Appearance" );
-    CAF_PDM_InitField( &m_lineStyle, "LineStyle", defaultLineStyle, "Line Style" );
-    CAF_PDM_InitField( &m_pointSymbol, "PointSymbol", defaultPointSymbol, "Symbol" );
-    CAF_PDM_InitField( &m_symbolSize, "SymbolSize", 6, "Symbol Size" );
+    CAF_PDM_InitField( &m_lineStyle, "LineStyle", LineStyle( defaultLineStyle ), "Line Style" );
+    CAF_PDM_InitField( &m_pointSymbol, "PointSymbol", PointSymbol( defaultSymbol ), "Symbol" );
+    CAF_PDM_InitField( &m_symbolSize, "SymbolSize", defaultSymbolSize, "Symbol Size" );
 
     auto defaultStatisticsPointSymbol = PointSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
     CAF_PDM_InitFieldNoDefault( &m_statisticsUseCustomAppearance, "StatisticsUseCustomAppearance", "Appearance" );
-    CAF_PDM_InitField( &m_statisticsLineStyle, "StatisticsLineStyle", defaultLineStyle, "Line Style" );
+    CAF_PDM_InitField( &m_statisticsLineStyle, "StatisticsLineStyle", LineStyle( defaultLineStyle ), "Line Style" );
     CAF_PDM_InitField( &m_statisticsPointSymbol, "StatisticsPointSymbol", defaultStatisticsPointSymbol, "Symbol" );
-    CAF_PDM_InitField( &m_statisticsSymbolSize, "StatisticsSymbolSize", 6, "Symbol Size" );
+    CAF_PDM_InitField( &m_statisticsSymbolSize, "StatisticsSymbolSize", defaultSymbolSize, "Symbol Size" );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
@@ -2173,6 +2170,12 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                         c->setLineStyle( m_lineStyle() );
                         c->setSymbol( m_pointSymbol() );
                         c->setSymbolSize( m_symbolSize() );
+                    }
+                    else
+                    {
+                        c->setLineStyle( defaultLineStyle );
+                        c->setSymbol( defaultSymbol );
+                        c->setSymbolSize( defaultSymbolSize );
                     }
                 }
             }

@@ -195,6 +195,10 @@ protected:
     void initAfterRead() override;
 
 private:
+    static constexpr auto defaultLineStyle  = RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
+    static constexpr auto defaultSymbol     = RiuPlotCurveSymbol::SYMBOL_NONE;
+    static constexpr int  defaultSymbolSize = 6;
+
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
     void updateStatisticsCurves( const std::vector<RimSummaryCase*>& sumCases );
 
