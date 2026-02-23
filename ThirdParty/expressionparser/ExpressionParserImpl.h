@@ -22,27 +22,29 @@
 
 #include <QString>
 
+#include <expected>
+
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class ExpressionParserImpl
 {
     typedef exprtk::symbol_table<double> symbol_table_t;
-    typedef exprtk::expression<double>     expression_t;
-    typedef exprtk::parser<double>             parser_t;
+    typedef exprtk::expression<double>   expression_t;
+    typedef exprtk::parser<double>       parser_t;
 
 public:
     ExpressionParserImpl();
 
-    static std::vector<QString> detectReferencedVariables(const QString& expression);
+    static std::vector<QString> detectReferencedVariables( const QString& expression );
 
-    void    assignVector(const QString& variableName, std::vector<double>& vector);
-    bool    evaluate(const QString& expressionText, QString* errorText = nullptr);
-    
-    static QString expandIfStatements(const QString& expressionText);
+    void                         assignVector( const QString& variableName, std::vector<double>& vector );
+    std::expected<void, QString> evaluate( const QString& expressionText );
+
+    static QString expandIfStatements( const QString& expressionText );
 
 private:
-    QString parserErrorText(parser_t& parser);
+    QString parserErrorText( parser_t& parser );
 
 private:
     symbol_table_t m_symbol_table;

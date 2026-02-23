@@ -367,10 +367,9 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 
     parser.assignVector( leftHandSideVariableName, resultValues );
 
-    QString errorText;
-    bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( expression, &errorText );
+    auto evaluateResult = parser.expandIfStatementsAndEvaluate( expression );
 
-    if ( evaluatedOk )
+    if ( evaluateResult )
     {
         if ( !timeHistoryCurveMerger.validIntervalsForAllXValues().empty() )
         {
@@ -391,7 +390,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
     else
     {
         QString s = "The following error message was received from the parser library : \n\n";
-        s += errorText;
+        s += evaluateResult.error();
 
         RiaLogging::errorInMessageBox( nullptr, "Expression Parser", s );
     }

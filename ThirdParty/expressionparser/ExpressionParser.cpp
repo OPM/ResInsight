@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,59 +21,54 @@
 #include "ExpressionParserImpl.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 ExpressionParser::ExpressionParser()
 {
-    m_expressionParserImpl = std::unique_ptr<ExpressionParserImpl>(new ExpressionParserImpl);
+    m_expressionParserImpl = std::unique_ptr<ExpressionParserImpl>( new ExpressionParserImpl );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 ExpressionParser::~ExpressionParser()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> ExpressionParser::detectReferencedVariables(const QString& expression)
+std::vector<QString> ExpressionParser::detectReferencedVariables( const QString& expression )
 {
-    return ExpressionParserImpl::detectReferencedVariables(expression);
+    return ExpressionParserImpl::detectReferencedVariables( expression );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void ExpressionParser::assignVector(const QString& variableName, std::vector<double>& vector)
+void ExpressionParser::assignVector( const QString& variableName, std::vector<double>& vector )
 {
-    m_expressionParserImpl->assignVector(variableName, vector);
+    m_expressionParserImpl->assignVector( variableName, vector );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool ExpressionParser::evaluate(const QString& expressionText, QString* errorText)
+std::expected<void, QString> ExpressionParser::evaluate( const QString& expressionText )
 {
-    return m_expressionParserImpl->evaluate(expressionText, errorText);
+    return m_expressionParserImpl->evaluate( expressionText );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool ExpressionParser::expandIfStatementsAndEvaluate(const QString& expressionText, QString* errorText /*= nullptr*/)
+std::expected<void, QString> ExpressionParser::expandIfStatementsAndEvaluate( const QString& expressionText )
 {
-    if (expressionText.contains("if", Qt::CaseInsensitive))
+    if ( expressionText.contains( "if", Qt::CaseInsensitive ) )
     {
-        QString expandedExpressionText = ExpressionParserImpl::expandIfStatements(expressionText);
-
-        return m_expressionParserImpl->evaluate(expandedExpressionText, errorText);
-    }
-    else
-    {
-        return m_expressionParserImpl->evaluate(expressionText, errorText);
+        QString expanded = ExpressionParserImpl::expandIfStatements( expressionText );
+        return m_expressionParserImpl->evaluate( expanded );
     }
 
+    return m_expressionParserImpl->evaluate( expressionText );
 }

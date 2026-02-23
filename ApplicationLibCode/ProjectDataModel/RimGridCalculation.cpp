@@ -947,10 +947,9 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             }
             parser.assignVector( leftHandSideVariableName, resultValues );
 
-            QString errorText;
-            bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
+            auto evaluateResult = parser.expandIfStatementsAndEvaluate( m_expression );
 
-            if ( evaluatedOk )
+            if ( evaluateResult )
             {
                 if ( hasAggregationExpression )
                 {
@@ -985,7 +984,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             else
             {
                 QString s = "The following error message was received from the parser library : \n\n";
-                s += errorText;
+                s += evaluateResult.error();
 
                 RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", s );
                 return false;

@@ -20,13 +20,14 @@
 
 #include <QString>
 
+#include <expected>
 #include <memory>
 #include <vector>
 
 class ExpressionParserImpl;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class ExpressionParser
 {
@@ -34,11 +35,13 @@ public:
     ExpressionParser();
     ~ExpressionParser();
 
-    static std::vector<QString> detectReferencedVariables(const QString& expression);
+    static std::vector<QString> detectReferencedVariables( const QString& expression );
 
-    void                        assignVector(const QString& variableName, std::vector<double>& vector);
-    bool                        evaluate(const QString& expressionText, QString* errorText = nullptr);
-    bool                        expandIfStatementsAndEvaluate(const QString& expressionText, QString* errorText = nullptr);
+    void assignVector( const QString& variableName, std::vector<double>& vector );
+
+    // Returns an empty expected on success, or an unexpected containing the error message on failure.
+    std::expected<void, QString> evaluate( const QString& expressionText );
+    std::expected<void, QString> expandIfStatementsAndEvaluate( const QString& expressionText );
 
 private:
     std::unique_ptr<ExpressionParserImpl> m_expressionParserImpl;

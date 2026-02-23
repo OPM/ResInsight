@@ -76,32 +76,22 @@ void ExpressionParserImpl::assignVector(const QString& variableName, std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool ExpressionParserImpl::evaluate(const QString& expressionText, QString* errorText)
+std::expected<void, QString> ExpressionParserImpl::evaluate( const QString& expressionText )
 {
     expression_t expression;
-
-    expression.register_symbol_table(m_symbol_table);
+    expression.register_symbol_table( m_symbol_table );
 
     parser_t parser;
-    if (!parser.compile(expressionText.toStdString(), expression))
-    {
-        if (errorText)
-        {
-            *errorText = parserErrorText(parser);
-        }
-
-        return false;
-    }
+    if ( !parser.compile( expressionText.toStdString(), expression ) )
+        return std::unexpected( parserErrorText( parser ) );
 
     // Trigger evaluation
     expression.value();
 
-    if (errorText)
-    {
-        *errorText = parserErrorText(parser);
-    }
+    if ( parser.error_count() > 0 )
+        return std::unexpected( parserErrorText( parser ) );
 
-    return (parser.error_count() == 0);
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
