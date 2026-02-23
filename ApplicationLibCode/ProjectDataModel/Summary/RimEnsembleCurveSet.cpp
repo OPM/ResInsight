@@ -2167,6 +2167,13 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                     c->setCheckState( true );
                     bool updatePlot = false;
                     c->updateCurveVisibility( updatePlot );
+
+                    if ( m_useCustomAppearance() == RimCurveAppearanceDefines::AppearanceMode::CUSTOM )
+                    {
+                        c->setLineStyle( m_lineStyle() );
+                        c->setSymbol( m_pointSymbol() );
+                        c->setSymbolSize( m_symbolSize() );
+                    }
                 }
             }
 
