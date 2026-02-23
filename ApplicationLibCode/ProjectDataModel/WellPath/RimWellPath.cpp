@@ -416,7 +416,7 @@ const RigWellPath* RimWellPath::wellPathGeometry() const
 //--------------------------------------------------------------------------------------------------
 double RimWellPath::startMD() const
 {
-    if ( wellPathGeometry() )
+    if ( wellPathGeometry() && wellPathGeometry()->measuredDepths().size() > 0 )
     {
         return wellPathGeometry()->measuredDepths().front();
     }
@@ -428,7 +428,7 @@ double RimWellPath::startMD() const
 //--------------------------------------------------------------------------------------------------
 double RimWellPath::endMD() const
 {
-    if ( wellPathGeometry() )
+    if ( wellPathGeometry() && wellPathGeometry()->measuredDepths().size() > 0 )
     {
         return wellPathGeometry()->measuredDepths().back();
     }

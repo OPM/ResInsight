@@ -64,9 +64,9 @@ RimWellPathTieIn::RimWellPathTieIn()
     CAF_PDM_InitScriptableField( &m_addValveAtConnection, "AddValveAtConnection", false, "Add Outlet Valve for Branch" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_customTieInValveMD, "CustomTieInValveMeasuredDepth", "Outlet Valve Custom MD" );
+    CAF_PDM_InitScriptableField( &m_customOutletValveMD, "CustomOutletValveMd", std::make_pair( false, 0.0 ), "Outlet Valve Custom MD" );
 
-    m_valve = new RimWellPathValve;
+    m_valve = new RimWellPathValve();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,9 +108,9 @@ void RimWellPathTieIn::setTieInMeasuredDepth( double measuredDepth )
 //--------------------------------------------------------------------------------------------------
 double RimWellPathTieIn::branchValveMeasuredDepth() const
 {
-    if ( m_customTieInValveMD().first )
+    if ( m_customOutletValveMD().first )
     {
-        return m_customTieInValveMD().second;
+        return m_customOutletValveMD().second;
     }
     return m_tieInMeasuredDepth();
 }
@@ -120,7 +120,7 @@ double RimWellPathTieIn::branchValveMeasuredDepth() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTieIn::setBranchValveMeasuredDepth( double measuredDepth )
 {
-    m_customTieInValveMD = std::make_pair( true, measuredDepth );
+    m_customOutletValveMD = std::make_pair( true, measuredDepth );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +128,26 @@ void RimWellPathTieIn::setBranchValveMeasuredDepth( double measuredDepth )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTieIn::useDefaultBranchValveMeasuredDepth()
 {
-    m_customTieInValveMD = std::make_pair( false, m_tieInMeasuredDepth() );
+    m_customOutletValveMD = std::make_pair( false, m_tieInMeasuredDepth() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTieIn::setBranchValveTemplate( RimValveTemplate* valveTemplate )
+{
+    if ( m_valve() )
+    {
+        m_valve()->setValveTemplate( valveTemplate );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTieIn::setEnableBranchValveAtConnection( bool enable )
+{
+    m_addValveAtConnection = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,7 +246,7 @@ void RimWellPathTieIn::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         if ( m_addValveAtConnection )
         {
             auto valveGrp = tieInGroup->addNewGroup( "Valve Options" );
-            valveGrp->add( &m_customTieInValveMD );
+            valveGrp->add( &m_customOutletValveMD );
             m_valve->uiOrdering( "TemplateOnly", *valveGrp );
         }
     }
