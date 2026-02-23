@@ -360,8 +360,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     bool triggerLoadDataAndUpdate = false;
 
-    auto updateEnsembleAddresses =
-        [&oldValue, &newValue]( const std::vector<RimEnsembleCurveSet*>& curveSets, SummaryCategory categoryToUpdate )
+    auto updateEnsembleAddresses = [&oldValue, &newValue]( const std::vector<RimEnsembleCurveSet*>& curveSets, SummaryCategory categoryToUpdate )
     {
         for ( auto curveSet : curveSets )
         {
