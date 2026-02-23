@@ -2116,16 +2116,20 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    auto yAddressText = m_yValuesSummaryAddress()->address().toEclipseTextAddress();
-    auto xAddressText = m_xAddressSelector->summaryAddress().toEclipseTextAddress();
-    int  timeMode     = 0;
-    auto timeScale    = 0.0;
+    // Create a hash based on the information that defines the curves. If the hash is the same as last time, we know that the
+    // curves can be kept and only updated with new data if needed. If the hash is different, we need to delete and recreate the curves.
+    auto yAddressText   = m_yValuesSummaryAddress()->address().toEclipseTextAddress();
+    auto xAddressText   = m_xAddressSelector->summaryAddress().toEclipseTextAddress();
+    auto xAxisTypeValue = std::to_underlying( m_xAxisType().value() );
+    int  timeMode       = 0;
+    auto timeScale      = 0.0;
     if ( auto timeAxisProps = plot->timeAxisProperties() )
     {
         timeMode  = std::to_underlying( timeAxisProps->timeMode() );
         timeScale = timeAxisProps->fromTimeTToDisplayUnitScale();
     }
-    auto newRealizationHash = RiaHashTools::hash( sumCases, yAddressText, xAddressText, timeMode, timeScale );
+
+    auto newRealizationHash = RiaHashTools::hash( sumCases, yAddressText, xAddressText, timeMode, timeScale, xAxisTypeValue );
     if ( newRealizationHash != m_realizationHash )
     {
         deleteEnsembleCurves();
@@ -2153,8 +2157,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
         {
             if ( newRealizationHash != m_realizationHash )
             {
-                deleteEnsembleCurves();
-
                 createCurves( sumCases, *addr );
             }
             else
