@@ -328,7 +328,6 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves();
 
     bool isAutoZoomAllowed = false;
-    bool doZoomAll         = false;
 
     if ( changedField == &m_stepDimension )
     {
@@ -361,8 +360,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     bool triggerLoadDataAndUpdate = false;
 
-    auto updateEnsembleAddresses =
-        [&doZoomAll, &oldValue, &newValue]( const std::vector<RimEnsembleCurveSet*>& curveSets, SummaryCategory categoryToUpdate )
+    auto updateEnsembleAddresses = [&oldValue, &newValue]( const std::vector<RimEnsembleCurveSet*>& curveSets, SummaryCategory categoryToUpdate )
     {
         for ( auto curveSet : curveSets )
         {
@@ -384,8 +382,6 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
             curveSet->setCurveAddress( RiaSummaryCurveAddress( xAddressToModify, yAddressToModify ) );
             curveSet->updateConnectedEditors();
-
-            doZoomAll = true;
         }
     };
 
@@ -533,11 +529,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             summaryMultiPlot->updatePlots();
             summaryMultiPlot->updatePlotTitles();
 
-            if ( doZoomAll )
-            {
-                summaryMultiPlot->zoomAll();
-            }
-            else if ( isAutoZoomAllowed )
+            if ( isAutoZoomAllowed )
             {
                 // The time axis can be zoomed and will be used for all plots. Do not zoom time axis in this case.
                 summaryMultiPlot->zoomAllYAxes();
