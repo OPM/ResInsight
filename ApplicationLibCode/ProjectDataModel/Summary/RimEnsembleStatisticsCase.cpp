@@ -287,6 +287,15 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
                 m_percentileData[m_requestedPercentiles[i]].push_back( percentileValues[i] );
             }
         }
+        else
+        {
+            // If percentiles could not be calculated (e.g. not enough data points or infinity in any of the input values), fill with
+            // infinity to indicate missing data.
+            for ( size_t i = 0; i < m_requestedPercentiles.size(); i++ )
+            {
+                m_percentileData[m_requestedPercentiles[i]].push_back( std::numeric_limits<double>::infinity() );
+            }
+        }
     }
 
     bool showDebugTiming = false;
