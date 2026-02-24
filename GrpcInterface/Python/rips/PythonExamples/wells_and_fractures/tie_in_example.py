@@ -1,4 +1,3 @@
-
 """
 Example demonstrating how to create well paths from XYZ coordinates
 using the import_well_path_from_points API.
@@ -30,7 +29,7 @@ lateral = main_well_path.append_lateral(measured_depth)
 # Get the valve template collection
 valve_templates = rips_instance.project.valve_templates()
 
-# create an ICV valve template 
+# create an ICV valve template
 icv_template = valve_templates.add_template(
     completion_type="ICV",
     orifice_diameter=12.5,
@@ -39,7 +38,9 @@ icv_template = valve_templates.add_template(
 )
 
 # Enable well valve
-valve = lateral.enable_outlet_valve(enable = True, icv_template = icv_template, use_custom_valve_md = False)
+valve = lateral.enable_outlet_valve(
+    enable=True, icv_template=icv_template, use_custom_valve_md=False
+)
 
 # Enable a custom md for the outlet valve
 tiein = lateral.tie_in()
