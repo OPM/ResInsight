@@ -49,7 +49,7 @@ RimWellPathValve::RimWellPathValve()
 {
     CAF_PDM_InitScriptableObject( "WellPathValve", ":/ICDValve16x16.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_valveTemplate, "ValveTemplate", "Valve Template" );
+    CAF_PDM_InitFieldNoDefault( &m_valveTemplate, "ValveTemplate", "Valve Template" );
     CAF_PDM_InitScriptableField( &m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD" );
     CAF_PDM_InitFieldNoDefault( &m_multipleValveLocations, "ValveLocations", "Valve Locations" );
 
