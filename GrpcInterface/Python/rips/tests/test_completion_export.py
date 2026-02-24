@@ -163,14 +163,13 @@ def test_export_completion_files_split_by_well(rips_instance, initialize_test):
     finally:
         pass  # Keep exported files in the output directory
 
+
 def test_export_completion_dual_porosity_model(rips_instance, initialize_test):
     case_root_path = dataroot.PATH + "/dualporo-testcase"
     project_path = case_root_path + "/Well-completions-mail.rsp"
     project = rips_instance.project.open(path=project_path)
 
-    export_folder = os.path.abspath(
-        case_root_path + "/completion_export_output"
-    )
+    export_folder = os.path.abspath(case_root_path + "/completion_export_output")
     os.makedirs(export_folder, exist_ok=True)
 
     try:
@@ -193,7 +192,9 @@ def test_export_completion_dual_porosity_model(rips_instance, initialize_test):
         # Compare exported files with reference data
         reference_folder = case_root_path + "/completion_export_reference"
         compare_exported_files_with_reference(
-            export_folder, reference_folder, "dual porosity completion data from fracture cells"
+            export_folder,
+            reference_folder,
+            "dual porosity completion data from fracture cells",
         )
 
     finally:
