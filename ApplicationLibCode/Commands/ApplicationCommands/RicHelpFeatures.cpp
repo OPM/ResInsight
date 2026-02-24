@@ -45,6 +45,7 @@ CAF_CMD_SOURCE_INIT( RicHelpOpenUsersGuideFeature, "RicHelpOpenUsersGuideFeature
 CAF_CMD_SOURCE_INIT( RicSearchHelpFeature, "RicSearchHelpFeature" );
 CAF_CMD_SOURCE_INIT( RicSearchIssuesHelpFeature, "RicSearchIssuesHelpFeature" );
 CAF_CMD_SOURCE_INIT( RicCreateNewIssueHelpFeature, "RicCreateNewIssueHelpFeature" );
+CAF_CMD_SOURCE_INIT( RicOpenReleaseNotesFeature, "RicOpenReleaseNotesFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -261,8 +262,7 @@ void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 {
     disableModelChangeContribution();
 
-    QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
-    RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
+    RiaNetworkTools::openUrlWithErrorReporting( RiaNetworkTools::RIA_URL_USERS_GUIDE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,15 +281,15 @@ void RicSearchHelpFeature::onActionTriggered( bool isChecked )
 {
     disableModelChangeContribution();
 
-    QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
-
     caf::PdmUiItem* uiItem = caf::SelectionManager::instance()->selectedItem();
     if ( uiItem && !uiItem->uiName().isEmpty() )
     {
-        usersGuideUrl = "https://resinsight.org/search/?q=" + uiItem->uiName();
+        RiaNetworkTools::openSearchPage( uiItem->uiName() );
     }
-
-    RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
+    else
+    {
+        RiaNetworkTools::openUrlWithErrorReporting( RiaNetworkTools::RIA_URL_USERS_GUIDE );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -317,8 +317,7 @@ void RicSearchHelpFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicSearchIssuesHelpFeature::onActionTriggered( bool isChecked )
 {
-    QString usersGuideUrl = "https://github.com/OPM/ResInsight/issues";
-    RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
+    RiaNetworkTools::openUrlWithErrorReporting( RiaNetworkTools::RIA_URL_ISSUES );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,8 +334,7 @@ void RicSearchIssuesHelpFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicCreateNewIssueHelpFeature::onActionTriggered( bool isChecked )
 {
-    QString usersGuideUrl = "https://github.com/OPM/ResInsight/issues/new";
-    RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
+    RiaNetworkTools::openUrlWithErrorReporting( RiaNetworkTools::RIA_URL_NEW_ISSUE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,4 +344,21 @@ void RicCreateNewIssueHelpFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create New Issue" );
     actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicOpenReleaseNotesFeature::onActionTriggered( bool isChecked )
+{
+    RiaNetworkTools::openUrlWithErrorReporting( RiaNetworkTools::RIA_URL_RELEASE_NOTES );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicOpenReleaseNotesFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "What's New" );
+    actionToSetup->setIcon( QIcon( ":/WhatsNew.svg" ) );
 }

@@ -28,6 +28,18 @@
 class RiaNetworkTools
 {
 public:
+    // clang-format off
+    static constexpr auto RIA_URL_BASE                   = "https://resinsight.org";
+    static constexpr auto RIA_URL_FALLBACK_BASE          = "https://opm.github.io/ResInsight-UserDocumentation";
+    static constexpr auto RIA_URL_SEARCH                 = "https://resinsight.org/search/?q=";
+    static constexpr auto RIA_URL_USERS_GUIDE            = "https://resinsight.org/getting-started/overview/";
+    static constexpr auto RIA_URL_RELEASE_NOTES          = "https://resinsight.org/releases/release-notes/latest/";
+    static constexpr auto RIA_URL_ISSUES                 = "https://github.com/OPM/ResInsight/issues";
+    static constexpr auto RIA_URL_NEW_ISSUE              = "https://github.com/OPM/ResInsight/issues/new";
+    static constexpr auto RIA_URL_CALCULATOR_EXPRESSIONS = "https://resinsight.org/calculated-data/calculatorexpressions/";
+    static constexpr auto RIA_URL_SCRIPTING_COMMAND_FILE = "https://resinsight.org/scripting/commandfile/";
+    // clang-format on
+
     static void openSearchPage( const QString& searchText );
     static void openUrlWithErrorReporting( const QString& urlString );
     static void openUrl( const QString& urlString );
