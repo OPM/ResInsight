@@ -93,10 +93,20 @@ cvf::Vec3d RigStimPlanModelTools::calculateTSTDirection( RigEclipseCaseData* ecl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigStimPlanModelTools::calculateFormationDip( const cvf::Vec3d& direction )
+double RigStimPlanModelTools::calculateAngleFromVertical( const cvf::Vec3d& direction )
 {
-    // Formation dip is inclination of a plane from horizontal.
+    // Angle from vertical is the inclination of a vector from the vertical axis.
     return cvf::Math::toDegrees( cvf::GeometryTools::getAngle( direction, -cvf::Vec3d::Z_AXIS ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigStimPlanModelTools::calculateFormationDipFromHorizontal( const cvf::Vec3d& direction )
+{
+    // Convert from angle-with-vertical to angle-from-horizontal, and take abs since
+    // direction sign depends on fracture normal orientation.
+    return std::abs( calculateAngleFromVertical( direction ) - 90.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,7 +140,7 @@ std::tuple<const RigFault*, double, cvf::Vec3d, double> RigStimPlanModelTools::f
 
             const RigCell& cell       = mainGrid->cell( intersection.globCellIndex );
             cvf::Vec3d     faceNormal = cell.faceNormalWithAreaLength( intersection.intersectedCellFaceIn );
-            barrierDip                = RigStimPlanModelTools::calculateFormationDip( faceNormal );
+            barrierDip                = RigStimPlanModelTools::calculateAngleFromVertical( faceNormal );
         }
     }
 

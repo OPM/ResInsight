@@ -652,12 +652,11 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
 
     cvf::Vec3d fractureDirectionNormal = computeFractureDirectionNormal( wellPath(), position );
 
-    // Update formation dip. The direction for the barrier search follows the
-    // inclination of the formation, and is in effect the formation dip in the
-    // fracture plane. -90 to convert from horizontal to vertical.
+    // Update formation dip. The direction for the barrier search follows the inclination of the formation, and is in effect the formation
+    // dip in the fracture plane.
     cvf::Vec3d formationDirection = projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_originalThicknessDirection );
     if ( formationDirection.isUndefined() ) return;
-    m_formationDip = std::abs( RigStimPlanModelTools::calculateFormationDip( formationDirection ) - 90.0 );
+    m_formationDip = RigStimPlanModelTools::calculateFormationDipFromHorizontal( formationDirection );
 
     cvf::Vec3d directionToBarrier = projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_thicknessDirection );
     if ( directionToBarrier.isUndefined() ) return;

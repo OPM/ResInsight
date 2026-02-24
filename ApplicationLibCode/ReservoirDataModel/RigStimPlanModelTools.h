@@ -50,7 +50,8 @@ public:
 
                                            cvf::Vec3d& bottomPosition );
 
-    static double calculateFormationDip( const cvf::Vec3d& direction );
+    static double calculateAngleFromVertical( const cvf::Vec3d& direction );
+    static double calculateFormationDipFromHorizontal( const cvf::Vec3d& direction );
 
     static QString vecToString( const cvf::Vec3d& vec );
 
