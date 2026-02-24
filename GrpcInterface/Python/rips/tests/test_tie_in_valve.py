@@ -48,11 +48,11 @@ def test_append_lateral_with_valve(rips_instance, initialize_test):
     assert tiein is not None
 
     custom_enabled, custom_md = tiein.custom_outlet_valve_md
-    assert custom_enabled == False
+    assert not custom_enabled
 
     tiein.custom_outlet_valve_md = (True, 200.0)
     tiein.update()
 
     custom_enabled, custom_md = tiein.custom_outlet_valve_md
-    assert custom_enabled == True
+    assert custom_enabled
     assert custom_md == 200.0
