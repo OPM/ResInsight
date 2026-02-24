@@ -162,3 +162,40 @@ def test_export_completion_files_split_by_well(rips_instance, initialize_test):
 
     finally:
         pass  # Keep exported files in the output directory
+
+
+def test_export_completion_dual_porosity_model(rips_instance, initialize_test):
+    case_root_path = dataroot.PATH + "/dualporo-testcase"
+    project_path = case_root_path + "/Well-completions-mail.rsp"
+    project = rips_instance.project.open(path=project_path)
+
+    export_folder = os.path.abspath(case_root_path + "/completion_export_output")
+    os.makedirs(export_folder, exist_ok=True)
+
+    try:
+        rips_instance.set_export_folder(export_type="COMPLETIONS", path=export_folder)
+
+        case = project.cases()[0]
+
+        # Use Well-1 for all tests
+        test_wells = ["PH", "PV"]
+
+        case.export_well_path_completions(
+            time_step=0,  # Use time step 0 instead of 1
+            well_path_names=test_wells,
+            file_split="SPLIT_ON_WELL",
+            include_perforations=True,
+            include_fishbones=False,  # This matches the reference generation script
+            export_comments=False,
+        )
+
+        # Compare exported files with reference data
+        reference_folder = case_root_path + "/completion_export_reference"
+        compare_exported_files_with_reference(
+            export_folder,
+            reference_folder,
+            "dual porosity completion data from fracture cells",
+        )
+
+    finally:
+        pass  # Keep exported files in the output directory

@@ -1,0 +1,11 @@
+-- WELL  GROUP        BHP    PHASE  DRAIN  INFLOW  OPEN  CROSS  PVT    HYDS  FIP 
+-- NAME  NAME   I  J  DEPTH  FLUID  AREA   EQUANS  SHUT  FLOW   TABLE  DENS  REGN
+WELSPECS
+   PH    1*     5  5  1*     OIL    1*     STD     STOP  YES    0      SEG   0    /
+/
+-- WELL                     OPEN   SAT   CONN           WELL      KH             SKIN      D      DIR
+-- NAME   I   J   K1   K2   SHUT   TAB   FACT           DIA       FACT           FACT      FACT   PEN
+COMPDAT
+   PH     5   5   8    8    OPEN   1*    1.197275E+02   0.50000   7.500000E+04   0.00000   1*     'X' /
+   PH     3   5   9    9    OPEN   1*    5.976572E+01   0.50000   3.354102E+04   0.00000   1*     'X' /
+/
