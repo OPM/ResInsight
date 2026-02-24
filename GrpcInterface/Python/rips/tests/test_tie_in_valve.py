@@ -4,8 +4,6 @@ import os
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
 
-import dataroot
-
 
 def test_append_lateral_with_valve(rips_instance, initialize_test):
     well_path_coll = rips_instance.project.well_path_collection()
@@ -30,8 +28,8 @@ def test_append_lateral_with_valve(rips_instance, initialize_test):
     # Get the valve template collection
     valve_templates = rips_instance.project.valve_templates()
 
-    # create an ICV valve template 
-    
+    # create an ICV valve template
+
     icv_template = valve_templates.add_template(
         completion_type="ICV",
         orifice_diameter=12.5,
@@ -41,7 +39,9 @@ def test_append_lateral_with_valve(rips_instance, initialize_test):
 
     # Enable well valve
 
-    valve = lateral.enable_outlet_valve(enable = True, icv_template = icv_template, use_custom_valve_md = False)
+    valve = lateral.enable_outlet_valve(
+        enable=True, icv_template=icv_template, use_custom_valve_md=False
+    )
     assert valve is not None
 
     tiein = lateral.tie_in()

@@ -270,18 +270,18 @@ class PdmObjectBase:
         tuple_string = tuple_string.removesuffix(")")
         if not tuple_string:
             return ()
-        
+
         if "), (" in tuple_string:
             subtuples = re.split(r"\), \(", tuple_string)
             return [self.__makelist(subtuple) for subtuple in subtuples]
         else:
-            strings = tuple_string.split(', ')
+            strings = tuple_string.split(", ")
             if len(strings) == 2:
                 return (
                     self.__convert_from_grpc_value(strings[0]),
-                    self.__convert_from_grpc_value(strings[1])
+                    self.__convert_from_grpc_value(strings[1]),
                 )
-            
+
         return ()
 
     def __makelist(self, list_string: str) -> Value:
