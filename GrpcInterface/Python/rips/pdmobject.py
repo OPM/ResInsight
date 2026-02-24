@@ -212,10 +212,12 @@ class PdmObjectBase:
                 float_val = float(value)
                 return float_val
             except ValueError:
-                # We may have a string. Strip internal start and end quotes
-                value = value.strip('"')
                 if self.__islist(value):
                     return self.__makelist(value)
+                if self.__istuple(value):
+                    return self.__maketuple(value)
+                # We may have a string. Strip internal start and end quotes
+                value = value.strip('"')
                 return value
 
     def __convert_to_grpc_value(self, value: Any) -> str:
@@ -230,6 +232,11 @@ class PdmObjectBase:
             for val in value:
                 list_of_values.append(self.__convert_to_grpc_value(val))
             return "[" + ", ".join(list_of_values) + "]"
+        if isinstance(value, tuple):
+            list_of_values = []
+            for val in value:
+                list_of_values.append(self.__convert_to_grpc_value(val))
+            return "(" + ", ".join(list_of_values) + ")"
         return str(value)
 
     def __get_grpc_value(self, camel_keyword: str) -> Value:
@@ -252,8 +259,30 @@ class PdmObjectBase:
         setattr(self, snake_keyword, value)
         self.update()
 
+    def __istuple(self, value) -> bool:
+        return value.startswith("(") and value.endswith(")")
+
     def __islist(self, value: str) -> bool:
         return value.startswith("[") and value.endswith("]")
+
+    def __maketuple(self, tuple_string: str) -> Value:
+        tuple_string = tuple_string.removeprefix("(")
+        tuple_string = tuple_string.removesuffix(")")
+        if not tuple_string:
+            return ()
+        
+        if "), (" in tuple_string:
+            subtuples = re.split(r"\), \(", tuple_string)
+            return [self.__makelist(subtuple) for subtuple in subtuples]
+        else:
+            strings = tuple_string.split(', ')
+            if len(strings) == 2:
+                return (
+                    self.__convert_from_grpc_value(strings[0]),
+                    self.__convert_from_grpc_value(strings[1])
+                )
+            
+        return ()
 
     def __makelist(self, list_string: str) -> Value:
         list_string = list_string.removeprefix("[")

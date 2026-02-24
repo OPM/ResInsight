@@ -23,7 +23,7 @@ def test_append_lateral_with_valve(rips_instance, initialize_test):
     main_geometry.append_well_target([1000.0, 2000.0, -500.0])  # 500m down
     main_geometry.update()
 
-    measured_depth = 150
+    measured_depth = 150.0
     lateral = main_well_path.append_lateral(measured_depth)
     assert lateral is not None
 
@@ -44,8 +44,15 @@ def test_append_lateral_with_valve(rips_instance, initialize_test):
     valve = lateral.enable_outlet_valve(enable = True, icv_template = icv_template, use_custom_valve_md = False)
     assert valve is not None
 
-    tiein = lateral.well_path_tie_in
+    tiein = lateral.tie_in()
     assert tiein is not None
 
     custom_enabled, custom_md = tiein.custom_outlet_valve_md
     assert custom_enabled == False
+
+    tiein.custom_outlet_valve_md = (True, 200.0)
+    tiein.update()
+
+    custom_enabled, custom_md = tiein.custom_outlet_valve_md
+    assert custom_enabled == True
+    assert custom_md == 200.0

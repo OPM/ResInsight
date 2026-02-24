@@ -790,3 +790,35 @@ QString RimcWellPath_enableOutletValve::classKeywordReturnedType() const
 {
     return RimWellPathValve::classKeywordStatic();
 }
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_tieIn, "TieIn" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_tieIn::RimcWellPath_tieIn( caf::PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
+    CAF_PDM_InitObject( "Well Path Tie-In", "", "", "Well Path Tie-In Settings" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_tieIn::execute()
+{
+    if ( auto wellPath = self<RimWellPath>() )
+    {
+        return wellPath->wellPathTieIn();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_tieIn::classKeywordReturnedType() const
+{
+    return RimWellPathTieIn::classKeywordStatic();
+}
