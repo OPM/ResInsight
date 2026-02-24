@@ -251,9 +251,7 @@ bool RiaOpenTelemetryManager::isEventAllowed( const std::string& eventName ) con
     if ( !allowlist.isEmpty() && !matches( name, allowlist ) ) return false;
 
     const QStringList denylist = prefs->eventDenylist();
-    if ( !denylist.isEmpty() && matches( name, denylist ) ) return false;
-
-    return true;
+    return !( !denylist.isEmpty() && matches( name, denylist ) );
 }
 
 //--------------------------------------------------------------------------------------------------
