@@ -217,3 +217,17 @@ private:
     caf::PdmField<bool>                 m_useCustomMd;
     caf::PdmField<double>               m_customMd;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_tieIn : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_tieIn( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+};

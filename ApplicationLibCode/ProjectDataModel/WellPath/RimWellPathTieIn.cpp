@@ -317,7 +317,7 @@ void RimWellPathTieIn::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 
             auto wellPathGeo = parentWell()->wellPathGeometry();
 
-            if ( wellPathGeo )
+            if ( wellPathGeo && wellPathGeo->measuredDepths().size() > 0 )
             {
                 minimumValue = wellPathGeo->measuredDepths().front();
                 maximumValue = wellPathGeo->measuredDepths().back();
