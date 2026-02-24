@@ -30,6 +30,7 @@
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaNetworkTools.h"
 #include "RiaOpenMPTools.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
@@ -1781,8 +1782,7 @@ bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QStrin
                        "the building of reference documentation. This document is not complete, "
                        "but will improve as the automation moves forward.\n\n";
 
-                out << "More details on the command file operations, see "
-                       "https://resinsight.org/scripting/commandfile/\n\n";
+                out << "More details on the command file operations, see " + QString( RiaNetworkTools::RIA_URL_SCRIPTING_COMMAND_FILE ) + "\n\n";
 
                 // TODO
                 //                 out << "## Currently missing features\n\n";

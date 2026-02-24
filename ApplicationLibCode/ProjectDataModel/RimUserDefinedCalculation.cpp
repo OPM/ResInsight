@@ -311,12 +311,7 @@ void RimUserDefinedCalculation::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.addNewButton( "Open Help Page",
-                             []()
-                             {
-                                 QString urlString = "https://resinsight.org/calculated-data/calculatorexpressions/";
-                                 RiaNetworkTools::openUrl( urlString );
-                             } );
+    uiOrdering.addNewButton( "Open Help Page", []() { RiaNetworkTools::openUrl( RiaNetworkTools::RIA_URL_CALCULATOR_EXPRESSIONS ); } );
     uiOrdering.add( &m_description );
     uiOrdering.add( &m_expression );
     uiOrdering.add( &m_helpText );

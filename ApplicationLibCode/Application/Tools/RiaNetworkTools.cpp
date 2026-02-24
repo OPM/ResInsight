@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 void RiaNetworkTools::openSearchPage( const QString& searchText )
 {
-    QString url = QString( "https://resinsight.org/search/?q=" ) + searchText;
+    QString url = QString( RIA_URL_SEARCH ) + searchText;
 
     RiaNetworkTools::openUrl( url );
 }
@@ -68,8 +68,8 @@ void RiaNetworkTools::createAndOpenUrlWithFallback( const QString& urlSubString 
     if ( urlStringWithPrefix.isEmpty() ) return;
     if ( urlStringWithPrefix[0] != '/' ) urlStringWithPrefix = '/' + urlStringWithPrefix;
 
-    urls += "https://resinsight.org" + urlStringWithPrefix;
-    urls += "https://opm.github.io/ResInsight-UserDocumentation" + urlStringWithPrefix;
+    urls += QString( RIA_URL_BASE ) + urlStringWithPrefix;
+    urls += QString( RIA_URL_FALLBACK_BASE ) + urlStringWithPrefix;
 
     openUrlWithFallback( urls );
 }

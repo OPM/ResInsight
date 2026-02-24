@@ -96,6 +96,8 @@ QMenu* RiuMenuBarBuildTools::createDefaultHelpMenu( QMenuBar* menuBar )
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpCommandLineFeature" ) );
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
     helpMenu->addSeparator();
+    helpMenu->addAction( cmdFeatureMgr->action( "RicOpenReleaseNotesFeature" ) );
+    helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
     helpMenu->addAction( cmdFeatureMgr->action( "RicSearchHelpFeature" ) );
     helpMenu->addAction( cmdFeatureMgr->action( "RicSearchIssuesHelpFeature" ) );
