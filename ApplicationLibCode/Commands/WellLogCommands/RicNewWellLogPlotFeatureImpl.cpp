@@ -19,7 +19,12 @@
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 
+#include "RiaGuiApplication.h"
+
+#include "Formations/RimFormationNames.h"
 #include "RimCase.h"
+#include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -33,8 +38,6 @@
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
-
-#include "RiaGuiApplication.h"
 
 #include "cvfAssert.h"
 
@@ -218,6 +221,14 @@ RimWellLogTrack*
     if ( caseToApply )
     {
         plotTrack->setFormationCase( caseToApply );
+
+        if ( auto* formationNames = caseToApply->activeFormationNames() )
+        {
+            if ( auto* legend = RimProject::current()->colorLegendCollection->findByName( formationNames->shortName() ) )
+            {
+                plotTrack->setColorShadingLegend( legend );
+            }
+        }
     }
 
     if ( wellPathToApply )
