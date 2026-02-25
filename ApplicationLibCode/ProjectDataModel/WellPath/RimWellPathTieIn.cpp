@@ -282,6 +282,14 @@ void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         RiuMainWindow::instance()->setExpanded( m_childWell );
         RiuMainWindow::instance()->selectAsCurrentItem( m_childWell );
     }
+
+    if ( ( changedField == &m_customOutletValveMD ) && ( m_customOutletValveMD().first ) )
+    {
+        if ( m_customOutletValveMD().second == 0.0 )
+        {
+            m_customOutletValveMD.setValue( std::make_pair( true, m_tieInMeasuredDepth() ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
