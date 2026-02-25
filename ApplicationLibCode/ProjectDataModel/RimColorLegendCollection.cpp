@@ -225,15 +225,7 @@ void RimColorLegendCollection::createColorLegendFromFormationNames( RimFormation
     if ( formationNames.empty() || formationColors.empty() ) return;
     if ( formationNames.size() != formationColors.size() ) return;
 
-    bool anyValidColor = false;
-    for ( const auto& color : formationColors )
-    {
-        if ( color.isValid() )
-        {
-            anyValidColor = true;
-            break;
-        }
-    }
+    bool anyValidColor = std::any_of( formationColors.begin(), formationColors.end(), []( const auto& color ) { return color.isValid(); } );
     if ( !anyValidColor ) return;
 
     QString legendName = rimFormationNames->shortName();
