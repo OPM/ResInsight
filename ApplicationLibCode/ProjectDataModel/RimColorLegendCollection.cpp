@@ -21,6 +21,9 @@
 #include "RiaColorTables.h"
 #include "RiaFractureDefines.h"
 
+#include "RigFormationNames.h"
+
+#include "Formations/RimFormationNames.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendItem.h"
 #include "RimProject.h"
@@ -204,6 +207,51 @@ std::vector<RimColorLegend*> RimColorLegendCollection::allColorLegends() const
     }
 
     return allLegends;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::createColorLegendFromFormationNames( RimFormationNames* rimFormationNames )
+{
+    if ( !rimFormationNames ) return;
+
+    RigFormationNames* rigFormationNames = rimFormationNames->formationNamesData();
+    if ( !rigFormationNames ) return;
+
+    const std::vector<QString>&      formationNames  = rigFormationNames->formationNames();
+    const std::vector<cvf::Color3f>& formationColors = rigFormationNames->formationColors();
+
+    if ( formationNames.empty() || formationColors.empty() ) return;
+    if ( formationNames.size() != formationColors.size() ) return;
+
+    bool anyValidColor = false;
+    for ( const auto& color : formationColors )
+    {
+        if ( color.isValid() )
+        {
+            anyValidColor = true;
+            break;
+        }
+    }
+    if ( !anyValidColor ) return;
+
+    QString legendName = rimFormationNames->shortName();
+
+    // Do not create duplicate legends
+    if ( findByName( legendName ) != nullptr ) return;
+
+    auto* colorLegend = new RimColorLegend;
+    colorLegend->setColorLegendName( legendName );
+
+    for ( size_t i = 0; i < formationColors.size(); i++ )
+    {
+        auto* item = new RimColorLegendItem;
+        item->setValues( formationNames[i], (int)i, formationColors[i] );
+        colorLegend->appendColorLegendItem( item );
+    }
+
+    appendCustomColorLegend( colorLegend );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,7 +20,9 @@
 
 #include "RiaLogging.h"
 #include "RimCase.h"
+#include "RimColorLegendCollection.h"
 #include "RimFormationNames.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimFormationNamesCollection, "FormationNamesCollectionObject" );
 
@@ -44,6 +46,7 @@ void RimFormationNamesCollection::readAllFormationNames()
     for ( RimFormationNames* fmNames : m_formationNamesList )
     {
         fmNames->readFormationNamesFile( nullptr );
+        RimProject::current()->colorLegendCollection->createColorLegendFromFormationNames( fmNames );
     }
 }
 

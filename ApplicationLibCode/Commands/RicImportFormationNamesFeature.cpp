@@ -70,26 +70,12 @@ RimFormationNames* RicImportFormationNamesFeature::importFormationFiles( const Q
     std::vector<RimFormationNames*> formationNames = fomNameColl->importFiles( fileNames );
     fomNameColl->updateConnectedEditors();
 
-    for ( int i = 0; i < fileNames.size(); i++ )
+    RimColorLegendCollection* colorLegendCollection = proj->colorLegendCollection;
+    for ( auto* fmNames : formationNames )
     {
-        auto colors = formationNames[i]->formationNamesData()->formationColors();
-
-        bool anyValidColor = false;
-        for ( const auto& color : colors )
-        {
-            if ( color.isValid() )
-            {
-                anyValidColor = true;
-                break;
-            }
-        }
-
-        if ( anyValidColor )
-        {
-            QString baseName = QFileInfo( fileNames[i] ).baseName();
-            RicImportFormationNamesFeature::addCustomColorLegend( baseName, formationNames[i] );
-        }
+        colorLegendCollection->createColorLegendFromFormationNames( fmNames );
     }
+    colorLegendCollection->updateConnectedEditors();
 
     if ( !formationNames.empty() ) return formationNames.back();
 
@@ -163,40 +149,6 @@ void RicImportFormationNamesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/FormationCollection16x16.png" ) );
     actionToSetup->setText( "Import Formations" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicImportFormationNamesFeature::addCustomColorLegend( QString& name, RimFormationNames* rimFormationNames )
-{
-    RigFormationNames* rigFormationNames = rimFormationNames->formationNamesData();
-    if ( !rigFormationNames ) return;
-
-    const std::vector<QString>&      formationNames  = rigFormationNames->formationNames();
-    const std::vector<cvf::Color3f>& formationColors = rigFormationNames->formationColors();
-
-    // return if no formation names or colors (latter e.g. in case of FMU input or LYR without colors)
-    if ( formationNames.empty() || formationColors.empty() ) return;
-
-    auto* colorLegend = new RimColorLegend;
-    colorLegend->setColorLegendName( name );
-
-    for ( size_t i = 0; i < formationColors.size(); i++ )
-    {
-        auto* colorLegendItem = new RimColorLegendItem;
-
-        colorLegendItem->setValues( formationNames[i], (int)i, formationColors[i] );
-
-        colorLegend->appendColorLegendItem( colorLegendItem );
-    }
-
-    RimProject* proj = RimProject::current();
-
-    RimColorLegendCollection* colorLegendCollection = proj->colorLegendCollection;
-
-    colorLegendCollection->appendCustomColorLegend( colorLegend );
-    colorLegendCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

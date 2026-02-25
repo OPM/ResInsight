@@ -46,6 +46,7 @@
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathFormations.h"
 
+#include "Formations/RimFormationNames.h"
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -107,6 +108,7 @@
 #include <QWheelEvent>
 
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <set>
 
@@ -116,6 +118,21 @@
 #define RI_SCROLLWHEEL_PANFACTOR 0.1
 
 CAF_PDM_SOURCE_INIT( RimWellLogTrack, "WellLogPlotTrack" );
+
+namespace internal
+{
+void setColorShadingLegendFromFormationCase( RimWellLogRegionAnnotationSettings* settings, RimCase* rimCase )
+{
+    if ( !settings || !rimCase ) return;
+
+    auto* formationNames = rimCase->activeFormationNames();
+    if ( !formationNames ) return;
+
+    QString legendName = formationNames->shortName();
+    auto*   legend     = RimProject::current()->colorLegendCollection->findByName( legendName );
+    if ( legend ) settings->setColorShadingLegend( legend );
+}
+} // namespace internal
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1227,6 +1244,7 @@ void RimWellLogTrack::setAndUpdateWellPathFormationNamesData( RimCase* rimCase, 
     m_formationSettings->setSimWellName( "" );
     m_formationSettings->setBranchIndex( -1 );
 
+    internal::setColorShadingLegendFromFormationCase( m_regionAnnotationSettings, rimCase );
     updateConnectedEditors();
 
     if ( m_regionAnnotationSettings->annotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
@@ -1259,6 +1277,7 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
     m_formationSettings->setWellPathForSourceCase( nullptr );
     m_formationSettings->setSimWellName( simWellName );
 
+    internal::setColorShadingLegendFromFormationCase( m_regionAnnotationSettings, rimCase );
     updateConnectedEditors();
 
     if ( m_regionAnnotationSettings->annotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
@@ -2701,23 +2720,40 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             std::vector<std::pair<double, double>> convertedYValues =
                 RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
-            // TODO: This is not working as expected, and the colors used are always using the regular legend colors.
-            // The recent refactoring in 93bd0b9c9d768f55c1994385ba431fbbc7a9606f ended up with a nullptr for the color legend in
-            // RimWellLogTrack, which is why we need to fall back to the regular legend colors.
+            // Build color table ordered by formation name to ensure correct color mapping
+            // when using a legend based on a LYR-file. Falls back to palette index for
+            // formations not found in the legend (e.g., when using a generic color palette).
             // Related to https://github.com/OPM/ResInsight/issues/12974
-            cvf::Color3ubArray colors;
-            if ( m_regionAnnotationSettings->colorShadingLegend() )
-            {
-                colors = m_regionAnnotationSettings->colorShadingLegend()->colorArray();
-            }
-            else if ( auto defaultLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) )
-            {
-                colors = defaultLegend->colorArray();
-            }
+            RimColorLegend* legend = m_regionAnnotationSettings->colorShadingLegend();
+            if ( !legend ) legend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
 
-            if ( colors.size() > 0 )
+            if ( legend && !formationNamesToPlot.empty() )
             {
-                caf::ColorTable colorTable( colors );
+                std::map<QString, cvf::Color3ub> nameToColor;
+                for ( auto* item : legend->colorLegendItems() )
+                {
+                    nameToColor[item->categoryName()] = cvf::Color3ub( item->color() );
+                }
+
+                cvf::Color3ubArray paletteColors = legend->colorArray();
+                size_t             colorCount    = std::max( size_t( 2 ), formationNamesToPlot.size() );
+                cvf::Color3ubArray orderedColors( colorCount );
+                orderedColors.setAll( cvf::Color3ub::GRAY );
+
+                for ( size_t i = 0; i < formationNamesToPlot.size(); i++ )
+                {
+                    auto it = nameToColor.find( formationNamesToPlot[i] );
+                    if ( it != nameToColor.end() )
+                    {
+                        orderedColors.set( i, it->second );
+                    }
+                    else if ( paletteColors.size() > 0 )
+                    {
+                        orderedColors.set( i, paletteColors[i % paletteColors.size()] );
+                    }
+                }
+
+                caf::ColorTable colorTable( orderedColors );
 
                 m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                       formationNamesToPlot,

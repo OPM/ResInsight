@@ -37,7 +37,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static void addCustomColorLegend( QString& name, RimFormationNames* formationNames );
-
     void setFormationCellResultAndLegend( Rim3dView* activeView, QString& legendName );
 };

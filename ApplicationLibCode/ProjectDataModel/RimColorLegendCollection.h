@@ -24,6 +24,7 @@
 
 class RimColorLegend;
 class RimColorLegendItem;
+class RimFormationNames;
 
 namespace caf
 {
@@ -48,6 +49,7 @@ public:
     void deleteCustomColorLegends();
 
     RimColorLegend* createColorLegend( const QString& colorLegendName, const std::map<int, QString>& valuesAndNames );
+    void            createColorLegendFromFormationNames( RimFormationNames* rimFormationNames );
     void            deleteColorLegend( int caseId, const QString& resultName );
     void            setDefaultColorLegendForResult( int caseId, const QString& resultName, RimColorLegend* colorLegend );
 

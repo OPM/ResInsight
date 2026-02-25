@@ -105,10 +105,10 @@ QString RimFormationNames::fileName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFormationNames::fileNameWoPath()
+QString RimFormationNames::shortName()
 {
     QFileInfo fnameFileInfo( m_formationNamesFileName().path() );
-    return fnameFileInfo.fileName();
+    return fnameFileInfo.baseName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,5 +159,5 @@ QString RimFormationNames::layerZoneTableFileName()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateUiTreeName()
 {
-    uiCapability()->setUiName( fileNameWoPath() );
+    uiCapability()->setUiName( shortName() );
 }

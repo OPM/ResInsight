@@ -38,7 +38,7 @@ public:
 
     void    setFileName( const QString& fileName );
     QString fileName();
-    QString fileNameWoPath();
+    QString shortName();
 
     RigFormationNames* formationNamesData() { return m_formationNamesData.p(); }
     void               updateConnectedViews();

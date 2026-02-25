@@ -49,6 +49,8 @@
 
 #include <QString>
 
+#include <map>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -675,11 +677,29 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
             categoryMapper->setCategories( visibleCategoryValues );
             categoryMapper->setInterpolateColors( legendBaseColors );
 
+            // Build a direct value-to-color map from legend items so that LYR-file specified
+            // colors are honored regardless of which categories are visible.
+            // Related to https://github.com/OPM/ResInsight/issues/12974
+            std::map<int, cvf::Color3ub> legendItemColors;
+            for ( auto* item : legendConfigToUpdate->colorLegend()->colorLegendItems() )
+            {
+                legendItemColors[item->categoryValue()] = cvf::Color3ub( item->color() );
+            }
+
             std::vector<std::tuple<QString, int, cvf::Color3ub>> categoryVector;
 
             for ( auto value : visibleCategoryValues )
             {
-                cvf::Color3ub categoryColor = categoryMapper->mapToColor( value );
+                cvf::Color3ub categoryColor;
+                auto          colorIt = legendItemColors.find( value );
+                if ( colorIt != legendItemColors.end() )
+                {
+                    categoryColor = colorIt->second;
+                }
+                else
+                {
+                    categoryColor = categoryMapper->mapToColor( value );
+                }
 
                 QString valueTxt;
                 if ( resultDefinition->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )

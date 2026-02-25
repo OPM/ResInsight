@@ -784,7 +784,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultCase::calculateValueOptions( const
             QList<caf::PdmOptionItemInfo> options;
             if ( m_activeFormationNames() )
             {
-                options.push_back( caf::PdmOptionItemInfo( m_activeFormationNames->fileNameWoPath(), m_activeFormationNames(), false ) );
+                options.push_back( caf::PdmOptionItemInfo( m_activeFormationNames->shortName(), m_activeFormationNames(), false ) );
             }
             else
             {
