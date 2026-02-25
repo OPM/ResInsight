@@ -125,11 +125,10 @@ bool RiaOpenTelemetryManager::initialize()
 {
     std::lock_guard<std::mutex> lock( m_configMutex );
 
-    // Check if OpenTelemetry is disabled in preferences
+    // Skip initialization if no config file was found (connection string is empty)
     auto* prefs = RiaPreferencesOpenTelemetry::current();
-    if ( prefs && prefs->loggingState() == RiaPreferencesOpenTelemetry::LoggingState::DISABLED )
+    if ( !prefs || prefs->connectionString().isEmpty() )
     {
-        RiaLogging::info( "OpenTelemetry is disabled in preferences" );
         return false;
     }
 

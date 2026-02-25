@@ -228,24 +228,17 @@ void RiaConnectorTools::configureCloudServices()
     {
         RiaConnectorTools::readCloudConfigFiles( preferences );
 
-        if ( preferences->openTelemetryPreferences()->loggingState() != RiaPreferencesOpenTelemetry::LoggingState::DISABLED )
+        // Initialize OpenTelemetry after configuration is loaded (skipped silently if no config file found)
+        auto& otelManager = RiaOpenTelemetryManager::instance();
+        if ( otelManager.initialize() )
         {
-            // Initialize OpenTelemetry after configuration is loaded
-            auto& otelManager = RiaOpenTelemetryManager::instance();
-            if ( otelManager.initialize() )
+            // Set system username for telemetry tracking
+            QString username = RiaOpenTelemetryManager::getSystemUsername();
+            if ( !username.isEmpty() )
             {
-                // Set system username for telemetry tracking
-                QString username = RiaOpenTelemetryManager::getSystemUsername();
-                if ( !username.isEmpty() )
-                {
-                    otelManager.setUsername( username.toStdString() );
-                }
-                RiaLogging::debug( "OpenTelemetry initialized successfully" );
+                otelManager.setUsername( username.toStdString() );
             }
-            else
-            {
-                RiaLogging::debug( "OpenTelemetry initialization failed or not configured" );
-            }
+            RiaLogging::debug( "OpenTelemetry initialized successfully" );
         }
     }
 }

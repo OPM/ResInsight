@@ -25,17 +25,6 @@
 
 #include "cafPdmUiTextEditor.h"
 
-namespace caf
-{
-template <>
-void RiaPreferencesOpenTelemetry::LoggingStateType::setUp()
-{
-    addItem( RiaPreferencesOpenTelemetry::LoggingState::DISABLED, "DISABLED", "Disabled" );
-    addItem( RiaPreferencesOpenTelemetry::LoggingState::DEFAULT, "DEFAULT", "Default" );
-    setDefault( RiaPreferencesOpenTelemetry::LoggingState::DEFAULT );
-}
-} // namespace caf
-
 CAF_PDM_SOURCE_INIT( RiaPreferencesOpenTelemetry, "RiaPreferencesOpenTelemetry" );
 
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +35,6 @@ RiaPreferencesOpenTelemetry::RiaPreferencesOpenTelemetry()
     CAF_PDM_InitObject( "OpenTelemetry Configuration", "", "", "Configuration for OpenTelemetry crash reporting and telemetry" );
 
     CAF_PDM_InitField( &m_configFile, "configFile", QString( "No config file detected" ), "Config File" );
-    CAF_PDM_InitField( &m_loggingState, "loggingState_v1", LoggingStateType( LoggingState::DEFAULT ), "Logging State" );
     CAF_PDM_InitField( &m_connectionString, "connectionString", QString(), "Azure Connection String" );
     m_connectionString.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
@@ -127,15 +115,10 @@ void RiaPreferencesOpenTelemetry::setData( const std::map<QString, QString>& key
 //--------------------------------------------------------------------------------------------------
 void RiaPreferencesOpenTelemetry::setFieldStates()
 {
-    std::vector<caf::PdmFieldHandle*> fields = this->fields();
-    for ( auto field : fields )
+    for ( auto field : this->fields() )
     {
-        // Keep logging state editable
-        if ( field != &m_loggingState )
-        {
-            field->uiCapability()->setUiReadOnly( true );
-            field->xmlCapability()->disableIO();
-        }
+        field->uiCapability()->setUiReadOnly( true );
+        field->xmlCapability()->disableIO();
     }
 }
 
@@ -144,26 +127,21 @@ void RiaPreferencesOpenTelemetry::setFieldStates()
 //--------------------------------------------------------------------------------------------------
 void RiaPreferencesOpenTelemetry::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_loggingState );
+    uiOrdering.add( &m_configFile );
+    uiOrdering.add( &m_connectionString );
 
-    // Only show configuration fields if not disabled
-    if ( m_loggingState() != LoggingState::DISABLED )
-    {
-        uiOrdering.add( &m_configFile );
-        uiOrdering.add( &m_connectionString );
+    auto group = uiOrdering.addNewGroup( "Configuration" );
+    group->setCollapsedByDefault();
 
-        auto group = uiOrdering.addNewGroup( "Configuration" );
-        group->setCollapsedByDefault();
+    group->add( &m_batchTimeoutMs );
+    group->add( &m_maxBatchSize );
+    group->add( &m_maxQueueSize );
+    group->add( &m_memoryThresholdMb );
+    group->add( &m_samplingRate );
+    group->add( &m_connectionTimeoutMs );
+    group->add( &m_eventAllowlist );
+    group->add( &m_eventDenylist );
 
-        group->add( &m_batchTimeoutMs );
-        group->add( &m_maxBatchSize );
-        group->add( &m_maxQueueSize );
-        group->add( &m_memoryThresholdMb );
-        group->add( &m_samplingRate );
-        group->add( &m_connectionTimeoutMs );
-        group->add( &m_eventAllowlist );
-        group->add( &m_eventDenylist );
-    }
     uiOrdering.skipRemainingFields();
 }
 
@@ -237,14 +215,6 @@ double RiaPreferencesOpenTelemetry::samplingRate() const
 int RiaPreferencesOpenTelemetry::connectionTimeoutMs() const
 {
     return m_connectionTimeoutMs;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaPreferencesOpenTelemetry::LoggingState RiaPreferencesOpenTelemetry::loggingState() const
-{
-    return m_loggingState();
 }
 
 //--------------------------------------------------------------------------------------------------
