@@ -48,8 +48,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, const QString context )
 {
-    // Qt doc :
-    //
+    if ( !object ) return;
+
     // Constructs a QSettings object for accessing settings of the application and organization
     // set previously with a call to QCoreApplication::setOrganizationName(),
     // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
@@ -58,12 +58,14 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
     for ( size_t i = 0; i < fields.size(); i++ )
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
+        if ( !fieldHandle ) continue;
 
         std::vector<caf::PdmObjectHandle*> children = fieldHandle->children();
         for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
         {
             caf::PdmObjectHandle*    child        = children[childIdx];
             caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj( child );
+            if ( !child || !xmlObjHandle ) continue;
 
             QString subContext = context + xmlObjHandle->classKeyword() + "/";
             readFieldsFromApplicationStore( child, subContext );
@@ -76,9 +78,14 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
             {
                 QVariant val = settings.value( key );
 
-                caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
-                CAF_ASSERT( valueField );
-                valueField->setFromQVariant( val );
+                // Do not set value if field is not readable
+                if ( !fieldHandle->xmlCapability() || fieldHandle->xmlCapability()->isIOReadable() )
+                {
+                    if ( caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle ) )
+                    {
+                        valueField->setFromQVariant( val );
+                    }
+                }
             }
         }
     }
@@ -89,7 +96,7 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
 //--------------------------------------------------------------------------------------------------
 void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* object, const QString context )
 {
-    CAF_ASSERT( object );
+    if ( !object ) return;
 
     // Qt doc :
     //
@@ -102,15 +109,19 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
     for ( size_t i = 0; i < fields.size(); i++ )
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
+        if ( !fieldHandle ) continue;
 
         std::vector<caf::PdmObjectHandle*> children = fieldHandle->children();
         for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
         {
             caf::PdmObjectHandle* child = children[childIdx];
-            QString               subContext;
+            if ( !child ) continue;
+
+            QString subContext;
             if ( context.isEmpty() )
             {
                 caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj( child );
+                if ( !xmlObjHandle ) continue;
 
                 subContext = xmlObjHandle->classKeyword() + "/";
             }
@@ -120,9 +131,10 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
 
         if ( children.empty() )
         {
-            caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
-            CAF_ASSERT( valueField );
-            settings.setValue( context + fieldHandle->keyword(), valueField->toQVariant() );
+            if ( caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle ) )
+            {
+                settings.setValue( context + fieldHandle->keyword(), valueField->toQVariant() );
+            }
         }
     }
 }
@@ -148,7 +160,9 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* obj
     for ( size_t i = 0; i < fields.size(); i++ )
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
-        caf::PdmValueField*  valueField  = dynamic_cast<caf::PdmValueField*>( fieldHandle );
+        if ( !fieldHandle ) continue;
+
+        caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
 
         if ( valueField )
         {
@@ -164,7 +178,10 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* obj
                 reader.readNext(); // StartDocument
                 reader.readNext(); // StartElement
                 reader.readNext(); // Characters
-                fieldHandle->xmlCapability()->readFieldData( reader, nullptr );
+                if ( fieldHandle->xmlCapability() )
+                {
+                    fieldHandle->xmlCapability()->readFieldData( reader, nullptr );
+                }
             }
         }
     }
@@ -176,7 +193,7 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* obj
 void PdmSettings::writeValueFieldsToApplicationStore( const caf::PdmObjectHandle* object,
                                                       const QString               folderName /*= ""*/ )
 {
-    CAF_ASSERT( object );
+    if ( !object ) return;
 
     // Qt doc :
     //
@@ -194,14 +211,19 @@ void PdmSettings::writeValueFieldsToApplicationStore( const caf::PdmObjectHandle
     for ( size_t i = 0; i < fields.size(); i++ )
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
-        caf::PdmValueField*  valueField  = dynamic_cast<caf::PdmValueField*>( fieldHandle );
+        if ( !fieldHandle ) continue;
+
+        caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
         if ( valueField )
         {
             QString          fieldText;
             QXmlStreamWriter writer( &fieldText );
 
-            fieldHandle->xmlCapability()->writeFieldData( writer );
-            settings.setValue( fieldHandle->keyword(), fieldText );
+            if ( fieldHandle->xmlCapability() )
+            {
+                fieldHandle->xmlCapability()->writeFieldData( writer );
+                settings.setValue( fieldHandle->keyword(), fieldText );
+            }
         }
     }
 }
