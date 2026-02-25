@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -38,13 +37,6 @@ class RiaPreferencesOpenTelemetry : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class LoggingState
-    {
-        DISABLED,
-        DEFAULT
-    };
-    using LoggingStateType = caf::AppEnum<LoggingState>;
-
     RiaPreferencesOpenTelemetry();
 
     static RiaPreferencesOpenTelemetry* current();
@@ -56,16 +48,15 @@ public:
     QString serviceVersion() const; // Read from ResInsightVersion.cmake
 
     // Getters for configuration values
-    QString      connectionString() const;
-    int          batchTimeoutMs() const;
-    int          maxBatchSize() const;
-    int          maxQueueSize() const;
-    int          memoryThresholdMb() const;
-    double       samplingRate() const;
-    int          connectionTimeoutMs() const;
-    LoggingState loggingState() const;
-    QStringList  eventAllowlist() const;
-    QStringList  eventDenylist() const;
+    QString     connectionString() const;
+    int         batchTimeoutMs() const;
+    int         maxBatchSize() const;
+    int         maxQueueSize() const;
+    int         memoryThresholdMb() const;
+    double      samplingRate() const;
+    int         connectionTimeoutMs() const;
+    QStringList eventAllowlist() const;
+    QStringList eventDenylist() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -74,15 +65,14 @@ private:
     void setFieldStates();
 
 private:
-    caf::PdmField<QString>          m_configFile;
-    caf::PdmField<LoggingStateType> m_loggingState;
-    caf::PdmField<QString>          m_connectionString;
-    caf::PdmField<int>              m_batchTimeoutMs;
-    caf::PdmField<int>              m_maxBatchSize;
-    caf::PdmField<int>              m_maxQueueSize;
-    caf::PdmField<int>              m_memoryThresholdMb;
-    caf::PdmField<double>           m_samplingRate;
-    caf::PdmField<int>              m_connectionTimeoutMs;
-    caf::PdmField<QString>          m_eventAllowlist;
-    caf::PdmField<QString>          m_eventDenylist;
+    caf::PdmField<QString> m_configFile;
+    caf::PdmField<QString> m_connectionString;
+    caf::PdmField<int>     m_batchTimeoutMs;
+    caf::PdmField<int>     m_maxBatchSize;
+    caf::PdmField<int>     m_maxQueueSize;
+    caf::PdmField<int>     m_memoryThresholdMb;
+    caf::PdmField<double>  m_samplingRate;
+    caf::PdmField<int>     m_connectionTimeoutMs;
+    caf::PdmField<QString> m_eventAllowlist;
+    caf::PdmField<QString> m_eventDenylist;
 };
