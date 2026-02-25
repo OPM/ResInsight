@@ -276,6 +276,8 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
         {
             for ( const auto& cd : curveDataList )
             {
+                if ( cd.values.empty() ) continue;
+
                 curvesData->addCurveData( curveCaseName, ensembleName, curve->timeStepsY(), cd );
             }
         }
