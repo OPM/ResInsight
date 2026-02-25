@@ -1794,13 +1794,12 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     automationGroup->add( &m_autoCheckStateBasedOnCurveData );
 
     caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Regions/Annotations" );
-    annotationGroup->setCollapsedByDefault();
-
-    // Region annotation settings UI ordering
     m_regionAnnotationSettings->uiOrdering( uiConfigName, *annotationGroup );
 
-    // Formation settings UI ordering
-    m_formationSettings->uiOrdering( uiConfigName, *annotationGroup, m_formationsForCaseWithSimWellOnly );
+    if ( m_regionAnnotationSettings->annotationType() == RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS )
+    {
+        m_formationSettings->uiOrdering( uiConfigName, *annotationGroup, m_formationsForCaseWithSimWellOnly );
+    }
 
     if ( m_regionAnnotationSettings->annotationType() == RiaDefines::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
     {

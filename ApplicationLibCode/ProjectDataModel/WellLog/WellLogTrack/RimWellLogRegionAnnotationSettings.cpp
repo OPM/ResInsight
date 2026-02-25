@@ -166,20 +166,24 @@ bool RimWellLogRegionAnnotationSettings::showFormations() const
 void RimWellLogRegionAnnotationSettings::uiOrdering( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_regionAnnotationType );
-    uiOrdering.add( &m_regionAnnotationDisplay );
-    uiOrdering.add( &m_showRegionLabels );
 
-    if ( m_regionAnnotationType() == RiaDefines::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
+    if ( m_regionAnnotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
     {
-        uiOrdering.add( &m_regionLabelFontSize );
-    }
+        uiOrdering.add( &m_regionAnnotationDisplay );
+        uiOrdering.add( &m_showRegionLabels );
 
-    if ( m_regionAnnotationDisplay() & RiaDefines::COLOR_SHADING || m_regionAnnotationDisplay() & RiaDefines::COLORED_LINES )
-    {
-        uiOrdering.add( &m_colorShadingLegend );
-        if ( m_regionAnnotationDisplay() & RiaDefines::COLOR_SHADING )
+        if ( m_regionAnnotationType() == RiaDefines::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
         {
-            uiOrdering.add( &m_colorShadingTransparency );
+            uiOrdering.add( &m_regionLabelFontSize );
+        }
+
+        if ( m_regionAnnotationDisplay() & RiaDefines::COLOR_SHADING || m_regionAnnotationDisplay() & RiaDefines::COLORED_LINES )
+        {
+            uiOrdering.add( &m_colorShadingLegend );
+            if ( m_regionAnnotationDisplay() & RiaDefines::COLOR_SHADING )
+            {
+                uiOrdering.add( &m_colorShadingTransparency );
+            }
         }
     }
 }
