@@ -1,6 +1,6 @@
 """
 Example demonstrating how to create well paths from XYZ coordinates
-using the import_well_path_from_points API.
+and add a tie-in valve, adjusting the valve MD to a custom value.
 """
 
 import rips
