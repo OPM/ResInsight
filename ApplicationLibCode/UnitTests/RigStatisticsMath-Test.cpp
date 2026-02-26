@@ -261,10 +261,10 @@ TEST( RigStatisticsMath, calculateStatisticsCurves )
         double p50  = HUGE_VAL;
         double p90  = HUGE_VAL;
 
-        // If we have few samples, P10 and P90 cannot be computed
+        // With few samples, P10 and P90 are clamped to the boundary (min/max) values
         RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, percentileStyle );
-        EXPECT_TRUE( std::isinf( p10 ) );
-        EXPECT_TRUE( std::isinf( p90 ) );
+        EXPECT_DOUBLE_EQ( 1.0, p10 );
+        EXPECT_DOUBLE_EQ( 1.0, p90 );
         EXPECT_DOUBLE_EQ( 1.0, p50 );
         EXPECT_DOUBLE_EQ( 1.0, mean );
     }

@@ -232,9 +232,20 @@ std::expected<std::vector<double>, std::string> RigStatisticsMath::calculatePerc
 
         double value = HUGE_VAL;
 
-        // Check valid params
-        if ( quantile >= 1.0 / ( static_cast<double>( valueCount ) + 1 ) &&
-             quantile <= static_cast<double>( valueCount ) / ( static_cast<double>( valueCount ) + 1 ) )
+        double lowerBound = 1.0 / ( static_cast<double>( valueCount ) + 1 );
+        double upperBound = static_cast<double>( valueCount ) / ( static_cast<double>( valueCount ) + 1 );
+
+        if ( quantile < lowerBound )
+        {
+            // Quantile is below the valid range - clamp to minimum value
+            value = sortedValues.front();
+        }
+        else if ( quantile > upperBound )
+        {
+            // Quantile is above the valid range - clamp to maximum value
+            value = sortedValues.back();
+        }
+        else
         {
             double rank = quantile * ( valueCount + 1 ) - 1;
             double rankRem;
