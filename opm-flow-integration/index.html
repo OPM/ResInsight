@@ -26,14 +26,14 @@ use input data either from existing grid cases or from data files on disk add a 
     <meta itemprop="description" content="ResInsight has support for close integration with the OPM Flow simulator. This section shows how you can set up and use OPM Flow with ResInsight.
 ResInsight handle OPM Flow simulation runs as “Jobs”, allowing you to:
 use input data either from existing grid cases or from data files on disk add a new simulation well to an existing simulation add more dates to an existing simulation control when and how to open the new well and more Both grid results and summary results from a simulation job could be automatically loaded and displayed in ResInsight after a run.">
-    <meta itemprop="wordCount" content="98">
+    <meta itemprop="wordCount" content="125">
     <title>OPM Flow Integration :: ResInsight</title>
     <link href="/opm-flow-integration/index.xml" rel="alternate" type="application/rss+xml" title="OPM Flow Integration :: ResInsight">
-    <link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1765525474" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1765525474" rel="stylesheet">
-    <link href="/css/theme.min.css?1765525474" rel="stylesheet">
-    <link href="/css/format-html.min.css?1765525474" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1772108313" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772108313" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1772108313" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772108313" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1772108313" rel="stylesheet">
+    <link href="/css/theme.min.css?1772108313" rel="stylesheet">
+    <link href="/css/format-html.min.css?1772108313" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..';
@@ -158,8 +158,8 @@ use input data either from existing grid cases or from data files on disk add a 
 
 <h1 id="opm-flow-integration">OPM Flow Integration</h1>
 
-<p><a href="#R-image-242fb2ec5ff86ef008cb8a1c1803bd1b" class="lightbox-link"><img alt="OPM Flow Integration overview" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/opm-flow-integration/overview.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-242fb2ec5ff86ef008cb8a1c1803bd1b"><img alt="OPM Flow Integration overview" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/opm-flow-integration/overview.png"></a></p>
+<p><a href="#R-image-8c4b95988b3be02d90d818309481f180" class="lightbox-link"><img alt="OPM Flow Integration overview" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/opm-flow-integration/overview.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-8c4b95988b3be02d90d818309481f180"><img alt="OPM Flow Integration overview" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/opm-flow-integration/overview.png"></a></p>
 <p>ResInsight has support for close integration with the <a href="https://opm-project.org/?page_id=19" rel="external" target="_blank">OPM Flow simulator</a>. This section shows how you can set up and use OPM Flow with ResInsight.</p>
 <p>ResInsight handle OPM Flow simulation runs as &ldquo;Jobs&rdquo;, allowing you to:</p>
 <ul>
@@ -170,6 +170,7 @@ use input data either from existing grid cases or from data files on disk add a 
 <li>and more</li>
 </ul>
 <p>Both grid results and summary results from a simulation job could be automatically loaded and displayed in ResInsight after a run.</p>
+<p>A sector model can be exported from an existing grid and directly connected to a new OPM Flow simulation job. See <a href="/export/sectormodelbeta/index.html">Sector Model Export [BETA]</a> for details.</p>
 
   <footer class="footline">
   </footer>
@@ -187,7 +188,7 @@ use input data either from existing grid cases or from data files on disk add a 
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1765525474";
+          window.index_js_url="/searchindex.en.js?1772108313";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -200,12 +201,12 @@ use input data either from existing grid cases or from data files on disk add a 
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1765525474" defer></script>
-        <script src="/js/search.js?1765525474" defer></script>
+        <script src="/js/auto-complete.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1772108313" defer></script>
+        <script src="/js/search.js?1772108313" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -227,6 +228,7 @@ use input data either from existing grid cases or from data files on disk add a 
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
@@ -349,6 +351,7 @@ use input data either from existing grid cases or from data files on disk add a 
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
+            <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
             <li class="" data-nav-id="/import/appendingadditionalproperties/index.html"><a class="padding" href="/import/appendingadditionalproperties/index.html">Appending Additional Properties</a></li>
             <li class="" data-nav-id="/import/pasteexceltimedata/index.html"><a class="padding" href="/import/pasteexceltimedata/index.html">Paste Excel Time History Data</a></li></ul></li>
             <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
@@ -358,6 +361,7 @@ use input data either from existing grid cases or from data files on disk add a 
             <li class="" data-nav-id="/export/completionexport/index.html"><a class="padding" href="/export/completionexport/index.html">Completions</a></li>
             <li class="" data-nav-id="/export/exportwellpaths/index.html"><a class="padding" href="/export/exportwellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/export/sectormodel/index.html"><a class="padding" href="/export/sectormodel/index.html">Sector Model</a></li>
+            <li class="" data-nav-id="/export/sectormodelbeta/index.html"><a class="padding" href="/export/sectormodelbeta/index.html">Sector Model Export [BETA]</a></li>
             <li class="" data-nav-id="/export/contourmapexport/index.html"><a class="padding" href="/export/contourmapexport/index.html">Contour Map Export</a></li></ul></li>
             <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
             <li class="" data-nav-id="/scripting/pythoninterface/index.html"><a class="padding" href="/scripting/pythoninterface/index.html">Python Interface</a></li>
@@ -371,6 +375,7 @@ use input data either from existing grid cases or from data files on disk add a 
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
             <li class="" data-nav-id="/misc/projectfilerevisions/index.html"><a class="padding" href="/misc/projectfilerevisions/index.html">Project File Revisions</a></li>
             <li class="" data-nav-id="/misc/windowmanagement/index.html"><a class="padding" href="/misc/windowmanagement/index.html">Window Management</a></li>
+            <li class="" data-nav-id="/misc/linuxui/index.html"><a class="padding" href="/misc/linuxui/index.html">Linux User Interface</a></li>
             <li class="" data-nav-id="/misc/memorymanagement/index.html"><a class="padding" href="/misc/memorymanagement/index.html">Memory Management</a></li>
             <li class="" data-nav-id="/misc/advancedtextinput/index.html"><a class="padding" href="/misc/advancedtextinput/index.html">Advanced Text Input</a></li>
             <li class="" data-nav-id="/misc/keyboardshortcuts/index.html"><a class="padding" href="/misc/keyboardshortcuts/index.html">Keyboard Shortcuts</a></li>
@@ -453,8 +458,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1765525474" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1765525474" defer></script>
-    <script src="/js/theme.js?1765525474" defer></script>
+    <script src="/js/clipboard.min.js?1772108313" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1772108313" defer></script>
+    <script src="/js/theme.js?1772108313" defer></script>
   </body>
 </html>

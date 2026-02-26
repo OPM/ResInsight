@@ -27,13 +27,13 @@ Ascii Well Paths The command File -&gt; Import -&gt; Well Data -&gt; Import Well
     <meta itemprop="description" content="ResInsight can import well paths from simple Ascii files. In addition, ResInsight is able to retrieve well paths from an Equinor internal web service.
 ResInsight also supports creation of your own user-defined well paths. See Create Well Paths
 Ascii Well Paths The command File -&gt; Import -&gt; Well Data -&gt; Import Well Paths From File will read the well paths in the selected file, and create one entry for each well path under the Wells item in the Project Tree.">
-    <meta itemprop="wordCount" content="920">
+    <meta itemprop="wordCount" content="1055">
     <title>Well Paths :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1765525474" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1765525474" rel="stylesheet">
-    <link href="/css/theme.min.css?1765525474" rel="stylesheet">
-    <link href="/css/format-html.min.css?1765525474" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1772108313" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772108313" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1772108313" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772108313" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1772108313" rel="stylesheet">
+    <link href="/css/theme.min.css?1772108313" rel="stylesheet">
+    <link href="/css/format-html.min.css?1772108313" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -136,6 +136,10 @@ Ascii Well Paths The command File -&gt; Import -&gt; Well Data -&gt; Import Well
           <ul>
             <li><a href="#importing-well-log-files">Importing Well Log Files</a></li>
             <li><a href="#well-path-property-editor">Well Path Property Editor</a></li>
+          </ul>
+        </li>
+        <li><a href="#visualization-of-well-segments-welsegs">Visualization of Well Segments (WELSEGS)</a>
+          <ul>
             <li><a href="#casing-design">Casing Design</a></li>
           </ul>
         </li>
@@ -182,15 +186,15 @@ Ascii Well Paths The command File -&gt; Import -&gt; Well Data -&gt; Import Well
 
 <h1 id="well-paths">Well Paths</h1>
 
-<p><a href="#R-image-e4f1af9eaf6ca8acb8aa7f9f58488411" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/ResInsight_WellPathWithSimulationWell.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-e4f1af9eaf6ca8acb8aa7f9f58488411"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/ResInsight_WellPathWithSimulationWell.png"></a></p>
+<p><a href="#R-image-86109cd7ea0906e25a9146dfa984525c" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/ResInsight_WellPathWithSimulationWell.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-86109cd7ea0906e25a9146dfa984525c"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/ResInsight_WellPathWithSimulationWell.png"></a></p>
 <p>ResInsight can import well paths from simple Ascii files.
 In addition, ResInsight is able to retrieve well paths from an Equinor internal web service.</p>
 <p>ResInsight also supports creation of your own user-defined well paths. See <a href="/wells-and-completions/createnewwellpaths/index.html">Create Well Paths</a></p>
 <h2 id="ascii-well-paths">Ascii Well Paths</h2>
 <p>The command <strong>File -&gt; Import -&gt; Well Data -&gt; Import Well Paths From File</strong> will read the well paths in the selected file, and create one entry for each well path under the 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 
 
 <img src="https://resinsight.org/images/3d-main-window/WellCollection.png" style="display:inline; vertical-align:middle; margin:0">
@@ -227,7 +231,7 @@ In addition, ResInsight is able to retrieve well paths from an Equinor internal 
 <p>The command <strong>File -&gt; Import -&gt; Well Data -&gt; Import Well Paths From OSDU</strong> launches a wizard to guide you through the process of selecting the well paths you need.
 Having completed the wizard, the imported wells are accessible as Items under the 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 
 
 <img src="https://resinsight.org/images/3d-main-window/WellCollection.png" style="display:inline; vertical-align:middle; margin:0">
@@ -241,22 +245,22 @@ Having completed the wizard, the imported wells are accessible as Items under th
   </summary>
   <div class="box-content">
 <p><strong>Access to Cloud Data </strong>
-Make sure you have access to &ldquo;OSDU - Base acces&rdquo; and &ldquo;Linux Exclusion Conditional Access&rdquo;.</p>
+Make sure you have access to &ldquo;OSDU - Base access&rdquo; and &ldquo;Linux Exclusion Conditional Access&rdquo;.</p>
   </div>
 </details>
 <h2 id="well-path-visualization">Well Path Visualization</h2>
 <p>All the imported well paths are available below the 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 
 
 <img src="https://resinsight.org/images/3d-main-window/WellCollection.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Wells</strong> item in the <strong>Project Tree</strong>.</p>
-<p><a href="#R-image-f8160f82e7a315283db0d819d3b03e22" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/WellsInTree.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-f8160f82e7a315283db0d819d3b03e22"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/WellsInTree.png"></a></p>
+<p><a href="#R-image-8ab4f7c9f1dbc4f93c6639e1f8b26312" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/WellsInTree.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-8ab4f7c9f1dbc4f93c6639e1f8b26312"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/WellsInTree.png"></a></p>
 <p>The visible wells are always shown in all the 3D Views in the complete project, so the toggles and settings control the overall project visibility of the Well Paths. The <strong>Property Editor</strong> of the <strong>Wells</strong> item is shown below</p>
-<p><a href="#R-image-0049c01758d8b94c86307199e734dfcc" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/WellPathCollectionProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-0049c01758d8b94c86307199e734dfcc"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/WellPathCollectionProperties.png"></a></p>
+<p><a href="#R-image-da6fcce1ac73077bbb95959ce14ee2e1" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/WellPathCollectionProperties.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-da6fcce1ac73077bbb95959ce14ee2e1"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/WellPathCollectionProperties.png"></a></p>
 <ul>
 <li><strong>Global well path visibility</strong> &ndash; This option forces the well paths on or off, ignoring the individual settings unless it is set to Individual.</li>
 <li><strong>Clip Well Paths</strong> &ndash; This option hides the top of the Well Paths to avoid displaying the very long lines from the reservoir to the sea surface.</li>
@@ -269,8 +273,8 @@ Make sure you have access to &ldquo;OSDU - Base acces&rdquo; and &ldquo;Linux Ex
 <p>RMS Well Log files are also supported. See <a href="https://github.com/OPM/ResInsight/blob/dev/ApplicationLibCode/UnitTests/TestData/RifRmsWellPathReader/55_33-1.rmswell" rel="external" target="_blank">here for and example</a>.</p>
 <h3 id="well-path-property-editor">Well Path Property Editor</h3>
 <p>The well path property editor lets the user control the appearance of the well path and associate the well path to a simulation well. It also gives some information about the well path metadata.</p>
-<p><a href="#R-image-3a50a82cd912b7d2c31074240a4a0f55" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/WellPathPropertyEditor.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-3a50a82cd912b7d2c31074240a4a0f55"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/WellPathPropertyEditor.png"></a></p>
+<p><a href="#R-image-c32a91263a022a137e68d305ed0de7ff" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/WellPathPropertyEditor.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-c32a91263a022a137e68d305ed0de7ff"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/WellPathPropertyEditor.png"></a></p>
 <ul>
 <li><strong>Appearance group</strong> &ndash; Settings in this group affect the well path appearance in the 3D view</li>
 <li><strong>File group</strong> &ndash; Information about the well path file</li>
@@ -278,17 +282,22 @@ Make sure you have access to &ldquo;OSDU - Base acces&rdquo; and &ldquo;Linux Ex
 <li><strong>Well Info group</strong> &ndash; Metadata for the well path</li>
 <li><strong>Well Picks group</strong> &ndash; Information about imported <a href="/3d-main-window/formations/index.html#well-picks">well picks</a> file containing data for the current well path</li>
 </ul>
+<h2 id="visualization-of-well-segments-welsegs">Visualization of Well Segments (WELSEGS)</h2>
+<p>ResInsight can visualize the well segments defined by the <code>WELSEGS</code> keyword. This makes it possible to inspect the exact start and end positions of each segment along the well path trajectory for QC purposes, without running a full simulation.</p>
+<p>This option is available in the <strong>Property Editor</strong> of the top level <strong>Wells</strong> object. In the group &ldquo;MSW Segment Visualization&rdquo;, select the grid model to be used, and click the button &ldquo;Update Segments&rdquo;.</p>
+<p>Clicking on an individual segment in the 3D view opens the <strong>Result Info</strong> window, which shows detailed information for that segment.</p>
+<p>Segment start and end positions can also be displayed as annotations in <a href="/plot-window/welllogsandplots/index.html">Well Log Plots</a>, in the same manner as well path casing data. This is useful for correlating segment boundaries with formation tops and simulation results.</p>
 <h3 id="casing-design">Casing Design</h3>
 <p>Some Casing Design elements can be assigned to the well path by selecting <strong>Create Casign Design</strong> from the right-click menu of the well path.</p>
 <p>This will create a new child object for the Well Path, named <strong>Casing Design</strong>. In the <strong>Casign Design</strong> Property editor
 well path containment properties such as Casing (with Casing Shoe) and Liner can be added to the well path along with a start and end depth and a diameter.</p>
-<p><a href="#R-image-3b998ca0a2d04de7db3cef7bfc7cf124" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/CasignDesign.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-3b998ca0a2d04de7db3cef7bfc7cf124"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/CasignDesign.png"></a></p>
+<p><a href="#R-image-a4fb6b626d6baf4d98d78e6fa2c996a2" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/CasignDesign.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-a4fb6b626d6baf4d98d78e6fa2c996a2"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/CasignDesign.png"></a></p>
 <p>These can be visualised in the 3D View and Well Log Plots on a <a href="/plot-window/welllogsandplots/index.html#tracks">Well Log Track</a>.</p>
-<p><a href="#R-image-5ed0bb2cdbc42571596819f3c42727ff" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/CasignDesign3D.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-5ed0bb2cdbc42571596819f3c42727ff"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/CasignDesign3D.png"></a></p>
-<p><a href="#R-image-a1190b939ac55fe6273e1a1b5222d722" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/CasignDesignPlot.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-a1190b939ac55fe6273e1a1b5222d722"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/CasignDesignPlot.png"></a></p>
+<p><a href="#R-image-3de36ac7057cc8388767c0fe0409f7e9" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/CasignDesign3D.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3de36ac7057cc8388767c0fe0409f7e9"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/CasignDesign3D.png"></a></p>
+<p><a href="#R-image-c66e10c4ceca5b8e5541b18be47c0ce2" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/CasignDesignPlot.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-c66e10c4ceca5b8e5541b18be47c0ce2"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/CasignDesignPlot.png"></a></p>
 <h2 id="ascii-well-paths-file-format">Ascii Well Paths File Format</h2>
 <p>The supported ASCII format is quite flexible but the main requirements are:</p>
 <ul>
@@ -350,7 +359,7 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1765525474";
+          window.index_js_url="/searchindex.en.js?1772108313";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -363,12 +372,12 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1765525474" defer></script>
-        <script src="/js/search.js?1765525474" defer></script>
+        <script src="/js/auto-complete.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1772108313" defer></script>
+        <script src="/js/search.js?1772108313" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -390,6 +399,7 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
@@ -512,6 +522,7 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
+            <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
             <li class="" data-nav-id="/import/appendingadditionalproperties/index.html"><a class="padding" href="/import/appendingadditionalproperties/index.html">Appending Additional Properties</a></li>
             <li class="" data-nav-id="/import/pasteexceltimedata/index.html"><a class="padding" href="/import/pasteexceltimedata/index.html">Paste Excel Time History Data</a></li></ul></li>
             <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
@@ -521,6 +532,7 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
             <li class="" data-nav-id="/export/completionexport/index.html"><a class="padding" href="/export/completionexport/index.html">Completions</a></li>
             <li class="" data-nav-id="/export/exportwellpaths/index.html"><a class="padding" href="/export/exportwellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/export/sectormodel/index.html"><a class="padding" href="/export/sectormodel/index.html">Sector Model</a></li>
+            <li class="" data-nav-id="/export/sectormodelbeta/index.html"><a class="padding" href="/export/sectormodelbeta/index.html">Sector Model Export [BETA]</a></li>
             <li class="" data-nav-id="/export/contourmapexport/index.html"><a class="padding" href="/export/contourmapexport/index.html">Contour Map Export</a></li></ul></li>
             <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
             <li class="" data-nav-id="/scripting/pythoninterface/index.html"><a class="padding" href="/scripting/pythoninterface/index.html">Python Interface</a></li>
@@ -534,6 +546,7 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
             <li class="" data-nav-id="/misc/projectfilerevisions/index.html"><a class="padding" href="/misc/projectfilerevisions/index.html">Project File Revisions</a></li>
             <li class="" data-nav-id="/misc/windowmanagement/index.html"><a class="padding" href="/misc/windowmanagement/index.html">Window Management</a></li>
+            <li class="" data-nav-id="/misc/linuxui/index.html"><a class="padding" href="/misc/linuxui/index.html">Linux User Interface</a></li>
             <li class="" data-nav-id="/misc/memorymanagement/index.html"><a class="padding" href="/misc/memorymanagement/index.html">Memory Management</a></li>
             <li class="" data-nav-id="/misc/advancedtextinput/index.html"><a class="padding" href="/misc/advancedtextinput/index.html">Advanced Text Input</a></li>
             <li class="" data-nav-id="/misc/keyboardshortcuts/index.html"><a class="padding" href="/misc/keyboardshortcuts/index.html">Keyboard Shortcuts</a></li>
@@ -616,8 +629,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1765525474" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1765525474" defer></script>
-    <script src="/js/theme.js?1765525474" defer></script>
+    <script src="/js/clipboard.min.js?1772108313" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1772108313" defer></script>
+    <script src="/js/theme.js?1772108313" defer></script>
   </body>
 </html>

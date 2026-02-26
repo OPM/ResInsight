@@ -3,7 +3,7 @@
   <channel>
     <title>Export :: ResInsight</title>
     <link>https://resinsight.org/export/index.html</link>
-    <description>ResInsight features the following capabilities for export of data to reporting or further analysis:&#xA;convenient export of snapshots of 3D views and plots, either by direct export or automated modification of Eclipse 3D Views export of Eclipse properties, either direct or subsequent to post-processing by ResInsight, for input to further simulations visible cells in ResInsight can be exported as a FLUXNUM or MULTNUM keyword that can be used in an Eclipse input data deck completions defined in ResInsight can be exported to Eclipse for use in new simulation runs file export of well paths export of sub-sections of an Eclipse Grid with Parameters and Faults to Eclipse ASCII files to perform additional simulations export of a contour map to text file The following subchapters details the functionality and capabilites.</description>
+    <description>ResInsight features the following capabilities for export of data to reporting or further analysis:&#xA;convenient export of snapshots of 3D views and plots, either by direct export or automated modification of Eclipse 3D Views export of Eclipse properties, either direct or subsequent to post-processing by ResInsight, for input to further simulations visible cells in ResInsight can be exported as a FLUXNUM or MULTNUM keyword that can be used in an Eclipse input data deck completions defined in ResInsight can be exported to Eclipse for use in new simulation runs file export of well paths export of sub-sections of an Eclipse Grid with Parameters and Faults to Eclipse ASCII files to perform additional simulations export of a sector model to a standalone Eclipse DATA file with boundary conditions, refinement, and optional OPM Flow simulation job integration [BETA] export of a contour map to text file The following subchapters details the functionality and capabilities.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="https://resinsight.org/export/index.xml" rel="self" type="application/rss+xml" />
@@ -48,6 +48,13 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/export/sectormodel/index.html</guid>
       <description>Sub-sections of the Eclipse Grid with Parameters and Faults can be exported to Eclipse ASCII files in order to create new Simulations on the sub-section.&#xA;Exporting an Eclipse Sector Model To launch the export dialog, right-click on either the 3D-view in question or the Cell Result.&#xA;Exporting Grid and Faults</description>
+    </item>
+    <item>
+      <title>Sector Model Export [BETA]</title>
+      <link>https://resinsight.org/export/sectormodelbeta/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/export/sectormodelbeta/index.html</guid>
+      <description>The Sector Model Export [BETA] feature exports a subset of a simulation model to a standalone DATA file that can be used as input for a new simulation. It supports boundary conditions, grid refinement, model padding, and optional direct integration with an OPM Flow simulation job.&#xA;To launch the wizard, right-click on a 3D View and select Export Sector Model [BETA].&#xA;The export is configured through a step-by-step wizard with the following pages.</description>
     </item>
     <item>
       <title>Contour Map Export</title>

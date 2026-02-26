@@ -106,6 +106,13 @@
       <description>Import Pressure/Depth Data Importing pressure data to ResInsight may be performed in two different ways:&#xA;By selecting the main menu item File -&gt; Import -&gt; Import Pressure Depth Data By using the right-click command Import Pressure Data on the Observed Data item in the Plot Main Window Project Tree The imported pressure data can visualized in [RFT Plots]&#xA;Pressure/Depth File Format --TVDMSL RFT -- WELLNAME &#39;OP_1&#39; DATE 28-FEB-2000 PRESSURE DEPTH BARSA METRES 302.88 1605.91 303.88 1615.91 304.88 1625.91 304.38 1635.91 -- WELLNAME &#39;OP_2&#39; DATE 28-FEB-2000 PRESSURE DEPTH BARSA METRES 302.88 1600.91 303.68 1610.91 303.88 1612.91 303.99 1620.91</description>
     </item>
     <item>
+      <title>Result Aliases</title>
+      <link>https://resinsight.org/import/resultalias/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/import/resultalias/index.html</guid>
+      <description>Result Aliases allow users to assign alternative names to simulation result properties in grid model cases. This is useful when a result has a technical or cryptic name in the simulation file and a more descriptive name is preferred throughout the project.&#xA;When an alias is defined, it can be used anywhere a result property is selected — in cell colors, property filters, well log curves, and more — and ResInsight will transparently resolve it to the underlying result.</description>
+    </item>
+    <item>
       <title>Appending Additional Properties</title>
       <link>https://resinsight.org/import/appendingadditionalproperties/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

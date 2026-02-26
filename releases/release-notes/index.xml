@@ -3,10 +3,17 @@
   <channel>
     <title>Release Notes :: ResInsight</title>
     <link>https://resinsight.org/releases/release-notes/index.html</link>
-    <description></description>
+    <description>Latest Release What’s New - Latest Release</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="https://resinsight.org/releases/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What&#39;s New in 2026.02</title>
+      <link>https://resinsight.org/releases/release-notes/releasenotes_2026_02/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/release-notes/releasenotes_2026_02/index.html</guid>
+      <description>Ensemble Import Realizations can now be excluded when importing ensembles using !. For example, the expression 1-7, !4-5 produces the list [1, 2, 3, 6, 7].&#xA;See Ensemble File Dialog for details.&#xA;Validation and Consistency A valid range can now be defined for variables in the project file. During import, values outside the specified range will be clamped to the valid range.&#xA;Telemetry and Log Reporting ResInsight produces log messages, warnings, errors, and crash reports. These have previously been stored on the local file system. They can now optionally be sent to a cloud logging service, improving visibility into error situations and enabling an overview of selected application usage metrics.</description>
+    </item>
     <item>
       <title>What&#39;s New in 2025.12</title>
       <link>https://resinsight.org/releases/release-notes/releasenotes_2025_12/index.html</link>

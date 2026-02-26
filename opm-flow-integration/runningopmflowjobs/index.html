@@ -29,11 +29,11 @@ Right click the job in the Scripts/Jobs tree and choose “Run…” Click the �
 Once the input data has been written, ResInsight will launch OPM Flow as specified in the OPM Flow preferences.">
     <meta itemprop="wordCount" content="551">
     <title>Running an OPM Flow Job :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1765525474" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1765525474" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1765525474" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1765525474" rel="stylesheet">
-    <link href="/css/theme.min.css?1765525474" rel="stylesheet">
-    <link href="/css/format-html.min.css?1765525474" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1772108313" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772108313" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1772108313" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772108313" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1772108313" rel="stylesheet">
+    <link href="/css/theme.min.css?1772108313" rel="stylesheet">
+    <link href="/css/format-html.min.css?1772108313" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -187,22 +187,22 @@ Once the input data has been written, ResInsight will launch OPM Flow as specifi
 <ul>
 <li>WSL will be used on Windows if selected</li>
 <li>MPI will be used if selected</li>
-<li>The selected command line parameters from the job properites will be added</li>
+<li>The selected command line parameters from the job properties will be added</li>
 </ul>
-<p>The resulting command line used to lauch OPM Flow will be shown in the ResInsight <em>Messages</em> window.</p>
+<p>The resulting command line used to launch OPM Flow will be shown in the ResInsight <em>Messages</em> window.</p>
 <h3 id="monitor-the-job-progress">Monitor the job progress</h3>
 <p>Once the OPM Flow process has been started, the ResInsight user interface will unblock, and you can use it as normal. The job properties of the started job will change into a running state, with two items available:</p>
-<p><a href="#R-image-e53720e491c7c28c829cf914e3429b53" class="lightbox-link"><img alt="Run Properties - OPM Flow" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/opm-flow-integration/jobpropertiesrun.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-e53720e491c7c28c829cf914e3429b53"><img alt="Run Properties - OPM Flow" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/opm-flow-integration/jobpropertiesrun.png"></a></p>
+<p><a href="#R-image-0d98fb3f56434d57858b71d28044f77a" class="lightbox-link"><img alt="Run Properties - OPM Flow" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/opm-flow-integration/jobpropertiesrun.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-0d98fb3f56434d57858b71d28044f77a"><img alt="Run Properties - OPM Flow" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/opm-flow-integration/jobpropertiesrun.png"></a></p>
 <p><strong>Working folder</strong>: Shows where the OPM Flow job input and output data files can be found</p>
 <p><strong>Stop</strong>: Allows you to stop the job. You will be asked for confirmation.</p>
-<p><a href="#R-image-2a8d3bc59788d4a440b20812ad69338c" class="lightbox-link"><img alt="Job Progress - OPM Flow" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/opm-flow-integration/jobprogress.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-2a8d3bc59788d4a440b20812ad69338c"><img alt="Job Progress - OPM Flow" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/opm-flow-integration/jobprogress.png"></a></p>
+<p><a href="#R-image-cf2feb291a144edb562e8baab3329dfe" class="lightbox-link"><img alt="Job Progress - OPM Flow" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/opm-flow-integration/jobprogress.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-cf2feb291a144edb562e8baab3329dfe"><img alt="Job Progress - OPM Flow" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/opm-flow-integration/jobprogress.png"></a></p>
 <p>The Scripts/Jobs tree will show the job progress and the warning count found in the OPM Flow log output. Any line starting with either <em>Warning</em> or <em>Problem</em> is counted as a warning.</p>
 <p>When the job has completed, <em>Done</em> will be shown in the progress field. If the job failed for some reason, the progress field will turn red, and if there are any log lines starting with <em>Error</em>, the error count will be shown. There could also be error messages shown in the ResInsight messages window.</p>
 <h3 id="inspect-the-opm-flow-log">Inspect the OPM Flow log</h3>
-<p><a href="#R-image-c59567812ce17cac4fff77d7dda36db7" class="lightbox-link"><img alt="Job Log - OPM Flow" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/opm-flow-integration/joblog.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-c59567812ce17cac4fff77d7dda36db7"><img alt="Job Log - OPM Flow" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/opm-flow-integration/joblog.png"></a></p>
+<p><a href="#R-image-feb55465ae3e928b81bd2f5cd118f0e5" class="lightbox-link"><img alt="Job Log - OPM Flow" class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/opm-flow-integration/joblog.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-feb55465ae3e928b81bd2f5cd118f0e5"><img alt="Job Log - OPM Flow" class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/opm-flow-integration/joblog.png"></a></p>
 <p>The log output from an OPM Flow job could be inspected by right clicking the job and selecting <em>View Log&hellip;</em>. This can be done while the job is running or after it has failed or completed.</p>
 <p>Right clicking in the log window gives you the option to select all the text and copy it to the clipboard, so that you could copy it to a text editor for closer inspection.</p>
 <h3 id="on-successful-runs">On successful runs</h3>
@@ -238,7 +238,7 @@ Once the input data has been written, ResInsight will launch OPM Flow as specifi
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1765525474";
+          window.index_js_url="/searchindex.en.js?1772108313";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -251,12 +251,12 @@ Once the input data has been written, ResInsight will launch OPM Flow as specifi
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1765525474" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1765525474" defer></script>
-        <script src="/js/search.js?1765525474" defer></script>
+        <script src="/js/auto-complete.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1772108313" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1772108313" defer></script>
+        <script src="/js/search.js?1772108313" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -278,6 +278,7 @@ Once the input data has been written, ResInsight will launch OPM Flow as specifi
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_04/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_04/index.html">What&#39;s New in 2025.04</a></li>
@@ -400,6 +401,7 @@ Once the input data has been written, ResInsight will launch OPM Flow as specifi
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
+            <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
             <li class="" data-nav-id="/import/appendingadditionalproperties/index.html"><a class="padding" href="/import/appendingadditionalproperties/index.html">Appending Additional Properties</a></li>
             <li class="" data-nav-id="/import/pasteexceltimedata/index.html"><a class="padding" href="/import/pasteexceltimedata/index.html">Paste Excel Time History Data</a></li></ul></li>
             <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
@@ -409,6 +411,7 @@ Once the input data has been written, ResInsight will launch OPM Flow as specifi
             <li class="" data-nav-id="/export/completionexport/index.html"><a class="padding" href="/export/completionexport/index.html">Completions</a></li>
             <li class="" data-nav-id="/export/exportwellpaths/index.html"><a class="padding" href="/export/exportwellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/export/sectormodel/index.html"><a class="padding" href="/export/sectormodel/index.html">Sector Model</a></li>
+            <li class="" data-nav-id="/export/sectormodelbeta/index.html"><a class="padding" href="/export/sectormodelbeta/index.html">Sector Model Export [BETA]</a></li>
             <li class="" data-nav-id="/export/contourmapexport/index.html"><a class="padding" href="/export/contourmapexport/index.html">Contour Map Export</a></li></ul></li>
             <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
             <li class="" data-nav-id="/scripting/pythoninterface/index.html"><a class="padding" href="/scripting/pythoninterface/index.html">Python Interface</a></li>
@@ -422,6 +425,7 @@ Once the input data has been written, ResInsight will launch OPM Flow as specifi
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
             <li class="" data-nav-id="/misc/projectfilerevisions/index.html"><a class="padding" href="/misc/projectfilerevisions/index.html">Project File Revisions</a></li>
             <li class="" data-nav-id="/misc/windowmanagement/index.html"><a class="padding" href="/misc/windowmanagement/index.html">Window Management</a></li>
+            <li class="" data-nav-id="/misc/linuxui/index.html"><a class="padding" href="/misc/linuxui/index.html">Linux User Interface</a></li>
             <li class="" data-nav-id="/misc/memorymanagement/index.html"><a class="padding" href="/misc/memorymanagement/index.html">Memory Management</a></li>
             <li class="" data-nav-id="/misc/advancedtextinput/index.html"><a class="padding" href="/misc/advancedtextinput/index.html">Advanced Text Input</a></li>
             <li class="" data-nav-id="/misc/keyboardshortcuts/index.html"><a class="padding" href="/misc/keyboardshortcuts/index.html">Keyboard Shortcuts</a></li>
@@ -504,8 +508,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1765525474" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1765525474" defer></script>
-    <script src="/js/theme.js?1765525474" defer></script>
+    <script src="/js/clipboard.min.js?1772108313" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1772108313" defer></script>
+    <script src="/js/theme.js?1772108313" defer></script>
   </body>
 </html>

@@ -3,7 +3,7 @@
   <channel>
     <title>Releases :: ResInsight</title>
     <link>https://resinsight.org/releases/index.html</link>
-    <description>Installation See the following for common install procedures and options:&#xA;Linux Installation Windows Installation Release Notes Sign up to be notified of new releases For the complete list of releases and updates, please visit ResInsight on Github.</description>
+    <description>Installation See the following for common install procedures and options:&#xA;Linux Installation Windows Installation Release Notes What’s New - Latest Release&#xA;Sign up to be notified of new releases For the complete list of releases and updates, please visit ResInsight on Github.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="https://resinsight.org/releases/index.xml" rel="self" type="application/rss+xml" />
@@ -26,7 +26,7 @@
       <link>https://resinsight.org/releases/release-notes/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/releases/release-notes/index.html</guid>
-      <description></description>
+      <description>Latest Release What’s New - Latest Release</description>
     </item>
     <item>
       <title>Release Notification Subscription</title>

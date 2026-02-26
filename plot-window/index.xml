@@ -26,7 +26,7 @@
       <link>https://resinsight.org/plot-window/summaryplotmanager/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/plot-window/summaryplotmanager/index.html</guid>
-      <description>The Summary Plot Manager is a separate ResInsight dialog window where the user can select which vectors to plot in a summary plot. This dialog is intented to be used from the keyboard with easy access to operations for management of summary plots. This dialog can be opened by using CTRL-K from anywhere in the Plot Window.</description>
+      <description>The Summary Plot Manager is a separate ResInsight dialog window where the user can select which vectors to plot in a summary plot. This dialog is intended to be used from the keyboard with easy access to operations for management of summary plots. This dialog can be opened by using CTRL-K from anywhere in the Plot Window.</description>
     </item>
     <item>
       <title>Summary Plot Source Stepping</title>
@@ -124,7 +124,7 @@
       <link>https://resinsight.org/plot-window/regressionanalysis/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/plot-window/regressionanalysis/index.html</guid>
-      <description>Create Regression Analysis Regression analysis curves can be created from the right-click menu for a curve in the Plot Project Tree. In addition to single curves, regression anaysis is also supported on ensemble statistics curves and Cross Plot curves.&#xA;Regression Types Linear Regression The linear regression (i.e. straight line fit) is calculated by choosing the line that minimizes the sum of the squared differences between the observed dependent variable values and the values predicted by the linear equation. The straight line equation can be written as:</description>
+      <description>Create Regression Analysis Regression analysis curves can be created from the right-click menu for a curve in the Plot Project Tree. In addition to single curves, regression analysis is also supported on ensemble statistics curves and Cross Plot curves.&#xA;Regression Types Linear Regression The linear regression (i.e. straight line fit) is calculated by choosing the line that minimizes the sum of the squared differences between the observed dependent variable values and the values predicted by the linear equation. The straight line equation can be written as:</description>
     </item>
     <item>
       <title>Well Bore Stability Plots</title>

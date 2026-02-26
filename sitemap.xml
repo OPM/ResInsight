@@ -103,6 +103,9 @@
     <loc>https://resinsight.org/misc/windowmanagement/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/misc/linuxui/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/3d-main-window/index.html</loc>
   </url>
   <url>
@@ -220,6 +223,9 @@
     <loc>https://resinsight.org/releases/build-from-source/cmake-configuration/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/import/resultalias/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/wells-and-completions/3dwelllogcurves/index.html</loc>
   </url>
   <url>
@@ -316,6 +322,9 @@
     <loc>https://resinsight.org/export/sectormodel/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/export/sectormodelbeta/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/3d-main-window/filters/index.html</loc>
   </url>
   <url>
@@ -395,6 +404,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/workflows/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/releases/release-notes/releasenotes_2026_02/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/releases/release-notes/releasenotes_2025_12/index.html</loc>
