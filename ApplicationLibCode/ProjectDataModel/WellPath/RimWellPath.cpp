@@ -286,6 +286,16 @@ RimPerforationCollection* RimWellPath::perforationIntervalCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimValveCollection* RimWellPath::valveCollection() const
+{
+    CVF_ASSERT( m_completions );
+
+    return m_completions->valveCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RimPerforationCollection* RimWellPath::perforationIntervalCollection() const
 {
     CVF_ASSERT( m_completions );

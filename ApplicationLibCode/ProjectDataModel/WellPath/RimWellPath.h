@@ -51,6 +51,7 @@ class RimFractureTemplateCollection;
 class RimStimPlanModelCollection;
 class RimFishbonesCollection;
 class RimPerforationCollection;
+class RimValveCollection;
 class RimWellPathAttributeCollection;
 class RimWellPathCompletions;
 class RimWellPathCompletionSettings;
@@ -141,6 +142,7 @@ public:
     RimWellPathAttributeCollection*       attributeCollection();
     const RimWellPathAttributeCollection* attributeCollection() const;
     RimWellIASettingsCollection*          wellIASettingsCollection();
+    RimValveCollection*                   valveCollection() const;
 
     bool showWellPathLabel() const;
     bool showWellPath() const;

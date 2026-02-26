@@ -136,6 +136,7 @@
 #include "RimSummaryTableCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimSurface.h"
+#include "RimValveCollection.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
 #include "RimViewController.h"
@@ -366,6 +367,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicImportWellMeasurementsFeature";
         }
+        else if ( dynamic_cast<RimValveCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewValveFeature";
+        }
         else if ( dynamic_cast<RimWellPath*>( firstUiItem ) )
         {
             if ( dynamic_cast<RimFileWellPath*>( firstUiItem ) != nullptr )
@@ -383,6 +388,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathIntersectionFeature";
 
+            menuBuilder << "RicNewValveFeature";
             appendCreateCompletions( menuBuilder );
             menuBuilder.addSeparator();
             bool addSeparatorBeforeMenu = false;

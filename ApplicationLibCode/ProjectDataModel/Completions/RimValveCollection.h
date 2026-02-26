@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2026    Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,23 +18,38 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RimCheckableNamedObject.h"
 
-class RimPerforationInterval;
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+
 class RimWellPathValve;
 
 //==================================================================================================
-///
+//
+//
+//
 //==================================================================================================
-class RicNewValveFeature : public caf::CmdFeature
+class RimValveCollection : public RimCheckableNamedObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+public:
+    RimValveCollection();
+
+    bool              hasValves() const;
+    RimWellPathValve* addIcvValve();
+
+    std::vector<RimWellPathValve*>       valves() const;
+    std::vector<const RimWellPathValve*> activeValves() const;
 
 private:
-    RimWellPathValve* createValveForPerforation( RimPerforationInterval* perfInterval );
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+private:
+    caf::PdmChildArrayField<RimWellPathValve*> m_valves;
 };

@@ -93,3 +93,24 @@ void RimValveTemplateCollection::addDefaultValveTemplates()
     addItem( icv );
     addItem( sicd );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimValveTemplate* RimValveTemplateCollection::getOrCreateIcvTemplate()
+{
+    for ( RimValveTemplate* templateItem : items() )
+    {
+        if ( templateItem->type() == RiaDefines::WellPathComponentType::ICV )
+        {
+            return templateItem;
+        }
+    }
+
+    RimValveTemplate* icv = new RimValveTemplate;
+    icv->setType( RiaDefines::WellPathComponentType::ICV );
+    icv->setUserLabel( "ICV default template" );
+    addItem( icv );
+
+    return icv;
+}

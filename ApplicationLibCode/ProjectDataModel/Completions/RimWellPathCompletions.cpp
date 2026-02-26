@@ -29,6 +29,7 @@
 #include "RimProject.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
+#include "RimValveCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathComponentInterface.h"
 #include "RimWellPathFracture.h"
@@ -57,6 +58,9 @@ RimWellPathCompletions::RimWellPathCompletions()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_perforationCollection, "Perforations", "Perforations" );
     m_perforationCollection = new RimPerforationCollection;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_valveCollection, "Valves", "Valves" );
+    m_valveCollection = new RimValveCollection();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_fishbonesCollection, "Fishbones", "Fishbones" );
     m_fishbonesCollection = new RimFishbonesCollection;
@@ -112,6 +116,16 @@ RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
     CVF_ASSERT( m_perforationCollection );
 
     return m_perforationCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimValveCollection* RimWellPathCompletions::valveCollection() const
+{
+    CVF_ASSERT( m_valveCollection );
+
+    return m_valveCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,7 +272,8 @@ bool RimWellPathCompletions::hasCompletions() const
         return true;
     }
 
-    return !m_fishbonesCollection->allFishbonesSubs().empty() || !m_perforationCollection->perforations().empty();
+    return !m_fishbonesCollection->allFishbonesSubs().empty() || !m_perforationCollection->perforations().empty() ||
+           m_valveCollection->hasValves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,7 +299,12 @@ void RimWellPathCompletions::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTre
 {
     uiTreeOrdering.skipRemainingChildren( true );
 
-    if ( !m_perforationCollection->perforations().empty() )
+    if ( m_valveCollection->hasValves() )
+    {
+        uiTreeOrdering.add( &m_valveCollection );
+    }
+
+    if ( m_perforationCollection->hasPerforations() )
     {
         uiTreeOrdering.add( &m_perforationCollection );
     }

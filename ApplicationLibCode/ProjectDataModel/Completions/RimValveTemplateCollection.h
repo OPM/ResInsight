@@ -38,7 +38,8 @@ public:
     ~RimValveTemplateCollection() override;
 
     // Domain-specific methods
-    void addDefaultValveTemplates();
+    void              addDefaultValveTemplates();
+    RimValveTemplate* getOrCreateIcvTemplate();
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> defaultUnitSystemType() const;
     void                                        setDefaultUnitSystemBasedOnLoadedCases();
