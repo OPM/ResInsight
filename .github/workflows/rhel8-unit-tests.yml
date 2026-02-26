@@ -139,6 +139,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           prefix: vcpkg-g++/
 
+      - name: Use RHEL8 vcpkg configuration
+        run: cp vcpkg-configuration-rhel8.json vcpkg-configuration.json
+
       - name: Configure CMake
         env:
           CC: /opt/rh/gcc-toolset-14/root/usr/bin/gcc
