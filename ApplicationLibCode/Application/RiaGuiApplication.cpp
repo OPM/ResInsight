@@ -189,8 +189,44 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+namespace
+{
+// Helper to access the destruction flag used in notify
+bool& getNotifyInDestructorFlag()
+{
+    static bool inDestructor = false;
+    return inDestructor;
+}
+
+void setNotifyInDestructorFlag( bool value )
+{
+    getNotifyInDestructorFlag() = value;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaGuiApplication::~RiaGuiApplication()
 {
+    // Set destruction flag to prevent notify from accessing member variables during destruction
+    // This must be done before any window deletion that might trigger events
+    setNotifyInDestructorFlag( true );
+
+    processEvents();
+
+    if ( m_mainWindow )
+    {
+        m_mainWindow->close();
+    }
+
+    if ( m_mainPlotWindow )
+    {
+        m_mainPlotWindow->close();
+    }
+
+    processEvents();
+
     delete m_mainWindow.data();
     m_mainWindow.clear();
 
@@ -1752,6 +1788,13 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
                                               "ResInsight Exhausted Memory",
                                               "Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now "
                                                 "unstable and will probably crash soon." );
+    }
+
+    // Safety guard: If we're being called during destruction, delegate directly to base class
+    // to avoid accessing potentially destroyed member variables
+    if ( getNotifyInDestructorFlag() )
+    {
+        return QApplication::notify( receiver, event );
     }
 
     bool done = false;
