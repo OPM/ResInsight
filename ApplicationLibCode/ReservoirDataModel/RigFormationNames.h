@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfObject.h"
 #include <QString>
 
 #include <set>
@@ -26,24 +25,17 @@
 
 #include "cvfColor3.h"
 
-class RigFormationNames : public cvf::Object
+class RigFormationNames
 {
 public:
     RigFormationNames();
-    ~RigFormationNames() override;
 
-    int formationIndexFromKLayerIdx( size_t Kidx ) const
-    {
-        if ( Kidx >= m_nameIndexPrKLayer.size() ) return -1;
-        return m_nameIndexPrKLayer[Kidx];
-    }
+    int     formationIndexFromKLayerIdx( size_t Kidx ) const;
+    QString formationNameFromKLayerIdx( size_t Kidx ) const;
+    bool    formationColorFromKLayerIdx( size_t Kidx, cvf::Color3f* formationColor ) const;
 
-    QString formationNameFromKLayerIdx( size_t Kidx );
-
-    bool formationColorFromKLayerIdx( size_t Kidx, cvf::Color3f* formationColor );
-
-    const std::vector<QString>&      formationNames() const { return m_formationNames; }
-    const std::vector<cvf::Color3f>& formationColors() const { return m_formationColors; }
+    std::vector<QString>      formationNames() const;
+    std::vector<cvf::Color3f> formationColors() const;
 
     void appendFormationRange( const QString& name, int kStartIdx, int kEndIdx );
     void appendFormationRangeHeight( const QString& name, int kLayerCount );
@@ -51,7 +43,7 @@ public:
     void appendFormationRange( const QString& name, cvf::Color3f color, int kStartIdx, int kEndIdx );
     void appendFormationRangeHeight( const QString& name, cvf::Color3f color, int kLayerCount );
 
-    std::set<int> findKLayers( std::vector<QString> formationNames );
+    std::set<int> findKLayers( std::vector<QString> formationNames ) const;
 
 private:
     static cvf::Color3f undefinedColor();

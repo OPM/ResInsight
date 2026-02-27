@@ -16,10 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifColorLegendData.h"
+#include "RifFormationNamesReader.h"
 
 #include "RiaTextStringTools.h"
 #include "RigFormationNames.h"
+
+#include <memory>
 
 #include "cafAssert.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -32,35 +34,34 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFormationNames> RifColorLegendData::readFormationNamesFile( const QString& fileName, QString* errorMessage )
+std::unique_ptr<RigFormationNames> RifFormationNamesReader::readFormationNamesFile( const QString& fileName, QString* errorMessage )
 {
     QFileInfo fileInfo( fileName );
 
     if ( fileInfo.fileName() == "layer_zone_table.txt" )
     {
-        return RifColorLegendData::readFmuFormationNameFile( fileName, errorMessage );
+        return RifFormationNamesReader::readFmuFormationNameFile( fileName, errorMessage );
     }
     else
     {
-        return RifColorLegendData::readLyrFormationNameFile( fileName, errorMessage );
+        return RifFormationNamesReader::readLyrFormationNameFile( fileName, errorMessage );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const QString& fileName, QString* errorMessage )
+std::unique_ptr<RigFormationNames> RifFormationNamesReader::readLyrFormationNameFile( const QString& fileName, QString* errorMessage )
 {
-    cvf::ref<RigFormationNames> formationNames = new RigFormationNames;
-
     QFile dataFile( fileName );
 
     if ( !dataFile.open( QFile::ReadOnly ) )
     {
         if ( errorMessage ) ( *errorMessage ) += "Could not open file: " + fileName + "\n";
-        return formationNames;
+        return nullptr;
     }
 
+    auto        formationNames = std::make_unique<RigFormationNames>();
     QTextStream stream( &dataFile );
 
     int lineNumber = 1;
@@ -160,18 +161,17 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFormationNames> RifColorLegendData::readFmuFormationNameFile( const QString& fileName, QString* errorMessage )
+std::unique_ptr<RigFormationNames> RifFormationNamesReader::readFmuFormationNameFile( const QString& fileName, QString* errorMessage )
 {
-    cvf::ref<RigFormationNames> formationNames = new RigFormationNames;
-
     QFile dataFile( fileName );
 
     if ( !dataFile.open( QFile::ReadOnly ) )
     {
         if ( errorMessage ) ( *errorMessage ) += "Could not open file: " + fileName + "\n";
-        return formationNames;
+        return nullptr;
     }
 
+    auto        formationNames = std::make_unique<RigFormationNames>();
     QTextStream stream( &dataFile );
 
     int lineNumber = 1;
@@ -242,7 +242,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readFmuFormationNameFile( const 
 /// SVG color keyword names, c.f. https://www.w3.org/TR/SVG11/types.html#ColorKeywords,
 /// or #RRGGBB used on a LYR formation data file.
 //--------------------------------------------------------------------------------------------------
-bool RifColorLegendData::convertStringToColor( const QString& word, cvf::Color3f* color )
+bool RifFormationNamesReader::convertStringToColor( const QString& word, cvf::Color3f* color )
 {
     if ( word.isEmpty() ) return false;
 

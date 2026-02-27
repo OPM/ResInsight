@@ -53,7 +53,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifInputPropertyLoader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelGeologicalFrkExporter.h
@@ -168,7 +168,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifInputPropertyLoader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelGeologicalFrkExporter.cpp

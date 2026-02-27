@@ -780,7 +780,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveFormationNames( RigFormationNames* activeFormationNames )
+void RigEclipseCaseData::setActiveFormationNames( const RigFormationNames* activeFormationNames )
 {
     m_matrixModelResults->setActiveFormationNames( activeFormationNames );
 }

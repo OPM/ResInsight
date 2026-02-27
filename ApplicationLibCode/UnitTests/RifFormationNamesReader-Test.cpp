@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "RiaTestDataDirectory.h"
-#include "RifColorLegendData.h"
+#include "RifFormationNamesReader.h"
 #include "RigFormationNames.h"
 
 #include "cvfColor3.h"
@@ -10,17 +10,17 @@
 #include <QString>
 #include <QStringList>
 
-TEST( RifColorLegendData, ReadLYRFileWithoutColor )
+TEST( RifFormationNamesReader, ReadLYRFileWithoutColor )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    const QString filename( "RifColorLegendData/Norne_ATW2013.lyr" );
+    const QString filename( "RifFormationNamesReader/Norne_ATW2013.lyr" );
     const QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     QString errormessage;
 
-    cvf::ref<RigFormationNames> fm = RifColorLegendData::readFormationNamesFile( filePath, &errormessage );
+    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath, &errormessage );
     EXPECT_TRUE( errormessage.isEmpty() );
 
     QString formationName_K1 = fm->formationNameFromKLayerIdx( 0 );
@@ -30,17 +30,17 @@ TEST( RifColorLegendData, ReadLYRFileWithoutColor )
     EXPECT_EQ( 1, formationIndex );
 }
 
-TEST( RifColorLegendData, ReadLYRFileWithColorName )
+TEST( RifFormationNamesReader, ReadLYRFileWithColorName )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    const QString filename( "RifColorLegendData/Norne_ATW2013ColorName.lyr" );
+    const QString filename( "RifFormationNamesReader/Norne_ATW2013ColorName.lyr" );
     const QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     QString errormessage;
 
-    cvf::ref<RigFormationNames> fm = RifColorLegendData::readFormationNamesFile( filePath, &errormessage );
+    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath, &errormessage );
     EXPECT_TRUE( errormessage.isEmpty() );
 
     QString formationName_K1 = fm->formationNameFromKLayerIdx( 1 );
@@ -57,17 +57,17 @@ TEST( RifColorLegendData, ReadLYRFileWithColorName )
     EXPECT_EQ( 0.0f, formationColor.b() );
 }
 
-TEST( RifColorLegendData, ReadLYRFileWithColorHTML )
+TEST( RifFormationNamesReader, ReadLYRFileWithColorHTML )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    const QString filename( "RifColorLegendData/Norne_ATW2013ColorHTML.lyr" );
+    const QString filename( "RifFormationNamesReader/Norne_ATW2013ColorHTML.lyr" );
     const QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     QString errormessage;
 
-    cvf::ref<RigFormationNames> fm = RifColorLegendData::readFormationNamesFile( filePath, &errormessage );
+    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath, &errormessage );
     EXPECT_TRUE( errormessage.isEmpty() );
 
     QString formationName_K1 = fm->formationNameFromKLayerIdx( 1 );

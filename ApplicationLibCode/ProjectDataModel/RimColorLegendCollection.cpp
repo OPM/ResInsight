@@ -216,7 +216,7 @@ void RimColorLegendCollection::createColorLegendFromFormationNames( RimFormation
 {
     if ( !rimFormationNames ) return;
 
-    RigFormationNames* rigFormationNames = rimFormationNames->formationNamesData();
+    auto rigFormationNames = rimFormationNames->formationNamesData();
     if ( !rigFormationNames ) return;
 
     const std::vector<QString>&      formationNames  = rigFormationNames->formationNames();

@@ -77,7 +77,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateStringParser-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigHexGradientTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter-Test.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStatisticsTools-Test.cpp

@@ -60,7 +60,7 @@ public:
                                  const RigFemPartCollection* femPartCollection );
     ~RigFemPartResultsCollection() override;
 
-    void                 setActiveFormationNames( RigFormationNames* activeFormationNames );
+    void                 setActiveFormationNames( const RigFormationNames* activeFormationNames );
     std::vector<QString> formationNames() const;
 
     void                             addElementPropertyFiles( const std::vector<QString>& filenames );
@@ -205,7 +205,7 @@ private:
     cvf::ref<RifGeoMechReaderInterface> m_readerInterface;
     cvf::ref<RifElementPropertyReader>  m_elementPropertyReader;
     cvf::cref<RigFemPartCollection>     m_femParts;
-    cvf::cref<RigFormationNames>        m_activeFormationNamesData;
+    const RigFormationNames*            m_activeFormationNamesData = nullptr;
 
     double m_cohesion;
     double m_frictionAngleRad;

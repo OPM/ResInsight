@@ -1241,7 +1241,7 @@ cvf::ref<RigWellPathFormations> RimEnsembleWellLogCurveSet::createWellPathFormat
     RimFormationNames* rimFormationNames = formationNamesCollection->formationNamesList()[0];
     if ( !rimFormationNames ) return nullptr;
 
-    RigFormationNames* formationNames = rimFormationNames->formationNamesData();
+    auto formationNames = rimFormationNames->formationNamesData();
     if ( !formationNames ) return nullptr;
 
     std::vector<RigWellPathFormation> wellPathFormationItems;

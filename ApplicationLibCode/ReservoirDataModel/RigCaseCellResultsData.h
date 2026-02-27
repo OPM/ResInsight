@@ -57,7 +57,7 @@ public:
     void                      setReaderInterface( RifReaderInterface* readerInterface );
     const RifReaderInterface* readerInterface() const;
     void                      setHdf5Filename( const QString& hdf5SourSimFilename );
-    void                      setActiveFormationNames( RigFormationNames* activeFormationNames );
+    void                      setActiveFormationNames( const RigFormationNames* activeFormationNames );
     const RigFormationNames*  activeFormationNames() const;
     RigAllanDiagramData*      allanDiagramData();
 
@@ -221,7 +221,6 @@ private:
 
 private:
     cvf::ref<RifReaderInterface>  m_readerInterface;
-    cvf::cref<RigFormationNames>  m_activeFormationNamesData;
     cvf::ref<RigAllanDiagramData> m_allanDiagramData;
 
     std::vector<std::vector<std::vector<double>>> m_cellScalarResults; ///< Scalar results on the complete reservoir for
@@ -236,4 +235,5 @@ private:
     RigEclipseCaseData*           m_ownerCaseData;
     RigActiveCellInfo*            m_activeCellInfo;
     RiaDefines::PorosityModelType m_porosityModel;
+    const RigFormationNames*      m_activeFormationNamesData = nullptr;
 };

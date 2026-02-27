@@ -213,7 +213,7 @@ RigFemPartResultsCollection::~RigFemPartResultsCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* activeFormationNames )
+void RigFemPartResultsCollection::setActiveFormationNames( const RigFormationNames* activeFormationNames )
 {
     m_activeFormationNamesData = activeFormationNames;
 
@@ -238,7 +238,7 @@ std::vector<QString> RigFemPartResultsCollection::formationNames() const
 //--------------------------------------------------------------------------------------------------
 const RigFormationNames* RigFemPartResultsCollection::activeFormationNames() const
 {
-    return m_activeFormationNamesData.p();
+    return m_activeFormationNamesData;
 }
 
 //--------------------------------------------------------------------------------------------------

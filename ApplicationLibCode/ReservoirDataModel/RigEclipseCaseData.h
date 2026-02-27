@@ -85,7 +85,7 @@ public:
 
     bool hasFractureResults() const;
 
-    void                       setActiveFormationNames( RigFormationNames* activeFormationNames );
+    void                       setActiveFormationNames( const RigFormationNames* activeFormationNames );
     const std::vector<QString> formationNames() const;
     RigAllanDiagramData*       allanDiagramData();
 

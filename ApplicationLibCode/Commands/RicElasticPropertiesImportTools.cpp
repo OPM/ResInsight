@@ -169,7 +169,7 @@ std::vector<QString> RicElasticPropertiesImportTools::getFormationNames()
     {
         if ( formationNames && formationNames->formationNamesData() )
         {
-            RigFormationNames* rigFormationNames = formationNames->formationNamesData();
+            auto rigFormationNames = formationNames->formationNamesData();
             if ( rigFormationNames ) return rigFormationNames->formationNames();
         }
     }

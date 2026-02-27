@@ -19,6 +19,7 @@
 #include "RicImportColorCategoriesFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RigFormationNames.h"
 #include "RimColorLegend.h"
@@ -26,7 +27,7 @@
 #include "RimColorLegendItem.h"
 #include "RimProject.h"
 
-#include "RifColorLegendData.h"
+#include "RifFormationNamesReader.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -36,6 +37,7 @@
 
 #include <QAction>
 #include <QFileInfo>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportColorCategoriesFeature, "RicImportColorCategoriesFeature" );
 
@@ -65,8 +67,15 @@ void RicImportColorCategoriesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileName ).absolutePath() );
 
-    QString                     errormessage;
-    cvf::ref<RigFormationNames> formations = RifColorLegendData::readFormationNamesFile( fileName, &errormessage );
+    QString errormessage;
+    auto    formations = RifFormationNamesReader::readFormationNamesFile( fileName, &errormessage );
+    if ( !formations || !errormessage.isEmpty() )
+    {
+        QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
+                              "Import Formation File Failed",
+                              errormessage.isEmpty() ? "Unknown error reading formation file." : errormessage );
+        return;
+    }
 
     const std::vector<QString>&      formationNames  = formations->formationNames();
     const std::vector<cvf::Color3f>& formationColors = formations->formationColors();

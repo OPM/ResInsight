@@ -31,7 +31,7 @@
 #include "RimProject.h"
 #include "RimStimPlanModelTemplate.h"
 
-#include "RifColorLegendData.h"
+#include "RifFormationNamesReader.h"
 #include "RifRoffReader.h"
 
 #include "cafColorTable.h"

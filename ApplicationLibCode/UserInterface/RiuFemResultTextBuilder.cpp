@@ -232,7 +232,7 @@ QString RiuFemResultTextBuilder::formationDetails()
     {
         if ( rimCase->activeFormationNames() && rimCase->activeFormationNames()->formationNamesData() )
         {
-            RigFormationNames* formNames = rimCase->activeFormationNames()->formationNamesData();
+            auto formNames = rimCase->activeFormationNames()->formationNamesData();
 
             size_t k = cvf::UNDEFINED_SIZE_T;
             {
