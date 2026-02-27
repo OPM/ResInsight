@@ -233,6 +233,16 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_writeEchoInGrdeclFiles, "writeEchoInGrdeclFiles", false, "Write NOECHO and ECHO in GRDECL files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_writeEchoInGrdeclFiles );
 
+    CAF_PDM_InitField( &m_useRecentlyUsedFolderAsDefault,
+                       "useRecentlyUsedFolderAsDefault",
+                       false,
+                       "Use Recently Used Folder/File as Default",
+                       "",
+                       "When enabled, file dialogs will open at the most recently used folder/file path. "
+                       "When disabled, the last used directory combined with the default filter pattern is used.",
+                       "" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useRecentlyUsedFolderAsDefault );
+
     CAF_PDM_InitFieldNoDefault( &m_gridCalculationExpressionFolder, "gridCalculationExpressionFolder", "Grid Calculation Expression Folder" );
     CAF_PDM_InitFieldNoDefault( &m_summaryCalculationExpressionFolder,
                                 "summaryCalculationExpressionFolder",
@@ -504,6 +514,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 #endif
     else if ( uiConfigName == RiaPreferences::tabNameImportExport() )
     {
+        caf::PdmUiGroup* diskOpsGroup = uiOrdering.addNewGroup( "Disk Operations" );
+        diskOpsGroup->add( &m_useRecentlyUsedFolderAsDefault );
+
         caf::PdmUiGroup* importGroup = uiOrdering.addNewGroup( "Import" );
         importGroup->add( &m_surfaceImportResamplingDistance );
         importGroup->add( &m_multiLateralWellPattern );
@@ -855,6 +868,14 @@ bool RiaPreferences::openExportedPdfInViewer() const
 bool RiaPreferences::writeEchoInGrdeclFiles() const
 {
     return m_writeEchoInGrdeclFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useRecentlyUsedFolderAsDefault() const
+{
+    return m_useRecentlyUsedFolderAsDefault;
 }
 
 //--------------------------------------------------------------------------------------------------

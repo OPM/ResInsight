@@ -22,6 +22,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaFileSearchTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 #include "RiaStdStringTools.h"
 #include "RiaStringListSerializer.h"
 
@@ -234,7 +235,15 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
         dialog.m_fileFilterField->setCurrentText( fileNameFilter );
         dialog.m_fileFilterField->setEditable( true );
 
-        dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
+        // Use most recently used path from registry (index 1) when preference is enabled, otherwise use constructed fallback (index 0)
+        if ( RiaPreferences::current()->useRecentlyUsedFolderAsDefault() && dialog.m_pathFilterField->count() > 1 )
+        {
+            dialog.m_pathFilterField->setCurrentIndex( 1 );
+        }
+        else
+        {
+            dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
+        }
         dialog.m_pathFilterField->setEditable( true );
 
         if ( !fileTypes.empty() )

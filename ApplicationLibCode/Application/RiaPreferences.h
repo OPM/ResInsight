@@ -88,6 +88,7 @@ public:
     void        setLastUsedPlotTemplatePath( const QString& templatePath );
     bool        openExportedPdfInViewer() const;
     bool        writeEchoInGrdeclFiles() const;
+    bool        useRecentlyUsedFolderAsDefault() const;
 
     RiaDefines::ThemeEnum guiTheme() const;
 
@@ -196,6 +197,7 @@ private:
     caf::PdmField<double>              m_pageBottomMargin;
     caf::PdmField<bool>                m_openExportedPdfInViewer;
     caf::PdmField<bool>                m_writeEchoInGrdeclFiles;
+    caf::PdmField<bool>                m_useRecentlyUsedFolderAsDefault;
 
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<int>           m_maxPlotTemplateFoldersDepth;
