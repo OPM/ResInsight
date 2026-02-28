@@ -46,6 +46,17 @@ RimValveCollection::RimValveCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimValveCollection::initAfterRead()
+{
+    for ( auto& valve : m_valves() )
+    {
+        valve->setComponentTypeFilter( { RiaDefines::WellPathComponentType::ICV } );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimValveCollection::hasValves() const
 {
     return !m_valves.empty();
@@ -54,7 +65,7 @@ bool RimValveCollection::hasValves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathValve* RimValveCollection::addIcvValve()
+RimWellPathValve* RimValveCollection::addIcvValve( double valveMd )
 {
     RimWellPathValve* valve = new RimWellPathValve();
 
@@ -65,10 +76,11 @@ RimWellPathValve* RimValveCollection::addIcvValve()
 
     auto icvTemplate = tempColl->getOrCreateIcvTemplate();
     valve->setValveTemplate( icvTemplate );
-    // TOOO - get the default md from somewhere
-    valve->setMeasuredDepthAndCount( 1000.0, 1.0, 1 );
 
     m_valves.push_back( valve );
+
+    valve->setComponentTypeFilter( { RiaDefines::WellPathComponentType::ICV } );
+    valve->setMeasuredDepthAndCount( valveMd, 1.0, 1 );
 
     return valve;
 }
@@ -91,9 +103,11 @@ std::vector<RimWellPathValve*> RimValveCollection::valves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RimWellPathValve*> RimValveCollection::activeValves() const
+std::vector<RimWellPathValve*> RimValveCollection::activeValves() const
 {
-    std::vector<const RimWellPathValve*> valvesToReturn;
+    std::vector<RimWellPathValve*> valvesToReturn;
+
+    if ( !isChecked() ) return valvesToReturn;
 
     for ( const auto& v : m_valves() )
     {

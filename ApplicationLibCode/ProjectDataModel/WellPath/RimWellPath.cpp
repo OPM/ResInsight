@@ -45,6 +45,7 @@
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
+#include "RimValveCollection.h"
 #include "RimWellEventTimeline.h"
 #include "RimWellIASettingsCollection.h"
 #include "RimWellLogChannel.h"
@@ -784,7 +785,10 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
     {
         uiTreeOrdering.add( m_completionSettings() );
     }
-
+    if ( m_completions->valveCollection()->hasValves() )
+    {
+        uiTreeOrdering.add( m_completions->valveCollection() );
+    }
     if ( m_completions->fishbonesCollection()->hasFishbones() )
     {
         uiTreeOrdering.add( m_completions->fishbonesCollection() );

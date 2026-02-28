@@ -39,6 +39,7 @@
 #include "RimPerforationInterval.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
+#include "RimValveCollection.h"
 #include "RimWellIASettings.h"
 #include "RimWellIASettingsCollection.h"
 #include "RimWellMeasurement.h"
@@ -471,6 +472,8 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
 
         appendValvesToModel( model, perforation->valves(), wellPathRadius, displayCoordTransform );
     }
+
+    appendValvesToModel( model, m_rimWellPath->valveCollection()->activeValves(), wellPathRadius, displayCoordTransform );
 }
 
 //--------------------------------------------------------------------------------------------------

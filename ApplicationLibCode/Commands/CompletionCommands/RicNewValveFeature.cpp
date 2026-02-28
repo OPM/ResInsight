@@ -1,6 +1,8 @@
 #include "RicNewValveFeature.h"
 #include "Riu3DMainWindowTools.h"
 
+#include "Well/RigWellPath.h"
+
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -23,11 +25,11 @@ bool RicNewValveFeature::isCommandEnabled() const
     const auto selectedItems = caf::SelectionManager::instance()->selectedItems();
     if ( selectedItems.size() != 1u ) return false;
 
-    if ( auto perfInterval = dynamic_cast<RimPerforationInterval*>( selectedItems.front() ) ) return true;
+    if ( dynamic_cast<RimPerforationInterval*>( selectedItems.front() ) ) return true;
 
-    if ( auto valveColl = dynamic_cast<RimValveCollection*>( selectedItems.front() ) ) return true;
+    if ( dynamic_cast<RimValveCollection*>( selectedItems.front() ) ) return true;
 
-    if ( auto wellPath = dynamic_cast<RimWellPath*>( selectedItems.front() ) ) return true;
+    if ( dynamic_cast<RimWellPath*>( selectedItems.front() ) ) return true;
 
     return false;
 }
@@ -59,6 +61,23 @@ RimWellPathValve* RicNewValveFeature::createValveForPerforation( RimPerforationI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RicNewValveFeature::wellPathAvgMd( const RimWellPath* wellPath ) const
+{
+    double valveMd = 0.0;
+    if ( ( wellPath != nullptr ) && ( wellPath->wellPathGeometry() != nullptr ) )
+    {
+        const auto& mds = wellPath->wellPathGeometry()->measuredDepths();
+        if ( !mds.empty() )
+        {
+            valveMd = ( mds.front() + mds.back() ) / 2.0;
+        }
+    }
+    return valveMd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewValveFeature::onActionTriggered( bool isChecked )
 {
     RimWellPathValve* valve = nullptr;
@@ -69,11 +88,15 @@ void RicNewValveFeature::onActionTriggered( bool isChecked )
     }
     else if ( RimValveCollection* valveColl = caf::SelectionManager::instance()->selectedItemOfType<RimValveCollection>() )
     {
-        valve = valveColl->addIcvValve();
+        auto wellPath = valveColl->firstAncestorOrThisOfType<RimWellPath>();
+        auto valveMd  = wellPathAvgMd( wellPath );
+
+        valve = valveColl->addIcvValve( valveMd );
     }
     else if ( RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>() )
     {
-        valve = wellPath->valveCollection()->addIcvValve();
+        auto valveMd = wellPathAvgMd( wellPath );
+        valve        = wellPath->valveCollection()->addIcvValve( valveMd );
     }
 
     if ( valve )
@@ -81,7 +104,7 @@ void RicNewValveFeature::onActionTriggered( bool isChecked )
         RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( !wellPathCollection ) return;
 
-        wellPathCollection->uiCapability()->updateConnectedEditors();
+        wellPathCollection->updateConnectedEditors();
         wellPathCollection->scheduleRedrawAffectedViews();
 
         Riu3DMainWindowTools::selectAsCurrentItem( valve );
@@ -93,6 +116,6 @@ void RicNewValveFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewValveFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/ICDValve16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ICVValve16x16.png" ) );
     actionToSetup->setText( "Create Valve" );
 }

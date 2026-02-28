@@ -37,4 +37,5 @@ protected:
 
 private:
     RimWellPathValve* createValveForPerforation( RimPerforationInterval* perfInterval );
+    double            wellPathAvgMd( const RimWellPath* wellPath ) const;
 };
