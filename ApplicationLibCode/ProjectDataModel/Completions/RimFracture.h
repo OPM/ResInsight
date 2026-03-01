@@ -164,8 +164,6 @@ private:
 protected:
     caf::PdmPtrField<RimFractureTemplate*>                     m_fractureTemplate;
     caf::PdmField<bool>                                        m_editFractureTemplate;
-    caf::PdmField<bool>                                        m_createEllipseFractureTemplate;
-    caf::PdmField<bool>                                        m_createStimPlanFractureTemplate;
     caf::PdmField<bool>                                        m_autoUpdateWellPathDepthAtFractureFromTemplate;
     caf::PdmField<double>                                      m_wellPathDepthAtFracture;
     caf::PdmProxyValueField<cvf::Vec3d>                        m_uiAnchorPosition;

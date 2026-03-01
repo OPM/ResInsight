@@ -99,14 +99,6 @@ RimFracture::RimFracture()
     m_editFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
-    CAF_PDM_InitField( &m_createEllipseFractureTemplate, "CreateEllipseTemplate", false, "No Fracture Templates Found." );
-    m_createEllipseFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_createEllipseFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
-
-    CAF_PDM_InitField( &m_createStimPlanFractureTemplate, "CreateStimPlanTemplate", false, "Create New Template?" );
-    m_createStimPlanFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
-
     CAF_PDM_InitField( &m_autoUpdateWellPathDepthAtFractureFromTemplate,
                        "AutoUpdateWellPathDepthAtFractureFromTemplate",
                        true,
@@ -239,16 +231,6 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
             Riu3DMainWindowTools::selectAsCurrentItem( m_fractureTemplate() );
         }
     }
-    else if ( changedField == &m_createEllipseFractureTemplate )
-    {
-        m_createEllipseFractureTemplate = false;
-        RicNewEllipseFractureTemplateFeature::createNewTemplateForFractureAndUpdate( this );
-    }
-    else if ( changedField == &m_createStimPlanFractureTemplate )
-    {
-        RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate( this );
-    }
-
     else if ( changedField == &m_autoUpdateWellPathDepthAtFractureFromTemplate )
     {
         if ( m_autoUpdateWellPathDepthAtFractureFromTemplate && m_fractureTemplate() )
@@ -701,6 +683,13 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
         m_perforationLength.uiCapability()->setUiName( "Perforation Length [ft]" );
     }
 
+    uiOrdering.addNewButton( "Ellipse Template",
+                             [this]() { RicNewEllipseFractureTemplateFeature::createNewTemplateForFractureAndUpdate( this ); },
+                             { .newRow = false } );
+    uiOrdering.addNewButton( "StimPlan Template",
+                             [this]() { RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate( this ); },
+                             { .newRow = false } );
+
     if ( fractureTemplate() )
     {
         if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
@@ -816,18 +805,6 @@ void RimFracture::defineEditorAttribute( const caf::PdmFieldHandle* field, QStri
                 myAttr->m_maximum       = maximum;
             }
         }
-    }
-
-    if ( field == &m_createEllipseFractureTemplate )
-    {
-        auto myAttr          = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        myAttr->m_buttonText = "Ellipse Template";
-    }
-
-    if ( field == &m_createStimPlanFractureTemplate )
-    {
-        auto myAttr          = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        myAttr->m_buttonText = "StimPlan Template";
     }
 }
 

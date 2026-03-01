@@ -108,7 +108,6 @@ private:
     cvf::Color3f              getTracerColor( const QString& tracerName );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     QString                       getValueTypeText() const;
@@ -131,7 +130,6 @@ private:
     caf::PdmField<caf::AppEnum<TimeStepFilterMode>> m_timeStepFilterMode;
     caf::PdmField<int>                              m_timeStepCount;
     caf::PdmField<std::vector<QDateTime>>           m_excludeTimeSteps;
-    caf::PdmField<bool>                             m_applyTimeStepSelections;
 
     caf::PdmPtrField<RimFlowDiagSolution*>     m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<FlowValueType>> m_flowValueType;

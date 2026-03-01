@@ -77,8 +77,6 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "" );
     m_selectedTimeSteps.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeStepsUi, "SelectedTimeStepsUi", "" );
-    CAF_PDM_InitFieldNoDefault( &m_applyTimeSteps, "ApplyTimeSteps", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_applyTimeSteps );
 
     CAF_PDM_InitField( &m_maxPvFraction,
                        "CellPVThreshold",
@@ -96,8 +94,6 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "CellFilterView", "View" );
     CAF_PDM_InitField( &m_tracerFilter, "TracerFilter", QString(), "Tracer Filter" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTracerNames, "SelectedTracerNames", " " );
-    CAF_PDM_InitFieldNoDefault( &m_showRegion, "ShowRegion", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_showRegion );
 
     CAF_PDM_InitField( &m_minCommunication, "MinCommunication", 0.0, "Min Communication" );
     CAF_PDM_InitField( &m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]" );
@@ -416,7 +412,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::Pd
         if ( m_timeStepSelectionType == SELECTED )
         {
             timeStepsGroup->add( &m_selectedTimeStepsUi );
-            timeStepsGroup->add( &m_applyTimeSteps );
+            timeStepsGroup->addNewButton( "Apply", [this]() { onApplyTimeStepsClicked(); } );
         }
     }
 
@@ -428,7 +424,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::Pd
         {
             regionGroup->add( &m_tracerFilter );
             regionGroup->add( &m_selectedTracerNames );
-            regionGroup->add( &m_showRegion );
+            regionGroup->addNewButton( "Show Region", [this]() { onShowRegionClicked(); } );
         }
         else if ( m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE )
         {
@@ -459,29 +455,6 @@ void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFlowCharacteristicsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_applyTimeSteps )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Apply";
-        }
-    }
-    else if ( field == &m_showRegion )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Show Region";
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QWidget* RimFlowCharacteristicsPlot::viewWidget()
 {
     return m_flowCharPlotWidget;
@@ -498,6 +471,93 @@ void RimFlowCharacteristicsPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::onApplyTimeStepsClicked()
+{
+    if ( m_flowDiagSolution )
+    {
+        // Compute any missing time steps from selected
+        for ( int tsIdx : m_selectedTimeStepsUi() )
+        {
+            m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux( tsIdx );
+        }
+        m_selectedTimeSteps = m_selectedTimeStepsUi;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::onShowRegionClicked()
+{
+    if ( m_case )
+    {
+        if ( m_cellFilter() != RigFlowDiagResults::CELLS_ACTIVE )
+        {
+            RimEclipseView* view = RicSelectOrCreateViewFeatureImpl::showViewSelection( m_case,
+                                                                                        "FlowCharacteristicsLastUsedView",
+                                                                                        "RegionView",
+                                                                                        "Show Region in View" );
+
+            if ( view != nullptr )
+            {
+                view->faultCollection()->setActive( false );
+                view->cellResult()->setResultType( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
+                view->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_BY_SELECTION );
+                view->cellResult()->setSelectedTracers( m_selectedTracerNames );
+
+                if ( m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION )
+                {
+                    view->cellResult()->setResultVariable( RigFlowDiagDefines::communicationResultName() );
+                }
+                else
+                {
+                    view->cellResult()->setResultVariable( RigFlowDiagDefines::tofResultName() );
+                }
+
+                int timeStep = 0;
+                if ( m_timeStepSelectionType() == ALL_AVAILABLE )
+                {
+                    if ( m_flowDiagSolution )
+                    {
+                        std::vector<int> timeSteps =
+                            m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps( RigFlowDiagResultAddress::PHASE_ALL );
+                        if ( !timeSteps.empty() )
+                        {
+                            timeStep = timeSteps[0];
+                        }
+                    }
+                }
+                else
+                {
+                    if ( !m_selectedTimeStepsUi().empty() )
+                    {
+                        timeStep = m_selectedTimeStepsUi()[0];
+                    }
+                }
+
+                // Ensure selected time step has computed results
+                m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux( timeStep );
+
+                view->setCurrentTimeStep( timeStep );
+
+                for ( RimEclipsePropertyFilter* f : view->eclipsePropertyFilterCollection()->propertyFilters() )
+                {
+                    f->setActive( false );
+                }
+                RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( view->eclipsePropertyFilterCollection() );
+
+                view->loadDataAndUpdate();
+                m_case->updateConnectedEditors();
+
+                RicSelectOrCreateViewFeatureImpl::focusView( view );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
@@ -509,87 +569,6 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
         if ( !m_case()->reservoirViews().empty() )
         {
             m_cellFilterView = m_case()->reservoirViews()[0];
-        }
-    }
-    else if ( &m_applyTimeSteps == changedField )
-    {
-        if ( m_flowDiagSolution )
-        {
-            // Compute any missing time steps from selected
-            for ( int tsIdx : m_selectedTimeStepsUi() )
-            {
-                m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux( tsIdx );
-            }
-            m_selectedTimeSteps = m_selectedTimeStepsUi;
-        }
-        m_applyTimeSteps = false;
-    }
-    else if ( &m_showRegion == changedField )
-    {
-        if ( m_case )
-        {
-            if ( m_cellFilter() != RigFlowDiagResults::CELLS_ACTIVE )
-            {
-                RimEclipseView* view = RicSelectOrCreateViewFeatureImpl::showViewSelection( m_case,
-                                                                                            "FlowCharacteristicsLastUsedView",
-                                                                                            "RegionView",
-                                                                                            "Show Region in View" );
-
-                if ( view != nullptr )
-                {
-                    view->faultCollection()->setActive( false );
-                    view->cellResult()->setResultType( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
-                    view->cellResult()->setFlowDiagTracerSelectionType(
-                        RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_BY_SELECTION );
-                    view->cellResult()->setSelectedTracers( m_selectedTracerNames );
-
-                    if ( m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION )
-                    {
-                        view->cellResult()->setResultVariable( RigFlowDiagDefines::communicationResultName() );
-                    }
-                    else
-                    {
-                        view->cellResult()->setResultVariable( RigFlowDiagDefines::tofResultName() );
-                    }
-
-                    int timeStep = 0;
-                    if ( m_timeStepSelectionType() == ALL_AVAILABLE )
-                    {
-                        if ( m_flowDiagSolution )
-                        {
-                            std::vector<int> timeSteps =
-                                m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps( RigFlowDiagResultAddress::PHASE_ALL );
-                            if ( !timeSteps.empty() )
-                            {
-                                timeStep = timeSteps[0];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if ( !m_selectedTimeStepsUi().empty() )
-                        {
-                            timeStep = m_selectedTimeStepsUi()[0];
-                        }
-                    }
-
-                    // Ensure selected time step has computed results
-                    m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux( timeStep );
-
-                    view->setCurrentTimeStep( timeStep );
-
-                    for ( RimEclipsePropertyFilter* f : view->eclipsePropertyFilterCollection()->propertyFilters() )
-                    {
-                        f->setActive( false );
-                    }
-                    RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( view->eclipsePropertyFilterCollection() );
-
-                    view->loadDataAndUpdate();
-                    m_case->updateConnectedEditors();
-
-                    RicSelectOrCreateViewFeatureImpl::focusView( view );
-                }
-            }
         }
     }
     else if ( changedField == &m_cellFilter )

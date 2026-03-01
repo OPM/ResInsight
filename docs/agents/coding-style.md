@@ -51,6 +51,30 @@ python -m ruff check --fix test_polygons.py
 3. It is unacceptable to remove or edit unrelated tests
 4. Documentation changes do not need to be linted, built or tested unless there are specific tests for documentation
 
+### Lambda Functions
+
+Keep lambdas short and readable:
+
+- **1–3 lines**: keep inline
+- **4+ lines or contains control flow** (if/for/while): extract to a named method (e.g. `onApplyClicked()`) and call it from a single-line lambda
+
+```cpp
+// Good – short inline lambda
+addNewButton( "Show Report", [this]() { showReport(); } );
+
+// Good – multi-statement, no control flow, still inline
+addNewButton( "Clear Data",
+              [this]()
+              {
+                  clearData();
+                  updateConnectedEditors();
+              } );
+
+// Good – complex logic extracted to a named method
+addNewButton( "Apply", [this]() { onApplyClicked(); } );
+void MyClass::onApplyClicked() { /* complex logic here */ }
+```
+
 ## Commit Conventions
 
 When creating commits:

@@ -94,11 +94,12 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void onLoadDataAndUpdate() override;
+    void                          onLoadDataAndUpdate() override;
 
 private:
     void assignIdIfNecessary() final;
+    void onApplyTimeStepsClicked();
+    void onShowRegionClicked();
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>        m_case;
@@ -106,7 +107,6 @@ private:
     caf::PdmField<caf::AppEnum<TimeSelectionType>> m_timeStepSelectionType;
     caf::PdmField<std::vector<int>>                m_selectedTimeSteps;
     caf::PdmField<std::vector<int>>                m_selectedTimeStepsUi;
-    caf::PdmField<bool>                            m_applyTimeSteps;
     caf::PdmField<bool>                            m_showLegend;
     caf::PdmField<double>                          m_maxPvFraction;
 
@@ -114,7 +114,6 @@ private:
     caf::PdmPtrField<RimEclipseView*>                 m_cellFilterView;
     caf::PdmField<QString>                            m_tracerFilter;
     caf::PdmField<std::vector<QString>>               m_selectedTracerNames;
-    caf::PdmField<bool>                               m_showRegion;
 
     caf::PdmField<double> m_minCommunication;
     caf::PdmField<int>    m_maxTof;
