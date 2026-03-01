@@ -44,13 +44,13 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmSettings.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiButton.h"
 
 #include <QCoreApplication>
 #include <QDate>
@@ -280,7 +280,6 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_openTelemetryPreferences, "openTelemetryPreferences", "openTelemetryPreferences" );
     m_openTelemetryPreferences = new RiaPreferencesOpenTelemetry;
-
 }
 
 //--------------------------------------------------------------------------------------------------

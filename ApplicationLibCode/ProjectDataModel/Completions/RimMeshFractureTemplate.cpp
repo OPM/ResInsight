@@ -136,7 +136,6 @@ void RimMeshFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* chang
         }
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------

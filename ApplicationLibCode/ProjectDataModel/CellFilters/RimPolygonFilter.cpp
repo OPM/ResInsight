@@ -259,10 +259,7 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     {
         group->add( &m_cellFilterPolygon );
         group->addNewButton( "Edit",
-                             [this]()
-                             {
-                                 RimPolygonTools::activate3dEditOfPolygonInView( m_cellFilterPolygon(), this );
-                             },
+                             [this]() { RimPolygonTools::activate3dEditOfPolygonInView( m_cellFilterPolygon(), this ); },
                              { .newRow = false, .leftLabelColumnSpan = 0 } );
     }
 

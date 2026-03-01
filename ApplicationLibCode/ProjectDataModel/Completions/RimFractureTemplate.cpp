@@ -30,9 +30,9 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cafPdmUiButton.h"
 #include "cafPdmUiTextEditor.h"
 
 #include "cvfVector3.h"
@@ -359,12 +359,7 @@ void RimFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         group->add( &m_dFactorScaleFactor );
         group->add( &m_conductivityScaleFactor );
 
-        group->addNewButton( "Apply",
-                             [this]()
-                             {
-                                 onLoadDataAndUpdateGeometryHasChanged();
-                             },
-                             { .leftLabelColumnSpan = 0 } );
+        group->addNewButton( "Apply", [this]() { onLoadDataAndUpdateGeometryHasChanged(); }, { .leftLabelColumnSpan = 0 } );
     }
 
     auto nonDarcyFlowGroup = uiOrdering.addNewGroup( "Non-Darcy Flow" );

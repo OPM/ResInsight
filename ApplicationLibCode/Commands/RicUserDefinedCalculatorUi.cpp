@@ -22,9 +22,9 @@
 #include "RimUserDefinedCalculationCollection.h"
 
 #include "cafAssert.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiObjectEditorHandle.h"
-#include "cafPdmUiButton.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RicUserDefinedCalculatorUi, "RicUserDefinedCalculator" );
 
@@ -111,16 +111,16 @@ void RicUserDefinedCalculatorUi::defineUiOrdering( QString uiConfigName, caf::Pd
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword( "Calculations", calculationsGroupName() );
         group->add( &m_currentCalculation );
-        group->addNewButton( "New Calculation",
-                             [this]()
-                             {
-                                 m_currentCalculation = calculationCollection()->addCalculation();
-                                 connectSignals( m_currentCalculation );
-                                 updateConnectedEditors();
-                             } )
+        group
+            ->addNewButton( "New Calculation",
+                            [this]()
+                            {
+                                m_currentCalculation = calculationCollection()->addCalculation();
+                                connectSignals( m_currentCalculation );
+                                updateConnectedEditors();
+                            } )
             ->setFillWidth( true );
-        group->addNewButton( "Delete Calculation", [this]() { onDeleteCalculationClicked(); }, { .newRow = false } )
-            ->setFillWidth( true );
+        group->addNewButton( "Delete Calculation", [this]() { onDeleteCalculationClicked(); }, { .newRow = false } )->setFillWidth( true );
     }
 
     {
@@ -134,10 +134,8 @@ void RicUserDefinedCalculatorUi::defineUiOrdering( QString uiConfigName, caf::Pd
     caf::PdmUiGroup* group = uiOrdering.findGroup( calculationsGroupName() );
     if ( group )
     {
-        group->addNewButton( "Import Calculations", [this]() { importCalculations(); } )
-            ->setFillWidth( true );
-        group->addNewButton( "Export Calculations", [this]() { exportCalculations(); }, { .newRow = false } )
-            ->setFillWidth( true );
+        group->addNewButton( "Import Calculations", [this]() { importCalculations(); } )->setFillWidth( true );
+        group->addNewButton( "Export Calculations", [this]() { exportCalculations(); }, { .newRow = false } )->setFillWidth( true );
     }
 }
 

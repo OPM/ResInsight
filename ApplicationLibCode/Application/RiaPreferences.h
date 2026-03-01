@@ -253,6 +253,5 @@ private:
     caf::PdmField<bool>                                         m_showInfoBox;
     caf::PdmField<bool>                                         m_showGridBox;
 
-
     QStringList m_tabNames;
 };
