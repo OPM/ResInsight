@@ -154,7 +154,6 @@ private:
     caf::PdmPtrField<RimPolygon*>         m_cellFilterPolygon;
     caf::PdmChildField<RimPolygon*>       m_internalPolygon;
     caf::PdmChildField<RimPolygonInView*> m_polygonEditor;
-    caf::PdmField<bool>                   m_editPolygonButton;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
