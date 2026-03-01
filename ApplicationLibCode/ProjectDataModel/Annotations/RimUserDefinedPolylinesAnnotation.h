@@ -75,7 +75,7 @@ private:
 
 private:
     caf::PdmField<QString>                      m_name;
-    caf::PdmField<bool>                         m_enablePicking;
+    bool                                        m_enablePicking{ false };
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
