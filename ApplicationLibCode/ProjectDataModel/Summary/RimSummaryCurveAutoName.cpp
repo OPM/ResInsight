@@ -33,8 +33,6 @@
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
-#include "cafPdmUiPushButtonEditor.h"
-
 CAF_PDM_SOURCE_INIT( RimSummaryCurveAutoName, "SummaryCurveAutoName" );
 
 //--------------------------------------------------------------------------------------------------

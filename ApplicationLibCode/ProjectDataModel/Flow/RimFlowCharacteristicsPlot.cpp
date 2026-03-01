@@ -42,7 +42,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafUtils.h"
 
 #include <QDateTime>
