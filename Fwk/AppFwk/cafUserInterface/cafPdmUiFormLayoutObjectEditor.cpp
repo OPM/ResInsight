@@ -193,7 +193,8 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
             {
                 if ( auto qButton = createButton( containerWidgetWithGridLayout, *button, uiConfigName ) )
                 {
-                    parentLayout->addWidget( qButton, currentRowIndex, currentColumn, 1, itemColumnSpan, button->alignment() );
+                    Qt::Alignment alignment = button->fillWidth() ? Qt::Alignment() : button->alignment();
+                    parentLayout->addWidget( qButton, currentRowIndex, currentColumn, 1, itemColumnSpan, alignment );
                     currentColumn += itemColumnSpan;
                 }
                 else
@@ -453,8 +454,8 @@ QPushButton* caf::PdmUiFormLayoutObjectEditor::createButton( QWidget*           
     QPushButton* qButton = new QPushButton( parent );
     qButton->setText( button.uiName( uiConfigName ) );
 
-    // Set size policy to size the button to its content rather than fill available space
-    qButton->setSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed );
+    auto hPolicy = button.fillWidth() ? QSizePolicy::Expanding : QSizePolicy::Maximum;
+    qButton->setSizePolicy( hPolicy, QSizePolicy::Fixed );
 
     // Set icon if available
     auto icon = button.uiIcon( uiConfigName );

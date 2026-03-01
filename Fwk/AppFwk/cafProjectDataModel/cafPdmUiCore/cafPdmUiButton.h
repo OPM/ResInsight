@@ -60,6 +60,9 @@ public:
     void          setAlignment( Qt::Alignment alignment );
     Qt::Alignment alignment() const;
 
+    void setFillWidth( bool fill );
+    bool fillWidth() const;
+
     void          setClickCallback( const ClickCallback& callback );
     ClickCallback clickCallback() const;
 
@@ -67,6 +70,7 @@ public:
 
 private:
     Qt::Alignment m_alignment;
+    bool          m_fillWidth{ false };
     ClickCallback m_clickCallback;
 };
 
