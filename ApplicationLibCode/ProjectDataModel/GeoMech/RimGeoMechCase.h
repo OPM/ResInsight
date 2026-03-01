@@ -128,7 +128,6 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void updateFormationNamesData() override;
@@ -139,6 +138,9 @@ private:
     void                    importElementPropertyFile();
     void                    closeSelectedElementPropertyFiles();
     void                    reloadSelectedElementPropertyFiles();
+    void                    onImportElementPropertyFileClicked();
+    void                    onReloadSelectedElementPropertyFilesClicked();
+    void                    onCloseSelectedElementPropertyFilesClicked();
     std::vector<Rim3dView*> allSpecialViews() const override;
 
 private:
@@ -147,9 +149,6 @@ private:
     caf::PdmField<double>                     m_frictionAngleDeg;
     caf::PdmField<std::vector<caf::FilePath>> m_elementPropertyFileNames;
     caf::PdmField<std::vector<int>>           m_elementPropertyFileNameIndexUiSelection;
-    caf::PdmField<bool>                       m_importElementPropertyFileCommand;
-    caf::PdmField<bool>                       m_closeElementPropertyFileCommand;
-    caf::PdmField<bool>                       m_reloadElementPropertyFileCommand;
 
     caf::PdmField<caf::AppEnum<BiotCoefficientType>> m_biotCoefficientType;
     caf::PdmField<double>                            m_biotFixedCoefficient;

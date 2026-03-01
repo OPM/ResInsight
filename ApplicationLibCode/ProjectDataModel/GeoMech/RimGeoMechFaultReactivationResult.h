@@ -53,7 +53,6 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void createWellGeometry();
     void createWellLogCurves();
@@ -68,8 +67,6 @@ private:
     RimGeoMechCase* geoMechCase() const;
 
 private:
-    caf::PdmField<bool> m_createFaultReactivationPlot;
-
     caf::PdmField<double> m_distanceFromFault;
 
     caf::PdmField<cvf::Vec3d> m_faultNormal;

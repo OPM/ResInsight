@@ -50,7 +50,6 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
-#include "cafPdmUiPushButtonEditor.h"
 
 #include "cvfBoundingBox.h"
 
@@ -72,9 +71,6 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
     CAF_PDM_InitObject( "Fault Reactivation Result", ":/GeoMechCase24x24.png" );
 
     CAF_PDM_InitField( &m_distanceFromFault, "DistanceFromFault", 5.0, "Distance From Fault" );
-
-    CAF_PDM_InitFieldNoDefault( &m_createFaultReactivationPlot, "CreateReactivationPlot", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_createFaultReactivationPlot );
 
     CAF_PDM_InitFieldNoDefault( &m_faultNormal, "FaultNormal", "" );
     CAF_PDM_InitFieldNoDefault( &m_faultTopPosition, "FaultTopPosition", "" );
@@ -157,7 +153,12 @@ void RimGeoMechFaultReactivationResult::defineUiOrdering( QString uiConfigName, 
 {
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Fault Reactivation Result" );
     group->add( &m_distanceFromFault );
-    group->add( &m_createFaultReactivationPlot );
+    group->addNewButton( "Create Plot",
+                         [this]()
+                         {
+                             createWellGeometry();
+                             createWellLogCurves();
+                         } );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -172,28 +173,6 @@ void RimGeoMechFaultReactivationResult::fieldChangedByUi( const caf::PdmFieldHan
     if ( changedField == &m_distanceFromFault )
     {
         createWellGeometry();
-    }
-    if ( changedField == &m_createFaultReactivationPlot )
-    {
-        createWellGeometry();
-        createWellLogCurves();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechFaultReactivationResult::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                               QString                    uiConfigName,
-                                                               caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_createFaultReactivationPlot )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Create Plot";
-        }
     }
 }
 

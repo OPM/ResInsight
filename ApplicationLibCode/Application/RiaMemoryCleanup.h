@@ -52,7 +52,6 @@ private:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     static std::pair<QString, QString> createMemoryReport();
 
@@ -61,6 +60,4 @@ private:
     caf::PdmField<std::vector<size_t>>   m_resultsToDelete;
     std::vector<RigFemResultAddress>     m_geomResultAddresses;
     std::vector<RigEclipseResultAddress> m_eclipseResultAddresses;
-    caf::PdmField<bool>                  m_performDelete;
-    caf::PdmField<bool>                  m_showMemoryReport;
 };
