@@ -92,6 +92,7 @@ protected:
 
     QMinimizePanel* findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
     PdmUiFieldEditorHandle* findOrCreateFieldEditor( QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName );
+    QPushButton* createButton( QWidget* parent, const PdmUiButton& button, const QString& uiConfigName );
 
     static void ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget, QMargins contentMargins = QMargins() );
 
@@ -108,8 +109,7 @@ private:
                                             std::set<QString>*             fieldKeywordNames,
                                             std::set<QString>*             groupNames );
 
-    QLabel*      createLabel( QWidget* parent, const PdmUiLabel& label, const QString& uiConfigName );
-    QPushButton* createButton( QWidget* parent, const PdmUiButton& button, const QString& uiConfigName );
+    QLabel* createLabel( QWidget* parent, const PdmUiLabel& label, const QString& uiConfigName );
 
     void deleteLabelsAndButtons();
 
