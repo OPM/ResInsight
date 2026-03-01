@@ -247,7 +247,6 @@ protected:
     caf::PdmField<double> m_halfLengthScaleFactor;
     caf::PdmField<double> m_dFactorScaleFactor;
     caf::PdmField<double> m_conductivityScaleFactor;
-    caf::PdmField<bool>   m_scaleApplyButton;
 
 private:
     caf::PdmField<double> m_userDefinedEffectivePermeability;
