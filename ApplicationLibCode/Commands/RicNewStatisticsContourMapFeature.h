@@ -20,8 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseCaseEnsemble;
-class RimReservoirGridEnsemble;
+class RimReservoirGridEnsembleBase;
 
 //==================================================================================================
 ///
@@ -31,14 +30,12 @@ class RicNewStatisticsContourMapFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addStatisticsContourMap( RimEclipseCaseEnsemble* eclipseCaseEnsemble );
-    static void addStatisticsContourMap( RimReservoirGridEnsemble* gridEnsemble );
+    static void addStatisticsContourMap( RimReservoirGridEnsembleBase* ensemble );
 
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimEclipseCaseEnsemble*   selectedEclipseCaseEnsemble();
-    static RimReservoirGridEnsemble* selectedGridEnsemble();
+    static RimReservoirGridEnsembleBase* selectedEnsemble();
 };

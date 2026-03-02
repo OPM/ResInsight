@@ -31,6 +31,7 @@ class RimCaseCollection;
 class RimEclipseCase;
 class RimEclipseStatisticsCase;
 class RimFormationNames;
+class RimStatisticsContourMap;
 
 class RimReservoirGridEnsembleBase
 {
@@ -54,5 +55,6 @@ public:
     virtual std::set<RimEclipseCase*> casesInViews() const;
     virtual RimCaseCollection*        statisticsCaseCollection() const;
     virtual RimFormationNames*        activeFormationNames() const;
+    virtual void                      addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) {}
     virtual RimEclipseStatisticsCase* createAndAppendStatisticsCase();
 };

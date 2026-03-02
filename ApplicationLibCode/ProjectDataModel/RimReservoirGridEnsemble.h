@@ -112,7 +112,7 @@ public:
     std::vector<RimWellTargetMapping*> wellTargetMappings() const;
 
     // Statistics contour maps
-    void addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap );
+    void addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) override;
 
     // Load and initialization
     void loadDataAndUpdate();
