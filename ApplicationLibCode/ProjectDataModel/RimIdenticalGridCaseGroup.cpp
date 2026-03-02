@@ -254,6 +254,22 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimReservoirGridEnsembleBase::GridModeType RimIdenticalGridCaseGroup::gridMode() const
+{
+    return GridModeType::SHARED_GRID;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimIdenticalGridCaseGroup::ensembleName() const
+{
+    return name.v();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 {
     if ( m_unionOfMatrixActiveCells->reservoirActiveCellCount() > 0 )

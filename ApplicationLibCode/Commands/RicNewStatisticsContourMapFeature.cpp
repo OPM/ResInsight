@@ -20,6 +20,7 @@
 
 #include "ContourMap/RimStatisticsContourMap.h"
 #include "RimEclipseCaseEnsemble.h"
+#include "RimReservoirGridEnsemble.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -50,9 +51,27 @@ void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimEclipseCaseE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimReservoirGridEnsemble* gridEnsemble )
+{
+    if ( !gridEnsemble ) return;
+
+    std::vector<RimEclipseCase*> cases = gridEnsemble->cases();
+    if ( cases.empty() ) return;
+
+    auto statisticsContourMap = new RimStatisticsContourMap();
+    statisticsContourMap->setEclipseCase( cases[0] );
+    gridEnsemble->addStatisticsContourMap( statisticsContourMap );
+    gridEnsemble->updateConnectedEditors();
+
+    Riu3DMainWindowTools::selectAsCurrentItem( statisticsContourMap );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicNewStatisticsContourMapFeature::isCommandEnabled() const
 {
-    return selectedEclipseCaseEnsemble() != nullptr;
+    return selectedEclipseCaseEnsemble() != nullptr || selectedGridEnsemble() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,8 +79,14 @@ bool RicNewStatisticsContourMapFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewStatisticsContourMapFeature::onActionTriggered( bool isChecked )
 {
-    RimEclipseCaseEnsemble* eclipseCaseEnsemble = selectedEclipseCaseEnsemble();
-    addStatisticsContourMap( eclipseCaseEnsemble );
+    if ( auto* eclipseCaseEnsemble = selectedEclipseCaseEnsemble() )
+    {
+        addStatisticsContourMap( eclipseCaseEnsemble );
+    }
+    else if ( auto* gridEnsemble = selectedGridEnsemble() )
+    {
+        addStatisticsContourMap( gridEnsemble );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,4 +104,12 @@ void RicNewStatisticsContourMapFeature::setupActionLook( QAction* actionToSetup 
 RimEclipseCaseEnsemble* RicNewStatisticsContourMapFeature::selectedEclipseCaseEnsemble()
 {
     return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCaseEnsemble>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimReservoirGridEnsemble* RicNewStatisticsContourMapFeature::selectedGridEnsemble()
+{
+    return caf::SelectionManager::instance()->selectedItemOfType<RimReservoirGridEnsemble>();
 }

@@ -20,6 +20,9 @@
 
 #include "RiaPorosityModel.h"
 
+#include <QString>
+
+#include <set>
 #include <vector>
 
 class RigActiveCellInfo;
@@ -27,18 +30,29 @@ class RigMainGrid;
 class RimCaseCollection;
 class RimEclipseCase;
 class RimEclipseStatisticsCase;
+class RimFormationNames;
 
 class RimReservoirGridEnsembleBase
 {
 public:
+    enum class GridModeType
+    {
+        SHARED_GRID,
+        INDIVIDUAL_GRIDS
+    };
+
     virtual ~RimReservoirGridEnsembleBase() = default;
 
-    virtual RigMainGrid*                 mainGrid()                                                       = 0;
-    virtual RimEclipseCase*              mainCase()                                                       = 0;
-    virtual std::vector<RimEclipseCase*> sourceCases() const                                              = 0;
-    virtual RigActiveCellInfo*           unionOfActiveCells( RiaDefines::PorosityModelType porosityType ) = 0;
-    virtual void                         computeUnionOfActiveCells()                                      = 0;
-    virtual RimCaseCollection*           statisticsCaseCollection() const                                 = 0;
+    virtual QString                      ensembleName() const = 0;
+    virtual GridModeType                 gridMode() const     = 0;
+    virtual std::vector<RimEclipseCase*> sourceCases() const  = 0;
+    virtual RimEclipseCase*              mainCase()           = 0;
 
+    virtual RigMainGrid*              mainGrid();
+    virtual RigActiveCellInfo*        unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
+    virtual void                      computeUnionOfActiveCells();
+    virtual std::set<RimEclipseCase*> casesInViews() const;
+    virtual RimCaseCollection*        statisticsCaseCollection() const;
+    virtual RimFormationNames*        activeFormationNames() const;
     virtual RimEclipseStatisticsCase* createAndAppendStatisticsCase();
 };

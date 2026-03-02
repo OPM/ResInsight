@@ -20,6 +20,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimWellTargetMapping.h"
 
 #include "RiuMainWindow.h"
@@ -38,6 +39,16 @@ void RicNewWellTargetMappingFeature::onActionTriggered( bool isChecked )
     if ( auto ensembles = caf::selectedObjectsByTypeStrict<RimEclipseCaseEnsemble*>(); !ensembles.empty() )
     {
         auto ensemble          = ensembles.front();
+        auto wellTargetMapping = new RimWellTargetMapping();
+        ensemble->addWellTargetMapping( wellTargetMapping );
+        wellTargetMapping->setDefaults();
+
+        ensemble->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem( wellTargetMapping );
+    }
+    else if ( auto gridEnsembles = caf::selectedObjectsByTypeStrict<RimReservoirGridEnsemble*>(); !gridEnsembles.empty() )
+    {
+        auto ensemble          = gridEnsembles.front();
         auto wellTargetMapping = new RimWellTargetMapping();
         ensemble->addWellTargetMapping( wellTargetMapping );
         wellTargetMapping->setDefaults();

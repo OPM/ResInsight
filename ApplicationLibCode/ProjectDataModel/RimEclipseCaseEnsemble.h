@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimNamedObject.h"
+#include "RimReservoirGridEnsembleBase.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -39,13 +40,18 @@ class RimStatisticsContourMap;
 //
 //
 //==================================================================================================
-class RimEclipseCaseEnsemble : public RimNamedObject
+class RimEclipseCaseEnsemble : public RimNamedObject, public RimReservoirGridEnsembleBase
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimEclipseCaseEnsemble();
     ~RimEclipseCaseEnsemble() override;
+
+    RimEclipseCase*              mainCase() override;
+    std::vector<RimEclipseCase*> sourceCases() const override;
+    GridModeType                 gridMode() const override;
+    QString                      ensembleName() const override;
 
     void addCase( RimEclipseCase* reservoir );
     void removeCase( RimEclipseCase* reservoir );
@@ -54,7 +60,7 @@ public:
     RimEclipseCase* findByFileName( const QString& gridFileName ) const;
 
     std::vector<RimEclipseCase*> cases() const;
-    std::set<RimEclipseCase*>    casesInViews() const;
+    std::set<RimEclipseCase*>    casesInViews() const override;
 
     void            addView( RimEclipseView* view );
     RimEclipseView* addViewForCase( RimEclipseCase* eclipseCase );

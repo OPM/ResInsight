@@ -40,6 +40,7 @@ class RimEclipseStatisticsCase;
 class RimEclipseView;
 class RimEclipseViewCollection;
 class RimEnsembleFileSet;
+class RimFormationNames;
 class RimStatisticsContourMap;
 class RimWellTargetMapping;
 
@@ -57,13 +58,6 @@ class RimReservoirGridEnsemble : public RimNamedObject, public RimReservoirGridE
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class GridModeType
-    {
-        AUTO_DETECT,
-        SHARED_GRID,
-        INDIVIDUAL_GRIDS
-    };
-
     RimReservoirGridEnsemble();
 
     // Ensemble file set connection
@@ -90,15 +84,18 @@ public:
     // Deferred loading control
     void loadGridDataFromFiles();
     bool isGridDataLoaded() const;
-    void setGridMode( GridModeType mode );
 
     // Helper methods
     bool         hasSharedGrid() const;
-    GridModeType effectiveGridMode() const;
+    GridModeType gridMode() const override;
+    QString      ensembleName() const override;
 
     // Active cells
     RigActiveCellInfo* unionOfActiveCells( RiaDefines::PorosityModelType porosityType ) override;
     void               computeUnionOfActiveCells() override;
+
+    // Formation names
+    RimFormationNames* activeFormationNames() const override;
 
     // Statistics
     RimCaseCollection*        statisticsCaseCollection() const override;
@@ -108,7 +105,7 @@ public:
     void                         addView( RimEclipseView* view );
     RimEclipseView*              addViewForCase( RimEclipseCase* eclipseCase );
     std::vector<RimEclipseView*> allViews() const;
-    std::set<RimEclipseCase*>    casesInViews() const;
+    std::set<RimEclipseCase*>    casesInViews() const override;
 
     // Well target mapping
     void                               addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
@@ -124,13 +121,17 @@ public:
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     void onFileSetChanged( const caf::SignalEmitter* emitter );
     void clearActiveCellUnions();
     void clearStatisticsResults();
     void updateMainGridAndActiveCellsForStatisticsCases();
+    void updateStatisticsVisibility();
 
     void createCaseObjectsFromEnsembleFileSet();
     bool detectGridDimensionEquality();
@@ -141,6 +142,9 @@ private:
     // File set reference
     caf::PdmPtrField<RimEnsembleFileSet*> m_ensembleFileSet;
 
+    // Formation names (shared across all realizations, only valid in shared grid mode)
+    caf::PdmPtrField<RimFormationNames*> m_activeFormationNames;
+
     // Ensemble id
     caf::PdmField<int> m_groupId;
 
@@ -149,7 +153,9 @@ private:
     caf::PdmChildField<RimCaseCollection*> m_statisticsCaseCollection;
 
     // Grid mode
+    caf::PdmField<bool>                       m_autoDetectGridType;
     caf::PdmField<caf::AppEnum<GridModeType>> m_gridMode;
+    caf::PdmField<caf::AppEnum<GridModeType>> m_detectedGridMode;
 
     // Views and mappings
     caf::PdmChildField<RimEclipseViewCollection*>     m_viewCollection;

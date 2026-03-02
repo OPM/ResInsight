@@ -69,6 +69,7 @@
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirGridEnsembleBase.h"
 #include "RimResultNameAlias.h"
 #include "RimStimPlanColors.h"
 #include "RimWellLogPlotCollection.h"
@@ -544,6 +545,26 @@ void RimEclipseCase::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns the formation names data for the case, falling back to the parent ensemble's
+/// shared formation names if the case has none of its own.
+//--------------------------------------------------------------------------------------------------
+const RigFormationNames* RimEclipseCase::effectiveFormationNames() const
+{
+    auto resolve = [&]( RimFormationNames* rim ) -> const RigFormationNames* { return rim ? rim->formationNamesData() : nullptr; };
+
+    if ( auto* formationNames = resolve( activeFormationNames() ) ) return formationNames;
+
+    if ( auto* coll = const_cast<RimEclipseCase*>( this )->parentCaseCollection() )
+    {
+        if ( auto* ensembleBase = coll->parentGridEnsembleBase() )
+        {
+            return resolve( ensembleBase->activeFormationNames() );
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::updateFormationNamesData()
@@ -551,14 +572,8 @@ void RimEclipseCase::updateFormationNamesData()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase )
     {
-        if ( activeFormationNames() )
-        {
-            rigEclipseCase->setActiveFormationNames( activeFormationNames()->formationNamesData() );
-        }
-        else
-        {
-            rigEclipseCase->setActiveFormationNames( nullptr );
-        }
+        auto* formationNames = effectiveFormationNames();
+        rigEclipseCase->setActiveFormationNames( formationNames );
 
         // Update plots based on formations
         RimMainPlotCollection::current()->updatePlotsWithFormations();
@@ -570,7 +585,7 @@ void RimEclipseCase::updateFormationNamesData()
 
             if ( eclView && eclView->isUsingFormationNames() )
             {
-                if ( !activeFormationNames() )
+                if ( !formationNames )
                 {
                     if ( eclView->cellResult()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                     {
@@ -730,14 +745,8 @@ void RimEclipseCase::computeCachedData()
 
         {
             auto task = pInf.task( "Calculating Formation Names Result", 2 );
-            if ( activeFormationNames() )
-            {
-                rigEclipseCase->setActiveFormationNames( activeFormationNames()->formationNamesData() );
-            }
-            else
-            {
-                rigEclipseCase->setActiveFormationNames( nullptr );
-            }
+
+            rigEclipseCase->setActiveFormationNames( effectiveFormationNames() );
         }
     }
 }
@@ -747,7 +756,9 @@ void RimEclipseCase::computeCachedData()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseCase::parentCaseCollection()
 {
-    return dynamic_cast<RimCaseCollection*>( parentField()->ownerObject() );
+    auto* field = parentField();
+    if ( !field ) return nullptr;
+    return dynamic_cast<RimCaseCollection*>( field->ownerObject() );
 }
 
 //--------------------------------------------------------------------------------------------------

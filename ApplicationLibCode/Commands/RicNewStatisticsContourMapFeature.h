@@ -21,6 +21,7 @@
 #include "cafCmdFeature.h"
 
 class RimEclipseCaseEnsemble;
+class RimReservoirGridEnsemble;
 
 //==================================================================================================
 ///
@@ -31,11 +32,13 @@ class RicNewStatisticsContourMapFeature : public caf::CmdFeature
 
 public:
     static void addStatisticsContourMap( RimEclipseCaseEnsemble* eclipseCaseEnsemble );
+    static void addStatisticsContourMap( RimReservoirGridEnsemble* gridEnsemble );
 
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimEclipseCaseEnsemble* selectedEclipseCaseEnsemble();
+    static RimEclipseCaseEnsemble*   selectedEclipseCaseEnsemble();
+    static RimReservoirGridEnsemble* selectedGridEnsemble();
 };

@@ -71,6 +71,9 @@ public:
     RigActiveCellInfo* unionOfActiveCells( RiaDefines::PorosityModelType porosityType ) override;
     void               computeUnionOfActiveCells() override;
 
+    GridModeType gridMode() const override;
+    QString      ensembleName() const override;
+
     static bool isStatisticsCaseCollection( RimCaseCollection* rimCaseCollection );
 
 protected:

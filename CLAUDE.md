@@ -62,4 +62,5 @@ When working with Python code:
 Follow these conventions:
 - Start with issue number: `#12773 Python: Add API for creating valve templates`
 - Use standard git commit message format
+- Only use line breaks between paragraphs in the description
 - Keep first line concise and descriptive

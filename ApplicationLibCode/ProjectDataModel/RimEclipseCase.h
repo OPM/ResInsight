@@ -43,6 +43,7 @@ class QString;
 class RimWellTargetMapping;
 class RigCaseCellResultsData;
 class RigEclipseCaseData;
+class RigFormationNames;
 class RigGridBase;
 class RigMainGrid;
 class RigVirtualPerforationTransmissibilities;
@@ -141,6 +142,8 @@ public:
     void addResultAlias( const QString& resultName, const QString& aliasName );
     void clearResultAliases();
 
+    void updateFormationNamesData() override;
+
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -149,7 +152,6 @@ protected:
 
     void resultAliasUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
-    void updateFormationNamesData() override;
     void syncResultAliases();
 
     // Internal methods
@@ -165,6 +167,8 @@ private:
     std::vector<RimEclipseContourMapView*> contourMapViews() const;
 
     void buildResultChildNodes();
+
+    const RigFormationNames* effectiveFormationNames() const;
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;

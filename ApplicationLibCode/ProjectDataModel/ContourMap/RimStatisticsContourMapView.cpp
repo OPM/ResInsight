@@ -83,9 +83,10 @@ QString RimStatisticsContourMapView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    if ( nameConfig()->addCaseName() && m_statisticsContourMap->ensemble() )
+    if ( nameConfig()->addCaseName() )
     {
-        generatedAutoTags.push_back( m_statisticsContourMap->ensemble()->name() );
+        auto ensName = m_statisticsContourMap->ensembleName();
+        if ( !ensName.isEmpty() ) generatedAutoTags.push_back( ensName );
     }
 
     if ( nameConfig()->addAggregationType() )

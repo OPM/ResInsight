@@ -31,6 +31,8 @@
 #include "ContourMap/RimStatisticsContourMap.h"
 #include "ContourMap/RimStatisticsContourMapView.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
+#include "Formations/RimFormationNames.h"
+#include "Formations/RimFormationNamesCollection.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -38,6 +40,7 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellTargetMapping.h"
 
@@ -53,12 +56,11 @@ CAF_PDM_SOURCE_INIT( RimReservoirGridEnsemble, "RimReservoirGridEnsemble" );
 namespace caf
 {
 template <>
-void caf::AppEnum<RimReservoirGridEnsemble::GridModeType>::setUp()
+void caf::AppEnum<RimReservoirGridEnsembleBase::GridModeType>::setUp()
 {
-    addItem( RimReservoirGridEnsemble::GridModeType::AUTO_DETECT, "AutoDetect", "Auto Detect" );
-    addItem( RimReservoirGridEnsemble::GridModeType::SHARED_GRID, "SharedGrid", "Shared Grid" );
-    addItem( RimReservoirGridEnsemble::GridModeType::INDIVIDUAL_GRIDS, "IndividualGrids", "Individual Grids" );
-    setDefault( RimReservoirGridEnsemble::GridModeType::AUTO_DETECT );
+    addItem( RimReservoirGridEnsembleBase::GridModeType::SHARED_GRID, "SharedGrid", "Shared Grid" );
+    addItem( RimReservoirGridEnsembleBase::GridModeType::INDIVIDUAL_GRIDS, "IndividualGrids", "Individual Grids" );
+    setDefault( RimReservoirGridEnsembleBase::GridModeType::SHARED_GRID );
 }
 } // namespace caf
 
@@ -82,7 +84,12 @@ RimReservoirGridEnsemble::RimReservoirGridEnsemble()
     CAF_PDM_InitFieldNoDefault( &m_ensembleFileSet, "EnsembleFileSet", "Ensemble File Set" );
     m_ensembleFileSet.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_gridMode, "GridMode", GridModeType::AUTO_DETECT, "Grid Mode" );
+    CAF_PDM_InitField( &m_autoDetectGridType, "AutoDetectGridType", true, "Auto Detect Grid Type" );
+    CAF_PDM_InitField( &m_gridMode, "GridMode", GridModeType::SHARED_GRID, "Grid Mode" );
+    CAF_PDM_InitField( &m_detectedGridMode, "DetectedGridMode", GridModeType::SHARED_GRID, "Detected Grid Mode" );
+    m_detectedGridMode.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names" );
 
     CAF_PDM_InitFieldNoDefault( &m_caseCollection, "CaseCollection", "Source Cases" );
     m_caseCollection = new RimCaseCollection;
@@ -263,7 +270,7 @@ RimEclipseCase* RimReservoirGridEnsemble::findByFileName( const QString& gridFil
 //--------------------------------------------------------------------------------------------------
 bool RimReservoirGridEnsemble::hasSharedGrid() const
 {
-    return m_gridMode.v() == GridModeType::SHARED_GRID;
+    return gridMode() == GridModeType::SHARED_GRID;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,17 +284,18 @@ bool RimReservoirGridEnsemble::isGridDataLoaded() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimReservoirGridEnsemble::GridModeType RimReservoirGridEnsemble::effectiveGridMode() const
+RimReservoirGridEnsembleBase::GridModeType RimReservoirGridEnsemble::gridMode() const
 {
+    if ( m_autoDetectGridType ) return m_detectedGridMode.v();
     return m_gridMode.v();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReservoirGridEnsemble::setGridMode( GridModeType mode )
+QString RimReservoirGridEnsemble::ensembleName() const
 {
-    m_gridMode = mode;
+    return RimNamedObject::name();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -586,6 +594,7 @@ void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
     menuBuilder << "RicNewStatisticsContourMapFeature";
+    menuBuilder << "RicNewWellTargetMappingFeature";
 
     if ( hasSharedGrid() )
     {
@@ -596,14 +605,80 @@ void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimFormationNames* RimReservoirGridEnsemble::activeFormationNames() const
+{
+    if ( !hasSharedGrid() ) return nullptr;
+    return m_activeFormationNames();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimReservoirGridEnsemble::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_activeFormationNames )
+    {
+        RimProject* proj = RimProject::current();
+        if ( proj && proj->activeOilField() && proj->activeOilField()->formationNamesCollection() )
+        {
+            for ( RimFormationNames* fnames : proj->activeOilField()->formationNamesCollection()->formationNamesList() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( fnames->shortName(), fnames, false, fnames->uiCapability()->uiIconProvider() ) );
+            }
+        }
+
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_groupId );
     uiOrdering.add( &m_ensembleFileSet );
-    uiOrdering.add( &m_gridMode );
+    uiOrdering.add( &m_autoDetectGridType );
+
+    if ( m_autoDetectGridType )
+    {
+        uiOrdering.add( &m_detectedGridMode );
+    }
+    else
+    {
+        uiOrdering.add( &m_gridMode );
+    }
+
+    if ( hasSharedGrid() )
+    {
+        uiOrdering.add( &m_activeFormationNames );
+    }
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_autoDetectGridType || changedField == &m_gridMode )
+    {
+        updateStatisticsVisibility();
+        updateConnectedEditors();
+    }
+    else if ( changedField == &m_activeFormationNames )
+    {
+        for ( auto rimCase : cases() )
+        {
+            rimCase->updateFormationNamesData();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -648,6 +723,8 @@ void RimReservoirGridEnsemble::initAfterRead()
     {
         m_viewCollection->setEclipseCaseProvider( [this]() { return this->cases(); } );
     }
+
+    updateStatisticsVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -694,6 +771,15 @@ void RimReservoirGridEnsemble::clearStatisticsResults()
             rimReservoirView->loadDataAndUpdate();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::updateStatisticsVisibility()
+{
+    bool hidden = !hasSharedGrid();
+    m_statisticsCaseCollection->uiCapability()->setUiTreeHidden( hidden );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -762,15 +848,13 @@ void RimReservoirGridEnsemble::loadGridDataFromFiles()
     if ( allCases.empty() ) return;
 
     // Determine effective grid mode
-    GridModeType effectiveMode = m_gridMode.v();
-
-    if ( effectiveMode == GridModeType::AUTO_DETECT )
+    if ( m_autoDetectGridType )
     {
-        // Run dimension detection
-        bool identical = detectGridDimensionEquality();
-        effectiveMode  = identical ? GridModeType::SHARED_GRID : GridModeType::INDIVIDUAL_GRIDS;
-        m_gridMode     = effectiveMode; // Update to detected mode
+        bool identical     = detectGridDimensionEquality();
+        m_detectedGridMode = identical ? GridModeType::SHARED_GRID : GridModeType::INDIVIDUAL_GRIDS;
     }
+
+    GridModeType effectiveMode = gridMode();
 
     // Load grids based on effective mode
     if ( effectiveMode == GridModeType::SHARED_GRID )
@@ -783,6 +867,7 @@ void RimReservoirGridEnsemble::loadGridDataFromFiles()
         // loadGridsInIndividualMode();
     }
 
+    updateStatisticsVisibility();
     updateConnectedEditors();
 }
 

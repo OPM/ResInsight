@@ -44,6 +44,7 @@
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStatisticsContourMapProjection.h"
 #include "RimStatisticsContourMapView.h"
@@ -150,9 +151,9 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( ( eclipseCase() == nullptr ) && ( !ensemble()->cases().empty() ) )
+    if ( ( eclipseCase() == nullptr ) && ( !ensembleCases().empty() ) )
     {
-        auto selCase = ensemble()->cases().front();
+        auto selCase = ensembleCases().front();
         setEclipseCase( selCase );
     }
 
@@ -203,7 +204,7 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     tsGroup->setCollapsedByDefault();
     tsGroup->add( &m_selectedTimeSteps );
 
-    if ( eclipseCase() && eclipseCase()->activeFormationNames() )
+    if ( activeFormationNames() )
     {
         auto formationGrp = uiOrdering.addNewGroup( "Formation Selection" );
         if ( !m_enableFormationFilter ) formationGrp->setCollapsedByDefault();
@@ -260,9 +261,45 @@ void RimStatisticsContourMap::setEclipseCase( RimEclipseCase* eCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCaseEnsemble* RimStatisticsContourMap::ensemble() const
+QString RimStatisticsContourMap::ensembleName() const
 {
-    return firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+    if ( auto* ens = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>() ) return ens->ensembleName();
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFormationNames* RimStatisticsContourMap::activeFormationNames() const
+{
+    if ( auto* gridCase = eclipseCase() )
+    {
+        if ( auto* formationNames = gridCase->activeFormationNames() ) return formationNames;
+    }
+    if ( auto* ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>() )
+    {
+        return ensemble->activeFormationNames();
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimStatisticsContourMap::ensembleCases() const
+{
+    if ( auto* ens = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>() ) return ens->sourceCases();
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimEclipseCase*> RimStatisticsContourMap::ensembleCasesInViews() const
+{
+    if ( auto* ens = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>() ) return ens->casesInViews();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,7 +358,7 @@ void RimStatisticsContourMap::switchToSelectedSourceCase()
     {
         newCase->ensureReservoirCaseIsOpen();
 
-        if ( m_openEclipseCase && !ensemble()->casesInViews().contains( m_openEclipseCase ) )
+        if ( m_openEclipseCase && !ensembleCasesInViews().contains( m_openEclipseCase ) )
         {
             m_openEclipseCase->closeReservoirCase();
         }
@@ -353,7 +390,7 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
     }
     else if ( &m_primaryCase == fieldNeedingOptions )
     {
-        for ( auto eCase : ensemble()->cases() )
+        for ( auto eCase : ensembleCases() )
         {
             options.push_back( caf::PdmOptionItemInfo( eCase->caseUserDescription(), eCase, false, eCase->uiIconProvider() ) );
         }
@@ -361,16 +398,13 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
     }
     else if ( &m_selectedFormations == fieldNeedingOptions )
     {
-        if ( auto eCase = eclipseCase() )
+        if ( auto formations = activeFormationNames() )
         {
-            if ( auto formations = eCase->activeFormationNames() )
+            if ( formations->formationNamesData() )
             {
-                if ( formations->formationNamesData() )
+                for ( auto& f : formations->formationNamesData()->formationNames() )
                 {
-                    for ( auto& f : formations->formationNamesData()->formationNames() )
-                    {
-                        options.push_back( caf::PdmOptionItemInfo( f, f, false ) );
-                    }
+                    options.push_back( caf::PdmOptionItemInfo( f, f, false ) );
                 }
             }
         }
@@ -418,8 +452,7 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::initAfterRead()
 {
-    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
-    if ( !ensemble ) return;
+    if ( ensembleCases().empty() ) return;
 
     switchToSelectedSourceCase();
 
@@ -498,10 +531,8 @@ void RimStatisticsContourMap::computeStatistics()
     if ( m_computeStatisticsButton.isReadOnly() ) return;
 
     RiaLogging::info( "Computing statistics" );
-    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
-    if ( !ensemble ) return;
-
-    if ( ensemble->cases().empty() ) return;
+    auto cases = ensembleCases();
+    if ( cases.empty() ) return;
     if ( eclipseCase() == nullptr ) return;
 
     RigFloodingSettings floodSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
@@ -518,7 +549,7 @@ void RimStatisticsContourMap::computeStatistics()
 
     auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
-    const size_t nCases = ensemble->cases().size();
+    const size_t nCases = cases.size();
 
     std::map<size_t, std::vector<std::vector<double>>> timestep_results;
 
@@ -526,12 +557,35 @@ void RimStatisticsContourMap::computeStatistics()
 
     auto readerSettings                = RiaPreferencesGrid::gridOnlyReaderSettings();
     readerSettings.onlyLoadActiveCells = true;
-    auto casesInViews                  = ensemble->casesInViews();
+    auto casesInViews                  = ensembleCasesInViews();
     auto oldReaderType                 = RiaPreferencesGrid::current()->gridModelReaderOverride();
     RiaPreferencesGrid::current()->setGridModelReaderOverride( RiaDefines::GridModelReader::OPM_COMMON );
 
+    // For shared grids (RimReservoirGridEnsemble in shared mode), the grid geometry is identical
+    // across all cases, so the expensive grid mapping only needs to be computed once.
+    std::unique_ptr<RigEclipseContourMapProjection> sharedProjection;
+    if ( auto* gridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>() )
+    {
+        if ( ( gridEnsemble->gridMode() == RimReservoirGridEnsembleBase::GridModeType::SHARED_GRID ) &&
+             eclipseCase()->ensureReservoirCaseIsOpen() )
+        {
+            std::set<int> sharedKLayers;
+            auto          formationNames = selectedFormations();
+            if ( !formationNames.empty() )
+            {
+                if ( auto names = activeFormationNames() )
+                    if ( auto fData = names->formationNamesData() ) sharedKLayers = fData->findKLayers( formationNames );
+            }
+
+            auto* primaryCaseData   = eclipseCase()->eclipseCaseData();
+            auto* primaryResultData = primaryCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            sharedProjection = std::make_unique<RigEclipseContourMapProjection>( *contourMapGrid, *primaryCaseData, *primaryResultData );
+            sharedProjection->generateGridMapping( resultAggregation, {}, sharedKLayers, selectedPolygons() );
+        }
+    }
+
     int i = 1;
-    for ( RimEclipseCase* eCase : ensemble->cases() )
+    for ( RimEclipseCase* eCase : cases )
     {
         auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
 
@@ -545,58 +599,98 @@ void RimStatisticsContourMap::computeStatistics()
             auto eclipseCaseData = eCase->eclipseCaseData();
             auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-            RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *eclipseCaseData, *resultData );
-
-            std::set<int> usedKLayers;
-            auto          formationNames = selectedFormations();
-
-            bool formationNamesOk = true;
-            if ( !formationNames.empty() )
+            if ( sharedProjection )
             {
-                if ( auto names = eCase->activeFormationNames() )
+                // Shared grid mode: grid mapping was already computed from the primary case.
+                // Only extract results from the per-case result data.
+                if ( m_resultDefinition()->hasDynamicResult() )
                 {
-                    if ( auto fData = names->formationNamesData() )
+                    for ( auto [localTs, globalTs] : mapLocalToGlobalTimeSteps( eCase->timeStepDates() ) )
                     {
-                        usedKLayers = fData->findKLayers( formationNames );
+                        auto result = RigEclipseContourMapProjection::generateResults( *sharedProjection,
+                                                                                       *contourMapGrid,
+                                                                                       *resultData,
+                                                                                       m_resultDefinition()->eclipseResultAddress(),
+                                                                                       resultAggregation,
+                                                                                       localTs,
+                                                                                       floodSettings )
+                                          .second;
+                        timestep_results[globalTs].push_back( result );
+                    }
+                }
+                else
+                {
+                    auto result = RigEclipseContourMapProjection::generateResults( *sharedProjection,
+                                                                                   *contourMapGrid,
+                                                                                   *resultData,
+                                                                                   m_resultDefinition()->eclipseResultAddress(),
+                                                                                   resultAggregation,
+                                                                                   0,
+                                                                                   floodSettings )
+                                      .second;
+                    timestep_results[0].push_back( result );
+                }
+            }
+            else
+            {
+                // Individual grids: compute grid mapping per case.
+                RigEclipseContourMapProjection contourMapProjection( *contourMapGrid, *eclipseCaseData, *resultData );
+
+                std::set<int> usedKLayers;
+                auto          selectedFormations = this->selectedFormations();
+
+                bool formationNamesOk = true;
+                if ( !selectedFormations.empty() )
+                {
+                    auto formationNames = eCase->activeFormationNames();
+                    if ( !formationNames ) formationNames = activeFormationNames();
+
+                    if ( formationNames )
+                    {
+                        if ( auto fData = formationNames->formationNamesData() )
+                        {
+                            usedKLayers = fData->findKLayers( selectedFormations );
+                        }
+                        else
+                        {
+                            formationNamesOk = false;
+                        }
                     }
                     else
                     {
                         formationNamesOk = false;
                     }
                 }
-                else
+
+                if ( formationNamesOk )
                 {
-                    formationNamesOk = false;
-                }
-            }
+                    contourMapProjection.generateGridMapping( resultAggregation, {}, usedKLayers, selectedPolygons() );
 
-            if ( formationNamesOk )
-            {
-                contourMapProjection.generateGridMapping( resultAggregation, {}, usedKLayers, selectedPolygons() );
-
-                if ( m_resultDefinition()->hasDynamicResult() )
-                {
-                    std::vector<std::pair<int, int>> timeSteps = mapLocalToGlobalTimeSteps( eCase->timeStepDates() );
-
-                    for ( auto [localTs, globalTs] : timeSteps )
+                    if ( m_resultDefinition()->hasDynamicResult() )
+                    {
+                        for ( auto [localTs, globalTs] : mapLocalToGlobalTimeSteps( eCase->timeStepDates() ) )
+                        {
+                            std::vector<double> result = contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(),
+                                                                                               resultAggregation,
+                                                                                               localTs,
+                                                                                               floodSettings );
+                            timestep_results[globalTs].push_back( result );
+                        }
+                    }
+                    else
                     {
                         std::vector<double> result = contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(),
                                                                                            resultAggregation,
-                                                                                           localTs,
+                                                                                           0,
                                                                                            floodSettings );
-                        timestep_results[globalTs].push_back( result );
+                        timestep_results[0].push_back( result );
                     }
                 }
                 else
                 {
-                    std::vector<double> result =
-                        contourMapProjection.generateResults( m_resultDefinition()->eclipseResultAddress(), resultAggregation, 0, floodSettings );
-                    timestep_results[0].push_back( result );
+                    RiaLogging::warning(
+                        QString( "Formation names are missing for case %1, skipping case." ).arg( eCase->caseUserDescription() ) );
                 }
-            }
-            else
-            {
-                RiaLogging::warning( QString( "Formation names are missing for case %1, skipping case." ).arg( eCase->caseUserDescription() ) );
             }
         }
         eCase->setReaderSettings( oldSettings );
