@@ -503,12 +503,12 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* osduGroup = uiOrdering.addNewGroup( "OSDU" );
         osduGroup->setCollapsedByDefault();
         m_osduPreferences()->uiOrdering( uiConfigName, *osduGroup );
-        osduGroup->addNewButton( "Delete Token", [this]() { RicDeleteOsduTokenFeature::deleteUserToken(); } );
+        osduGroup->addNewButton( "Delete Token", []() { RicDeleteOsduTokenFeature::deleteUserToken(); } );
 
         caf::PdmUiGroup* sumoGroup = uiOrdering.addNewGroup( "SUMO" );
         sumoGroup->setCollapsedByDefault();
         m_sumoPreferences()->uiOrdering( uiConfigName, *sumoGroup );
-        sumoGroup->addNewButton( "Delete Token", [this]() { RicDeleteSumoTokenFeature::deleteUserToken(); } );
+        sumoGroup->addNewButton( "Delete Token", []() { RicDeleteSumoTokenFeature::deleteUserToken(); } );
 
         caf::PdmUiGroup* openTelemetryGroup = uiOrdering.addNewGroup( "OpenTelemetry" );
         openTelemetryGroup->setCollapsedByDefault();
