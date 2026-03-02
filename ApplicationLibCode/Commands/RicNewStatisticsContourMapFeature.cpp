@@ -44,8 +44,7 @@ void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimReservoirGri
     statisticsContourMap->setEclipseCase( cases[0] );
     ensemble->addStatisticsContourMap( statisticsContourMap );
 
-    if ( auto* pdmObject = dynamic_cast<caf::PdmObject*>( ensemble ) )
-        pdmObject->updateConnectedEditors();
+    if ( auto* pdmObject = dynamic_cast<caf::PdmObject*>( ensemble ) ) pdmObject->updateConnectedEditors();
 
     Riu3DMainWindowTools::selectAsCurrentItem( statisticsContourMap );
 }
