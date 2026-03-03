@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025 Equinor ASA
+//  Copyright (C) 2026  Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -58,13 +58,6 @@ private:
     size_t m_value;
 };
 
-// Define specific types using tag structs
-struct ReservoirCellIndexTag
-{
-};
-
-using ReservoirCellIndex = TypeSafeIndex<ReservoirCellIndexTag>;
-
 // Hash support for using in std::unordered_map, etc.
 namespace std
 {
@@ -73,4 +66,19 @@ struct hash<TypeSafeIndex<Tag>>
 {
     size_t operator()( const TypeSafeIndex<Tag>& idx ) const noexcept { return hash<size_t>{}( idx.value() ); }
 };
+
 } // namespace std
+
+// Define specific types using tag structs
+
+struct ReservoirCellIndexTag
+{
+};
+// Global cell index in the full IJK reservoir grid
+using ReservoirCellIndex = TypeSafeIndex<ReservoirCellIndexTag>;
+
+struct ActiveCellIndexTag
+{
+};
+// Index into the subset of active cells. This is usually the index used to access results data.
+using ActiveCellIndex = TypeSafeIndex<ActiveCellIndexTag>;
