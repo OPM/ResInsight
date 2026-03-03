@@ -136,12 +136,6 @@ void RimMeshFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* chang
         }
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
-
-    if ( changedField == &m_scaleApplyButton )
-    {
-        m_scaleApplyButton = false;
-        onLoadDataAndUpdateGeometryHasChanged();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

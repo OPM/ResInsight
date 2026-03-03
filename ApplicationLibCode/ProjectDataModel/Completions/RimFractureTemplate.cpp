@@ -30,9 +30,9 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 
 #include "cvfVector3.h"
@@ -208,9 +208,6 @@ RimFractureTemplate::RimFractureTemplate()
                                  "",
                                  "The conductivity values read from file will be scaled with this parameters",
                                  "" );
-    CAF_PDM_InitField( &m_scaleApplyButton, "ScaleApplyButton", false, "Apply" );
-
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_scaleApplyButton );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,7 +359,7 @@ void RimFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         group->add( &m_dFactorScaleFactor );
         group->add( &m_conductivityScaleFactor );
 
-        group->add( &m_scaleApplyButton );
+        group->addNewButton( "Apply", [this]() { onLoadDataAndUpdateGeometryHasChanged(); }, { .leftLabelColumnSpan = 0 } );
     }
 
     auto nonDarcyFlowGroup = uiOrdering.addNewGroup( "Non-Darcy Flow" );
@@ -438,15 +435,6 @@ void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* fiel
             QFont font( "Monospace", 10 );
             myAttr->font     = font;
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
-
-    if ( field == &m_scaleApplyButton )
-    {
-        auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Apply";
         }
     }
 

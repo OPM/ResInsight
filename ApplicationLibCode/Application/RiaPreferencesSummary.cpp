@@ -26,11 +26,11 @@
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 
 #include <algorithm>
 #include <vector>
@@ -116,9 +116,6 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "Semicolon separated list used to create cross plot curves. Based on selection, the names will be changed to "
                        "corresponding well or group vector names",
                        "" );
-
-    CAF_PDM_InitField( &m_selectDefaultTemplates, "selectDefaultTemplate", false, "", "", "Select Default Templates" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_selectDefaultTemplates );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedDefaultTemplates, "defaultSummaryTemplates", "Select Summary Plot Templates" );
     m_selectedDefaultTemplates.uiCapability()->setUiReadOnly( true );
@@ -274,7 +271,7 @@ void RiaPreferencesSummary::appendRestartFileGroup( caf::PdmUiOrdering& uiOrderi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const
+void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_defaultSummaryPlot );
 
@@ -286,7 +283,13 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
 
         case RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES:
             uiOrdering.add( &m_selectedDefaultTemplates );
-            uiOrdering.add( &m_selectDefaultTemplates );
+            uiOrdering.addNewButton( "Select Default Templates",
+                                     [this]()
+                                     {
+                                         auto selection =
+                                             RicSummaryPlotTemplateTools::selectDefaultPlotTemplates( m_selectedDefaultTemplates() );
+                                         if ( !selection.empty() ) m_selectedDefaultTemplates = selection;
+                                     } );
             break;
 
         default:
@@ -461,14 +464,6 @@ void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* fi
             myattr->iconSize = QSize( 24, 16 );
         }
     }
-    else if ( field == &m_selectDefaultTemplates )
-    {
-        auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Select Default Templates";
-        }
-    }
     else if ( field == &m_selectedDefaultTemplates )
     {
         auto attrib = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
@@ -582,18 +577,6 @@ cvf::Color3f RiaPreferencesSummary::historyCurveContrastColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesSummary::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    if ( changedField == &m_selectDefaultTemplates )
-    {
-        m_selectDefaultTemplates = false;
-
-        auto selection = RicSummaryPlotTemplateTools::selectDefaultPlotTemplates( m_selectedDefaultTemplates() );
-        if ( selection.empty() ) return;
-
-        m_selectedDefaultTemplates = selection;
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

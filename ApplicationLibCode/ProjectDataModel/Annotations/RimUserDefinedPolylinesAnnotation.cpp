@@ -32,7 +32,7 @@
 #include "cvfBoundingBox.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -47,10 +47,6 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
     CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitField( &m_name, "Name", QString( "User Defined Polyline" ), "Name" );
-
-    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_enablePicking );
-    m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -183,7 +179,7 @@ void RimUserDefinedPolylinesAnnotation::enablePicking( bool enable )
 //--------------------------------------------------------------------------------------------------
 bool RimUserDefinedPolylinesAnnotation::pickingEnabled() const
 {
-    return m_enablePicking();
+    return m_enablePicking;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,7 +200,12 @@ void RimUserDefinedPolylinesAnnotation::defineUiOrdering( QString uiConfigName, 
 
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_targets );
-    uiOrdering.add( &m_enablePicking );
+    uiOrdering.addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points",
+                             [this]()
+                             {
+                                 m_enablePicking = !m_enablePicking;
+                                 updateConnectedEditors();
+                             } );
 
     auto appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     appearanceGroup->add( &m_closePolyline );
@@ -231,11 +232,7 @@ void RimUserDefinedPolylinesAnnotation::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            oldValue,
                                                           const QVariant&            newValue )
 {
-    if ( changedField == &m_enablePicking )
-    {
-        updateConnectedEditors();
-    }
-    else if ( changedField == &m_showLines )
+    if ( changedField == &m_showLines )
     {
         appearance()->setLineFieldsHidden( !m_showLines() );
     }
@@ -283,22 +280,6 @@ void RimUserDefinedPolylinesAnnotation::defineEditorAttribute( const caf::PdmFie
                                                                QString                    uiConfigName,
                                                                caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_enablePicking )
-    {
-        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( pbAttribute )
-        {
-            if ( !m_enablePicking )
-            {
-                pbAttribute->m_buttonText = "Start Picking Points";
-            }
-            else
-            {
-                pbAttribute->m_buttonText = "Stop Picking Points";
-            }
-        }
-    }
-
     if ( field == &m_targets )
     {
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );

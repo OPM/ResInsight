@@ -42,7 +42,7 @@
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
-#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiButton.h"
 #include "cafSelectionManager.h"
 
 #include <limits>
@@ -122,9 +122,6 @@ RimPolygonFilter::RimPolygonFilter()
 
     CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter" );
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-20:2", "" );
-
-    CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPolygonButton );
 
     CAF_PDM_InitFieldNoDefault( &m_OBSOLETE_targets, "Targets", "Targets" );
     m_OBSOLETE_targets.uiCapability()->setUiTreeChildrenHidden( true );
@@ -233,14 +230,6 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, 
         attrib->pickEventHandler = m_pickTargetsEventHandler;
         attrib->enablePicking    = m_polygonEditor->pickingEnabled();
     }
-
-    if ( field == &m_editPolygonButton )
-    {
-        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            attrib->m_buttonText = "Edit";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,7 +258,9 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     if ( !isPolygonDefinedLocally() )
     {
         group->add( &m_cellFilterPolygon );
-        group->add( &m_editPolygonButton, { .newRow = false } );
+        group->addNewButton( "Edit",
+                             [this]() { RimPolygonTools::activate3dEditOfPolygonInView( m_cellFilterPolygon(), this ); },
+                             { .newRow = false, .leftLabelColumnSpan = 0 } );
     }
 
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
@@ -338,15 +329,6 @@ QList<caf::PdmOptionItemInfo> RimPolygonFilter::calculateValueOptions( const caf
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_editPolygonButton )
-    {
-        RimPolygonTools::activate3dEditOfPolygonInView( m_cellFilterPolygon(), this );
-
-        m_editPolygonButton = false;
-
-        return;
-    }
-
     if ( changedField == &m_polygonDataSource )
     {
         if ( !isPolygonDefinedLocally() )

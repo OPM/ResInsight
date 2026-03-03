@@ -96,7 +96,7 @@ public:
     void                   removeFromDefaultPlotTemplates( QString filename );
 
     void appendRestartFileGroup( caf::PdmUiOrdering& uiOrdering ) const;
-    void appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const;
+    void appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering );
 
     bool showSummaryTimeAsLongString() const;
     bool useMultipleThreadsWhenLoadingSummaryData() const;
@@ -123,7 +123,6 @@ public:
     cvf::Color3f historyCurveContrastColor() const;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
     void appendGridFields( caf::PdmUiOrdering& uiOrdering );
@@ -134,7 +133,6 @@ protected:
 
 private:
     caf::PdmField<DefaultSummaryPlotEnum> m_defaultSummaryPlot;
-    caf::PdmField<bool>                   m_selectDefaultTemplates;
     caf::PdmField<std::vector<QString>>   m_selectedDefaultTemplates;
 
     caf::PdmField<bool>                              m_summaryRestartFilesShowImportDialog;

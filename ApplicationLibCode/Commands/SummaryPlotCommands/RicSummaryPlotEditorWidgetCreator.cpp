@@ -27,6 +27,7 @@
 #include "RiuSummaryVectorSelectionUi.h"
 #include "RiuSummaryVectorSelectionWidgetCreator.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiGroup.h"
@@ -36,6 +37,7 @@
 
 #include <QBoxLayout>
 #include <QFrame>
+#include <QPushButton>
 #include <QSplitter>
 #include <QTreeView>
 #include <memory>
@@ -250,6 +252,16 @@ void RicSummaryPlotEditorWidgetCreator::configureAndUpdateFields( int           
     {
         if ( uiItems[i]->isUiHidden( uiConfigName ) ) continue;
         if ( uiItems[i]->isUiGroup() ) continue;
+
+        if ( auto* button = dynamic_cast<caf::PdmUiButton*>( uiItems[i] ) )
+        {
+            if ( auto* qButton = createButton( widget(), *button, uiConfigName ) )
+            {
+                qButton->setParent( widget() );
+                layout->insertWidget( currentWidgetIndex++, qButton );
+            }
+            continue;
+        }
 
         {
             caf::PdmUiFieldHandle* field = dynamic_cast<caf::PdmUiFieldHandle*>( uiItems[i] );

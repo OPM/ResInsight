@@ -239,11 +239,9 @@ private:
 
     // Osdu settings
     caf::PdmChildField<RiaPreferencesOsdu*> m_osduPreferences;
-    caf::PdmField<bool>                     m_deleteOsduToken;
 
     // sumo settings
     caf::PdmChildField<RiaPreferencesSumo*> m_sumoPreferences;
-    caf::PdmField<bool>                     m_deleteSumoToken;
 
     // OpenTelemetry settings
     caf::PdmChildField<RiaPreferencesOpenTelemetry*> m_openTelemetryPreferences;
@@ -256,10 +254,6 @@ private:
     caf::PdmField<bool>                                         m_enableFaultsByDefault;
     caf::PdmField<bool>                                         m_showInfoBox;
     caf::PdmField<bool>                                         m_showGridBox;
-
-    // Load and save preferences
-    caf::PdmField<bool> m_exportPreferences;
-    caf::PdmField<bool> m_importPreferences;
 
     QStringList m_tabNames;
 };

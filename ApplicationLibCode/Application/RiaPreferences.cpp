@@ -44,13 +44,13 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmSettings.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 
 #include <QCoreApplication>
 #include <QDate>
@@ -285,24 +285,11 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_osduPreferences, "osduPreferences", "osduPreferences" );
     m_osduPreferences = new RiaPreferencesOsdu;
-    CAF_PDM_InitField( &m_deleteOsduToken, "deleteOsduToken", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteOsduToken );
-    m_deleteOsduToken.xmlCapability()->disableIO();
-
     CAF_PDM_InitFieldNoDefault( &m_sumoPreferences, "sumoPreferences", "sumoPreferences" );
     m_sumoPreferences = new RiaPreferencesSumo;
-    CAF_PDM_InitField( &m_deleteSumoToken, "deleteSumoToken", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_deleteSumoToken );
-    m_deleteSumoToken.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_openTelemetryPreferences, "openTelemetryPreferences", "openTelemetryPreferences" );
     m_openTelemetryPreferences = new RiaPreferencesOpenTelemetry;
-
-    CAF_PDM_InitFieldNoDefault( &m_importPreferences, "importPreferences", "Import From File" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_importPreferences );
-
-    CAF_PDM_InitFieldNoDefault( &m_exportPreferences, "exportPreferences", "Export To File" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_exportPreferences );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,28 +355,6 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
             myAttr->validator = new QDoubleValidator( 0.000001, 100000.0, 6 );
         }
     }
-    else if ( ( field == &m_deleteOsduToken ) || ( field == &m_deleteSumoToken ) )
-    {
-        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( pbAttribute )
-        {
-            pbAttribute->m_buttonText = "Delete Token";
-        }
-    }
-    else if ( field == &m_importPreferences )
-    {
-        if ( auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            pbAttribute->m_buttonText = "Import Preferences";
-        }
-    }
-    else if ( field == &m_exportPreferences )
-    {
-        if ( auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            pbAttribute->m_buttonText = "Export Preferences";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -432,8 +397,26 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* importExportGroup = uiOrdering.addNewGroup( "Import and Export" );
         importExportGroup->setCollapsedByDefault();
-        importExportGroup->add( &m_importPreferences, { .newRow = false, .totalColumnSpan = 1 } );
-        importExportGroup->add( &m_exportPreferences, { .newRow = false, .totalColumnSpan = 1 } );
+        importExportGroup->addNewButton( "Import Preferences",
+                                         [this]()
+                                         {
+                                             QString filePath = RiuFileDialogTools::getOpenFileName( nullptr,
+                                                                                                     "Import Preferences",
+                                                                                                     "",
+                                                                                                     "XML files (*.xml);;All files(*.*)" );
+                                             importPreferenceValuesFromFile( filePath );
+                                         },
+                                         { .newRow = false, .totalColumnSpan = 1 } );
+        importExportGroup->addNewButton( "Export Preferences",
+                                         [this]()
+                                         {
+                                             QString filePath = RiuFileDialogTools::getSaveFileName( nullptr,
+                                                                                                     "Export Preferences",
+                                                                                                     "",
+                                                                                                     "XML files (*.xml);;All files(*.*)" );
+                                             exportPreferenceValuesToFile( filePath );
+                                         },
+                                         { .newRow = false, .totalColumnSpan = 1 } );
     }
     else if ( uiConfigName == RiaPreferences::tabNameGrid() )
     {
@@ -533,12 +516,12 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* osduGroup = uiOrdering.addNewGroup( "OSDU" );
         osduGroup->setCollapsedByDefault();
         m_osduPreferences()->uiOrdering( uiConfigName, *osduGroup );
-        osduGroup->add( &m_deleteOsduToken );
+        osduGroup->addNewButton( "Delete Token", []() { RicDeleteOsduTokenFeature::deleteUserToken(); } );
 
         caf::PdmUiGroup* sumoGroup = uiOrdering.addNewGroup( "SUMO" );
         sumoGroup->setCollapsedByDefault();
         m_sumoPreferences()->uiOrdering( uiConfigName, *sumoGroup );
-        sumoGroup->add( &m_deleteSumoToken );
+        sumoGroup->addNewButton( "Delete Token", []() { RicDeleteSumoTokenFeature::deleteUserToken(); } );
 
         caf::PdmUiGroup* openTelemetryGroup = uiOrdering.addNewGroup( "OpenTelemetry" );
         openTelemetryGroup->setCollapsedByDefault();
@@ -609,30 +592,6 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     else if ( changedField == &m_guiTheme )
     {
         RiuGuiTheme::updateGuiTheme( m_guiTheme() );
-    }
-    else if ( changedField == &m_deleteOsduToken )
-    {
-        RicDeleteOsduTokenFeature::deleteUserToken();
-        m_deleteOsduToken = false;
-    }
-    else if ( changedField == &m_deleteSumoToken )
-    {
-        RicDeleteSumoTokenFeature::deleteUserToken();
-        m_deleteSumoToken = false;
-    }
-    else if ( changedField == &m_exportPreferences )
-    {
-        QString filePath = RiuFileDialogTools::getSaveFileName( nullptr, "Export Preferences", "", "XML files (*.xml);;All files(*.*)" );
-        exportPreferenceValuesToFile( filePath );
-
-        m_exportPreferences = false;
-    }
-    else if ( changedField == &m_importPreferences )
-    {
-        QString filePath = RiuFileDialogTools::getOpenFileName( nullptr, "Import Preferences", "", "XML files (*.xml);;All files(*.*)" );
-        importPreferenceValuesFromFile( filePath );
-
-        m_importPreferences = false;
     }
     else
     {
