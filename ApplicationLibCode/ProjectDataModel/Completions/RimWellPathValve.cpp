@@ -348,7 +348,7 @@ std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
             }
         }
     }
-    else if ( auto valveCollection = firstAncestorOrThisOfType<RimValveCollection>() )
+    else if ( firstAncestorOrThisOfType<RimValveCollection>() )
     {
         // stand-alone ICV valve
         segments.emplace_back( startMD(), endMD() );

@@ -85,6 +85,13 @@ void formatWsegvalvRows( RifTextDataTableFormatter& formatter, const std::vector
         formatter.add( row.segmentNumber );
         formatter.add( row.cv );
         formatter.add( row.area );
+        formatter.addOptionalValue( row.extraLength );
+        formatter.addOptionalValue( row.pipeD );
+        formatter.addOptionalValue( row.roughness );
+        formatter.addOptionalValue( row.pipeA );
+        formatter.addOptionalStdString( row.status );
+        formatter.addOptionalValue( row.maxA );
+        formatter.addOptionalComment( QString::fromStdString( row.description ) );
 
         formatter.rowCompleted();
     }
@@ -223,7 +230,13 @@ std::vector<RifTextDataTableColumn> createWsegvalvHeader()
     return { RifTextDataTableColumn( "Well" ),
              RifTextDataTableColumn( "Seg No" ),
              RifTextDataTableColumn( "Cv" ),
-             RifTextDataTableColumn( "Ac", RifTextDataTableDoubleFormatting( RIF_CONSISE, 4 ) ) };
+             RifTextDataTableColumn( "Ac", RifTextDataTableDoubleFormatting( RIF_CONSISE, 4 ) ),
+             RifTextDataTableColumn( "XtraLen" ),
+             RifTextDataTableColumn( "PipeD" ),
+             RifTextDataTableColumn( "Rough" ),
+             RifTextDataTableColumn( "AreaPipe", RifTextDataTableDoubleFormatting( RIF_CONSISE, 4 ) ),
+             RifTextDataTableColumn( "Status" ),
+             RifTextDataTableColumn( "AreaMax", RifTextDataTableDoubleFormatting( RIF_CONSISE, 4 ) ) };
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -28,6 +28,7 @@
 
 #include "RimMswCompletionParameters.h"
 #include "RimPerforationInterval.h"
+#include "RimValveCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathValve.h"
@@ -721,8 +722,48 @@ void RicMswTableDataTools::collectCompsegDataByType( RigMswTableData&           
 //--------------------------------------------------------------------------------------------------
 void RicMswTableDataTools::collectWsegvalvData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, const std::optional<QDateTime>& exportDate )
 {
-    QString wellNameForExport = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport();
-    collectWsegvalvDataRecursively( tableData, exportInfo.mainBoreBranch(), wellNameForExport.toStdString(), exportDate );
+    auto mainBore          = exportInfo.mainBoreBranch();
+    auto wellNameForExport = mainBore->wellPath()->completionSettings()->wellNameForExport().toStdString();
+
+    collectStandaloneWelsegsDataRecursively( mainBore, tableData, wellNameForExport );
+
+    collectWsegvalvDataRecursively( tableData, exportInfo.mainBoreBranch(), wellNameForExport, exportDate );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswTableDataTools::collectStandaloneWelsegsDataRecursively( RicMswBranch* branch, RigMswTableData& tableData, std::string wellName )
+{
+    auto valveColl = branch->wellPath()->valveCollection();
+    for ( auto valve : valveColl->activeValves() )
+    {
+        auto segment       = branch->findClosestSegmentWithLowerMD( valve->startMD() );
+        auto segmentNumber = segment ? segment->segmentNumber() : 1;
+        if ( segmentNumber > 1 )
+        {
+            if ( valve->startMD() < segment->startMD() ) segmentNumber--;
+        }
+
+        double orificeRadius = valve->orificeDiameter( branch->wellPath()->unitSystem() ) / 2;
+        double area          = orificeRadius * orificeRadius * cvf::PI_D;
+
+        WsegvalvRow row;
+        row.well          = wellName;
+        row.segmentNumber = segmentNumber;
+        row.cv            = valve->flowCoefficient();
+        row.area          = area;
+        row.status        = "OPEN";
+
+        row.description = valve->name().toStdString();
+
+        tableData.addWsegvalvRow( row );
+    }
+
+    for ( auto subBranch : branch->branches() )
+    {
+        collectStandaloneWelsegsDataRecursively( subBranch, tableData, wellName );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -757,6 +798,8 @@ void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&     
                 row.segmentNumber = firstSubSegment->segmentNumber();
                 row.cv            = flowCoefficient;
                 row.area          = tieInValve->area();
+                row.status        = tieInValve->isOpen() ? "OPEN" : "SHUT";
+                row.description   = tieInValve->label().toStdString();
 
                 tableData.addWsegvalvRow( row );
             }
@@ -795,6 +838,8 @@ void RicMswTableDataTools::collectWsegvalvDataRecursively( RigMswTableData&     
                     row.segmentNumber = segmentNumber;
                     row.cv            = wsegValve->flowCoefficient();
                     row.area          = wsegValve->area();
+                    row.status        = wsegValve->isOpen() ? "OPEN" : "SHUT";
+                    row.description   = wsegValve->label().toStdString();
 
                     tableData.addWsegvalvRow( row );
                 }

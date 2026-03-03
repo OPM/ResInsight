@@ -131,6 +131,7 @@ public:
     double area() const;
     void   setFlowCoefficient( double icdFlowCoefficient );
     void   setArea( double icdArea );
+    bool   isOpen() const;
 
 private:
     double m_flowCoefficient;

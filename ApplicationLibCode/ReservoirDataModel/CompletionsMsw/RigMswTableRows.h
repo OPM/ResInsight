@@ -105,6 +105,8 @@ struct WsegvalvRow
     std::optional<double>       pipeA;          // AREAPIPE
     std::optional<std::string>  status;         // STATUS
     std::optional<double>       maxA;           // AREAMAX
+
+    std::string                 description;    // comment shown in export
 };
 
 //==================================================================================================
