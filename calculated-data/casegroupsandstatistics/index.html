@@ -5,31 +5,31 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
     <meta name="generator" content="Relearn 7.3.2+7b470298046df2c96c0da9da07a54572b7c4e1b0">
-    <meta name="description" content="Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
-If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
+    <meta name="description" content="Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of reservoir simulation cases with identical Grids (often labeled realizations).
+If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Grid Case Groups and Statistics :: ResInsight">
-    <meta name="twitter:description" content="Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
-If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
+    <meta name="twitter:description" content="Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of reservoir simulation cases with identical Grids (often labeled realizations).
+If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
     <meta property="og:url" content="https://resinsight.org/calculated-data/casegroupsandstatistics/index.html">
     <meta property="og:site_name" content="ResInsight">
     <meta property="og:title" content="Grid Case Groups and Statistics :: ResInsight">
-    <meta property="og:description" content="Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
-If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
+    <meta property="og:description" content="Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of reservoir simulation cases with identical Grids (often labeled realizations).
+If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="Calculated Data">
     <meta itemprop="name" content="Grid Case Groups and Statistics :: ResInsight">
-    <meta itemprop="description" content="Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
-If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
-    <meta itemprop="wordCount" content="783">
+    <meta itemprop="description" content="Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of reservoir simulation cases with identical Grids (often labeled realizations).
+If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
+    <meta itemprop="wordCount" content="784">
     <title>Grid Case Groups and Statistics :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1772108313" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772108313" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1772108313" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772108313" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1772108313" rel="stylesheet">
-    <link href="/css/theme.min.css?1772108313" rel="stylesheet">
-    <link href="/css/format-html.min.css?1772108313" rel="stylesheet" id="R-format-style">
+    <link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet"></noscript>
+    <link href="/css/auto-complete.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772538547" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar.min.css?1772538547" rel="stylesheet">
+    <link href="/css/theme.min.css?1772538547" rel="stylesheet">
+    <link href="/css/format-html.min.css?1772538547" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -177,10 +177,10 @@ If you have several Eclipse simulations with different input parameters availabl
 
 <h1 id="grid-case-groups-and-statistics">Grid Case Groups and Statistics</h1>
 
-<p><a href="#R-image-293a4fee2662713f9056cfd96e3bc284" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/GridCaseGroupTree.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-293a4fee2662713f9056cfd96e3bc284"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/GridCaseGroupTree.png"></a></p>
-<p><strong>Grid Case Group</strong>&rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled <em>realizations</em>).</p>
-<p>If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.</p>
+<p><a href="#R-image-db047378dbb72440b6b21c119fcc2bbe" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/GridCaseGroupTree.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-db047378dbb72440b6b21c119fcc2bbe"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/GridCaseGroupTree.png"></a></p>
+<p><strong>Grid Case Group</strong>&rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of reservoir simulation cases with identical Grids (often labeled <em>realizations</em>).</p>
+<p>If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.</p>
 <h2 id="creating-grid-case-groups">Creating Grid Case Groups</h2>
 <h3 id="from-files">From Files</h3>
 <p>The easiest way to create a <strong>Grid Case Group</strong> is to use the Import command:
@@ -208,19 +208,19 @@ To reduce memory usage, project loading time etc. remember to delete the 3D View
 <p>After creating a grid case group, an empty <strong>Statistics Case</strong> is created for you in the <strong>Derived Statistics</strong> folder of the <strong>Grid Case Group</strong>.</p>
 <h3 id="setting-up-and-calculate">Setting Up and Calculate</h3>
 <p><strong>Settings for grid case property statistics</strong></p>
-<p><a href="#R-image-a34461aef63f32e3ea9683b801f9a485" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-a34461aef63f32e3ea9683b801f9a485"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseProperties.png"></a></p>
+<p><a href="#R-image-0ade1b1e021b2a060fee3bab359c8cd6" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseProperties.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-0ade1b1e021b2a060fee3bab359c8cd6"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseProperties.png"></a></p>
 <ul>
 <li><strong>Compute</strong> &ndash;  Starts to calculate requested statistical Properties.</li>
 <li><strong>Edit</strong> &ndash; Deletes the calculated results, and makes the controls to edit the setup available.</li>
 <li><strong>Summary of calculation setup</strong> &ndash; Summarizes what to calculate.</li>
-<li><strong>Properties to consider</strong> &ndash; These options makes it possible to select what Eclipse properties to include in the Statistical calculations. Adding variables increase the memory usage and the computational time.</li>
+<li><strong>Properties to consider</strong> &ndash; These options makes it possible to select what reservoir simulation properties to include in the Statistical calculations. Adding variables increase the memory usage and the computational time.</li>
 <li><strong>Percentile Setup</strong> &ndash; Selects whether to calculate percentiles, what method and what percentile levels should be used. Turning this off speeds up the calculations.</li>
 <li><strong>Well Data Source Case</strong> &ndash; This option selects which set of <strong>Simulation Wells</strong> to be shown along with the statistical results. You can select one of the <strong>Source Cases</strong>.</li>
 </ul>
 <p><strong>Settings for grid cell calculations</strong></p>
-<p><a href="#R-image-a988b106d56f821b2ba232a0a76a98d2" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridCalculation.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-a988b106d56f821b2ba232a0a76a98d2"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridCalculation.png"></a></p>
+<p><a href="#R-image-4d23a2fc4671e9ffac925bffe6a49158" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridCalculation.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-4d23a2fc4671e9ffac925bffe6a49158"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridCalculation.png"></a></p>
 <ul>
 <li><strong>Data Source</strong> &ndash;  Defines either a cell property or a grid calculation expression to be used as data source for the statistical calculations.</li>
 <li><strong>Grid Calculation</strong> &ndash; List of all defined calculations in the project.</li>
@@ -228,8 +228,8 @@ To reduce memory usage, project loading time etc. remember to delete the 3D View
 </ul>
 <p>Cell values in a selection of cells can be aggregated as described in <a href="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html">Aggregation of Grid Cell Values</a></p>
 <p><strong>Settings for when statistics has been computed</strong></p>
-<p><a href="#R-image-55373d4ec75217c08d9ebe2c46e2ce4c" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridAfterComputations.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-55373d4ec75217c08d9ebe2c46e2ce4c"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridAfterComputations.png"></a></p>
+<p><a href="#R-image-37f4e3832fac108ae0366da6ee4af679" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridAfterComputations.png" style=" height: auto; width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-37f4e3832fac108ae0366da6ee4af679"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridAfterComputations.png"></a></p>
 <h4 id="percentile-methods">Percentile Methods</h4>
 <p>Three Percentile methods are implemented:</p>
 <ul>
@@ -261,7 +261,7 @@ A histogram is created and the percentile is calculated based on the histogram. 
 
         </div>
         <script>
-          window.index_js_url="/searchindex.en.js?1772108313";
+          window.index_js_url="/searchindex.en.js?1772538547";
         </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
@@ -274,12 +274,12 @@ A histogram is created and the percentile is calculated based on the histogram. 
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/js/auto-complete.js?1772108313" defer></script>
-        <script src="/js/lunr/lunr.min.js?1772108313" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1772108313" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1772108313" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1772108313" defer></script>
-        <script src="/js/search.js?1772108313" defer></script>
+        <script src="/js/auto-complete.js?1772538547" defer></script>
+        <script src="/js/lunr/lunr.min.js?1772538547" defer></script>
+        <script src="/js/lunr/lunr.stemmer.support.min.js?1772538547" defer></script>
+        <script src="/js/lunr/lunr.multi.min.js?1772538547" defer></script>
+        <script src="/js/lunr/lunr.en.min.js?1772538547" defer></script>
+        <script src="/js/search.js?1772538547" defer></script>
         <script>
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -531,8 +531,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         </div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1772108313" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1772108313" defer></script>
-    <script src="/js/theme.js?1772108313" defer></script>
+    <script src="/js/clipboard.min.js?1772538547" defer></script>
+    <script src="/js/perfect-scrollbar.min.js?1772538547" defer></script>
+    <script src="/js/theme.js?1772538547" defer></script>
   </body>
 </html>

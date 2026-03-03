@@ -3,7 +3,7 @@
   <channel>
     <title>Import :: ResInsight</title>
     <link>https://resinsight.org/import/index.html</link>
-    <description>ResInsight is able to import a wide span of Eclipse files, seismic data files, and ROFF grid models.&#xA;For import of Eclipse data pertinent to summary vectors and well log data, see Plot Window.&#xA;ResInsight can be built with support for geomechanical models from ABAQUS and is also able to import transient reservoir souring data from the SourSimRL simulation software.</description>
+    <description>ResInsight is able to import a wide span of reservoir simulation files, seismic data files, and ROFF grid models.&#xA;For import of reservoir simulation data pertinent to summary vectors and well log data, see Plot Window.&#xA;ResInsight can be built with support for geomechanical models from ABAQUS and is also able to import transient reservoir souring data from the SourSimRL simulation software.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="https://resinsight.org/import/index.xml" rel="self" type="application/rss+xml" />
@@ -26,7 +26,7 @@
       <link>https://resinsight.org/import/eclipsecases/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/import/eclipsecases/index.html</guid>
-      <description>ResInsight supports the following type of Eclipse input data:&#xA;*.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files. Note&#xD;Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.&#xA;Eclipse Results ResInsight offers several ways to import Eclipse (grid) files. Use one of the following commands in the File-&gt;Import-&gt;Eclipse Cases menu:</description>
+      <description>ResInsight supports the following type of reservoir simulation input data:&#xA;*.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files. Note&#xD;Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.&#xA;Simulation Results ResInsight offers several ways to import reservoir simulation grid files. Use one of the following commands in the File-&gt;Import-&gt;Eclipse Cases menu:</description>
     </item>
     <item>
       <title>Eclipse Summary Data</title>
@@ -47,14 +47,14 @@
       <link>https://resinsight.org/import/roffgridmodels/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/import/roffgridmodels/index.html</guid>
-      <description>ResInsight supports the following type of ROFF input data:&#xA;*.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format. Roff Data Roff Data can be imported from File-&gt;Import-&gt;Roff Grid Models-&gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as an Eclipse grid model.</description>
+      <description>ResInsight supports the following type of ROFF input data:&#xA;*.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format. Roff Data Roff Data can be imported from File-&gt;Import-&gt;Roff Grid Models-&gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as a reservoir simulation grid model.</description>
     </item>
     <item>
       <title>Seismic Data</title>
       <link>https://resinsight.org/import/seismicdata/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/import/seismicdata/index.html</guid>
-      <description>Importing Seismic Data ResInsight supports the following seismic file formats:&#xA;SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY A seismic file is imported by right-clicking the Seismic item in Project Tree or by using menu item File-&gt;Import-&gt;Import Seismic.</description>
+      <description>Importing Seismic Data ResInsight supports the following seismic file formats:&#xA;SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU® OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY A seismic file is imported by right-clicking the Seismic item in Project Tree or by using menu item File-&gt;Import-&gt;Import Seismic.</description>
     </item>
     <item>
       <title>Log ASCII Standard File</title>
@@ -75,7 +75,7 @@
       <link>https://resinsight.org/import/soursimrlresults/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/import/soursimrlresults/index.html</guid>
-      <description>ResInsight is able to import transient results from the simulation software SourSimRL to combine reservoir souring simulation data with an Eclipse case for analysis and visualization. Results from SourSimRL in its sourres binary format can be imported using the SourSim File Name field as shown below:&#xA;Importing such a file will enable result type called SourSimRL as explained in Eclipse Result Types</description>
+      <description>ResInsight is able to import transient results from the simulation software SourSimRL to combine reservoir souring simulation data with a reservoir simulation case for analysis and visualization. Results from SourSimRL in its sourres binary format can be imported using the SourSim File Name field as shown below:&#xA;Importing such a file will enable result type called SourSimRL as explained in Eclipse Result Types</description>
     </item>
     <item>
       <title> Radial Grid</title>
@@ -117,7 +117,7 @@
       <link>https://resinsight.org/import/appendingadditionalproperties/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/import/appendingadditionalproperties/index.html</guid>
-      <description>A grid model can be imported from several sources, either Eclipse binary/ascii or ROFF binary/ascii. Grid properties in separate files can be imported into any grid type as long as the number of grid cells is matching.&#xA;Appending properties&#xA;From the right-click menu of the case or Cell Result, select Add Input Property Select the file with properties The imported data is then available in the Cell Result by activating the Input Property in the Type drop down list.</description>
+      <description>A grid model can be imported from several sources, either an Eclipse® reservoir simulator binary/ascii or ROFF binary/ascii. Grid properties in separate files can be imported into any grid type as long as the number of grid cells is matching.&#xA;Appending properties&#xA;From the right-click menu of the case or Cell Result, select Add Input Property Select the file with properties The imported data is then available in the Cell Result by activating the Input Property in the Type drop down list.</description>
     </item>
     <item>
       <title>Paste Excel Time History Data</title>

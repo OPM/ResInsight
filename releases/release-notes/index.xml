@@ -47,7 +47,7 @@
       <link>https://resinsight.org/releases/release-notes/releasenotes_2024_09/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/releases/release-notes/releasenotes_2024_09/index.html</guid>
-      <description>Cloud Services ResInsight has now support for import of data from two cloud services, ensemble summary data from SUMO and well path geometry from OSDU.&#xA;Cloud Services&#xA;Ensemble Grid Case An ensemble of grid cases can be imported into a grid case ensemble. Creating a view in this ensemble will allow the user to quickly switch between realizations using a drop down menu.</description>
+      <description>Cloud Services ResInsight has now support for import of data from two cloud services, ensemble summary data from SUMO and well path geometry from OSDU®.&#xA;Cloud Services&#xA;Ensemble Grid Case An ensemble of grid cases can be imported into a grid case ensemble. Creating a view in this ensemble will allow the user to quickly switch between realizations using a drop down menu.</description>
     </item>
     <item>
       <title>What&#39;s New in 2024.03</title>
@@ -82,7 +82,7 @@
       <link>https://resinsight.org/releases/release-notes/releasenotes_2023_06/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/releases/release-notes/releasenotes_2023_06/index.html</guid>
-      <description>Seismic Data ResInsight supports the following seismic file formats:&#xA;SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY Seismic Data</description>
+      <description>Seismic Data ResInsight supports the following seismic file formats:&#xA;SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU® OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY Seismic Data</description>
     </item>
     <item>
       <title>What&#39;s New in 2023.03</title>

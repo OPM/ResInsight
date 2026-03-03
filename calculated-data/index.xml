@@ -33,7 +33,7 @@
       <link>https://resinsight.org/calculated-data/derivedresults/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/calculated-data/derivedresults/index.html</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.&#xA;Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.&#xA;Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry. ResInsight normalizes TRANX, TRANY and TRANZ with the overlapping flow area for both neighbor cells and NNC-cells. The results are named riTRANXbyArea, riTRANYbyArea and riTRANZbyArea respectively.</description>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.&#xA;Derived Results for Reservoir Simulation Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.</description>
     </item>
     <item>
       <title>Fault Distance</title>
@@ -54,7 +54,7 @@
       <link>https://resinsight.org/calculated-data/casegroupsandstatistics/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/calculated-data/casegroupsandstatistics/index.html</guid>
-      <description>Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).&#xA;If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.</description>
+      <description>Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of reservoir simulation cases with identical Grids (often labeled realizations).&#xA;If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.</description>
     </item>
   </channel>
 </rss>

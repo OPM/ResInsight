@@ -180,7 +180,7 @@
       <link>https://resinsight.org/plot-window/gridcrossplots/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/plot-window/gridcrossplots/index.html</guid>
-      <description>ResInsight supports the creation of scatter / cross plots of two Eclipse results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations. giving a separate color and label for each group. The above example shows a classic Porosity vs Permeability plot, grouped by formations, showing different trends for each formation.</description>
+      <description>ResInsight supports the creation of scatter / cross plots of two reservoir simulation results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations. giving a separate color and label for each group. The above example shows a classic Porosity vs Permeability plot, grouped by formations, showing different trends for each formation.</description>
     </item>
     <item>
       <title>Saturation Pressure Plots</title>

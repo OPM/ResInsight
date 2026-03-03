@@ -47,14 +47,14 @@
       <link>https://resinsight.org/3d-main-window/contourmaps/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/3d-main-window/contourmaps/index.html</guid>
-      <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells. ResInsight is able to export a contour map to a text file.</description>
+      <description>ResInsight can create contour maps based on different forms of aggregation of 3D reservoir simulation data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells. ResInsight is able to export a contour map to a text file.</description>
     </item>
     <item>
       <title>Ensemble Contour Maps</title>
       <link>https://resinsight.org/3d-main-window/ensemblecontourmap/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/3d-main-window/ensemblecontourmap/index.html</guid>
-      <description>ResInsight can create contour maps from an ensemble of grid models based on different forms of aggregation of 3D Eclipse data onto a 2D plane.&#xA;Video Tutorial: Ensemble Contour Map&#xA;Creating Contour Maps Import grid models using the Import-&gt;Eclipse Cases-&gt;Create Grid Case Ensemble. The grid models can have individually specified geometry. For grids with equal geometry, consider using Grid Case Group. The formation information is imported for each grid.</description>
+      <description>ResInsight can create contour maps from an ensemble of grid models based on different forms of aggregation of 3D reservoir simulation data onto a 2D plane.&#xA;Video Tutorial: Ensemble Contour Map&#xA;Creating Contour Maps Import grid models using the Import-&gt;Eclipse Cases-&gt;Create Grid Case Ensemble. The grid models can have individually specified geometry. For grids with equal geometry, consider using Grid Case Group. The formation information is imported for each grid.</description>
     </item>
     <item>
       <title>Result Inspection</title>
@@ -152,21 +152,21 @@
       <link>https://resinsight.org/3d-main-window/comparisonview/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/3d-main-window/comparisonview/index.html</guid>
-      <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.&#xA;The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of an Eclipse simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
+      <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.&#xA;The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of a reservoir simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
     </item>
     <item>
       <title>Flow Results</title>
       <link>https://resinsight.org/3d-main-window/flowvectorresult/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/3d-main-window/flowvectorresult/index.html</guid>
-      <description>Flow Results lets the user investigate flow properties and fluxes in a reservoir, e.g. by flow vector visualizations selecting and combining different fluids and directions.&#xA;Flow Vectors Flow vectors are computed based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K. Visualization of flow vector results always use velocity instead of rate. Velocity is computed as flow rate divided by cell face area.</description>
+      <description>Flow Results lets the user investigate flow properties and fluxes in a reservoir, e.g. by flow vector visualizations selecting and combining different fluids and directions.&#xA;Flow Vectors Flow vectors are computed based on the reservoir simulation properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K. Visualization of flow vector results always use velocity instead of rate. Velocity is computed as flow rate divided by cell face area.</description>
     </item>
     <item>
       <title>Streamlines</title>
       <link>https://resinsight.org/3d-main-window/streamlines/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/3d-main-window/streamlines/index.html</guid>
-      <description>Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity. The visualization and animation of streamlines requires the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K.&#xA;Displaying Streamlines To display streamlines, select a time step and check the Streamlines checkbox in Project Tree.</description>
+      <description>Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity. The visualization and animation of streamlines requires the reservoir simulation properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K.&#xA;Displaying Streamlines To display streamlines, select a time step and check the Streamlines checkbox in Project Tree.</description>
     </item>
     <item>
       <title>Measurement</title>
