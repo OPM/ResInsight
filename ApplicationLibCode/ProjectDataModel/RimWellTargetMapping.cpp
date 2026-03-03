@@ -394,7 +394,7 @@ void RimWellTargetMapping::generateEnsembleStatistics()
     RigWellTargetMapping::ClusteringLimits limits              = getClusteringLimits();
     RigFloodingSettings floodingSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
 
-    RimRegularGridCase* regularGridCase = RigWellTargetMapping::generateEnsembleCandidates( *ensemble,
+    RimRegularGridCase* regularGridCase = RigWellTargetMapping::generateEnsembleCandidates( ensemble->cases(),
                                                                                             m_timeStep(),
                                                                                             resultGridCellCount,
                                                                                             m_volumeType(),

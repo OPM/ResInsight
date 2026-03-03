@@ -132,6 +132,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimMockSummaryCase-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaConnectorTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetMappingTools-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
