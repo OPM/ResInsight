@@ -30,6 +30,7 @@
 #include "RimMultipleValveLocations.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimValveCollection.h"
 #include "RimValveTemplate.h"
 #include "RimWellPath.h"
 
@@ -311,39 +312,46 @@ double RimWellPathValve::convertOrificeDiameter( double                        o
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
 {
-    auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
-
     std::vector<std::pair<double, double>> segments;
-    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
+
+    if ( auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>() )
     {
-        // Flow for ICV is defined as the complete perforation interval
-
-        segments.push_back( std::make_pair( perforationInterval->startMD(), perforationInterval->endMD() ) );
-    }
-    else
-    {
-        // ICD/AICD : Use the valve start/end, can be a subset of perforation interval
-
-        double startMD = this->startMD();
-        double endMD   = this->endMD();
-
-        std::vector<double> valveMDs = valveLocations();
-        segments.reserve( valveMDs.size() );
-
-        for ( size_t i = 0; i < valveMDs.size(); ++i )
+        if ( componentType() == RiaDefines::WellPathComponentType::ICV )
         {
-            double segmentStart = startMD;
-            double segmentEnd   = endMD;
-            if ( i > 0 )
-            {
-                segmentStart = 0.5 * ( valveMDs[i - 1] + valveMDs[i] );
-            }
-            if ( i < valveMDs.size() - 1u )
-            {
-                segmentEnd = 0.5 * ( valveMDs[i] + valveMDs[i + 1] );
-            }
-            segments.push_back( std::make_pair( segmentStart, segmentEnd ) );
+            // Flow for ICV is defined as the complete perforation interval
+
+            segments.push_back( std::make_pair( perforationInterval->startMD(), perforationInterval->endMD() ) );
         }
+        else
+        {
+            // ICD/AICD : Use the valve start/end, can be a subset of perforation interval
+
+            double startMD = this->startMD();
+            double endMD   = this->endMD();
+
+            std::vector<double> valveMDs = valveLocations();
+            segments.reserve( valveMDs.size() );
+
+            for ( size_t i = 0; i < valveMDs.size(); ++i )
+            {
+                double segmentStart = startMD;
+                double segmentEnd   = endMD;
+                if ( i > 0 )
+                {
+                    segmentStart = 0.5 * ( valveMDs[i - 1] + valveMDs[i] );
+                }
+                if ( i < valveMDs.size() - 1u )
+                {
+                    segmentEnd = 0.5 * ( valveMDs[i] + valveMDs[i + 1] );
+                }
+                segments.push_back( std::make_pair( segmentStart, segmentEnd ) );
+            }
+        }
+    }
+    else if ( auto valveCollection = firstAncestorOrThisOfType<RimValveCollection>() )
+    {
+        // stand-alone ICV valve
+        segments.emplace_back( startMD(), endMD() );
     }
 
     return segments;
@@ -362,8 +370,15 @@ void RimWellPathValve::setComponentTypeFilter( const std::set<RiaDefines::WellPa
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathValve::isEnabled() const
 {
-    auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
-    return perforationInterval->isEnabled() && isChecked();
+    if ( auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>() )
+    {
+        return perforationInterval->isEnabled() && isChecked();
+    }
+    if ( auto valveCollection = firstAncestorOrThisOfType<RimValveCollection>() )
+    {
+        return valveCollection->isChecked() && isChecked();
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
