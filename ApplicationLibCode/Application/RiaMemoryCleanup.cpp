@@ -33,7 +33,6 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimProject.h"
 
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QDialog>

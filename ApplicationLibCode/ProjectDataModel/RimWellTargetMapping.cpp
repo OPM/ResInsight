@@ -46,7 +46,6 @@
 #include "RimTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderTools.h"
 
 #include "cvfMath.h"
