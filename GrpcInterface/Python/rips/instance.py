@@ -30,6 +30,7 @@ from .project import Project
 from .retry_policy import ExponentialBackoffRetryPolicy
 from .grpc_retry_interceptor import RetryOnRpcErrorClientInterceptor
 from .generated.generated_classes import CommandRouter
+from .exception import RipsError
 
 from typing import List, Optional, Tuple
 from pathlib import Path
@@ -148,20 +149,18 @@ class Instance:
         if not resinsight_executable:
             resinsight_executable_from_env = os.environ.get("RESINSIGHT_EXECUTABLE")
             if not resinsight_executable_from_env:
-                logger.error(
+                raise RipsError(
                     "Could not launch ResInsight because the environment variable"
                     " RESINSIGHT_EXECUTABLE is not set"
                 )
-                return None
             else:
                 resinsight_executable = resinsight_executable_from_env
 
         # Check if executable file exists
         if not os.path.isfile(resinsight_executable):
-            logger.error(
-                "ResInsight executable not found at path: %s", resinsight_executable
+            raise RipsError(
+                f"ResInsight executable not found at path: {resinsight_executable}"
             )
-            return None
 
         logger.info("Trying to launch %s", resinsight_executable)
         with tempfile.TemporaryDirectory() as tmp_dir_path:
@@ -188,9 +187,9 @@ class Instance:
                     port_number_file, init_timeout
                 )
                 if port == -1:
-                    logger.error("Unable to read port number. Launch failed.")
-                    # Need to kill the process using PID since there is no  GRPC connection to use.
+                    # Need to kill the process using PID since there is no GRPC connection to use.
                     Instance.__kill_process(pid)
+                    raise RipsError("Unable to read port number. Launch failed.")
                 else:
                     instance = Instance(port=port, launched=True)
                     return instance
@@ -221,12 +220,9 @@ class Instance:
             ):
                 return Instance(port=try_port)
 
-        logger.error(
-            "Could not find any ResInsight instances responding between ports %d and %d",
-            start_port,
-            end_port,
+        raise RipsError(
+            f"Could not find any ResInsight instances responding between ports {start_port} and {end_port}"
         )
-        return None
 
     def __execute_command(self, **command_params):
         return self.commands.Execute(Commands_pb2.CommandParams(**command_params))
