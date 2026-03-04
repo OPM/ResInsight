@@ -335,7 +335,7 @@ void RiaMemoryCleanup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
                                  clearSelectedResultsFromMemory();
                                  m_resultsToDelete.uiCapability()->updateConnectedEditors();
                              } );
-    uiOrdering.addNewButton( "Show Memory Report", [this]() { RiaMemoryCleanup::showMemoryReport(); } );
+    uiOrdering.addNewButton( "Show Memory Report", []() { RiaMemoryCleanup::showMemoryReport(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
