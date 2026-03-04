@@ -3,13 +3,15 @@ import os
 import time
 import multiprocessing
 
+import pytest
+
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
 
 
 def test_launch_non_existing(rips_instance, initialize_test):
-    instance = rips.Instance.launch("non_existing", console=True)
-    assert instance is None
+    with pytest.raises(rips.RipsError):
+        rips.Instance.launch("non_existing", console=True)
 
 
 def launch_resinsight(sec=1):
