@@ -90,7 +90,7 @@ size_t RigActiveCellInfo::cellResultIndex( size_t reservoirCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::setCellResultIndex( ReservoirCellIndex reservoirCellIndex, ActiveCellIndex reservoirCellResultIndex )
 {
-    CVF_TIGHT_ASSERT( reservoirCellResultIndex < m_reservoirCellToActiveCell.size() );
+    CVF_TIGHT_ASSERT( reservoirCellResultIndex.value() < m_reservoirCellToActiveCell.size() );
 
     m_reservoirCellToActiveCell[reservoirCellIndex.value()] = reservoirCellResultIndex;
 }
