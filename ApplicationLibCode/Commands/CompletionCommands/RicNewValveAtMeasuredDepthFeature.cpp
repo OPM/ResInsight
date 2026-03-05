@@ -102,6 +102,5 @@ void RicNewValveAtMeasuredDepthFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled() const
 {
-    auto wellPathSelectionItem = RiuWellPathSelectionItem::wellPathSelectionItem();
-    return wellPathSelectionItem != nullptr;
+    return RiuWellPathSelectionItem::wellPathSelectionItem() != nullptr;
 }

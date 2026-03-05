@@ -262,8 +262,7 @@ RicMswPerforationICV::RicMswPerforationICV( const QString&          label,
     setIsValid( true );
 
     setFlowCoefficient( wellPathValve->flowCoefficient() );
-    double orificeRadius = wellPathValve->orificeDiameter( wellPath->unitSystem() ) / 2;
-    setArea( orificeRadius * orificeRadius * cvf::PI_D );
+    setArea( wellPathValve->area( wellPath->unitSystem() ) );
 }
 
 //-------------------------------------------------------------------
@@ -372,8 +371,7 @@ RicMswTieInICV::RicMswTieInICV( const QString& label, const RimWellPath* wellPat
     setIsOpen( wellPathValve->isOpen() );
 
     setFlowCoefficient( wellPathValve->flowCoefficient() );
-    double orificeRadius = wellPathValve->orificeDiameter( wellPath->unitSystem() ) / 2;
-    setArea( orificeRadius * orificeRadius * cvf::PI_D );
+    setArea( wellPathValve->area( wellPath->unitSystem() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

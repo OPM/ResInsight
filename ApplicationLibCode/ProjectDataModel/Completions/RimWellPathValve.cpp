@@ -151,6 +151,15 @@ double RimWellPathValve::orificeDiameter( RiaDefines::EclipseUnitSystem unitSyst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimWellPathValve::area( RiaDefines::EclipseUnitSystem unitSystem ) const
+{
+    const double orificeRadius = orificeDiameter( unitSystem ) / 2.0;
+    return orificeRadius * orificeRadius * cvf::PI_D;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimWellPathValve::flowCoefficient() const
 {
     if ( m_valveTemplate() )

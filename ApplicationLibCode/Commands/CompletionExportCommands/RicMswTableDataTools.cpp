@@ -725,15 +725,15 @@ void RicMswTableDataTools::collectWsegvalvData( RigMswTableData& tableData, RicM
     auto mainBore          = exportInfo.mainBoreBranch();
     auto wellNameForExport = mainBore->wellPath()->completionSettings()->wellNameForExport().toStdString();
 
-    collectStandaloneWelsegsDataRecursively( mainBore, tableData, wellNameForExport );
+    collectStandaloneWsegvalvDataRecursively( tableData, mainBore, wellNameForExport );
 
-    collectWsegvalvDataRecursively( tableData, exportInfo.mainBoreBranch(), wellNameForExport, exportDate );
+    collectWsegvalvDataRecursively( tableData, mainBore, wellNameForExport, exportDate );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableDataTools::collectStandaloneWelsegsDataRecursively( RicMswBranch* branch, RigMswTableData& tableData, std::string wellName )
+void RicMswTableDataTools::collectStandaloneWsegvalvDataRecursively( RigMswTableData& tableData, RicMswBranch* branch, std::string wellName )
 {
     auto valveColl = branch->wellPath()->valveCollection();
     for ( auto valve : valveColl->activeValves() )
@@ -745,14 +745,11 @@ void RicMswTableDataTools::collectStandaloneWelsegsDataRecursively( RicMswBranch
             if ( valve->startMD() < segment->startMD() ) segmentNumber--;
         }
 
-        double orificeRadius = valve->orificeDiameter( branch->wellPath()->unitSystem() ) / 2;
-        double area          = orificeRadius * orificeRadius * cvf::PI_D;
-
         WsegvalvRow row;
         row.well          = wellName;
         row.segmentNumber = segmentNumber;
         row.cv            = valve->flowCoefficient();
-        row.area          = area;
+        row.area          = valve->area( branch->wellPath()->unitSystem() );
         row.status        = "OPEN";
 
         row.description = valve->name().toStdString();
@@ -762,7 +759,7 @@ void RicMswTableDataTools::collectStandaloneWelsegsDataRecursively( RicMswBranch
 
     for ( auto subBranch : branch->branches() )
     {
-        collectStandaloneWelsegsDataRecursively( subBranch, tableData, wellName );
+        collectStandaloneWsegvalvDataRecursively( tableData, subBranch, wellName );
     }
 }
 

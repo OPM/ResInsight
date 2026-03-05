@@ -49,10 +49,9 @@ bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* we
     if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICV ||
          wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICD )
     {
-        size_t nICDs            = wellPathValve->valveLocations().size();
-        double icdOrificeRadius = wellPathValve->orificeDiameter( m_unitSystem ) / 2;
-        double icdArea          = icdOrificeRadius * icdOrificeRadius * cvf::PI_D;
-        double totalIcdArea     = static_cast<double>( nICDs ) * icdArea;
+        size_t nICDs        = wellPathValve->valveLocations().size();
+        double icdArea      = wellPathValve->area( m_unitSystem );
+        double totalIcdArea = static_cast<double>( nICDs ) * icdArea;
 
         double icdAreaFactor = totalIcdArea * overlapLength / perforationCompsegsLength;
 

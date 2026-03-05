@@ -56,6 +56,7 @@ public:
     std::vector<double>              valveLocations() const;
     double                           orificeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double                           flowCoefficient() const;
+    double                           area( RiaDefines::EclipseUnitSystem unitSystem ) const;
     RimValveTemplate*                valveTemplate() const;
     void                             setValveTemplate( RimValveTemplate* valveTemplate );
     void                             applyValveLabelAndIcon();

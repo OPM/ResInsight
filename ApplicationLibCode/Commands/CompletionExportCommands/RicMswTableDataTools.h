@@ -140,7 +140,7 @@ void collectCompsegDataByType( RigMswTableData&                                 
 
 void collectWsegvalvData( RigMswTableData& tableData, RicMswExportInfo& exportInfo, const std::optional<QDateTime>& exportDate = std::nullopt );
 
-void collectStandaloneWelsegsDataRecursively( RicMswBranch* branch, RigMswTableData& tableData, std::string wellName );
+void collectStandaloneWsegvalvDataRecursively( RigMswTableData& tableData, RicMswBranch* branch, std::string wellName );
 
 void collectWsegvalvDataRecursively( RigMswTableData&                tableData,
                                      gsl::not_null<RicMswBranch*>    branch,
