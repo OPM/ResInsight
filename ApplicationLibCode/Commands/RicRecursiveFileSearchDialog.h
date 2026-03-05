@@ -83,6 +83,11 @@ public:
 
     static RiaDefines::FileType mapSummaryFileType( RicRecursiveFileSearchDialog::FileType fileType );
 
+    static QList<QStandardItem*> firstLevelItems( QStandardItem* rootItem );
+    static void                  setCheckedStateChildItems( QStandardItem* parentItem, Qt::CheckState checkState );
+    static void findItemsMatching( QStandardItem* parentItem, const QString& substring, QList<QStandardItem*>& matchingItems );
+    static void populateComboBoxHistoryFromRegistry( QComboBox* comboBox, const QString& registryKey );
+
 private:
     RicRecursiveFileSearchDialog( QWidget* parent, const std::vector<FileType>& fileTypes );
     ~RicRecursiveFileSearchDialog() override;
@@ -112,8 +117,6 @@ private:
     QStringList    findMatchingFiles();
     QStringList    createFileNameFilterList();
     static QString replaceWithRealizationStar( const QString& text );
-
-    static void populateComboBoxHistoryFromRegistry( QComboBox* comboBox, const QString& registryKey );
 
     static QStringList fileTypeToExtensionStrings( const std::vector<RicRecursiveFileSearchDialog::FileType>& fileTypes );
 

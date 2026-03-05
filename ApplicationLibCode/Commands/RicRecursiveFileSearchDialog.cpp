@@ -59,69 +59,6 @@
 namespace
 {
 
-// Get all first level items, usually the ensemble items
-auto firstLevelItems = []( QStandardItem* rootItem ) -> QList<QStandardItem*>
-{
-    QList<QStandardItem*> firstLevelItems;
-
-    for ( int i = 0; i < rootItem->rowCount(); ++i )
-    {
-        QStandardItem* item = rootItem->child( i );
-        if ( item )
-        {
-            firstLevelItems.append( item );
-        }
-    }
-
-    return firstLevelItems;
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void setCheckedStateChildItems( QStandardItem* parentItem, Qt::CheckState checkState )
-{
-    if ( !parentItem ) return;
-
-    for ( int i = 0; i < parentItem->rowCount(); ++i )
-    {
-        auto childItem = parentItem->child( i );
-        if ( childItem && childItem->isCheckable() )
-        {
-            childItem->setCheckState( checkState );
-        }
-
-        setCheckedStateChildItems( childItem, checkState );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void findItemsMatching( QStandardItem* parentItem, const QString& substring, QList<QStandardItem*>& matchingItems )
-{
-    if ( !parentItem ) return;
-
-    for ( int i = 0; i < parentItem->rowCount(); ++i )
-    {
-        auto searchString = substring + "/";
-
-        auto childItem = parentItem->child( i );
-        if ( childItem )
-        {
-            auto textToMatch = childItem->text();
-            textToMatch.replace( '\\', '/' );
-
-            if ( childItem && textToMatch.contains( searchString, Qt::CaseInsensitive ) )
-            {
-                matchingItems.append( childItem );
-            }
-        }
-
-        findItemsMatching( childItem, substring, matchingItems );
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -797,6 +734,62 @@ QString RicRecursiveFileSearchDialog::replaceWithRealizationStar( const QString&
     textWithStar.replace( regexp, "realization-*" );
 
     return textWithStar;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<QStandardItem*> RicRecursiveFileSearchDialog::firstLevelItems( QStandardItem* rootItem )
+{
+    QList<QStandardItem*> items;
+    for ( int i = 0; i < rootItem->rowCount(); ++i )
+    {
+        QStandardItem* item = rootItem->child( i );
+        if ( item ) items.append( item );
+    }
+    return items;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRecursiveFileSearchDialog::setCheckedStateChildItems( QStandardItem* parentItem, Qt::CheckState checkState )
+{
+    if ( !parentItem ) return;
+    for ( int i = 0; i < parentItem->rowCount(); ++i )
+    {
+        auto childItem = parentItem->child( i );
+        if ( childItem && childItem->isCheckable() )
+        {
+            childItem->setCheckState( checkState );
+        }
+        setCheckedStateChildItems( childItem, checkState );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRecursiveFileSearchDialog::findItemsMatching( QStandardItem*         parentItem,
+                                                      const QString&         substring,
+                                                      QList<QStandardItem*>& matchingItems )
+{
+    if ( !parentItem ) return;
+    for ( int i = 0; i < parentItem->rowCount(); ++i )
+    {
+        auto searchString = substring + "/";
+        auto childItem    = parentItem->child( i );
+        if ( childItem )
+        {
+            auto textToMatch = childItem->text();
+            textToMatch.replace( '\\', '/' );
+            if ( textToMatch.contains( searchString, Qt::CaseInsensitive ) )
+            {
+                matchingItems.append( childItem );
+            }
+        }
+        findItemsMatching( childItem, substring, matchingItems );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
