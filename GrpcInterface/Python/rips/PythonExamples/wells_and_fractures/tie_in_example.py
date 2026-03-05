@@ -21,6 +21,7 @@ main_geometry.append_well_target([1000.0, 2000.0, 0.0])  # Surface
 main_geometry.append_well_target([1000.0, 2000.0, -100.0])  # 100m down
 main_geometry.append_well_target([1000.0, 2000.0, -300.0])  # 300m down
 main_geometry.append_well_target([1000.0, 2000.0, -500.0])  # 500m down
+main_geometry.use_auto_generated_target_at_sea_level = False
 main_geometry.update()
 
 measured_depth = 150
