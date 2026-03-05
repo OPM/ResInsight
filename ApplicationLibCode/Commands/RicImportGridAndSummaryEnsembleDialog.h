@@ -55,7 +55,7 @@ class RicImportGridAndSummaryEnsembleDialog : public QDialog
     Q_OBJECT
 
 public:
-    static RicImportGridAndSummaryEnsembleDialogResult runDialog( QWidget* parent );
+    static RicImportGridAndSummaryEnsembleDialogResult runDialog( QWidget* parent, bool defaultGridChecked, bool defaultSummaryChecked );
 
 private:
     explicit RicImportGridAndSummaryEnsembleDialog( QWidget* parent );

@@ -770,9 +770,7 @@ void RicRecursiveFileSearchDialog::setCheckedStateChildItems( QStandardItem* par
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRecursiveFileSearchDialog::findItemsMatching( QStandardItem*         parentItem,
-                                                      const QString&         substring,
-                                                      QList<QStandardItem*>& matchingItems )
+void RicRecursiveFileSearchDialog::findItemsMatching( QStandardItem* parentItem, const QString& substring, QList<QStandardItem*>& matchingItems )
 {
     if ( !parentItem ) return;
     for ( int i = 0; i < parentItem->rowCount(); ++i )

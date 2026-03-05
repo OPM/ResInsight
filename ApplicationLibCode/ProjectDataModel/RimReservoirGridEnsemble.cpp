@@ -485,6 +485,14 @@ RimEclipseView* RimReservoirGridEnsemble::addViewForCase( RimEclipseCase* eclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseViewCollection* RimReservoirGridEnsemble::viewCollection() const
+{
+    return m_viewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseView*> RimReservoirGridEnsemble::allViews() const
 {
     std::vector<RimEclipseView*> views;
