@@ -89,7 +89,7 @@ void RicMswICDAccumulator::applyToSuperValve()
 //--------------------------------------------------------------------------------------------------
 RicMswAICDAccumulator::RicMswAICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem )
     : RicMswValveAccumulator( valve, unitSystem )
-    , m_deviceOpen( false )
+    , m_deviceOpen( valve->isOpen() )
     , m_accumulatedLength( 0.0 )
     , m_accumulatedFlowScalingFactorDivisor( 0.0 )
 {
@@ -207,7 +207,7 @@ double RicMswAICDAccumulator::accumulatedLength() const
 //--------------------------------------------------------------------------------------------------
 RicMswSICDAccumulator::RicMswSICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem )
     : RicMswValveAccumulator( valve, unitSystem )
-    , m_deviceOpen( false )
+    , m_deviceOpen( valve->isOpen() )
     , m_accumulatedLength( 0.0 )
     , m_accumulatedFlowScalingFactorDivisor( 0.0 )
 {

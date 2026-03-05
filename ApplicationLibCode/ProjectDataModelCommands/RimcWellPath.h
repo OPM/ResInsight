@@ -231,3 +231,20 @@ public:
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_addIcvValve : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_addIcvValve( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<double> m_measuredDepth;
+};

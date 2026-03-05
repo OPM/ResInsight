@@ -22,6 +22,7 @@
 
 class RimPerforationInterval;
 class RimWellPathValve;
+class RimWellPath;
 
 //==================================================================================================
 ///

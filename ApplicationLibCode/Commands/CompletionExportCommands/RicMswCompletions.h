@@ -108,6 +108,9 @@ public:
     bool isValid() const;
     void setIsValid( bool valid );
 
+    bool isOpen() const;
+    void setIsOpen( bool openFlag );
+
     static std::unique_ptr<RicMswValve> createTieInValve( const QString&          label,
                                                           const RimWellPath*      wellPath,
                                                           double                  startMD,
@@ -116,6 +119,7 @@ public:
 
 private:
     bool                    m_valid;
+    bool                    m_isOpen;
     const RimWellPathValve* m_wellPathValve;
 };
 
@@ -131,7 +135,6 @@ public:
     double area() const;
     void   setFlowCoefficient( double icdFlowCoefficient );
     void   setArea( double icdArea );
-    bool   isOpen() const;
 
 private:
     double m_flowCoefficient;

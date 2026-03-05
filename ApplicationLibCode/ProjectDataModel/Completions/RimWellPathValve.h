@@ -62,6 +62,9 @@ public:
     const RimWellPathAicdParameters* aicdParameters() const;
     const RimWellPathSicdParameters* sicdParameters() const;
 
+    bool isOpen() const;
+    void setOpen( bool openFlag );
+
     void enableCustomStartDate( bool enable );
     void setCustomStartDate( const QDate& date );
     bool isActiveOnDate( const QDateTime& date ) const;
@@ -96,6 +99,7 @@ private:
 private:
     caf::PdmPtrField<RimValveTemplate*>            m_valveTemplate;
     caf::PdmField<double>                          m_measuredDepth;
+    caf::PdmField<bool>                            m_isOpen;
     caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
 
     caf::PdmField<bool>      m_useCustomStartDate;

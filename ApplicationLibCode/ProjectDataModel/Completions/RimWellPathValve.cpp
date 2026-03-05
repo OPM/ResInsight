@@ -52,6 +52,7 @@ RimWellPathValve::RimWellPathValve()
 
     CAF_PDM_InitFieldNoDefault( &m_valveTemplate, "ValveTemplate", "Valve Template" );
     CAF_PDM_InitScriptableField( &m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD" );
+    CAF_PDM_InitScriptableField( &m_isOpen, "IsOpen", true, "Valve is Open" );
     CAF_PDM_InitFieldNoDefault( &m_multipleValveLocations, "ValveLocations", "Valve Locations" );
 
     CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
@@ -158,6 +159,22 @@ double RimWellPathValve::flowCoefficient() const
         return templateCoefficient;
     }
     return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathValve::isOpen() const
+{
+    return m_isOpen();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathValve::setOpen( bool openFlag )
+{
+    m_isOpen = openFlag;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -537,17 +554,20 @@ QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions( const caf
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject* project = RimProject::current();
-
-    std::vector<RimValveTemplate*> allTemplates = project->allValveTemplates();
-    for ( RimValveTemplate* valveTemplate : allTemplates )
+    if ( fieldNeedingOptions == &m_valveTemplate )
     {
-        if ( !m_componentTypeFilter.empty() )
-        {
-            if ( m_componentTypeFilter.count( valveTemplate->type() ) == 0 ) continue;
-        }
+        RimProject* project = RimProject::current();
 
-        options.push_back( caf::PdmOptionItemInfo( valveTemplate->name(), valveTemplate ) );
+        std::vector<RimValveTemplate*> allTemplates = project->allValveTemplates();
+        for ( RimValveTemplate* valveTemplate : allTemplates )
+        {
+            if ( !m_componentTypeFilter.empty() )
+            {
+                if ( m_componentTypeFilter.count( valveTemplate->type() ) == 0 ) continue;
+            }
+
+            options.push_back( caf::PdmOptionItemInfo( valveTemplate->name(), valveTemplate ) );
+        }
     }
 
     return options;
@@ -612,6 +632,8 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
                 uiOrdering.add( &m_measuredDepth, { .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
             }
         }
+
+        uiOrdering.add( &m_isOpen );
 
         if ( componentType() == RiaDefines::WellPathComponentType::ICD || componentType() == RiaDefines::WellPathComponentType::AICD ||
              componentType() == RiaDefines::WellPathComponentType::SICD )

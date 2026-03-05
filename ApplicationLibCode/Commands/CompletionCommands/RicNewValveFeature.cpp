@@ -101,12 +101,11 @@ void RicNewValveFeature::onActionTriggered( bool isChecked )
 
     if ( valve )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( !wellPathCollection ) return;
-
-        wellPathCollection->updateConnectedEditors();
-        wellPathCollection->scheduleRedrawAffectedViews();
-
+        if ( auto wellPathCollection = RimTools::wellPathCollection() )
+        {
+            wellPathCollection->updateConnectedEditors();
+            wellPathCollection->scheduleRedrawAffectedViews();
+        }
         Riu3DMainWindowTools::selectAsCurrentItem( valve );
     }
 }

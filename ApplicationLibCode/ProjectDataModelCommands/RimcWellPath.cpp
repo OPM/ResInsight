@@ -39,6 +39,7 @@
 #include "RimStimPlanModel.h"
 #include "RimThermalFractureTemplate.h"
 #include "RimTools.h"
+#include "RimValveCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletionSettings.h"
@@ -821,4 +822,47 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_tieIn::execute()
 QString RimcWellPath_tieIn::classKeywordReturnedType() const
 {
     return RimWellPathTieIn::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_addIcvValve, "AddIcvValve" );
+
+//--------------------------------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_addIcvValve::RimcWellPath_addIcvValve( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Add ICV Valve", "", "", "Add ICV Valve" );
+    CAF_PDM_InitScriptableField( &m_measuredDepth, "MeasuredDepth", 0.0, "Measured Depth" );
+}
+
+//--------------------------------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addIcvValve::execute()
+{
+    if ( auto wellPath = self<RimWellPath>() )
+    {
+        auto valve = wellPath->valveCollection()->addIcvValve( m_measuredDepth );
+
+        if ( valve )
+        {
+            if ( auto wellPathCollection = RimTools::wellPathCollection() )
+            {
+                wellPathCollection->updateConnectedEditors();
+                wellPathCollection->scheduleRedrawAffectedViews();
+            }
+
+            return valve;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellPath_addIcvValve::classKeywordReturnedType() const
+{
+    return RimWellPathValve::classKeywordStatic();
 }
