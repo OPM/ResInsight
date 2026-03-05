@@ -106,6 +106,7 @@ public:
     RimEclipseView*              addViewForCase( RimEclipseCase* eclipseCase );
     std::vector<RimEclipseView*> allViews() const;
     std::set<RimEclipseCase*>    casesInViews() const override;
+    RimEclipseViewCollection*    viewCollection() const;
 
     // Well target mapping
     void                               addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );

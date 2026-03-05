@@ -393,7 +393,9 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
     {
         commandIds << "RicImportEclipseCaseFeature";
         commandIds << "RicImportSummaryCaseFeature";
+        commandIds << "RicImportGridAndSummaryEnsembleFeature";
         commandIds << "RicImportEnsembleFeature";
+        commandIds << "Separator";
         commandIds << "RicOpenProjectFeature";
         commandIds << "RicSaveProjectFeature";
     }
@@ -440,7 +442,14 @@ void RiuPlotMainWindow::createToolBars()
         QStringList toolbarCommands = toolbarCommandIds( toolbarName );
         for ( QString s : toolbarCommands )
         {
-            toolbar->addAction( cmdFeatureMgr->action( s ) );
+            if ( s.compare( "separator", Qt::CaseInsensitive ) == 0 )
+            {
+                toolbar->addSeparator();
+            }
+            else
+            {
+                toolbar->addAction( cmdFeatureMgr->action( s ) );
+            }
         }
         if ( toolbarName == "View" )
         {

@@ -55,7 +55,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicImportGridAndSummaryEnsembleDialogResult RicImportGridAndSummaryEnsembleDialog::runDialog( QWidget* parent )
+RicImportGridAndSummaryEnsembleDialogResult
+    RicImportGridAndSummaryEnsembleDialog::runDialog( QWidget* parent, bool defaultGridChecked, bool defaultSummaryChecked )
 {
     const QString pathRegistryKey = "RicImportGridAndSummaryEnsembleDialog_path";
 
@@ -88,6 +89,9 @@ RicImportGridAndSummaryEnsembleDialogResult RicImportGridAndSummaryEnsembleDialo
         {
             dialog.m_ensembleGroupingMode->addItem( s );
         }
+
+        dialog.m_createGridEnsembleCheckBox->setChecked( defaultGridChecked );
+        dialog.m_createSummaryEnsembleCheckBox->setChecked( defaultSummaryChecked );
 
         dialog.updateEffectiveFilter();
         dialog.clearFileList();
@@ -434,9 +438,7 @@ void RicImportGridAndSummaryEnsembleDialog::updateFileListWidget()
     auto mode = ensembleGroupingMode();
 
     auto ensembleLabel = []( const QString& name, int gridCount, int summaryCount )
-    {
-        return QString( "%1 (%2 grids, %3 summary cases)" ).arg( name ).arg( gridCount ).arg( summaryCount );
-    };
+    { return QString( "%1 (%2 grids, %3 summary cases)" ).arg( name ).arg( gridCount ).arg( summaryCount ); };
 
     if ( mode == RiaDefines::EnsembleGroupingMode::NONE )
     {
@@ -546,7 +548,6 @@ RiaDefines::EnsembleGroupingMode RicImportGridAndSummaryEnsembleDialog::ensemble
     if ( m_ensembleGroupingMode->currentIndex() == 3 ) return RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE;
     return RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
