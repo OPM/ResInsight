@@ -596,6 +596,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicOpenProjectFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicSaveProjectFeature" ) );
+        toolbar->addAction( cmdFeatureMgr->action( "RicImportGridAndSummaryEnsembleFeature" ) );
     }
 
     if ( RiaPreferences::current()->useUndoRedo() )

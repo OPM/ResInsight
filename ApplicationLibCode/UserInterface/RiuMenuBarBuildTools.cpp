@@ -124,6 +124,9 @@ void RiuMenuBarBuildTools::addImportMenuWithActions( QObject* parent, QMenu* men
     importRoffMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );
 
     importMenu->addSeparator();
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportGridAndSummaryEnsembleFeature" ) );
+
+    importMenu->addSeparator();
     QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );

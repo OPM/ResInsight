@@ -103,6 +103,7 @@ std::vector<RimReservoirGridEnsemble*> createGridEnsemblesFromFileSets( const st
         project->assignIdToCaseGroup( ensemble );
         eclipseCaseColl->reservoirGridEnsembles.push_back( ensemble );
 
+        ensemble->createGridCasesFromEnsembleFileSet();
         ensemble->loadDataAndUpdate();
         ensembles.push_back( ensemble );
     }

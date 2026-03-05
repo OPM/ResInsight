@@ -101,6 +101,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridAndSummaryEnsembleDialog.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridAndSummaryEnsembleFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicHistogramPlotTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.h
 )
@@ -208,6 +210,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridAndSummaryEnsembleDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridAndSummaryEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicHistogramPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.cpp
 )

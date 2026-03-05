@@ -54,7 +54,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicImportGridAndSummaryEnsembleDialogResult RicImportGridAndSummaryEnsembleDialog::runDialog( QWidget* parent )
+RicImportGridAndSummaryEnsembleDialogResult
+    RicImportGridAndSummaryEnsembleDialog::runDialog( QWidget* parent, bool defaultGridChecked, bool defaultSummaryChecked )
 {
     const QString pathRegistryKey = "RicImportGridAndSummaryEnsembleDialog_path";
 
@@ -87,6 +88,9 @@ RicImportGridAndSummaryEnsembleDialogResult RicImportGridAndSummaryEnsembleDialo
         {
             dialog.m_ensembleGroupingMode->addItem( s );
         }
+
+        dialog.m_createGridEnsembleCheckBox->setChecked( defaultGridChecked );
+        dialog.m_createSummaryEnsembleCheckBox->setChecked( defaultSummaryChecked );
 
         dialog.updateEffectiveFilter();
         dialog.clearFileList();
@@ -524,7 +528,6 @@ RiaDefines::EnsembleGroupingMode RicImportGridAndSummaryEnsembleDialog::ensemble
     if ( m_ensembleGroupingMode->currentIndex() == 3 ) return RiaDefines::EnsembleGroupingMode::RESINSIGHT_OPMFLOW_STRUCTURE;
     return RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
