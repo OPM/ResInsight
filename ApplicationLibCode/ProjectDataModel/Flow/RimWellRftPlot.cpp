@@ -308,7 +308,7 @@ void RimWellRftPlot::setOrInitializeDataSources( const std::vector<RifDataSource
             std::vector<QDateTime> timeStepVector;
 
             // If we have RFT data from multiple sources, relevant time steps end up with a small number of time steps
-            // If this is the case, pre-select all time steps
+            // If this is the case, preselect all time steps
             const size_t maxCountToPreSelect = 3;
             if ( relevantTimeSteps.size() <= maxCountToPreSelect )
             {
