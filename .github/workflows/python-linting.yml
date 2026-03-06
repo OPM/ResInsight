@@ -11,26 +11,25 @@ jobs:
         with:
           python-version: '3.10'
 
-      # Fork PRs: Check linting and formatting, fail with diff if issues exist
-      # (Cannot create fix PR because we don't have write access to fork branches)
-      - name: (Python) Check with ruff (fork PRs)
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+      - name: Install ruff
+        run: pip install ruff
+
+      # Always run strict lint check (catches all errors including unfixable ones)
+      - name: (Python) Check with ruff
         run: |
-          pip install ruff
           cd GrpcInterface
-          ruff check --diff .
+          ruff check .
           ruff format --check --diff .
 
-      # Same-repo PRs and pushes: Apply fixes and create PR if needed
-      - name: (Python) Lint and format with ruff
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+      # Same-repo PRs and pushes: Apply auto-fixable issues and create PR if needed
+      - name: (Python) Auto-fix and create PR
+        if: failure() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
-          pip install ruff
           cd GrpcInterface
           ruff check --fix .
           ruff format .
       - uses: peter-evans/create-pull-request@v8
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        if: failure() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Python code linting changes detected by ruff"
