@@ -222,11 +222,6 @@ static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::uniqu
     return insertIdx;
 }
 
-static std::map<std::string, std::string> blockKeywordNames =
-    { { Opm::ParserKeywords::ACTIONX::keywordName, Opm::ParserKeywords::ENDACTIO::keywordName },
-      { Opm::ParserKeywords::BOX::keywordName, Opm::ParserKeywords::ENDBOX::keywordName },
-      { Opm::ParserKeywords::ACTIONW::keywordName, Opm::ParserKeywords::ENDACTIO::keywordName } };
-
 } // namespace internal
 
 //--------------------------------------------------------------------------------------------------
@@ -1004,6 +999,11 @@ bool RifOpmFlowDeckFile::removeKeywordAtIndex( const Opm::FileDeck::Index& index
 //--------------------------------------------------------------------------------------------------
 int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
 {
+    std::map<std::string, std::string> blockKeywordNames =
+        { { Opm::ParserKeywords::ACTIONX::keywordName, Opm::ParserKeywords::ENDACTIO::keywordName },
+          { Opm::ParserKeywords::BOX::keywordName, Opm::ParserKeywords::ENDBOX::keywordName },
+          { Opm::ParserKeywords::ACTIONW::keywordName, Opm::ParserKeywords::ENDACTIO::keywordName } };
+
     int nRemoved = 0;
     if ( m_fileDeck.get() == nullptr ) return nRemoved;
 
@@ -1016,9 +1016,9 @@ int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
         {
             skipIndices.push_back( it );
             // If this is a block keyword, we need to skip all keywords until the corresponding end block
-            if ( internal::blockKeywordNames.contains( keywordName ) )
+            if ( blockKeywordNames.contains( keywordName ) )
             {
-                const std::string endBlockName = internal::blockKeywordNames.at( keywordName );
+                const std::string endBlockName = blockKeywordNames.at( keywordName );
                 while ( it != m_fileDeck->stop() )
                 {
                     const auto& innerKw = m_fileDeck->operator[]( it );
