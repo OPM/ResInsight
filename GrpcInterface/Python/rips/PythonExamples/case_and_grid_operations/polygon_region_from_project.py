@@ -27,9 +27,7 @@ def point_in_polygon_2d(px, py, polygon_xy):
     for i in range(n):
         xi, yi = polygon_xy[i][0], polygon_xy[i][1]
         xj, yj = polygon_xy[j][0], polygon_xy[j][1]
-        if ((yi > py) != (yj > py)) and (
-            px < (xj - xi) * (py - yi) / (yj - yi) + xi
-        ):
+        if ((yi > py) != (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi) + xi):
             inside = not inside
         j = i
     return inside
