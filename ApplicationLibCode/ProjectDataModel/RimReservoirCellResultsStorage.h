@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 
 #include "cafAppEnum.h"
+#include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -52,7 +53,7 @@ private:
     QString getValidCacheFileName();
     QString getCacheDirectoryPath();
     // Fields
-    caf::PdmField<QString>                                            m_resultCacheFileName;
+    caf::PdmField<caf::FilePath>                                      m_resultCacheFileName;
     caf::PdmChildArrayField<RimReservoirCellResultsStorageEntryInfo*> m_resultCacheMetaData;
 
     RigCaseCellResultsData* m_cellResults;

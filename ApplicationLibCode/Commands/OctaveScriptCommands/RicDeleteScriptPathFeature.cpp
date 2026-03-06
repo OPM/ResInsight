@@ -43,7 +43,7 @@ bool RicDeleteScriptPathFeature::isCommandEnabled() const
     std::vector<RimScriptCollection*> selection = RicScriptFeatureImpl::selectedScriptCollections();
     if ( selection.size() == 1 )
     {
-        if ( selection.front()->directory().isEmpty() ) return false;
+        if ( selection.front()->directory().path().isEmpty() ) return false;
     }
     return !selection.empty();
 }
@@ -57,7 +57,7 @@ void RicDeleteScriptPathFeature::onActionTriggered( bool isChecked )
     RimScriptCollection*              scriptCollection      = !calcScriptCollections.empty() ? calcScriptCollections[0] : nullptr;
     if ( scriptCollection )
     {
-        QString toBeRemoved = scriptCollection->directory;
+        QString toBeRemoved = scriptCollection->directory().path();
 
         QString     originalFilePathString = RiaPreferences::current()->scriptDirectories();
         QStringList allFilePaths           = originalFilePathString.split( ";" );

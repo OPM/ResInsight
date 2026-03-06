@@ -56,7 +56,7 @@ void RicExecuteLastUsedScriptFeature::onActionTriggered( bool isChecked )
         std::vector<RimCalcScript*> scripts = rootScriptCollection->descendantsIncludingThisOfType<RimCalcScript>();
         for ( auto c : scripts )
         {
-            if ( c->absoluteFileName() == lastUsedScript )
+            if ( c->absoluteFileName().path() == lastUsedScript )
             {
                 RicExecuteScriptFeature::executeScript( c );
                 return;

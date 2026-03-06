@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -36,7 +37,7 @@ class RimFractureExportSettings : public caf::PdmObject
 public:
     RimFractureExportSettings();
 
-    caf::PdmField<QString>            fileName;
+    caf::PdmField<caf::FilePath>      fileName;
     caf::PdmPtrField<RimEclipseCase*> caseToApply;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

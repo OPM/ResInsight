@@ -165,7 +165,7 @@ void RimWellMeasurement::setRemark( const QString& remark )
 //--------------------------------------------------------------------------------------------------
 QString RimWellMeasurement::filePath() const
 {
-    return m_filePath;
+    return m_filePath().path();
 }
 
 //--------------------------------------------------------------------------------------------------

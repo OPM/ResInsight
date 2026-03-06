@@ -101,7 +101,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
 
         QString errMsg;
         bool    isOk =
-            RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( exportSettings.fileName,
+            RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( exportSettings.fileName().path(),
                                                                          m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(),
                                                                          timeStep,
                                                                          m_cellColors,
@@ -113,7 +113,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
         if ( !isOk )
         {
             QString fullError =
-                QString( "Failed to exported current result to %1. Error was: %2" ).arg( exportSettings.fileName ).arg( errMsg );
+                QString( "Failed to exported current result to %1. Error was: %2" ).arg( exportSettings.fileName().path() ).arg( errMsg );
             RiaLogging::error( fullError );
         }
     }

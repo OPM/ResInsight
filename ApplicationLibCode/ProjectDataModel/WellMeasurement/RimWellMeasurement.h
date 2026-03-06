@@ -20,6 +20,7 @@
 
 #include "cafPdmObject.h"
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 
 #include "cvfColor3.h"
@@ -66,12 +67,12 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmField<QString> m_wellName;
-    caf::PdmField<double>  m_MD;
-    caf::PdmField<QDate>   m_date;
-    caf::PdmField<double>  m_value;
-    caf::PdmField<QString> m_kind;
-    caf::PdmField<int>     m_quality;
-    caf::PdmField<QString> m_remark;
-    caf::PdmField<QString> m_filePath;
+    caf::PdmField<QString>       m_wellName;
+    caf::PdmField<double>        m_MD;
+    caf::PdmField<QDate>         m_date;
+    caf::PdmField<double>        m_value;
+    caf::PdmField<QString>       m_kind;
+    caf::PdmField<int>           m_quality;
+    caf::PdmField<QString>       m_remark;
+    caf::PdmField<caf::FilePath> m_filePath;
 };

@@ -53,7 +53,7 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
 {
     CAF_PDM_InitObject( "Cacher" );
 
-    CAF_PDM_InitField( &m_resultCacheFileName, "ResultCacheFileName", QString(), "UiDummyname" );
+    CAF_PDM_InitField( &m_resultCacheFileName, "ResultCacheFileName", caf::FilePath(), "UiDummyname" );
     m_resultCacheFileName.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname" );
 }
@@ -176,7 +176,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 QString RimReservoirCellResultsStorage::getValidCacheFileName()
 {
     QString cacheFileName;
-    if ( m_resultCacheFileName().isEmpty() )
+    if ( m_resultCacheFileName().path().isEmpty() )
     {
         QString newCacheDirPath = getCacheDirectoryPath();
         QUuid   guid            = QUuid::createUuid();
@@ -186,7 +186,7 @@ QString RimReservoirCellResultsStorage::getValidCacheFileName()
     {
         // Make the path correct related to the possibly new project filename
         QString   newCacheDirPath = getCacheDirectoryPath();
-        QFileInfo oldCacheFile( m_resultCacheFileName() );
+        QFileInfo oldCacheFile( m_resultCacheFileName().path() );
 
         cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
     }
@@ -215,7 +215,7 @@ void RimReservoirCellResultsStorage::setCellResults( RigCaseCellResultsData* cel
     // Now that we have got the results container, we can finally
     // Read data from the internal storage and populate it
 
-    if ( m_resultCacheFileName().isEmpty() ) return;
+    if ( m_resultCacheFileName().path().isEmpty() ) return;
 
     // Get the name of the cache name relative to the current project file position
     QString newValidCacheFileName = getValidCacheFileName();

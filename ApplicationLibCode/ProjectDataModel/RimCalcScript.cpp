@@ -36,7 +36,7 @@ RimCalcScript::RimCalcScript()
 {
     CAF_PDM_InitObject( "CalcScript", ":/OctaveScriptFile16x16.png", "Calc Script", "" );
 
-    CAF_PDM_InitField( &absoluteFileName, "AbsolutePath", QString(), "Location" );
+    CAF_PDM_InitField( &absoluteFileName, "AbsolutePath", caf::FilePath(), "Location" );
     absoluteFileName.uiCapability()->setUiReadOnly( true );
     absoluteFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 }
@@ -70,7 +70,7 @@ RimCalcScript::ScriptType RimCalcScript::scriptType( const QString& absoluteFile
 //--------------------------------------------------------------------------------------------------
 RimCalcScript::ScriptType RimCalcScript::scriptType() const
 {
-    return scriptType( absoluteFileName() );
+    return scriptType( absoluteFileName().path() );
 }
 
 //--------------------------------------------------------------------------------------------------

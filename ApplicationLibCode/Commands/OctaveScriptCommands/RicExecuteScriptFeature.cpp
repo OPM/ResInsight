@@ -94,7 +94,7 @@ void RicExecuteScriptFeature::executeScript( RimCalcScript* calcScript )
         QString octavePath = app->octavePath();
         if ( !octavePath.isEmpty() )
         {
-            QStringList arguments = RimCalcScript::createCommandLineArguments( calcScript->absoluteFileName() );
+            QStringList arguments = RimCalcScript::createCommandLineArguments( calcScript->absoluteFileName().path() );
             RiaApplication::instance()->launchProcess( octavePath, arguments, app->octaveProcessEnvironment() );
         }
     }
@@ -103,7 +103,7 @@ void RicExecuteScriptFeature::executeScript( RimCalcScript* calcScript )
         QString pythonPath = app->pythonPath();
         if ( !pythonPath.isEmpty() )
         {
-            QStringList         arguments = RimCalcScript::createCommandLineArguments( calcScript->absoluteFileName() );
+            QStringList         arguments = RimCalcScript::createCommandLineArguments( calcScript->absoluteFileName().path() );
             QProcessEnvironment penv      = app->pythonProcessEnvironment();
 
             RiuProcessMonitor* processMonitor = RiuMainWindow::instance()->processMonitor();
@@ -136,10 +136,10 @@ void RicExecuteScriptFeature::executeScript( RimCalcScript* calcScript )
         }
     }
 
-    if ( !calcScript->absoluteFileName().isEmpty() )
+    if ( !calcScript->absoluteFileName().path().isEmpty() )
     {
         QSettings settings;
-        settings.setValue( RicExecuteLastUsedScriptFeature::lastUsedScriptPathKey(), calcScript->absoluteFileName() );
+        settings.setValue( RicExecuteLastUsedScriptFeature::lastUsedScriptPathKey(), calcScript->absoluteFileName().path() );
 
         auto cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicExecuteLastUsedScriptFeature" );
         cmdFeature->action(); // Retrieve the action to update the looks

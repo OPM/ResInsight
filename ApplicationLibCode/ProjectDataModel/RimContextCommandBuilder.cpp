@@ -1381,16 +1381,16 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu( caf::CmdF
 //--------------------------------------------------------------------------------------------------
 void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder, RimScriptCollection* scriptCollection )
 {
-    QDir dir( scriptCollection->directory );
+    QDir dir( scriptCollection->directory().path() );
     menuBuilder.subMenuStart( dir.dirName() );
 
     for ( size_t i = 0; i < scriptCollection->calcScripts.size(); i++ )
     {
         RimCalcScript* calcScript = scriptCollection->calcScripts[i];
-        QFileInfo      fi( calcScript->absoluteFileName() );
+        QFileInfo      fi( calcScript->absoluteFileName().path() );
 
         QString menuText = fi.baseName();
-        menuBuilder.addCmdFeatureWithUserData( "RicExecuteScriptForCasesFeature", menuText, QVariant( calcScript->absoluteFileName() ) );
+        menuBuilder.addCmdFeatureWithUserData( "RicExecuteScriptForCasesFeature", menuText, QVariant( calcScript->absoluteFileName().path() ) );
     }
 
     for ( size_t i = 0; i < scriptCollection->subDirectories.size(); i++ )

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -32,10 +33,10 @@ class RimBinaryExportSettings : public caf::PdmObject
 public:
     RimBinaryExportSettings();
 
-    caf::PdmField<QString> fileName;
-    caf::PdmField<QString> eclipseKeyword;
-    caf::PdmField<double>  undefinedValue;
-    caf::PdmField<bool>    writeEchoInGrdeclFiles;
+    caf::PdmField<caf::FilePath> fileName;
+    caf::PdmField<QString>       eclipseKeyword;
+    caf::PdmField<double>        undefinedValue;
+    caf::PdmField<bool>          writeEchoInGrdeclFiles;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;

@@ -54,7 +54,7 @@ void RicEditScriptFeature::onActionTriggered( bool isChecked )
 
     RimCalcScript* calcScript = selection[0];
 
-    RicOpenInTextEditorFeature::openFileInTextEditor( calcScript->absoluteFileName, this );
+    RicOpenInTextEditorFeature::openFileInTextEditor( calcScript->absoluteFileName().path(), this );
 }
 
 //--------------------------------------------------------------------------------------------------

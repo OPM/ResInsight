@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -43,5 +44,5 @@ public:
     void updateIconState();
 
 private:
-    caf::PdmField<QString> m_absoluteFileName;
+    caf::PdmField<caf::FilePath> m_absoluteFileName;
 };

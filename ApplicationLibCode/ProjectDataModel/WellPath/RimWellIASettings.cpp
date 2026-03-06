@@ -307,7 +307,7 @@ QDateTime RimWellIASettings::geostaticDate() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellIASettings::outputBaseDirectory() const
 {
-    return m_baseDir();
+    return m_baseDir().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,7 +315,7 @@ QString RimWellIASettings::outputBaseDirectory() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellIASettings::outputOdbFilename() const
 {
-    return m_baseDir() + "/" + name() + ".odb";
+    return m_baseDir().path() + "/" + name() + ".odb";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,7 +323,7 @@ QString RimWellIASettings::outputOdbFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellIASettings::outputDrillingOdbFilename() const
 {
-    return m_baseDir() + "/" + name() + "_drilling.odb";
+    return m_baseDir().path() + "/" + name() + "_drilling.odb";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,7 +331,7 @@ QString RimWellIASettings::outputDrillingOdbFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellIASettings::jsonInputFilename() const
 {
-    return m_baseDir() + "/model_input.json";
+    return m_baseDir().path() + "/model_input.json";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,14 +339,14 @@ QString RimWellIASettings::jsonInputFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellIASettings::csvInputFilename() const
 {
-    return m_baseDir() + "/model_input.csv";
+    return m_baseDir().path() + "/model_input.csv";
 }
 
 QStringList RimWellIASettings::commandParameters() const
 {
     QStringList retlist;
 
-    retlist << m_baseDir();
+    retlist << m_baseDir().path();
     retlist << jsonInputFilename();
     retlist << csvInputFilename();
 

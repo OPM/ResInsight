@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -73,11 +74,11 @@ private:
 
     bool isWindowsBatchFile() const;
 
-    caf::PdmField<QString> m_command;
-    QStringList            m_arguments;
-    caf::PdmField<QString> m_description;
-    caf::PdmField<int>     m_id;
-    caf::PdmField<QString> m_workDir;
+    caf::PdmField<QString>       m_command;
+    QStringList                  m_arguments;
+    caf::PdmField<QString>       m_description;
+    caf::PdmField<int>           m_id;
+    caf::PdmField<caf::FilePath> m_workDir;
 
     std::vector<std::pair<QString, QString>> m_environmentVariables;
 

@@ -36,7 +36,7 @@ RimPlotTemplateFileItem::RimPlotTemplateFileItem()
 {
     CAF_PDM_InitObject( "PlotTemplateFileItem", ":/plot-template-standard.svg", "Plot Template", "" );
 
-    CAF_PDM_InitField( &m_absoluteFileName, "AbsolutePath", QString(), "Location" );
+    CAF_PDM_InitField( &m_absoluteFileName, "AbsolutePath", caf::FilePath(), "Location" );
     m_absoluteFileName.uiCapability()->setUiReadOnly( true );
 }
 
@@ -65,7 +65,7 @@ void RimPlotTemplateFileItem::setFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 QString RimPlotTemplateFileItem::absoluteFilePath() const
 {
-    return m_absoluteFileName();
+    return m_absoluteFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ QString RimPlotTemplateFileItem::absoluteFilePath() const
 //--------------------------------------------------------------------------------------------------
 bool RimPlotTemplateFileItem::isEnsembleTemplate() const
 {
-    return m_absoluteFileName().toLower().endsWith( ".erpt" );
+    return m_absoluteFileName().path().toLower().endsWith( ".erpt" );
 }
 
 //--------------------------------------------------------------------------------------------------

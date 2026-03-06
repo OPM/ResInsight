@@ -116,7 +116,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
         const double undefinedValue = 0.0;
 
         QString errorMsg;
-        bool    isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile( exportSettings.fileName,
+        bool    isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile( exportSettings.fileName().path(),
                                                                              eclipseCase->eclipseCaseData(),
                                                                              0,
                                                                              inputProperty->resultName,
@@ -126,7 +126,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
                                                                              &errorMsg );
         if ( isOk )
         {
-            inputProperty->fileName       = exportSettings.fileName();
+            inputProperty->fileName       = exportSettings.fileName().path();
             inputProperty->eclipseKeyword = exportSettings.eclipseKeyword;
             inputProperty->resolvedState  = RimEclipseInputProperty::RESOLVED;
 

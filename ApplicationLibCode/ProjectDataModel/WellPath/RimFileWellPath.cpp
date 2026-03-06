@@ -65,7 +65,7 @@ QString RimFileWellPath::filePath() const
 {
     if ( isStoredInCache() || m_filePath().path().isEmpty() )
     {
-        return m_filePathInCache();
+        return m_filePathInCache().path();
     }
     else
     {
@@ -208,7 +208,7 @@ QString RimFileWellPath::getCacheDirectoryPath()
 //--------------------------------------------------------------------------------------------------
 QString RimFileWellPath::getCacheFileName()
 {
-    if ( m_filePathInCache().isEmpty() )
+    if ( m_filePathInCache().path().isEmpty() )
     {
         return "";
     }
@@ -218,7 +218,7 @@ QString RimFileWellPath::getCacheFileName()
     // Make the path correct related to the possibly new project filename
 
     QString   newCacheDirPath = getCacheDirectoryPath();
-    QFileInfo oldCacheFile( m_filePathInCache() );
+    QFileInfo oldCacheFile( m_filePathInCache().path() );
 
     cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
 
@@ -238,7 +238,7 @@ void RimFileWellPath::setupBeforeSave()
         return;
     }
 
-    if ( m_filePathInCache().isEmpty() )
+    if ( m_filePathInCache().path().isEmpty() )
     {
         return;
     }
@@ -248,12 +248,12 @@ void RimFileWellPath::setupBeforeSave()
     QString newCacheFileName = getCacheFileName();
 
     // Use QFileInfo to get same string representation to avoid issues with mix of forward and backward slashes
-    QFileInfo prevFileInfo( m_filePathInCache() );
+    QFileInfo prevFileInfo( m_filePathInCache().path() );
     QFileInfo currentFileInfo( newCacheFileName );
 
     if ( prevFileInfo.absoluteFilePath().compare( currentFileInfo.absoluteFilePath() ) != 0 )
     {
-        QFile::copy( m_filePathInCache(), newCacheFileName );
+        QFile::copy( m_filePathInCache().path(), newCacheFileName );
 
         m_filePathInCache = newCacheFileName;
     }

@@ -20,6 +20,7 @@
 #include "RimCheckableNamedObject.h"
 #include "RimWellIAModelBox.h"
 
+#include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfVec3d.h"
@@ -117,7 +118,7 @@ private:
     caf::PdmProxyValueField<QString> m_nameProxy;
 
     caf::PdmPtrField<RimGeoMechCase*> m_geomechCase;
-    caf::PdmField<QString>            m_baseDir;
+    caf::PdmField<caf::FilePath>      m_baseDir;
 
     caf::PdmField<bool>      m_showBox;
     caf::PdmField<bool>      m_boxValid;

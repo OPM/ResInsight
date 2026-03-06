@@ -52,7 +52,7 @@ RimProcess::RimProcess( bool logStdOutErr /*true*/, RimProcessMonitor* monitor )
     CAF_PDM_InitFieldNoDefault( &m_command, "Command", "Command" );
     m_command.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_workDir, "WorkDir", QString(), "Working Directory" );
+    CAF_PDM_InitField( &m_workDir, "WorkDir", caf::FilePath(), "Working Directory" );
     m_command.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
@@ -191,9 +191,9 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
         env.insert( key, val );
     }
     m_qProcess->setProcessEnvironment( env );
-    if ( !m_workDir().isEmpty() )
+    if ( !m_workDir().path().isEmpty() )
     {
-        m_qProcess->setWorkingDirectory( m_workDir );
+        m_qProcess->setWorkingDirectory( m_workDir().path() );
     }
 
     m_qProcess->start( m_command, m_arguments );

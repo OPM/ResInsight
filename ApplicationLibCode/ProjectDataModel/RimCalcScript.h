@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -45,7 +46,7 @@ public:
 
     static QStringList createCommandLineArguments( const QString& absoluteFileNameScript );
 
-    caf::PdmField<QString> absoluteFileName;
+    caf::PdmField<caf::FilePath> absoluteFileName;
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

@@ -56,7 +56,7 @@ void RimScriptCollection::readContentFromDisc( int folderLevelsLeft )
     folderLevelsLeft--;
     if ( folderLevelsLeft < 0 ) return;
 
-    if ( directory().isEmpty() )
+    if ( directory().path().isEmpty() )
     {
         for ( size_t i = 0; i < subDirectories.size(); ++i )
         {
@@ -65,7 +65,7 @@ void RimScriptCollection::readContentFromDisc( int folderLevelsLeft )
         return;
     }
 
-    QDir myDir( directory() );
+    QDir myDir( directory().path() );
     if ( !myDir.isReadable() )
     {
         return;
@@ -75,7 +75,7 @@ void RimScriptCollection::readContentFromDisc( int folderLevelsLeft )
     {
         QStringList nameFilters;
         nameFilters << "*.m" << "*.py";
-        QStringList fileList = caf::Utils::getFilesInDirectory( directory, nameFilters, true );
+        QStringList fileList = caf::Utils::getFilesInDirectory( directory().path(), nameFilters, true );
 
         int i;
         for ( i = 0; i < fileList.size(); i++ )
@@ -97,7 +97,7 @@ void RimScriptCollection::readContentFromDisc( int folderLevelsLeft )
 
     if ( folderLevelsLeft > 0 )
     {
-        QDir          dir( directory );
+        QDir          dir( directory().path() );
         QFileInfoList fileInfoList = dir.entryInfoList( QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Readable );
 
         QListIterator<QFileInfo> it( fileInfoList );

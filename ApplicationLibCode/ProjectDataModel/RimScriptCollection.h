@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -43,7 +44,7 @@ public:
     RimScriptCollection();
 
 public:
-    caf::PdmField<QString>                  directory;
+    caf::PdmField<caf::FilePath>            directory;
     caf::PdmChildArrayField<RimCalcScript*> calcScripts;
 
     caf::PdmChildArrayField<RimScriptCollection*> subDirectories;

@@ -48,7 +48,7 @@ bool RicNewOctaveScriptFeature::isCommandEnabled() const
 {
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
     if ( calcScriptCollections.empty() ) return false;
-    return !calcScriptCollections.front()->directory().isEmpty();
+    return !calcScriptCollections.front()->directory().path().isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,12 +66,12 @@ void RicNewOctaveScriptFeature::onActionTriggered( bool isChecked )
 
     if ( calcScript )
     {
-        QFileInfo existingScriptFileInfo( calcScript->absoluteFileName() );
+        QFileInfo existingScriptFileInfo( calcScript->absoluteFileName().path() );
         fullPathNewScript = existingScriptFileInfo.absolutePath();
     }
     else if ( scriptColl )
     {
-        fullPathNewScript = scriptColl->directory();
+        fullPathNewScript = scriptColl->directory().path();
     }
     else
     {

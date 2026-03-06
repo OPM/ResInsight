@@ -48,7 +48,7 @@ private:
     void ensureWellPathStartAtSeaLevel( RigWellPath* wellPath );
 
     caf::PdmField<caf::FilePath> m_filePath;
-    caf::PdmField<QString>       m_filePathInCache; // Used for SSIHUB imported well paths
+    caf::PdmField<caf::FilePath> m_filePathInCache; // Used for SSIHUB imported well paths
     caf::PdmField<int>           m_wellPathIndexInFile; // -1 means none.
 
     caf::PdmField<QString> id;
