@@ -179,6 +179,9 @@ private:
     std::atomic<int>                      m_consecutiveFailures{ 0 };
     std::chrono::steady_clock::time_point m_lastReconnectAttempt;
 
+    // Pending network reply tracking (for synchronous crash flush)
+    std::atomic<int> m_pendingReplies{ 0 };
+
     // Health monitoring
     mutable HealthMetrics m_healthMetrics;
     bool                  m_healthMonitoringEnabled{ false };
