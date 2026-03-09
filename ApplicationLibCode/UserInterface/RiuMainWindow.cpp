@@ -23,7 +23,6 @@
 #include "RiaBaseDefs.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RiaOpenTelemetryManager.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTest.h"
@@ -117,6 +116,7 @@
 #include <QDebug>
 
 #include <algorithm>
+#include <csignal>
 #include <stacktrace>
 
 //==================================================================================================
@@ -2013,27 +2013,9 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotSendTestTelemetry()
 {
-    auto& otelManager = RiaOpenTelemetryManager::instance();
-    if ( !otelManager.isEnabled() )
-    {
-        RiaLogging::warning( "OpenTelemetry is not enabled or configured" );
-        return;
-    }
-
-    // Send test logging events
-    std::map<std::string, std::string> attributes;
-    attributes["test_type"]    = "manual_test";
-    attributes["timestamp"]    = QDateTime::currentDateTime().toString( Qt::ISODate ).toStdString();
-    attributes["user_action"]  = "test_menu_triggered";
-    attributes["service.name"] = "ResInsight";
-
-    otelManager.reportEventAsync( "test.logging", attributes );
-
-    // Generate and send test stack trace
-    auto testStackTrace = std::stacktrace::current();
-    otelManager.reportCrash( 1, testStackTrace );
-
-    RiaLogging::info( "Test telemetry data sent to OpenTelemetry endpoint" );
+    // Intentional crash for testing crash handling / telemetry.
+    std::raise( SIGSEGV );
+    return;
 }
 
 //--------------------------------------------------------------------------------------------------
