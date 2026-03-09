@@ -438,9 +438,7 @@ void RicImportGridAndSummaryEnsembleDialog::updateFileListWidget()
     auto mode = ensembleGroupingMode();
 
     auto ensembleLabel = []( const QString& name, int gridCount, int summaryCount )
-    {
-        return QString( "%1 (%2 grids, %3 summary cases)" ).arg( name ).arg( gridCount ).arg( summaryCount );
-    };
+    { return QString( "%1 (%2 grids, %3 summary cases)" ).arg( name ).arg( gridCount ).arg( summaryCount ); };
 
     if ( mode == RiaDefines::EnsembleGroupingMode::NONE )
     {
