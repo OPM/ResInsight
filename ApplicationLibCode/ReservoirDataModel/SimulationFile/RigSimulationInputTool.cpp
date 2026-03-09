@@ -131,6 +131,16 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
+    if ( auto result = replaceAquanconKeywordIndices( &eclipseCase, settings, deckFile ); !result )
+    {
+        return result;
+    }
+
+    if ( auto result = replaceAqunumKeywordIndices( &eclipseCase, settings, deckFile ); !result )
+    {
+        return result;
+    }
+
     if ( auto result = updateWelldimsKeyword( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
@@ -557,6 +567,26 @@ std::expected<void, QString> RigSimulationInputTool::replaceAquconKeywordIndices
                                                                                   RifOpmFlowDeckFile&               deckFile )
 {
     return replaceKeywordWithBoxIndices( "AQUCON", eclipseCase, settings, deckFile, processAquconRecord );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::replaceAquanconKeywordIndices( RimEclipseCase*                   eclipseCase,
+                                                                                    const RigSimulationInputSettings& settings,
+                                                                                    RifOpmFlowDeckFile&               deckFile )
+{
+    return replaceKeywordWithBoxIndices( "AQUANCON", eclipseCase, settings, deckFile, processAquanconRecord );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::replaceAqunumKeywordIndices( RimEclipseCase*                   eclipseCase,
+                                                                                  const RigSimulationInputSettings& settings,
+                                                                                  RifOpmFlowDeckFile&               deckFile )
+{
+    return replaceKeywordWithBoxIndices( "AQUNUM", eclipseCase, settings, deckFile, processAqunumRecord );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1112,6 +1142,8 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquconRec
         return std::unexpected( QString( "AQUCON record has insufficient items (expected at least 1, got %1)" ).arg( record.size() ) );
     }
 
+    using A = Opm::ParserKeywords::AQUCON;
+
     std::vector<Opm::DeckItem> items;
 
     // Copy aquifer ID (first item)
@@ -1133,13 +1165,13 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquconRec
         QString recordIdent = QString( "for aquifer %1" ).arg( aquiferId );
 
         // Transform box to sector coordinates
-        auto transformResult = transformBoxToSectorCoordinates( inputBox, min, max, refinement, "AQUCON", recordIdent );
+        auto transformResult =
+            transformBoxToSectorCoordinates( inputBox, min, max, refinement, QString::fromStdString( A::keywordName ), recordIdent );
         if ( !transformResult )
         {
             return std::unexpected( transformResult.error() );
         }
 
-        using A = Opm::ParserKeywords::AQUCON;
         items.push_back( RifOpmDeckTools::item( A::I1::itemName, static_cast<int>( transformResult->min().x() + 1 ) ) );
         items.push_back( RifOpmDeckTools::item( A::I2::itemName, static_cast<int>( transformResult->max().x() + 1 ) ) );
         items.push_back( RifOpmDeckTools::item( A::J1::itemName, static_cast<int>( transformResult->min().y() + 1 ) ) );
@@ -1149,6 +1181,141 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquconRec
 
         // Copy remaining items (CONNECT_FACE and other parameters)
         for ( size_t i = 7; i < record.size(); ++i )
+        {
+            items.push_back( record.getItem( i ) );
+        }
+    }
+    else
+    {
+        // No box definition or incomplete box definition - copy remaining items as-is
+        for ( size_t i = 1; i < record.size(); ++i )
+        {
+            items.push_back( record.getItem( i ) );
+        }
+    }
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquanconRecord( const Opm::DeckRecord& record,
+                                                                                       const caf::VecIjk0&    min,
+                                                                                       const caf::VecIjk0&    max,
+                                                                                       const cvf::Vec3st&     refinement )
+{
+    // AQUANCON format: ID I1 I2 J1 J2 K1 K2 AQU_FACE ...
+    // Items: 0=ID, 1=I1, 2=I2, 3=J1, 4=J2, 5=K1, 6=K2, 7+=other parameters
+    if ( record.size() < 1 )
+    {
+        return std::unexpected( QString( "AQUANCON record has insufficient items (expected at least 1, got %1)" ).arg( record.size() ) );
+    }
+
+    using A = Opm::ParserKeywords::AQUANCON;
+
+    std::vector<Opm::DeckItem> items;
+
+    // Copy aquifer ID (first item)
+    items.push_back( record.getItem( 0 ) );
+
+    if ( record.size() >= 7 && record.getItem( 1 ).hasValue( 0 ) && record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) &&
+         record.getItem( 4 ).hasValue( 0 ) && record.getItem( 5 ).hasValue( 0 ) && record.getItem( 6 ).hasValue( 0 ) )
+    {
+        // Transform IJK box coordinates (items 1-6: I1, I2, J1, J2, K1, K2)
+        // Note: AQUANCON uses 1-based Eclipse coordinates
+        caf::VecIjk1 origMin = extractIjk( record, 1, 3, 5 ); // I1, J1, K1
+        caf::VecIjk1 origMax = extractIjk( record, 2, 4, 6 ); // I2, J2, K2
+
+        // Create input bounding box (0-based, inclusive)
+        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
+
+        // Get aquifer ID for logging
+        int     aquiferId   = record.getItem( 0 ).get<int>( 0 );
+        QString recordIdent = QString( "for aquifer %1" ).arg( aquiferId );
+
+        // Transform box to sector coordinates
+        auto transformResult =
+            transformBoxToSectorCoordinates( inputBox, min, max, refinement, QString::fromStdString( A::keywordName ), recordIdent );
+        if ( !transformResult )
+        {
+            return std::unexpected( transformResult.error() );
+        }
+
+        items.push_back( RifOpmDeckTools::item( A::I1::itemName, static_cast<int>( transformResult->min().x() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( A::I2::itemName, static_cast<int>( transformResult->max().x() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( A::J1::itemName, static_cast<int>( transformResult->min().y() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( A::J2::itemName, static_cast<int>( transformResult->max().y() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( A::K1::itemName, static_cast<int>( transformResult->min().z() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( A::K2::itemName, static_cast<int>( transformResult->max().z() + 1 ) ) );
+
+        // Copy remaining items (AQUFACE and other parameters)
+        for ( size_t i = 7; i < record.size(); ++i )
+        {
+            items.push_back( record.getItem( i ) );
+        }
+    }
+    else
+    {
+        // No box definition or incomplete box definition - copy remaining items as-is
+        for ( size_t i = 1; i < record.size(); ++i )
+        {
+            items.push_back( record.getItem( i ) );
+        }
+    }
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAqunumRecord( const Opm::DeckRecord& record,
+                                                                                     const caf::VecIjk0&    min,
+                                                                                     const caf::VecIjk0&    max,
+                                                                                     const cvf::Vec3st&     refinement )
+{
+    // AQUNUM format: ID I J K AREA ...
+    // Items: 0=ID, 1=I, 2=J, 3=K, 4+=other parameters
+    if ( record.size() < 1 )
+    {
+        return std::unexpected( QString( "AQUNUM record has insufficient items (expected at least 1, got %1)" ).arg( record.size() ) );
+    }
+
+    using A = Opm::ParserKeywords::AQUNUM;
+
+    std::vector<Opm::DeckItem> items;
+
+    // Copy aquifer ID (first item)
+    items.push_back( record.getItem( 0 ) );
+
+    if ( record.size() >= 4 && record.getItem( 1 ).hasValue( 0 ) && record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) )
+    {
+        // Transform IJK coordinates (items 1-6: I1, I2, J1, J2, K1, K2)
+        // Note: AQUNUM uses 1-based Eclipse coordinates
+        caf::VecIjk1 origCell = extractIjk( record, 1, 2, 3 ); // I, J, K
+
+        // Create input bounding box (0-based, inclusive)
+        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origCell.toZeroBased(), origCell.toZeroBased() );
+
+        // Get aquifer ID for logging
+        int     aquiferId   = record.getItem( 0 ).get<int>( 0 );
+        QString recordIdent = QString( "for aquifer %1" ).arg( aquiferId );
+
+        // Transform box to sector coordinates
+        auto transformResult =
+            transformBoxToSectorCoordinates( inputBox, min, max, refinement, QString::fromStdString( A::keywordName ), recordIdent );
+        if ( !transformResult )
+        {
+            return std::unexpected( transformResult.error() );
+        }
+
+        items.push_back( RifOpmDeckTools::item( A::I::itemName, static_cast<int>( transformResult->min().x() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( A::J::itemName, static_cast<int>( transformResult->min().y() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( A::K::itemName, static_cast<int>( transformResult->min().z() + 1 ) ) );
+
+        // Copy remaining items (AREA and other parameters)
+        for ( size_t i = 4; i < record.size(); ++i )
         {
             items.push_back( record.getItem( i ) );
         }

@@ -94,6 +94,12 @@ public:
     static std::expected<Opm::DeckRecord, QString>
         processAquconRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
 
+    static std::expected<Opm::DeckRecord, QString>
+        processAquanconRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+
+    static std::expected<Opm::DeckRecord, QString>
+        processAqunumRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+
     static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
 
     // Public EDITNNC methods for testing
@@ -145,6 +151,12 @@ private:
 
     static std::expected<void, QString>
         replaceAquconKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+
+    static std::expected<void, QString>
+        replaceAquanconKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+
+    static std::expected<void, QString>
+        replaceAqunumKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
     static std::expected<void, QString>
         addFaultsToDeckFile( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
