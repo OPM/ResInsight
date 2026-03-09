@@ -69,6 +69,7 @@ public:
     RiaModelExportDefines::BoundaryCondition boundaryCondition() const;
     double                                   porvMultiplier() const;
     QString                                  exportDeckFilename() const;
+    QString                                  inputDeckFilename() const;
 
     RiaModelExportDefines::GridBoxSelection gridBoxSelection() const;
     int                                     wellPadding() const;
@@ -108,6 +109,7 @@ private:
 private:
     caf::PdmField<caf::FilePath> m_exportFolder;
     caf::PdmField<QString>       m_exportDeckName;
+    caf::PdmField<caf::FilePath> m_inputDeckName;
 
     caf::PdmField<int>                  m_visibleWellsPadding;
     caf::PdmField<GridBoxSelectionEnum> m_gridBoxSelection;

@@ -91,6 +91,11 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         RiaLogging::info( QString( "Removed %1 user specified keywords from deck file." ).arg( noOfRemovedKeywords ) );
     }
 
+    if ( auto result = settings.validateBox(); !result )
+    {
+        return result;
+    }
+
     if ( auto result = updateCornerPointGridInDeckFile( &eclipseCase, settings, deckFile ); !result )
     {
         return result;

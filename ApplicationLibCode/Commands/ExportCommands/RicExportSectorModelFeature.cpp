@@ -119,11 +119,7 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
     settings.setBoundaryCondition( exportSettings->boundaryCondition() );
     settings.setPorvMultiplier( exportSettings->porvMultiplier() );
     settings.setPaddingSettings( exportSettings->paddingSettings() );
-
-    // Get input deck file name from eclipse case
-    QFileInfo fi( view->eclipseCase()->gridFileName() );
-    QString   dataFileName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
-    settings.setInputDeckFileName( dataFileName );
+    settings.setInputDeckFileName( exportSettings->inputDeckFilename() );
     settings.setOutputDeckFileName( exportSettings->exportDeckFilename() );
 
     cvf::ref<cvf::UByteArray> cellVisibility = RimEclipseViewTools::createVisibilityBasedOnBoxSelection( view,

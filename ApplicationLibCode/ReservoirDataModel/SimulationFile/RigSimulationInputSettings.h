@@ -26,6 +26,8 @@
 #include "cvfVector3.h"
 
 #include <QString>
+
+#include <expected>
 #include <string>
 #include <vector>
 
@@ -51,6 +53,8 @@ public:
     caf::VecIjk0 max() const;
     void         setMin( const caf::VecIjk0& min );
     void         setMax( const caf::VecIjk0& max );
+
+    std::expected<void, QString> validateBox() const;
 
     // Grid refinement
     cvf::Vec3st refinement() const;

@@ -67,6 +67,19 @@ void RigSimulationInputSettings::setMax( const caf::VecIjk0& max )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputSettings::validateBox() const
+{
+    if ( m_min.i() > m_max.i() || m_min.j() > m_max.j() || m_min.k() > m_max.k() )
+    {
+        return std::unexpected(
+            "Invalid cell box: Min should be less than or equal to Max in all dimensions. Please check export settings." );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3st RigSimulationInputSettings::refinement() const
 {
     return m_refinement;

@@ -40,6 +40,8 @@
 #include "cafPdmUiRadioButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
+#include <QFileInfo>
+
 #include <utility>
 
 CAF_PDM_SOURCE_INIT( RicExportSectorModelUi, "RicExportSectorModelUi" );
@@ -56,6 +58,9 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
     CAF_PDM_InitFieldNoDefault( &m_exportDeckName, "ExportDeckName", "Sector Model Name" );
+    CAF_PDM_InitFieldNoDefault( &m_inputDeckName, "InputDeckName", "Source DATA File" );
+    m_inputDeckName.xmlCapability()->disableIO();
+
     CAF_PDM_InitField( &m_porvMultiplier, "PorvMultiplier", 1.0e6, "PORV Multiplier" );
     CAF_PDM_InitFieldNoDefault( &m_boundaryCondition, "BoundaryCondition", "Boundary Condition Type:" );
     m_boundaryCondition.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
@@ -198,6 +203,7 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         auto infoGrp = uiOrdering.addNewGroup( "Source Information" );
         infoGrp->addNewLabel( QString( "Source Folder: " ) + m_eclipseCase->locationOnDisc() );
         infoGrp->addNewLabel( QString( "Source Case Name: " ) + m_eclipseCase->caseUserDescription() );
+        infoGrp->add( &m_inputDeckName );
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::GridBoxSelection] )
     {
@@ -227,11 +233,8 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         m_maxJ.uiCapability()->setUiReadOnly( boxReadOnly );
         m_maxK.uiCapability()->setUiReadOnly( boxReadOnly );
 
-        if ( m_totalCells > 0 )
-        {
-            uiOrdering.addNewLabel( "" );
-            uiOrdering.addNewLabel( QString( "Total cells to export: %1" ).arg( m_totalCells ) );
-        }
+        uiOrdering.addNewLabel( "" );
+        uiOrdering.addNewLabel( QString( "Total cells to export: %1" ).arg( m_totalCells ) );
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::GridRefinement] )
     {
@@ -368,6 +371,10 @@ void RicExportSectorModelUi::setEclipseView( RimEclipseView* view )
     m_createSimulationJob = false;
 
     if ( m_exportFolder().path().isEmpty() ) m_exportFolder = defaultFolder();
+
+    // Get default input deck file name from eclipse case
+    QFileInfo fi( view->eclipseCase()->gridFileName() );
+    m_inputDeckName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -384,8 +391,7 @@ void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* f
             tvAttr->alwaysEnforceResizePolicy = true;
         }
     }
-
-    if ( ( field == &m_exportFolder ) || ( field == &m_simulationJobFolder ) )
+    else if ( ( field == &m_exportFolder ) || ( field == &m_simulationJobFolder ) )
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
@@ -399,6 +405,14 @@ void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* f
         if ( attrib )
         {
             attrib->heightHint = 200;
+        }
+    }
+    else if ( field == &m_inputDeckName )
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_fileSelectionFilter = "Eclipse DATA files (*.DATA);;All files (*.*)";
         }
     }
 }
@@ -505,6 +519,14 @@ QString RicExportSectorModelUi::exportDeckFilename() const
     RiaApplication::instance()->setLastUsedDialogDirectory( "EXPORT_INPUT_GRID", fullpath );
 
     return fullpath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicExportSectorModelUi::inputDeckFilename() const
+{
+    return m_inputDeckName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
