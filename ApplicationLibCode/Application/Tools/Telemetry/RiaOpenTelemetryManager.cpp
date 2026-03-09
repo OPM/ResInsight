@@ -23,6 +23,7 @@
 #include "RifJsonEncodeDecode.h"
 
 #include <QCryptographicHash>
+#include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -381,6 +382,24 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     reportEventAsync( "crash.signal_handler", attributes );
     flushPendingEvents();
 
+    // Wait for the pending network reply to complete before the process exits.
+    // flushPendingEvents() initiates an async HTTP POST; without pumping the event loop here
+    // the reply never gets a chance to finish and the crash is silently dropped.
+    if ( m_pendingReplies.load() > 0 )
+    {
+        auto* prefs          = RiaPreferencesOpenTelemetry::current();
+        int   timeoutMs      = prefs ? prefs->connectionTimeoutMs() : 5000;
+        int   elapsedMs      = 0;
+        int   pollIntervalMs = 50;
+        while ( m_pendingReplies.load() > 0 && elapsedMs < timeoutMs )
+        {
+            QEventLoop loop;
+            QTimer::singleShot( pollIntervalMs, &loop, &QEventLoop::quit );
+            loop.exec();
+            elapsedMs += pollIntervalMs;
+        }
+    }
+
     RiaLogging::error( QString( "Crash reported to OpenTelemetry (signal: %1)" ).arg( signalCode ) );
 }
 
@@ -735,6 +754,7 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
         request.setHeader( QNetworkRequest::KnownHeaders( QNetworkRequest::UserAgentHeader ), "ResInsight-OpenTelemetry" );
         request.setTransferTimeout( prefs->connectionTimeoutMs() );
 
+        m_pendingReplies++;
         QNetworkReply* reply = m_networkAccessManager->post( request, jsonPayload.toUtf8() );
 
         // Handle response asynchronously
@@ -757,6 +777,7 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
                          handleError( TelemetryError::NetworkError, QString( "Failed to send telemetry: %1" ).arg( errorMsg ) );
                          updateHealthMetrics( false );
                      }
+                     m_pendingReplies--;
                      reply->deleteLater();
                  } );
     }
