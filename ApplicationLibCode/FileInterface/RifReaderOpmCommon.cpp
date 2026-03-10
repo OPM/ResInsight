@@ -604,6 +604,16 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 //--------------------------------------------------------------------------------------------------
 bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
 {
+    // Active cell info is populated from the EGRID during grid import via transferActiveCells(), which reads ACTNUM from the OPM EGrid
+    // object. Most simulators also write it to INIT, but some do not. Derive the values directly from the active cell info to handle both
+    // cases consistently.
+    if ( result.compare( "ACTNUM", Qt::CaseInsensitive ) == 0 )
+    {
+        RigActiveCellInfo* activeCellInfo = m_eclipseCaseData->activeCellInfo( matrixOrFracture );
+        values->resize( activeCellInfo->reservoirActiveCellCount(), 1.0 );
+        return true;
+    }
+
     if ( m_initFile )
     {
         try
