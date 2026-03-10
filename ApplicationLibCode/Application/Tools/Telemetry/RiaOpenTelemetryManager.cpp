@@ -207,24 +207,6 @@ bool RiaOpenTelemetryManager::reinitialize()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Create a stable, anonymized hash of username for privacy-preserving telemetry
-/// Uses SHA-256 to ensure consistent hashing across sessions while protecting user identity
-//--------------------------------------------------------------------------------------------------
-static std::string hashUsername( const std::string& username )
-{
-    if ( username.empty() )
-    {
-        return "";
-    }
-
-    QByteArray usernameBytes = QString::fromStdString( username ).toUtf8();
-    QByteArray hash          = QCryptographicHash::hash( usernameBytes, QCryptographicHash::Sha256 );
-
-    // Convert to hex string for readability in telemetry
-    return hash.toHex().toStdString();
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiaOpenTelemetryManager::isEventAllowed( const std::string& eventName ) const
@@ -253,6 +235,35 @@ bool RiaOpenTelemetryManager::isEventAllowed( const std::string& eventName ) con
     const QStringList denylist = prefs->eventDenylist();
     return denylist.isEmpty() || !matches( name, denylist );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+namespace
+{
+// Create a stable, anonymized hash of username for privacy-preserving telemetry
+// Uses SHA-256 to ensure consistent hashing across sessions while protecting user identity
+std::string hashUsername( const std::string& username )
+{
+    if ( username.empty() )
+    {
+        return "";
+    }
+
+    QByteArray usernameBytes = QString::fromStdString( username ).toUtf8();
+    QByteArray hash          = QCryptographicHash::hash( usernameBytes, QCryptographicHash::Sha256 );
+
+    // Convert to hex string for readability in telemetry
+    return hash.toHex().toStdString();
+}
+
+void addOsInfo( std::map<std::string, std::string>& attributes )
+{
+    attributes["os.type"]    = QSysInfo::productType().toStdString();
+    attributes["os.version"] = QSysInfo::productVersion().toStdString();
+    attributes["os.name"]    = QSysInfo::prettyProductName().toStdString();
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -291,6 +302,8 @@ void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, co
         {
             enrichedAttributes["user.hash"] = hashUsername( m_username );
         }
+
+        addOsInfo( enrichedAttributes );
     }
 
     m_eventQueue.emplace( eventName, enrichedAttributes );
@@ -366,9 +379,7 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     attributes["service.version"]         = RiaPreferencesOpenTelemetry::current()->serviceVersion().toStdString();
 
     // Add system information
-    attributes["os.type"]    = QSysInfo::productType().toStdString();
-    attributes["os.version"] = QSysInfo::productVersion().toStdString();
-    attributes["os.name"]    = QSysInfo::prettyProductName().toStdString();
+    addOsInfo( attributes );
 
     // Add real username for crash reports (not hashed - needed for debugging critical issues)
     {
