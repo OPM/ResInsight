@@ -262,8 +262,11 @@ static QProgressDialog* progressDialog()
     QWidget* parent = app != nullptr ? app->activeWindow() : nullptr;
 
     // Check if the current prog dialog (if any) has a proper parent.
-    // If not, re-create it, to make sure it is positioned in the correct main window
-    if ( !progDialog.isNull() && ( progDialog->parent() != parent ) && ( parent != nullptr ) )
+    // If not, re-create it, to make sure it is positioned in the correct main window.
+    // Only reparent when no progress operation is active - during an active operation
+    // activeWindow() may change due to processEvents(), which would create multiple overlapping dialogs.
+    if ( !progDialog.isNull() && ( progDialog->parent() != parent ) && ( parent != nullptr ) &&
+         !ProgressInfoStatic::isRunning() )
     {
         // Thread check, we can only modify the progDialog if we are in the same thread as it belongs
         if ( QThread::currentThread() == progDialog->thread() )
