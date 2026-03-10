@@ -512,9 +512,11 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
 {
     if ( !isOnGuiThread() )
     {
-        QMetaObject::invokeMethod( QCoreApplication::instance(),
-                                   [&]() { ProgressInfoStatic::start( progressInfo, maxProgressValue, title, delayShowingProgress, allowCancel ); },
-                                   Qt::BlockingQueuedConnection );
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [&]()
+            { ProgressInfoStatic::start( progressInfo, maxProgressValue, title, delayShowingProgress, allowCancel ); },
+            Qt::BlockingQueuedConnection );
         return;
     }
 
@@ -584,9 +586,10 @@ void ProgressInfoStatic::setProgressDescription( const QString& description )
 {
     if ( !isOnGuiThread() )
     {
-        QMetaObject::invokeMethod( QCoreApplication::instance(),
-                                   [description]() { ProgressInfoStatic::setProgressDescription( description ); },
-                                   Qt::QueuedConnection );
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [description]() { ProgressInfoStatic::setProgressDescription( description ); },
+            Qt::QueuedConnection );
         return;
     }
 
@@ -610,9 +613,10 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
 {
     if ( !isOnGuiThread() )
     {
-        QMetaObject::invokeMethod( QCoreApplication::instance(),
-                                   [progressValue]() { ProgressInfoStatic::setProgress( progressValue ); },
-                                   Qt::QueuedConnection );
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [progressValue]() { ProgressInfoStatic::setProgress( progressValue ); },
+            Qt::QueuedConnection );
         return;
     }
 
@@ -664,9 +668,7 @@ void ProgressInfoStatic::incrementProgress()
 {
     if ( !isOnGuiThread() )
     {
-        QMetaObject::invokeMethod( QCoreApplication::instance(),
-                                   []() { ProgressInfoStatic::incrementProgress(); },
-                                   Qt::QueuedConnection );
+        QMetaObject::invokeMethod( QCoreApplication::instance(), []() { ProgressInfoStatic::incrementProgress(); }, Qt::QueuedConnection );
         return;
     }
 
@@ -686,9 +688,10 @@ void ProgressInfoStatic::setNextProgressIncrement( size_t nextStepSize )
 {
     if ( !isOnGuiThread() )
     {
-        QMetaObject::invokeMethod( QCoreApplication::instance(),
-                                   [nextStepSize]() { ProgressInfoStatic::setNextProgressIncrement( nextStepSize ); },
-                                   Qt::QueuedConnection );
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [nextStepSize]() { ProgressInfoStatic::setNextProgressIncrement( nextStepSize ); },
+            Qt::QueuedConnection );
         return;
     }
 
@@ -726,9 +729,7 @@ void ProgressInfoStatic::finished()
 {
     if ( !isOnGuiThread() )
     {
-        QMetaObject::invokeMethod( QCoreApplication::instance(),
-                                   []() { ProgressInfoStatic::finished(); },
-                                   Qt::BlockingQueuedConnection );
+        QMetaObject::invokeMethod( QCoreApplication::instance(), []() { ProgressInfoStatic::finished(); }, Qt::BlockingQueuedConnection );
         return;
     }
 

@@ -2034,19 +2034,17 @@ void RiuMainWindow::slotTestProgressBar()
     caf::ProgressInfo progress( totalSteps, "Test Progress Bar", false );
 
     QEventLoop eventLoop;
-    QThread*   workerThread = QThread::create( [totalSteps, sleepSeconds, &progress]()
-                                             {
-                                                 for ( int i = 0; i < totalSteps; i++ )
-                                                 {
-                                                     progress.setProgressDescription(
-                                                         QString( "Step %1 of %2 - sleeping %3 seconds..." )
-                                                             .arg( i + 1 )
-                                                             .arg( totalSteps )
-                                                             .arg( sleepSeconds ) );
-                                                     QThread::sleep( sleepSeconds );
-                                                     progress.incrementProgress();
-                                                 }
-                                             } );
+    QThread*   workerThread = QThread::create(
+        [totalSteps, sleepSeconds, &progress]()
+        {
+            for ( int i = 0; i < totalSteps; i++ )
+            {
+                progress.setProgressDescription(
+                    QString( "Step %1 of %2 - sleeping %3 seconds..." ).arg( i + 1 ).arg( totalSteps ).arg( sleepSeconds ) );
+                QThread::sleep( sleepSeconds );
+                progress.incrementProgress();
+            }
+        } );
     connect( workerThread, &QThread::finished, &eventLoop, &QEventLoop::quit );
     workerThread->start();
     eventLoop.exec( QEventLoop::ExcludeUserInputEvents );
