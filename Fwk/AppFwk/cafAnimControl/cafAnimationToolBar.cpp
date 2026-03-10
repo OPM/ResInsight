@@ -203,8 +203,8 @@ void AnimationToolBar::connectAnimationControl( caf::FrameAnimationControl* anim
 
     m_animRepeatFromStartAction->disconnect();
 
-    m_timestepCombo->disconnect();
-    m_frameRateSlider->disconnect();
+    disconnect( m_timestepCombo, SIGNAL( currentIndexChanged( int ) ), nullptr, nullptr );
+    disconnect( m_frameRateSlider, SIGNAL( valueChanged( int ) ), nullptr, nullptr );
 
     if ( animationControl )
     {
