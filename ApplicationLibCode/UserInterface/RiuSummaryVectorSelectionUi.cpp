@@ -1073,8 +1073,11 @@ std::set<RifEclipseSummaryAddress>
 
         if ( currCase )
         {
-            RifSummaryReaderInterface* reader = currCase->summaryReader();
-            if ( reader ) allAddresses = reader->allResultAddresses();
+            if ( RifSummaryReaderInterface* reader = currCase->summaryReader() )
+            {
+                reader->createAddressesIfRequired();
+                allAddresses = reader->allResultAddresses();
+            }
         }
         else if ( currEnsemble )
         {
