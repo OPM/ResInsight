@@ -73,13 +73,13 @@
 #include "RiuViewer.h"
 
 #include "cafAnimationToolBar.h"
-#include "cafProgressInfo.h"
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
 #include "cafMemoryInspector.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
+#include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
@@ -2029,13 +2029,14 @@ void RiuMainWindow::slotSendTestTelemetry()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotTestProgressBar()
 {
-    const int    totalSteps   = 6;
-    const int    sleepSeconds = 2;
+    const int         totalSteps   = 6;
+    const int         sleepSeconds = 2;
     caf::ProgressInfo progress( totalSteps, "Test Progress Bar" );
 
     for ( int i = 0; i < totalSteps; i++ )
     {
-        progress.setProgressDescription( QString( "Step %1 of %2 - sleeping %3 seconds..." ).arg( i + 1 ).arg( totalSteps ).arg( sleepSeconds ) );
+        progress.setProgressDescription(
+            QString( "Step %1 of %2 - sleeping %3 seconds..." ).arg( i + 1 ).arg( totalSteps ).arg( sleepSeconds ) );
         QThread::sleep( sleepSeconds );
         progress.incrementProgress();
     }
