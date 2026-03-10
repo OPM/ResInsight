@@ -173,7 +173,7 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
 
     m_useRealizationStarCheckBox = new QCheckBox( "Use 'realization-*' in filter" );
     m_useRealizationStarCheckBox->setChecked( true );
-    m_ensembleGroupingMode       = new QComboBox();
+    m_ensembleGroupingMode = new QComboBox();
 
     m_createGridEnsembleCheckBox    = new QCheckBox( "Create Grid Ensemble" );
     m_createSummaryEnsembleCheckBox = new QCheckBox( "Create Summary Ensemble" );
