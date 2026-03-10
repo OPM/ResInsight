@@ -253,6 +253,15 @@ QString createMemoryLabelText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+static bool isOnGuiThread()
+{
+    auto* app = QCoreApplication::instance();
+    return app && ( QThread::currentThread() == app->thread() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 static QProgressDialog* progressDialog()
 {
     static QPointer<QProgressDialog> progDialog;
@@ -262,8 +271,11 @@ static QProgressDialog* progressDialog()
     QWidget* parent = app != nullptr ? app->activeWindow() : nullptr;
 
     // Check if the current prog dialog (if any) has a proper parent.
-    // If not, re-create it, to make sure it is positioned in the correct main window
-    if ( !progDialog.isNull() && ( progDialog->parent() != parent ) && ( parent != nullptr ) )
+    // If not, re-create it, to make sure it is positioned in the correct main window.
+    // Only reparent when no progress operation is active - during an active operation
+    // activeWindow() may change due to processEvents(), which would create multiple overlapping dialogs.
+    if ( !progDialog.isNull() && ( progDialog->parent() != parent ) && ( parent != nullptr ) &&
+         !ProgressInfoStatic::isRunning() )
     {
         // Thread check, we can only modify the progDialog if we are in the same thread as it belongs
         if ( QThread::currentThread() == progDialog->thread() )
@@ -498,6 +510,16 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
                                 bool           delayShowingProgress,
                                 bool           allowCancel )
 {
+    if ( !isOnGuiThread() )
+    {
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [&]()
+            { ProgressInfoStatic::start( progressInfo, maxProgressValue, title, delayShowingProgress, allowCancel ); },
+            Qt::BlockingQueuedConnection );
+        return;
+    }
+
     if ( !isUpdatePossible() ) return;
 
     std::vector<size_t>& progressStack_v     = progressStack();
@@ -562,6 +584,15 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::setProgressDescription( const QString& description )
 {
+    if ( !isOnGuiThread() )
+    {
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [description]() { ProgressInfoStatic::setProgressDescription( description ); },
+            Qt::QueuedConnection );
+        return;
+    }
+
     if ( !isUpdatePossible() ) return;
 
     descriptionStack().back() = description;
@@ -580,6 +611,15 @@ void ProgressInfoStatic::setProgressDescription( const QString& description )
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::setProgress( size_t progressValue )
 {
+    if ( !isOnGuiThread() )
+    {
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [progressValue]() { ProgressInfoStatic::setProgress( progressValue ); },
+            Qt::QueuedConnection );
+        return;
+    }
+
     if ( !isUpdatePossible() ) return;
 
     std::vector<size_t>& progressStack_v     = progressStack();
@@ -626,6 +666,12 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::incrementProgress()
 {
+    if ( !isOnGuiThread() )
+    {
+        QMetaObject::invokeMethod( QCoreApplication::instance(), []() { ProgressInfoStatic::incrementProgress(); }, Qt::QueuedConnection );
+        return;
+    }
+
     if ( !isUpdatePossible() ) return;
 
     std::vector<size_t>& progressStack_v     = progressStack();
@@ -640,6 +686,15 @@ void ProgressInfoStatic::incrementProgress()
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::setNextProgressIncrement( size_t nextStepSize )
 {
+    if ( !isOnGuiThread() )
+    {
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [nextStepSize]() { ProgressInfoStatic::setNextProgressIncrement( nextStepSize ); },
+            Qt::QueuedConnection );
+        return;
+    }
+
     if ( !isUpdatePossible() ) return;
 
     CAF_ASSERT( progressSpanStack().size() );
@@ -672,6 +727,12 @@ bool ProgressInfoStatic::isRunning()
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::finished()
 {
+    if ( !isOnGuiThread() )
+    {
+        QMetaObject::invokeMethod( QCoreApplication::instance(), []() { ProgressInfoStatic::finished(); }, Qt::BlockingQueuedConnection );
+        return;
+    }
+
     if ( !isUpdatePossible() ) return;
 
     std::vector<size_t>& progressStack_v     = progressStack();
@@ -731,11 +792,7 @@ bool ProgressInfoStatic::isUpdatePossible()
 
     if ( dynamic_cast<QApplication*>( QCoreApplication::instance() ) )
     {
-        QProgressDialog* dialog = progressDialog();
-        if ( dialog )
-        {
-            return dialog->thread() == QThread::currentThread();
-        }
+        return progressDialog() != nullptr;
     }
     return false;
 }
