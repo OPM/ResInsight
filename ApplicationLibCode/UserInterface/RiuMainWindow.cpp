@@ -79,6 +79,7 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
+#include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
@@ -106,6 +107,7 @@
 #include <QMimeData>
 #include <QSpinBox>
 #include <QStatusBar>
+#include <QThread>
 #include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
@@ -383,6 +385,8 @@ void RiuMainWindow::createActions()
     m_executePaintEventPerformanceTest = new QAction( "&Paint Event Performance Test", this );
     m_sendTestTelemetryAction          = new QAction( "&Send Test Telemetry", this );
     m_sendTestTelemetryAction->setToolTip( "Send test logging and stack trace to OpenTelemetry endpoint" );
+    m_testProgressBarAction = new QAction( "Test Progress Bar", this );
+    m_testProgressBarAction->setToolTip( "Run a long task to test the progress bar widget" );
 
     connect( m_mockModelAction, SIGNAL( triggered() ), SLOT( slotMockModel() ) );
     connect( m_mockResultsModelAction, SIGNAL( triggered() ), SLOT( slotMockResultsModel() ) );
@@ -395,6 +399,7 @@ void RiuMainWindow::createActions()
     connect( m_showRegressionTestDialog, SIGNAL( triggered() ), SLOT( slotShowRegressionTestDialog() ) );
     connect( m_executePaintEventPerformanceTest, SIGNAL( triggered() ), SLOT( slotExecutePaintEventPerformanceTest() ) );
     connect( m_sendTestTelemetryAction, SIGNAL( triggered() ), SLOT( slotSendTestTelemetry() ) );
+    connect( m_testProgressBarAction, SIGNAL( triggered() ), SLOT( slotTestProgressBar() ) );
 
     // View actions
     m_viewFullScreen = new QAction( QIcon( ":/Fullscreen.png" ), "Full Screen", this );
@@ -561,6 +566,7 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( m_showRegressionTestDialog );
     testMenu->addAction( m_executePaintEventPerformanceTest );
     testMenu->addAction( m_sendTestTelemetryAction );
+    testMenu->addAction( m_testProgressBarAction );
     testMenu->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectNoGlobalPathsFeature" ) );
@@ -2016,6 +2022,33 @@ void RiuMainWindow::slotSendTestTelemetry()
     // Intentional crash for testing crash handling / telemetry.
     std::raise( SIGSEGV );
     return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotTestProgressBar()
+{
+    const int         totalSteps   = 6;
+    const int         sleepSeconds = 2;
+    caf::ProgressInfo progress( totalSteps, "Test Progress Bar", false );
+
+    QEventLoop eventLoop;
+    QThread*   workerThread = QThread::create(
+        [&progress]()
+        {
+            for ( int i = 0; i < totalSteps; i++ )
+            {
+                progress.setProgressDescription(
+                    QString( "Step %1 of %2 - sleeping %3 seconds..." ).arg( i + 1 ).arg( totalSteps ).arg( sleepSeconds ) );
+                QThread::sleep( sleepSeconds );
+                progress.incrementProgress();
+            }
+        } );
+    connect( workerThread, &QThread::finished, &eventLoop, &QEventLoop::quit );
+    workerThread->start();
+    eventLoop.exec( QEventLoop::ExcludeUserInputEvents );
+    workerThread->deleteLater();
 }
 
 //--------------------------------------------------------------------------------------------------

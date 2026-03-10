@@ -177,6 +177,7 @@ private:
     QAction* m_showRegressionTestDialog;
     QAction* m_executePaintEventPerformanceTest;
     QAction* m_sendTestTelemetryAction;
+    QAction* m_testProgressBarAction;
 
     caf::AnimationToolBar* m_animationToolBar;
 
@@ -241,6 +242,7 @@ private slots:
     void slotShowRegressionTestDialog();
     void slotExecutePaintEventPerformanceTest();
     void slotSendTestTelemetry();
+    void slotTestProgressBar();
 
     // Mock models
     void slotMockModel();
