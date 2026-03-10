@@ -172,7 +172,8 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
     m_searchButton->setFixedWidth( 75 );
 
     m_useRealizationStarCheckBox = new QCheckBox( "Use 'realization-*' in filter" );
-    m_ensembleGroupingMode       = new QComboBox();
+    m_useRealizationStarCheckBox->setChecked( true );
+    m_ensembleGroupingMode = new QComboBox();
 
     m_createGridEnsembleCheckBox    = new QCheckBox( "Create Grid Ensemble" );
     m_createSummaryEnsembleCheckBox = new QCheckBox( "Create Summary Ensemble" );
@@ -194,6 +195,7 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
     m_fileTreeView->setContextMenuPolicy( Qt::CustomContextMenu );
     m_fileTreeView->setVisible( false );
     m_fileTreeView->setMinimumHeight( 350 );
+    m_fileTreeView->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
     m_browseButton->setFixedWidth( 25 );
 
@@ -283,12 +285,14 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
     outputGridLayout->addWidget( m_treeFilterLineEdit, 0, 0 );
     outputGridLayout->addWidget( m_treeFilterButton, 0, 1 );
     outputGridLayout->addWidget( m_fileTreeView, 1, 0, 1, 2 );
+    outputGridLayout->setRowStretch( 0, 0 );
+    outputGridLayout->setRowStretch( 1, 1 );
     m_outputGroup->setLayout( outputGridLayout );
 
-    dialogLayout->addWidget( searchGroup );
-    dialogLayout->addWidget( importGroup );
-    dialogLayout->addWidget( m_outputGroup );
-    dialogLayout->addWidget( m_buttons );
+    dialogLayout->addWidget( searchGroup, 0 );
+    dialogLayout->addWidget( importGroup, 0 );
+    dialogLayout->addWidget( m_outputGroup, 1 );
+    dialogLayout->addWidget( m_buttons, 0 );
 
     setLayout( dialogLayout );
 }

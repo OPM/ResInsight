@@ -932,6 +932,10 @@ void RimReservoirGridEnsemble::loadGridsInSharedMode()
             eclipseCase->eclipseCaseData()->setMainGrid( m_mainGrid );
         }
 
+        RigCaseCellResultsData::copyResultsMetaDataFromMainCase( firstCase->eclipseCaseData(),
+                                                                 RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                 allCases );
+
         computeUnionOfActiveCells();
     }
 }
