@@ -69,7 +69,7 @@ private:
     QFileInfoList  subDirectoriesForTestExecution( const QDir& directory );
 
     static void    selectObjectsInProject();
-    static QString findPreferencesConfigFile( const QDir& testCaseFolder, const QDir& mainFolder );
+    static QString findPreferencesConfigFile( const QDir& testCaseFolder );
 
 private:
     QString           m_rootPath;
