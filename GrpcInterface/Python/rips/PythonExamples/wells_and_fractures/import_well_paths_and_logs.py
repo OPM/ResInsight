@@ -29,6 +29,14 @@ if resInsight.project.has_warnings():
 for well_path in well_paths:
     print("Imported from individual files: " + well_path.name)
 
+# Set well path colors using hex color strings
+all_well_paths = resInsight.project.well_paths()
+colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00"]
+for i, well_path in enumerate(all_well_paths):
+    well_path.well_path_color = colors[i % len(colors)]
+    well_path.update()
+    print("Set color of " + well_path.name + " to " + well_path.well_path_color)
+
 
 well_path_names = resInsight.project.import_well_log_files(
     well_log_folder="D:/Projects/ResInsight-regression-test/ModelData/Norne_PLT_LAS"
