@@ -62,6 +62,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
