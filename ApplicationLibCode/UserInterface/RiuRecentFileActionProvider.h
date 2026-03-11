@@ -41,6 +41,8 @@ public:
     void                  addFileName( const QString& fileName );
     std::vector<QAction*> actions() const;
 
+    static QString lastUsedProjectFileName();
+
 private slots:
     void slotOpenRecentFile();
 

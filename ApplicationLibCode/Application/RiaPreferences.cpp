@@ -192,9 +192,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showGridBox );
 
-    CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File" );
-    lastUsedProjectFileName.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitField( &holoLensDisableCertificateVerification,
                        "holoLensDisableCertificateVerification",
                        false,

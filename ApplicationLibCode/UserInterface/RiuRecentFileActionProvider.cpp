@@ -76,6 +76,19 @@ QString RiuRecentFileActionProvider::registryKey()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuRecentFileActionProvider::lastUsedProjectFileName()
+{
+    const QStringList files = RiaStringListSerializer( registryKey() ).textStrings();
+    for ( const QString& file : files )
+    {
+        if ( file.endsWith( ".rsp", Qt::CaseInsensitive ) ) return file;
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::updateActions()
 {
     RiaStringListSerializer stringListSerializer( registryKey() );

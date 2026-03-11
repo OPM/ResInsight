@@ -26,6 +26,8 @@
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
 
+#include "RiuRecentFileActionProvider.h"
+
 #include "RicImportGeneralDataFeature.h"
 
 #include "cvfProgramOptions.h"
@@ -212,7 +214,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
 
     if ( progOpt->hasOption( "last" ) )
     {
-        projectFileName = preferences()->lastUsedProjectFileName;
+        projectFileName = RiuRecentFileActionProvider::lastUsedProjectFileName();
     }
 
     if ( cvf::Option o = progOpt->option( "project" ) )

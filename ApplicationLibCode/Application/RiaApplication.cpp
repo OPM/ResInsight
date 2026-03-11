@@ -591,10 +591,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         // VL check regarding specific order mentioned in comment above...
 
-        m_preferences->lastUsedProjectFileName = fullPathProjectFileName;
-        if ( m_preferencesFileName.isEmpty() )
+        if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
         {
-            m_preferences->writePreferencesToApplicationStore();
+            addToRecentFiles( fullPathProjectFileName );
         }
 
         if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
@@ -1000,7 +999,7 @@ bool RiaApplication::saveProjectAs( const QString& fileName, gsl::not_null<QStri
         return false;
     }
 
-    m_preferences->lastUsedProjectFileName = fileName;
+    addToRecentFiles( fileName );
     if ( m_preferencesFileName.isEmpty() )
     {
         m_preferences->writePreferencesToApplicationStore();

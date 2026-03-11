@@ -691,7 +691,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
     if ( progOpt->hasOption( "last" ) )
     {
-        projectFileName = preferences()->lastUsedProjectFileName;
+        projectFileName = RiuRecentFileActionProvider::lastUsedProjectFileName();
     }
 
     if ( cvf::Option o = progOpt->option( "project" ) )

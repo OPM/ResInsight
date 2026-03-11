@@ -19,9 +19,9 @@
 #include "RicOpenLastUsedFileFeature.h"
 
 #include "RiaGuiApplication.h"
-#include "RiaPreferences.h"
 
 #include "RiuMainWindow.h"
+#include "RiuRecentFileActionProvider.h"
 
 #include <QAction>
 
@@ -36,7 +36,7 @@ void RicOpenLastUsedFileFeature::onActionTriggered( bool isChecked )
 
     if ( !app->checkWithUserBeforeClose() ) return;
 
-    QString fileName = RiaPreferences::current()->lastUsedProjectFileName;
+    QString fileName = RiuRecentFileActionProvider::lastUsedProjectFileName();
 
     if ( app->loadProject( fileName ) )
     {

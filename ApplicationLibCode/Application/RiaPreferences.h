@@ -154,8 +154,6 @@ public:
     caf::PdmField<FontSizeEnum> defaultAnnotationFontSize;
     caf::PdmField<FontSizeEnum> defaultPlotFontSize;
 
-    caf::PdmField<QString> lastUsedProjectFileName;
-
     caf::PdmField<bool>    holoLensDisableCertificateVerification;
     caf::PdmField<QString> csvTextExportFieldSeparator;
 
