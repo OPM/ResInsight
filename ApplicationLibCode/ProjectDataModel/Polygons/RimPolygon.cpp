@@ -54,7 +54,7 @@ RimPolygon::RimPolygon()
     CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPolygonButton );
 
-    CAF_PDM_InitFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
     m_appearance = new RimPolygonAppearance;
     m_appearance.uiCapability()->setUiTreeChildrenHidden( true );
 

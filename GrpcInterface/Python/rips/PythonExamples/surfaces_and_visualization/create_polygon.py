@@ -33,3 +33,17 @@ if resinsight is not None:
         print("Coordinates for {}:".format(p.name))
         for coord in p.coordinates:
             print(coord)
+
+        # Customize appearance
+        appearance = p.appearance()
+        if appearance is not None:
+            appearance.line_color = "#ff0000"
+            appearance.line_thickness = 5
+            appearance.show_spheres = True
+            appearance.sphere_color = "#0000ff"
+            appearance.update()
+            print(
+                "Appearance updated: line_color={}, line_thickness={}".format(
+                    appearance.line_color, appearance.line_thickness
+                )
+            )

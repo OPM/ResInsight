@@ -26,6 +26,8 @@
 #include "RiaNumericalTools.h"
 #include "RiaStdStringTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
 
@@ -77,20 +79,20 @@ RimPolygonAppearance::RimPolygonAppearance()
     : objectChanged( this )
 
 {
-    CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitScriptableObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
-    CAF_PDM_InitField( &m_isClosed, "IsClosed", true, "Closed Polygon" );
-    CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines" );
-    CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres" );
+    CAF_PDM_InitScriptableField( &m_isClosed, "IsClosed", true, "Closed Polygon" );
+    CAF_PDM_InitScriptableField( &m_showLines, "ShowLines", true, "Show Lines" );
+    CAF_PDM_InitScriptableField( &m_showSpheres, "ShowSpheres", false, "Show Spheres" );
 
-    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
-    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
+    CAF_PDM_InitScriptableField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
+    CAF_PDM_InitScriptableField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
 
-    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::ORANGE ), "Line Color" );
-    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::ORANGE ), "Sphere Color" );
+    CAF_PDM_InitScriptableField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::ORANGE ), "Line Color" );
+    CAF_PDM_InitScriptableField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::ORANGE ), "Sphere Color" );
 
-    CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth" );
-    CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane" );
+    CAF_PDM_InitScriptableField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth" );
+    CAF_PDM_InitScriptableField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane" );
 
     m_polygonPlaneDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_polygonPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
