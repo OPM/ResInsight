@@ -27,6 +27,7 @@
 #include "RiaStdStringTools.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
