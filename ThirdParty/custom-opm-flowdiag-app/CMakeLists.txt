@@ -30,7 +30,7 @@ add_library(custom-opm-flowdiag-app
     ${project_source_files_complete_path1} 
 )
 
-find_package(Boost REQUIRED filesystem system)
+find_package(Boost REQUIRED filesystem)
 
 target_link_libraries(custom-opm-flowdiag-app 
   resdata
