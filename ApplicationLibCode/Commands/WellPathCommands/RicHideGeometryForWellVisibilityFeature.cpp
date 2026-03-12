@@ -23,8 +23,8 @@
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
-#include "RimIntersectionCollection.h"
 #include "RimGridView.h"
+#include "RimIntersectionCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTools.h"
 #include "WellPath/RimWellPathCollection.h"
@@ -91,7 +91,7 @@ void RicHideGeometryForWellVisibilityFeature::onActionTriggered( bool isChecked 
     RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
     if ( wellPathColl )
     {
-        wellPathColl->isActive = true;
+        wellPathColl->isActive           = true;
         wellPathColl->wellPathVisibility = RimWellPathCollection::FORCE_ALL_ON;
         wellPathColl->updateConnectedEditors();
     }

@@ -22,8 +22,8 @@
 
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
-#include "RimIntersectionCollection.h"
 #include "RimGridView.h"
+#include "RimIntersectionCollection.h"
 #include "RimTools.h"
 #include "WellPath/RimWellPathCollection.h"
 
