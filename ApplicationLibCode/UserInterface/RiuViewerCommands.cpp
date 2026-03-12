@@ -634,6 +634,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicSelectColorResult";
             menuBuilder.addSeparator();
             menuBuilder << "RicHideGeometryForWellVisibilityFeature";
+            menuBuilder << "RicShowAllGeometryFeature";
         }
     }
 
