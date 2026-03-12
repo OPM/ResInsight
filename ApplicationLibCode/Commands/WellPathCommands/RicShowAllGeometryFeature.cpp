@@ -27,6 +27,8 @@
 #include "RimTools.h"
 #include "WellPath/RimWellPathCollection.h"
 
+#include "RiuMainWindow.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicShowAllGeometryFeature, "RicShowAllGeometryFeature" );
@@ -65,13 +67,17 @@ void RicShowAllGeometryFeature::onActionTriggered( bool isChecked )
 
     // Show all reservoir geometry
     gridView->showGridCells( true );
+    RiuMainWindow::instance()->refreshDrawStyleActions();
+    RiuMainWindow::instance()->refreshAnimationActions();
+
     gridView->scheduleCreateDisplayModelAndRedraw();
 
     // Restore well path visibility to individual control
     RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
     if ( wellPathColl )
     {
-        wellPathColl->wellPathVisibility.setValueWithFieldChanged( RimWellPathCollection::ALL_ON );
+        wellPathColl->wellPathVisibility = RimWellPathCollection::ALL_ON;
+        wellPathColl->updateConnectedEditors();
     }
 }
 

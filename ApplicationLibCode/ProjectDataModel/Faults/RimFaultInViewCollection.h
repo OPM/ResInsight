@@ -81,10 +81,9 @@ public:
 
     void uiOrderingFaults( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
-    caf::PdmFieldHandle* objectToggleField() override;
-
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle* objectToggleField() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

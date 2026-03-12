@@ -22,11 +22,14 @@
 
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimGridView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTools.h"
 #include "WellPath/RimWellPathCollection.h"
+
+#include "RiuMainWindow.h"
 
 #include <QAction>
 
@@ -65,7 +68,12 @@ void RicHideGeometryForWellVisibilityFeature::onActionTriggered( bool isChecked 
     gridView->intersectionCollection()->updateConnectedEditors();
 
     // Hide all reservoir geometry
-    gridView->showGridCells( false );
+    gridView->gridCollection()->setActive( false );
+    gridView->gridCollection()->updateConnectedEditors();
+
+    RiuMainWindow::instance()->refreshDrawStyleActions();
+    RiuMainWindow::instance()->refreshAnimationActions();
+
     gridView->scheduleCreateDisplayModelAndRedraw();
 
     // Force simulation wells visible (Eclipse views only)
@@ -74,7 +82,8 @@ void RicHideGeometryForWellVisibilityFeature::onActionTriggered( bool isChecked 
         RimSimWellInViewCollection* simWellColl = eclipseView->wellCollection();
         if ( simWellColl )
         {
-            simWellColl->isActive.setValueWithFieldChanged( true );
+            simWellColl->isActive = true;
+            simWellColl->updateConnectedEditors();
         }
     }
 
@@ -82,8 +91,9 @@ void RicHideGeometryForWellVisibilityFeature::onActionTriggered( bool isChecked 
     RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
     if ( wellPathColl )
     {
-        wellPathColl->isActive.setValueWithFieldChanged( true );
-        wellPathColl->wellPathVisibility.setValueWithFieldChanged( RimWellPathCollection::FORCE_ALL_ON );
+        wellPathColl->isActive = true;
+        wellPathColl->wellPathVisibility = RimWellPathCollection::FORCE_ALL_ON;
+        wellPathColl->updateConnectedEditors();
     }
 }
 
