@@ -112,7 +112,7 @@ private:
                                                       const RigContourPolygonsTools::ContourPolygons& previousLevel,
                                                       double                                          tolerance );
 
-    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image, bool transparent );
+    cvf::ref<cvf::Part> createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image, bool transparent );
     static cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
     static cvf::TextureImage*         createTexture( const RigContourMapProjection* contourMapProjection, cvf::ScalarMapper* scalarMapper );
 
