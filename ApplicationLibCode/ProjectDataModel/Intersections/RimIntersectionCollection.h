@@ -89,6 +89,7 @@ public:
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
     bool isActive() const;
+    void setActive( bool active );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
