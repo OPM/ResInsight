@@ -20,6 +20,9 @@
 
 #include "RiaApplication.h"
 
+#include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimGridView.h"
 #include "RimTools.h"
 #include "WellPath/RimWellPathCollection.h"
@@ -48,8 +51,21 @@ void RicShowAllGeometryFeature::onActionTriggered( bool isChecked )
     RimGridView* gridView = dynamic_cast<RimGridView*>( view );
     if ( !gridView ) return;
 
+    // Show faults (Eclipse views only)
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( gridView );
+    if ( eclipseView )
+    {
+        eclipseView->faultCollection()->setActive( true );
+        eclipseView->faultCollection()->updateConnectedEditors();
+    }
+
+    // Show intersections
+    gridView->intersectionCollection()->setActive( true );
+    gridView->intersectionCollection()->updateConnectedEditors();
+
     // Show all reservoir geometry
     gridView->showGridCells( true );
+    gridView->scheduleCreateDisplayModelAndRedraw();
 
     // Restore well path visibility to individual control
     RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();

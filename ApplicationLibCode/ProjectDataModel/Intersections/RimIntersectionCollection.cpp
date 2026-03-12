@@ -98,6 +98,14 @@ bool RimIntersectionCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::setActive( bool active )
+{
+    m_isActive = active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     auto gridView = firstAncestorOfType<RimGridView>();

@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimGridView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTools.h"
@@ -50,11 +52,23 @@ void RicHideGeometryForWellVisibilityFeature::onActionTriggered( bool isChecked 
     RimGridView* gridView = dynamic_cast<RimGridView*>( view );
     if ( !gridView ) return;
 
+    // Hide faults (Eclipse views only)
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( gridView );
+    if ( eclipseView )
+    {
+        eclipseView->faultCollection()->setActive( false );
+        eclipseView->faultCollection()->updateConnectedEditors();
+    }
+
+    // Hide intersections
+    gridView->intersectionCollection()->setActive( false );
+    gridView->intersectionCollection()->updateConnectedEditors();
+
     // Hide all reservoir geometry
     gridView->showGridCells( false );
+    gridView->scheduleCreateDisplayModelAndRedraw();
 
     // Force simulation wells visible (Eclipse views only)
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( gridView );
     if ( eclipseView )
     {
         RimSimWellInViewCollection* simWellColl = eclipseView->wellCollection();
