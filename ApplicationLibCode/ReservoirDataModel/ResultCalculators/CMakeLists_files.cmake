@@ -9,7 +9,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigCellVolumeResultCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigAllanUtil.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCellsWithNncsCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigPorvSoilSgasResultCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigPorvSoilSgasResultCalculator.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
