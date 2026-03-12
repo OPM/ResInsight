@@ -632,6 +632,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicShowGridStatisticsFeature";
             menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
             menuBuilder << "RicSelectColorResult";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicHideGeometryForWellVisibilityFeature";
         }
     }
 
