@@ -1014,7 +1014,6 @@ int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
         const auto& kw = m_fileDeck->operator[]( it );
         if ( kw.name() == keywordName )
         {
-            skipIndices.push_back( it );
             // If this is a block keyword, we need to skip all keywords until the corresponding end block
             if ( blockKeywordNames.contains( keywordName ) )
             {
@@ -1030,6 +1029,10 @@ int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
                     skipIndices.push_back( it );
                     it++;
                 }
+            }
+            else
+            {
+                skipIndices.push_back( it );
             }
         }
     }
