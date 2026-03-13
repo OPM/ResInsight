@@ -107,6 +107,10 @@ public:
     static cvf::ref<cvf::RenderStatePolygonOffset>
         createAndConfigurePolygonOffsetRenderState( caf::PolygonOffset polygonOffset );
 
+    // Sets both the GL polygon offset render state and the shader uniforms needed for log-depth
+    // rendering (glPolygonOffset is ignored when gl_FragDepth is written explicitly).
+    static void applyPolygonOffset( cvf::Effect* effect, caf::PolygonOffset polygonOffset );
+
 protected:
     // Interface that must be implemented in base classes
     virtual bool             isEqual( const EffectGenerator* other ) const = 0;

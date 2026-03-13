@@ -46,6 +46,7 @@
 #include "cvfLibCore.h"
 #include "cvfLibGeometry.h"
 #include "cvfLibRender.h"
+#include "cvfUniform.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScalarMapper.h"
@@ -243,11 +244,14 @@ void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicLi
 
             cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
             polyOffset->enableFillMode( true );
-            polyOffset->setFactor( -5 );
-            const double maxOffsetFactor = -1000;
-            polyOffset->setUnits( maxOffsetFactor );
+            const float lineFactor = -5.0f;
+            const float lineUnits  = -1000.0f;
+            polyOffset->setFactor( lineFactor );
+            polyOffset->setUnits( lineUnits );
 
             eff->setRenderState( polyOffset.p() );
+            eff->setUniform( new cvf::UniformFloat( "u_polygonOffsetFactor", lineFactor ) );
+            eff->setUniform( new cvf::UniformFloat( "u_polygonOffsetUnits", lineUnits ) );
 
             part->setEffect( eff.p() );
             part->setPriority( RivPartPriority::PartType::MeshLines );

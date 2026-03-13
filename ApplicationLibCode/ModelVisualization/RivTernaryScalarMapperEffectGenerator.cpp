@@ -185,11 +185,7 @@ void RivTernaryScalarMapperEffectGenerator::updateCommonEffect( cvf::Effect* eff
 {
     CVF_ASSERT( effect );
 
-    if ( m_polygonOffset != caf::PO_NONE )
-    {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::createAndConfigurePolygonOffsetRenderState( m_polygonOffset );
-        effect->setRenderState( polyOffset.p() );
-    }
+    EffectGenerator::applyPolygonOffset( effect, m_polygonOffset );
 
     // Simple transparency
     if ( m_opacityLevel < 1.0f )

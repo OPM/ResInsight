@@ -542,12 +542,7 @@ void WBTransparencySurfaceEffectGenerator::updateForFixedFunctionRendering( cvf:
 //--------------------------------------------------------------------------------------------------
 void WBTransparencySurfaceEffectGenerator::updateCommonEffect( cvf::Effect* effect ) const
 {
-    if ( m_polygonOffset != PO_NONE )
-    {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset =
-            EffectGenerator::createAndConfigurePolygonOffsetRenderState( m_polygonOffset );
-        effect->setRenderState( polyOffset.p() );
-    }
+    EffectGenerator::applyPolygonOffset( effect, m_polygonOffset );
 
     if ( m_color.a() < 1.0f )
     {
