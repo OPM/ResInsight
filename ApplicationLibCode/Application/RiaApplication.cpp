@@ -1342,6 +1342,14 @@ QProcessEnvironment RiaApplication::pythonProcessEnvironment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<int> RiaApplication::activeGrpcPortNumber() const
+{
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaApplication::launchProcess( const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment )
 {
     if ( m_workerProcess == nullptr )

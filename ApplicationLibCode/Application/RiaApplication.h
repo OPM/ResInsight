@@ -164,6 +164,7 @@ public:
 
     QString                     pythonPath() const;
     virtual QProcessEnvironment pythonProcessEnvironment() const;
+    virtual std::optional<int>  activeGrpcPortNumber() const;
 
     bool launchProcess( const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment );
     bool launchProcessForMultipleCases( const QString&             program,

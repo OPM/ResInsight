@@ -23,6 +23,8 @@
 #include <QPointer>
 #include <QTimer>
 
+#include <optional>
+
 class QProcessEnvironment;
 
 class RiaGrpcGuiApplication : public RiaGuiApplication, public RiaGrpcApplicationInterface
@@ -34,6 +36,7 @@ public:
     ~RiaGrpcGuiApplication() override;
 
     QProcessEnvironment pythonProcessEnvironment() const override;
+    std::optional<int>  activeGrpcPortNumber() const override;
 
 private:
     void onGuiPreferencesChanged() override;
