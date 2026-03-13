@@ -61,6 +61,7 @@ ShaderProgramGenerator::ShaderProgramGenerator(String shaderProgramName, ShaderS
     CVF_ASSERT(sourceProvider);
     m_sourceProvider = sourceProvider;
     m_shaderProgramName = shaderProgramName;
+    m_injectLogDepth = true;
 }
 
 
@@ -140,7 +141,16 @@ void ShaderProgramGenerator::addFragmentCodeFromFile(String shaderName)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void ShaderProgramGenerator::setInjectLogDepth(bool inject)
+{
+    m_injectLogDepth = inject;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void ShaderProgramGenerator::configureStandardHeadlightColor()
 {
@@ -170,16 +180,21 @@ ref<ShaderProgram> ShaderProgramGenerator::generate()
 {
     CVF_ASSERT((!m_vertexCodes.empty()) && (!m_fragmentCodes.empty()));
 
-    // Prepend the log-depth components so that the CVF_LOG_DEPTH_IMPL #define
-    // is visible to all vertex/fragment shaders that have the corresponding hooks.
-    // Shaders without hooks compile normally with the injected code unused.
-    String logDepthVert = m_sourceProvider->getSourceFromRepository(ShaderSourceRepository::vs_logDepth);
-    String logDepthFrag = m_sourceProvider->getSourceFromRepository(ShaderSourceRepository::fs_logDepth);
+    std::vector<String> vertexCodes;
+    std::vector<String> vertexNames;
+    std::vector<String> fragmentCodes;
+    std::vector<String> fragmentNames;
 
-    std::vector<String> vertexCodes  = { logDepthVert };
-    std::vector<String> vertexNames  = { "vs_logDepth" };
-    std::vector<String> fragmentCodes = { logDepthFrag };
-    std::vector<String> fragmentNames = { "fs_logDepth" };
+    if (m_injectLogDepth)
+    {
+        // Prepend the log-depth components so that the CVF_LOG_DEPTH_IMPL #define
+        // is visible to all vertex/fragment shaders that have the corresponding hooks.
+        // Screen-space shaders should call setInjectLogDepth(false) to skip this.
+        vertexCodes.push_back(m_sourceProvider->getSourceFromRepository(ShaderSourceRepository::vs_logDepth));
+        vertexNames.push_back("vs_logDepth");
+        fragmentCodes.push_back(m_sourceProvider->getSourceFromRepository(ShaderSourceRepository::fs_logDepth));
+        fragmentNames.push_back("fs_logDepth");
+    }
 
     vertexCodes.insert(vertexCodes.end(), m_vertexCodes.begin(), m_vertexCodes.end());
     vertexNames.insert(vertexNames.end(), m_vertexNames.begin(), m_vertexNames.end());
