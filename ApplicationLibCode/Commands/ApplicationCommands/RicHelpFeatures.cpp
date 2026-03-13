@@ -172,6 +172,13 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
         dlg.addVersionEntry( " ", QString( "  Runtime version: " ) + pythonRuntimeVersion );
     }
 
+    if ( auto grpcPort = RiaApplication::instance()->activeGrpcPortNumber() )
+    {
+        dlg.addVersionEntry( " ", "" );
+        dlg.addVersionEntry( " ", "gRPC Server" );
+        dlg.addVersionEntry( " ", QString( "  Port: %1" ).arg( *grpcPort ) );
+    }
+
     dlg.addVersionEntry( " ", "" );
     QString buildDate = RESINSIGHT_BUILD_DATE;
     dlg.addVersionEntry( "", QString( "Build date: " ) + buildDate );

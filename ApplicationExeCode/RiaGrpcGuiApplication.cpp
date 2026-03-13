@@ -91,6 +91,15 @@ void RiaGrpcGuiApplication::doIdleProcessing()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<int> RiaGrpcGuiApplication::activeGrpcPortNumber() const
+{
+    if ( m_grpcServer && m_grpcServer->isRunning() ) return m_grpcServer->portNumber();
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaGrpcGuiApplication::onGuiPreferencesChanged()
 {
     bool isGrpcRunning     = m_grpcServer != nullptr && m_grpcServer->isRunning();
