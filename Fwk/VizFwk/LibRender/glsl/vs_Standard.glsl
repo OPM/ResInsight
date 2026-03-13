@@ -33,4 +33,8 @@ void main ()
 #endif
 
 	gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;
+
+#ifdef CVF_LOG_DEPTH_IMPL
+	calcLogDepth(gl_Position);
+#endif
 }

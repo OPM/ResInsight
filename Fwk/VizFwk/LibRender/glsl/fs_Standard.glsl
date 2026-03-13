@@ -16,4 +16,8 @@ void main()
 	color = lightFragment(color, 1.0);
 
 	gl_FragColor = color;
+
+#ifdef CVF_LOG_DEPTH_IMPL
+	applyLogDepth();
+#endif
 }

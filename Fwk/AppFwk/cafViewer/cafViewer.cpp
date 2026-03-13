@@ -86,8 +86,10 @@ public:
     GlobalViewerDynUniformSet()
     {
         m_headlightPosition = new cvf::UniformFloat( "u_ecLightPosition", cvf::Vec3f( 0.5, 5.0, 7.0 ) );
+        m_logDepthFC        = new cvf::UniformFloat( "u_logDepthFC", 1.0f );
         m_uniformSet        = new cvf::UniformSet();
         m_uniformSet->setUniform( m_headlightPosition.p() );
+        m_uniformSet->setUniform( m_logDepthFC.p() );
     }
 
     ~GlobalViewerDynUniformSet() override {}
@@ -97,12 +99,19 @@ public:
         m_headlightPosition->set( posRelativeToCamera );
     }
 
+    // FC = 2.0 / log2(farPlane + 1.0) — update each frame after clip plane calculation
+    void setLogDepthFarConstant( float fc )
+    {
+        m_logDepthFC->set( fc );
+    }
+
     cvf::UniformSet* uniformSet() override { return m_uniformSet.p(); }
     void             update( cvf::Rendering* rendering ) override {};
 
 private:
     cvf::ref<cvf::UniformSet>   m_uniformSet;
     cvf::ref<cvf::UniformFloat> m_headlightPosition;
+    cvf::ref<cvf::UniformFloat> m_logDepthFC;
 };
 
 } // namespace caf
@@ -468,6 +477,11 @@ void caf::Viewer::optimizeClippingPlanes()
         {
             m_mainCamera->setProjectionAsOrtho( m_mainCamera->frontPlaneFrustumHeight(), nearPlaneDist, farPlaneDist );
         }
+
+        // Update the logarithmic depth buffer constant: FC = 2 / log2(far + 1).
+        // Shaders use this to compute gl_FragDepth = log2(v_logz) * FC * 0.5.
+        float logDepthFC = static_cast<float>( 2.0 / std::log2( farPlaneDist + 1.0 ) );
+        m_globalUniformSet->setLogDepthFarConstant( logDepthFC );
     }
 
     copyCameraView( m_mainCamera.p(), m_comparisonMainCamera.p() );

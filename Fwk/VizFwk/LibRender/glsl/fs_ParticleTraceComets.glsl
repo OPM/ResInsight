@@ -22,5 +22,9 @@ void main()
 
 	vec3 color = srcFragment().rgb;
     gl_FragColor = vec4(color*diffuse, v_alpha);
+
+#ifdef CVF_LOG_DEPTH_IMPL
+    applyLogDepth();
+#endif
 }
 

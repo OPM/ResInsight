@@ -12,4 +12,8 @@ void main()
 #endif
 
 	gl_FragColor = vec4(u_color*v_diffuse, 1.0);
+
+#ifdef CVF_LOG_DEPTH_IMPL
+	applyLogDepth();
+#endif
 }

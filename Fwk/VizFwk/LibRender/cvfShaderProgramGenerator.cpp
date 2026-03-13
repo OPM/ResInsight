@@ -170,8 +170,24 @@ ref<ShaderProgram> ShaderProgramGenerator::generate()
 {
     CVF_ASSERT((!m_vertexCodes.empty()) && (!m_fragmentCodes.empty()));
 
-    ShaderSourceCombiner vertexCombiner(m_vertexCodes, m_vertexNames);
-    ShaderSourceCombiner fragmentCombiner(m_fragmentCodes, m_fragmentNames);
+    // Prepend the log-depth components so that the CVF_LOG_DEPTH_IMPL #define
+    // is visible to all vertex/fragment shaders that have the corresponding hooks.
+    // Shaders without hooks compile normally with the injected code unused.
+    String logDepthVert = m_sourceProvider->getSourceFromRepository(ShaderSourceRepository::vs_logDepth);
+    String logDepthFrag = m_sourceProvider->getSourceFromRepository(ShaderSourceRepository::fs_logDepth);
+
+    std::vector<String> vertexCodes  = { logDepthVert };
+    std::vector<String> vertexNames  = { "vs_logDepth" };
+    std::vector<String> fragmentCodes = { logDepthFrag };
+    std::vector<String> fragmentNames = { "fs_logDepth" };
+
+    vertexCodes.insert(vertexCodes.end(), m_vertexCodes.begin(), m_vertexCodes.end());
+    vertexNames.insert(vertexNames.end(), m_vertexNames.begin(), m_vertexNames.end());
+    fragmentCodes.insert(fragmentCodes.end(), m_fragmentCodes.begin(), m_fragmentCodes.end());
+    fragmentNames.insert(fragmentNames.end(), m_fragmentNames.begin(), m_fragmentNames.end());
+
+    ShaderSourceCombiner vertexCombiner(vertexCodes, vertexNames);
+    ShaderSourceCombiner fragmentCombiner(fragmentCodes, fragmentNames);
     String vertexSource = vertexCombiner.combinedSource();
     String fragmentSource = fragmentCombiner.combinedSource();
 

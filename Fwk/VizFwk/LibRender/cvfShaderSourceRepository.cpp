@@ -123,6 +123,8 @@ const char* ShaderSourceRepository::shaderIdentString(ShaderIdent shaderIdent)
         
         CVF_IDENT_HANDLE_CASE(checkDiscard_ClipDistances);
 
+        CVF_IDENT_HANDLE_CASE(vs_logDepth);
+
         CVF_IDENT_HANDLE_CASE(vs_Standard);
         CVF_IDENT_HANDLE_CASE(vs_EnvironmentMapping);
         CVF_IDENT_HANDLE_CASE(vs_FullScreenQuad);
@@ -132,6 +134,8 @@ const char* ShaderSourceRepository::shaderIdentString(ShaderIdent shaderIdent)
         CVF_IDENT_HANDLE_CASE(vs_DistanceScaledPoints);
         CVF_IDENT_HANDLE_CASE(vs_ParticleTraceComets);
         
+        CVF_IDENT_HANDLE_CASE(fs_logDepth);
+
         CVF_IDENT_HANDLE_CASE(fs_Standard);
         CVF_IDENT_HANDLE_CASE(fs_Shadow_v33);
         CVF_IDENT_HANDLE_CASE(fs_Unlit);
@@ -184,6 +188,8 @@ bool ShaderSourceRepository::rawShaderSource(ShaderIdent shaderIdent, CharArray*
 
         CVF_SOURCE_HANDLE_CASE(checkDiscard_ClipDistances);
 
+        CVF_SOURCE_HANDLE_CASE(vs_logDepth);
+
         CVF_SOURCE_HANDLE_CASE(vs_Standard);
         CVF_SOURCE_HANDLE_CASE(vs_EnvironmentMapping);
         CVF_SOURCE_HANDLE_CASE(vs_FullScreenQuad);
@@ -192,6 +198,8 @@ bool ShaderSourceRepository::rawShaderSource(ShaderIdent shaderIdent, CharArray*
         CVF_SOURCE_HANDLE_CASE(vs_VectorDrawer);
         CVF_SOURCE_HANDLE_CASE(vs_DistanceScaledPoints);
         CVF_SOURCE_HANDLE_CASE(vs_ParticleTraceComets);
+
+        CVF_SOURCE_HANDLE_CASE(fs_logDepth);
 
         CVF_SOURCE_HANDLE_CASE(fs_Standard);
         CVF_SOURCE_HANDLE_CASE(fs_Shadow_v33);

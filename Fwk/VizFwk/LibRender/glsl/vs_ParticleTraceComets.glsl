@@ -37,4 +37,8 @@ void main()
 	v_alpha = a_alpha;
 
     gl_Position = cvfu_projectionMatrix * ecVertex;
+
+#ifdef CVF_LOG_DEPTH_IMPL
+    calcLogDepth(gl_Position);
+#endif
 }

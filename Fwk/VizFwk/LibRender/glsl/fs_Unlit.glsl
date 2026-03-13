@@ -13,4 +13,8 @@ void main()
 	vec4 color = srcFragment();
 
 	gl_FragColor = color;
+
+#ifdef CVF_LOG_DEPTH_IMPL
+	applyLogDepth();
+#endif
 }

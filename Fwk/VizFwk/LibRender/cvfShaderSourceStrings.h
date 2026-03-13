@@ -122,6 +122,10 @@ static const char fs_CenterLitSpherePoints_inl[] =
 "    gl_FragColor = vec4(color.rgb*diffuse, color.a);                                                  \n"
 "                                                                                                      \n"
 "    //gl_FragDepth = gl_FragCoord.z - 15.0*(1.0-mag);                                                 \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    applyLogDepth();                                                                                  \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -136,6 +140,10 @@ static const char fs_FixedColorMagenta_inl[] =
 "void main()                                                                                           \n"
 "{                                                                                                     \n"
 "    gl_FragColor = vec4(1,0,1,1);                                                                     \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    applyLogDepth();                                                                                  \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -406,6 +414,10 @@ static const char fs_HighlightStencilDraw_inl[] =
 "void main()                                                                                           \n"
 "{                                                                                                     \n"
 "    gl_FragData[0] = u_color;                                                                         \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    applyLogDepth();                                                                                  \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -437,6 +449,29 @@ static const char fs_HighlightStencilMix_v33_inl[] =
 
 //#############################################################################################################################
 //#############################################################################################################################
+static const char fs_logDepth_inl[] =
+"                                                                                                      \n"
+"varying float v_logz;                                                                                 \n"
+"                                                                                                      \n"
+"uniform float u_logDepthFC;   // = 2.0 / log2(farPlane + 1.0), updated each frame                     \n"
+"                                                                                                      \n"
+"#define CVF_LOG_DEPTH_IMPL                                                                            \n"
+"                                                                                                      \n"
+"//--------------------------------------------------------------------------------------------------  \n"
+"/// Fragment component - logarithmic depth buffer                                                     \n"
+"/// Writes a log-distributed depth to gl_FragDepth, replacing the default linear depth.               \n"
+"/// Requires v_logz to be set by calcLogDepth() in the vertex shader.                                 \n"
+"/// Reference: http://outerra.blogspot.com/2013/07/logarithmic-depth-buffer-optimizations.html        \n"
+"//--------------------------------------------------------------------------------------------------  \n"
+"void applyLogDepth()                                                                                  \n"
+"{                                                                                                     \n"
+"    gl_FragDepth = log2(max(1.0e-6, v_logz)) * u_logDepthFC * 0.5;                                    \n"
+"}                                                                                                     \n";
+
+
+
+//#############################################################################################################################
+//#############################################################################################################################
 static const char fs_ParticleTraceComets_inl[] =
 "                                                                                                      \n"
 "varying vec2 v_circleFactors;                                                                         \n"
@@ -462,6 +497,10 @@ static const char fs_ParticleTraceComets_inl[] =
 "                                                                                                      \n"
 "    vec3 color = srcFragment().rgb;                                                                   \n"
 "    gl_FragColor = vec4(color*diffuse, v_alpha);                                                      \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    applyLogDepth();                                                                                  \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -538,6 +577,10 @@ static const char fs_Standard_inl[] =
 "    color = lightFragment(color, 1.0);                                                                   \n"
 "                                                                                                         \n"
 "    gl_FragColor = color;                                                                                \n"
+"                                                                                                         \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                                \n"
+"    applyLogDepth();                                                                                     \n"
+"#endif                                                                                                   \n"
 "}                                                                                                        \n";
 
 
@@ -558,6 +601,10 @@ static const char fs_Text_inl[] =
 "{                                                                                                     \n"
 "    float alpha = texture2D(u_texture2D, v_texCoord).a;                                               \n"
 "    gl_FragColor = vec4(u_color, alpha);                                                              \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    applyLogDepth();                                                                                  \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -580,6 +627,10 @@ static const char fs_Unlit_inl[] =
 "    vec4 color = srcFragment();                                                                       \n"
 "                                                                                                      \n"
 "    gl_FragColor = color;                                                                             \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    applyLogDepth();                                                                                  \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -601,6 +652,10 @@ static const char fs_VectorDrawer_inl[] =
 "#endif                                                                                                \n"
 "                                                                                                      \n"
 "    gl_FragColor = vec4(u_color*v_diffuse, 1.0);                                                      \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    applyLogDepth();                                                                                  \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -957,6 +1012,10 @@ static const char vs_DistanceScaledPoints_inl[] =
 "                                                                                                      \n"
 "    gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;                                         \n"
 "                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    calcLogDepth(gl_Position);                                                                        \n"
+"#endif                                                                                                \n"
+"                                                                                                      \n"
 "    // Compute the point diameter in window coords (pixels)                                           \n"
 "    // Scale with distance for perspective correction of the size                                     \n"
 "    float dist = length(v_ecPosition);                                                                \n"
@@ -1001,6 +1060,10 @@ static const char vs_EnvironmentMapping_inl[] =
 "                                                                                                      \n"
 "    gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;                                         \n"
 "                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    calcLogDepth(gl_Position);                                                                        \n"
+"#endif                                                                                                \n"
+"                                                                                                      \n"
 "    // Compute the texture coordinate for the environment map texture lookup                          \n"
 "    vec3 u = normalize(v_ecPosition);                                                                 \n"
 "    vec3 n = normalize(v_ecNormal);                                                                   \n"
@@ -1041,6 +1104,26 @@ static const char vs_FullScreenQuad_inl[] =
 
 //#############################################################################################################################
 //#############################################################################################################################
+static const char vs_logDepth_inl[] =
+"                                                                                                      \n"
+"varying float v_logz;                                                                                 \n"
+"                                                                                                      \n"
+"#define CVF_LOG_DEPTH_IMPL                                                                            \n"
+"                                                                                                      \n"
+"//--------------------------------------------------------------------------------------------------  \n"
+"/// Vertex component - logarithmic depth buffer (Outerra method)                                      \n"
+"/// Store (1 + w_clip) in v_logz for use in the fragment shader.                                      \n"
+"/// Call calcLogDepth(gl_Position) at the end of the vertex main() to activate.                       \n"
+"//--------------------------------------------------------------------------------------------------  \n"
+"void calcLogDepth(vec4 clipPos)                                                                       \n"
+"{                                                                                                     \n"
+"    v_logz = 1.0 + clipPos.w;                                                                         \n"
+"}                                                                                                     \n";
+
+
+
+//#############################################################################################################################
+//#############################################################################################################################
 static const char vs_Minimal_inl[] =
 "                                                                                                      \n"
 "uniform mat4 cvfu_modelViewProjectionMatrix;                                                          \n"
@@ -1057,6 +1140,10 @@ static const char vs_Minimal_inl[] =
 "void main ()                                                                                          \n"
 "{                                                                                                     \n"
 "    gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;                                         \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    calcLogDepth(gl_Position);                                                                        \n"
+"#endif                                                                                                \n"
 "                                                                                                      \n"
 "#ifdef CVF_CALC_CLIP_DISTANCES_IMPL                                                                   \n"
 "    vec3 ecPosition = (cvfu_modelViewMatrix * cvfa_vertex).xyz;                                       \n"
@@ -1087,6 +1174,10 @@ static const char vs_MinimalTexture_inl[] =
 "{                                                                                                     \n"
 "    v_texCoord = cvfa_texCoord;                                                                       \n"
 "    gl_Position = cvfu_modelViewProjectionMatrix * cvfa_vertex;                                       \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    calcLogDepth(gl_Position);                                                                        \n"
+"#endif                                                                                                \n"
 "                                                                                                      \n"
 "#ifdef CVF_CALC_CLIP_DISTANCES_IMPL                                                                   \n"
 "    vec3 ecPosition = (cvfu_modelViewMatrix * cvfa_vertex).xyz;                                       \n"
@@ -1138,6 +1229,10 @@ static const char vs_ParticleTraceComets_inl[] =
 "    v_alpha = a_alpha;                                                                                \n"
 "                                                                                                      \n"
 "    gl_Position = cvfu_projectionMatrix * ecVertex;                                                   \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    calcLogDepth(gl_Position);                                                                        \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -1180,6 +1275,10 @@ static const char vs_Standard_inl[] =
 "#endif                                                                                                \n"
 "                                                                                                      \n"
 "    gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;                                         \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    calcLogDepth(gl_Position);                                                                        \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -1213,6 +1312,10 @@ static const char vs_VectorDrawer_inl[] =
 "                                                                                                      \n"
 "    gl_Position = cvfu_modelViewProjectionMatrix*u_transformationMatrix*cvfa_vertex;                  \n"
 "    v_diffuse = abs(normalize(cvfu_normalMatrix*mat3_transMatr*cvfa_normal).z);                       \n"
+"                                                                                                      \n"
+"#ifdef CVF_LOG_DEPTH_IMPL                                                                             \n"
+"    calcLogDepth(gl_Position);                                                                        \n"
+"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 

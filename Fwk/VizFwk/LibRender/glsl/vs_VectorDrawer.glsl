@@ -24,4 +24,8 @@ void main ()
 
 	gl_Position = cvfu_modelViewProjectionMatrix*u_transformationMatrix*cvfa_vertex;
 	v_diffuse = abs(normalize(cvfu_normalMatrix*mat3_transMatr*cvfa_normal).z);
+
+#ifdef CVF_LOG_DEPTH_IMPL
+	calcLogDepth(gl_Position);
+#endif
 }

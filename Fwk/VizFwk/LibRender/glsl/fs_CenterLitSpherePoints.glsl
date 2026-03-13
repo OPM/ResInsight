@@ -29,6 +29,10 @@ void main()
     gl_FragColor = vec4(color.rgb*diffuse, color.a);
 
     //gl_FragDepth = gl_FragCoord.z - 15.0*(1.0-mag);
+
+#ifdef CVF_LOG_DEPTH_IMPL
+    applyLogDepth();
+#endif
 }
 
 

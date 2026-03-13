@@ -24,6 +24,10 @@ void main ()
 
 	gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;
 
+#ifdef CVF_LOG_DEPTH_IMPL
+	calcLogDepth(gl_Position);
+#endif
+
 	// Compute the point diameter in window coords (pixels)
 	// Scale with distance for perspective correction of the size
     float dist = length(v_ecPosition);
