@@ -68,11 +68,13 @@ public:
     void                configureStandardHeadlightColor();
     void                configureStandardHeadlightTexture();
 
+    void                setInjectLogDepth(bool inject);
     ref<ShaderProgram>  generate();
 
 private:
     ShaderSourceProvider*   m_sourceProvider;
     String                  m_shaderProgramName;
+    bool                    m_injectLogDepth;
 
     std::vector<String>     m_vertexCodes;
     std::vector<String>     m_fragmentCodes;

@@ -82,6 +82,7 @@
 #include "cvfRenderState_FF.h"
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfTransform.h"
+#include "cvfUniform.h"
 #include "cvfqtUtils.h"
 
 #include <functional>
@@ -711,12 +712,14 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
                     // The factor value is defined by enums in
                     // EffectGenerator::createAndConfigurePolygonOffsetRenderState() Use a factor that is more negative
                     // than the existing enums
-                    const double offsetFactor = -5;
+                    const float offsetFactor = -5.0f;
+                    const float offsetUnits  = static_cast<float>( band->polygonOffsetUnit() );
                     polyOffset->setFactor( offsetFactor );
-
-                    polyOffset->setUnits( band->polygonOffsetUnit() );
+                    polyOffset->setUnits( offsetUnits );
 
                     geometryOnlyEffect->setRenderState( polyOffset.p() );
+                    geometryOnlyEffect->setUniform( new cvf::UniformFloat( "u_polygonOffsetFactor", offsetFactor ) );
+                    geometryOnlyEffect->setUniform( new cvf::UniformFloat( "u_polygonOffsetUnits", offsetUnits ) );
                 }
 
                 part->setEffect( geometryOnlyEffect.p() );
@@ -759,11 +762,14 @@ cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const 
 
         cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
         polyOffset->enableFillMode( true );
-        polyOffset->setFactor( -5 );
-        const double maxOffsetFactor = -1000;
-        polyOffset->setUnits( maxOffsetFactor );
+        const float lineFactor = -5.0f;
+        const float lineUnits  = -1000.0f;
+        polyOffset->setFactor( lineFactor );
+        polyOffset->setUnits( lineUnits );
 
         eff->setRenderState( polyOffset.p() );
+        eff->setUniform( new cvf::UniformFloat( "u_polygonOffsetFactor", lineFactor ) );
+        eff->setUniform( new cvf::UniformFloat( "u_polygonOffsetUnits", lineUnits ) );
 
         part->setEffect( eff.p() );
 

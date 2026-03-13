@@ -11,4 +11,8 @@ void main()
 {
 	float alpha = texture2D(u_texture2D, v_texCoord).a;
     gl_FragColor = vec4(u_color, alpha);
+
+#ifdef CVF_LOG_DEPTH_IMPL
+    applyLogDepth();
+#endif
 }

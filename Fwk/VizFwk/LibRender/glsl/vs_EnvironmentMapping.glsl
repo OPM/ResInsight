@@ -31,6 +31,10 @@ void main ()
 
 	gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;
 
+#ifdef CVF_LOG_DEPTH_IMPL
+	calcLogDepth(gl_Position);
+#endif
+
 	// Compute the texture coordinate for the environment map texture lookup
 	vec3 u = normalize(v_ecPosition);
 	vec3 n = normalize(v_ecNormal);

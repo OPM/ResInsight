@@ -126,5 +126,8 @@ void main()
     v_ecNormal = cvfu_normalMatrix * cvfa_normal;
 
     gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;
+#ifdef CVF_LOG_DEPTH_IMPL
+    calcLogDepth(gl_Position);
+#endif
 }
 

@@ -73,6 +73,8 @@ public:
 
         checkDiscard_ClipDistances,
 
+        vs_logDepth,
+
         vs_Standard,
         vs_EnvironmentMapping,
         vs_FullScreenQuad,
@@ -81,6 +83,8 @@ public:
         vs_VectorDrawer,
         vs_DistanceScaledPoints,
         vs_ParticleTraceComets,
+
+        fs_logDepth,
 
         fs_Standard,
         fs_Shadow_v33,

@@ -86,8 +86,12 @@ public:
     GlobalViewerDynUniformSet()
     {
         m_headlightPosition = new cvf::UniformFloat( "u_ecLightPosition", cvf::Vec3f( 0.5, 5.0, 7.0 ) );
+        m_logDepthFC        = new cvf::UniformFloat( "u_logDepthFC", 1.0f );
+        m_useLogDepth       = new cvf::UniformFloat( "u_useLogDepth", 1.0f );
         m_uniformSet        = new cvf::UniformSet();
         m_uniformSet->setUniform( m_headlightPosition.p() );
+        m_uniformSet->setUniform( m_logDepthFC.p() );
+        m_uniformSet->setUniform( m_useLogDepth.p() );
     }
 
     ~GlobalViewerDynUniformSet() override {}
@@ -97,12 +101,20 @@ public:
         m_headlightPosition->set( posRelativeToCamera );
     }
 
+    // FC = 2.0 / log2(farPlane + 1.0) — update each frame after clip plane calculation
+    void setLogDepthFarConstant( float fc ) { m_logDepthFC->set( fc ); }
+
+    // Enable (1.0) for perspective projection, disable (0.0) for orthographic
+    void setUseLogDepth( float use ) { m_useLogDepth->set( use ); }
+
     cvf::UniformSet* uniformSet() override { return m_uniformSet.p(); }
     void             update( cvf::Rendering* rendering ) override {};
 
 private:
     cvf::ref<cvf::UniformSet>   m_uniformSet;
     cvf::ref<cvf::UniformFloat> m_headlightPosition;
+    cvf::ref<cvf::UniformFloat> m_logDepthFC;
+    cvf::ref<cvf::UniformFloat> m_useLogDepth;
 };
 
 } // namespace caf
@@ -468,6 +480,14 @@ void caf::Viewer::optimizeClippingPlanes()
         {
             m_mainCamera->setProjectionAsOrtho( m_mainCamera->frontPlaneFrustumHeight(), nearPlaneDist, farPlaneDist );
         }
+
+        // Update the logarithmic depth buffer constant: FC = 2 / log2(far + 1).
+        // Shaders use this to compute gl_FragDepth = log2(v_logz) * FC * 0.5.
+        // Log depth only works for perspective; orthographic uses linear depth.
+        const bool isPerspective = ( m_mainCamera->projection() == cvf::Camera::PERSPECTIVE );
+        float      logDepthFC    = static_cast<float>( 2.0 / std::log2( farPlaneDist + 1.0 ) );
+        m_globalUniformSet->setLogDepthFarConstant( logDepthFC );
+        m_globalUniformSet->setUseLogDepth( isPerspective ? 1.0f : 0.0f );
     }
 
     copyCameraView( m_mainCamera.p(), m_comparisonMainCamera.p() );
@@ -522,9 +542,9 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
     double maxDistEyeToCornerAlongViewDir = -HUGE_VAL;
     double minDistEyeToCornerAlongViewDir = HUGE_VAL;
 
-    cvf::Frustum    viewFrustum = rendering->camera()->frustum();
-    const cvf::Scene* scene = rendering->scene();
-    bool            anyModelContributed = false;
+    cvf::Frustum      viewFrustum         = rendering->camera()->frustum();
+    const cvf::Scene* scene               = rendering->scene();
+    bool              anyModelContributed = false;
 
     if ( scene )
     {
@@ -540,7 +560,7 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
             modelBB.cornerVertices( corners );
             for ( int cIdx = 0; cIdx < 8; ++cIdx )
             {
-                double dist               = ( corners[cIdx] - eye ) * viewdir;
+                double dist                    = ( corners[cIdx] - eye ) * viewdir;
                 maxDistEyeToCornerAlongViewDir = CVF_MAX( maxDistEyeToCornerAlongViewDir, dist );
                 minDistEyeToCornerAlongViewDir = CVF_MIN( minDistEyeToCornerAlongViewDir, dist );
             }

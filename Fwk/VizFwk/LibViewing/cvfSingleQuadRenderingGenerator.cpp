@@ -172,8 +172,9 @@ ref<Rendering> SingleQuadRenderingGenerator::generate()
         }
     }
 
-    // Shader program
+    // Shader program — screen-space quad, no 3D depth needed
     cvf::ShaderProgramGenerator gen(m_renderingName + "ShaderProg", cvf::ShaderSourceProvider::instance());
+    gen.setInjectLogDepth(false);
 
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_FullScreenQuad);
 

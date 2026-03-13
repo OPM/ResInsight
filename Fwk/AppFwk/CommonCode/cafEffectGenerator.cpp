@@ -154,6 +154,44 @@ cvf::ref<cvf::RenderStatePolygonOffset>
     return rs;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Sets both the GL polygon offset render state and the equivalent shader uniforms.
+/// glPolygonOffset has no effect when gl_FragDepth is written explicitly (as in log-depth
+/// rendering), so the uniforms are required for correct depth ordering in that mode.
+//--------------------------------------------------------------------------------------------------
+void EffectGenerator::applyPolygonOffset( cvf::Effect* effect, PolygonOffset polygonOffset )
+{
+    if ( polygonOffset == PO_NONE ) return;
+
+    effect->setRenderState( createAndConfigurePolygonOffsetRenderState( polygonOffset ).p() );
+
+    float factor = 0.0f, units = 0.0f;
+    switch ( polygonOffset )
+    {
+        case PO_1:
+            factor = 1.0f;
+            units  = 1.0f;
+            break;
+        case PO_2:
+            factor = 2.0f;
+            units  = 2.0f;
+            break;
+        case PO_POS_LARGE:
+            factor = 3.0f;
+            units  = 50.0f;
+            break;
+        case PO_NEG_LARGE:
+            factor = -1.0f;
+            units  = -30.0f;
+            break;
+        default:
+            CVF_FAIL_MSG( "Unhandled polygon offset enum" );
+            return;
+    }
+    effect->setUniform( new cvf::UniformFloat( "u_polygonOffsetFactor", factor ) );
+    effect->setUniform( new cvf::UniformFloat( "u_polygonOffsetUnits", units ) );
+}
+
 //==================================================================================================
 //
 // EffectGenerator Base class
@@ -347,12 +385,7 @@ void SurfaceEffectGenerator::updateForFixedFunctionRendering( cvf::Effect* effec
 //--------------------------------------------------------------------------------------------------
 void SurfaceEffectGenerator::updateCommonEffect( cvf::Effect* effect ) const
 {
-    if ( m_polygonOffset != PO_NONE )
-    {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset =
-            EffectGenerator::createAndConfigurePolygonOffsetRenderState( m_polygonOffset );
-        effect->setRenderState( polyOffset.p() );
-    }
+    EffectGenerator::applyPolygonOffset( effect, m_polygonOffset );
 
     // Simple transparency
     if ( m_color.a() < 1.0f )
@@ -553,12 +586,7 @@ void ScalarMapperEffectGenerator::updateCommonEffect( cvf::Effect* effect ) cons
 {
     CVF_ASSERT( effect );
 
-    if ( m_polygonOffset != PO_NONE )
-    {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset =
-            EffectGenerator::createAndConfigurePolygonOffsetRenderState( m_polygonOffset );
-        effect->setRenderState( polyOffset.p() );
-    }
+    EffectGenerator::applyPolygonOffset( effect, m_polygonOffset );
 
     // Simple transparency
     if ( m_opacityLevel < 1.0f )

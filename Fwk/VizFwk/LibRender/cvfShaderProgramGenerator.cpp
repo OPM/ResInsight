@@ -39,6 +39,7 @@
 #include "cvfShaderProgramGenerator.h"
 #include "cvfShaderProgram.h"
 #include "cvfShaderSourceProvider.h"
+#include "cvfUniform.h"
 #include "cvfMath.h"
 
 namespace cvf {
@@ -61,6 +62,7 @@ ShaderProgramGenerator::ShaderProgramGenerator(String shaderProgramName, ShaderS
     CVF_ASSERT(sourceProvider);
     m_sourceProvider = sourceProvider;
     m_shaderProgramName = shaderProgramName;
+    m_injectLogDepth = true;
 }
 
 
@@ -140,7 +142,16 @@ void ShaderProgramGenerator::addFragmentCodeFromFile(String shaderName)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void ShaderProgramGenerator::setInjectLogDepth(bool inject)
+{
+    m_injectLogDepth = inject;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void ShaderProgramGenerator::configureStandardHeadlightColor()
 {
@@ -170,8 +181,29 @@ ref<ShaderProgram> ShaderProgramGenerator::generate()
 {
     CVF_ASSERT((!m_vertexCodes.empty()) && (!m_fragmentCodes.empty()));
 
-    ShaderSourceCombiner vertexCombiner(m_vertexCodes, m_vertexNames);
-    ShaderSourceCombiner fragmentCombiner(m_fragmentCodes, m_fragmentNames);
+    std::vector<String> vertexCodes;
+    std::vector<String> vertexNames;
+    std::vector<String> fragmentCodes;
+    std::vector<String> fragmentNames;
+
+    if (m_injectLogDepth)
+    {
+        // Prepend the log-depth components so that the CVF_LOG_DEPTH_IMPL #define
+        // is visible to all vertex/fragment shaders that have the corresponding hooks.
+        // Screen-space shaders should call setInjectLogDepth(false) to skip this.
+        vertexCodes.push_back(m_sourceProvider->getSourceFromRepository(ShaderSourceRepository::vs_logDepth));
+        vertexNames.push_back("vs_logDepth");
+        fragmentCodes.push_back(m_sourceProvider->getSourceFromRepository(ShaderSourceRepository::fs_logDepth));
+        fragmentNames.push_back("fs_logDepth");
+    }
+
+    vertexCodes.insert(vertexCodes.end(), m_vertexCodes.begin(), m_vertexCodes.end());
+    vertexNames.insert(vertexNames.end(), m_vertexNames.begin(), m_vertexNames.end());
+    fragmentCodes.insert(fragmentCodes.end(), m_fragmentCodes.begin(), m_fragmentCodes.end());
+    fragmentNames.insert(fragmentNames.end(), m_fragmentNames.begin(), m_fragmentNames.end());
+
+    ShaderSourceCombiner vertexCombiner(vertexCodes, vertexNames);
+    ShaderSourceCombiner fragmentCombiner(fragmentCodes, fragmentNames);
     String vertexSource = vertexCombiner.combinedSource();
     String fragmentSource = fragmentCombiner.combinedSource();
 
@@ -184,6 +216,17 @@ ref<ShaderProgram> ShaderProgramGenerator::generate()
 
     prog->addShader(vertexShader.p());
     prog->addShader(fragmentShader.p());
+
+    if (m_injectLogDepth)
+    {
+        // Provide defaults so uniforms are always "set" even when the caller does not
+        // configure polygon offset or has not yet received the per-frame global uniforms.
+        // The GlobalViewerDynUniformSet overrides u_logDepthFC and u_useLogDepth each frame.
+        // Explicit applyPolygonOffset() calls on the effect override the offset defaults.
+        prog->setDefaultUniform(new UniformFloat("u_useLogDepth",         1.0f));
+        prog->setDefaultUniform(new UniformFloat("u_polygonOffsetFactor", 0.0f));
+        prog->setDefaultUniform(new UniformFloat("u_polygonOffsetUnits",  0.0f));
+    }
 
     if (!m_geometryCodes.empty())
     {

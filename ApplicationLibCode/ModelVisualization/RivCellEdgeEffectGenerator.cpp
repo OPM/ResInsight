@@ -273,13 +273,8 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering( cvf::Effect* effect
     texBind->addBinding( cellTexture.p(), sampler.p(), "u_cellTexture2D" );
     eff->setRenderState( texBind.p() );
 
-    // Polygon offset
-
-    {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-        polyOffset->configurePolygonPositiveOffset();
-        eff->setRenderState( polyOffset.p() );
-    }
+    // Polygon offset (render state + shader uniforms for log-depth compatibility)
+    EffectGenerator::applyPolygonOffset( eff.p(), caf::PO_1 );
 
     // Simple transparency
     if ( m_opacityLevel < 1.0f )
