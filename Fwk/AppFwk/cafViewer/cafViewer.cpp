@@ -509,32 +509,56 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
                                           double*               farPlaneDist,
                                           double*               nearPlaneDist )
 {
-    cvf::BoundingBox bb = rendering->boundingBox();
-
-    if ( !bb.isValid() ) return false;
+    if ( !rendering->boundingBox().isValid() ) return false;
 
     cvf::Vec3d eye     = rendering->camera()->position();
     cvf::Vec3d viewdir = rendering->camera()->direction();
 
-    cvf::Vec3d bboxCorners[8];
-    bb.cornerVertices( bboxCorners );
-
-    // Find the distance to the bbox corners most behind and most in front of camera
+    // Iterate per-model bounding boxes and skip models that are entirely outside the
+    // camera frustum. This avoids distant off-screen objects inflating the far plane,
+    // which would degrade depth buffer precision and cause z-fighting.
+    // Fall back to the scene-wide bounding box if no model contributes.
 
     double maxDistEyeToCornerAlongViewDir = -HUGE_VAL;
     double minDistEyeToCornerAlongViewDir = HUGE_VAL;
-    for ( int bcIdx = 0; bcIdx < 8; ++bcIdx )
+
+    cvf::Frustum      viewFrustum         = rendering->camera()->frustum();
+    const cvf::Scene* scene               = rendering->scene();
+    bool              anyModelContributed = false;
+
+    if ( scene )
     {
-        double distEyeBoxCornerAlongViewDir = ( bboxCorners[bcIdx] - eye ) * viewdir;
-
-        if ( distEyeBoxCornerAlongViewDir > maxDistEyeToCornerAlongViewDir )
+        for ( cvf::uint mIdx = 0; mIdx < scene->modelCount(); ++mIdx )
         {
-            maxDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir;
+            const cvf::Model* model   = scene->model( mIdx );
+            cvf::BoundingBox  modelBB = model->boundingBox();
+
+            if ( !modelBB.isValid() ) continue;
+            if ( viewFrustum.isOutside( modelBB ) ) continue;
+
+            cvf::Vec3d corners[8];
+            modelBB.cornerVertices( corners );
+            for ( int cIdx = 0; cIdx < 8; ++cIdx )
+            {
+                double dist                    = ( corners[cIdx] - eye ) * viewdir;
+                maxDistEyeToCornerAlongViewDir = CVF_MAX( maxDistEyeToCornerAlongViewDir, dist );
+                minDistEyeToCornerAlongViewDir = CVF_MIN( minDistEyeToCornerAlongViewDir, dist );
+            }
+            anyModelContributed = true;
         }
+    }
 
-        if ( distEyeBoxCornerAlongViewDir < minDistEyeToCornerAlongViewDir )
+    if ( !anyModelContributed )
+    {
+        // Fallback: use the scene-wide bounding box (original behaviour)
+        cvf::BoundingBox bb = rendering->boundingBox();
+        cvf::Vec3d       bboxCorners[8];
+        bb.cornerVertices( bboxCorners );
+        for ( int bcIdx = 0; bcIdx < 8; ++bcIdx )
         {
-            minDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir; // Sometimes negative-> behind camera
+            double dist                    = ( bboxCorners[bcIdx] - eye ) * viewdir;
+            maxDistEyeToCornerAlongViewDir = CVF_MAX( maxDistEyeToCornerAlongViewDir, dist );
+            minDistEyeToCornerAlongViewDir = CVF_MIN( minDistEyeToCornerAlongViewDir, dist );
         }
     }
 
@@ -548,16 +572,16 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
 
     if ( rendering->camera()->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera )
     {
-        // Choose the one furthest from the camera of: 0.8*bbox distance, m_minPerspectiveNearPlaneDistance.
+        // Choose the one furthest from the camera of: 0.8*bbox distance, m_defaultPerspectiveNearPlaneDistance.
         ( *nearPlaneDist ) = CVF_MAX( m_defaultPerspectiveNearPlaneDistance, 0.8 * minDistEyeToCornerAlongViewDir );
 
-        // If we are zooming into a detail, allow the near-plane to move towards camera beyond the
-        // m_minPerspectiveNearPlaneDistance
-        if ( ( *nearPlaneDist ) == m_defaultPerspectiveNearPlaneDistance // We are inside the bounding box
-             && m_navigationPolicy.notNull() && m_navigationPolicyEnabled )
+        // If the camera is inside (or past) the bounding box, allow the near plane to move
+        // closer to the camera based on the point of interest distance, so zooming into details
+        // does not clip geometry.
+        if ( minDistEyeToCornerAlongViewDir <= 0 && m_navigationPolicy.notNull() && m_navigationPolicyEnabled )
         {
             double pointOfInterestDist = ( eye - navPointOfinterest ).length();
-            ( *nearPlaneDist )         = CVF_MIN( ( *nearPlaneDist ), pointOfInterestDist * 0.2 );
+            ( *nearPlaneDist )         = CVF_MAX( m_defaultPerspectiveNearPlaneDistance, pointOfInterestDist * 0.1 );
         }
 
         // Guard against the zero nearplane possibility
@@ -576,6 +600,18 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
     }
 
     if ( ( *farPlaneDist ) <= ( *nearPlaneDist ) ) ( *farPlaneDist ) = ( *nearPlaneDist ) + 1.0;
+
+    // Enforce a maximum far/near ratio to preserve depth buffer precision.
+    // A 24-bit depth buffer has ~16 M discrete depth values; a far/near ratio of N
+    // means the nearest 1/N of the view depth gets half of those values.
+    // At 3000 the near zone still receives ~5500 depth steps per unit, which is
+    // sufficient for typical reservoir models. Pushing the near plane forward is
+    // preferable to allowing z-fighting from a degraded far plane.
+    const double maxFarNearRatio = 3000.0;
+    if ( ( *nearPlaneDist ) > 0 && ( ( *farPlaneDist ) / ( *nearPlaneDist ) ) > maxFarNearRatio )
+    {
+        ( *nearPlaneDist ) = ( *farPlaneDist ) / maxFarNearRatio;
+    }
 
     return true;
 }
