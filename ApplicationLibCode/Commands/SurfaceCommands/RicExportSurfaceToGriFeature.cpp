@@ -45,6 +45,74 @@ CAF_CMD_SOURCE_INIT( RicExportSurfaceToGriFeature, "RicExportSurfaceToGriFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<std::pair<RigRegularSurfaceData, std::vector<float>>> RicExportSurfaceToGriFeature::prepareExportData( RimSurface* surf )
+{
+    if ( auto* regularSurface = dynamic_cast<RimRegularSurface*>( surf ) )
+    {
+        // RimRegularSurface and RimRegularFileSurface: use stored grid parameters directly
+        RigRegularSurfaceData gridParams;
+        gridParams.nx         = regularSurface->nx();
+        gridParams.ny         = regularSurface->ny();
+        gridParams.originX    = regularSurface->originX();
+        gridParams.originY    = regularSurface->originY();
+        gridParams.incrementX = regularSurface->incrementX();
+        gridParams.incrementY = regularSurface->incrementY();
+        gridParams.rotation   = regularSurface->rotation();
+        return std::make_pair( gridParams, regularSurface->depthValues() );
+    }
+
+    // Unstructured surface: determine grid parameters from bounding box and resample
+    RigSurface* rigSurface = surf->surfaceData();
+    if ( !rigSurface || rigSurface->vertices().empty() ) return std::nullopt;
+
+    cvf::BoundingBox bb;
+    for ( const auto& v : rigSurface->vertices() )
+        bb.add( v );
+
+    const double incX = rigSurface->maxExtentTriangleInXDirection();
+    const double incY = rigSurface->maxExtentTriangleInYDirection();
+
+    RicGriExportGridParams defaults;
+    defaults.originX    = bb.min().x();
+    defaults.originY    = bb.min().y();
+    defaults.incrementX = incX > 0.0 ? incX : 1.0;
+    defaults.incrementY = incY > 0.0 ? incY : 1.0;
+    defaults.nx         = std::max( 2, static_cast<int>( std::ceil( bb.extent().x() / defaults.incrementX ) ) + 1 );
+    defaults.ny         = std::max( 2, static_cast<int>( std::ceil( bb.extent().y() / defaults.incrementY ) ) + 1 );
+
+    auto params = RicExportSurfaceToGriDialog::openDialog( nullptr, defaults );
+    if ( !params.accepted ) return std::nullopt;
+
+    RigRegularSurfaceData gridParams;
+    gridParams.nx         = params.nx;
+    gridParams.ny         = params.ny;
+    gridParams.originX    = params.originX;
+    gridParams.originY    = params.originY;
+    gridParams.incrementX = params.incrementX;
+    gridParams.incrementY = params.incrementY;
+    gridParams.rotation   = 0.0;
+
+    auto depthValues = RigSurfaceResampler::resampleToRegularGrid( rigSurface,
+                                                                   params.nx,
+                                                                   params.ny,
+                                                                   params.originX,
+                                                                   params.originY,
+                                                                   params.incrementX,
+                                                                   params.incrementY,
+                                                                   0.0 );
+
+    // RigSurface stores Z as negative depth; IRAP format uses positive depth values
+    for ( auto& v : depthValues )
+    {
+        if ( !std::isnan( v ) ) v = -v;
+    }
+
+    return std::make_pair( gridParams, depthValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicExportSurfaceToGriFeature::isCommandEnabled() const
 {
     std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
@@ -61,8 +129,7 @@ void RicExportSurfaceToGriFeature::onActionTriggered( bool isChecked )
     QString defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "EXPORT_SURFACE" );
 
     QString fileExtensionFilter = QString( "IRAP Binary Surface (*.gri)" );
-    QString defaultFileBaseName = "surface";
-    QString defaultAbsFileName  = caf::Utils::constructFullFileName( defaultDir, defaultFileBaseName, ".gri" );
+    QString defaultAbsFileName  = caf::Utils::constructFullFileName( defaultDir, "surface", ".gri" );
 
     std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
     for ( RimSurface* surf : surfaces )
@@ -74,70 +141,10 @@ void RicExportSurfaceToGriFeature::onActionTriggered( bool isChecked )
 
         app->setLastUsedDialogDirectory( "EXPORT_SURFACE", QFileInfo( fileName ).absolutePath() );
 
-        RigRegularSurfaceData gridParams;
-        std::vector<float>    depthValues;
+        auto exportData = prepareExportData( surf );
+        if ( !exportData ) return;
 
-        if ( auto* regularSurface = dynamic_cast<RimRegularSurface*>( surf ) )
-        {
-            // RimRegularSurface and RimRegularFileSurface: use stored grid parameters directly
-            gridParams.nx         = regularSurface->nx();
-            gridParams.ny         = regularSurface->ny();
-            gridParams.originX    = regularSurface->originX();
-            gridParams.originY    = regularSurface->originY();
-            gridParams.incrementX = regularSurface->incrementX();
-            gridParams.incrementY = regularSurface->incrementY();
-            gridParams.rotation   = regularSurface->rotation();
-            depthValues           = regularSurface->depthValues();
-        }
-        else
-        {
-            // Unstructured surface: determine grid parameters from bounding box and resample
-            RigSurface* rigSurface = surf->surfaceData();
-            if ( !rigSurface || rigSurface->vertices().empty() ) continue;
-
-            cvf::BoundingBox bb;
-            for ( const auto& v : rigSurface->vertices() )
-                bb.add( v );
-
-            const double incX = rigSurface->maxExtentTriangleInXDirection();
-            const double incY = rigSurface->maxExtentTriangleInYDirection();
-
-            RicGriExportGridParams defaults;
-            defaults.originX    = bb.min().x();
-            defaults.originY    = bb.min().y();
-            defaults.incrementX = incX > 0.0 ? incX : 1.0;
-            defaults.incrementY = incY > 0.0 ? incY : 1.0;
-            defaults.nx         = std::max( 2, static_cast<int>( std::ceil( bb.extent().x() / defaults.incrementX ) ) + 1 );
-            defaults.ny         = std::max( 2, static_cast<int>( std::ceil( bb.extent().y() / defaults.incrementY ) ) + 1 );
-
-            auto params = RicExportSurfaceToGriDialog::openDialog( nullptr, defaults );
-            if ( !params.accepted ) return;
-
-            gridParams.nx         = params.nx;
-            gridParams.ny         = params.ny;
-            gridParams.originX    = params.originX;
-            gridParams.originY    = params.originY;
-            gridParams.incrementX = params.incrementX;
-            gridParams.incrementY = params.incrementY;
-            gridParams.rotation   = 0.0;
-
-            depthValues = RigSurfaceResampler::resampleToRegularGrid( rigSurface,
-                                                                      params.nx,
-                                                                      params.ny,
-                                                                      params.originX,
-                                                                      params.originY,
-                                                                      params.incrementX,
-                                                                      params.incrementY,
-                                                                      0.0 );
-
-            // RigSurface stores Z as negative depth; GRI format uses positive depth values
-            for ( auto& v : depthValues )
-            {
-                if ( !std::isnan( v ) ) v = -v;
-            }
-        }
-
-        RifSurfio::exportToGri( fileName.toStdString(), gridParams, depthValues );
+        RifSurfio::exportToGri( fileName.toStdString(), exportData->first, exportData->second );
     }
 }
 

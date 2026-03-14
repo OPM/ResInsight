@@ -101,6 +101,22 @@ std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string>
 //--------------------------------------------------------------------------------------------------
 bool RifSurfio::exportToGri( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values )
 {
+    return exportImpl( filename, surfaceData, values, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifSurfio::exportToIrap( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values )
+{
+    return exportImpl( filename, surfaceData, values, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifSurfio::exportImpl( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values, bool binary )
+{
     if ( static_cast<int>( values.size() ) != surfaceData.nx * surfaceData.ny ) return false;
 
     surfio::irap::irap_header header;
@@ -126,11 +142,12 @@ bool RifSurfio::exportToGri( const std::string& filename, const RigRegularSurfac
         }
     }
 
-    surfio::irap::to_binary_file( filename,
-                                  header,
-                                  surfio::irap::surf_span{ irapValues.data(),
-                                                           static_cast<size_t>( surfaceData.nx ),
-                                                           static_cast<size_t>( surfaceData.ny ) } );
+    const surfio::irap::surf_span span{ irapValues.data(), static_cast<size_t>( surfaceData.nx ), static_cast<size_t>( surfaceData.ny ) };
+
+    if ( binary )
+        surfio::irap::to_binary_file( filename, header, span );
+    else
+        surfio::irap::to_ascii_file( filename, header, span );
 
     return true;
 }

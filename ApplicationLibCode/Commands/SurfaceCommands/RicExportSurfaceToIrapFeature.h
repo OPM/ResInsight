@@ -18,26 +18,14 @@
 
 #pragma once
 
-#include "RifSurfio.h"
-
 #include "cafCmdFeature.h"
-
-#include <optional>
-#include <vector>
-
-class RimSurface;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExportSurfaceToGriFeature : public caf::CmdFeature
+class RicExportSurfaceToIrapFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    // Shared helper: resolves grid parameters and depth values for any RimSurface type.
-    // Shows a dialog for unstructured surfaces. Returns nullopt if the user cancels.
-    static std::optional<std::pair<RigRegularSurfaceData, std::vector<float>>> prepareExportData( RimSurface* surf );
 
 protected:
     bool isCommandEnabled() const override;

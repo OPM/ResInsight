@@ -938,6 +938,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             }
 
             menuBuilder << "RicExportSurfaceToGriFeature";
+            menuBuilder << "RicExportSurfaceToIrapFeature";
             menuBuilder << "RicExportSurfaceToTsurfFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopySurfaceFeature";
