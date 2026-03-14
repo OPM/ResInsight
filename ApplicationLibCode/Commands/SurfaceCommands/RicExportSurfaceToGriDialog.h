@@ -49,8 +49,7 @@ class RicExportSurfaceToGriDialog : public QDialog
 public:
     explicit RicExportSurfaceToGriDialog( QWidget* parent = nullptr );
 
-    static RicGriExportGridParams openDialog( QWidget*                  parent,
-                                              const RicGriExportGridParams& defaults );
+    static RicGriExportGridParams openDialog( QWidget* parent, const RicGriExportGridParams& defaults );
 
     RicGriExportGridParams exportParams() const;
 
@@ -59,8 +58,8 @@ private slots:
     void slotCancelClicked();
 
 private:
-    QSpinBox*      m_nx;
-    QSpinBox*      m_ny;
+    QSpinBox*       m_nx;
+    QSpinBox*       m_ny;
     QDoubleSpinBox* m_originX;
     QDoubleSpinBox* m_originY;
     QDoubleSpinBox* m_incrementX;

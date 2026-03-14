@@ -44,5 +44,6 @@ public:
     static bool exportToIrap( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values );
 
 private:
-    static bool exportImpl( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values, bool binary );
+    static bool
+        exportImpl( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values, bool binary );
 };
