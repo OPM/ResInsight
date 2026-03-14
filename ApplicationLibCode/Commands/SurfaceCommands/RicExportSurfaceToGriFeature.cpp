@@ -69,16 +69,22 @@ std::optional<std::pair<RigRegularSurfaceData, std::vector<float>>> RicExportSur
     for ( const auto& v : rigSurface->vertices() )
         bb.add( v );
 
-    const double incX = rigSurface->maxExtentTriangleInXDirection();
-    const double incY = rigSurface->maxExtentTriangleInYDirection();
+    // Estimate a representative grid spacing from vertex density:
+    //   spacing ≈ sqrt( bounding_box_area / vertex_count )
+    // This targets a grid with roughly the same resolution as the source mesh,
+    // and is more robust than maxExtentTriangleInXDirection() which can be dominated
+    // by a single large boundary triangle.
+    const size_t vertexCount = rigSurface->vertices().size();
+    const double areaApprox  = bb.extent().x() * bb.extent().y();
+    const double spacing     = ( vertexCount > 0 && areaApprox > 0.0 ) ? std::sqrt( areaApprox / static_cast<double>( vertexCount ) ) : 1.0;
 
     RicGriExportGridParams defaults;
     defaults.originX    = bb.min().x();
     defaults.originY    = bb.min().y();
-    defaults.incrementX = incX > 0.0 ? incX : 1.0;
-    defaults.incrementY = incY > 0.0 ? incY : 1.0;
-    defaults.nx         = std::max( 2, static_cast<int>( std::ceil( bb.extent().x() / defaults.incrementX ) ) + 1 );
-    defaults.ny         = std::max( 2, static_cast<int>( std::ceil( bb.extent().y() / defaults.incrementY ) ) + 1 );
+    defaults.incrementX = spacing;
+    defaults.incrementY = spacing;
+    defaults.nx         = std::max( 2, static_cast<int>( std::ceil( bb.extent().x() / spacing ) ) + 1 );
+    defaults.ny         = std::max( 2, static_cast<int>( std::ceil( bb.extent().y() / spacing ) ) + 1 );
 
     auto params = RicExportSurfaceToGriDialog::openDialog( nullptr, defaults );
     if ( !params.accepted ) return std::nullopt;
