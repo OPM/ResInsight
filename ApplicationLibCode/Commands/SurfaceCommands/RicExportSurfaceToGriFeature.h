@@ -18,27 +18,17 @@
 
 #pragma once
 
-#include <expected>
-#include <string>
-#include <vector>
-
-struct RigRegularSurfaceData
-{
-    int    nx;
-    int    ny;
-    double originX;
-    double originY;
-    double incrementX;
-    double incrementY;
-    double rotation;
-};
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RifSurfio
+class RicExportSurfaceToGriFeature : public caf::CmdFeature
 {
-public:
-    static std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string> importSurfaceData( const std::string& filename );
-    static bool exportToGri( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values );
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    bool isCommandEnabled() const override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
