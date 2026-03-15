@@ -39,6 +39,7 @@
 #include "cafCmdFeature.h"
 #include "cafCmdSelectionHelper.h"
 #include "cafFactory.h"
+#include "cafPdmLogging.h"
 
 #include <QAction>
 #include <QKeySequence>
@@ -150,7 +151,15 @@ std::pair<CmdFeature*, size_t> CmdFeatureManager::createFeature( const std::stri
     }
 
     CmdFeature* feature = CommandFeatureFactory::instance()->create( commandId );
-    CAF_ASSERT( feature ); // The command ID is not known in the factory
+    if ( !feature )
+    {
+        const QString message =
+            QString( "Command feature '%1' is not registered. It may have been deleted without removing all "
+                     "references in appendMenuItems()." )
+                .arg( QString::fromStdString( commandId ) );
+        CAF_PDM_LOG_ERROR( message );
+        qFatal( "%s", message.toUtf8().constData() );
+    }
 
     feature->setParent( this );
     size_t index = m_commandFeatures.size();
