@@ -81,6 +81,8 @@ public:
 
     virtual bool isMeshLinesEnabledDefault() const;
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 protected:
     void setSurfaceData( RigSurface* surface );
 

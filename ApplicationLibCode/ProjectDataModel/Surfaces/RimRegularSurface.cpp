@@ -420,3 +420,60 @@ int RimRegularSurface::ny() const
 {
     return m_ny;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimRegularSurface::originX() const
+{
+    return m_originX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimRegularSurface::originY() const
+{
+    return m_originY;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimRegularSurface::incrementX() const
+{
+    return m_incrementX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimRegularSurface::incrementY() const
+{
+    return m_incrementY;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimRegularSurface::rotation() const
+{
+    return m_rotation;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the depth values for all grid points in row-major order (index = j * nx + i).
+/// Uses the active depth property if set, otherwise returns the fixed depth value.
+//--------------------------------------------------------------------------------------------------
+std::vector<float> RimRegularSurface::depthValues() const
+{
+    const int size = m_nx * m_ny;
+
+    if ( m_depthProperty() != internal::fixedDepth() && !m_depthProperty().isEmpty() )
+    {
+        auto it = m_properties.find( m_depthProperty() );
+        if ( it != m_properties.end() ) return it->second;
+    }
+
+    return std::vector<float>( size, static_cast<float>( m_depth() ) );
+}

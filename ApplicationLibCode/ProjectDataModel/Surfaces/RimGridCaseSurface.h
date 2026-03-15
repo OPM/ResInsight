@@ -46,6 +46,8 @@ public:
 
     bool exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>* vertices, std::vector<std::pair<uint, uint>>* structGridVertexIndices );
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 

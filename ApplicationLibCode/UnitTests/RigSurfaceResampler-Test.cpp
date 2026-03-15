@@ -18,9 +18,12 @@
 
 #include "gtest/gtest.h"
 
+#include "Surface/RigSurface.h"
 #include "Surface/RigSurfaceResampler.h"
 
 #include "cvfObject.h"
+
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -79,4 +82,56 @@ TEST( RigSurfaceResamplerTests, flatGeometryLargerSource )
     ASSERT_EQ( r3.x(), -1.0 );
     ASSERT_EQ( r3.y(), 1.0 );
     ASSERT_EQ( r3.z(), 2.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A flat surface at z=-100 spanning [0,4]x[0,4].
+/// Resample onto a 3x3 grid with origin (1,1) and increment 1.
+/// All 9 sample points lie inside the mesh, so all values should be -100.
+//--------------------------------------------------------------------------------------------------
+TEST( RigSurfaceResamplerTests, resampleToRegularGrid_flatSurface )
+{
+    // Two triangles covering [0,4] x [0,4] at z = -100
+    const double              z        = -100.0;
+    std::vector<cvf::Vec3d>   vertices = { cvf::Vec3d( 0.0, 0.0, z ),
+                                           cvf::Vec3d( 4.0, 0.0, z ),
+                                           cvf::Vec3d( 4.0, 4.0, z ),
+                                           cvf::Vec3d( 0.0, 4.0, z ) };
+    std::vector<unsigned int> indices  = { 0, 1, 2, 0, 2, 3 };
+
+    cvf::ref<RigSurface> surface = cvf::make_ref<RigSurface>();
+    surface->setTriangleData( indices, vertices );
+
+    // 3x3 grid at origin (1,1), increment 1 → points at x={1,2,3}, y={1,2,3}; all inside mesh
+    auto values = RigSurfaceResampler::resampleToRegularGrid( surface.p(), 3, 3, 1.0, 1.0, 1.0, 1.0, 0.0 );
+
+    ASSERT_EQ( values.size(), 9u );
+    for ( auto v : values )
+    {
+        EXPECT_FALSE( std::isnan( v ) );
+        EXPECT_FLOAT_EQ( v, static_cast<float>( z ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Grid points outside the mesh extent should be NaN.
+//--------------------------------------------------------------------------------------------------
+TEST( RigSurfaceResamplerTests, resampleToRegularGrid_outsidePointsAreNaN )
+{
+    // Single triangle in the first quadrant
+    const double              z        = -50.0;
+    std::vector<cvf::Vec3d>   vertices = { cvf::Vec3d( 0.0, 0.0, z ), cvf::Vec3d( 10.0, 0.0, z ), cvf::Vec3d( 0.0, 10.0, z ) };
+    std::vector<unsigned int> indices  = { 0, 1, 2 };
+
+    cvf::ref<RigSurface> surface = cvf::make_ref<RigSurface>();
+    surface->setTriangleData( indices, vertices );
+
+    // 3x3 grid with origin at (8,8) — all points are outside the triangle
+    auto values = RigSurfaceResampler::resampleToRegularGrid( surface.p(), 3, 3, 8.0, 8.0, 1.0, 1.0, 0.0 );
+
+    ASSERT_EQ( values.size(), 9u );
+    for ( auto v : values )
+    {
+        EXPECT_TRUE( std::isnan( v ) );
+    }
 }

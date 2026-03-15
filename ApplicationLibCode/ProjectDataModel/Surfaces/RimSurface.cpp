@@ -28,6 +28,7 @@
 #include "RigStatisticsMath.h"
 #include "Surface/RigSurface.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -379,4 +380,16 @@ cvf::BoundingBox RimSurface::boundingBoxInDomainCoords() const
     }
 
     return boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurface::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicExportSurfaceToGriFeature";
+    menuBuilder << "RicExportSurfaceToTsurfFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicCopySurfaceFeature";
+    menuBuilder << "RicReloadSurfaceFeature";
 }

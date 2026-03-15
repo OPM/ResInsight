@@ -42,8 +42,15 @@ public:
     void setProperty( const QString& key, const std::vector<float>& values );
     void setPropertyAsDepth( const QString& key );
 
-    int nx() const;
-    int ny() const;
+    int    nx() const;
+    int    ny() const;
+    double originX() const;
+    double originY() const;
+    double incrementX() const;
+    double incrementY() const;
+    double rotation() const;
+
+    std::vector<float> depthValues() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

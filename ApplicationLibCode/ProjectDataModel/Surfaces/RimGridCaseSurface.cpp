@@ -29,6 +29,7 @@
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiSliderEditor.h"
@@ -595,4 +596,13 @@ QString RimGridCaseSurface::fullName() const
     retval += "K:";
     retval += QString::number( m_oneBasedSliceIndex );
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCaseSurface::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicExportKLayerToPtlFeature";
+    RimSurface::appendMenuItems( menuBuilder );
 }

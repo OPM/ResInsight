@@ -84,7 +84,6 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "RimGridCaseSurface.h"
 #include "RimGridCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
@@ -135,7 +134,6 @@
 #include "RimSummaryTable.h"
 #include "RimSummaryTableCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
-#include "RimSurface.h"
 #include "RimValveCollection.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
@@ -929,18 +927,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimElasticProperties*>( firstUiItem ) )
         {
             menuBuilder << "RicNewElasticPropertyScalingFeature";
-        }
-        else if ( dynamic_cast<RimSurface*>( firstUiItem ) )
-        {
-            if ( dynamic_cast<RimGridCaseSurface*>( firstUiItem ) )
-            {
-                menuBuilder << "RicExportKLayerToPtlFeature";
-            }
-
-            menuBuilder << "RicExportSurfaceToTsurfFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicCopySurfaceFeature";
-            menuBuilder << "RicReloadSurfaceFeature";
         }
         else if ( dynamic_cast<RimSeismicSectionCollection*>( firstUiItem ) )
         {

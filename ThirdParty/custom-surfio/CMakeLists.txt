@@ -32,5 +32,5 @@ target_include_directories(
   PRIVATE ../mio
 )
 
-target_link_libraries(surfio_lib PRIVATE mdspan)
+target_link_libraries(surfio_lib PUBLIC mdspan)
 

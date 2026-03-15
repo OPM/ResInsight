@@ -24,7 +24,67 @@
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
 
+#include <cmath>
 #include <limits>
+#include <numbers>
+
+//--------------------------------------------------------------------------------------------------
+/// Resample the Z values of the given surface onto a regular grid.
+/// Returns NaN for grid points outside the mesh. Values are in row-major order: index = j * nx + i.
+//--------------------------------------------------------------------------------------------------
+std::vector<float> RigSurfaceResampler::resampleToRegularGrid( RigSurface* surface,
+                                                               int         nx,
+                                                               int         ny,
+                                                               double      originX,
+                                                               double      originY,
+                                                               double      incrementX,
+                                                               double      incrementY,
+                                                               double      rotationDegrees )
+{
+    if ( !surface || nx <= 0 || ny <= 0 ) return {};
+
+    surface->ensureIntersectionSearchTreeIsBuilt();
+
+    const double angle = rotationDegrees * std::numbers::pi / 180.0;
+    const double zHigh = 1.0e6;
+    const double zLow  = -1.0e6;
+
+    std::vector<float> depthValues( nx * ny, std::numeric_limits<float>::quiet_NaN() );
+
+    for ( int j = 0; j < ny; ++j )
+    {
+        for ( int i = 0; i < nx; ++i )
+        {
+            double x, y;
+            if ( i == 0 && j == 0 )
+            {
+                x = originX;
+                y = originY;
+            }
+            else
+            {
+                const double xdist = incrementX * i;
+                const double ydist = incrementY * j;
+                const double dist  = std::sqrt( xdist * xdist + ydist * ydist );
+                const double beta  = std::acos( xdist / dist );
+                const double gamma = angle + beta;
+                x                  = originX + dist * std::cos( gamma );
+                y                  = originY + dist * std::sin( gamma );
+            }
+
+            const cvf::Vec3d pointAbove( x, y, zHigh );
+            const cvf::Vec3d pointBelow( x, y, zLow );
+
+            cvf::Vec3d intersectionPoint;
+            if ( computeIntersectionWithLine( surface, pointAbove, pointBelow, intersectionPoint ) )
+            {
+                depthValues[j * nx + i] = static_cast<float>( intersectionPoint.z() );
+            }
+        }
+    }
+
+    return depthValues;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Create a surface with same XY coordinates as targetSurface. Evaluate Z value at [X,Y] in the source surface. Search in XY plane to find
