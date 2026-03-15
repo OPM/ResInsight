@@ -40,4 +40,10 @@ class RifSurfio
 {
 public:
     static std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string> importSurfaceData( const std::string& filename );
+    static bool exportToGri( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values );
+    static bool exportToIrap( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values );
+
+private:
+    static bool
+        exportImpl( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values, bool binary );
 };

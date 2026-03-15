@@ -19,6 +19,7 @@
 #include "RifSurfio.h"
 #include "RifFileTools.h"
 
+#include "irap_export.h"
 #include "irap_import.h"
 
 #include <fstream>
@@ -93,4 +94,60 @@ std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string>
     {
         return std::unexpected( "File is not a valid IRAP or GRI file: " + filename );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifSurfio::exportToGri( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values )
+{
+    return exportImpl( filename, surfaceData, values, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifSurfio::exportToIrap( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values )
+{
+    return exportImpl( filename, surfaceData, values, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifSurfio::exportImpl( const std::string& filename, const RigRegularSurfaceData& surfaceData, const std::vector<float>& values, bool binary )
+{
+    if ( static_cast<int>( values.size() ) != surfaceData.nx * surfaceData.ny ) return false;
+
+    surfio::irap::irap_header header;
+    header.ncol = surfaceData.nx;
+    header.nrow = surfaceData.ny;
+    header.xori = surfaceData.originX;
+    header.yori = surfaceData.originY;
+    header.xmax = surfaceData.originX + ( surfaceData.nx - 1 ) * surfaceData.incrementX;
+    header.ymax = surfaceData.originY + ( surfaceData.ny - 1 ) * surfaceData.incrementY;
+    header.xinc = surfaceData.incrementX;
+    header.yinc = surfaceData.incrementY;
+    header.rot  = surfaceData.rotation;
+    header.xrot = surfaceData.originX;
+    header.yrot = surfaceData.originY;
+
+    // Transpose from row-major (ResInsight: values[j * nx + i]) to column-major (IRAP: values[i * ny + j])
+    std::vector<float> irapValues( values.size() );
+    for ( int j = 0; j < surfaceData.ny; ++j )
+    {
+        for ( int i = 0; i < surfaceData.nx; ++i )
+        {
+            irapValues[i * surfaceData.ny + j] = values[j * surfaceData.nx + i];
+        }
+    }
+
+    const surfio::irap::surf_span span{ irapValues.data(), static_cast<size_t>( surfaceData.nx ), static_cast<size_t>( surfaceData.ny ) };
+
+    if ( binary )
+        surfio::irap::to_binary_file( filename, header, span );
+    else
+        surfio::irap::to_ascii_file( filename, header, span );
+
+    return true;
 }
