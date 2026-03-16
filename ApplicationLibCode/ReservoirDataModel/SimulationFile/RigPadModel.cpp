@@ -789,7 +789,7 @@ void extendEQUIL( Opm::DeckKeyword& equil )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Extend RSVD/RTEMPVD/PBVD/PDVD tables (padmodel lines 832-867)
+/// Extend RSVD/RVVD/RTEMPVD/PBVD/PDVD tables (padmodel lines 832-867)
 //--------------------------------------------------------------------------------------------------
 void extendDepthTable( const RigModelPaddingSettings& settings, Opm::DeckKeyword& propertyVD )
 {
@@ -849,7 +849,8 @@ void extendSolution( const RigModelPaddingSettings& settings, Opm::FileDeck& fil
         {
             extendEQUIL( const_cast<Opm::DeckKeyword&>( keyword ) );
         }
-        else if ( keyword.name() == "RSVD" || keyword.name() == "RTEMPVD" || keyword.name() == "PBVD" || keyword.name() == "PDVD" )
+        else if ( keyword.name() == "RSVD" || keyword.name() == "RVVD" || keyword.name() == "RTEMPVD" || keyword.name() == "PBVD" ||
+                  keyword.name() == "PDVD" )
         {
             extendDepthTable( settings, const_cast<Opm::DeckKeyword&>( keyword ) );
         }
