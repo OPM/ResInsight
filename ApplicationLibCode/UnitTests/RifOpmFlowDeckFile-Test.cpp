@@ -30,7 +30,7 @@ TEST( RifOpmFlowDeckFileTest, RegdimsExistingKeyword )
     QString              fileName       = testDataFolder + "NORNE_ATW2013.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Test reading existing REGDIMS
@@ -54,7 +54,7 @@ TEST( RifOpmFlowDeckFileTest, RegdimsAddKeyword )
     QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file without REGDIMS";
 
     // Verify REGDIMS doesn't exist initially
@@ -87,7 +87,7 @@ TEST( RifOpmFlowDeckFileTest, RegdimsSetValues )
     QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Add REGDIMS keyword first
@@ -121,7 +121,7 @@ TEST( RifOpmFlowDeckFileTest, RegdimsSaveAndReload )
     QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Add REGDIMS keyword
@@ -138,7 +138,7 @@ TEST( RifOpmFlowDeckFileTest, RegdimsSaveAndReload )
     // Reload the saved deck
     QString            savedFileName = tempDir.path() + "/test_with_regdims.DATA";
     RifOpmFlowDeckFile reloadedDeckFile;
-    bool               reloadSuccess = reloadedDeckFile.loadDeck( savedFileName.toStdString() );
+    bool               reloadSuccess = reloadedDeckFile.loadDeck( savedFileName.toStdString() ).has_value();
     EXPECT_TRUE( reloadSuccess ) << "Should successfully reload saved deck";
 
     // Verify REGDIMS exists in reloaded deck
@@ -156,7 +156,7 @@ TEST( RifOpmFlowDeckFileTest, AddIncludeKeyword )
     QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Add INCLUDE statement in REGIONS section for OPERNUM
@@ -205,7 +205,7 @@ TEST( RifOpmFlowDeckFileTest, AddIncludeSaveAndReload )
     QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Create a temporary directory and OPERNUM include file
@@ -244,7 +244,7 @@ TEST( RifOpmFlowDeckFileTest, AddIncludeSaveAndReload )
 
     // Reload the saved deck
     RifOpmFlowDeckFile reloadedDeckFile;
-    bool               reloadSuccess = reloadedDeckFile.loadDeck( savedFileName.toStdString() );
+    bool               reloadSuccess = reloadedDeckFile.loadDeck( savedFileName.toStdString() ).has_value();
     EXPECT_TRUE( reloadSuccess ) << "Should successfully reload saved deck with INCLUDE";
 
     // Verify that OPERNUM keyword appears in reloaded deck (it should be included from the file)
@@ -270,7 +270,7 @@ TEST( RifOpmFlowDeckFileTest, AddOperaterKeyword )
     QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Add OPERATER statement to EDIT section: PORV 9 MULTX PORV 1.0e6 1* 1*
@@ -307,7 +307,7 @@ TEST( RifOpmFlowDeckFileTest, AddOperaterSaveAndReload )
     QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Add OPERATER statement to EDIT section: PORV 9 MULTX PORV 1.0e6 1* 1*
@@ -366,7 +366,7 @@ TEST( RifOpmFlowDeckFileTest, BcpropKeyword )
     QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
 
     RifOpmFlowDeckFile deckFile;
-    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() );
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
 
     ASSERT_TRUE( loadSuccess ) << "Failed to load deck file";
 

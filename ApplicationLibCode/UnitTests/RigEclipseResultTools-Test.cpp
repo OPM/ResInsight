@@ -186,7 +186,7 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
 
     // Load the deck file
     RifOpmFlowDeckFile deckFile;
-    bool               deckLoaded = deckFile.loadDeck( deckFilePath.toStdString() );
+    bool               deckLoaded = deckFile.loadDeck( deckFilePath.toStdString() ).has_value();
     ASSERT_TRUE( deckLoaded ) << "Failed to load deck file";
 
     // Create BCCON keyword using factory and replace in deck

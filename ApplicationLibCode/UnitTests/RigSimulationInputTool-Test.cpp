@@ -425,7 +425,7 @@ TEST( RigSimulationInputTool, ExportModel5 )
 
     // Load the exported deck file using RifOpmFlowDeckFile
     RifOpmFlowDeckFile deckFile;
-    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
     ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
 
     // Get all keywords from the deck
@@ -518,7 +518,7 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
 
     // Load the exported deck file using RifOpmFlowDeckFile
     RifOpmFlowDeckFile deckFile;
-    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
     ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
 
     // Get all keywords from the deck
@@ -839,7 +839,7 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement )
 
     // Load the exported deck file using RifOpmFlowDeckFile
     RifOpmFlowDeckFile deckFile;
-    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
     ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
 
     // Get all keywords from the deck
@@ -1026,7 +1026,7 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement_3_5_1 )
 
     // Load the exported deck file using RifOpmFlowDeckFile
     RifOpmFlowDeckFile deckFile;
-    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
     ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
 
     // Get all keywords from the deck
@@ -1382,7 +1382,7 @@ TEST( RigSimulationInputTool, ExportModel5WithPadding )
 
     // Load the exported deck file using RifOpmFlowDeckFile
     RifOpmFlowDeckFile deckFile;
-    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() );
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
     ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
 
     // Get all keywords from the deck

@@ -40,6 +40,7 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
 #include <cmath>
+#include <expected>
 #include <format>
 #include <memory>
 #include <optional>
@@ -241,7 +242,7 @@ RifOpmFlowDeckFile::~RifOpmFlowDeckFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::loadDeck( std::string filename )
+std::expected<void, std::string> RifOpmFlowDeckFile::loadDeck( std::string filename )
 {
     Opm::ErrorGuard errors{};
 
@@ -254,14 +255,14 @@ bool RifOpmFlowDeckFile::loadDeck( std::string filename )
 
         splitDatesIfNecessary();
     }
-    catch ( ... )
+    catch ( const std::exception& e )
     {
         m_deck.reset();
         m_fileDeck.reset();
-        return false;
+        return std::unexpected( std::string( e.what() ) + " " + errors.formattedErrors() );
     }
 
-    return true;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

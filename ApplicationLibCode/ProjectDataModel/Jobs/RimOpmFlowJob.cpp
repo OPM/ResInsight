@@ -572,11 +572,18 @@ bool RimOpmFlowJob::openDeckFile()
         bool deckLoadOk = false;
         try
         {
-            deckLoadOk = m_deckFile->loadDeck( m_deckFileName().path().toStdString() );
-            if ( deckLoadOk )
+            auto loadResult = m_deckFile->loadDeck( m_deckFileName().path().toStdString() );
+            if ( loadResult.has_value() )
             {
                 m_fileDeckHasDates  = m_deckFile->hasDatesKeyword();
                 m_fileDeckIsRestart = m_deckFile->isRestartFile();
+                deckLoadOk          = true;
+            }
+            else
+            {
+                RiaLogging::error(
+                    QString( "Failed to open %1. Error: %2." ).arg( m_deckFileName().path() ).arg( QString::fromStdString( loadResult.error() ) ) );
+                deckLoadOk = false;
             }
         }
         catch ( std::filesystem::filesystem_error& )
