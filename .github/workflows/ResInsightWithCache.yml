@@ -114,11 +114,10 @@ jobs:
       - name: Setup buildcache
         uses: CeetronSolutions/setup-buildcache-action@v1.0
 
-      - name: Get current time
-        uses: josStorer/get-current-time@v2
+      - name: Get current date
         id: current-time
-        with:
-          format: YYYY-MM-DD
+        shell: bash
+        run: echo "formattedTime=$(date -u +%Y-%m-%d)" >> $GITHUB_OUTPUT
 
       - name: Print time stamp
         run: echo "timestamp ${{ steps.current-time.outputs.formattedTime }}"
