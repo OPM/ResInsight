@@ -38,16 +38,14 @@ class RimGenericJob : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-
     enum JobState
     {
-        Idle,      // default, nothing is happening
-        Queued,    // waiting for available resources to run
-        Running,   // job is running
+        Idle, // default, nothing is happening
+        Queued, // waiting for available resources to run
+        Running, // job is running
         Completed, // job completed without errors
-        Failed     // job completed with errors
+        Failed // job completed with errors
     };
-
 
     RimGenericJob();
     ~RimGenericJob() override;
