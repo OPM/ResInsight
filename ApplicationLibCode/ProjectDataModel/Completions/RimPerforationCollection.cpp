@@ -26,6 +26,7 @@
 #include "RimNonDarcyPerforationParameters.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimWellPathCollection.h"
 
 #include "Well/RigWellPath.h"
 
@@ -189,10 +190,26 @@ void RimPerforationCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPerforationCollection::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
+
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
+    }
 
     updateConnectedEditors();
 }

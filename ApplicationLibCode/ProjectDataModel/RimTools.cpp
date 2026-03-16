@@ -555,13 +555,7 @@ void RimTools::colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RimTools::wellPathCollection()
 {
-    RimProject* proj = RimProject::current();
-    if ( proj && proj->activeOilField() )
-    {
-        return proj->activeOilField()->wellPathCollection();
-    }
-
-    return nullptr;
+    return RimWellPathCollection::instance();
 }
 
 //--------------------------------------------------------------------------------------------------

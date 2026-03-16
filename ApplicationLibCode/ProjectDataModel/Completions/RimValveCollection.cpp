@@ -18,6 +18,8 @@
 
 #include "RimValveCollection.h"
 
+#include "WellPath/RimWellPathCollection.h"
+
 #include "RimProject.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
@@ -141,6 +143,17 @@ void RimValveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     else
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimValveCollection::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
     }
 }
 

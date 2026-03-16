@@ -149,7 +149,8 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitFieldNoDefault( &m_mswNameGroupingPattern, "MswWellNameGroupingPattern", "Grouping Pattern" );
 
     CAF_PDM_InitFieldNoDefault( &m_mswEclipseCase, "MswEclipseCase", "Eclipse Case" );
-    CAF_PDM_InitField( &m_mswShowBands, "MseShowBands", true, "Show Bands" );
+    CAF_PDM_InitField( &m_mswShowBands, "MswShowBands", true, "Show Bands" );
+    CAF_PDM_InitField( &m_mswAutoUpdateSegments, "MswAutoUpdateSegments", true, "Auto Update Segments" );
 
     m_wellPathImporter           = std::make_unique<RifWellPathImporter>();
     m_wellPathFormationsImporter = std::make_unique<RifWellPathFormationsImporter>();
@@ -160,6 +161,20 @@ RimWellPathCollection::RimWellPathCollection()
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection::~RimWellPathCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathCollection* RimWellPathCollection::instance()
+{
+    RimProject* proj = RimProject::current();
+    if ( proj && proj->activeOilField() )
+    {
+        return proj->activeOilField()->wellPathCollection();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -559,9 +574,13 @@ void RimWellPathCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     }
 
     caf::PdmUiGroup* mswSegmentGroup = uiOrdering.addNewGroup( "MSW Segment Visualization" );
-    mswSegmentGroup->add( &m_mswShowBands );
     mswSegmentGroup->add( &m_mswEclipseCase );
-    mswSegmentGroup->addNewButton( "Update Segments", [this]() { updateMswSegments(); } );
+    mswSegmentGroup->add( &m_mswAutoUpdateSegments );
+    if ( !m_mswAutoUpdateSegments() )
+    {
+        mswSegmentGroup->addNewButton( "Update Segments", [this]() { updateMswSegments(); } );
+    }
+    mswSegmentGroup->add( &m_mswShowBands );
     uiOrdering.skipRemainingFields();
 }
 
@@ -594,6 +613,41 @@ void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
 caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
 {
     return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::updateMswSegmentsForObject( caf::PdmObject* changedObject )
+{
+    if ( !m_mswAutoUpdateSegments() ) return;
+    if ( !changedObject ) return;
+
+    auto wellPath = changedObject->firstAncestorOfType<RimWellPath>();
+    if ( !wellPath ) return;
+
+    auto topLevelWell = wellPath->topLevelWellPath();
+    if ( !topLevelWell ) return;
+
+    for ( const auto& wp : m_wellPaths )
+    {
+        if ( !wp || wp->topLevelWellPath() != topLevelWell ) continue;
+
+        auto* completions = wp->completions();
+        if ( !completions ) continue;
+
+        auto* segmentCollection = completions->mswSegmentCollection();
+        if ( !segmentCollection ) continue;
+
+        segmentCollection->clearSegments();
+    }
+
+    RimMswSegmentCollection::updateSegments( topLevelWell, m_mswEclipseCase() );
+
+    if ( RimProject* project = RimProject::current() )
+    {
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

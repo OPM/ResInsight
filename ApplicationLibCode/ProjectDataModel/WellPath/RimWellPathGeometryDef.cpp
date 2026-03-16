@@ -32,6 +32,7 @@
 
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDefTools.h"
 #include "RimWellPathTarget.h"
 
@@ -552,6 +553,22 @@ void RimWellPathGeometryDef::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
 
     changed.send( false );
+
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
