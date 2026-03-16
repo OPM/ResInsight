@@ -101,7 +101,9 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
-    if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, settings, deckFile ); !result )
+    auto croppedKeywords = cropDataKeywordsInDeckFile( &eclipseCase, settings, deckFile );
+
+    if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, settings, deckFile, croppedKeywords ); !result )
     {
         return result;
     }
@@ -289,7 +291,8 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckFile( RimEclipseCase*                   eclipseCase,
                                                                                      const RigSimulationInputSettings& settings,
-                                                                                     RifOpmFlowDeckFile&               deckFile )
+                                                                                     RifOpmFlowDeckFile&               deckFile,
+                                                                                     const std::set<std::string>&      alreadyCropped )
 {
     // Extract and replace keyword data for all keywords in the deck
     auto keywords = deckFile.keywords( false );
@@ -297,6 +300,9 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
 
     for ( const auto& keywordStdStr : keywords )
     {
+        // Skip keywords already cropped from deck data
+        if ( alreadyCropped.count( keywordStdStr ) > 0 ) continue;
+
         QString keyword = QString::fromStdString( keywordStdStr );
 
         // Skip special keywords that aren't cell properties
@@ -328,6 +334,92 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RigSimulationInputTool::cropDataKeywordsInDeckFile( RimEclipseCase*                   eclipseCase,
+                                                                          const RigSimulationInputSettings& settings,
+                                                                          RifOpmFlowDeckFile&               deckFile )
+{
+    std::set<std::string> croppedKeywords;
+
+    RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
+    if ( !mainGrid ) return croppedKeywords;
+
+    const size_t fullNx        = mainGrid->cellCountI();
+    const size_t fullNy        = mainGrid->cellCountJ();
+    const size_t fullNz        = mainGrid->cellCountK();
+    const size_t fullCellCount = fullNx * fullNy * fullNz;
+
+    const auto min        = settings.min();
+    const auto max        = settings.max();
+    const auto refinement = settings.refinement();
+
+    auto keywords = deckFile.keywords( false );
+
+    for ( const auto& name : keywords )
+    {
+        auto optKw = deckFile.findKeyword( name );
+        if ( !optKw.has_value() ) continue;
+
+        const auto& kw = optKw.value();
+        if ( !kw.isDataKeyword() ) continue;
+        if ( kw.size() != 1 ) continue;
+
+        const auto& record = kw.getRecord( 0 );
+        if ( record.size() != 1 ) continue;
+
+        const auto& item = record.getItem( 0 );
+
+        auto cropAndReplace = [&]<typename T>( const std::vector<T>& fullData )
+        {
+            std::vector<T> croppedData;
+            cvf::Vec3st    refinedMin( min.x() * refinement.x(), min.y() * refinement.y(), min.z() * refinement.z() );
+            cvf::Vec3st refinedMax( ( max.x() + 1 ) * refinement.x(), ( max.y() + 1 ) * refinement.y(), ( max.z() + 1 ) * refinement.z() );
+
+            for ( size_t k = refinedMin.z(); k < refinedMax.z(); ++k )
+            {
+                size_t mainK = k / refinement.z();
+                for ( size_t j = refinedMin.y(); j < refinedMax.y(); ++j )
+                {
+                    size_t mainJ = j / refinement.y();
+                    for ( size_t i = refinedMin.x(); i < refinedMax.x(); ++i )
+                    {
+                        size_t mainI     = i / refinement.x();
+                        size_t sourceIdx = mainI + mainJ * fullNx + mainK * fullNx * fullNy;
+                        croppedData.push_back( fullData[sourceIdx] );
+                    }
+                }
+            }
+
+            if ( deckFile.replaceKeyword( name, croppedData, true ) )
+            {
+                RiaLogging::info( QString( "Cropped data keyword '%1' from deck (%2 -> %3 values)" )
+                                      .arg( QString::fromStdString( name ) )
+                                      .arg( fullCellCount )
+                                      .arg( croppedData.size() ) );
+                croppedKeywords.insert( name );
+            }
+        };
+
+        if ( item.getType() == Opm::type_tag::fdouble && item.data_size() == fullCellCount )
+        {
+            cropAndReplace( kw.getRawDoubleData() );
+        }
+        else if ( item.getType() == Opm::type_tag::integer && item.data_size() == fullCellCount )
+        {
+            cropAndReplace( kw.getIntData() );
+        }
+    }
+
+    if ( !croppedKeywords.empty() )
+    {
+        RiaLogging::info( QString( "Cropped %1 data keywords directly from deck" ).arg( croppedKeywords.size() ) );
+    }
+
+    return croppedKeywords;
 }
 
 //--------------------------------------------------------------------------------------------------

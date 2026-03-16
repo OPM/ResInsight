@@ -124,7 +124,11 @@ private:
 
     static std::expected<void, QString> replaceKeywordValuesInDeckFile( RimEclipseCase*                   eclipseCase,
                                                                         const RigSimulationInputSettings& settings,
-                                                                        RifOpmFlowDeckFile&               deckFile );
+                                                                        RifOpmFlowDeckFile&               deckFile,
+                                                                        const std::set<std::string>&      alreadyCropped = {} );
+
+    static std::set<std::string>
+        cropDataKeywordsInDeckFile( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
     static std::expected<void, QString>
         updateWelldimsKeyword( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
