@@ -109,7 +109,9 @@ jobs:
           pip install -r GrpcInterface/Python/build-requirements.txt
 
       - name: Use MSVC (Windows)
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v4
+        with:
+          arch: x64
 
       - name: Setup buildcache
         uses: CeetronSolutions/setup-buildcache-action@v1.0
