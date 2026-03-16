@@ -24,6 +24,7 @@
 #include "RiaStringListSerializer.h"
 
 #include <QAction>
+#include <QDir>
 #include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +50,7 @@ RiuRecentFileActionProvider::~RiuRecentFileActionProvider()
 void RiuRecentFileActionProvider::addFileName( const QString& fileName )
 {
     RiaStringListSerializer stringListSerializer( registryKey() );
-    stringListSerializer.addString( fileName, m_maxActionCount );
+    stringListSerializer.addString( QDir::fromNativeSeparators( fileName ), m_maxActionCount );
 
     updateActions();
 }
@@ -60,7 +61,7 @@ void RiuRecentFileActionProvider::addFileName( const QString& fileName )
 void RiuRecentFileActionProvider::removeFileName( const QString& fileName )
 {
     RiaStringListSerializer stringListSerializer( registryKey() );
-    stringListSerializer.removeString( fileName );
+    stringListSerializer.removeString( QDir::fromNativeSeparators( fileName ) );
 
     updateActions();
 }
