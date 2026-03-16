@@ -849,7 +849,8 @@ void extendSolution( const RigModelPaddingSettings& settings, Opm::FileDeck& fil
         {
             extendEQUIL( const_cast<Opm::DeckKeyword&>( keyword ) );
         }
-        else if ( keyword.name() == "RSVD" || keyword.name() == "RVVD" || keyword.name() == "RTEMPVD" || keyword.name() == "PBVD" || keyword.name() == "PDVD" )
+        else if ( keyword.name() == "RSVD" || keyword.name() == "RVVD" || keyword.name() == "RTEMPVD" || keyword.name() == "PBVD" ||
+                  keyword.name() == "PDVD" )
         {
             extendDepthTable( settings, const_cast<Opm::DeckKeyword&>( keyword ) );
         }
