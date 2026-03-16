@@ -40,8 +40,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 RimGenericJob::RimGenericJob()
     : m_percentageDone( 0.0 )
-    , m_lastRunFailed( false )
-    , m_isRunning( false )
+    , m_jobState( JobState::Idle )
     , m_process( nullptr )
     , m_errorsDetected( 0 )
     , m_warningsDetected( 0 )
@@ -94,7 +93,7 @@ QString RimGenericJob::workingDirectory() const
 //--------------------------------------------------------------------------------------------------
 bool RimGenericJob::isRunning() const
 {
-    return m_isRunning;
+    return ( m_jobState == JobState::Queued ) || ( m_jobState == JobState::Running );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,7 +130,7 @@ bool RimGenericJob::execute()
 
         if ( !onPrepare() )
         {
-            m_lastRunFailed = true;
+            m_jobState = JobState::Failed;
             onProgress( m_percentageDone );
             return false;
         }
@@ -148,8 +147,7 @@ bool RimGenericJob::execute()
 
     m_process = new RimProcess( true, new RimJobMonitor( this ) );
 
-    m_isRunning     = true;
-    m_lastRunFailed = false;
+    m_jobState = JobState::Running;
 
     onProgress( m_percentageDone );
 
@@ -168,8 +166,7 @@ bool RimGenericJob::execute()
     if ( !startOk )
     {
         onCompleted( false );
-        m_lastRunFailed = true;
-        m_isRunning     = false;
+        m_jobState = JobState::Failed;
         setDeletable( true );
         QMessageBox::critical( RiaGuiApplication::widgetToUseAsParent(),
                                name(),
@@ -184,9 +181,7 @@ bool RimGenericJob::execute()
 //--------------------------------------------------------------------------------------------------
 bool RimGenericJob::setFinished( bool runOk )
 {
-    m_isRunning = false;
-
-    m_lastRunFailed = !runOk;
+    m_jobState = runOk ? JobState::Completed : JobState::Failed;
 
     m_percentageDone = 100.0;
     onProgress( m_percentageDone );
@@ -206,22 +201,32 @@ void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
     static auto contrastWarnColor =
         QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) ) );
 
+    static auto waitColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) );
+    static auto contrastWaitColor =
+        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) ) );
+
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
-        if ( m_lastRunFailed )
+        if ( m_jobState == JobState::Failed )
         {
             auto txt = m_errorsDetected > 0 ? QString( "[%1]" ).arg( m_errorsDetected ) : "!!!";
             auto tag =
                 caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
-        else
+        else if ( m_jobState == JobState::Queued )
         {
-            if ( ( m_percentageDone == 0.0 ) && ( !m_isRunning ) ) return;
-
+            auto tag     = caf::PdmUiTreeViewItemAttribute::createTag();
+            tag->text    = "Waiting...";
+            tag->bgColor = waitColor;
+            tag->fgColor = contrastWaitColor;
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+        else if ( ( m_jobState == JobState::Running ) || ( m_jobState == JobState::Completed ) )
+        {
             auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
 
-            if ( m_isRunning )
+            if ( m_jobState == JobState::Running )
             {
                 tag->text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
             }
