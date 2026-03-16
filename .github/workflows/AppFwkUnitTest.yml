@@ -43,6 +43,7 @@ jobs:
         uses: lukka/get-cmake@latest
 
       - name: Use MSVC (Windows)
+        if: contains(matrix.os, 'windows')
         uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
