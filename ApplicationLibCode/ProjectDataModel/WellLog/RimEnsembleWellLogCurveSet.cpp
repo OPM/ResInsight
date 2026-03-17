@@ -177,6 +177,7 @@ RimEnsembleWellLogCurveSet::~RimEnsembleWellLogCurveSet()
         delete m_filterOverlayFrame;
     }
 
+    m_qwtPlotCurveForLegendText->detach();
     delete m_qwtPlotCurveForLegendText;
 }
 
