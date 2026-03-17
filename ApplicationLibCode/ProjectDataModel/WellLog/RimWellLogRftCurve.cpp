@@ -760,8 +760,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 m_plotCurve->setPerPointLabels( perPointLabels );
 
-                auto propertyValues = curveData()->propertyValuesByIntervals();
-                auto depthValues    = curveData()->depthValuesByIntervals( RiaDefines::DepthType::MEASURED_DEPTH, displayUnit );
+                auto propertyValues = curveData().propertyValuesByIntervals();
+                auto depthValues    = curveData().depthValuesByIntervals( RiaDefines::DepthType::MEASURED_DEPTH, displayUnit );
 
                 if ( !errors.empty() )
                 {
@@ -772,7 +772,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
                 }
 
-                m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
+                m_plotCurve->setLineSegmentStartStopIndices( curveData().polylineStartStopIndices() );
 
                 auto wellLogTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
@@ -788,8 +788,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 m_plotCurve->setPerPointLabels( perPointLabels );
 
-                auto propertyValues      = curveData()->propertyValuesByIntervals();
-                auto depthValues         = curveData()->depthValuesByIntervals( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, displayUnit );
+                auto propertyValues      = curveData().propertyValuesByIntervals();
+                auto depthValues         = curveData().depthValuesByIntervals( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, displayUnit );
                 bool useLogarithmicScale = false;
 
                 if ( !errors.empty() )
@@ -809,7 +809,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
             }
 
-            m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
+            m_plotCurve->setLineSegmentStartStopIndices( curveData().polylineStartStopIndices() );
         }
 
         if ( updateParentPlot )

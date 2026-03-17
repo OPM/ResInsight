@@ -303,9 +303,9 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
 
     plotTrack->addCurve( curve );
 
-    if ( plot && curve->curveData() )
+    if ( plot )
     {
-        plot->setDepthUnit( curve->curveData()->depthUnit() );
+        plot->setDepthUnit( curve->curveData().depthUnit() );
     }
 
     curve->loadDataAndUpdate( true );

@@ -150,15 +150,14 @@ void RimWellLogCalculatedCurve::onLoadDataAndUpdate( bool updateParentPlot )
     }
 
     // Use well A as reference for resampled curve data
-    auto* firstCurveData  = m_firstWellLogCurve()->curveData();
-    auto* secondCurveData = m_secondWellLogCurve()->curveData();
+    const auto& firstCurveData  = m_firstWellLogCurve()->curveData();
+    const auto& secondCurveData = m_secondWellLogCurve()->curveData();
 
-    if ( !firstCurveData || !secondCurveData ) return;
-    if ( firstCurveData->depthUnit() != secondCurveData->depthUnit() )
+    if ( firstCurveData.depthUnit() != secondCurveData.depthUnit() )
     {
         RiaLogging::warning( "Well log curve depth units are not the same" );
     }
-    if ( firstCurveData->propertyValueUnit() != secondCurveData->propertyValueUnit() )
+    if ( firstCurveData.propertyValueUnit() != secondCurveData.propertyValueUnit() )
     {
         RiaLogging::warning( "Well log curve property value units are not the same" );
     }
@@ -166,26 +165,26 @@ void RimWellLogCalculatedCurve::onLoadDataAndUpdate( bool updateParentPlot )
     // Find the data for resampling
     const auto                depthType    = RiaDefines::DepthType::MEASURED_DEPTH;
     const std::vector<double> depthValues  = depthValuesFromSource( depthType );
-    const auto                depthUnit    = firstCurveData->depthUnit();
-    const auto                propertyUnit = firstCurveData->propertyValueUnit();
+    const auto                depthUnit    = firstCurveData.depthUnit();
+    const auto                propertyUnit = firstCurveData.propertyValueUnit();
 
-    auto firstCurveDepthValues     = firstCurveData->depths( depthType );
-    auto firstCurvePropertyValues  = firstCurveData->propertyValues();
-    auto secondCurveDepthValues    = secondCurveData->depths( depthType );
-    auto secondCurvePropertyValues = secondCurveData->propertyValues();
+    auto firstCurveDepthValues     = firstCurveData.depths( depthType );
+    auto firstCurvePropertyValues  = firstCurveData.propertyValues();
+    auto secondCurveDepthValues    = secondCurveData.depths( depthType );
+    auto secondCurvePropertyValues = secondCurveData.propertyValues();
 
     // Resample curve depth and property values if needed
     if ( m_depthSource() != DepthSource::FIRST )
     {
-        cvf::ref<RigWellLogCurveData> firstCurveDataResampled = firstCurveData->calculateResampledCurveData( depthType, depthValues );
-        firstCurveDepthValues                                 = firstCurveDataResampled->depths( depthType );
-        firstCurvePropertyValues                              = firstCurveDataResampled->propertyValues();
+        auto firstCurveDataResampled = firstCurveData.calculateResampledCurveData( depthType, depthValues );
+        firstCurveDepthValues        = firstCurveDataResampled.depths( depthType );
+        firstCurvePropertyValues     = firstCurveDataResampled.propertyValues();
     }
     if ( m_depthSource() != DepthSource::SECOND )
     {
-        cvf::ref<RigWellLogCurveData> secondCurveDataResampled = secondCurveData->calculateResampledCurveData( depthType, depthValues );
-        secondCurveDepthValues                                 = secondCurveDataResampled->depths( depthType );
-        secondCurvePropertyValues                              = secondCurveDataResampled->propertyValues();
+        auto secondCurveDataResampled = secondCurveData.calculateResampledCurveData( depthType, depthValues );
+        secondCurveDepthValues        = secondCurveDataResampled.depths( depthType );
+        secondCurvePropertyValues     = secondCurveDataResampled.propertyValues();
     }
 
     // Verify equal sizes
@@ -212,8 +211,8 @@ void RimWellLogCalculatedCurve::onLoadDataAndUpdate( bool updateParentPlot )
     setPropertyValuesAndDepths( calculatedPropertyValues, depthsMap, 0.0, depthUnit, isExtractionCurve, useLogarithmicScale, propertyUnit );
 
     // Set curve data to plot
-    std::vector<double> xPlotValues = curveData()->propertyValuesByIntervals();
-    std::vector<double> yPlotValues = curveData()->depthValuesByIntervals( depthType, depthUnit );
+    std::vector<double> xPlotValues = curveData().propertyValuesByIntervals();
+    std::vector<double> yPlotValues = curveData().depthValuesByIntervals( depthType, depthUnit );
     m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, yPlotValues, useLogarithmicScale );
     updateCurvePresentation( updateParentPlot );
 }
@@ -283,18 +282,18 @@ double RimWellLogCalculatedCurve::calculateValue( double firstValue, double seco
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogCalculatedCurve::depthValuesFromSource( RiaDefines::DepthType depthType ) const
 {
-    if ( !m_firstWellLogCurve || !m_firstWellLogCurve->curveData() || !m_secondWellLogCurve || !m_secondWellLogCurve->curveData() )
+    if ( !m_firstWellLogCurve || !m_secondWellLogCurve )
     {
         return {};
     }
 
     if ( m_depthSource() == DepthSource::FIRST )
     {
-        return m_firstWellLogCurve->curveData()->depths( depthType );
+        return m_firstWellLogCurve->curveData().depths( depthType );
     }
     else if ( m_depthSource() == DepthSource::SECOND )
     {
-        return m_secondWellLogCurve->curveData()->depths( depthType );
+        return m_secondWellLogCurve->curveData().depths( depthType );
     }
     else if ( m_depthSource() == DepthSource::UNION )
     {
@@ -353,7 +352,7 @@ std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromVectors( cons
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromCurves( RiaDefines::DepthType depthType ) const
 {
-    if ( !m_firstWellLogCurve || !m_firstWellLogCurve->curveData() || !m_secondWellLogCurve || !m_secondWellLogCurve->curveData() )
+    if ( !m_firstWellLogCurve || !m_secondWellLogCurve )
     {
         return {};
     }
@@ -361,8 +360,8 @@ std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromCurves( RiaDe
     constexpr double depthThreshold = 0.1;
 
     // Get union of depths
-    const auto firstDepths  = m_firstWellLogCurve->curveData()->depths( depthType );
-    const auto secondDepths = m_secondWellLogCurve->curveData()->depths( depthType );
+    const auto firstDepths  = m_firstWellLogCurve->curveData().depths( depthType );
+    const auto secondDepths = m_secondWellLogCurve->curveData().depths( depthType );
 
     return unionDepthValuesFromVectors( firstDepths, secondDepths, depthThreshold );
 }

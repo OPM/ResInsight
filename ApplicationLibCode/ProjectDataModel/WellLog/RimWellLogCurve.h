@@ -23,9 +23,10 @@
 #include "RiaWellLogUnitTools.h"
 #include "RimStackablePlotCurve.h"
 
+#include "Well/RigWellLogCurveData.h"
+
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
-#include "cvfObject.h"
 
 class RigWellLogCurveData;
 class RimWellPath;
@@ -47,7 +48,7 @@ public:
     bool propertyValueRangeInData( double* minimumValue, double* maximumValue ) const;
     bool depthValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
-    const RigWellLogCurveData* curveData() const;
+    const RigWellLogCurveData& curveData() const;
     bool                       isAnyCurveDataPresent() const override;
 
     void updateCurveAppearance() override;
@@ -113,6 +114,6 @@ protected:
     RiuPlotAxis valueAxis() const;
 
 private:
-    cvf::ref<RigWellLogCurveData> m_curveData;
+    RigWellLogCurveData           m_curveData;
     std::pair<double, double>     m_curveDataPropertyValueRange;
 };

@@ -48,7 +48,7 @@ class LasWell;
 class SingleChannelData
 {
 public:
-    SingleChannelData( const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData* curveData )
+    SingleChannelData( const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData& curveData )
         : m_channelName( channelName )
         , m_unit( unit )
         , m_comment( comment )
@@ -60,9 +60,9 @@ public:
     {
         CVF_ASSERT( lasFile );
 
-        if ( !m_curveData->propertyValues().empty() )
+        if ( !m_curveData.propertyValues().empty() )
         {
-            std::vector<double> wellLogValues = m_curveData->propertyValues( QString::fromStdString( m_unit ) );
+            std::vector<double> wellLogValues = m_curveData.propertyValues( QString::fromStdString( m_unit ) );
             for ( size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++ )
             {
                 double value = wellLogValues[vIdx];
@@ -76,16 +76,14 @@ public:
         }
     }
 
-    std::string channelName() const { return m_channelName; }
-
-    const RigWellLogCurveData* curveData() const { return m_curveData; }
+    std::string                channelName() const { return m_channelName; }
+    const RigWellLogCurveData& curveData() const { return m_curveData; }
 
 private:
-    std::string m_channelName;
-    std::string m_unit;
-    std::string m_comment;
-
-    const RigWellLogCurveData* m_curveData;
+    std::string         m_channelName;
+    std::string         m_unit;
+    std::string         m_comment;
+    RigWellLogCurveData m_curveData;
 };
 
 class SingleLasFileMetaData
@@ -112,11 +110,11 @@ public:
 
     double rkbDiff() { return m_rkbDiff; }
 
-    void addLogData( const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData* curveData )
+    void addLogData( const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData& curveData )
     {
         m_logCurveData.push_back( SingleChannelData( channelName, unit, comment, curveData ) );
 
-        for ( double xValue : curveData->propertyValues() )
+        for ( double xValue : curveData.propertyValues() )
         {
             if ( xValue < m_minimumCurveValue )
             {
@@ -173,43 +171,43 @@ public:
 
         lasFile->addWellInfo( "DATE", wellLogDate.toStdString() );
 
-        const RigWellLogCurveData* firstCurveData = curveDataForFirstCurve();
+        const RigWellLogCurveData& firstCurveData = curveDataForFirstCurve();
 
-        if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
+        if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
         {
-            lasFile->AddLog( "DEPTH", "M", "Depth in meters", firstCurveData->depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH", "M", "Depth in meters", firstCurveData.depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
         }
-        else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
+        else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
         {
-            lasFile->AddLog( "DEPTH", "FT", "Depth in feet", firstCurveData->depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH", "FT", "Depth in feet", firstCurveData.depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
         }
-        else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
+        else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
         {
-            lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData->depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData.depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
         }
 
-        if ( !firstCurveData->depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ).empty() )
+        if ( !firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ).empty() )
         {
-            lasFile->AddLog( "TVDMSL", "M", "True vertical depth in meters", firstCurveData->depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
+            lasFile->AddLog( "TVDMSL", "M", "True vertical depth in meters", firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
 
             if ( m_exportTvdrkb && m_rkbDiff != -1.0 )
             {
                 // Export True Vertical Depth Rotary Kelly Bushing - TVDRKB
-                std::vector<double> tvdrkbValues = firstCurveData->depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH );
+                std::vector<double> tvdrkbValues = firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH );
                 for ( auto& value : tvdrkbValues )
                 {
                     value += m_rkbDiff;
                 }
 
-                if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
+                if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
                 {
                     lasFile->AddLog( "TVDRKB", "M", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues );
                 }
-                else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
+                else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
                 {
                     lasFile->AddLog( "TVDRKB", "FT", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues );
                 }
-                else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
+                else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
                 {
                     CVF_ASSERT( false );
                     lasFile->AddLog( "TVDRKB", "", "", tvdrkbValues );
@@ -219,16 +217,16 @@ public:
 
         double minDepth = 0.0;
         double maxDepth = 0.0;
-        firstCurveData->calculateDepthRange( RiaDefines::DepthType::MEASURED_DEPTH, firstCurveData->depthUnit(), &minDepth, &maxDepth );
+        firstCurveData.calculateDepthRange( RiaDefines::DepthType::MEASURED_DEPTH, firstCurveData.depthUnit(), &minDepth, &maxDepth );
 
         lasFile->setStartDepth( minDepth );
         lasFile->setStopDepth( maxDepth );
 
-        if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
+        if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
         {
             lasFile->setDepthUnit( "M" );
         }
-        else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
+        else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
         {
             lasFile->setDepthUnit( "FT" );
         }
@@ -243,7 +241,7 @@ public:
     }
 
 private:
-    const RigWellLogCurveData* curveDataForFirstCurve() const
+    const RigWellLogCurveData& curveDataForFirstCurve() const
     {
         CVF_ASSERT( !m_logCurveData.empty() );
 
@@ -502,20 +500,12 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
             {
                 singleLasFileMeta.setRkbDiff( rkbDiff( curve ) );
 
-                const RigWellLogCurveData* curveData = nullptr;
-                if ( m_isResampleActive )
-                {
-                    cvf::ref<RigWellLogCurveData> resampledData = curve->curveData()->calculateResampledCurveData( m_resamplingInterval );
-                    m_resampledCurveDatas.push_back( resampledData.p() );
+                const auto& curveData =
+                    m_isResampleActive
+                        ? m_resampledCurveDatas.emplace_back( curve->curveData().calculateResampledCurveData( m_resamplingInterval ) )
+                        : curve->curveData();
 
-                    curveData = resampledData.p();
-                }
-                else
-                {
-                    curveData = curve->curveData();
-                }
-                QString units = curve->curveData()->propertyValueUnit();
-
+                QString units = curveData.propertyValueUnit();
                 if ( convertCurveUnits || units == RiaWellLogUnitTools<double>::barX100UnitString() )
                 {
                     units = curve->wellLogChannelUnits();

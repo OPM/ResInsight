@@ -52,8 +52,6 @@ RimWellLogCurve::RimWellLogCurve()
 {
     CAF_PDM_InitObject( "WellLogCurve", ":/WellLogCurve16x16.png" );
 
-    m_curveData = new RigWellLogCurveData;
-
     m_curveDataPropertyValueRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
 
     setDeletable( true );
@@ -71,7 +69,7 @@ RimWellLogCurve::~RimWellLogCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
 {
-    m_curveData->setDepthUnit( depthUnit );
+    m_curveData.setDepthUnit( depthUnit );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +112,7 @@ bool RimWellLogCurve::depthValueRangeInData( double* minimumValue, double* maxim
     auto               depthType   = wellLogPlot->depthType();
     auto               displayUnit = wellLogPlot->depthUnit();
 
-    return m_curveData->calculateDepthRange( depthType, displayUnit, minimumValue, maximumValue );
+    return m_curveData.calculateDepthRange( depthType, displayUnit, minimumValue, maximumValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,8 +127,8 @@ void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>& pro
                                                   bool                       useLogarithmicScale,
                                                   const QString&             propertyUnit )
 {
-    m_curveData->setValuesAndDepths( propertyValues, depths, depthType, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale );
-    m_curveData->setPropertyValueUnit( propertyUnit );
+    m_curveData.setValuesAndDepths( propertyValues, depths, depthType, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale );
+    m_curveData.setPropertyValueUnit( propertyUnit );
     calculateCurveDataPropertyValueRange();
 }
 
@@ -146,8 +144,8 @@ void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>&    
 
                                                   const QString& propertyUnit )
 {
-    m_curveData->setValuesAndDepths( propertyValues, depths, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale );
-    m_curveData->setPropertyValueUnit( propertyUnit );
+    m_curveData.setValuesAndDepths( propertyValues, depths, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale );
+    m_curveData.setPropertyValueUnit( propertyUnit );
     calculateCurveDataPropertyValueRange();
 }
 
@@ -175,7 +173,7 @@ void RimWellLogCurve::setPropertyAndDepthsAndErrors( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::clearCurveData()
 {
-    m_curveData->clear();
+    m_curveData.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,9 +213,9 @@ void RimWellLogCurve::setPropertyValuesWithMdAndTVD( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigWellLogCurveData* RimWellLogCurve::curveData() const
+const RigWellLogCurveData& RimWellLogCurve::curveData() const
 {
-    return m_curveData.p();
+    return m_curveData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,10 +297,9 @@ void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&          
 //--------------------------------------------------------------------------------------------------
 double RimWellLogCurve::closestYValueForX( double xValue ) const
 {
-    if ( m_curveData.isNull() ) return std::numeric_limits<double>::infinity();
-
-    auto depths = m_curveData->depths( RiaDefines::DepthType::MEASURED_DEPTH );
-    auto values = m_curveData->propertyValues();
+    auto depths = m_curveData.depths( RiaDefines::DepthType::MEASURED_DEPTH );
+    auto values = m_curveData.propertyValues();
+    if ( depths.empty() ) return std::numeric_limits<double>::infinity();
 
     if ( depths.empty() || values.empty() ) return std::numeric_limits<double>::infinity();
 
@@ -347,7 +344,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
             {
                 double plotRange = std::abs( maxPlotDepth - minPlotDepth );
                 double minCurveDepth, maxCurveDepth;
-                m_curveData->calculateDepthRange( wellLogPlot->depthType(), wellLogPlot->depthUnit(), &minCurveDepth, &maxCurveDepth );
+                m_curveData.calculateDepthRange( wellLogPlot->depthType(), wellLogPlot->depthUnit(), &minCurveDepth, &maxCurveDepth );
                 updateDepthZoom = minCurveDepth < minPlotDepth - eps * plotRange || maxCurveDepth > maxPlotDepth + eps * plotRange;
             }
             if ( updateDepthZoom )
@@ -386,7 +383,7 @@ void RimWellLogCurve::calculateCurveDataPropertyValueRange()
 {
     // Invalidate range first
     m_curveDataPropertyValueRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
-    for ( double xValue : m_curveData->propertyValues() )
+    for ( double xValue : m_curveData.propertyValues() )
     {
         if ( RiaCurveDataTools::isValidValue( xValue, false ) )
         {
@@ -455,5 +452,5 @@ RiuPlotAxis RimWellLogCurve::valueAxis() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::isAnyCurveDataPresent() const
 {
-    return !m_curveData->propertyValues().empty();
+    return !m_curveData.propertyValues().empty();
 }

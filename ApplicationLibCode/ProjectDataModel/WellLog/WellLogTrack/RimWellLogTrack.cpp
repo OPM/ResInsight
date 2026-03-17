@@ -805,16 +805,15 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
     {
         if ( !curve->isChecked() ) continue;
 
-        const RigWellLogCurveData* curveData = curve->curveData();
-        if ( !curveData ) continue;
+        const RigWellLogCurveData& curveData = curve->curveData();
         curveNames.push_back( curve->curveName() );
 
         if ( curveNames.size() == 1 )
         {
-            curveDepths = curveData->depthValuesByIntervals( depthType, depthUnit );
+            curveDepths = curveData.depthValuesByIntervals( depthType, depthUnit );
         }
 
-        std::vector<double> xPlotValues = curveData->propertyValuesByIntervals();
+        std::vector<double> xPlotValues = curveData.propertyValuesByIntervals();
         if ( xPlotValues.empty() )
         {
             curveNames.pop_back();
@@ -831,7 +830,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
             foundNonMatchingDepths = true;
         }
 
-        std::vector<double> depths = curveData->depthValuesByIntervals( depthType, depthUnit );
+        std::vector<double> depths = curveData.depthValuesByIntervals( depthType, depthUnit );
         curveMerger.addCurveData( depths, xPlotValues );
 
         curvesPlotXValues.push_back( xPlotValues );
@@ -2140,9 +2139,9 @@ void RimWellLogTrack::computeAndSetPropertyValueRangeMinForLogarithmicScale()
 
         for ( const auto& curve : m_curves )
         {
-            if ( curve->isChecked() && curve->curveData() )
+            if ( curve->isChecked() )
             {
-                RigStatisticsCalculator::posNegClosestToZero( curve->curveData()->propertyValuesByIntervals(), pos, neg );
+                RigStatisticsCalculator::posNegClosestToZero( curve->curveData().propertyValuesByIntervals(), pos, neg );
             }
         }
 
@@ -2470,7 +2469,7 @@ void RimWellLogTrack::updateStackedCurveData()
 
         for ( auto curve : stackedCurvesInGroup )
         {
-            auto depths = curve->curveData()->depths( depthType );
+            auto depths = curve->curveData().depths( depthType );
             if ( depths.empty() ) continue;
 
             if ( allDepthValues.empty() )
@@ -2497,8 +2496,8 @@ void RimWellLogTrack::updateStackedCurveData()
         std::vector<double> allStackedValues( allDepthValues.size(), 0.0 );
         for ( auto curve : stackedCurvesInGroup )
         {
-            auto interpolatedCurveValues = curve->curveData()->calculateResampledCurveData( depthType, allDepthValues );
-            auto xValues                 = interpolatedCurveValues->propertyValues();
+            auto interpolatedCurveValues = curve->curveData().calculateResampledCurveData( depthType, allDepthValues );
+            auto xValues                 = interpolatedCurveValues.propertyValues();
             for ( size_t i = 0; i < xValues.size(); ++i )
             {
                 if ( xValues[i] != HUGE_VAL )

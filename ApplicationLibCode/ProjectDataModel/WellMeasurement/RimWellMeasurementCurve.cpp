@@ -151,7 +151,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
 
         RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH;
-        if ( wellLogPlot && curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
+        if ( wellLogPlot && curveData().availableDepthTypes().count( wellLogPlot->depthType() ) )
         {
             depthType = wellLogPlot->depthType();
         }
@@ -159,10 +159,10 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         if ( m_plotCurve )
         {
             bool useLogarithmicScale = false;
-            m_plotCurve->setSamplesFromXValuesAndYValues( curveData()->propertyValuesByIntervals(),
-                                                          curveData()->depthValuesByIntervals( depthType, displayUnit ),
+            m_plotCurve->setSamplesFromXValuesAndYValues( curveData().propertyValuesByIntervals(),
+                                                          curveData().depthValuesByIntervals( depthType, displayUnit ),
                                                           useLogarithmicScale );
-            m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
+            m_plotCurve->setLineSegmentStartStopIndices( curveData().polylineStartStopIndices() );
         }
     }
 

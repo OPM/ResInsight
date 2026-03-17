@@ -22,8 +22,6 @@
 #include "RiaDefines.h"
 #include "RiaWellLogUnitTools.h"
 
-#include "cvfObject.h"
-
 #include <QString>
 
 #include <map>
@@ -35,11 +33,11 @@ class RigWellLogCurveDataTestInterface;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogCurveData : public cvf::Object
+class RigWellLogCurveData
 {
 public:
     RigWellLogCurveData();
-    ~RigWellLogCurveData() override;
+    ~RigWellLogCurveData();
 
     void clear();
 
@@ -79,9 +77,8 @@ public:
     std::vector<double> depthValuesByIntervals( RiaDefines::DepthType depthType, RiaDefines::DepthUnitType destinationDepthUnit ) const;
     std::vector<std::pair<size_t, size_t>> polylineStartStopIndices() const;
 
-    cvf::ref<RigWellLogCurveData> calculateResampledCurveData( double newMeasuredDepthStepSize ) const;
-    cvf::ref<RigWellLogCurveData> calculateResampledCurveData( RiaDefines::DepthType      resamplingDepthType,
-                                                               const std::vector<double>& depths ) const;
+    RigWellLogCurveData calculateResampledCurveData( double newMeasuredDepthStepSize ) const;
+    RigWellLogCurveData calculateResampledCurveData( RiaDefines::DepthType resamplingDepthType, const std::vector<double>& depths ) const;
 
     // Made static due to unit testing
     static void createAndAddInterpolatedSegmentValueAndDepths( std::vector<double>&                                  resampledValues,

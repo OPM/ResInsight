@@ -269,7 +269,7 @@ std::vector<std::pair<size_t, size_t>> RigWellLogCurveData::polylineStartStopInd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( double newMeasuredDepthStepSize ) const
+RigWellLogCurveData RigWellLogCurveData::calculateResampledCurveData( double newMeasuredDepthStepSize ) const
 {
     std::vector<double> xValues;
     std::vector<double> measuredDepths;
@@ -323,23 +323,23 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
         }
     }
 
-    cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
+    RigWellLogCurveData reSampledData;
 
     if ( isTVDAvailable )
     {
         std::map<RiaDefines::DepthType, std::vector<double>> resampledDepths = { { RiaDefines::DepthType::TRUE_VERTICAL_DEPTH, tvDepths },
                                                                                  { RiaDefines::DepthType::MEASURED_DEPTH, measuredDepths } };
-        reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true, m_useLogarithmicScale );
+        reSampledData.setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true, m_useLogarithmicScale );
     }
     else
     {
-        reSampledData->setValuesAndDepths( xValues,
-                                           measuredDepths,
-                                           RiaDefines::DepthType::MEASURED_DEPTH,
-                                           0.0,
-                                           m_depthUnit,
-                                           m_isExtractionCurve,
-                                           m_useLogarithmicScale );
+        reSampledData.setValuesAndDepths( xValues,
+                                          measuredDepths,
+                                          RiaDefines::DepthType::MEASURED_DEPTH,
+                                          0.0,
+                                          m_depthUnit,
+                                          m_isExtractionCurve,
+                                          m_useLogarithmicScale );
     }
 
     return reSampledData;
@@ -519,13 +519,13 @@ std::pair<std::vector<double>, std::map<RiaDefines::DepthType, std::vector<doubl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthType      resamplingDepthType,
-                                                                                const std::vector<double>& depths ) const
+RigWellLogCurveData RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthType      resamplingDepthType,
+                                                                     const std::vector<double>& depths ) const
 {
     const auto [xValues, resampledDepths] = createResampledValuesAndDepths( resamplingDepthType, depths, m_depths, m_propertyValues );
 
-    cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
-    reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true, m_useLogarithmicScale );
+    RigWellLogCurveData reSampledData;
+    reSampledData.setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true, m_useLogarithmicScale );
     return reSampledData;
 }
 
