@@ -202,14 +202,6 @@ RiaApplication::~RiaApplication()
     caf::SelectionManager::instance()->setPdmRootObject( nullptr );
 
     m_project.reset();
-
-    delete m_osduConnector.data();
-    m_osduConnector.clear();
-    m_osduConnector = nullptr;
-
-    delete m_sumoConnector.data();
-    m_sumoConnector.clear();
-    m_sumoConnector = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
