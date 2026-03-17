@@ -29,6 +29,8 @@
 
 #include "cvfVector2.h"
 
+#include <QPointer>
+
 #include <cmath>
 #include <memory>
 
@@ -112,5 +114,5 @@ private:
 
     std::unique_ptr<RimHistogramCalculator> m_histogramCalculator;
 
-    std::unique_ptr<RicGridStatisticsDialog> m_gridStatisticsDialog;
+    QPointer<RicGridStatisticsDialog> m_gridStatisticsDialog;
 };
