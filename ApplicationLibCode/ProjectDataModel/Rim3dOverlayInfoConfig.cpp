@@ -242,10 +242,10 @@ RicGridStatisticsDialog* Rim3dOverlayInfoConfig::getOrCreateGridStatisticsDialog
 {
     if ( !m_gridStatisticsDialog )
     {
-        m_gridStatisticsDialog = std::make_unique<RicGridStatisticsDialog>( RiaGuiApplication::widgetToUseAsParent() );
+        m_gridStatisticsDialog = new RicGridStatisticsDialog( RiaGuiApplication::widgetToUseAsParent() );
     }
     CVF_ASSERT( m_gridStatisticsDialog );
-    return m_gridStatisticsDialog.get();
+    return m_gridStatisticsDialog;
 }
 
 //--------------------------------------------------------------------------------------------------
