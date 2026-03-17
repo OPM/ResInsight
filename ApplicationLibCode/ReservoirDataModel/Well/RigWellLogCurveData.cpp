@@ -520,7 +520,7 @@ std::pair<std::vector<double>, std::map<RiaDefines::DepthType, std::vector<doubl
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellLogCurveData RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthType      resamplingDepthType,
-                                                                     const std::vector<double>& depths ) const
+                                                                      const std::vector<double>& depths ) const
 {
     const auto [xValues, resampledDepths] = createResampledValuesAndDepths( resamplingDepthType, depths, m_depths, m_propertyValues );
 
