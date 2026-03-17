@@ -160,7 +160,7 @@ void RimWellLogLasFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 setPropertyValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false, useLogarithmicScale );
 
                 QString errMsg;
-                if ( wellLogPlot && !curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
+                if ( wellLogPlot && !curveData().availableDepthTypes().count( wellLogPlot->depthType() ) )
                 {
                     QString depthTitle = wellLogPlot->depthAxisTitle();
                     errMsg             = QString( "Display of %1 for LAS curves is not possible without %2 "
@@ -190,13 +190,13 @@ void RimWellLogLasFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
 
         RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH;
-        if ( wellLogPlot && curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
+        if ( wellLogPlot && curveData().availableDepthTypes().count( wellLogPlot->depthType() ) )
         {
             depthType = wellLogPlot->depthType();
         }
 
-        setPropertyAndDepthValuesToPlotCurve( curveData()->propertyValuesByIntervals(),
-                                              curveData()->depthValuesByIntervals( depthType, displayUnit ) );
+        setPropertyAndDepthValuesToPlotCurve( curveData().propertyValuesByIntervals(),
+                                              curveData().depthValuesByIntervals( depthType, displayUnit ) );
 
         if ( updateParentPlot )
         {

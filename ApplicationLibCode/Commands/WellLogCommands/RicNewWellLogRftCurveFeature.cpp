@@ -88,9 +88,9 @@ void RicNewWellLogRftCurveFeature::onActionTriggered( bool isChecked )
             plotCurve->loadDataAndUpdate( true );
 
             RimWellLogPlot* plot = newWellLogPlotTrack->firstAncestorOrThisOfType<RimWellLogPlot>();
-            if ( plot && plotCurve->curveData() )
+            if ( plot )
             {
-                plot->setDepthUnit( plotCurve->curveData()->depthUnit() );
+                plot->setDepthUnit( plotCurve->curveData().depthUnit() );
             }
 
             plotCurve->updateConnectedEditors();

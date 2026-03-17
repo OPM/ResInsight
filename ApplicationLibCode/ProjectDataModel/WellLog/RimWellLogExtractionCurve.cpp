@@ -363,8 +363,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 useLogarithmicScale = track->isLogarithmicScale();
             }
 
-            std::vector<double> xPlotValues     = curveData()->propertyValuesByIntervals();
-            std::vector<double> depthPlotValues = curveData()->depthValuesByIntervals( depthType, displayUnit );
+            std::vector<double> xPlotValues     = curveData().propertyValuesByIntervals();
+            std::vector<double> depthPlotValues = curveData().depthValuesByIntervals( depthType, displayUnit );
             CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
 
             if ( wellLogPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
@@ -373,7 +373,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             else
                 m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, useLogarithmicScale );
 
-            m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
+            m_plotCurve->setLineSegmentStartStopIndices( curveData().polylineStartStopIndices() );
 
             RimPlotCurve::updateCurvePresentation( updateParentPlot );
 

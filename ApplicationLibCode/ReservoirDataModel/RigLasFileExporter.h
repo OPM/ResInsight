@@ -18,15 +18,13 @@
 
 #pragma once
 
-#include "cvfCollection.h"
-
 #include <QString>
 
 #include <vector>
 
 class RimWellLogCurve;
-class RigWellLogCurveData;
 class SingleLasFileMetaData;
+class RigWellLogCurveData;
 
 class RigLasFileExporter
 {
@@ -58,7 +56,7 @@ private:
     std::vector<RimWellLogCurve*> m_curves;
     std::vector<double>           m_userDefinedRkbOffsets;
 
-    bool                                 m_isResampleActive;
-    double                               m_resamplingInterval;
-    cvf::Collection<RigWellLogCurveData> m_resampledCurveDatas;
+    bool                             m_isResampleActive;
+    double                           m_resamplingInterval;
+    std::vector<RigWellLogCurveData> m_resampledCurveDatas;
 };

@@ -78,11 +78,11 @@ void Rim3dWellLogRftCurve::curveValuesAndMds( std::vector<double>* values, std::
         m_2dWellLogRftCurve->setDefaultAddress( wellName() );
     }
 
-    const RigWellLogCurveData* curveData = m_2dWellLogRftCurve->curveData();
+    const RigWellLogCurveData& curveData = m_2dWellLogRftCurve->curveData();
 
     // These values are for a simulation well
-    *values              = curveData->propertyValues();
-    *measuredDepthValues = curveData->depths( RiaDefines::DepthType::MEASURED_DEPTH );
+    *values              = curveData.propertyValues();
+    *measuredDepthValues = curveData.depths( RiaDefines::DepthType::MEASURED_DEPTH );
 }
 
 //--------------------------------------------------------------------------------------------------
