@@ -42,6 +42,9 @@ RiuWellLogPlot::RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* pare
 //--------------------------------------------------------------------------------------------------
 RiuWellLogPlot::~RiuWellLogPlot()
 {
+    // Only one layout is added to m_gridLayout (via addLayout) depending on orientation, which transfers ownership to Qt.
+    // The other layout is never parented and must be deleted explicitly. QPointer::data() returns nullptr if Qt already
+    // owns and has deleted the layout, making both deletes safe regardless of which layout was added.
     delete m_horizontalTrackScrollBarLayout.data();
     delete m_verticalTrackScrollBarLayout.data();
 }
