@@ -744,11 +744,15 @@ fortio_status_type fortio_check_file( const char * filename , bool endian_flip) 
 
 
 offset_type fortio_ftell( const fortio_type * fortio ) {
+  if (!fortio->stream)
+    return -1;
   return util_ftell( fortio->stream );
 }
 
 
 static bool fortio_fseek__(fortio_type * fortio , offset_type offset , int whence) {
+  if (!fortio->stream)
+    return false;
   int fseek_return = util_fseek( fortio->stream , offset , whence );
   if (fseek_return == 0)
     return true;
