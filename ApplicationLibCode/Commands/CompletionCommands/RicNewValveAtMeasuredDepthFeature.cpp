@@ -23,7 +23,6 @@
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimValveCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -79,7 +78,7 @@ void RicNewValveAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
 
     if ( valve )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+        RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
 
         wellPathCollection->uiCapability()->updateConnectedEditors();
         wellPathCollection->scheduleRedrawAffectedViews();

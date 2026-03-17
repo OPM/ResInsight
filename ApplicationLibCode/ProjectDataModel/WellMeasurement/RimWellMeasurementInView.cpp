@@ -22,7 +22,6 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
-#include "RimTools.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
@@ -205,7 +204,7 @@ RimRegularLegendConfig* RimWellMeasurementInView::legendConfig()
 //--------------------------------------------------------------------------------------------------
 bool RimWellMeasurementInView::updateLegendData()
 {
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
     if ( !wellPathCollection ) return false;
 
     RimWellMeasurementCollection* wellMeasurementCollection = wellPathCollection->measurementCollection();
@@ -305,8 +304,7 @@ QList<caf::PdmOptionItemInfo> RimWellMeasurementInView::calculateValueOptions( c
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_wells )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
+        if ( auto wellPathCollection = RimWellPathCollection::instance() )
         {
             std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
 
@@ -329,8 +327,7 @@ QList<caf::PdmOptionItemInfo> RimWellMeasurementInView::calculateValueOptions( c
     }
     else if ( fieldNeedingOptions == &m_qualityFilter )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
+        if ( auto wellPathCollection = RimWellPathCollection::instance() )
         {
             std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
 
@@ -388,8 +385,7 @@ bool RimWellMeasurementInView::isWellChecked( const QString& wellName ) const
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementInView::setAllWellsSelected()
 {
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-    if ( wellPathCollection )
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
     {
         std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
 
@@ -415,8 +411,7 @@ void RimWellMeasurementInView::setAllWellsSelected()
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementInView::setAllQualitiesSelected()
 {
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-    if ( wellPathCollection )
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
     {
         std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
 

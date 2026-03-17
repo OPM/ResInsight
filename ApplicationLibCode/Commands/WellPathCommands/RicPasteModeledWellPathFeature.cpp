@@ -25,7 +25,6 @@ CAF_CMD_SOURCE_INIT( RicPasteModeledWellPathFeature, "RicPasteModeledWellPathFea
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathTieIn.h"
@@ -65,8 +64,7 @@ void RicPasteModeledWellPathFeature::onActionTriggered( bool isChecked )
 
     if ( proj && proj->activeOilField() )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
+        if ( auto wellPathCollection = RimWellPathCollection::instance() )
         {
             RimModeledWellPath* wellPathToSelect = nullptr;
             for ( auto sourceWellPath : modeledWellPathsFromClipboard() )
@@ -76,7 +74,7 @@ void RicPasteModeledWellPathFeature::onActionTriggered( bool isChecked )
                 wellPathToSelect = destinationWellPath;
             }
 
-            RimTools::wellPathCollection()->rebuildWellPathNodes();
+            RimWellPathCollection::instance()->rebuildWellPathNodes();
 
             wellPathCollection->uiCapability()->updateConnectedEditors();
 
@@ -121,7 +119,7 @@ std::vector<RimModeledWellPath*> RicPasteModeledWellPathFeature::modeledWellPath
 //--------------------------------------------------------------------------------------------------
 void RicPasteModeledWellPathFeature::duplicateLaterals( const RimModeledWellPath* source, RimModeledWellPath* destination )
 {
-    auto wpc = RimTools::wellPathCollection();
+    auto wpc = RimWellPathCollection::instance();
 
     auto sourceLaterals = wpc->connectedWellPathLaterals( source );
 
@@ -144,7 +142,7 @@ RimModeledWellPath* RicPasteModeledWellPathFeature::duplicateAndInitializeWellPa
 {
     if ( !sourceWellPath ) return nullptr;
 
-    auto wpc = RimTools::wellPathCollection();
+    auto wpc = RimWellPathCollection::instance();
 
     auto*   destinationWellPath = sourceWellPath->copyObject<RimModeledWellPath>();
     QString name                = sourceWellPath->name() + "(copy)";

@@ -27,7 +27,6 @@
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
@@ -35,6 +34,8 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
+
+#include "cvfBoundingBox.h"
 
 #include <QAction>
 
@@ -71,8 +72,7 @@ void RicNewEditableWellPathFeature::onActionTriggered( bool isChecked )
     RimProject* project = RimProject::current();
     if ( project && RimProject::current()->activeOilField() )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
+        if ( auto wellPathCollection = RimWellPathCollection::instance() )
         {
             std::vector<RimWellPath*> newWellPaths;
             auto                      newModeledWellPath = new RimModeledWellPath();

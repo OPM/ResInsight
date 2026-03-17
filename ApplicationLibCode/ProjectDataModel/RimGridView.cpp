@@ -475,8 +475,7 @@ void RimGridView::clearReservoirCellVisibilities()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering )
 {
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-    if ( wellPathCollection )
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
     {
         const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
         if ( !measurementCollection->measurements().empty() )

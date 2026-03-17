@@ -24,7 +24,6 @@
 
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
 
@@ -71,7 +70,7 @@ RimWellPath* RicDuplicateWellPathFeature::duplicateWellPath( RimWellPath* wellPa
     if ( wellPath == nullptr ) return nullptr;
 
     RimProject*            project            = RimProject::current();
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
     if ( project && wellPathCollection )
     {
         auto newModeledWellPath = wellPath->copyObject<RimModeledWellPath>();

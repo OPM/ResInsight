@@ -24,7 +24,6 @@
 #include "Well/RigWellPath.h"
 
 #include "RimModeledWellPath.h"
-#include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathTieIn.h"
 
@@ -61,7 +60,7 @@ void RicCreateMultipleWellPathLateralsUi::setTopLevelWellPath( RimWellPath* well
 {
     m_topLevelWellPath = wellPath;
 
-    auto laterals = RimTools::wellPathCollection()->connectedWellPathLaterals( m_topLevelWellPath );
+    auto laterals = RimWellPathCollection::instance()->connectedWellPathLaterals( m_topLevelWellPath );
 
     if ( !laterals.empty() ) m_sourceLateral = dynamic_cast<RimModeledWellPath*>( laterals.front() );
 }
@@ -115,7 +114,7 @@ QList<caf::PdmOptionItemInfo> RicCreateMultipleWellPathLateralsUi::calculateValu
     {
         if ( m_topLevelWellPath )
         {
-            auto laterals = RimTools::wellPathCollection()->connectedWellPathLaterals( m_topLevelWellPath );
+            auto laterals = RimWellPathCollection::instance()->connectedWellPathLaterals( m_topLevelWellPath );
 
             for ( auto lateral : laterals )
             {

@@ -30,7 +30,6 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -170,7 +169,7 @@ bool RicNewFishbonesSubsFeature::isCommandEnabled() const
 void RicNewFishbonesSubsFeature::adjustWellPathScaling( RimFishbonesCollection* fishboneCollection )
 {
     CVF_ASSERT( fishboneCollection );
-    RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathColl = RimWellPathCollection::instance();
 
     if ( wellPathColl->wellPathRadiusScaleFactor > 0.05 )
     {

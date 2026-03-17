@@ -29,7 +29,6 @@
 #include "Well/RigWellPath.h"
 
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
@@ -358,8 +357,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogLasFileCurve::calculateValueOptions( con
 
     if ( fieldNeedingOptions == &m_wellPath )
     {
-        auto wellPathColl = RimTools::wellPathCollection();
-        if ( wellPathColl )
+        if ( auto wellPathColl = RimWellPathCollection::instance() )
         {
             for ( auto wellPath : wellPathColl->allWellPaths() )
             {

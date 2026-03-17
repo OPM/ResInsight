@@ -260,7 +260,7 @@ RimStimPlanModel::RimStimPlanModel()
 RimStimPlanModel::~RimStimPlanModel()
 {
     RimWellPath*           wellPath           = m_thicknessDirectionWellPath.value();
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
 
     if ( wellPath && wellPathCollection )
     {

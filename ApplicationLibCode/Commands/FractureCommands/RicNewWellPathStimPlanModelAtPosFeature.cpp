@@ -23,7 +23,6 @@
 #include "RicNewStimPlanModelFeature.h"
 
 #include "RimEclipseView.h"
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -44,7 +43,7 @@ void RicNewWellPathStimPlanModelAtPosFeature::onActionTriggered( bool isChecked 
     RimWellPath* wellPath = wellPathItem->m_wellpath;
     if ( !wellPath ) return;
 
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
     if ( !wellPathCollection ) return;
 
     RimEclipseView* activeView  = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );

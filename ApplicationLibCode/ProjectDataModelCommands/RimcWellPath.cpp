@@ -38,7 +38,6 @@
 #include "RimStimPlanFractureTemplate.h"
 #include "RimStimPlanModel.h"
 #include "RimThermalFractureTemplate.h"
-#include "RimTools.h"
 #include "RimValveCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -205,7 +204,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendPerforationInte
 
     wellPath->perforationIntervalCollection()->appendPerforation( perforationInterval );
 
-    auto* wellPathCollection = RimTools::wellPathCollection();
+    auto* wellPathCollection = RimWellPathCollection::instance();
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleRedrawAffectedViews();
@@ -663,7 +662,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_appendLateralFromGeom
 
         lateral->connectWellPaths( mainWell, measuredDepth );
 
-        auto wellPathCollection = RimTools::wellPathCollection();
+        auto wellPathCollection = RimWellPathCollection::instance();
         wellPathCollection->rebuildWellPathNodes();
 
         mainWell->updateAllRequiredEditors();
@@ -847,7 +846,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addIcvValve::execute(
 
         if ( valve )
         {
-            if ( auto wellPathCollection = RimTools::wellPathCollection() )
+            if ( auto wellPathCollection = RimWellPathCollection::instance() )
             {
                 wellPathCollection->updateConnectedEditors();
                 wellPathCollection->scheduleRedrawAffectedViews();

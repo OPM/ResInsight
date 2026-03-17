@@ -24,7 +24,6 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -98,7 +97,7 @@ void RicFishbonesCreateHelper::finalizeFishbonesCreation( RimFishbones* fishbone
 {
     RicNewFishbonesSubsFeature::adjustWellPathScaling( fishbonesCollection );
 
-    if ( auto wellPathCollection = RimTools::wellPathCollection() )
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
     {
         wellPathCollection->uiCapability()->updateConnectedEditors();
     }

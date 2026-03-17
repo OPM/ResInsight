@@ -38,7 +38,6 @@
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimRegularLegendConfig.h"
-#include "RimTools.h"
 #include "RimValveCollection.h"
 #include "RimWellIASettings.h"
 #include "RimWellIASettingsCollection.h"
@@ -306,7 +305,7 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
     if ( !gridView ) return;
 
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
     if ( !wellPathCollection ) return;
 
     RimWellMeasurementCollection* wellMeasurementCollection = wellPathCollection->measurementCollection();

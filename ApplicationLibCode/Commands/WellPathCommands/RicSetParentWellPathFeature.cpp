@@ -91,7 +91,7 @@ void RicSetParentWellPathFeature::onActionTriggered( bool isChecked )
     auto selectedWellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
     if ( !selectedWellPath ) return;
 
-    auto wpc = RimTools::wellPathCollection();
+    auto wpc = RimWellPathCollection::instance();
     if ( !wpc ) return;
 
     std::vector<RimWellPath*> wellPathCandidates;

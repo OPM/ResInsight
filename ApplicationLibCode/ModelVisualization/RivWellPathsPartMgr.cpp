@@ -20,7 +20,6 @@
 
 #include "RimEclipseView.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPathCollection.h"
 
 #include "RivWellPathPartMgr.h"
@@ -132,7 +131,7 @@ void RivWellPathsPartMgr::createPartManagersIfRequired()
 //--------------------------------------------------------------------------------------------------
 bool RivWellPathsPartMgr::isWellPathVisible() const
 {
-    auto wellPathColl = RimTools::wellPathCollection();
+    auto wellPathColl = RimWellPathCollection::instance();
 
     if ( !wellPathColl->isActive() ) return false;
     if ( wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;

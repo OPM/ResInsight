@@ -22,8 +22,6 @@
 
 #include "RiaDefines.h"
 
-#include "Well/RigOsduWellLogData.h"
-
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"

@@ -26,7 +26,6 @@
 #include "RimGridView.h"
 #include "RimIntersectionCollection.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimTools.h"
 #include "WellPath/RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -83,7 +82,7 @@ void RicHideGridGeometryFeature::onActionTriggered( bool isChecked )
     gridView->scheduleCreateDisplayModelAndRedraw();
 
     // Force all well paths visible
-    if ( auto wellPathColl = RimTools::wellPathCollection() )
+    if ( auto wellPathColl = RimWellPathCollection::instance() )
     {
         wellPathColl->isActive           = true;
         wellPathColl->wellPathVisibility = RimWellPathCollection::FORCE_ALL_ON;

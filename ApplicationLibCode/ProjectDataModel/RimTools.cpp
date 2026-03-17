@@ -274,8 +274,7 @@ void RimTools::wellPathOptionItemsSubset( const std::vector<RimWellPath*>& wellP
 {
     if ( !options ) return;
 
-    auto wellPathColl = RimTools::wellPathCollection();
-    if ( wellPathColl )
+    if ( auto wellPathColl = RimWellPathCollection::instance() )
     {
         std::vector<RimWellPath*> wellPathsToInclude;
 
@@ -302,8 +301,7 @@ void RimTools::wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
     if ( !options ) return;
 
-    auto wellPathColl = RimTools::wellPathCollection();
-    if ( wellPathColl )
+    if ( auto wellPathColl = RimWellPathCollection::instance() )
     {
         optionItemsForSpecifiedWellPaths( wellPathColl->allWellPaths(), options );
     }
@@ -327,8 +325,7 @@ void RimTools::wellPathWithFormationsOptionItems( QList<caf::PdmOptionItemInfo>*
 //--------------------------------------------------------------------------------------------------
 void RimTools::wellPathWithFormations( std::vector<RimWellPath*>* wellPaths )
 {
-    auto wellPathColl = RimTools::wellPathCollection();
-    if ( wellPathColl )
+    if ( auto wellPathColl = RimWellPathCollection::instance() )
     {
         for ( RimWellPath* wellPath : wellPathColl->allWellPaths() )
         {
@@ -553,17 +550,9 @@ void RimTools::colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathCollection* RimTools::wellPathCollection()
-{
-    return RimWellPathCollection::instance();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimWellPath* RimTools::firstWellPath()
 {
-    auto wellpathcoll = wellPathCollection();
+    auto wellpathcoll = RimWellPathCollection::instance();
     auto wellpaths    = wellpathcoll->allWellPaths();
 
     if ( !wellpaths.empty() ) return wellpaths[0];

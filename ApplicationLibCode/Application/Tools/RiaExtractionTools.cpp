@@ -25,7 +25,6 @@
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimSimWellInView.h"
-#include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
 
@@ -49,7 +48,7 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( co
 {
     if ( !eclipseCase ) return nullptr;
 
-    if ( auto wellPathCollection = RimTools::wellPathCollection() )
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
     {
         auto wellPath = wellPathCollection->tryFindMatchingWellPath( wellName );
         return RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );

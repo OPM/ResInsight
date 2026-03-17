@@ -34,7 +34,6 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogExtractionCurve.h"
@@ -357,7 +356,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->updateCurveName();
     }
 
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
 
     const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
     for ( QString wbsMeasurementKind : RimWellMeasurement::measurementKindsForWellBoreStability() )

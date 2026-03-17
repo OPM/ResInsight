@@ -19,7 +19,6 @@
 #include "RimWellPathGeometryDefTools.h"
 
 #include "RimModeledWellPath.h"
-#include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
@@ -52,7 +51,7 @@ std::vector<RimWellPathGeometryDef*> RimWellPathGeometryDefTools::linkedDefiniti
 {
     std::vector<RimWellPathGeometryDef*> linkedWellPathGeoDefs;
 
-    for ( auto w : RimTools::wellPathCollection()->allWellPaths() )
+    for ( auto w : RimWellPathCollection::instance()->allWellPaths() )
     {
         auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( w );
         if ( !modeledWellPath ) continue;

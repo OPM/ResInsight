@@ -27,7 +27,6 @@
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
@@ -90,7 +89,7 @@ void RicCreateWellPathFromSimulationWellFeature::onActionTriggered( bool isCheck
     RimProject* project = RimProject::current();
     if ( !project ) return;
 
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
     if ( !wellPathCollection ) return;
 
     std::vector<RimWellPath*> newWellPaths;

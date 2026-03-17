@@ -38,7 +38,6 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSeismicView.h"
-#include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewManipulator.h"
@@ -811,7 +810,7 @@ caf::PdmObjectHandle* Rim3dView::implementingPdmObject()
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection* Rim3dView::wellPathCollection() const
 {
-    return RimTools::wellPathCollection();
+    return RimWellPathCollection::instance();
 }
 
 //--------------------------------------------------------------------------------------------------

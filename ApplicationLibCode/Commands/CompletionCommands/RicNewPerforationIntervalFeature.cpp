@@ -25,7 +25,6 @@
 
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -61,7 +60,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered( bool isChecked )
 
     perforationCollection->appendPerforation( perforationInterval );
 
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
     if ( !wellPathCollection ) return;
 
     wellPathCollection->uiCapability()->updateConnectedEditors();

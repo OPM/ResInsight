@@ -305,7 +305,7 @@ RimProject_wellPathCollection::RimProject_wellPathCollection( caf::PdmObjectHand
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::PdmObjectHandle*, QString> RimProject_wellPathCollection::execute()
 {
-    auto wellPathCollection = RimTools::wellPathCollection();
+    auto wellPathCollection = RimWellPathCollection::instance();
     if ( !wellPathCollection )
     {
         return std::unexpected( "No well path collection found." );

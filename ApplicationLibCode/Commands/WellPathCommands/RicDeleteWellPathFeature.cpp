@@ -18,7 +18,6 @@
 
 #include "RicDeleteWellPathFeature.h"
 
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -45,7 +44,7 @@ void RicDeleteWellPathFeature::onActionTriggered( bool isChecked )
     const auto wellPaths = caf::SelectionManager::instance()->objectsByType<RimWellPath>();
     if ( !wellPaths.empty() )
     {
-        auto wpc = RimTools::wellPathCollection();
+        auto wpc = RimWellPathCollection::instance();
 
         for ( auto w : wellPaths )
         {

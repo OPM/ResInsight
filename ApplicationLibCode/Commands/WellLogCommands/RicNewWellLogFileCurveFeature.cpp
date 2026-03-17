@@ -23,7 +23,6 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicWellLogTools.h"
 
-#include "RimTools.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
@@ -93,7 +92,7 @@ void RicNewWellLogFileCurveFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogFileCurveFeature::wellLogsAvailable()
 {
-    auto wellPathCollection = RimTools::wellPathCollection();
+    auto wellPathCollection = RimWellPathCollection::instance();
     if ( wellPathCollection )
     {
         for ( auto wellPath : wellPathCollection->allWellPaths() )

@@ -21,7 +21,6 @@
 #include "RimEclipseCase.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
-#include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathValve.h"
 
@@ -66,7 +65,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPerforationInterval_addValve::
     valve->setMeasuredDepthAndCount( m_startMd(), spacing, m_valveCount() );
     valve->applyValveLabelAndIcon();
 
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleRedrawAffectedViews();

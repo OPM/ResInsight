@@ -20,7 +20,6 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicWellLogTools.h"
 
-#include "RimTools.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
@@ -54,8 +53,7 @@ void RicNewWellMeasurementCurveFeature::onActionTriggered( bool isChecked )
     {
         RimWellPath* wellPath = nullptr;
 
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
+        if ( auto wellPathCollection = RimWellPathCollection::instance() )
         {
             const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
 

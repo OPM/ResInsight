@@ -24,7 +24,6 @@
 
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 #include "RimWellPathGeometryDef.h"
@@ -140,8 +139,7 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
     auto sourceLocationOfFirstWellTarget = sourceLateral->geometryDefinition()->firstActiveTarget()->targetPointXYZ();
     auto sourceTieInMeasuredDepth        = sourceLateral->wellPathTieIn()->tieInMeasuredDepth();
 
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-    if ( wellPathCollection )
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
     {
         for ( auto measuredDepth : m_ui->locationConfig()->locations() )
         {

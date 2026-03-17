@@ -22,7 +22,6 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
-#include "RimTools.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
@@ -88,7 +87,7 @@ std::vector<RimWellMeasurementInView*> RimWellMeasurementInViewCollection::visib
 
     if ( m_linkWellVisibility )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+        RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
 
         auto wellPath = wellPathCollection->tryFindMatchingWellPath( wellName );
         if ( wellPath && !wellPath->showWellPath() ) return {};
@@ -130,8 +129,7 @@ void RimWellMeasurementInViewCollection::fieldChangedByUi( const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementInViewCollection::syncWithChangesInWellMeasurementCollection()
 {
-    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-    if ( wellPathCollection )
+    if ( auto wellPathCollection = RimWellPathCollection::instance() )
     {
         const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
 

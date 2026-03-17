@@ -268,14 +268,14 @@ void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     {
         updateFirstTargetFromParentWell();
 
-        RimTools::wellPathCollection()->rebuildWellPathNodes();
+        RimWellPathCollection::instance()->rebuildWellPathNodes();
     }
 
     updateChildWellGeometry();
 
     // Update all well paths to make sure the visibility of completion settings is updated
     // Completions settings is only visible for top-level wells, not for tie-in wells
-    RimTools::wellPathCollection()->updateAllRequiredEditors();
+    RimWellPathCollection::instance()->updateAllRequiredEditors();
 
     if ( changedField == &m_parentWell && m_childWell )
     {

@@ -37,7 +37,6 @@ class PdmObjectHandle;
 
 class RimGeoMechCase;
 class RimEclipseCase;
-class RimWellPathCollection;
 class RimValveTemplateCollection;
 class RimCase;
 class RimWellPath;
@@ -75,8 +74,7 @@ public:
 
     static void faultOptionItems( QList<caf::PdmOptionItemInfo>* options, RimFaultInViewCollection* coll );
 
-    static RimWellPathCollection* wellPathCollection();
-    static RimWellPath*           firstWellPath();
+    static RimWellPath* firstWellPath();
 
     static RimValveTemplateCollection* valveTemplateCollection();
 

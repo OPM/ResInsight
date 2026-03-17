@@ -26,7 +26,6 @@
 #include "RimFishbonesCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
@@ -83,7 +82,7 @@ void RicNewWellPathLateralAtDepthFeature::setupActionLook( QAction* actionToSetu
 RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( RimWellPath* parentWellPath, double parentWellMD )
 {
     RimProject*            project      = RimProject::current();
-    RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
+    RimWellPathCollection* wellPathColl = RimWellPathCollection::instance();
     if ( project && wellPathColl )
     {
         auto newModeledWellPath = new RimModeledWellPath();

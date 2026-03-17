@@ -23,7 +23,6 @@
 #include "Rim3dView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementFilePath.h"
@@ -168,5 +167,5 @@ RimWellPathCollection* RicWellMeasurementImportTools::selectedWellPathCollection
         return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathCollection>();
     }
 
-    return RimTools::wellPathCollection();
+    return RimWellPathCollection::instance();
 }

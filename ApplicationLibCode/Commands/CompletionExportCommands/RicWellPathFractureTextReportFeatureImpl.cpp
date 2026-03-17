@@ -37,7 +37,6 @@
 #include "RimMeshFractureTemplate.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -207,8 +206,7 @@ std::vector<RimWellPath*> RicWellPathFractureTextReportFeatureImpl::wellPathsWit
 {
     std::vector<RimWellPath*> wellPaths;
 
-    auto* wellPathColl = RimTools::wellPathCollection();
-    if ( wellPathColl )
+    if ( auto* wellPathColl = RimWellPathCollection::instance() )
     {
         for ( const auto& wellPath : wellPathColl->allWellPaths() )
         {

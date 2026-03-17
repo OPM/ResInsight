@@ -5,7 +5,6 @@
 
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimValveCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -101,7 +100,7 @@ void RicNewValveFeature::onActionTriggered( bool isChecked )
 
     if ( valve )
     {
-        if ( auto wellPathCollection = RimTools::wellPathCollection() )
+        if ( auto wellPathCollection = RimWellPathCollection::instance() )
         {
             wellPathCollection->updateConnectedEditors();
             wellPathCollection->scheduleRedrawAffectedViews();
