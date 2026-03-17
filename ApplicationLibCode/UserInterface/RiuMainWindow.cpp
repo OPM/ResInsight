@@ -153,6 +153,9 @@ RiuMainWindow::RiuMainWindow()
     createMenus();
     createToolBars();
     createDockPanels();
+    // Pre-populate the Windows menu so it is not empty on creation. On macOS, the native menu bar
+    // hides empty menus, preventing the aboutToShow signal from ever firing.
+    slotBuildWindowActions();
 
     setAcceptDrops( true );
 
