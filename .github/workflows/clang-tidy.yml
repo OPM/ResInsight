@@ -24,10 +24,6 @@ jobs:
         with:
           submodules: true
 
-      - uses: TAServers/vcpkg-cache@f645f5b5c4a8a6546911a64b3b02ac86b76f584c
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Install Linux dependencies
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"

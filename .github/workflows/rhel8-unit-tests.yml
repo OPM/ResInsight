@@ -134,7 +134,7 @@ jobs:
 
       - name: Restore vcpkg cache
         id: vcpkg-cache
-        uses: TAServers/vcpkg-cache@f645f5b5c4a8a6546911a64b3b02ac86b76f584c
+        uses: TAServers/vcpkg-cache@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           prefix: vcpkg-g++/
