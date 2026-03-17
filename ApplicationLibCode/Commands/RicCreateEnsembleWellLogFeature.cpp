@@ -23,8 +23,8 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaResultNames.h"
 
-#include "ExportCommands/RicExportToLasFileFeature.h"
 #include "RicCloseCaseFeature.h"
 #include "RicCreateEnsembleWellLogUi.h"
 #include "RicImportEnsembleWellLogsFeature.h"
@@ -33,16 +33,18 @@
 #include "RifReaderSettings.h"
 #include "WellPathCommands/RicImportWellPaths.h"
 
+#include "RigLasFileExporter.h"
+
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEnsembleWellLogCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimcWellLogPlot.h"
 #include "RimcWellLogPlotCollection.h"
-#include "RimcWellLogTrack.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuPlotMainWindowTools.h"
@@ -57,6 +59,8 @@
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
+
+#include <memory>
 
 CAF_CMD_SOURCE_INIT( RicCreateEnsembleWellLogFeature, "RicCreateEnsembleWellLogFeature" );
 
@@ -143,8 +147,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
 
     if ( !wellPath ) return;
 
-    std::vector<RimWellLogPlot*> tmpPlotsToDelete;
-    QStringList                  allLasFileNames;
+    QStringList allLasFileNames;
     for ( const auto& fileName : fileNames )
     {
         auto task = progress.task( QString( "Extracting well log for %1" ).arg( fileName ) );
@@ -157,70 +160,60 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
             return;
         }
 
-        // Create the well log plot
-        RimWellLogPlot* wellLogPlot = RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( plotCollection, wellPath, eclipseCase );
+        // Create missing directories before extraction
+        QString   wellLogExportDirName = "lasexport";
+        QFileInfo fi( fileName );
+        QString   exportFolder = fi.absoluteDir().absolutePath() + QString( "/%1/" ).arg( wellLogExportDirName );
 
-        // Create well log track
-        QString          title        = "Track";
-        RimWellLogTrack* wellLogTrack = RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
+        if ( !fi.absoluteDir().exists( wellLogExportDirName ) )
+        {
+            if ( !fi.absoluteDir().mkpath( wellLogExportDirName ) )
+            {
+                RiaLogging::error( QString( "Unable to create directory for well log export: " ).arg( exportFolder ) );
+                RicCloseCaseFeature::deleteEclipseCase( eclipseCase );
+                return;
+            }
+        }
 
-        // Create a well log curve for each property
+        // Create standalone extraction curves for each property and load data
+        std::vector<std::unique_ptr<RimWellLogExtractionCurve>> curves;
         for ( const auto& property : properties )
         {
-            QString                   propertyName       = property.first;
+            const QString&            propertyName       = property.first;
             RiaDefines::ResultCatType resultCategoryType = property.second;
-            int                       timeStep           = ui.timeStep();
-            RimcWellLogTrack_addExtractionCurve::addExtractionCurve( wellLogTrack, eclipseCase, wellPath, propertyName, resultCategoryType, timeStep );
+
+            auto curve = std::make_unique<RimWellLogExtractionCurve>();
+            curve->setWellPath( wellPath );
+            curve->setCase( eclipseCase );
+            curve->setCurrentTimeStep( ui.timeStep() );
+
+            if ( resultCategoryType == RiaDefines::ResultCatType::FORMATION_NAMES )
+                curve->setEclipseResultVariable( RiaResultNames::activeFormationNamesResultName() );
+            else
+                curve->setEclipseResultVariable( propertyName );
+
+            curve->setEclipseResultCategory( resultCategoryType );
+            curve->loadDataAndUpdate( false );
+            curves.push_back( std::move( curve ) );
         }
 
-        {
-            // Create missing directories
-            QString   wellLogExportDirName = "lasexport";
-            QFileInfo fi( fileName );
-            QString   exportFolder = fi.absoluteDir().absolutePath() + QString( "/%1/" ).arg( wellLogExportDirName );
+        // Export to LAS file
+        std::vector<RimWellLogCurve*> wellLogCurves;
+        for ( const auto& curve : curves )
+            wellLogCurves.push_back( curve.get() );
 
-            if ( !fi.absoluteDir().exists( wellLogExportDirName ) )
-            {
-                if ( !fi.absoluteDir().mkpath( wellLogExportDirName ) )
-                {
-                    RiaLogging::error( QString( "Unable to create directory for well log export: " ).arg( exportFolder ) );
-                    return;
-                }
-            }
+        const QString filePrefix         = "";
+        const bool    capitalizeFileName = false;
+        const bool    alwaysOverwrite    = true;
+        const bool    convertCurveUnits  = false;
 
-            // Export to las file
-            QString filePrefix          = "";
-            bool    exportTvdRkb        = false;
-            bool    capitalizeFileNames = false;
-            bool    alwaysOverwrite     = true;
-            double  resampleInterval    = 0.0;
-            bool    convertCurveUnits   = false;
-
-            std::vector<QString> lasFiles = RicExportToLasFileFeature::exportToLasFiles( exportFolder,
-                                                                                         filePrefix,
-                                                                                         wellLogPlot,
-                                                                                         exportTvdRkb,
-                                                                                         capitalizeFileNames,
-                                                                                         alwaysOverwrite,
-                                                                                         resampleInterval,
-                                                                                         convertCurveUnits );
-            for ( const auto& lasFile : lasFiles )
-                allLasFileNames << lasFile;
-        }
-
-        tmpPlotsToDelete.push_back( wellLogPlot );
+        RigLasFileExporter   lasExporter( wellLogCurves );
+        std::vector<QString> lasFiles =
+            lasExporter.writeToFolder( exportFolder, filePrefix, capitalizeFileName, alwaysOverwrite, convertCurveUnits );
+        for ( const auto& lasFile : lasFiles )
+            allLasFileNames << lasFile;
 
         RicCloseCaseFeature::deleteEclipseCase( eclipseCase );
-    }
-
-    for ( auto wlp : tmpPlotsToDelete )
-    {
-        // Hide window to avoid flickering
-        wlp->setShowWindow( false );
-        wlp->updateMdiWindowVisibility();
-
-        plotCollection->removePlot( wlp );
-        delete wlp;
     }
 
     if ( ui.autoCreateEnsembleWellLogs() )
@@ -258,6 +251,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                 }
 
                 wellLogPlot->updateConnectedEditors();
+                plotCollection->updateConnectedEditors();
 
                 RiuPlotMainWindowTools::showPlotMainWindow();
                 RiuPlotMainWindowTools::onObjectAppended( wellLogPlot );

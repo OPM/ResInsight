@@ -114,6 +114,6 @@ protected:
     RiuPlotAxis valueAxis() const;
 
 private:
-    RigWellLogCurveData           m_curveData;
-    std::pair<double, double>     m_curveDataPropertyValueRange;
+    RigWellLogCurveData       m_curveData;
+    std::pair<double, double> m_curveDataPropertyValueRange;
 };
