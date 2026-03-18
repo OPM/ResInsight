@@ -28,13 +28,13 @@ class RimProcessMonitor : public QObject
     Q_OBJECT
 
 public:
-    explicit RimProcessMonitor( int processId, bool logStdOutErr = true );
+    explicit RimProcessMonitor( size_t processId, bool logStdOutErr = true );
 
     void        clearStdOutErr();
     QStringList stdOut() const;
     QStringList stdErr() const;
 
-    void setProcessId( int processId );
+    void setProcessId( size_t processId );
 
 signals:
 
@@ -47,7 +47,7 @@ public slots:
 
 protected:
     QString     addPrefix( QString message );
-    int         m_processId;
+    size_t      m_processId;
     bool        m_logStdOutErr;
     QStringList m_stdOut;
     QStringList m_stdErr;
