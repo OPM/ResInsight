@@ -44,10 +44,10 @@ public:
 
     std::vector<RimSummaryMultiPlot*> multiPlots() const;
 
-    void addSummaryMultiPlot( RimSummaryMultiPlot* plot );
-    void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
-    void duplicatePlot( RimSummaryMultiPlot* plotToDuplicate );
-    void removePlotNoUpdate( RimSummaryMultiPlot* plotToRemove );
+    void                 addSummaryMultiPlot( RimSummaryMultiPlot* plot );
+    void                 summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
+    RimSummaryMultiPlot* duplicatePlot( RimSummaryMultiPlot* plotToDuplicate );
+    void                 removePlotNoUpdate( RimSummaryMultiPlot* plotToRemove );
 
     void updateSummaryNameHasChanged();
 
@@ -58,9 +58,6 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
-    void onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate );
-    void onRefreshTree( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotRequesting );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;

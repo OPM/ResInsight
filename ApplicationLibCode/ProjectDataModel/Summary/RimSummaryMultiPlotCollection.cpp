@@ -61,10 +61,6 @@ RimSummaryMultiPlotCollection::~RimSummaryMultiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlotCollection::initAfterRead()
 {
-    for ( auto& plot : m_summaryMultiPlots )
-    {
-        plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +85,6 @@ std::vector<RimSummaryMultiPlot*> RimSummaryMultiPlotCollection::multiPlots() co
 void RimSummaryMultiPlotCollection::addSummaryMultiPlot( RimSummaryMultiPlot* plot )
 {
     m_summaryMultiPlots().push_back( plot );
-    plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,23 +111,6 @@ void RimSummaryMultiPlotCollection::loadDataAndUpdateAllPlots()
 size_t RimSummaryMultiPlotCollection::plotCount() const
 {
     return m_summaryMultiPlots.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlotCollection::onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate )
-{
-    duplicatePlot( plotToDuplicate );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlotCollection::onRefreshTree( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotRequesting )
-{
-    if ( !plotRequesting ) return;
-    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,9 +202,9 @@ void RimSummaryMultiPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionIt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMultiPlot* plotToDuplicate )
+RimSummaryMultiPlot* RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMultiPlot* plotToDuplicate )
 {
-    if ( !plotToDuplicate ) return;
+    if ( !plotToDuplicate ) return nullptr;
 
     auto plotCopy = plotToDuplicate->copyObject<RimSummaryMultiPlot>();
     addSummaryMultiPlot( plotCopy );
@@ -239,6 +217,8 @@ void RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMultiPlot* plotToDu
     updateConnectedEditors();
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plotCopy );
+
+    return plotCopy;
 }
 
 //--------------------------------------------------------------------------------------------------
