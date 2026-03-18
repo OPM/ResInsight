@@ -29,7 +29,7 @@
 
 CAF_PDM_SOURCE_INIT( RimProcess, "RimProcess" );
 
-int RimProcess::m_nextProcessId = 1;
+size_t RimProcess::m_nextProcessId = 1;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,7 +38,7 @@ RimProcess::RimProcess( bool logStdOutErr /*true*/, RimProcessMonitor* monitor )
     : m_enableLogging( logStdOutErr )
     , m_qProcess( nullptr )
 {
-    int defId = m_nextProcessId++;
+    size_t defId = m_nextProcessId++;
     if ( monitor == nullptr )
         m_monitor = new RimProcessMonitor( defId, logStdOutErr );
     else
@@ -160,9 +160,9 @@ QStringList RimProcess::stdErr() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimProcess::ID() const
+size_t RimProcess::ID() const
 {
-    return m_id;
+    return m_id();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcessMonitor::RimProcessMonitor( int processId, bool logStdOutErr /*true*/ )
+RimProcessMonitor::RimProcessMonitor( size_t processId, bool logStdOutErr /*true*/ )
     : QObject( nullptr )
     , m_processId( processId )
     , m_logStdOutErr( logStdOutErr )
@@ -175,7 +175,7 @@ QStringList RimProcessMonitor::stdErr() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessMonitor::setProcessId( int processId )
+void RimProcessMonitor::setProcessId( size_t processId )
 {
     m_processId = processId;
 }
