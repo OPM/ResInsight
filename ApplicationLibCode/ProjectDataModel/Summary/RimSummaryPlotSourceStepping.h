@@ -60,6 +60,8 @@ public:
     RimSummaryCase*          stepCase( int direction );
     RimSummaryEnsemble*      stepEnsemble( int direction );
 
+    bool isAtEnd( int direction );
+
     void syncWithStepper( RimSummaryPlotSourceStepping* other );
     void setStep( QString stepIdentifier );
 
