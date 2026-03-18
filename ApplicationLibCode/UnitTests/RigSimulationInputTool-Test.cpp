@@ -1662,3 +1662,503 @@ TEST( RigSimulationInputTool, ExportModel5WithPadding )
     ASSERT_TRUE( actnumKw.has_value() );
     EXPECT_EQ( 4500u, actnumKw->getRecord( 0 ).getItem( 0 ).data_size() );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Helper to create an ADD DeckRecord with box indices
+//--------------------------------------------------------------------------------------------------
+static Opm::DeckRecord createAddRecord( const std::string& fieldName, double shift, int i1, int i2, int j1, int j2, int k1, int k2 )
+{
+    std::vector<Opm::DeckItem> items;
+    items.push_back( RifOpmDeckTools::item( "FIELD", fieldName ) );
+    items.push_back( RifOpmDeckTools::item( "SHIFT", shift ) );
+    items.push_back( RifOpmDeckTools::item( "I1", i1 ) );
+    items.push_back( RifOpmDeckTools::item( "I2", i2 ) );
+    items.push_back( RifOpmDeckTools::item( "J1", j1 ) );
+    items.push_back( RifOpmDeckTools::item( "J2", j2 ) );
+    items.push_back( RifOpmDeckTools::item( "K1", k1 ) );
+    items.push_back( RifOpmDeckTools::item( "K2", k2 ) );
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Helper to create an ADD DeckRecord without box indices
+//--------------------------------------------------------------------------------------------------
+static Opm::DeckRecord createAddRecordNoBox( const std::string& fieldName, double shift )
+{
+    std::vector<Opm::DeckItem> items;
+    items.push_back( RifOpmDeckTools::item( "FIELD", fieldName ) );
+    items.push_back( RifOpmDeckTools::item( "SHIFT", shift ) );
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Helper to create a MULTIPLY DeckRecord with box indices
+//--------------------------------------------------------------------------------------------------
+static Opm::DeckRecord createMultiplyRecord( const std::string& fieldName, double factor, int i1, int i2, int j1, int j2, int k1, int k2 )
+{
+    std::vector<Opm::DeckItem> items;
+    items.push_back( RifOpmDeckTools::item( "FIELD", fieldName ) );
+    items.push_back( RifOpmDeckTools::item( "FACTOR", factor ) );
+    items.push_back( RifOpmDeckTools::item( "I1", i1 ) );
+    items.push_back( RifOpmDeckTools::item( "I2", i2 ) );
+    items.push_back( RifOpmDeckTools::item( "J1", j1 ) );
+    items.push_back( RifOpmDeckTools::item( "J2", j2 ) );
+    items.push_back( RifOpmDeckTools::item( "K1", k1 ) );
+    items.push_back( RifOpmDeckTools::item( "K2", k2 ) );
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Helper to create a MULTIPLY DeckRecord without box indices
+//--------------------------------------------------------------------------------------------------
+static Opm::DeckRecord createMultiplyRecordNoBox( const std::string& fieldName, double factor )
+{
+    std::vector<Opm::DeckItem> items;
+    items.push_back( RifOpmDeckTools::item( "FIELD", fieldName ) );
+    items.push_back( RifOpmDeckTools::item( "FACTOR", factor ) );
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test ADD record without explicit box indices - should pass through with just field+shift
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessAddRecord_NoBoxIndices )
+{
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    auto record = createAddRecordNoBox( "PORO", 0.1 );
+
+    auto result = RigSimulationInputTool::processAddRecord( record, sectorMin, sectorMax, refinement );
+    ASSERT_TRUE( result.has_value() );
+
+    // Should have only 2 items (field name and shift value, no box indices)
+    EXPECT_EQ( 2u, result->size() );
+    EXPECT_EQ( "PORO", result->getItem( 0 ).get<std::string>( 0 ) );
+    EXPECT_DOUBLE_EQ( 0.1, result->getItem( 1 ).get<double>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test ADD record with explicit box indices - should transform coordinates
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessAddRecord_WithBoxIndices )
+{
+    // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9)
+    caf::VecIjk0 sectorMin( 0, 15, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // ADD record with box fully inside sector (1-based Eclipse coords)
+    auto record = createAddRecord( "PORO", 0.05, 1, 20, 16, 30, 1, 10 );
+
+    auto result = RigSimulationInputTool::processAddRecord( record, sectorMin, sectorMax, refinement );
+    ASSERT_TRUE( result.has_value() );
+
+    // Should have 8 items with transformed coordinates
+    EXPECT_EQ( 8u, result->size() );
+    EXPECT_EQ( "PORO", result->getItem( 0 ).get<std::string>( 0 ) );
+
+    // Transformed: I stays same (1-20), J transforms from [16-30] to [1-15], K stays (1-10)
+    EXPECT_EQ( 1, result->getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 20, result->getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 1, result->getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 15, result->getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 10, result->getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test MULTIPLY record without explicit box indices - should pass through with just field+factor
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessMultiplyRecord_NoBoxIndices )
+{
+    caf::VecIjk0 sectorMin( 0, 0, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    auto record = createMultiplyRecordNoBox( "PERMX", 2.0 );
+
+    auto result = RigSimulationInputTool::processMultiplyRecord( record, sectorMin, sectorMax, refinement );
+    ASSERT_TRUE( result.has_value() );
+
+    // Should have only 2 items (field name and factor, no box indices)
+    EXPECT_EQ( 2u, result->size() );
+    EXPECT_EQ( "PERMX", result->getItem( 0 ).get<std::string>( 0 ) );
+    EXPECT_DOUBLE_EQ( 2.0, result->getItem( 1 ).get<double>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test MULTIPLY record with explicit box indices - should transform coordinates
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessMultiplyRecord_WithBoxIndices )
+{
+    // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9)
+    caf::VecIjk0 sectorMin( 0, 15, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // MULTIPLY record with box fully inside sector
+    auto record = createMultiplyRecord( "PERMX", 3.0, 1, 20, 16, 30, 1, 10 );
+
+    auto result = RigSimulationInputTool::processMultiplyRecord( record, sectorMin, sectorMax, refinement );
+    ASSERT_TRUE( result.has_value() );
+
+    // Should have 8 items with transformed coordinates
+    EXPECT_EQ( 8u, result->size() );
+    EXPECT_EQ( "PERMX", result->getItem( 0 ).get<std::string>( 0 ) );
+
+    // Transformed coordinates
+    EXPECT_EQ( 1, result->getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 20, result->getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 1, result->getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 15, result->getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 10, result->getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test expandBoxContextInDeckFile: EQUALS inside BOX/ENDBOX with no explicit indices
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExpandBoxContext_EqualsInheritsBoxIndices )
+{
+    // Create a minimal DATA file with BOX/ENDBOX containing EQUALS without indices
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_box.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "BOX\n 2 8 3 7 1 5 /\n\n" );
+        file.write( "EQUALS\n 'PORO' 0.25 /\n/\n\n" );
+        file.write( "ENDBOX\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    // Verify EQUALS has no explicit box indices before expansion
+    auto equalsBeforeVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
+    ASSERT_EQ( 1u, equalsBeforeVec.size() );
+    ASSERT_EQ( 1u, equalsBeforeVec[0].second.size() );
+    // The record should have fewer than 8 items or items without values
+    const auto& recBefore = equalsBeforeVec[0].second.getRecord( 0 );
+    bool        hadExplicitBefore =
+        recBefore.size() >= 8 && recBefore.getItem( 2 ).hasValue( 0 ) && recBefore.getItem( 3 ).hasValue( 0 ) &&
+        recBefore.getItem( 4 ).hasValue( 0 ) && recBefore.getItem( 5 ).hasValue( 0 ) && recBefore.getItem( 6 ).hasValue( 0 ) &&
+        recBefore.getItem( 7 ).hasValue( 0 );
+    EXPECT_FALSE( hadExplicitBefore ) << "Record should not have explicit box indices before expansion";
+
+    // Run expansion
+    RigSimulationInputTool::expandBoxContextInDeckFile( deckFile );
+
+    // Verify EQUALS now has explicit box indices matching the BOX keyword
+    auto equalsAfterVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
+    ASSERT_EQ( 1u, equalsAfterVec.size() );
+    ASSERT_EQ( 1u, equalsAfterVec[0].second.size() );
+
+    const auto& recAfter = equalsAfterVec[0].second.getRecord( 0 );
+    ASSERT_GE( recAfter.size(), 8u );
+    EXPECT_TRUE( recAfter.getItem( 2 ).hasValue( 0 ) );
+    EXPECT_EQ( 2, recAfter.getItem( 2 ).get<int>( 0 ) ); // I1 from BOX
+    EXPECT_EQ( 8, recAfter.getItem( 3 ).get<int>( 0 ) ); // I2 from BOX
+    EXPECT_EQ( 3, recAfter.getItem( 4 ).get<int>( 0 ) ); // J1 from BOX
+    EXPECT_EQ( 7, recAfter.getItem( 5 ).get<int>( 0 ) ); // J2 from BOX
+    EXPECT_EQ( 1, recAfter.getItem( 6 ).get<int>( 0 ) ); // K1 from BOX
+    EXPECT_EQ( 5, recAfter.getItem( 7 ).get<int>( 0 ) ); // K2 from BOX
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test expandBoxContextInDeckFile: records with explicit indices keep their own indices
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExpandBoxContext_ExplicitIndicesPreserved )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_box_explicit.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "BOX\n 2 8 3 7 1 5 /\n\n" );
+        file.write( "EQUALS\n 'PORO' 0.25 1 5 1 5 1 3 /\n/\n\n" );
+        file.write( "ENDBOX\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    RigSimulationInputTool::expandBoxContextInDeckFile( deckFile );
+
+    auto equalsVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
+    ASSERT_EQ( 1u, equalsVec.size() );
+    ASSERT_EQ( 1u, equalsVec[0].second.size() );
+
+    const auto& rec = equalsVec[0].second.getRecord( 0 );
+    ASSERT_GE( rec.size(), 8u );
+    // Should keep original explicit indices, not BOX indices
+    EXPECT_EQ( 1, rec.getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 5, rec.getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 1, rec.getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 5, rec.getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, rec.getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 3, rec.getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test expandBoxContextInDeckFile: keywords outside BOX context are not modified
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExpandBoxContext_OutsideBoxNotModified )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_no_box.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "EQUALS\n 'PORO' 0.25 /\n/\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    RigSimulationInputTool::expandBoxContextInDeckFile( deckFile );
+
+    auto equalsVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
+    ASSERT_EQ( 1u, equalsVec.size() );
+    ASSERT_EQ( 1u, equalsVec[0].second.size() );
+
+    const auto& rec = equalsVec[0].second.getRecord( 0 );
+    // Should still not have explicit box indices
+    bool hasExplicit = rec.size() >= 8 && rec.getItem( 2 ).hasValue( 0 ) && rec.getItem( 3 ).hasValue( 0 ) && rec.getItem( 4 ).hasValue( 0 ) &&
+                       rec.getItem( 5 ).hasValue( 0 ) && rec.getItem( 6 ).hasValue( 0 ) && rec.getItem( 7 ).hasValue( 0 );
+    EXPECT_FALSE( hasExplicit );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test cropDataKeywordsInsideBoxContext: data keywords inside BOX/ENDBOX are cropped
+/// to the intersection of the box with the sector
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext )
+{
+    // Grid: 10x10x5. BOX covers K=5 (1-based), i.e. K-index 4 (0-based).
+    // Sector: (2,2,1)-(7,7,4) => covers part of the box region.
+    // BOX: I[0-9], J[0-9], K[4-4] => 100 values
+    // Intersection: I[2-7], J[2-7], K[4-4] => 6x6x1 = 36 values
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_box_crop.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "REGIONS\n\n" );
+        file.write( "EQLNUM\n 500*1 /\n\n" );
+        file.write( "BOX\n 1 10 1 10 5 5 /\n\n" );
+        file.write( "EQLNUM\n 100*2 /\n\n" );
+        file.write( "ENDBOX\n\n" );
+        file.write( "SATNUM\n 500*1 /\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    // Before cropping: should find two EQLNUM keywords
+    auto eqlnumBefore = deckFile.findAllKeywordsWithIndices( "EQLNUM" );
+    EXPECT_EQ( 2u, eqlnumBefore.size() );
+
+    // Run cropping with sector (2,2,1)-(7,7,4), no refinement
+    caf::VecIjk0 sectorMin( 2, 2, 1 );
+    caf::VecIjk0 sectorMax( 7, 7, 4 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+    RigSimulationInputTool::cropDataKeywordsInsideBoxContext( deckFile, sectorMin, sectorMax, refinement );
+
+    // After cropping: should still find two EQLNUM keywords
+    auto eqlnumAfter = deckFile.findAllKeywordsWithIndices( "EQLNUM" );
+    ASSERT_EQ( 2u, eqlnumAfter.size() );
+
+    // First EQLNUM (full grid) should be unchanged (500 values)
+    EXPECT_EQ( 500u, eqlnumAfter[0].second.getRecord( 0 ).getItem( 0 ).data_size() );
+
+    // Second EQLNUM (inside BOX) should be cropped to 6x6x1 = 36 values
+    const auto& croppedKw = eqlnumAfter[1].second;
+    EXPECT_EQ( 36u, croppedKw.getRecord( 0 ).getItem( 0 ).data_size() );
+
+    // All cropped values should still be 2
+    const auto& croppedData = croppedKw.getIntData();
+    for ( size_t i = 0; i < croppedData.size(); ++i )
+    {
+        EXPECT_EQ( 2, croppedData[i] ) << "Cropped EQLNUM value at index " << i << " should be 2";
+    }
+
+    // SATNUM outside BOX should still be present and unchanged
+    auto satnumAfter = deckFile.findAllKeywordsWithIndices( "SATNUM" );
+    EXPECT_EQ( 1u, satnumAfter.size() );
+    EXPECT_EQ( 500u, satnumAfter[0].second.getRecord( 0 ).getItem( 0 ).data_size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test cropDataKeywordsInsideBoxContext: box that doesn't intersect sector removes keyword
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext_NoIntersection )
+{
+    // Grid: 10x10x5. BOX covers K=5 (1-based), i.e. K-index 4 (0-based).
+    // Sector: (2,2,0)-(7,7,2) => does NOT include K=4, so no intersection.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_box_nointersect.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "REGIONS\n\n" );
+        file.write( "EQLNUM\n 500*1 /\n\n" );
+        file.write( "BOX\n 1 10 1 10 5 5 /\n\n" );
+        file.write( "EQLNUM\n 100*2 /\n\n" );
+        file.write( "ENDBOX\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    // Sector does not include K=4
+    caf::VecIjk0 sectorMin( 2, 2, 0 );
+    caf::VecIjk0 sectorMax( 7, 7, 2 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+    RigSimulationInputTool::cropDataKeywordsInsideBoxContext( deckFile, sectorMin, sectorMax, refinement );
+
+    // Boxed EQLNUM should be removed since box doesn't intersect sector
+    auto eqlnumAfter = deckFile.findAllKeywordsWithIndices( "EQLNUM" );
+    ASSERT_EQ( 1u, eqlnumAfter.size() );
+    EXPECT_EQ( 500u, eqlnumAfter[0].second.getRecord( 0 ).getItem( 0 ).data_size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test exportSimulationInput with model5 BOX data: EQLNUM inside BOX/ENDBOX
+/// Verifies that the boxed EQLNUM is cropped to the sector/box intersection and the
+/// BOX/ENDBOX structure is preserved in the exported deck.
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5_DataKeywordInsideBox )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "2_BOX_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_box_model.DATA";
+
+    // Set up export settings: sector includes K=10 to verify BOX override
+    // Sector: min=(5,5,2), max=(14,14,9) => 10x10x8 = 800 cells (includes K=10 which is K-index 9)
+    // BOX in input is: I[1-20], J[1-30], K[10-10] (1-based) = I[0-19], J[0-29], K[9-9] (0-based)
+    // Intersection with sector: I[5-14], J[5-14], K[9-9] => 10x10x1 = 100 cells
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
+    settings.setMax( caf::VecIjk0( 14, 14, 9 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Load the exported deck file
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    const size_t sectorNx          = 10;
+    const size_t sectorNy          = 10;
+    const size_t sectorNz          = 8;
+    const size_t expectedCellCount = sectorNx * sectorNy * sectorNz; // 800 cells
+
+    // Both EQLNUM keywords should exist: the full-grid one (cropped to sector) and the boxed one (cropped to intersection)
+    auto eqlnumAll = deckFile.findAllKeywordsWithIndices( "EQLNUM" );
+    EXPECT_EQ( 2u, eqlnumAll.size() ) << "Should have two EQLNUM keywords (full-grid + cropped boxed)";
+
+    // First EQLNUM (full grid, cropped to sector): 10x10x8 = 800 values
+    {
+        const auto& firstKw   = eqlnumAll[0].second;
+        const auto& firstData = firstKw.getIntData();
+        EXPECT_EQ( expectedCellCount, firstData.size() ) << "First EQLNUM should have " << expectedCellCount << " values";
+    }
+
+    // Second EQLNUM (boxed, cropped to sector/box intersection): 10x10x1 = 100 values
+    {
+        const size_t expectedBoxedCount = sectorNx * sectorNy * 1; // 100 cells
+        const auto&  secondKw           = eqlnumAll[1].second;
+        const auto&  secondData         = secondKw.getIntData();
+        EXPECT_EQ( expectedBoxedCount, secondData.size() ) << "Boxed EQLNUM should have " << expectedBoxedCount << " values";
+
+        // All boxed values should be 2 (the BOX override value)
+        for ( size_t i = 0; i < secondData.size(); ++i )
+        {
+            EXPECT_EQ( 2, secondData[i] ) << "Boxed EQLNUM value at index " << i << " should be 2";
+        }
+    }
+}

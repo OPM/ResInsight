@@ -102,6 +102,12 @@ public:
 
     static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
 
+    static void expandBoxContextInDeckFile( RifOpmFlowDeckFile& deckFile );
+    static void cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFile& deckFile,
+                                                    const caf::VecIjk0& sectorMin,
+                                                    const caf::VecIjk0& sectorMax,
+                                                    const cvf::Vec3st&  refinement );
+
     // Public EDITNNC methods for testing
     static std::vector<NNCConnection> extractDeckEditNncConnections( RifOpmFlowDeckFile& deckFile, const RigMainGrid& mainGrid );
     static std::vector<NNCConnection> filterInternalSectorConnections( const std::vector<NNCConnection>& allConnections,

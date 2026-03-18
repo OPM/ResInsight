@@ -101,12 +101,18 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
+    cropDataKeywordsInsideBoxContext( deckFile, settings.min(), settings.max(), settings.refinement() );
+
     auto croppedKeywords = cropDataKeywordsInDeckFile( &eclipseCase, settings, deckFile );
 
     if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, settings, deckFile, croppedKeywords ); !result )
     {
         return result;
     }
+
+    // Pre-process BOX/ENDBOX context: inject BOX indices into EQUALS/COPY/ADD/MULTIPLY records
+    // that don't have explicit box indices, so they get properly transformed by subsequent steps.
+    expandBoxContextInDeckFile( deckFile );
 
     if ( auto result = replaceEqualsKeywordIndices( &eclipseCase, settings, deckFile ); !result )
     {
@@ -553,6 +559,312 @@ std::vector<int> RigSimulationInputTool::createRefinedVisibility( const RigGridE
     }
 
     return refinedVisibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Check if a record (EQUALS/COPY/ADD/MULTIPLY) has explicit box indices at items 2-7
+//--------------------------------------------------------------------------------------------------
+static bool recordHasExplicitBoxIndices( const Opm::DeckRecord& record )
+{
+    return record.size() >= 8 && record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) && record.getItem( 4 ).hasValue( 0 ) &&
+           record.getItem( 5 ).hasValue( 0 ) && record.getItem( 6 ).hasValue( 0 ) && record.getItem( 7 ).hasValue( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create a new record with the original items 0-1 plus injected box indices
+//--------------------------------------------------------------------------------------------------
+static Opm::DeckRecord injectBoxIndicesIntoRecord( const Opm::DeckRecord& record, const std::array<int, 6>& boxIndices )
+{
+    std::vector<Opm::DeckItem> items;
+    items.push_back( record.getItem( 0 ) );
+    items.push_back( record.getItem( 1 ) );
+    items.push_back( RifOpmDeckTools::item( "I1", boxIndices[0] ) );
+    items.push_back( RifOpmDeckTools::item( "I2", boxIndices[1] ) );
+    items.push_back( RifOpmDeckTools::item( "J1", boxIndices[2] ) );
+    items.push_back( RifOpmDeckTools::item( "J2", boxIndices[3] ) );
+    items.push_back( RifOpmDeckTools::item( "K1", boxIndices[4] ) );
+    items.push_back( RifOpmDeckTools::item( "K2", boxIndices[5] ) );
+
+    return Opm::DeckRecord{ std::move( items ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Extract box indices (I1,I2,J1,J2,K1,K2) from items at positions 2-7 of a record
+//--------------------------------------------------------------------------------------------------
+static std::array<int, 6> extractBoxIndicesFromRecord( const Opm::DeckRecord& record )
+{
+    return { record.getItem( 2 ).get<int>( 0 ),
+             record.getItem( 3 ).get<int>( 0 ),
+             record.getItem( 4 ).get<int>( 0 ),
+             record.getItem( 5 ).get<int>( 0 ),
+             record.getItem( 6 ).get<int>( 0 ),
+             record.getItem( 7 ).get<int>( 0 ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Pre-processing step: expand BOX context into EQUALS/COPY/ADD/MULTIPLY records.
+/// For keywords inside a BOX/ENDBOX block, records without explicit box indices
+/// get the active BOX indices injected. This ensures all records have explicit
+/// indices before the individual keyword processing transforms them.
+//--------------------------------------------------------------------------------------------------
+void RigSimulationInputTool::expandBoxContextInDeckFile( RifOpmFlowDeckFile& deckFile )
+{
+    Opm::FileDeck* fd = deckFile.fileDeck();
+    if ( !fd ) return {};
+
+    bool                insideBox = false;
+    std::array<int, 6>  activeBoxIndices{};
+    const std::set<std::string> affectedKeywords = { "EQUALS", "COPY", "ADD", "MULTIPLY" };
+
+    for ( auto it = fd->start(); it != fd->stop(); it++ )
+    {
+        const auto&        kw   = ( *fd )[it];
+        const std::string& name = kw.name();
+
+        if ( name == "BOX" )
+        {
+            if ( insideBox )
+            {
+                RiaLogging::warning( "BOX keyword found while already inside a BOX context. Previous BOX will be overridden." );
+            }
+
+            if ( kw.size() > 0 )
+            {
+                const auto& rec = kw.getRecord( 0 );
+                if ( rec.size() >= 6 )
+                {
+                    activeBoxIndices = { rec.getItem( 0 ).get<int>( 0 ),
+                                         rec.getItem( 1 ).get<int>( 0 ),
+                                         rec.getItem( 2 ).get<int>( 0 ),
+                                         rec.getItem( 3 ).get<int>( 0 ),
+                                         rec.getItem( 4 ).get<int>( 0 ),
+                                         rec.getItem( 5 ).get<int>( 0 ) };
+                    insideBox        = true;
+                }
+            }
+        }
+        else if ( name == "ENDBOX" )
+        {
+            if ( !insideBox )
+            {
+                RiaLogging::warning( "ENDBOX keyword found without a matching BOX." );
+            }
+            insideBox = false;
+        }
+        else if ( insideBox && affectedKeywords.count( name ) )
+        {
+            // Check if any record in this keyword needs expansion
+            bool needsExpansion = false;
+            for ( size_t r = 0; r < kw.size(); ++r )
+            {
+                if ( !recordHasExplicitBoxIndices( kw.getRecord( r ) ) )
+                {
+                    needsExpansion = true;
+                    break;
+                }
+            }
+
+            if ( needsExpansion )
+            {
+                Opm::DeckKeyword expandedKw( kw.location(), kw.name() );
+
+                // Track "current operation box" - starts with active BOX indices
+                std::array<int, 6> currentOpBox = activeBoxIndices;
+
+                for ( size_t r = 0; r < kw.size(); ++r )
+                {
+                    const auto& rec = kw.getRecord( r );
+                    if ( recordHasExplicitBoxIndices( rec ) )
+                    {
+                        // Update current operation box from this record's explicit indices
+                        currentOpBox = extractBoxIndicesFromRecord( rec );
+                        Opm::DeckRecord copy( rec );
+                        expandedKw.addRecord( std::move( copy ) );
+                    }
+                    else
+                    {
+                        // Inject current operation box indices into this record
+                        expandedKw.addRecord( injectBoxIndicesIntoRecord( rec, currentOpBox ) );
+                    }
+                }
+
+                deckFile.replaceKeywordAtIndex( it, expandedKw );
+            }
+        }
+    }
+
+    if ( insideBox )
+    {
+        RiaLogging::warning( "BOX keyword found without a matching ENDBOX at end of deck." );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Crop data keywords (PORO, EQLNUM, PERMX, etc.) inside BOX/ENDBOX blocks to the intersection
+/// of the BOX region with the sector. If the box does not intersect the sector, the data keyword
+/// is removed. This preserves the BOX/ENDBOX structure in the output while ensuring data sizes
+/// match the transformed box dimensions.
+//--------------------------------------------------------------------------------------------------
+void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFile& deckFile,
+                                                               const caf::VecIjk0& sectorMin,
+                                                               const caf::VecIjk0& sectorMax,
+                                                               const cvf::Vec3st&  refinement )
+{
+    Opm::FileDeck* fd = deckFile.fileDeck();
+    if ( !fd ) return;
+
+    struct Modification
+    {
+        Opm::FileDeck::Index index;
+        bool                 remove = false;
+        Opm::DeckKeyword     replacement;
+    };
+
+    bool           insideBox = false;
+    caf::VecIjk0   boxMin( 0, 0, 0 );
+    caf::VecIjk0   boxMax( 0, 0, 0 );
+    std::vector<Modification> modifications;
+
+    for ( auto it = fd->start(); it != fd->stop(); it++ )
+    {
+        const auto&        kw   = ( *fd )[it];
+        const std::string& name = kw.name();
+
+        if ( name == "BOX" )
+        {
+            insideBox = true;
+            if ( kw.size() > 0 )
+            {
+                const auto& rec = kw.getRecord( 0 );
+                if ( rec.size() >= 6 )
+                {
+                    // BOX items: I1, I2, J1, J2, K1, K2 (1-based)
+                    boxMin = caf::VecIjk0( rec.getItem( 0 ).get<int>( 0 ) - 1,
+                                           rec.getItem( 2 ).get<int>( 0 ) - 1,
+                                           rec.getItem( 4 ).get<int>( 0 ) - 1 );
+                    boxMax = caf::VecIjk0( rec.getItem( 1 ).get<int>( 0 ) - 1,
+                                           rec.getItem( 3 ).get<int>( 0 ) - 1,
+                                           rec.getItem( 5 ).get<int>( 0 ) - 1 );
+                }
+            }
+        }
+        else if ( name == "ENDBOX" )
+        {
+            insideBox = false;
+        }
+        else if ( insideBox && kw.isDataKeyword() )
+        {
+            // Compute intersection of box with sector (0-based, inclusive)
+            caf::VecIjk0 intMin( std::max( boxMin.x(), sectorMin.x() ),
+                                 std::max( boxMin.y(), sectorMin.y() ),
+                                 std::max( boxMin.z(), sectorMin.z() ) );
+            caf::VecIjk0 intMax( std::min( boxMax.x(), sectorMax.x() ),
+                                 std::min( boxMax.y(), sectorMax.y() ),
+                                 std::min( boxMax.z(), sectorMax.z() ) );
+
+            if ( intMin.x() > intMax.x() || intMin.y() > intMax.y() || intMin.z() > intMax.z() )
+            {
+                // No intersection - remove the data keyword
+                modifications.push_back( { it, true, Opm::DeckKeyword{} } );
+                RiaLogging::info( QString( "Removing data keyword '%1' inside BOX/ENDBOX: box does not intersect sector" )
+                                      .arg( QString::fromStdString( name ) ) );
+                continue;
+            }
+
+            if ( kw.size() != 1 || kw.getRecord( 0 ).size() != 1 ) continue;
+
+            const auto& item = kw.getRecord( 0 ).getItem( 0 );
+
+            // Box dimensions (source grid for the data)
+            const size_t boxNi = boxMax.x() - boxMin.x() + 1;
+            const size_t boxNj = boxMax.y() - boxMin.y() + 1;
+
+            auto cropBoxData = [&]<typename T>( const std::vector<T>& sourceData )
+            {
+                std::vector<T> croppedData;
+
+                // Iterate over refined intersection cells
+                for ( size_t k = intMin.z(); k <= static_cast<size_t>( intMax.z() ); ++k )
+                {
+                    for ( size_t rk = 0; rk < refinement.z(); ++rk )
+                    {
+                        for ( size_t j = intMin.y(); j <= static_cast<size_t>( intMax.y() ); ++j )
+                        {
+                            for ( size_t rj = 0; rj < refinement.y(); ++rj )
+                            {
+                                for ( size_t i = intMin.x(); i <= static_cast<size_t>( intMax.x() ); ++i )
+                                {
+                                    // Box-relative indices
+                                    size_t boxRelI  = i - boxMin.x();
+                                    size_t boxRelJ  = j - boxMin.y();
+                                    size_t boxRelK  = k - boxMin.z();
+                                    size_t srcIdx   = boxRelI + boxRelJ * boxNi + boxRelK * boxNi * boxNj;
+
+                                    for ( size_t ri = 0; ri < refinement.x(); ++ri )
+                                    {
+                                        croppedData.push_back( sourceData[srcIdx] );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Build replacement keyword
+                Opm::DeckKeyword newKw = kw.emptyStructuralCopy();
+                Opm::DeckRecord  record;
+
+                if constexpr ( std::is_same_v<T, int> )
+                {
+                    Opm::DeckItem newItem( name, int() );
+                    for ( const auto& v : croppedData )
+                        newItem.push_back( v );
+                    record.addItem( std::move( newItem ) );
+                }
+                else
+                {
+                    std::vector<Opm::Dimension> activeDim;
+                    std::vector<Opm::Dimension> defaultDim;
+                    Opm::DeckItem               newItem( name, double(), activeDim, defaultDim );
+                    for ( const auto& v : croppedData )
+                        newItem.push_back( v );
+                    record.addItem( std::move( newItem ) );
+                }
+
+                newKw.addRecord( std::move( record ) );
+                modifications.push_back( { it, false, std::move( newKw ) } );
+
+                RiaLogging::info( QString( "Cropped data keyword '%1' inside BOX/ENDBOX (%2 -> %3 values)" )
+                                      .arg( QString::fromStdString( name ) )
+                                      .arg( sourceData.size() )
+                                      .arg( croppedData.size() ) );
+            };
+
+            if ( item.getType() == Opm::type_tag::integer )
+            {
+                cropBoxData( kw.getIntData() );
+            }
+            else if ( item.getType() == Opm::type_tag::fdouble )
+            {
+                cropBoxData( kw.getRawDoubleData() );
+            }
+        }
+    }
+
+    // Apply modifications in reverse order to maintain valid indices
+    for ( auto it = modifications.rbegin(); it != modifications.rend(); ++it )
+    {
+        if ( it->remove )
+        {
+            deckFile.removeKeywordAtIndex( it->index );
+        }
+        else
+        {
+            deckFile.replaceKeywordAtIndex( it->index, it->replacement );
+        }
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1125,9 +1437,9 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processMultiplyR
 {
     // MULTIPLY format: FIELD FACTOR I1 I2 J1 J2 K1 K2
     // Items: 0=FIELD, 1=FACTOR, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
-    if ( record.size() < 8 )
+    if ( record.size() < 2 )
     {
-        return std::unexpected( QString( "MULTIPLY record has insufficient items (expected at least 8, got %1)" ).arg( record.size() ) );
+        return std::unexpected( QString( "MULTIPLY record has insufficient items (expected at least 2, got %1)" ).arg( record.size() ) );
     }
 
     std::vector<Opm::DeckItem> items;
@@ -1136,7 +1448,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processMultiplyR
     items.push_back( record.getItem( 0 ) );
     items.push_back( record.getItem( 1 ) );
 
-    if ( record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) && record.getItem( 4 ).hasValue( 0 ) &&
+    if ( record.size() >= 8 && record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) && record.getItem( 4 ).hasValue( 0 ) &&
          record.getItem( 5 ).hasValue( 0 ) && record.getItem( 6 ).hasValue( 0 ) && record.getItem( 7 ).hasValue( 0 ) )
     {
         // Transform IJK box coordinates (items 2-7: I1, I2, J1, J2, K1, K2)
@@ -1180,9 +1492,9 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAddRecord
 {
     // ADD format: FIELD SHIFT I1 I2 J1 J2 K1 K2
     // Items: 0=FIELD, 1=SHIFT, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
-    if ( record.size() < 8 )
+    if ( record.size() < 2 )
     {
-        return std::unexpected( QString( "ADD record has insufficient items (expected at least 8, got %1)" ).arg( record.size() ) );
+        return std::unexpected( QString( "ADD record has insufficient items (expected at least 2, got %1)" ).arg( record.size() ) );
     }
 
     std::vector<Opm::DeckItem> items;
@@ -1191,7 +1503,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAddRecord
     items.push_back( record.getItem( 0 ) );
     items.push_back( record.getItem( 1 ) );
 
-    if ( record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) && record.getItem( 4 ).hasValue( 0 ) &&
+    if ( record.size() >= 8 && record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) && record.getItem( 4 ).hasValue( 0 ) &&
          record.getItem( 5 ).hasValue( 0 ) && record.getItem( 6 ).hasValue( 0 ) && record.getItem( 7 ).hasValue( 0 ) )
     {
         // Transform IJK box coordinates (items 2-7: I1, I2, J1, J2, K1, K2)
