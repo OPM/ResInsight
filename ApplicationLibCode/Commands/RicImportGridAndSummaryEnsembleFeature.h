@@ -20,12 +20,17 @@
 
 #include "cafCmdFeature.h"
 
+#include <QString>
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicImportGridAndSummaryEnsembleFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static bool importFromDirectory( const QString& dirPath );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

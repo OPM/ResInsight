@@ -47,6 +47,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QSettings>
 #include <QSignalBlocker>
 #include <QStandardItem>
 #include <QTreeView>
@@ -55,10 +56,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicImportGridAndSummaryEnsembleDialogResult
-    RicImportGridAndSummaryEnsembleDialog::runDialog( QWidget* parent, bool defaultGridChecked, bool defaultSummaryChecked )
+RicImportGridAndSummaryEnsembleDialogResult RicImportGridAndSummaryEnsembleDialog::runDialog( QWidget*       parent,
+                                                                                              bool           defaultGridChecked,
+                                                                                              bool           defaultSummaryChecked,
+                                                                                              const QString& initialDir )
 {
-    const QString pathRegistryKey = "RicImportGridAndSummaryEnsembleDialog_path";
+    const QString pathRegistryKey        = "RicImportGridAndSummaryEnsembleDialog_path";
+    const QString filePatternRegistryKey = "RicImportGridAndSummaryEnsembleDialog_filePattern";
 
     auto* app = RiaApplication::instance();
 
@@ -77,9 +81,24 @@ RicImportGridAndSummaryEnsembleDialogResult
         // Registry history starts at index 1
         RicRecursiveFileSearchDialog::populateComboBoxHistoryFromRegistry( dialog.m_pathFilterField, pathRegistryKey );
 
-        // Use most recently used path from registry (index 1) when preference is enabled
-        if ( RiaPreferences::current()->useRecentlyUsedFolderAsDefault() && dialog.m_pathFilterField->count() > 1 )
+        // File pattern field
         {
+            QSettings settings;
+            QString   fp = settings.value( filePatternRegistryKey ).toString();
+            if ( !fp.isEmpty() ) dialog.m_filePatternField->setText( fp );
+        }
+
+        if ( !initialDir.isEmpty() )
+        {
+            // Pre-fill with the provided directory
+            QString prefilledDir = initialDir;
+            RiaFilePathTools::appendSeparatorIfNo( prefilledDir );
+            prefilledDir += "*";
+            dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( prefilledDir ) );
+        }
+        else if ( RiaPreferences::current()->useRecentlyUsedFolderAsDefault() && dialog.m_pathFilterField->count() > 1 )
+        {
+            // Use most recently used path from registry (index 1) when preference is enabled
             dialog.m_pathFilterField->setCurrentIndex( 1 );
         }
 
@@ -111,6 +130,10 @@ RicImportGridAndSummaryEnsembleDialogResult
         RiaStringListSerializer s( pathRegistryKey );
         s.addString( dialog.m_pathFilterField->currentText(), maxItemsInRegistry );
     }
+    {
+        QSettings settings;
+        settings.setValue( filePatternRegistryKey, dialog.filePattern() );
+    }
 
     // Save last used directory
     QString rootDir = dialog.rootDirWithSeparator();
@@ -126,6 +149,7 @@ RicImportGridAndSummaryEnsembleDialogResult
     result.ok                    = true;
     result.rootDir               = dialog.rootDirWithSeparator();
     result.pathFilter            = dialog.pathFilterWithoutRoot();
+    result.filePattern           = dialog.filePattern();
     result.groupingMode          = dialog.ensembleGroupingMode();
     result.createGridEnsemble    = dialog.m_createGridEnsembleCheckBox->isChecked();
     result.createSummaryEnsemble = dialog.m_createSummaryEnsembleCheckBox->isChecked();
@@ -164,8 +188,12 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
     , m_blockItemUpdates( false )
 {
     // Create widgets
-    m_pathFilterField      = new QComboBox();
-    m_browseButton         = new QPushButton( "..." );
+    m_pathFilterField = new QComboBox();
+    m_pathFilterField->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
+    m_browseButton     = new QPushButton( "..." );
+    m_filePatternField = new QLineEdit();
+    m_filePatternField->setMinimumWidth( 120 );
+    m_filePatternField->setPlaceholderText( "*" );
     m_effectiveFilterLabel = new QLabel();
     m_effectiveFilterLabel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
     m_searchButton = new QPushButton( "Search" );
@@ -206,10 +234,19 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
     // Connect signals
     connect( m_pathFilterField, SIGNAL( currentTextChanged( const QString& ) ), this, SLOT( slotPathFilterChanged( const QString& ) ) );
     connect( m_pathFilterField, SIGNAL( editTextChanged( const QString& ) ), this, SLOT( slotPathFilterChanged( const QString& ) ) );
+    connect( m_filePatternField, SIGNAL( textEdited( const QString& ) ), this, SLOT( slotPathFilterChanged( const QString& ) ) );
 
     connect( m_browseButton, SIGNAL( clicked() ), this, SLOT( slotBrowseClicked() ) );
     connect( m_useRealizationStarCheckBox, SIGNAL( clicked() ), this, SLOT( slotUseRealizationStarClicked() ) );
     connect( m_searchButton, SIGNAL( clicked() ), this, SLOT( slotSearchClicked() ) );
+
+    auto updateOkFromCheckboxes = [this]()
+    {
+        bool anyChecked = m_createGridEnsembleCheckBox->isChecked() || m_createSummaryEnsembleCheckBox->isChecked();
+        setOkButtonEnabled( anyChecked && !m_foundRealizations.isEmpty() );
+    };
+    connect( m_createGridEnsembleCheckBox, &QCheckBox::toggled, this, updateOkFromCheckboxes );
+    connect( m_createSummaryEnsembleCheckBox, &QCheckBox::toggled, this, updateOkFromCheckboxes );
     connect( m_treeFilterButton, SIGNAL( clicked() ), this, SLOT( slotFilterTreeViewClicked() ) );
     connect( m_treeFilterLineEdit, &QLineEdit::returnPressed, m_treeFilterButton, &QPushButton::click );
     connect( m_treeFilterLineEdit, &QLineEdit::textEdited, m_treeFilterButton, &QPushButton::click );
@@ -252,8 +289,12 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
     int          row              = 0;
 
     searchGridLayout->addWidget( new QLabel( "Path pattern" ), row, 0 );
-    searchGridLayout->addWidget( m_pathFilterField, row, 1, 1, 2 );
-    searchGridLayout->addWidget( m_browseButton, row, 3 );
+    {
+        QHBoxLayout* hLayout = new QHBoxLayout();
+        hLayout->addWidget( m_pathFilterField );
+        hLayout->addWidget( m_browseButton );
+        searchGridLayout->addLayout( hLayout, row, 1, 1, 3 );
+    }
 
     row++;
     {
@@ -261,15 +302,22 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
         hLayout->addWidget( m_useRealizationStarCheckBox );
         hLayout->addWidget( new QLabel( "Ensemble Grouping" ) );
         hLayout->addWidget( m_ensembleGroupingMode );
+        hLayout->addWidget( new QLabel( "File pattern" ) );
+        hLayout->addWidget( m_filePatternField );
         hLayout->addStretch( 1 );
-        searchGridLayout->addLayout( hLayout, row, 1 );
+        searchGridLayout->addLayout( hLayout, row, 1, 1, 3 );
     }
 
     row++;
     searchGridLayout->addWidget( new QLabel( "Effective filter" ), row, 0 );
-    searchGridLayout->addWidget( m_effectiveFilterLabel, row, 1, 1, 2 );
-    searchGridLayout->addWidget( m_searchButton, row, 3 );
+    {
+        QHBoxLayout* hLayout = new QHBoxLayout();
+        hLayout->addWidget( m_effectiveFilterLabel, 1 );
+        hLayout->addWidget( m_searchButton );
+        searchGridLayout->addLayout( hLayout, row, 1, 1, 3 );
+    }
 
+    searchGridLayout->setColumnStretch( 1, 1 );
     searchGroup->setLayout( searchGridLayout );
 
     // Import group
@@ -329,6 +377,15 @@ QString RicImportGridAndSummaryEnsembleDialog::rootDirWithSeparator() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RicImportGridAndSummaryEnsembleDialog::filePattern() const
+{
+    QString p = m_filePatternField->text().trimmed();
+    return p.isEmpty() ? "*" : p;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RicImportGridAndSummaryEnsembleDialog::pathFilterWithoutRoot() const
 {
     QString pathFilter = cleanPathFilter();
@@ -351,7 +408,8 @@ void RicImportGridAndSummaryEnsembleDialog::updateEffectiveFilter()
         pathFilter = pathFilter + "...";
     }
 
-    QString effFilter = QString( "%1%2/*.EGRID|SMSPEC|ESMRY" ).arg( rootDirWithSeparator() ).arg( pathFilter );
+    QString fp        = filePattern();
+    QString effFilter = QString( "%1%2/%3.EGRID|%3.SMSPEC|%3.ESMRY" ).arg( rootDirWithSeparator() ).arg( pathFilter ).arg( fp );
     effFilter         = RiaFilePathTools::removeDuplicatePathSeparators( effFilter );
 
     m_effectiveFilterLabel->setText( QDir::toNativeSeparators( effFilter ) );
@@ -379,10 +437,11 @@ QStringList RicImportGridAndSummaryEnsembleDialog::findMatchingFiles( const QStr
     QStringList matchingFolders;
     RiaFileSearchTools::findMatchingFoldersRecursively( rootDir, pathFilter, matchingFolders );
 
+    QString     fp = filePattern();
     QStringList nameFilters;
     for ( const auto& ext : extensions )
     {
-        nameFilters.append( "*." + ext );
+        nameFilters.append( fp + "." + ext );
     }
 
     return RiaFileSearchTools::findFilesInFolders( matchingFolders, nameFilters );
@@ -490,13 +549,15 @@ void RicImportGridAndSummaryEnsembleDialog::updateFileListWidget()
 
         auto grouping = RiaEnsembleNameTools::groupFilesByEnsembleName( representativeFiles, mode );
 
-        auto rootItem = m_filePathModel.invisibleRootItem();
+        auto rootItem     = m_filePathModel.invisibleRootItem();
+        bool isFirstGroup = true;
         for ( const auto& [groupName, groupFiles] : grouping )
         {
             auto ensembleItem = new QStandardItem();
             ensembleItem->setCheckable( true );
-            ensembleItem->setCheckState( Qt::Checked );
+            ensembleItem->setCheckState( isFirstGroup ? Qt::Checked : Qt::Unchecked );
             rootItem->appendRow( ensembleItem );
+            isFirstGroup = false;
 
             int gridCount = 0, summaryCount = 0;
             for ( const auto& repFile : groupFiles )
@@ -513,7 +574,7 @@ void RicImportGridAndSummaryEnsembleDialog::updateFileListWidget()
 
                 auto childItem = new QStandardItem( QDir::toNativeSeparators( basePath ) );
                 childItem->setCheckable( true );
-                childItem->setCheckState( Qt::Checked );
+                childItem->setCheckState( ensembleItem->checkState() );
                 childItem->setData( basePath, Qt::UserRole );
                 ensembleItem->appendRow( childItem );
             }
@@ -522,8 +583,8 @@ void RicImportGridAndSummaryEnsembleDialog::updateFileListWidget()
         }
     }
 
-    // Expand first item
-    if ( m_filePathModel.rowCount() > 0 )
+    // Expand first item only when a single ensemble is detected
+    if ( m_filePathModel.rowCount() == 1 )
     {
         QModelIndex index = m_filePathModel.index( 0, 0 );
         m_fileTreeView->expand( index );
@@ -539,6 +600,8 @@ void RicImportGridAndSummaryEnsembleDialog::clearFileList()
     m_filePathModel.clear();
     m_outputGroup->setTitle( "Files Found" );
     setOkButtonEnabled( false );
+    m_createGridEnsembleCheckBox->setEnabled( true );
+    m_createSummaryEnsembleCheckBox->setEnabled( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -687,12 +750,28 @@ void RicImportGridAndSummaryEnsembleDialog::slotSearchClicked()
 
     updateFileListWidget();
 
+    int gridCount    = 0;
+    int summaryCount = 0;
+    for ( const auto& r : m_foundRealizations )
+    {
+        if ( !r.gridFile.isEmpty() ) gridCount++;
+        if ( !r.summaryFile.isEmpty() ) summaryCount++;
+    }
+
+    const bool hasGrid    = gridCount > 0;
+    const bool hasSummary = summaryCount > 0;
+    m_createGridEnsembleCheckBox->setEnabled( hasGrid );
+    m_createSummaryEnsembleCheckBox->setEnabled( hasSummary );
+    if ( !hasGrid ) m_createGridEnsembleCheckBox->setChecked( false );
+    if ( !hasSummary ) m_createSummaryEnsembleCheckBox->setChecked( false );
+
     int realizationCount = m_foundRealizations.size();
     if ( realizationCount > 0 )
     {
         m_outputGroup->setTitle( QString( "Files Found (%1)" ).arg( realizationCount ) );
-        setOkButtonEnabled( true );
-        m_buttons->button( QDialogButtonBox::Ok )->setFocus();
+        bool anyChecked = m_createGridEnsembleCheckBox->isChecked() || m_createSummaryEnsembleCheckBox->isChecked();
+        setOkButtonEnabled( anyChecked );
+        if ( anyChecked ) m_buttons->button( QDialogButtonBox::Ok )->setFocus();
     }
     else
     {

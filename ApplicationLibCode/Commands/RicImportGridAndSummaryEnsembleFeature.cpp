@@ -18,6 +18,10 @@
 
 #include "RicImportGridAndSummaryEnsembleFeature.h"
 
+#include "RiaApplication.h"
+#include "RiaDefines.h"
+#include "RiaFilePathTools.h"
+#include "RiaFileSearchTools.h"
 #include "RiaGuiApplication.h"
 #include "Summary/RiaSummaryPlotTools.h"
 
@@ -35,25 +39,68 @@
 
 #include <QAction>
 #include <QIcon>
+#include <QPointer>
 #include <QSet>
+#include <QSettings>
 #include <QTimer>
 
 CAF_CMD_SOURCE_INIT( RicImportGridAndSummaryEnsembleFeature, "RicImportGridAndSummaryEnsembleFeature" );
 
+namespace
+{
+const QString k_settingsKey = "EnsembleImportParams";
+const QChar   k_sep         = '\t';
+
+void storeEnsembleImportParams( const RicImportGridAndSummaryEnsembleDialogResult& result )
+{
+    QString rootDir = result.rootDir;
+    if ( rootDir.endsWith( '/' ) || rootDir.endsWith( '\\' ) ) rootDir.chop( 1 );
+
+    QString record = rootDir + k_sep + result.pathFilter + k_sep + QString::number( static_cast<int>( result.groupingMode ) ) + k_sep +
+                     ( result.createGridEnsemble ? QChar( '1' ) : QChar( '0' ) ) + k_sep +
+                     ( result.createSummaryEnsemble ? QChar( '1' ) : QChar( '0' ) ) + k_sep + result.filePattern;
+
+    QSettings   settings;
+    QStringList stored = settings.value( k_settingsKey ).toStringList();
+    stored.erase( std::remove_if( stored.begin(), stored.end(), [&]( const QString& r ) { return r.section( k_sep, 0, 0 ) == rootDir; } ),
+                  stored.end() );
+    stored.prepend( record );
+    while ( stored.size() > 20 )
+        stored.removeLast();
+    settings.setValue( k_settingsKey, stored );
+}
+
+bool loadEnsembleImportParams( const QString&                    rootDir,
+                               QString&                          pathFilter,
+                               RiaDefines::EnsembleGroupingMode& groupingMode,
+                               bool&                             createGrid,
+                               bool&                             createSummary,
+                               QString&                          filePattern )
+{
+    QSettings   settings;
+    QStringList stored = settings.value( k_settingsKey ).toStringList();
+    for ( const auto& r : stored )
+    {
+        if ( r.section( k_sep, 0, 0 ) == rootDir )
+        {
+            pathFilter    = r.section( k_sep, 1, 1 );
+            groupingMode  = static_cast<RiaDefines::EnsembleGroupingMode>( r.section( k_sep, 2, 2 ).toInt() );
+            createGrid    = r.section( k_sep, 3, 3 ) == "1";
+            createSummary = r.section( k_sep, 4, 4 ) == "1";
+            filePattern   = r.section( k_sep, 5, 5 );
+            if ( filePattern.isEmpty() ) filePattern = "*";
+            return true;
+        }
+    }
+    return false;
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportGridAndSummaryEnsembleFeature::onActionTriggered( bool isChecked )
+static void doImport( const RicImportGridAndSummaryEnsembleDialogResult& result, QPointer<QWidget> activeWindowBeforeImport )
 {
-    QPointer<QWidget> activeWindowBeforeImport = RiaGuiApplication::widgetToUseAsParent();
-
-    bool startedFromPlotWindow = ( RiaGuiApplication::activeMainWindow() == RiaGuiApplication::instance()->mainPlotWindow() );
-
-    auto result = RicImportGridAndSummaryEnsembleDialog::runDialog( activeWindowBeforeImport, !startedFromPlotWindow, startedFromPlotWindow );
-
-    if ( !result.ok ) return;
-    if ( !result.createGridEnsemble && !result.createSummaryEnsemble ) return;
-
     // Build the union of base paths (extension-stripped) from both lists so every realization
     // appears exactly once. findPathPattern requires each realization number to be unique across
     // the input; duplicating paths with different extensions breaks the pattern detection.
@@ -114,6 +161,73 @@ void RicImportGridAndSummaryEnsembleFeature::onActionTriggered( bool isChecked )
                                 activeWindowBeforeImport->activateWindow();
                             } );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicImportGridAndSummaryEnsembleFeature::importFromDirectory( const QString& dirPath )
+{
+    if ( !RiaGuiApplication::instance() ) return false;
+
+    QString                          pathFilter;
+    RiaDefines::EnsembleGroupingMode groupingMode;
+    bool                             createGrid;
+    bool                             createSummary;
+    QString                          filePattern;
+
+    if ( !loadEnsembleImportParams( dirPath, pathFilter, groupingMode, createGrid, createSummary, filePattern ) ) return false;
+
+    QString rootDir = dirPath;
+    if ( rootDir.size() > 1 && ( rootDir.endsWith( '/' ) || rootDir.endsWith( '\\' ) ) ) rootDir.chop( 1 );
+
+    QStringList matchingFolders;
+    RiaFileSearchTools::findMatchingFoldersRecursively( rootDir, pathFilter, matchingFolders );
+
+    QStringList gridFiles = RiaFileSearchTools::findFilesInFolders( matchingFolders, { filePattern + ".EGRID" } );
+    QStringList summaryFiles = RiaFileSearchTools::findFilesInFolders( matchingFolders, { filePattern + ".SMSPEC", filePattern + ".ESMRY" } );
+    std::sort( summaryFiles.begin(), summaryFiles.end() );
+
+    if ( gridFiles.isEmpty() && summaryFiles.isEmpty() ) return false;
+
+    RicImportGridAndSummaryEnsembleDialogResult result;
+    result.ok                    = true;
+    result.rootDir               = rootDir + RiaFilePathTools::separator();
+    result.pathFilter            = pathFilter;
+    result.filePattern           = filePattern;
+    result.groupingMode          = groupingMode;
+    result.createGridEnsemble    = createGrid;
+    result.createSummaryEnsemble = createSummary;
+    result.gridFiles             = gridFiles;
+    result.summaryFiles          = summaryFiles;
+
+    QPointer<QWidget> activeWindowBeforeImport = RiaGuiApplication::widgetToUseAsParent();
+    doImport( result, activeWindowBeforeImport );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportGridAndSummaryEnsembleFeature::onActionTriggered( bool isChecked )
+{
+    QPointer<QWidget> activeWindowBeforeImport = RiaGuiApplication::widgetToUseAsParent();
+
+    bool startedFromPlotWindow = ( RiaGuiApplication::activeMainWindow() == RiaGuiApplication::instance()->mainPlotWindow() );
+
+    auto result = RicImportGridAndSummaryEnsembleDialog::runDialog( activeWindowBeforeImport, !startedFromPlotWindow, startedFromPlotWindow );
+
+    if ( !result.ok ) return;
+    if ( !result.createGridEnsemble && !result.createSummaryEnsemble ) return;
+
+    doImport( result, activeWindowBeforeImport );
+
+    storeEnsembleImportParams( result );
+
+    QString rootDir = result.rootDir;
+    if ( rootDir.endsWith( '/' ) || rootDir.endsWith( '\\' ) ) rootDir.chop( 1 );
+    RiaApplication::instance()->addToRecentFiles( rootDir );
 }
 
 //--------------------------------------------------------------------------------------------------

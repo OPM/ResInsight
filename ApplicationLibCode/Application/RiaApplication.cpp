@@ -47,6 +47,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "RicImportGeneralDataFeature.h"
+#include "RicImportGridAndSummaryEnsembleFeature.h"
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
@@ -133,6 +134,7 @@
 #include "cafUtils.h"
 
 #include <QCoreApplication>
+#include <QDir>
 
 #include <memory>
 
@@ -397,6 +399,11 @@ void RiaApplication::setThreadCount() const
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openFile( const QString& fileName )
 {
+    if ( QDir( fileName ).exists() )
+    {
+        return RicImportGridAndSummaryEnsembleFeature::importFromDirectory( fileName );
+    }
+
     if ( !caf::Utils::fileExists( fileName ) ) return false;
 
     bool loadingSucceded = false;
