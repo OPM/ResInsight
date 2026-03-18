@@ -217,6 +217,8 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&        
     newSummaryPlot->loadDataAndUpdate();
     collections->updateConnectedEditors();
 
+    newSummaryPlot->updatePlots();
+
     return newSummaryPlot;
 }
 

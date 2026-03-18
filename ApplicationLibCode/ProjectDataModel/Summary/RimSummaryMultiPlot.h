@@ -24,8 +24,6 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
-#include "cafSignal.h"
-
 #include <QList>
 
 #include <vector>
@@ -44,9 +42,6 @@ class RimSummaryPlotReadOut;
 class RimSummaryMultiPlot : public RimMultiPlot, public RimSummaryDataSourceStepping
 {
     CAF_PDM_HEADER_INIT;
-
-public:
-    caf::Signal<RimSummaryMultiPlot*> duplicatePlot;
 
 public:
     enum class AxisRangeAggregation
@@ -144,10 +139,11 @@ private:
     void        setAutoValueStates();
     static void setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
 
-    void duplicate();
-
     void appendSubPlotByStepping( int direction );
     void appendCurveByStepping( int direction );
+
+    bool            isStepDimensionSharedAmongSubPlots();
+    caf::PdmObject* steppingSourceObject();
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
