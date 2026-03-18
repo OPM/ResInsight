@@ -41,7 +41,6 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. 
 RimGenericJob::RimGenericJob()
     : m_percentageDone( 0.0 )
     , m_jobState( JobState::Idle )
-    , m_process( nullptr )
     , m_errorsDetected( 0 )
     , m_warningsDetected( 0 )
 {
@@ -94,6 +93,14 @@ QString RimGenericJob::workingDirectory() const
 bool RimGenericJob::isRunning() const
 {
     return ( m_jobState == JobState::Queued ) || ( m_jobState == JobState::Running );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGenericJob::JobState RimGenericJob::state() const
+{
+    return m_jobState;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,6 +190,8 @@ bool RimGenericJob::setFinished( bool runOk )
 {
     m_jobState = runOk ? JobState::Completed : JobState::Failed;
 
+    if (m_processm_jobLog = m_process->stdOut();
+
     m_percentageDone = 100.0;
     onProgress( m_percentageDone );
     setDeletable( true );
@@ -262,9 +271,7 @@ void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 const QStringList RimGenericJob::jobLog() const
 {
-    if ( m_process.isNull() ) return QStringList();
-
-    return m_process->stdOut();
+    return m_jobLog;
 }
 
 //--------------------------------------------------------------------------------------------------
