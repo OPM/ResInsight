@@ -44,6 +44,7 @@ public:
     bool        useWsl() const;
     bool        useMpi() const;
     QString     mpirunCommand() const;
+    size_t      maxParallelJobs() const;
 
     RimOpmFlowJobSettings* createDefaultJobSettings() const;
 
@@ -57,6 +58,7 @@ private:
     caf::PdmField<bool>                        m_useMpi;
     caf::PdmField<QString>                     m_mpirunCommand;
     caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
+    caf::PdmField<size_t>                      m_maxParallelJobs;
 
     QStringList m_availableWslDists;
 };

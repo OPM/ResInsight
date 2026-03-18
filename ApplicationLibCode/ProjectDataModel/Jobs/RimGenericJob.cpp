@@ -24,6 +24,7 @@
 
 #include "RimJobMonitor.h"
 #include "RimProcess.h"
+#include "RimProcessQueue.h"
 
 #include "RiuGuiTheme.h"
 
@@ -43,6 +44,7 @@ RimGenericJob::RimGenericJob()
     , m_jobState( JobState::Idle )
     , m_errorsDetected( 0 )
     , m_warningsDetected( 0 )
+    , m_process( nullptr )
 {
     CAF_PDM_InitObject( "Generic Job" );
 }
@@ -110,7 +112,7 @@ bool RimGenericJob::stop()
 {
     if ( !m_process.isNull() )
     {
-        m_process->terminate();
+        RimProcessQueue::stopProcess( m_process->ID() );
         RiaLogging::info( "Job \"" + name() + "\" stopped by user." );
         return true;
     }
@@ -126,8 +128,11 @@ bool RimGenericJob::execute()
 
     m_errorsDetected   = 0;
     m_warningsDetected = 0;
-    m_process          = nullptr;
     m_percentageDone   = 0.0;
+    m_process          = nullptr;
+    m_jobState         = JobState::Idle;
+
+    onProgress( m_percentageDone );
 
     // job preparations
     {
@@ -147,16 +152,18 @@ bool RimGenericJob::execute()
     if ( !onRun() ) return false;
 
     QStringList cmdLine = command();
-    if ( cmdLine.isEmpty() ) return false;
+    if ( cmdLine.isEmpty() )
+    {
+        m_jobState = JobState::Failed;
+        onProgress( m_percentageDone );
+        return false;
+    }
 
     // cannot delete job while running
     setDeletable( false );
+    m_jobState = JobState::Queued;
 
     m_process = new RimProcess( true, new RimJobMonitor( this ) );
-
-    m_jobState = JobState::Running;
-
-    onProgress( m_percentageDone );
 
     // build process to run
     QString cmd = cmdLine.takeFirst();
@@ -168,19 +175,10 @@ bool RimGenericJob::execute()
         m_process->addEnvironmentVariable( name, value );
     }
 
-    // run process
-    bool startOk = m_process->start();
-    if ( !startOk )
-    {
-        onCompleted( false );
-        m_jobState = JobState::Failed;
-        setDeletable( true );
-        QMessageBox::critical( RiaGuiApplication::widgetToUseAsParent(),
-                               name(),
-                               "Failed to start job. Check log window for additional information." );
-    }
+    RimProcessQueue::queueProcess( m_process );
+    onProgress( m_percentageDone );
 
-    return startOk;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,8 +188,6 @@ bool RimGenericJob::setFinished( bool runOk )
 {
     m_jobState = runOk ? JobState::Completed : JobState::Failed;
 
-    if (m_processm_jobLog = m_process->stdOut();
-
     m_percentageDone = 100.0;
     onProgress( m_percentageDone );
     setDeletable( true );
@@ -199,6 +195,15 @@ bool RimGenericJob::setFinished( bool runOk )
     onCompleted( runOk );
 
     return runOk;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::setStarted()
+{
+    m_jobState = RimGenericJob::JobState::Running;
+    onProgress( m_percentageDone );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,7 +276,8 @@ void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 const QStringList RimGenericJob::jobLog() const
 {
-    return m_jobLog;
+    if ( m_process.isNull() ) return QStringList();
+    return m_process->stdOut();
 }
 
 //--------------------------------------------------------------------------------------------------

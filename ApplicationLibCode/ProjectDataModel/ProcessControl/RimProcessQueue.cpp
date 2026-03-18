@@ -20,6 +20,8 @@
 
 #include "RimProcess.h"
 
+#include "RiaPreferencesOpm.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +43,8 @@ RimProcessQueue* RimProcessQueue::instance()
 //--------------------------------------------------------------------------------------------------
 size_t RimProcessQueue::queueProcess( RimProcess* process )
 {
-    instance()->internalQueueProcess( process );
+    if ( process == nullptr ) return 0;
+    return instance()->internalQueueProcess( process );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,29 +70,31 @@ void RimProcessQueue::launchNextProcessIfPossible()
 {
     if ( m_waitingProcesses.empty() ) return;
 
-    if ( auto nextProcess = m_waitingProcesses.front() )
+    if ( m_runningProcesses.size() >= RiaPreferencesOpm::current()->maxParallelJobs() ) return;
+
+    auto nextProcess = m_waitingProcesses.front();
+    m_waitingProcesses.pop_front();
+    if ( nextProcess->start() )
     {
-        if ( nextProcess->start() )
-        {
-            m_runningProcesses.push_back( nextProcess );
-        }
-        else
-        {
-            // TODO - fix this
-        }
-        m_waitingProcesses.pop_front();
+        m_runningProcesses.push_back( nextProcess );
+    }
+    else
+    {
+        nextProcess->notifyErrorFinish();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessQueue::internalQueueProcess( RimProcess* process )
+size_t RimProcessQueue::internalQueueProcess( RimProcess* process )
 {
     QMutexLocker locker( &m_mutex );
 
     m_waitingProcesses.push_back( process );
+    size_t processId = process->ID();
     launchNextProcessIfPossible();
+    return processId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,27 +102,50 @@ void RimProcessQueue::internalQueueProcess( RimProcess* process )
 //--------------------------------------------------------------------------------------------------
 void RimProcessQueue::internalStopProcess( size_t processId )
 {
-    QMutexLocker locker( &m_mutex );
+    bool        isWaitingProcess = false;
+    RimProcess* theProcess       = nullptr;
 
-    for ( auto proc : m_waitingProcesses )
     {
-        if ( proc->ID() == processId )
+        QMutexLocker locker( &m_mutex );
+
+        for ( auto proc : m_waitingProcesses )
         {
-            m_waitingProcesses.remove( proc );
-            // TODO - handle callback of stopped process
+            if ( proc->ID() == processId )
+            {
+                m_waitingProcesses.remove( proc );
+                theProcess       = proc;
+                isWaitingProcess = true;
+                break;
+            }
         }
+
+        if ( !isWaitingProcess )
+        {
+            for ( auto proc : m_runningProcesses )
+            {
+                if ( proc->ID() == processId )
+                {
+                    theProcess = proc;
+                    m_runningProcesses.remove( proc );
+                    break;
+                }
+            }
+        }
+
+        launchNextProcessIfPossible();
     }
 
-    for ( auto proc : m_runningProcesses )
+    if ( theProcess != nullptr )
     {
-        if ( proc->ID() == processId )
+        if ( isWaitingProcess )
         {
-            proc->terminate();
-            // m_runningProcesses.remove( proc );
+            theProcess->notifyErrorFinish();
+        }
+        else
+        {
+            theProcess->terminate();
         }
     }
-
-    launchNextProcessIfPossible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,16 +162,20 @@ void RimProcessQueue::internalOnProcessFinished( size_t processId )
         if ( proc->ID() == processId )
         {
             m_waitingProcesses.remove( proc );
+            isWaitingProcess = true;
             break;
         }
     }
 
-    for ( auto proc : m_runningProcesses )
+    if ( !isWaitingProcess )
     {
-        if ( proc->ID() == processId )
+        for ( auto proc : m_runningProcesses )
         {
-            m_runningProcesses.remove( proc );
-            break;
+            if ( proc->ID() == processId )
+            {
+                m_runningProcesses.remove( proc );
+                break;
+            }
         }
     }
 

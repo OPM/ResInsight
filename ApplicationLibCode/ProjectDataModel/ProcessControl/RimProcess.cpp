@@ -197,9 +197,9 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     }
 
     m_qProcess->start( m_command, m_arguments );
-    auto error = m_qProcess->errorString();
     if ( !m_qProcess->waitForStarted( -1 ) )
     {
+        auto error = m_qProcess->errorString();
         RiaLogging::error( QString( "Failed to start process %1. %2." ).arg( m_id() ).arg( error ) );
         return false;
     }
@@ -231,6 +231,14 @@ void RimProcess::terminate()
             m_qProcess->kill();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcess::notifyErrorFinish()
+{
+    if ( m_monitor ) m_monitor->finished( -1, QProcess::CrashExit );
 }
 
 //--------------------------------------------------------------------------------------------------

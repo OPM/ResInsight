@@ -52,6 +52,7 @@ public:
 
     bool execute();
     bool setFinished( bool runOk );
+    void setStarted();
 
     bool isRunning() const;
     bool stop();
@@ -83,6 +84,6 @@ protected:
     int    m_errorsDetected;
 
 private:
-    JobState    m_jobState;
-    QStringList m_jobLog;
+    JobState                    m_jobState;
+    caf::PdmPointer<RimProcess> m_process;
 };

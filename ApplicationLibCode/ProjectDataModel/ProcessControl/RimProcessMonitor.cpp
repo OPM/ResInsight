@@ -20,6 +20,8 @@
 
 #include "RiaLogging.h"
 
+#include "RimProcessQueue.h"
+
 #include <QProcess>
 #include <QtCore/QtCore>
 
@@ -79,20 +81,23 @@ void RimProcessMonitor::error( QProcess::ProcessError error )
 //--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus )
 {
-    if ( !m_logStdOutErr ) return;
-
-    QString finishStr;
-    switch ( exitStatus )
+    if ( m_logStdOutErr )
     {
-        case QProcess::NormalExit:
-            finishStr = QString( "Normal exit, code %1" ).arg( exitCode );
-            break;
-        case QProcess::CrashExit:
-        default:
-            finishStr = QString( "Crash exit, code %1" ).arg( exitCode );
-            break;
+        QString finishStr;
+        switch ( exitStatus )
+        {
+            case QProcess::NormalExit:
+                finishStr = QString( "Normal exit, code %1" ).arg( exitCode );
+                break;
+            case QProcess::CrashExit:
+            default:
+                finishStr = QString( "Crash exit, code %1" ).arg( exitCode );
+                break;
+        }
+        RiaLogging::debug( addPrefix( finishStr ) );
     }
-    RiaLogging::debug( addPrefix( finishStr ) );
+
+    RimProcessQueue::onProcessFinished( m_processId );
 }
 
 //--------------------------------------------------------------------------------------------------

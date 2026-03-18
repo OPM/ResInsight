@@ -60,6 +60,7 @@ public:
     bool start( bool enableStdOut = true, bool enableStdErr = true );
     void cleanUpAfterRun();
     void terminate();
+    void notifyErrorFinish();
 
     QStringList stdErr() const;
     QStringList stdOut() const;

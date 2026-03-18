@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025 Equinor ASA
+//  Copyright (C) 2026     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,25 +18,22 @@
 
 #pragma once
 
-#include "RimProcessMonitor.h"
-
-#include "cafPdmPointer.h"
+#include "cafCmdFeature.h"
 
 class RimGenericJob;
+class RimJobCollection;
 
-class RimJobMonitor : public RimProcessMonitor
+//==================================================================================================
+///
+//==================================================================================================
+class RicStopAllJobsFeature : public caf::CmdFeature
 {
-    Q_OBJECT
+    CAF_CMD_HEADER_INIT;
 
 public:
-    RimJobMonitor( RimGenericJob* job );
-    ~RimJobMonitor() override;
+    static void stopAllJobs( RimJobCollection* jobCollection );
 
 protected:
-    void readyReadStandardOutput() override;
-    void finished( int exitCode, QProcess::ExitStatus exitStatus ) override;
-    void started() override;
-
-private:
-    caf::PdmPointer<RimGenericJob> m_job;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

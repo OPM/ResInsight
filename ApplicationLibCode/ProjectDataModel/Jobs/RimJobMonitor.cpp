@@ -68,3 +68,16 @@ void RimJobMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus )
 
     RimProcessMonitor::finished( exitCode, exitStatus );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimJobMonitor::started()
+{
+    if ( m_job.notNull() )
+    {
+        m_job->setStarted();
+    }
+
+    RimProcessMonitor::started();
+}

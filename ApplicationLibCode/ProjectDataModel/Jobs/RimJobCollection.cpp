@@ -128,4 +128,10 @@ void RimJobCollection::deleteAllJobs()
 void RimJobCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewOpmFlowJobFeature";
+
+    if ( numberOfRunningJobs() > 0 )
+    {
+        menuBuilder.addSeparator();
+        menuBuilder << "RicStopAllJobsFeature";
+    }
 }
