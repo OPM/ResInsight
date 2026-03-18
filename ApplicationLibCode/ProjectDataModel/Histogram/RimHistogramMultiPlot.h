@@ -24,8 +24,6 @@
 #include "cafPdmUiItem.h"
 #include "cafSignal.h"
 
-#include <QList>
-
 #include <vector>
 
 class RimHistogramPlot;
@@ -38,9 +36,6 @@ class RimPlotAxisProperties;
 class RimHistogramMultiPlot : public RimMultiPlot
 {
     CAF_PDM_HEADER_INIT;
-
-public:
-    caf::Signal<RimHistogramMultiPlot*> duplicatePlot;
 
 public:
     RimHistogramMultiPlot();
@@ -62,21 +57,15 @@ public:
 
     void syncAxisRanges();
 
-    void histogramPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
-
     std::vector<RimHistogramPlot*> histogramPlots() const;
     std::vector<RimHistogramPlot*> visibleHistogramPlots() const;
 
     void makeSureIsVisible( RimHistogramPlot* plot );
 
-    void setSubPlotAxesLinked( bool enable );
-    bool isSubPlotAxesLinked() const;
-
     std::pair<int, int> gridLayoutInfoForSubPlot( RimHistogramPlot* histogramPlot ) const;
 
     void zoomAll() override;
 
-    void setDefaultRangeAggregationSteppingDimension();
     void analyzePlotsAndAdjustAppearanceSettings();
 
     void keepVisiblePageAfterUpdate( bool keepPage );
@@ -97,15 +86,7 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void computeAggregatedAxisRange();
-    void updateSourceStepper();
-
     void updatePlotVisibility();
-
-    void duplicate();
-
-    void appendSubPlotByStepping( int direction );
-    void appendCurveByStepping( int direction );
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimHistogramPlot* summaryPlot );
@@ -117,12 +98,8 @@ private:
     caf::PdmField<bool> m_autoPlotTitle;
     caf::PdmField<bool> m_autoSubPlotTitle;
     caf::PdmField<bool> m_disableWheelZoom;
-    caf::PdmField<bool> m_createPlotDuplicate;
     caf::PdmField<bool> m_autoAdjustAppearance;
-    caf::PdmField<bool> m_allow3DSelectionLink;
-
-    caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
-    caf::PdmField<double> m_plotFilterYAxisThreshold;
+    caf::PdmField<bool> m_hidePlotsWithValuesBelow;
 
     std::map<RimHistogramPlot*, std::pair<int, int>> m_gridLayoutInfo;
 };

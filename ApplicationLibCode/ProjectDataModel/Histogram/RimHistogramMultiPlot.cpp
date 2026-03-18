@@ -46,7 +46,6 @@ CAF_PDM_SOURCE_INIT( RimHistogramMultiPlot, "MultiHistogramPlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimHistogramMultiPlot::RimHistogramMultiPlot()
-    : duplicatePlot( this )
 {
     CAF_PDM_InitObject( "Multi Histogram Plot", ":/HistogramPlotLight16x16.png" );
     setDeletable( true );
@@ -54,18 +53,12 @@ RimHistogramMultiPlot::RimHistogramMultiPlot()
     CAF_PDM_InitField( &m_autoPlotTitle, "AutoPlotTitle", true, "Auto Plot Title" );
     CAF_PDM_InitField( &m_autoSubPlotTitle, "AutoSubPlotTitle", true, "Auto Sub Plot Title" );
 
-    CAF_PDM_InitField( &m_createPlotDuplicate, "DuplicatePlot", false, "", "", "Duplicate Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_createPlotDuplicate );
-    m_createPlotDuplicate.uiCapability()->setUiIconFromResourceString( ":/Copy.svg" );
-
     CAF_PDM_InitField( &m_disableWheelZoom, "DisableWheelZoom", true, "", "", "Disable Mouse Wheel Zooming in Multi Histogram Plot" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_disableWheelZoom );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
     CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Plot Settings" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoAdjustAppearance );
-    CAF_PDM_InitField( &m_allow3DSelectionLink, "Allow3DSelectionLink", true, "Allow Well Selection from 3D View" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_allow3DSelectionLink );
 
     CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_hidePlotsWithValuesBelow );
@@ -190,11 +183,6 @@ void RimHistogramMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         m_hidePlotsWithValuesBelow = false;
         updatePlotVisibility();
-    }
-    else if ( changedField == &m_createPlotDuplicate )
-    {
-        m_createPlotDuplicate = false;
-        duplicate();
     }
     else if ( changedField == &m_autoAdjustAppearance )
     {
@@ -441,14 +429,6 @@ void RimHistogramMultiPlot::updatePlotVisibility()
     updateLayout();
 
     if ( !m_viewer.isNull() ) m_viewer->scheduleUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimHistogramMultiPlot::duplicate()
-{
-    duplicatePlot.send( this );
 }
 
 //--------------------------------------------------------------------------------------------------
