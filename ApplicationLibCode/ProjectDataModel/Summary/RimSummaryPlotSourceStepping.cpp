@@ -521,8 +521,6 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( triggerLoadDataAndUpdate )
     {
-        auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
-
         RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_objectForSourceStepping.p() );
         if ( summaryMultiPlot )
         {
@@ -537,10 +535,16 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
         else
         {
-            summaryPlot->updatePlotTitle();
-            summaryPlot->loadDataAndUpdate();
-            summaryPlot->updateConnectedEditors();
-            summaryPlot->curvesChanged.send();
+            RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_objectForSourceStepping.p() );
+            if ( !summaryPlot ) summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
+
+            if ( summaryPlot )
+            {
+                summaryPlot->updatePlotTitle();
+                summaryPlot->loadDataAndUpdate();
+                summaryPlot->updateConnectedEditors();
+                summaryPlot->curvesChanged.send();
+            }
         }
 
         updateAllRequiredEditors();
@@ -1350,6 +1354,40 @@ RimSummaryDataSourceStepping::SourceSteppingDimension RimSummaryPlotSourceSteppi
 void RimSummaryPlotSourceStepping::setStepDimension( RimSummaryDataSourceStepping::SourceSteppingDimension dimension )
 {
     m_stepDimension = dimension;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotSourceStepping::isAtEnd( int direction )
+{
+    caf::PdmValueField* valueField = fieldToModify();
+    if ( !valueField ) return true;
+
+    QList<caf::PdmOptionItemInfo> options = calculateValueOptions( valueField );
+    if ( options.isEmpty() ) return true;
+
+    QVariant                              currentValue  = valueField->toQVariant();
+    caf::PdmPointer<caf::PdmObjectHandle> currentHandle = currentValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
+    int                                   currentIndex  = -1;
+    for ( int i = 0; i < options.size(); i++ )
+    {
+        QVariant                              optionValue  = options[i].value();
+        caf::PdmPointer<caf::PdmObjectHandle> optionHandle = optionValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
+        if ( optionHandle )
+        {
+            if ( currentHandle == optionHandle ) currentIndex = i;
+        }
+        else if ( currentValue == optionValue )
+        {
+            currentIndex = i;
+        }
+    }
+
+    if ( currentIndex == -1 ) return false;
+
+    int nextIndex = currentIndex + direction;
+    return ( nextIndex < 0 || nextIndex >= options.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
