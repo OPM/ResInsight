@@ -366,6 +366,7 @@ std::set<std::string> RigSimulationInputTool::cropDataKeywordsInDeckFile( RimEcl
 
         const auto& kw = optKw.value();
         if ( !kw.isDataKeyword() ) continue;
+        if ( name == "ACTNUM" ) continue;
         if ( kw.size() != 1 ) continue;
 
         const auto& record = kw.getRecord( 0 );
