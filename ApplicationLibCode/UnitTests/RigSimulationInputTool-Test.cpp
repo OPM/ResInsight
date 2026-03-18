@@ -556,6 +556,119 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Test exportSimulationInput with model5 data verifying data keyword cropping
+/// Ensures PORO, EQLNUM, SATNUM are cropped to sector cell count
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5_DataKeywordCropping )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "0_BASE_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model_datakw.DATA";
+
+    // Set up export settings for a smaller sector to test cropping
+    // Sector: min=(5,5,2), max=(14,14,7) => 10x10x6 = 600 cells
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
+    settings.setMax( caf::VecIjk0( 14, 14, 7 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Load the exported deck file using RifOpmFlowDeckFile
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    const size_t expectedCellCount = 10 * 10 * 6; // 600 cells
+
+    // Verify PORO keyword is cropped to sector size with correct values
+    {
+        auto poroKw = deckFile.findKeyword( "PORO" );
+        ASSERT_TRUE( poroKw.has_value() ) << "PORO keyword missing from exported file";
+
+        const auto& poroData = poroKw->getRawDoubleData();
+        EXPECT_EQ( expectedCellCount, poroData.size() ) << "PORO should have " << expectedCellCount << " values";
+
+        // Original model5 has PORO = 6000*0.28, so all cropped values should be 0.28
+        for ( size_t i = 0; i < poroData.size(); ++i )
+        {
+            EXPECT_DOUBLE_EQ( 0.28, poroData[i] ) << "PORO value at index " << i << " should be 0.28";
+        }
+    }
+
+    // Verify EQLNUM keyword is cropped to sector size
+    {
+        auto eqlnumKw = deckFile.findKeyword( "EQLNUM" );
+        ASSERT_TRUE( eqlnumKw.has_value() ) << "EQLNUM keyword missing from exported file";
+
+        const auto& eqlnumData = eqlnumKw->getIntData();
+        EXPECT_EQ( expectedCellCount, eqlnumData.size() ) << "EQLNUM should have " << expectedCellCount << " values";
+
+        // Original model5 has EQLNUM = 6000*1
+        for ( size_t i = 0; i < eqlnumData.size(); ++i )
+        {
+            EXPECT_EQ( 1, eqlnumData[i] ) << "EQLNUM value at index " << i << " should be 1";
+        }
+    }
+
+    // Verify SATNUM keyword is cropped to sector size
+    {
+        auto satnumKw = deckFile.findKeyword( "SATNUM" );
+        ASSERT_TRUE( satnumKw.has_value() ) << "SATNUM keyword missing from exported file";
+
+        const auto& satnumData = satnumKw->getIntData();
+        EXPECT_EQ( expectedCellCount, satnumData.size() ) << "SATNUM should have " << expectedCellCount << " values";
+
+        // Original model5 has SATNUM = 6000*1
+        for ( size_t i = 0; i < satnumData.size(); ++i )
+        {
+            EXPECT_EQ( 1, satnumData[i] ) << "SATNUM value at index " << i << " should be 1";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Helper to create a BOX DeckRecord
 /// BOX format: I1 I2 J1 J2 K1 K2 (1-based Eclipse coordinates)
 //--------------------------------------------------------------------------------------------------
