@@ -138,15 +138,8 @@ double RimMswSegmentCollection::referenceDiameter() const
 //--------------------------------------------------------------------------------------------------
 void RimMswSegmentCollection::updateSegments( RimWellPath* topLevelWell, RimEclipseCase* eclipseCase )
 {
-    if ( !topLevelWell )
+    if ( !topLevelWell || !eclipseCase )
     {
-        RiaLogging::error( "Unable to update MSW segments: no top-level well path provided." );
-        return;
-    }
-
-    if ( !eclipseCase )
-    {
-        RiaLogging::error( "Unable to update MSW segments: no Eclipse case selected." );
         return;
     }
 
