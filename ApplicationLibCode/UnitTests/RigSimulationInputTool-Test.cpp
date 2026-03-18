@@ -668,6 +668,126 @@ TEST( RigSimulationInputTool, ExportModel5_DataKeywordCropping )
     }
 }
 
+TEST( RigSimulationInputTool, ExportModel5_DataKeywordCropping_4EqlnumRegions )
+{
+    // Load model5 test data with 4 EQLNUM regions
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "1_4EQLNUM_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model_4eqlnum.DATA";
+
+    // Set up export settings for a smaller sector to test cropping
+    // Sector: min=(5,5,2), max=(14,14,7) => 10x10x6 = 600 cells
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
+    settings.setMax( caf::VecIjk0( 14, 14, 7 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Load the exported deck file using RifOpmFlowDeckFile
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    const size_t expectedCellCount = 10 * 10 * 6; // 600 cells
+
+    // Verify PORO keyword is cropped to sector size with correct values
+    {
+        auto poroKw = deckFile.findKeyword( "PORO" );
+        ASSERT_TRUE( poroKw.has_value() ) << "PORO keyword missing from exported file";
+
+        const auto& poroData = poroKw->getRawDoubleData();
+        EXPECT_EQ( expectedCellCount, poroData.size() ) << "PORO should have " << expectedCellCount << " values";
+
+        for ( size_t i = 0; i < poroData.size(); ++i )
+        {
+            EXPECT_DOUBLE_EQ( 0.28, poroData[i] ) << "PORO value at index " << i << " should be 0.28";
+        }
+    }
+
+    // Verify EQLNUM keyword is cropped to sector size with correct region values
+    // Full grid EQLNUM: K=1-3 region 1, K=4-5 region 2, K=6-7 region 3, K=8-10 region 4
+    // Sector captures K=3-8 (0-based K=2-7), so:
+    //   Sector K=0 (full K=3): region 1 -> 100 cells (indices 0-99)
+    //   Sector K=1-2 (full K=4-5): region 2 -> 200 cells (indices 100-299)
+    //   Sector K=3-4 (full K=6-7): region 3 -> 200 cells (indices 300-499)
+    //   Sector K=5 (full K=8): region 4 -> 100 cells (indices 500-599)
+    {
+        auto eqlnumKw = deckFile.findKeyword( "EQLNUM" );
+        ASSERT_TRUE( eqlnumKw.has_value() ) << "EQLNUM keyword missing from exported file";
+
+        const auto& eqlnumData = eqlnumKw->getIntData();
+        EXPECT_EQ( expectedCellCount, eqlnumData.size() ) << "EQLNUM should have " << expectedCellCount << " values";
+
+        const size_t layerSize = 10 * 10; // 100 cells per layer
+
+        for ( size_t i = 0; i < eqlnumData.size(); ++i )
+        {
+            size_t sectorK        = i / layerSize;
+            int    expectedRegion = 0;
+            if ( sectorK == 0 )
+                expectedRegion = 1;
+            else if ( sectorK <= 2 )
+                expectedRegion = 2;
+            else if ( sectorK <= 4 )
+                expectedRegion = 3;
+            else
+                expectedRegion = 4;
+
+            EXPECT_EQ( expectedRegion, eqlnumData[i] )
+                << "EQLNUM value at index " << i << " (sector K=" << sectorK << ") should be " << expectedRegion;
+        }
+    }
+
+    // Verify EQUIL has 4 records (one per EQLNUM region)
+    {
+        auto equilKw = deckFile.findKeyword( "EQUIL" );
+        ASSERT_TRUE( equilKw.has_value() ) << "EQUIL keyword missing from exported file";
+
+        EXPECT_EQ( 4u, equilKw->size() ) << "EQUIL should have 4 records (one per EQLNUM region)";
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// Helper to create a BOX DeckRecord
 /// BOX format: I1 I2 J1 J2 K1 K2 (1-based Eclipse coordinates)
