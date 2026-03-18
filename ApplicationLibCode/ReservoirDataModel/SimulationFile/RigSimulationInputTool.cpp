@@ -19,11 +19,7 @@
 #include "RigSimulationInputTool.h"
 
 #include "RiaLogging.h"
-#include "RiaNncDefines.h"
 #include "RiaStdStringTools.h"
-
-#include "RigModelPaddingSettings.h"
-#include "RigPadModel.h"
 
 #include "RifEclipseInputFileTools.h"
 #include "RifOpmDeckTools.h"
@@ -37,6 +33,8 @@
 #include "RigEclipseResultTools.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
+#include "RigModelPaddingSettings.h"
+#include "RigPadModel.h"
 #include "RigResdataGridConverter.h"
 #include "RigSimulationInputSettings.h"
 #include "Well/RigSimWellData.h"
