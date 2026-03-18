@@ -101,8 +101,6 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
-    cropDataKeywordsInsideBoxContext( deckFile, settings.min(), settings.max(), settings.refinement() );
-
     auto croppedKeywords = cropDataKeywordsInDeckFile( &eclipseCase, settings, deckFile );
 
     if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, settings, deckFile, croppedKeywords ); !result )
@@ -110,31 +108,9 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
-    // Pre-process BOX/ENDBOX context: inject BOX indices into EQUALS/COPY/ADD/MULTIPLY records
-    // that don't have explicit box indices, so they get properly transformed by subsequent steps.
-    expandBoxContextInDeckFile( deckFile );
-
-    if ( auto result = replaceEqualsKeywordIndices( &eclipseCase, settings, deckFile ); !result )
-    {
-        return result;
-    }
-
-    if ( auto result = replaceCopyKeywordIndices( &eclipseCase, settings, deckFile ); !result )
-    {
-        return result;
-    }
-
-    if ( auto result = replaceMultiplyKeywordIndices( &eclipseCase, settings, deckFile ); !result )
-    {
-        return result;
-    }
-
-    if ( auto result = replaceAddKeywordIndices( &eclipseCase, settings, deckFile ); !result )
-    {
-        return result;
-    }
-
-    if ( auto result = replaceBoxKeywordIndices( &eclipseCase, settings, deckFile ); !result )
+    // Single-pass BOX/ENDBOX processing: crop data keywords, inject+transform EQUALS/COPY/ADD/MULTIPLY,
+    // and transform BOX coordinates, all while tracking BOX/ENDBOX state.
+    if ( auto result = transformKeywordsInDeckFile( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
     }
@@ -602,19 +578,47 @@ static std::array<int, 6> extractBoxIndicesFromRecord( const Opm::DeckRecord& re
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Pre-processing step: expand BOX context into EQUALS/COPY/ADD/MULTIPLY records.
-/// For keywords inside a BOX/ENDBOX block, records without explicit box indices
-/// get the active BOX indices injected. This ensures all records have explicit
-/// indices before the individual keyword processing transforms them.
+/// Single-pass BOX/ENDBOX processing: tracks BOX/ENDBOX state and handles all keyword types
+/// in one iteration. Crops data keywords to sector/box intersection, injects BOX indices into
+/// EQUALS/COPY/ADD/MULTIPLY records and transforms their coordinates, and transforms BOX
+/// coordinates. Replaces the previous multi-pass approach (expandBoxContextInDeckFile +
+/// cropDataKeywordsInsideBoxContext + replace*KeywordIndices).
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputTool::expandBoxContextInDeckFile( RifOpmFlowDeckFile& deckFile )
+std::expected<void, QString> RigSimulationInputTool::transformKeywordsInDeckFile( RimEclipseCase*                   eclipseCase,
+                                                                                  const RigSimulationInputSettings& settings,
+                                                                                  RifOpmFlowDeckFile&               deckFile )
 {
     Opm::FileDeck* fd = deckFile.fileDeck();
     if ( !fd ) return {};
 
-    bool                insideBox = false;
-    std::array<int, 6>  activeBoxIndices{};
-    const std::set<std::string> affectedKeywords = { "EQUALS", "COPY", "ADD", "MULTIPLY" };
+    const auto sectorMin  = settings.min();
+    const auto sectorMax  = settings.max();
+    const auto refinement = settings.refinement();
+
+    // Map keyword names to their record processor functions
+    const std::map<std::string, RecordProcessorFunc> recordProcessors = {
+        { "EQUALS", processEqualsRecord },
+        { "COPY", processCopyRecord },
+        { "ADD", processAddRecord },
+        { "MULTIPLY", processMultiplyRecord },
+    };
+
+    struct Modification
+    {
+        Opm::FileDeck::Index index;
+        enum Action
+        {
+            Replace,
+            Remove
+        } action;
+        Opm::DeckKeyword replacement;
+    };
+
+    bool                      insideBox = false;
+    std::array<int, 6>        activeBoxIndices{};
+    caf::VecIjk0              boxMin( 0, 0, 0 );
+    caf::VecIjk0              boxMax( 0, 0, 0 );
+    std::vector<Modification> modifications;
 
     for ( auto it = fd->start(); it != fd->stop(); it++ )
     {
@@ -628,6 +632,7 @@ void RigSimulationInputTool::expandBoxContextInDeckFile( RifOpmFlowDeckFile& dec
                 RiaLogging::warning( "BOX keyword found while already inside a BOX context. Previous BOX will be overridden." );
             }
 
+            insideBox = true;
             if ( kw.size() > 0 )
             {
                 const auto& rec = kw.getRecord( 0 );
@@ -639,8 +644,35 @@ void RigSimulationInputTool::expandBoxContextInDeckFile( RifOpmFlowDeckFile& dec
                                          rec.getItem( 3 ).get<int>( 0 ),
                                          rec.getItem( 4 ).get<int>( 0 ),
                                          rec.getItem( 5 ).get<int>( 0 ) };
-                    insideBox        = true;
+
+                    // BOX items: I1, I2, J1, J2, K1, K2 (1-based) -> 0-based for data keyword cropping
+                    boxMin = caf::VecIjk0( activeBoxIndices[0] - 1, activeBoxIndices[2] - 1, activeBoxIndices[4] - 1 );
+                    boxMax = caf::VecIjk0( activeBoxIndices[1] - 1, activeBoxIndices[3] - 1, activeBoxIndices[5] - 1 );
                 }
+            }
+
+            // Transform BOX coordinates via processBoxRecord
+            try
+            {
+                if ( kw.size() > 0 )
+                {
+                    auto result = processBoxRecord( kw.getRecord( 0 ), sectorMin, sectorMax, refinement );
+                    if ( result )
+                    {
+                        Opm::DeckKeyword transformedKw( kw.location(), kw.name() );
+                        transformedKw.addRecord( std::move( result.value() ) );
+                        modifications.push_back( { it, Modification::Replace, std::move( transformedKw ) } );
+                    }
+                    else
+                    {
+                        modifications.push_back( { it, Modification::Remove, Opm::DeckKeyword{} } );
+                        RiaLogging::warning( QString( "Failed to process BOX record: %1" ).arg( result.error() ) );
+                    }
+                }
+            }
+            catch ( std::exception& e )
+            {
+                return std::unexpected( QString( "Exception processing BOX keyword: %1" ).arg( e.what() ) );
             }
         }
         else if ( name == "ENDBOX" )
@@ -651,110 +683,9 @@ void RigSimulationInputTool::expandBoxContextInDeckFile( RifOpmFlowDeckFile& dec
             }
             insideBox = false;
         }
-        else if ( insideBox && affectedKeywords.count( name ) )
-        {
-            // Check if any record in this keyword needs expansion
-            bool needsExpansion = false;
-            for ( size_t r = 0; r < kw.size(); ++r )
-            {
-                if ( !recordHasExplicitBoxIndices( kw.getRecord( r ) ) )
-                {
-                    needsExpansion = true;
-                    break;
-                }
-            }
-
-            if ( needsExpansion )
-            {
-                Opm::DeckKeyword expandedKw( kw.location(), kw.name() );
-
-                // Track "current operation box" - starts with active BOX indices
-                std::array<int, 6> currentOpBox = activeBoxIndices;
-
-                for ( size_t r = 0; r < kw.size(); ++r )
-                {
-                    const auto& rec = kw.getRecord( r );
-                    if ( recordHasExplicitBoxIndices( rec ) )
-                    {
-                        // Update current operation box from this record's explicit indices
-                        currentOpBox = extractBoxIndicesFromRecord( rec );
-                        Opm::DeckRecord copy( rec );
-                        expandedKw.addRecord( std::move( copy ) );
-                    }
-                    else
-                    {
-                        // Inject current operation box indices into this record
-                        expandedKw.addRecord( injectBoxIndicesIntoRecord( rec, currentOpBox ) );
-                    }
-                }
-
-                deckFile.replaceKeywordAtIndex( it, expandedKw );
-            }
-        }
-    }
-
-    if ( insideBox )
-    {
-        RiaLogging::warning( "BOX keyword found without a matching ENDBOX at end of deck." );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Crop data keywords (PORO, EQLNUM, PERMX, etc.) inside BOX/ENDBOX blocks to the intersection
-/// of the BOX region with the sector. If the box does not intersect the sector, the data keyword
-/// is removed. This preserves the BOX/ENDBOX structure in the output while ensuring data sizes
-/// match the transformed box dimensions.
-//--------------------------------------------------------------------------------------------------
-void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFile& deckFile,
-                                                               const caf::VecIjk0& sectorMin,
-                                                               const caf::VecIjk0& sectorMax,
-                                                               const cvf::Vec3st&  refinement )
-{
-    Opm::FileDeck* fd = deckFile.fileDeck();
-    if ( !fd ) return;
-
-    struct Modification
-    {
-        Opm::FileDeck::Index index;
-        bool                 remove = false;
-        Opm::DeckKeyword     replacement;
-    };
-
-    bool           insideBox = false;
-    caf::VecIjk0   boxMin( 0, 0, 0 );
-    caf::VecIjk0   boxMax( 0, 0, 0 );
-    std::vector<Modification> modifications;
-
-    for ( auto it = fd->start(); it != fd->stop(); it++ )
-    {
-        const auto&        kw   = ( *fd )[it];
-        const std::string& name = kw.name();
-
-        if ( name == "BOX" )
-        {
-            insideBox = true;
-            if ( kw.size() > 0 )
-            {
-                const auto& rec = kw.getRecord( 0 );
-                if ( rec.size() >= 6 )
-                {
-                    // BOX items: I1, I2, J1, J2, K1, K2 (1-based)
-                    boxMin = caf::VecIjk0( rec.getItem( 0 ).get<int>( 0 ) - 1,
-                                           rec.getItem( 2 ).get<int>( 0 ) - 1,
-                                           rec.getItem( 4 ).get<int>( 0 ) - 1 );
-                    boxMax = caf::VecIjk0( rec.getItem( 1 ).get<int>( 0 ) - 1,
-                                           rec.getItem( 3 ).get<int>( 0 ) - 1,
-                                           rec.getItem( 5 ).get<int>( 0 ) - 1 );
-                }
-            }
-        }
-        else if ( name == "ENDBOX" )
-        {
-            insideBox = false;
-        }
         else if ( insideBox && kw.isDataKeyword() )
         {
-            // Compute intersection of box with sector (0-based, inclusive)
+            // Crop data keyword to sector/box intersection
             caf::VecIjk0 intMin( std::max( boxMin.x(), sectorMin.x() ),
                                  std::max( boxMin.y(), sectorMin.y() ),
                                  std::max( boxMin.z(), sectorMin.z() ) );
@@ -764,8 +695,7 @@ void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFil
 
             if ( intMin.x() > intMax.x() || intMin.y() > intMax.y() || intMin.z() > intMax.z() )
             {
-                // No intersection - remove the data keyword
-                modifications.push_back( { it, true, Opm::DeckKeyword{} } );
+                modifications.push_back( { it, Modification::Remove, Opm::DeckKeyword{} } );
                 RiaLogging::info( QString( "Removing data keyword '%1' inside BOX/ENDBOX: box does not intersect sector" )
                                       .arg( QString::fromStdString( name ) ) );
                 continue;
@@ -775,7 +705,6 @@ void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFil
 
             const auto& item = kw.getRecord( 0 ).getItem( 0 );
 
-            // Box dimensions (source grid for the data)
             const size_t boxNi = boxMax.x() - boxMin.x() + 1;
             const size_t boxNj = boxMax.y() - boxMin.y() + 1;
 
@@ -783,7 +712,6 @@ void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFil
             {
                 std::vector<T> croppedData;
 
-                // Iterate over refined intersection cells
                 for ( size_t k = intMin.z(); k <= static_cast<size_t>( intMax.z() ); ++k )
                 {
                     for ( size_t rk = 0; rk < refinement.z(); ++rk )
@@ -794,11 +722,10 @@ void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFil
                             {
                                 for ( size_t i = intMin.x(); i <= static_cast<size_t>( intMax.x() ); ++i )
                                 {
-                                    // Box-relative indices
-                                    size_t boxRelI  = i - boxMin.x();
-                                    size_t boxRelJ  = j - boxMin.y();
-                                    size_t boxRelK  = k - boxMin.z();
-                                    size_t srcIdx   = boxRelI + boxRelJ * boxNi + boxRelK * boxNi * boxNj;
+                                    size_t boxRelI = i - boxMin.x();
+                                    size_t boxRelJ = j - boxMin.y();
+                                    size_t boxRelK = k - boxMin.z();
+                                    size_t srcIdx  = boxRelI + boxRelJ * boxNi + boxRelK * boxNi * boxNj;
 
                                     for ( size_t ri = 0; ri < refinement.x(); ++ri )
                                     {
@@ -810,7 +737,6 @@ void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFil
                     }
                 }
 
-                // Build replacement keyword
                 Opm::DeckKeyword newKw = kw.emptyStructuralCopy();
                 Opm::DeckRecord  record;
 
@@ -832,7 +758,7 @@ void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFil
                 }
 
                 newKw.addRecord( std::move( record ) );
-                modifications.push_back( { it, false, std::move( newKw ) } );
+                modifications.push_back( { it, Modification::Replace, std::move( newKw ) } );
 
                 RiaLogging::info( QString( "Cropped data keyword '%1' inside BOX/ENDBOX (%2 -> %3 values)" )
                                       .arg( QString::fromStdString( name ) )
@@ -849,18 +775,82 @@ void RigSimulationInputTool::cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFil
                 cropBoxData( kw.getRawDoubleData() );
             }
         }
+        else if ( auto procIt = recordProcessors.find( name ); procIt != recordProcessors.end() )
+        {
+            // EQUALS, COPY, ADD, MULTIPLY keyword
+            const auto& processorFunc = procIt->second;
+
+            try
+            {
+                Opm::DeckKeyword transformedKw( kw.location(), kw.name() );
+
+                // Track "current operation box" for records inside BOX context
+                std::array<int, 6> currentOpBox = activeBoxIndices;
+
+                for ( size_t r = 0; r < kw.size(); ++r )
+                {
+                    const auto& rec = kw.getRecord( r );
+
+                    Opm::DeckRecord recordToProcess = rec;
+
+                    if ( insideBox )
+                    {
+                        // Inside BOX: inject box indices into records without explicit coords
+                        if ( recordHasExplicitBoxIndices( rec ) )
+                        {
+                            currentOpBox = extractBoxIndicesFromRecord( rec );
+                        }
+                        else
+                        {
+                            recordToProcess = injectBoxIndicesIntoRecord( rec, currentOpBox );
+                        }
+                    }
+
+                    // Transform the record
+                    auto result = processorFunc( recordToProcess, sectorMin, sectorMax, refinement );
+                    if ( result )
+                    {
+                        transformedKw.addRecord( std::move( result.value() ) );
+                    }
+                    else
+                    {
+                        RiaLogging::warning(
+                            QString( "Failed to process %1 record: %2" ).arg( QString::fromStdString( name ) ).arg( result.error() ) );
+                    }
+                }
+
+                if ( transformedKw.size() > 0 )
+                {
+                    modifications.push_back( { it, Modification::Replace, std::move( transformedKw ) } );
+                }
+                else
+                {
+                    // All records failed - replace with SKIP
+                    modifications.push_back( { it, Modification::Replace, Opm::DeckKeyword( kw.location(), "SKIP" ) } );
+                }
+            }
+            catch ( std::exception& e )
+            {
+                return std::unexpected( QString( "Exception processing %1 keyword: %2" ).arg( QString::fromStdString( name ) ).arg( e.what() ) );
+            }
+        }
+    }
+
+    if ( insideBox )
+    {
+        RiaLogging::warning( "BOX keyword found without a matching ENDBOX at end of deck." );
     }
 
     // Apply modifications in reverse order to maintain valid indices
-    for ( auto it = modifications.rbegin(); it != modifications.rend(); ++it )
+    for ( auto modIt = modifications.rbegin(); modIt != modifications.rend(); ++modIt )
     {
-        if ( it->remove )
+        if ( modIt->action == Modification::Remove )
         {
-            deckFile.removeKeywordAtIndex( it->index );
+            deckFile.removeKeywordAtIndex( modIt->index );
         }
         else
         {
-            deckFile.replaceKeywordAtIndex( it->index, it->replacement );
+            deckFile.replaceKeywordAtIndex( modIt->index, modIt->replacement );
         }
     }
 
@@ -932,46 +922,6 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndice
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceEqualsKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                                  const RigSimulationInputSettings& settings,
-                                                                                  RifOpmFlowDeckFile&               deckFile )
-{
-    return replaceKeywordWithBoxIndices( "EQUALS", eclipseCase, settings, deckFile, processEqualsRecord );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceMultiplyKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                                    const RigSimulationInputSettings& settings,
-                                                                                    RifOpmFlowDeckFile&               deckFile )
-{
-    return replaceKeywordWithBoxIndices( "MULTIPLY", eclipseCase, settings, deckFile, processMultiplyRecord );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceCopyKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                                const RigSimulationInputSettings& settings,
-                                                                                RifOpmFlowDeckFile&               deckFile )
-{
-    return replaceKeywordWithBoxIndices( "COPY", eclipseCase, settings, deckFile, processCopyRecord );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceAddKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                               const RigSimulationInputSettings& settings,
-                                                                               RifOpmFlowDeckFile&               deckFile )
-{
-    return replaceKeywordWithBoxIndices( "ADD", eclipseCase, settings, deckFile, processAddRecord );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::replaceAquconKeywordIndices( RimEclipseCase*                   eclipseCase,
                                                                                   const RigSimulationInputSettings& settings,
                                                                                   RifOpmFlowDeckFile&               deckFile )
@@ -997,16 +947,6 @@ std::expected<void, QString> RigSimulationInputTool::replaceAqunumKeywordIndices
                                                                                   RifOpmFlowDeckFile&               deckFile )
 {
     return replaceKeywordWithBoxIndices( "AQUNUM", eclipseCase, settings, deckFile, processAqunumRecord );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceBoxKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                               const RigSimulationInputSettings& settings,
-                                                                               RifOpmFlowDeckFile&               deckFile )
-{
-    return replaceKeywordWithBoxIndices( "BOX", eclipseCase, settings, deckFile, processBoxRecord );
 }
 
 //--------------------------------------------------------------------------------------------------

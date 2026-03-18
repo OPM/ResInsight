@@ -1822,11 +1822,12 @@ TEST( RigSimulationInputTool, ProcessMultiplyRecord_WithBoxIndices )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Test expandBoxContextInDeckFile: EQUALS inside BOX/ENDBOX with no explicit indices
+/// Test transformKeywordsInDeckFile: EQUALS inside BOX/ENDBOX with no explicit indices
+/// gets BOX indices injected and then transformed to sector-relative coordinates.
+/// Using sector covering the whole grid so transformed coords = original coords.
 //--------------------------------------------------------------------------------------------------
 TEST( RigSimulationInputTool, ExpandBoxContext_EqualsInheritsBoxIndices )
 {
-    // Create a minimal DATA file with BOX/ENDBOX containing EQUALS without indices
     QTemporaryDir tempDir;
     ASSERT_TRUE( tempDir.isValid() );
 
@@ -1847,20 +1848,24 @@ TEST( RigSimulationInputTool, ExpandBoxContext_EqualsInheritsBoxIndices )
     auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
     ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
 
-    // Verify EQUALS has no explicit box indices before expansion
+    // Verify EQUALS has no explicit box indices before transformation
     auto equalsBeforeVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
     ASSERT_EQ( 1u, equalsBeforeVec.size() );
     ASSERT_EQ( 1u, equalsBeforeVec[0].second.size() );
-    // The record should have fewer than 8 items or items without values
-    const auto& recBefore = equalsBeforeVec[0].second.getRecord( 0 );
-    bool        hadExplicitBefore =
-        recBefore.size() >= 8 && recBefore.getItem( 2 ).hasValue( 0 ) && recBefore.getItem( 3 ).hasValue( 0 ) &&
-        recBefore.getItem( 4 ).hasValue( 0 ) && recBefore.getItem( 5 ).hasValue( 0 ) && recBefore.getItem( 6 ).hasValue( 0 ) &&
-        recBefore.getItem( 7 ).hasValue( 0 );
-    EXPECT_FALSE( hadExplicitBefore ) << "Record should not have explicit box indices before expansion";
+    const auto& recBefore         = equalsBeforeVec[0].second.getRecord( 0 );
+    bool        hadExplicitBefore = recBefore.size() >= 8 && recBefore.getItem( 2 ).hasValue( 0 ) && recBefore.getItem( 3 ).hasValue( 0 ) &&
+                             recBefore.getItem( 4 ).hasValue( 0 ) && recBefore.getItem( 5 ).hasValue( 0 ) &&
+                             recBefore.getItem( 6 ).hasValue( 0 ) && recBefore.getItem( 7 ).hasValue( 0 );
+    EXPECT_FALSE( hadExplicitBefore ) << "Record should not have explicit box indices before transformation";
 
-    // Run expansion
-    RigSimulationInputTool::expandBoxContextInDeckFile( deckFile );
+    // Sector covers entire grid: sectorMin=(0,0,0), sectorMax=(9,9,4), refinement=(1,1,1)
+    // This makes coordinate transformation an identity operation
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
     // Verify EQUALS now has explicit box indices matching the BOX keyword
     auto equalsAfterVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
@@ -1879,7 +1884,8 @@ TEST( RigSimulationInputTool, ExpandBoxContext_EqualsInheritsBoxIndices )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Test expandBoxContextInDeckFile: records with explicit indices keep their own indices
+/// Test transformKeywordsInDeckFile: records with explicit indices keep their own indices
+/// (not overridden by BOX indices) and are transformed to sector-relative coordinates.
 //--------------------------------------------------------------------------------------------------
 TEST( RigSimulationInputTool, ExpandBoxContext_ExplicitIndicesPreserved )
 {
@@ -1903,7 +1909,13 @@ TEST( RigSimulationInputTool, ExpandBoxContext_ExplicitIndicesPreserved )
     auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
     ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
 
-    RigSimulationInputTool::expandBoxContextInDeckFile( deckFile );
+    // Sector covers entire grid
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
     auto equalsVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
     ASSERT_EQ( 1u, equalsVec.size() );
@@ -1921,7 +1933,8 @@ TEST( RigSimulationInputTool, ExpandBoxContext_ExplicitIndicesPreserved )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Test expandBoxContextInDeckFile: keywords outside BOX context are not modified
+/// Test transformKeywordsInDeckFile: EQUALS outside BOX context without explicit indices
+/// passes through unchanged (no box indices injected).
 //--------------------------------------------------------------------------------------------------
 TEST( RigSimulationInputTool, ExpandBoxContext_OutsideBoxNotModified )
 {
@@ -1943,7 +1956,13 @@ TEST( RigSimulationInputTool, ExpandBoxContext_OutsideBoxNotModified )
     auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
     ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
 
-    RigSimulationInputTool::expandBoxContextInDeckFile( deckFile );
+    // Sector covers entire grid
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
     auto equalsVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
     ASSERT_EQ( 1u, equalsVec.size() );
@@ -1957,7 +1976,7 @@ TEST( RigSimulationInputTool, ExpandBoxContext_OutsideBoxNotModified )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Test cropDataKeywordsInsideBoxContext: data keywords inside BOX/ENDBOX are cropped
+/// Test transformKeywordsInDeckFile: data keywords inside BOX/ENDBOX are cropped
 /// to the intersection of the box with the sector
 //--------------------------------------------------------------------------------------------------
 TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext )
@@ -1993,11 +2012,13 @@ TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext )
     auto eqlnumBefore = deckFile.findAllKeywordsWithIndices( "EQLNUM" );
     EXPECT_EQ( 2u, eqlnumBefore.size() );
 
-    // Run cropping with sector (2,2,1)-(7,7,4), no refinement
-    caf::VecIjk0 sectorMin( 2, 2, 1 );
-    caf::VecIjk0 sectorMax( 7, 7, 4 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
-    RigSimulationInputTool::cropDataKeywordsInsideBoxContext( deckFile, sectorMin, sectorMax, refinement );
+    // Run transformation with sector (2,2,1)-(7,7,4), no refinement
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 2, 2, 1 ) );
+    settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
     // After cropping: should still find two EQLNUM keywords
     auto eqlnumAfter = deckFile.findAllKeywordsWithIndices( "EQLNUM" );
@@ -2024,7 +2045,7 @@ TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Test cropDataKeywordsInsideBoxContext: box that doesn't intersect sector removes keyword
+/// Test transformKeywordsInDeckFile: box that doesn't intersect sector removes data keyword
 //--------------------------------------------------------------------------------------------------
 TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext_NoIntersection )
 {
@@ -2053,10 +2074,12 @@ TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext_NoIntersection )
     ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
 
     // Sector does not include K=4
-    caf::VecIjk0 sectorMin( 2, 2, 0 );
-    caf::VecIjk0 sectorMax( 7, 7, 2 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
-    RigSimulationInputTool::cropDataKeywordsInsideBoxContext( deckFile, sectorMin, sectorMax, refinement );
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 2, 2, 0 ) );
+    settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
     // Boxed EQLNUM should be removed since box doesn't intersect sector
     auto eqlnumAfter = deckFile.findAllKeywordsWithIndices( "EQLNUM" );

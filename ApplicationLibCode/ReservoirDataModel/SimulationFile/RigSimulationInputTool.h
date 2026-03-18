@@ -26,6 +26,7 @@
 
 #include <expected>
 #include <functional>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -102,11 +103,8 @@ public:
 
     static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
 
-    static void expandBoxContextInDeckFile( RifOpmFlowDeckFile& deckFile );
-    static void cropDataKeywordsInsideBoxContext( RifOpmFlowDeckFile& deckFile,
-                                                    const caf::VecIjk0& sectorMin,
-                                                    const caf::VecIjk0& sectorMax,
-                                                    const cvf::Vec3st&  refinement );
+    static std::expected<void, QString>
+        transformKeywordsInDeckFile( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
     // Public EDITNNC methods for testing
     static std::vector<NNCConnection> extractDeckEditNncConnections( RifOpmFlowDeckFile& deckFile, const RigMainGrid& mainGrid );
@@ -143,21 +141,6 @@ private:
                                                                      const RigSimulationInputSettings& settings,
                                                                      cvf::ref<cvf::UByteArray>         visibility,
                                                                      RifOpmFlowDeckFile&               deckFile );
-
-    static std::expected<void, QString>
-        replaceEqualsKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
-
-    static std::expected<void, QString>
-        replaceMultiplyKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
-
-    static std::expected<void, QString>
-        replaceBoxKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
-
-    static std::expected<void, QString>
-        replaceCopyKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
-
-    static std::expected<void, QString>
-        replaceAddKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
     static std::expected<void, QString>
         replaceAquconKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
