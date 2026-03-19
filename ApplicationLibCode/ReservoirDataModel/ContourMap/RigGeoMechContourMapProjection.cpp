@@ -42,8 +42,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechContourMapProjection::RigGeoMechContourMapProjection( RigGeoMechCaseData&      caseData,
-                                                                const RigContourMapGrid& contourMapGrid,
+RigGeoMechContourMapProjection::RigGeoMechContourMapProjection( RigGeoMechCaseData*      caseData,
+                                                                const RigContourMapGrid* contourMapGrid,
                                                                 bool                     limitToPorePressureRegions,
                                                                 double                   paddingAroundPorePressureRegion )
     : RigContourMapProjection( contourMapGrid )
@@ -52,7 +52,7 @@ RigGeoMechContourMapProjection::RigGeoMechContourMapProjection( RigGeoMechCaseDa
     , m_paddingAroundPorePressureRegion( paddingAroundPorePressureRegion )
     , m_kLayers( 0u )
 {
-    m_femPart     = m_caseData.femParts()->part( 0 );
+    m_femPart     = m_caseData->femParts()->part( 0 );
     m_femPartGrid = m_femPart->getOrCreateStructGrid();
     m_kLayers     = m_femPartGrid->cellCountK();
     m_femPart->ensureIntersectionSearchTreeIsBuilt();
@@ -143,11 +143,11 @@ std::vector<bool> RigGeoMechContourMapProjection::getMapCellVisibility( RigFemRe
         cvf::BoundingBox validResBoundingBox;
         for ( size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex )
         {
-            cvf::Vec2ui ij = m_contourMapGrid.ijFromCellIndex( cellIndex );
+            cvf::Vec2ui ij = m_contourMapGrid->ijFromCellIndex( cellIndex );
             if ( cellResults[cellIndex] != std::numeric_limits<double>::infinity() )
             {
                 distanceImage[ij.x()][ij.y()] = 1u;
-                validResBoundingBox.add( cvf::Vec3d( m_contourMapGrid.cellCenterPosition( ij.x(), ij.y() ), 0.0 ) );
+                validResBoundingBox.add( cvf::Vec3d( m_contourMapGrid->cellCenterPosition( ij.x(), ij.y() ), 0.0 ) );
             }
             else
             {
@@ -162,12 +162,12 @@ std::vector<bool> RigGeoMechContourMapProjection::getMapCellVisibility( RigFemRe
             cvf::Vec3d porExtent   = validResBoundingBox.extent();
             double     radius      = std::max( porExtent.x(), porExtent.y() ) * 0.25;
             double     expansion   = m_paddingAroundPorePressureRegion * radius;
-            size_t     cellPadding = std::ceil( expansion / m_contourMapGrid.sampleSpacing() );
+            size_t     cellPadding = std::ceil( expansion / m_contourMapGrid->sampleSpacing() );
             for ( size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex )
             {
                 if ( !mapCellVisibility[cellIndex] )
                 {
-                    cvf::Vec2ui ij = m_contourMapGrid.ijFromCellIndex( cellIndex );
+                    cvf::Vec2ui ij = m_contourMapGrid->ijFromCellIndex( cellIndex );
                     if ( distanceImage[ij.x()][ij.y()] < cellPadding * cellPadding )
                     {
                         mapCellVisibility[cellIndex] = true;
@@ -198,11 +198,11 @@ std::vector<double> RigGeoMechContourMapProjection::generateResultsFromAddress( 
                                                                                 RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                                                 int viewerStepIndex ) const
 {
-    RigFemPartResultsCollection* resultCollection  = m_caseData.femPartResults();
+    RigFemPartResultsCollection* resultCollection  = m_caseData->femPartResults();
     size_t                       nCells            = numberOfCells();
     std::vector<double>          aggregatedResults = std::vector<double>( nCells, std::numeric_limits<double>::infinity() );
 
-    auto [stepIdx, frameIdx] = m_caseData.femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerStepIndex );
+    auto [stepIdx, frameIdx] = m_caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerStepIndex );
 
     bool wasInvalid = false;
     if ( !resultAddress.isValid() )
@@ -247,7 +247,7 @@ std::vector<double> RigGeoMechContourMapProjection::generateResultsFromAddress( 
     {
         if ( mapCellVisibility.empty() || mapCellVisibility[index] )
         {
-            cvf::Vec2ui ij           = m_contourMapGrid.ijFromCellIndex( index );
+            cvf::Vec2ui ij           = m_contourMapGrid->ijFromCellIndex( index );
             aggregatedResults[index] = calculateValueInMapCell( ij.x(), ij.y(), resultValues, resultAggregation );
         }
     }

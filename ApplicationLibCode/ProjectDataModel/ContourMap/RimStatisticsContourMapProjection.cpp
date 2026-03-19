@@ -207,7 +207,7 @@ void RimStatisticsContourMapProjection::updateGridInformation()
     contourMap->ensureResultsComputed();
 
     m_contourMapGrid       = std::make_unique<RigContourMapGrid>( *contourMap->contourMapGrid() );
-    m_contourMapProjection = std::make_unique<RigStatisticsContourMapProjection>( *m_contourMapGrid );
+    m_contourMapProjection = std::make_unique<RigStatisticsContourMapProjection>( m_contourMapGrid.get() );
 }
 
 //--------------------------------------------------------------------------------------------------

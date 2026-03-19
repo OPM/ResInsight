@@ -41,9 +41,9 @@ class RigCaseCellResultsData;
 class RigEclipseContourMapProjection : public RigContourMapProjection
 {
 public:
-    RigEclipseContourMapProjection( const RigContourMapGrid& contourMapGrid,
-                                    RigEclipseCaseData&      eclipseCaseData,
-                                    RigCaseCellResultsData&  resultData );
+    RigEclipseContourMapProjection( const RigContourMapGrid* contourMapGrid,
+                                    RigEclipseCaseData*      eclipseCaseData,
+                                    RigCaseCellResultsData*  resultData );
     virtual ~RigEclipseContourMapProjection();
 
     void generateAndSaveResults( const RigEclipseResultAddress&                 resultAddress,
@@ -63,6 +63,8 @@ public:
                                                                  RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                                  int                                            timeStep,
                                                                  RigFloodingSettings&                           floodingSettings );
+
+    void updateRealizationData( RigActiveCellInfo* activeCellInfo, RigCaseCellResultsData* resultData );
 
     std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) override;
     bool              isCellActive( size_t globalCellIdx ) const override;
@@ -87,10 +89,10 @@ protected:
                                                             RigFloodingSettings&                           floodingSettings );
 
 protected:
-    RigEclipseCaseData&         m_eclipseCaseData;
-    RigCaseCellResultsData&     m_resultData;
-    cvf::ref<RigMainGrid>       m_mainGrid;
-    cvf::ref<RigActiveCellInfo> m_activeCellInfo;
-    size_t                      m_kLayers;
-    bool                        m_useActiveCellInfo;
+    RigEclipseCaseData*     m_eclipseCaseData;
+    RigCaseCellResultsData* m_resultData;
+    RigMainGrid*            m_mainGrid;
+    RigActiveCellInfo*      m_activeCellInfo;
+    size_t                  m_kLayers;
+    bool                    m_useActiveCellInfo;
 };

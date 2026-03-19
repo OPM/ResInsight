@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigStatisticsContourMapProjection::RigStatisticsContourMapProjection( const RigContourMapGrid& contourMapGrid )
+RigStatisticsContourMapProjection::RigStatisticsContourMapProjection( const RigContourMapGrid* contourMapGrid )
     : RigContourMapProjection( contourMapGrid )
 {
 }
@@ -130,7 +130,7 @@ std::vector<bool> RigStatisticsContourMapProjection::getMapCellVisibility( int v
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, double>> RigStatisticsContourMapProjection::cellsAtIJ( unsigned int i, unsigned int j ) const
 {
-    size_t cellIndex = m_contourMapGrid.cellIndexFromIJ( i, j );
+    size_t cellIndex = m_contourMapGrid->cellIndexFromIJ( i, j );
     if ( cellIndex < m_aggregatedResults.size() && !std::isinf( m_aggregatedResults[cellIndex] ) &&
          !std::isnan( m_aggregatedResults[cellIndex] ) )
     {

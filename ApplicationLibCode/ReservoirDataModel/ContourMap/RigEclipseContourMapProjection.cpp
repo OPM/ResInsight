@@ -38,17 +38,17 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseContourMapProjection::RigEclipseContourMapProjection( const RigContourMapGrid& contourMapGrid,
-                                                                RigEclipseCaseData&      eclipseCaseData,
-                                                                RigCaseCellResultsData&  resultData )
+RigEclipseContourMapProjection::RigEclipseContourMapProjection( const RigContourMapGrid* contourMapGrid,
+                                                                RigEclipseCaseData*      eclipseCaseData,
+                                                                RigCaseCellResultsData*  resultData )
     : RigContourMapProjection( contourMapGrid )
     , m_eclipseCaseData( eclipseCaseData )
     , m_resultData( resultData )
     , m_kLayers( 0u )
     , m_useActiveCellInfo( true )
 {
-    m_mainGrid       = m_eclipseCaseData.mainGrid();
-    m_activeCellInfo = m_eclipseCaseData.activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    m_mainGrid       = m_eclipseCaseData->mainGrid();
+    m_activeCellInfo = m_eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     m_kLayers        = m_mainGrid->cellCountK();
 }
 
@@ -62,13 +62,22 @@ RigEclipseContourMapProjection::~RigEclipseContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigEclipseContourMapProjection::updateRealizationData( RigActiveCellInfo* activeCellInfo, RigCaseCellResultsData* resultData )
+{
+    m_activeCellInfo = activeCellInfo;
+    m_resultData     = resultData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigEclipseContourMapProjection::generateAndSaveResults( const RigEclipseResultAddress&                 resultAddress,
                                                              RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                              int                                            timeStep,
                                                              RigFloodingSettings&                           floodingSettings )
 {
     std::tie( m_useActiveCellInfo, m_aggregatedResults ) =
-        generateResults( *this, m_contourMapGrid, m_resultData, resultAddress, resultAggregation, timeStep, floodingSettings );
+        generateResults( *this, *m_contourMapGrid, *m_resultData, resultAddress, resultAggregation, timeStep, floodingSettings );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,7 +89,7 @@ std::vector<double> RigEclipseContourMapProjection::generateResults( const RigEc
                                                                      RigFloodingSettings&                           floodingSettings ) const
 {
     std::pair<bool, std::vector<double>> result =
-        generateResults( *this, m_contourMapGrid, m_resultData, resultAddress, resultAggregation, timeStep, floodingSettings );
+        generateResults( *this, *m_contourMapGrid, *m_resultData, resultAddress, resultAggregation, timeStep, floodingSettings );
     return result.second;
 }
 
@@ -327,7 +336,7 @@ size_t RigEclipseContourMapProjection::gridResultIndex( size_t globalCellIdx ) c
 //--------------------------------------------------------------------------------------------------
 bool RigEclipseContourMapProjection::isCellActive( size_t globalCellIdx ) const
 {
-    if ( m_useActiveCellInfo && m_activeCellInfo.notNull() )
+    if ( m_useActiveCellInfo && m_activeCellInfo != nullptr )
     {
         return m_activeCellInfo->isActive( globalCellIdx );
     }

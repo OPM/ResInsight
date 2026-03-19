@@ -32,7 +32,7 @@ class RigContourMapGrid;
 class RigStatisticsContourMapProjection : public RigContourMapProjection
 {
 public:
-    RigStatisticsContourMapProjection( const RigContourMapGrid& contourMapGrid );
+    RigStatisticsContourMapProjection( const RigContourMapGrid* contourMapGrid );
     virtual ~RigStatisticsContourMapProjection();
 
     std::vector<std::pair<size_t, double>> cellsAtIJ( unsigned int i, unsigned int j ) const override;

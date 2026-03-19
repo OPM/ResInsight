@@ -249,7 +249,7 @@ void RimEclipseContourMapProjection::updateGridInformation()
 
     cvf::BoundingBox gridBoundingBox = eclipseCase->activeCellsBoundingBox();
     m_contourMapGrid                 = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing() );
-    m_contourMapProjection           = std::make_unique<RigEclipseContourMapProjection>( *m_contourMapGrid, *eclipseCaseData, *resultData );
+    m_contourMapProjection = std::make_unique<RigEclipseContourMapProjection>( m_contourMapGrid.get(), eclipseCaseData, resultData );
 }
 
 //--------------------------------------------------------------------------------------------------

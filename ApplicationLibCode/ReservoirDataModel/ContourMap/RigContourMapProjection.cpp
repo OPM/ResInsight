@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigContourMapProjection::RigContourMapProjection( const RigContourMapGrid& contourMapGrid )
+RigContourMapProjection::RigContourMapProjection( const RigContourMapGrid* contourMapGrid )
     : m_contourMapGrid( contourMapGrid )
     , m_currentResultTimestep( -1 )
 {
@@ -50,7 +50,7 @@ std::vector<std::vector<std::pair<size_t, double>>>
                                                   const std::vector<std::vector<cvf::Vec3d>>&    limitToPolygons )
 {
     m_projected3dGridIndices =
-        RigContourMapCalculator::generateGridMapping( *this, m_contourMapGrid, resultAggregation, weights, kLayers, limitToPolygons );
+        RigContourMapCalculator::generateGridMapping( *this, *m_contourMapGrid, resultAggregation, weights, kLayers, limitToPolygons );
     return m_projected3dGridIndices;
 }
 
@@ -100,7 +100,7 @@ double RigContourMapProjection::sumAllValues() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RigContourMapProjection::numberOfElementsIJ() const
 {
-    return m_contourMapGrid.numberOfElementsIJ();
+    return m_contourMapGrid->numberOfElementsIJ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ cvf::Vec2ui RigContourMapProjection::numberOfElementsIJ() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RigContourMapProjection::numberOfVerticesIJ() const
 {
-    return m_contourMapGrid.numberOfVerticesIJ();
+    return m_contourMapGrid->numberOfVerticesIJ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ cvf::Vec2ui RigContourMapProjection::numberOfVerticesIJ() const
 //--------------------------------------------------------------------------------------------------
 size_t RigContourMapProjection::vertexIndex( unsigned int i, unsigned int j ) const
 {
-    return m_contourMapGrid.vertexIndexFromIJ( i, j );
+    return m_contourMapGrid->vertexIndexFromIJ( i, j );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ size_t RigContourMapProjection::vertexIndex( unsigned int i, unsigned int j ) co
 //--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::valueAtVertex( unsigned int i, unsigned int j ) const
 {
-    size_t index = m_contourMapGrid.vertexIndexFromIJ( i, j );
+    size_t index = m_contourMapGrid->vertexIndexFromIJ( i, j );
     if ( index < numberOfVertices() )
     {
         return m_aggregatedVertexResults.at( index );
@@ -137,7 +137,7 @@ double RigContourMapProjection::valueAtVertex( unsigned int i, unsigned int j ) 
 //--------------------------------------------------------------------------------------------------
 unsigned int RigContourMapProjection::numberOfCells() const
 {
-    return m_contourMapGrid.numberOfCells();
+    return m_contourMapGrid->numberOfCells();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ unsigned int RigContourMapProjection::numberOfValidCells() const
     unsigned int validCount = 0u;
     for ( unsigned int i = 0; i < numberOfCells(); ++i )
     {
-        cvf::Vec2ui ij = m_contourMapGrid.ijFromCellIndex( i );
+        cvf::Vec2ui ij = m_contourMapGrid->ijFromCellIndex( i );
         if ( hasResultInCell( ij.x(), ij.y() ) )
         {
             validCount++;
@@ -174,7 +174,7 @@ bool RigContourMapProjection::checkForMapIntersection( const cvf::Vec3d& domainP
     CVF_TIGHT_ASSERT( contourMapPoint );
     CVF_TIGHT_ASSERT( valueAtPoint );
 
-    const cvf::Vec3d& minPoint = m_contourMapGrid.expandedBoundingBox().min();
+    const cvf::Vec3d& minPoint = m_contourMapGrid->expandedBoundingBox().min();
     cvf::Vec3d        mapPos3d = domainPoint3d - minPoint;
     cvf::Vec2d        mapPos2d( mapPos3d.x(), mapPos3d.y() );
     cvf::Vec2d        gridorigin( minPoint.x(), minPoint.y() );
@@ -195,7 +195,7 @@ bool RigContourMapProjection::checkForMapIntersection( const cvf::Vec3d& domainP
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigContourMapProjection::origin3d() const
 {
-    return m_contourMapGrid.expandedBoundingBox().min();
+    return m_contourMapGrid->expandedBoundingBox().min();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ cvf::Vec3d RigContourMapProjection::origin3d() const
 //--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::topDepthBoundingBox() const
 {
-    return m_contourMapGrid.expandedBoundingBox().max().z();
+    return m_contourMapGrid->expandedBoundingBox().max().z();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,7 +273,7 @@ void RigContourMapProjection::generateVertexResults()
 #pragma omp parallel for
     for ( int index = 0; index < static_cast<int>( nVertices ); ++index )
     {
-        cvf::Vec2ui ij                   = m_contourMapGrid.ijFromVertexIndex( index );
+        cvf::Vec2ui ij                   = m_contourMapGrid->ijFromVertexIndex( index );
         m_aggregatedVertexResults[index] = calculateValueAtVertex( ij.x(), ij.y() );
     }
 }
@@ -316,10 +316,10 @@ double RigContourMapProjection::sumTriangleAreas( const std::vector<cvf::Vec4d>&
 //--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::interpolateValue( const cvf::Vec2d& gridPos2d ) const
 {
-    cvf::Vec2ui cellContainingPoint = m_contourMapGrid.ijFromLocalPos( gridPos2d );
-    cvf::Vec2d  cellCenter          = m_contourMapGrid.cellCenterPosition( cellContainingPoint.x(), cellContainingPoint.y() );
+    cvf::Vec2ui cellContainingPoint = m_contourMapGrid->ijFromLocalPos( gridPos2d );
+    cvf::Vec2d  cellCenter          = m_contourMapGrid->cellCenterPosition( cellContainingPoint.x(), cellContainingPoint.y() );
 
-    double                    sampleSpacing = m_contourMapGrid.sampleSpacing();
+    double                    sampleSpacing = m_contourMapGrid->sampleSpacing();
     std::array<cvf::Vec3d, 4> x;
     x[0] = cvf::Vec3d( cellCenter + cvf::Vec2d( -sampleSpacing * 0.5, -sampleSpacing * 0.5 ), 0.0 );
     x[1] = cvf::Vec3d( cellCenter + cvf::Vec2d( sampleSpacing * 0.5, -sampleSpacing * 0.5 ), 0.0 );
@@ -370,7 +370,7 @@ double RigContourMapProjection::interpolateValue( const cvf::Vec2d& gridPos2d ) 
 //--------------------------------------------------------------------------------------------------
 double RigContourMapProjection::valueInCell( unsigned int i, unsigned int j ) const
 {
-    size_t index = m_contourMapGrid.cellIndexFromIJ( i, j );
+    size_t index = m_contourMapGrid->cellIndexFromIJ( i, j );
     if ( index < numberOfCells() )
     {
         return m_aggregatedResults.at( index );
@@ -396,8 +396,8 @@ double RigContourMapProjection::calculateValueAtVertex( unsigned int vi, unsigne
 
     if ( vi > 0u ) averageIs.push_back( vi - 1 );
     if ( vj > 0u ) averageJs.push_back( vj - 1 );
-    if ( vi < m_contourMapGrid.mapSize().x() ) averageIs.push_back( vi );
-    if ( vj < m_contourMapGrid.mapSize().y() ) averageJs.push_back( vj );
+    if ( vi < m_contourMapGrid->mapSize().x() ) averageIs.push_back( vi );
+    if ( vj < m_contourMapGrid->mapSize().y() ) averageJs.push_back( vj );
 
     RiaWeightedMeanCalculator<double> calc;
     for ( unsigned int j : averageJs )
@@ -445,7 +445,7 @@ bool RigContourMapProjection::contourMapCellContainsOnlyInactiveCells( unsigned 
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, double>> RigContourMapProjection::cellsAtIJ( unsigned int i, unsigned int j ) const
 {
-    size_t cellIndex = m_contourMapGrid.cellIndexFromIJ( i, j );
+    size_t cellIndex = m_contourMapGrid->cellIndexFromIJ( i, j );
     if ( cellIndex < m_projected3dGridIndices.size() )
     {
         return m_projected3dGridIndices[cellIndex];
@@ -458,7 +458,7 @@ std::vector<std::pair<size_t, double>> RigContourMapProjection::cellsAtIJ( unsig
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigContourMapProjection::xVertexPositions() const
 {
-    return m_contourMapGrid.xVertexPositions();
+    return m_contourMapGrid->xVertexPositions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ std::vector<double> RigContourMapProjection::xVertexPositions() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigContourMapProjection::yVertexPositions() const
 {
-    return m_contourMapGrid.yVertexPositions();
+    return m_contourMapGrid->yVertexPositions();
 }
 
 //--------------------------------------------------------------------------------------------------

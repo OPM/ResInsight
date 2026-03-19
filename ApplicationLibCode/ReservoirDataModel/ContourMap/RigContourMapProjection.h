@@ -42,7 +42,7 @@ class RigContourMapProjection
 public:
     using CellIndexAndResult = std::pair<size_t, double>;
 
-    RigContourMapProjection( const RigContourMapGrid& );
+    RigContourMapProjection( const RigContourMapGrid* );
 
     void clearResults();
     void clearGridMapping();
@@ -130,5 +130,5 @@ protected:
 
     std::optional<std::pair<double, double>> m_valueFilter;
 
-    const RigContourMapGrid& m_contourMapGrid;
+    const RigContourMapGrid* m_contourMapGrid;
 };

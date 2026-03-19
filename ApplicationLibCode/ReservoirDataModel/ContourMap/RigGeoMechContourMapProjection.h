@@ -34,8 +34,8 @@ class RigGeoMechCaseData;
 class RigGeoMechContourMapProjection : public RigContourMapProjection
 {
 public:
-    RigGeoMechContourMapProjection( RigGeoMechCaseData& caseData,
-                                    const RigContourMapGrid&,
+    RigGeoMechContourMapProjection( RigGeoMechCaseData* caseData,
+                                    const RigContourMapGrid*,
                                     bool   limitToPorePressureRegions,
                                     double paddingAroundPorePressureRegion );
 
@@ -73,7 +73,7 @@ protected:
     std::vector<double> gridCellValues( RigFemResultAddress resAddr, std::vector<float>& resultValues ) const;
 
 protected:
-    RigGeoMechCaseData&       m_caseData;
+    RigGeoMechCaseData*       m_caseData;
     bool                      m_limitToPorePressureRegions;
     double                    m_paddingAroundPorePressureRegion;
     cvf::ref<RigFemPart>      m_femPart;

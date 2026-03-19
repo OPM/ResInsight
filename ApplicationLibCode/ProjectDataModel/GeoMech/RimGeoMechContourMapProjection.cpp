@@ -237,8 +237,8 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     expandedBoundingBox = cvf::BoundingBox( minExpandedPoint, maxExpandedPoint );
 
     m_contourMapGrid       = std::make_unique<RigContourMapGrid>( gridBoundingBox, expandedBoundingBox, sampleSpacing() );
-    m_contourMapProjection = std::make_unique<RigGeoMechContourMapProjection>( *geoMechCase->geoMechData(),
-                                                                               *m_contourMapGrid,
+    m_contourMapProjection = std::make_unique<RigGeoMechContourMapProjection>( geoMechCase->geoMechData(),
+                                                                               m_contourMapGrid.get(),
                                                                                m_limitToPorePressureRegions,
                                                                                m_paddingAroundPorePressureRegion );
 }
