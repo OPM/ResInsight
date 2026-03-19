@@ -29,7 +29,6 @@ public:
     static size_t queueProcess( RimProcess* process );
     static void   stopProcess( size_t processId );
     static void   onProcessFinished( size_t processId );
-    static void   onProcessStarted( size_t processId );
 
 protected:
     RimProcessQueue();
@@ -38,7 +37,6 @@ protected:
     size_t internalQueueProcess( RimProcess* process );
     void   internalOnProcessFinished( size_t processId );
     void   internalStopProcess( size_t processId );
-    void   internalOnProcessStarted( size_t processId );
 
 private:
     void launchNextProcessIfPossible();

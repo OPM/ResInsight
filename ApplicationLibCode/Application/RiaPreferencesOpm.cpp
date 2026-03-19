@@ -38,7 +38,9 @@ RiaPreferencesOpm::RiaPreferencesOpm()
     CAF_PDM_InitFieldNoDefault( &m_opmFlowCommand, "opmFlowCommand", "Path to OPM Flow executable" );
     m_opmFlowCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_maxParallelJobs, "maxParallelJobs", (size_t)1, "Maximum number of jobs to run in parallel" );
+    CAF_PDM_InitFieldNoDefault( &m_maxParallelJobs, "maxParallelJobs", "Maximum number of jobs to run in parallel" );
+    m_maxParallelJobs = 1;
+    m_maxParallelJobs.setRange( 1, 100 );
 
     CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run OPM Flow" );
     CAF_PDM_InitField( &m_useMpi, "useMpi", false, "Enable MPI" );
