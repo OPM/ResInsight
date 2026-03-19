@@ -31,9 +31,16 @@
 #include "cvfVector3.h"
 
 #include <map>
+#include <optional>
 #include <utility>
 #include <vector>
 
+namespace caf
+{
+class ProgressInfo;
+}
+
+class RigContourMapGrid;
 class RimEclipseCase;
 class RimEclipseResultDefinition;
 class RimEclipseCaseEnsemble;
@@ -62,10 +69,18 @@ public:
         MAX
     };
 
+    enum class GridImportMode
+    {
+        SHARED_GRID,
+        INDIVIDUAL_GRIDS
+    };
+
     RimStatisticsContourMap();
 
     void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;
+
+    void setGridImportMode( GridImportMode mode );
 
     QString ensembleName() const;
 
@@ -100,9 +115,13 @@ protected:
     void switchToSelectedSourceCase();
 
 private:
+    using TimestepResultsMap = std::map<size_t, std::vector<std::vector<double>>>;
+
     void computeStatistics();
+    void computeStatisticsSharedGrid( RigContourMapGrid* contourMapGrid, TimestepResultsMap& timestepResults, caf::ProgressInfo& progInfo );
+    void computeStatisticsIndividualGrids( RigContourMapGrid* contourMapGrid, TimestepResultsMap& timestepResults, caf::ProgressInfo& progInfo );
     void onComputeStatisticsClicked();
-    void doStatisticsCalculation( std::map<size_t, std::vector<std::vector<double>>>& timestep_results );
+    void doStatisticsCalculation( TimestepResultsMap& timestep_results );
 
     RimFormationNames*           activeFormationNames() const;
     std::vector<RimEclipseCase*> ensembleCases() const;
@@ -110,6 +129,7 @@ private:
 
     std::vector<std::pair<int, int>> mapLocalToGlobalTimeSteps( std::vector<QDateTime> localDates ) const;
 
+private:
     caf::PdmField<double>                                     m_boundingBoxExpPercent;
     caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;
     caf::PdmField<std::vector<int>>                           m_selectedTimeSteps;
@@ -119,6 +139,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>                         m_primaryCase;
     caf::PdmPtrArrayField<RimPolygon*>                        m_selectedPolygons;
 
+    caf::PdmField<caf::AppEnum<GridImportMode>>                                   m_gridImportMode;
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
 
     caf::PdmField<caf::AppEnum<RigFloodingSettings::FloodingType>> m_oilFloodingType;

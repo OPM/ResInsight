@@ -19,6 +19,7 @@
 #include "RicNewStatisticsContourMapFeature.h"
 
 #include "ContourMap/RimStatisticsContourMap.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimReservoirGridEnsembleBase.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -27,6 +28,8 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QMessageBox>
+#include <QPushButton>
 
 CAF_CMD_SOURCE_INIT( RicNewStatisticsContourMapFeature, "RicNewStatisticsContourMapFeature" );
 
@@ -41,6 +44,29 @@ void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimReservoirGri
     if ( cases.empty() ) return;
 
     auto statisticsContourMap = new RimStatisticsContourMap();
+
+    if ( auto* gridEnsemble = dynamic_cast<RimReservoirGridEnsemble*>( ensemble ) )
+    {
+        if ( gridEnsemble->hasSharedGrid() )
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle( "Grid Import Mode" );
+            msgBox.setText( "This grid ensemble has identical IJK for all realizations. Select how grids should be loaded when "
+                            "computing statistics." );
+            auto* reuseButton  = msgBox.addButton( "Reuse Grid from First Realization", QMessageBox::AcceptRole );
+            auto* importButton = msgBox.addButton( "Import All Grids", QMessageBox::RejectRole );
+            msgBox.setDefaultButton( reuseButton );
+            msgBox.exec();
+
+            if ( msgBox.clickedButton() == importButton )
+                statisticsContourMap->setGridImportMode( RimStatisticsContourMap::GridImportMode::INDIVIDUAL_GRIDS );
+        }
+        else
+        {
+            statisticsContourMap->setGridImportMode( RimStatisticsContourMap::GridImportMode::INDIVIDUAL_GRIDS );
+        }
+    }
+
     statisticsContourMap->setEclipseCase( cases[0] );
     ensemble->addStatisticsContourMap( statisticsContourMap );
 
