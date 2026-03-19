@@ -571,8 +571,14 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         // At this point, all the file paths variables are replaced and all file paths updated to the new location. This will enable use of
         // file paths in initAfterRead().
-        // If Rim-objects are created in initAfterRead(), they will be resolved in the second pass
-        // Example: Realization objects in ensemble file set
+
+        // First pass of resolving references and creating derived objects
+        m_project->resolveReferencesRecursively();
+        m_project->createDerivedObjectsRecursively();
+
+        // Second pass of resolving references after creating derived objects, to make sure all references are resolved. This is needed for
+        // example for the case of realization objects in ensemble file sets, which are created in createDerivedObjectsRecursively(), and
+        // have references that need to be resolved.
         m_project->resolveReferencesRecursively();
         m_project->initAfterReadRecursively();
 

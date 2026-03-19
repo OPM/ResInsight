@@ -260,6 +260,21 @@ void PdmObjectHandle::onChildDeleted( PdmChildArrayFieldHandle*           childA
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::createDerivedObjectsRecursively()
+{
+    createDerivedObjects();
+    for ( auto field : m_fields )
+    {
+        for ( auto child : field->children() )
+        {
+            if ( child ) child->createDerivedObjectsRecursively();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Default validation validates all fields in the object.
 /// Derived classes can override to add custom object-level validation.
 //--------------------------------------------------------------------------------------------------

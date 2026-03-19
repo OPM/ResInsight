@@ -115,11 +115,21 @@ public:
 
     virtual void migrateFieldContent( QString& fieldContent, PdmFieldHandle* fieldHandle ) {};
 
+    // Called after the first resolveReferencesRecursively() pass, allowing objects to create new child objects
+    // based on resolved references (e.g., creating case objects from a file set pointer). A second
+    // resolveReferencesRecursively() pass follows to resolve references in the newly created objects.
+    void createDerivedObjectsRecursively();
+
 protected:
     void addField( PdmFieldHandle* field, const QString& keyword );
 
     // Virtual method used to copy objects. The implementation is in PdmObject
     [[nodiscard]] virtual PdmObjectHandle* doCopyObject() const;
+
+    // Override to create new child objects based on resolved references. Called between the first and second
+    // resolveReferencesRecursively() passes, so pointer fields on this object are already resolved.
+    // Newly created child objects will have their references resolved in the second pass.
+    virtual void createDerivedObjects() {};
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmObjectHandle );
