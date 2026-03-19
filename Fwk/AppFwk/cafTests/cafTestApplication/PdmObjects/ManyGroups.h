@@ -24,16 +24,8 @@ public:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void setDoubleMember( const double& d )
-    {
-        m_doubleMember = d;
-        std::cout << "setDoubleMember" << std::endl;
-    }
-    double doubleMember() const
-    {
-        std::cout << "doubleMember" << std::endl;
-        return m_doubleMember;
-    }
+    void   setDoubleMember( const double& d ) { m_doubleMember = d; }
+    double doubleMember() const { return m_doubleMember; }
 
     //--------------------------------------------------------------------------------------------------
     ///

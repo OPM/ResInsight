@@ -178,7 +178,6 @@ void SmallDemoPdmObject::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 void SmallDemoPdmObject::setDoubleMember( const double& d )
 {
     m_doubleMember = d;
-    std::cout << "setDoubleMember" << std::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,7 +185,6 @@ void SmallDemoPdmObject::setDoubleMember( const double& d )
 //--------------------------------------------------------------------------------------------------
 double SmallDemoPdmObject::doubleMember() const
 {
-    std::cout << "doubleMember" << std::endl;
     return m_doubleMember;
 }
 
