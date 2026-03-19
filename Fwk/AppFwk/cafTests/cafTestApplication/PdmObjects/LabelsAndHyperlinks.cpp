@@ -1,6 +1,6 @@
 #include "LabelsAndHyperlinks.h"
 
-#include "MainWindow.h"
+#include "../MainWindow.h"
 #include "OptionalFields.h"
 
 #include "cafPdmUiButton.h"
