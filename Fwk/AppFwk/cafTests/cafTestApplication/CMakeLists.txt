@@ -32,24 +32,38 @@ set(PROJECT_FILES
     MainWindow.h
     WidgetLayoutTest.cpp
     WidgetLayoutTest.h
-    ManyGroups.cpp
-    ManyGroups.h
     CustomObjectEditor.cpp
     CustomObjectEditor.h
     MenuItemProducer.cpp
     MenuItemProducer.h
-    TamComboBox.h
-    TamComboBox.cpp
-    LineEditAndPushButtons.h
-    LineEditAndPushButtons.cpp
-    LabelsAndHyperlinks.h
-    LabelsAndHyperlinks.cpp
-    ApplicationEnum.h
-    ApplicationEnum.cpp
-    OptionalFields.h
-    OptionalFields.cpp
-    ValidationTest.h
-    ValidationTest.cpp
+    PdmObjects/ColorTriplet.h
+    PdmObjects/ColorTriplet.cpp
+    PdmObjects/DemoPdmObject.h
+    PdmObjects/DemoPdmObject.cpp
+    PdmObjects/DemoPdmObjectGroup.h
+    PdmObjects/DemoPdmObjectGroup.cpp
+    PdmObjects/ManyGroups.cpp
+    PdmObjects/ManyGroups.h
+    PdmObjects/SingleEditorPdmObject.h
+    PdmObjects/SingleEditorPdmObject.cpp
+    PdmObjects/SmallDemoPdmObject.h
+    PdmObjects/SmallDemoPdmObject.cpp
+    PdmObjects/SmallDemoPdmObjectA.h
+    PdmObjects/SmallDemoPdmObjectA.cpp
+    PdmObjects/SmallGridDemoPdmObject.h
+    PdmObjects/SmallGridDemoPdmObject.cpp
+    PdmObjects/TamComboBox.h
+    PdmObjects/TamComboBox.cpp
+    PdmObjects/LineEditAndPushButtons.h
+    PdmObjects/LineEditAndPushButtons.cpp
+    PdmObjects/LabelsAndHyperlinks.h
+    PdmObjects/LabelsAndHyperlinks.cpp
+    PdmObjects/ApplicationEnum.h
+    PdmObjects/ApplicationEnum.cpp
+    PdmObjects/OptionalFields.h
+    PdmObjects/OptionalFields.cpp
+    PdmObjects/ValidationTest.h
+    PdmObjects/ValidationTest.cpp
 )
 
 qt_add_executable(
