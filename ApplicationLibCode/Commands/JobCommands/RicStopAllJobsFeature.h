@@ -20,7 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-class RimGenericJob;
 class RimJobCollection;
 
 //==================================================================================================
