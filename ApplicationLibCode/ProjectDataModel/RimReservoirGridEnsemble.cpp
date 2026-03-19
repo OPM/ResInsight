@@ -692,6 +692,14 @@ void RimReservoirGridEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::createDerivedObjects()
+{
+    createCaseObjectsFromEnsembleFileSet();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::initAfterRead()
 {
     if ( m_ensembleFileSet )
@@ -702,28 +710,6 @@ void RimReservoirGridEnsemble::initAfterRead()
                                                 {
                                                     if ( m_ensembleFileSet ) setName( m_ensembleFileSet->name() );
                                                 } );
-
-        // Create case objects WITHOUT loading grid data (deferred loading)
-        if ( m_caseCollection && m_caseCollection->reservoirs().empty() )
-        {
-            createCaseObjectsFromEnsembleFileSet();
-        }
-
-        // NB! This code must be run AFTER the grid case objects are created.
-        for ( auto view : m_viewCollection->views() )
-        {
-            if ( view )
-            {
-                // Resolve the grid case reference for the view after grids are loaded
-                view->resolveReferencesRecursively();
-
-                // Propagate the eclipse case to child objects to ensure all references are updated. setEclipseCase() calls
-                // propagateEclipseCaseToChildObjects() internally, but we need to call it here to ensure propagation after loading and
-                // reference resolution.
-                auto eclipseCase = view->eclipseCase();
-                view->setEclipseCase( eclipseCase );
-            }
-        }
     }
 
     // Set the case provider for views in the view collection

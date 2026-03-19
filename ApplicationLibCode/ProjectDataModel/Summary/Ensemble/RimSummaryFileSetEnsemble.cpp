@@ -187,6 +187,18 @@ void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet( bool noti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryFileSetEnsemble::createDerivedObjects()
+{
+    if ( m_cases.empty() )
+    {
+        bool notifyChange = false;
+        createSummaryCasesFromEnsembleFileSet( notifyChange );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryFileSetEnsemble::initAfterRead()
 {
     RimSummaryEnsemble::initAfterRead();
@@ -247,11 +259,7 @@ void RimSummaryFileSetEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimSummaryFileSetEnsemble::onLoadDataAndUpdate()
 {
-    if ( m_cases.empty() )
-    {
-        bool notifyChange = false;
-        createSummaryCasesFromEnsembleFileSet( notifyChange );
-    }
+    createDerivedObjects();
 
     RimSummaryEnsemble::onLoadDataAndUpdate();
 }
