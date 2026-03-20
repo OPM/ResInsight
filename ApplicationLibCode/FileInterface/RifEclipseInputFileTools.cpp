@@ -338,6 +338,93 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extractKeywordData( RigEclipseCaseData* eclipseCase,
+                                                                                              const QString&      keyword,
+                                                                                              const cvf::Vec3st&  min,
+                                                                                              const cvf::Vec3st&  maxIn,
+                                                                                              const RigNonUniformRefinement& nonUniformRefinement )
+{
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
+    RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
+
+    cvf::Vec3st max = maxIn;
+    if ( max.isUndefined() )
+    {
+        max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
+    }
+
+    auto allResultAddresses = cellResultsData->existingResults();
+    auto findResultAddress  = [&allResultAddresses]( const QString& keyword ) -> RigEclipseResultAddress
+    {
+        for ( auto it = allResultAddresses.rbegin(); it != allResultAddresses.rend(); ++it )
+        {
+            if ( it->resultName() == keyword ) return *it;
+        }
+        return {};
+    };
+
+    RigEclipseResultAddress resAddr = findResultAddress( keyword );
+    if ( !cellResultsData->hasResultEntry( resAddr ) )
+        return std::unexpected( "Keyword '" + keyword.toStdString() + "' not found in results" );
+
+    if ( !cellResultsData->ensureKnownResultLoaded( resAddr ) )
+        return std::unexpected( "Keyword '" + keyword.toStdString() + "' result not loaded." );
+
+    if ( cellResultsData->cellScalarResults( resAddr ).empty() )
+        return std::unexpected( "Keyword '" + keyword.toStdString() + "' result empty." );
+
+    std::vector<double> resultValues = cellResultsData->cellScalarResults( resAddr )[0];
+    if ( resultValues.empty() ) return std::unexpected( "Keyword '" + keyword.toStdString() + "' has no data" );
+
+    double defaultExportValue = RiaResultNames::isCategoryResult( keyword ) ? 1.0 : 0.0;
+
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+    auto resultAcc = RigResultAccessorFactory::createFromResultAddress( eclipseCase, 0, porosityModel, 0, resAddr );
+
+    std::vector<double> filteredResults;
+    size_t              sectorNi = max.x() - min.x() + 1;
+    size_t              sectorNj = max.y() - min.y() + 1;
+    size_t              sectorNk = max.z() - min.z() + 1;
+
+    for ( size_t origK = 0; origK < sectorNk; ++origK )
+    {
+        size_t mainK     = min.z() + origK;
+        size_t subCountK = nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimK, origK );
+        for ( size_t rk = 0; rk < subCountK; ++rk )
+        {
+            for ( size_t origJ = 0; origJ < sectorNj; ++origJ )
+            {
+                size_t mainJ     = min.y() + origJ;
+                size_t subCountJ = nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimJ, origJ );
+                for ( size_t rj = 0; rj < subCountJ; ++rj )
+                {
+                    for ( size_t origI = 0; origI < sectorNi; ++origI )
+                    {
+                        size_t mainI              = min.x() + origI;
+                        size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
+                        size_t resIndex           = activeCells->cellResultIndex( reservoirCellIndex );
+                        size_t subCountI          = nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimI, origI );
+
+                        double value = ( resIndex != cvf::UNDEFINED_SIZE_T ) ? resultAcc->cellScalarGlobIdx( reservoirCellIndex )
+                                                                             : defaultExportValue;
+
+                        for ( size_t ri = 0; ri < subCountI; ++ri )
+                        {
+                            filteredResults.push_back( value );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return filteredResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::exportKeywords( const QString&              resultFileName,
                                                RigEclipseCaseData*         eclipseCase,
                                                const std::vector<QString>& keywords,
