@@ -121,6 +121,10 @@ public:
                                                                                      const caf::VecIjk0&  min,
                                                                                      const cvf::Vec3st&   refinement );
 
+    // Generic helper for processing keywords with box indices
+    using RecordProcessorFunc =
+        std::function<std::expected<Opm::DeckRecord, QString>( const Opm::DeckRecord&, const caf::VecIjk0&, const caf::VecIjk0&, const cvf::Vec3st& )>;
+
 private:
     static std::expected<void, QString> updateCornerPointGridInDeckFile( RimEclipseCase*                   eclipseCase,
                                                                          const RigSimulationInputSettings& settings,
@@ -190,10 +194,6 @@ private:
                                                                           const std::string&                wellName,
                                                                           bool                              isWellNameRecord,
                                                                           const RigSimulationInputSettings& settings );
-
-    // Generic helper for processing keywords with box indices
-    using RecordProcessorFunc =
-        std::function<std::expected<Opm::DeckRecord, QString>( const Opm::DeckRecord&, const caf::VecIjk0&, const caf::VecIjk0&, const cvf::Vec3st& )>;
 
     static std::expected<void, QString> replaceKeywordWithBoxIndices( const std::string&                keywordName,
                                                                       RimEclipseCase*                   eclipseCase,
