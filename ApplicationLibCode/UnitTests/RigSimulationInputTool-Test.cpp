@@ -2545,3 +2545,231 @@ TEST( RigSimulationInputTool, AddInsideBoxContext_NoIntersection )
         EXPECT_EQ( 0u, addAll[0].second.size() );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Test exportSimulationInput with model5 data verifying FIP keyword cropping
+/// Ensures custom FIPABC keyword in REGIONS section is cropped to sector cell count
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5_FipKeywordCropping )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "0_BASE_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model_fipkw.DATA";
+
+    // Set up export settings for a smaller sector to test cropping
+    // Sector: min=(5,5,2), max=(14,14,7) => 10x10x6 = 600 cells
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
+    settings.setMax( caf::VecIjk0( 14, 14, 7 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Load the exported deck file using RifOpmFlowDeckFile
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    const size_t expectedCellCount = 10 * 10 * 6; // 600 cells
+
+    // Verify FIPABC keyword is cropped to sector size with correct values
+    // Original model5 has FIPABC = 2000*1 2000*2 2000*3 over a 20x30x10 grid (600 cells/layer)
+    // Sector (5,5,2)-(14,14,7) extracts 10x10 cells from layers k=2..7
+    {
+        auto fipabcKw = deckFile.findKeyword( "FIPABC" );
+        ASSERT_TRUE( fipabcKw.has_value() ) << "FIPABC keyword missing from exported file";
+
+        const auto& fipabcData = fipabcKw->getIntData();
+        EXPECT_EQ( expectedCellCount, fipabcData.size() ) << "FIPABC should have " << expectedCellCount << " values";
+
+        if ( fipabcData.size() == expectedCellCount )
+        {
+            // Verify expected values for each layer in the sector:
+            // k_s=0 (orig k=2): all value 1 (flat indices in [1200,1800), all in first 2000)
+            // k_s=1 (orig k=3): j_s=0..4 (orig j=5..9) -> value 1, j_s=5..9 (orig j=10..14) -> value 2
+            // k_s=2..4 (orig k=4..6): all value 2
+            // k_s=5 (orig k=7): all value 3
+
+            const size_t NI = 10;
+            const size_t NJ = 10;
+
+            // k_s=0: all value 1
+            for ( size_t j = 0; j < NJ; ++j )
+                for ( size_t i = 0; i < NI; ++i )
+                    EXPECT_EQ( 1, fipabcData[i + j * NI + 0 * NI * NJ] ) << "FIPABC at k_s=0, j=" << j << ", i=" << i << " should be 1";
+
+            // k_s=1: j_s=0..4 -> value 1, j_s=5..9 -> value 2
+            for ( size_t j = 0; j < 5; ++j )
+                for ( size_t i = 0; i < NI; ++i )
+                    EXPECT_EQ( 1, fipabcData[i + j * NI + 1 * NI * NJ] ) << "FIPABC at k_s=1, j=" << j << ", i=" << i << " should be 1";
+            for ( size_t j = 5; j < NJ; ++j )
+                for ( size_t i = 0; i < NI; ++i )
+                    EXPECT_EQ( 2, fipabcData[i + j * NI + 1 * NI * NJ] ) << "FIPABC at k_s=1, j=" << j << ", i=" << i << " should be 2";
+
+            // k_s=2..4: all value 2
+            for ( size_t k = 2; k <= 4; ++k )
+                for ( size_t j = 0; j < NJ; ++j )
+                    for ( size_t i = 0; i < NI; ++i )
+                        EXPECT_EQ( 2, fipabcData[i + j * NI + k * NI * NJ] )
+                            << "FIPABC at k_s=" << k << ", j=" << j << ", i=" << i << " should be 2";
+
+            // k_s=5: all value 3
+            for ( size_t j = 0; j < NJ; ++j )
+                for ( size_t i = 0; i < NI; ++i )
+                    EXPECT_EQ( 3, fipabcData[i + j * NI + 5 * NI * NJ] ) << "FIPABC at k_s=5, j=" << j << ", i=" << i << " should be 3";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test exportSimulationInput with model5 data and padding for FIP keyword
+/// Ensures custom FIPABC keyword is padded with minimum value in pad layers
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5WithPadding_FipKeyword )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "0_BASE_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    // Verify grid dimensions (20x30x10)
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model_padded_fipkw.DATA";
+
+    // Set up export settings for sector export with padding
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive) -> 20x15x10
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Configure padding: 2 upper, 3 lower
+    RigModelPaddingSettings paddingSettings;
+    paddingSettings.setEnabled( true );
+    paddingSettings.setNzUpper( 2 );
+    paddingSettings.setNzLower( 3 );
+    paddingSettings.setTopUpper( 1000.0 );
+    paddingSettings.setBottomLower( 3600.0 );
+    paddingSettings.setUpperPorosity( 0.1 );
+    paddingSettings.setMinLayerThickness( 10.0 );
+    paddingSettings.setVerticalPillars( true );
+    paddingSettings.setMonotonicZcorn( true );
+    paddingSettings.setFillGaps( true );
+    settings.setPaddingSettings( paddingSettings );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    // Verify exported file exists
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // Load the exported deck file using RifOpmFlowDeckFile
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    // Padded dimensions: 20x15x15 (original 20x15x10 + 2 upper + 3 lower)
+    const size_t expectedCellCount = 20 * 15 * 15; // 4500 cells
+
+    // Verify FIPABC keyword exists and has correct padded size
+    {
+        auto fipabcKw = deckFile.findKeyword( "FIPABC" );
+        ASSERT_TRUE( fipabcKw.has_value() ) << "FIPABC keyword missing from padded exported file";
+
+        const auto& fipabcData = fipabcKw->getIntData();
+        EXPECT_EQ( expectedCellCount, fipabcData.size() ) << "FIPABC should have " << expectedCellCount << " values in padded model";
+
+        if ( fipabcData.size() == expectedCellCount )
+        {
+            const size_t NI        = 20;
+            const size_t NJ        = 15;
+            const size_t nzUpper   = 2;
+            const size_t nzLower   = 3;
+            const size_t layerSize = NI * NJ; // 300
+
+            // Upper pad layers (k=0,1) should use minimum value from FIPABC data (value 1)
+            for ( size_t k = 0; k < nzUpper; ++k )
+                for ( size_t idx = 0; idx < layerSize; ++idx )
+                    EXPECT_EQ( 1, fipabcData[k * layerSize + idx] )
+                        << "FIPABC upper pad at k=" << k << ", idx=" << idx << " should be 1 (minimum)";
+
+            // Lower pad layers (k=12,13,14) should use minimum value from FIPABC data (value 1)
+            for ( size_t k = nzUpper + 10; k < nzUpper + 10 + nzLower; ++k )
+                for ( size_t idx = 0; idx < layerSize; ++idx )
+                    EXPECT_EQ( 1, fipabcData[k * layerSize + idx] )
+                        << "FIPABC lower pad at k=" << k << ", idx=" << idx << " should be 1 (minimum)";
+        }
+    }
+}
