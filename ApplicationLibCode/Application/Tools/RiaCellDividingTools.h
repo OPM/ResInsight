@@ -31,5 +31,11 @@ class RiaCellDividingTools
 public:
     static std::vector<cvf::Vec3d> createHexCornerCoords( std::array<cvf::Vec3d, 8> mainCellCorners, size_t nx, size_t ny, size_t nz );
 
+    // Non-uniform overload: takes cumulative fractions per dimension instead of integer counts
+    static std::vector<cvf::Vec3d> createHexCornerCoords( const std::array<cvf::Vec3d, 8>& mainCellCorners,
+                                                          const std::vector<double>&       cumulativeFractionsX,
+                                                          const std::vector<double>&       cumulativeFractionsY,
+                                                          const std::vector<double>&       cumulativeFractionsZ );
+
     static double computeFlowDistance( const std::array<cvf::Vec3d, 8>& cellVertices, const cvf::Vec3d& areaCenter );
 };

@@ -25,6 +25,7 @@
 #include "cafVecIjk.h"
 
 #include "RiaModelExportDefines.h"
+#include "RigNonUniformRefinement.h"
 
 #include <QString>
 #include <QStringList>
@@ -43,8 +44,15 @@ class RicExportSectorModelUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
+    enum RefinementMode
+    {
+        UNIFORM,
+        NON_UNIFORM
+    };
+
     using GridBoxSelectionEnum  = caf::AppEnum<RiaModelExportDefines::GridBoxSelection>;
     using BoundaryConditionEnum = caf::AppEnum<RiaModelExportDefines::BoundaryCondition>;
+    using RefinementModeEnum    = caf::AppEnum<RefinementMode>;
 
 public:
     RicExportSectorModelUi();
@@ -62,6 +70,10 @@ public:
     void         setMax( const caf::VecIjk0& max );
 
     cvf::Vec3st refinement() const;
+
+    RefinementMode          refinementMode() const;
+    RigNonUniformRefinement nonUniformRefinement() const;
+    bool                    hasNonUniformRefinement() const;
 
     std::vector<QString> keywordsToRemove() const;
 
@@ -125,6 +137,12 @@ private:
     caf::PdmField<int>  m_refinementCountI;
     caf::PdmField<int>  m_refinementCountJ;
     caf::PdmField<int>  m_refinementCountK;
+
+    caf::PdmField<RefinementModeEnum> m_refinementMode;
+    caf::PdmField<int>                m_nonUniformDirection; // 0=I, 1=J, 2=K
+    caf::PdmField<int>                m_nonUniformRangeStart;
+    caf::PdmField<int>                m_nonUniformRangeEnd;
+    caf::PdmField<QString>            m_nonUniformIntervals;
 
     caf::PdmField<BoundaryConditionEnum>       m_boundaryCondition;
     caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
