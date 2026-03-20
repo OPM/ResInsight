@@ -96,6 +96,30 @@ void RigSimulationInputSettings::setRefinement( const cvf::Vec3st& refinement )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RigNonUniformRefinement& RigSimulationInputSettings::nonUniformRefinement() const
+{
+    return m_nonUniformRefinement;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSimulationInputSettings::setNonUniformRefinement( const RigNonUniformRefinement& refinement )
+{
+    m_nonUniformRefinement = refinement;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigSimulationInputSettings::hasNonUniformRefinement() const
+{
+    return m_nonUniformRefinement.hasNonUniformRefinement();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigSimulationInputSettings::setKeywordsToRemove( const std::vector<std::string>& keywords )
 {
     m_keywordsToRemove = keywords;

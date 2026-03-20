@@ -101,6 +101,11 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
     settings.setMax( exportSettings->max() );
     settings.setRefinement( exportSettings->refinement() );
 
+    if ( exportSettings->hasNonUniformRefinement() )
+    {
+        settings.setNonUniformRefinement( exportSettings->nonUniformRefinement() );
+    }
+
     std::vector<std::string> keywordsToRemove;
     for ( auto& s : exportSettings->keywordsToRemove() )
     {
