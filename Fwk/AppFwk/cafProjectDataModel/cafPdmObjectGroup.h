@@ -64,18 +64,4 @@ void PdmObjectGroup::createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedOb
     }
 }
 
-//==================================================================================================
-/// The PdmObjectCollection serves as a container of unknown PdmObjects stored in a PdmChildArrayField
-//==================================================================================================
-class PdmObjectCollection : public PdmObject
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    PdmObjectCollection();
-    ~PdmObjectCollection() override;
-
-    caf::PdmChildArrayField<PdmObjectHandle*> objects;
-};
-
 } // End of namespace caf

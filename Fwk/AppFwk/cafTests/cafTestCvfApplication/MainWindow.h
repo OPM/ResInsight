@@ -11,7 +11,7 @@ class TapProject;
 
 namespace caf
 {
-class PdmObjectCollection;
+class PdmObjectGroup;
 class PdmObjectHandle;
 class UiTreeModelPdm;
 class PdmUiPropertyView;

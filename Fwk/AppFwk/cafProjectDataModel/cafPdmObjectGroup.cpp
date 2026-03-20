@@ -44,22 +44,4 @@ void PdmObjectGroup::addObject( PdmObjectHandle* obj )
     objects.push_back( obj );
 }
 
-CAF_PDM_SOURCE_INIT( PdmObjectCollection, "PdmObjectCollection" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmObjectCollection::PdmObjectCollection()
-{
-    CAF_PDM_InitObject( "PdmObjectCollection" );
-    CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" )
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmObjectCollection::~PdmObjectCollection()
-{
-}
-
 } // End of namespace caf
