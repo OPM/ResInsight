@@ -18,6 +18,7 @@
 
 #include "gtest/gtest.h"
 
+#include "CompletionExportCommands/RicFishbonesTransmissibilityCalculationFeatureImp.h"
 #include "CompletionExportCommands/RicTransmissibilityCalculator.h"
 
 #include "RifReaderMockModel.h"
@@ -29,9 +30,16 @@
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
 
+#include "Well/RigWellPath.h"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimFishbones.h"
+#include "RimFishbonesCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Helper: Register a STATIC_NATIVE result with a uniform value for all cells
@@ -218,4 +226,193 @@ TEST( RicTransmissibilityCalculator, CalculateCellMainDirection_DualPorosity_Use
     EXPECT_EQ( RigCompletionData::CellDirection::DIR_J, direction );
 
     delete eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicFishbonesTransmissibilityCalculation, NullWellPath_ReturnsEmptyMap )
+{
+    auto result = RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWellBoreParts( nullptr, nullptr );
+    EXPECT_TRUE( result.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicFishbonesTransmissibilityCalculation, WellPathWithNoGeometry_ReturnsEmptyMap )
+{
+    RimWellPath wellPath;
+
+    auto result = RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWellBoreParts( &wellPath, nullptr );
+    EXPECT_TRUE( result.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicFishbonesTransmissibilityCalculation, WellPathWithSingleMeasuredDepth_ReturnsEmptyMap )
+{
+    RimWellPath wellPath;
+
+    cvf::ref<RigWellPath> geometry = new RigWellPath( { cvf::Vec3d( 0, 0, -1000 ) }, { 1000.0 } );
+    wellPath.setWellPathGeometry( geometry.p() );
+
+    auto result = RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWellBoreParts( &wellPath, nullptr );
+    EXPECT_TRUE( result.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicFishbonesTransmissibilityCalculation, MainBoreWithMockGrid_ReturnsIntersectedCells )
+{
+    // 2x2x2 mock grid, world coordinates (0,0,-100) to (100,100,0) — each cell is 50x50x50, z=0 is the top
+    auto* eclipseCase = new RimEclipseResultCase;
+    {
+        cvf::ref<RigEclipseCaseData> caseData = new RigEclipseCaseData( eclipseCase );
+
+        cvf::ref<RifReaderMockModel> mockReader = new RifReaderMockModel;
+        mockReader->setWorldCoordinates( cvf::Vec3d( 0, 0, -100 ), cvf::Vec3d( 100, 100, 0 ) );
+        mockReader->setCellCounts( cvf::Vec3st( 2, 2, 2 ) );
+        mockReader->enableWellData( false );
+        mockReader->open( "", caseData.p() );
+        caseData->mainGrid()->computeCachedData();
+
+        eclipseCase->setReservoirData( caseData.p() );
+
+        size_t                  cellCount   = caseData->mainGrid()->totalCellCount();
+        RigCaseCellResultsData* cellResults = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        addStaticResult( cellResults, "DX", cellCount, 50.0 );
+        addStaticResult( cellResults, "DY", cellCount, 50.0 );
+        addStaticResult( cellResults, "DZ", cellCount, 50.0 );
+        addStaticResult( cellResults, "PERMX", cellCount, 100.0 );
+        addStaticResult( cellResults, "PERMY", cellCount, 100.0 );
+        addStaticResult( cellResults, "PERMZ", cellCount, 10.0 );
+        addStaticResult( cellResults, "NTG", cellCount, 1.0 );
+    }
+
+    auto* project  = new RimProject;
+    auto* wellPath = new RimWellPath;
+    wellPath->setName( "TestWell" );
+    wellPath->setUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+
+    // Vertical well at (25, 25) passing through z=0 (top of grid) at MD=10, then into the grid
+    cvf::ref<RigWellPath> geometry = new RigWellPath( { cvf::Vec3d( 25, 25, 10 ), cvf::Vec3d( 25, 25, -110 ) }, { 0.0, 120.0 } );
+    wellPath->setWellPathGeometry( geometry.p() );
+
+    project->oilFields[0]->wellPathCollection->addWellPath( wellPath );
+
+    // Add a fishbone sub at MD=10, where the well passes through z=0 — fishbonesCollection is checked by default
+    auto* sub = new RimFishbones;
+    wellPath->fishbonesCollection()->appendFishbonesSubs( sub );
+    sub->setMeasuredDepthAndCount( 10.0, 10.0, 1 );
+    sub->setSubsOrientationMode( RimFishbonesDefines::LateralsOrientationType::FIXED );
+
+    auto result = RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWellBoreParts( wellPath, eclipseCase );
+
+    EXPECT_FALSE( result.empty() );
+
+    bool hasMainBoreEntry = false;
+    for ( const auto& [cellIndex, parts] : result )
+    {
+        for ( const auto& part : parts )
+        {
+            if ( part.isMainBore ) hasMainBoreEntry = true;
+        }
+    }
+    EXPECT_TRUE( hasMainBoreEntry );
+
+    delete eclipseCase;
+    project->close();
+    delete project;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicFishbonesTransmissibilityCalculation, MainBoreWithMockGrid_ValidatesResultValues )
+{
+    // 2x2x2 mock grid, world coordinates (0,0,-100) to (100,100,0) — each cell is 50x50x50, z=0 is the top.
+    // Cell layout (global index): k=0 is z=[-100,-50], k=1 is z=[-50,0].
+    // Cells in k=1 (top layer): index 4=(i0,j0), 5=(i1,j0), 6=(i0,j1), 7=(i1,j1).
+    auto* eclipseCase = new RimEclipseResultCase;
+    {
+        cvf::ref<RigEclipseCaseData> caseData = new RigEclipseCaseData( eclipseCase );
+
+        cvf::ref<RifReaderMockModel> mockReader = new RifReaderMockModel;
+        mockReader->setWorldCoordinates( cvf::Vec3d( 0, 0, -100 ), cvf::Vec3d( 100, 100, 0 ) );
+        mockReader->setCellCounts( cvf::Vec3st( 2, 2, 2 ) );
+        mockReader->enableWellData( false );
+        mockReader->open( "", caseData.p() );
+        caseData->mainGrid()->computeCachedData();
+
+        eclipseCase->setReservoirData( caseData.p() );
+
+        size_t                  cellCount   = caseData->mainGrid()->totalCellCount();
+        RigCaseCellResultsData* cellResults = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        addStaticResult( cellResults, "DX", cellCount, 50.0 );
+        addStaticResult( cellResults, "DY", cellCount, 50.0 );
+        addStaticResult( cellResults, "DZ", cellCount, 50.0 );
+        addStaticResult( cellResults, "PERMX", cellCount, 100.0 );
+        addStaticResult( cellResults, "PERMY", cellCount, 100.0 );
+        addStaticResult( cellResults, "PERMZ", cellCount, 10.0 );
+        addStaticResult( cellResults, "NTG", cellCount, 1.0 );
+    }
+
+    auto* project  = new RimProject;
+    auto* wellPath = new RimWellPath;
+    wellPath->setName( "TestWell" );
+    wellPath->setUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+
+    // Vertical well at (25,25): starts above grid at z=10 (MD=0), crosses z=0 at MD=10, ends at z=-110 (MD=120).
+    cvf::ref<RigWellPath> geometry = new RigWellPath( { cvf::Vec3d( 25, 25, 10 ), cvf::Vec3d( 25, 25, -110 ) }, { 0.0, 120.0 } );
+    wellPath->setWellPathGeometry( geometry.p() );
+
+    project->oilFields[0]->wellPathCollection->addWellPath( wellPath );
+
+    // Fishbone sub at MD=10 (z=0, top of grid). Default metric mainBoreDiameter=0.216 m → radius=0.108 m.
+    auto* sub = new RimFishbones;
+    wellPath->fishbonesCollection()->appendFishbonesSubs( sub );
+    sub->setMeasuredDepthAndCount( 10.0, 10.0, 1 );
+    sub->setSubsOrientationMode( RimFishbonesDefines::LateralsOrientationType::FIXED );
+
+    auto result = RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWellBoreParts( wellPath, eclipseCase );
+
+    // Expect exactly one cell intersected: the top-layer cell at (i=0, j=0, k=1), global index 4.
+    ASSERT_EQ( 1u, result.size() );
+    EXPECT_EQ( 4u, result.begin()->first );
+
+    const auto& parts = result.begin()->second;
+
+    // Find the single main bore part (laterals also land in this cell but have isMainBore=false).
+    const WellBorePartForTransCalc* mainBorePart  = nullptr;
+    int                             mainBoreCount = 0;
+    for ( const auto& part : parts )
+    {
+        if ( part.isMainBore )
+        {
+            mainBorePart = &part;
+            mainBoreCount++;
+        }
+    }
+    ASSERT_EQ( 1, mainBoreCount );
+    ASSERT_NE( nullptr, mainBorePart );
+
+    EXPECT_DOUBLE_EQ( 0.0, mainBorePart->skinFactor );
+    EXPECT_NEAR( 0.108, mainBorePart->wellRadius, 1e-6 );
+
+    // The well is vertical — only z-component of the intersection length should be non-zero.
+    EXPECT_NEAR( 0.0, mainBorePart->lengthsInCell.x(), 1e-6 );
+    EXPECT_NEAR( 0.0, mainBorePart->lengthsInCell.y(), 1e-6 );
+    EXPECT_GT( mainBorePart->lengthsInCell.z(), 0.0 );
+
+    // Intersection begins where the well crosses z=0 (top of grid), which is MD=10.
+    EXPECT_NEAR( 10.0, mainBorePart->intersectionWithWellMeasuredDepth, 1.0 );
+
+    EXPECT_TRUE( mainBorePart->metaData.contains( "main bore" ) );
+
+    delete eclipseCase;
+    project->close();
+    delete project;
 }

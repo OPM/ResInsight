@@ -62,6 +62,7 @@ public:
     void setValveLocations( const std::vector<double>& measuredDepths );
 
     void setSystemParameters( int lateralsPerSub, double lateralLength, double holeDiameter, double buildAngle, int icdsPerSub );
+    void setSubsOrientationMode( RimFishbonesDefines::LateralsOrientationType orientationType );
 
     double measuredDepth( size_t subIndex ) const;
     double rotationAngle( size_t subIndex ) const;

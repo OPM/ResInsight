@@ -191,6 +191,14 @@ void RimFishbones::setSystemParameters( int lateralsPerSub, double lateralLength
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFishbones::setSubsOrientationMode( RimFishbonesDefines::LateralsOrientationType orientationType )
+{
+    m_subsOrientationMode = orientationType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFishbones::measuredDepth( size_t subIndex ) const
 {
     return m_valveLocations->measuredDepth( subIndex );
