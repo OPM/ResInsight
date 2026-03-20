@@ -59,11 +59,17 @@
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotCurve.h"
+#include "RiuPlotItem.h"
+#include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotCurveDefines.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "cafPdmPointer.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafSelectionManager.h"
 
 #include <algorithm>
 #include <iterator>
@@ -172,6 +178,14 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
 
     curve->setSymbol( currentSymbol );
     curve->setLineStyle( lineStyle );
+
+    // Dim ensemble member curves that do not belong to the highlighted curve set.
+    // Statistics curves (ENSEMBLE_RFT) are intentionally excluded.
+    if ( m_highlightedCurveSet && curveDef.address().sourceType() != RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
+    {
+        auto curveSet = findEnsembleCurveSet( curveDef.address().ensemble() );
+        if ( curveSet && curveSet != m_highlightedCurveSet ) curve->setCurveColorOpacity( 0.1f );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,7 +536,16 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
     defineCurveColorsAndSymbols( allCurveDefs );
 
-    std::set<std::pair<RimWellRftEnsembleCurveSet*, QDateTime>> curveSetsForLegend;
+    // Sort legend items by project tree order (index in m_ensembleCurveSets), then by date/time
+    auto curveSetsForLegendCmp = [this]( const std::pair<RimWellRftEnsembleCurveSet*, QDateTime>& a,
+                                         const std::pair<RimWellRftEnsembleCurveSet*, QDateTime>& b ) -> bool
+    {
+        auto ia = m_ensembleCurveSets.indexOf( a.first );
+        auto ib = m_ensembleCurveSets.indexOf( b.first );
+        if ( ia != ib ) return ia < ib;
+        return a.second < b.second;
+    };
+    std::set<std::pair<RimWellRftEnsembleCurveSet*, QDateTime>, decltype( curveSetsForLegendCmp )> curveSetsForLegend( curveSetsForLegendCmp );
 
     // Add new curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs )
@@ -569,6 +592,19 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         else if ( ( !curveDefToAdd.address().ensemble() || m_showEnsembleCurves ) &&
                   curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
         {
+            // A summary case address can optionally contain an Eclipse case used to compute the TVD/MD for a well path
+            // https://github.com/OPM/ResInsight/issues/10501
+            auto eclipeCase = curveDefToAdd.address().eclCase();
+            if ( curveDefToAdd.address().ensemble() )
+            {
+                auto curveSet = findEnsembleCurveSet( curveDefToAdd.address().ensemble() );
+                if ( curveSet )
+                {
+                    eclipeCase = curveSet->eclipseCase();
+                    curveSetsForLegend.insert( { curveSet, curveDefToAdd.timeStep() } );
+                }
+            }
+
             auto curve = new RimWellLogRftCurve();
             plotTrack->addCurve( curve );
             auto summaryCase = curveDefToAdd.address().summaryCase();
@@ -579,20 +615,6 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                                                                 curveDefToAdd.timeStep(),
                                                                                 RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
-
-            // A summary case address can optionally contain an Eclipse case used to compute the TVD/MD for a well path
-            // https://github.com/OPM/ResInsight/issues/10501
-            auto eclipeCase = curveDefToAdd.address().eclCase();
-            if ( curveDefToAdd.address().ensemble() )
-            {
-                auto curveSet = findEnsembleCurveSet( curveDefToAdd.address().ensemble() );
-                if ( curveSet )
-                {
-                    eclipeCase = curveSet->eclipseCase();
-
-                    curveSetsForLegend.insert( { curveSet, curveDefToAdd.timeStep() } );
-                }
-            }
             curve->setEclipseCase( eclipeCase );
 
             double zValue = 1.0;
@@ -710,16 +732,28 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
     }
 
-    if ( auto widget = plotTrack->plotWidget() )
+    if ( auto qwtWidget = dynamic_cast<RiuQwtPlotWidget*>( plotTrack->plotWidget() ) )
     {
+        // Connect legend item clicks to select the corresponding ensemble curve set in the project tree.
+        // Disconnect previous connection first to avoid duplicates (non-QObject lambda connections).
+        // Use a guarded PdmPointer to avoid use-after-free if the signal fires after this object is destroyed.
+        QObject::disconnect( m_legendClickedConnection );
+        caf::PdmPointer<RimWellRftPlot> self( this );
+        m_legendClickedConnection = QObject::connect( qwtWidget,
+                                                      &RiuQwtPlotWidget::plotItemSelected,
+                                                      [self]( std::shared_ptr<RiuPlotItem> item, bool toggle, int idx )
+                                                      {
+                                                          if ( self ) self->onLegendItemClicked( item, toggle, idx );
+                                                      } );
+
         // Create curves with no content to display in the curve legend section. Ensures a consistent legend for both ensemble and
         // statistics curves.
 
         auto formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( m_selectedTimeSteps() );
         for ( const auto& [curveSet, dateTime] : curveSetsForLegend )
         {
-            auto riuCurve = widget->createPlotCurve( nullptr, "" );
-            riuCurve->attachToPlot( plotTrack->plotWidget() );
+            auto riuCurve = qwtWidget->createPlotCurve( nullptr, "" );
+            riuCurve->attachToPlot( qwtWidget );
             riuCurve->setVisibleInLegend( true );
 
             QStringList titleItems;
@@ -744,6 +778,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             riuCurve->setSymbol( symbol );
 
             m_legendPlotCurves.push_back( riuCurve );
+            m_legendCurveToEnsembleCurveSet[riuCurve] = curveSet;
         }
     }
 
@@ -1032,10 +1067,12 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 {
     RimWellLogPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
+    bool rebuildEnsembleCurveSets = false;
+    bool updateEditors            = false;
+
     if ( changedField == &m_wellPathNameOrSimWellName )
     {
         m_nameConfig->setCustomName( QString( plotNameFormatString() ).arg( m_wellPathNameOrSimWellName ) );
-
         m_branchIndex = 0;
 
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
@@ -1043,30 +1080,23 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         {
             plotTrack->deleteAllCurves();
         }
-        createEnsembleCurveSets();
         updateEditorsFromPreviousSelection();
-        updateFormationsOnPlot();
-        syncCurvesFromUiSelection();
+        rebuildEnsembleCurveSets = true;
     }
     else if ( changedField == &m_branchIndex || changedField == &m_branchDetection )
     {
         const QString simWellName = associatedSimWellName();
         m_branchIndex             = RiaSimWellBranchTools::clampBranchIndex( simWellName, m_branchIndex, m_branchDetection );
-
-        createEnsembleCurveSets();
-        updateFormationsOnPlot();
-        syncCurvesFromUiSelection();
+        rebuildEnsembleCurveSets  = true;
     }
     else if ( changedField == &m_selectedSources || changedField == &m_selectedTimeSteps )
     {
-        updateFormationsOnPlot();
-        syncCurvesFromUiSelection();
-        updateConnectedEditors();
+        rebuildEnsembleCurveSets = true;
+        updateEditors            = true;
     }
     else if ( changedField == &m_showStatisticsCurves || changedField == &m_showEnsembleCurves || changedField == &m_showErrorInObservedData )
     {
-        updateFormationsOnPlot();
-        syncCurvesFromUiSelection();
+        // No extra action needed — handled by the common tail below.
     }
     else if ( changedField == &m_ensembleCurveSetEclipseCase )
     {
@@ -1074,10 +1104,23 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         {
             curveSet->setEclipseCase( m_ensembleCurveSetEclipseCase );
         }
+        rebuildEnsembleCurveSets = true;
+    }
+    else
+    {
+        return;
+    }
 
+    if ( rebuildEnsembleCurveSets )
+    {
         createEnsembleCurveSets();
-        updateFormationsOnPlot();
-        syncCurvesFromUiSelection();
+    }
+    updateFormationsOnPlot();
+    syncCurvesFromUiSelection();
+
+    if ( updateEditors )
+    {
+        updateConnectedEditors();
     }
 }
 
@@ -1369,6 +1412,10 @@ void RimWellRftPlot::deleteViewWidget()
     // Required to detach curves before view widget is deleted. The Qwt plot curves are implicitly deleted when the view widget is deleted.
     detachAndDeleteLegendCurves();
 
+    // Disconnect before the widget is deleted to prevent the lambda from firing after this object is destroyed.
+    QObject::disconnect( m_legendClickedConnection );
+    m_legendClickedConnection = {};
+
     RimDepthTrackPlot::deleteViewWidget();
 }
 
@@ -1618,6 +1665,50 @@ void RimWellRftPlot::detachAndDeleteLegendCurves()
     }
 
     m_legendPlotCurves.clear();
+    m_legendCurveToEnsembleCurveSet.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellRftEnsembleCurveSet* RimWellRftPlot::selectedEnsembleCurveSet() const
+{
+    if ( auto selected = caf::SelectionManager::instance()->selectedItemOfType<RimWellRftEnsembleCurveSet>() )
+    {
+        for ( auto cs : m_ensembleCurveSets )
+        {
+            if ( cs == selected ) return selected;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::onSelectionManagerSelectionChanged( const std::set<int>& /*changedSelectionLevels*/ )
+{
+    auto newSelection = selectedEnsembleCurveSet();
+    if ( newSelection != m_highlightedCurveSet )
+    {
+        m_highlightedCurveSet = newSelection;
+        loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::onLegendItemClicked( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int /*sampleIndex*/ )
+{
+    auto wrapper = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !wrapper ) return;
+
+    auto qwtCurve = dynamic_cast<RiuQwtPlotCurve*>( wrapper->qwtPlotItem() );
+    if ( !qwtCurve ) return;
+
+    auto it = m_legendCurveToEnsembleCurveSet.find( qwtCurve );
+    if ( it != m_legendCurveToEnsembleCurveSet.end() ) RiuPlotMainWindowTools::selectOrToggleObject( it->second, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -720,10 +720,10 @@ QStringList RicImportGridAndSummaryEnsembleDialog::checkForMultipleFilenamesAndU
         m_blockItemUpdates = false;
 
         QStringList allNames = canonicalCounts.keys();
-        warnings.append( QString( "Ensemble '%1' contains multiple filenames: '%2'.\n"
+        warnings.append( QString( "Ensemble '%1' contains multiple filenames:\n'%2'\n\n"
                                   "Only '%3' (%4 realizations) is selected. Deselected: '%5'." )
                              .arg( ensembleItem->text() )
-                             .arg( allNames.join( ", " ) )
+                             .arg( allNames.join( "', '" ) )
                              .arg( mostCommon )
                              .arg( maxCount )
                              .arg( outlierNames.join( ", " ) ) );

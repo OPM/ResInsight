@@ -22,12 +22,15 @@
 
 #include "RifDataSourceForRftPltQMetaType.h"
 
+#include "cafSelectionChangedReceiver.h"
+
 #include "RiuPlotCurveSymbol.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include <QMetaObject>
 #include <QPointer>
 
 #include <map>
@@ -50,6 +53,7 @@ class RifEclipseRftAddress;
 class RiuDraggableOverlayFrame;
 class RimDataSourceForRftPlt;
 class RiuPlotCurve;
+class RiuPlotItem;
 class RimWellRftEnsembleCurveSet;
 
 namespace cvf
@@ -66,7 +70,7 @@ class PdmOptionItemInfo;
 ///
 ///
 //==================================================================================================
-class RimWellRftPlot : public RimWellLogPlot
+class RimWellRftPlot : public RimWellLogPlot, public caf::SelectionChangedReceiver
 {
     CAF_PDM_HEADER_INIT;
 
@@ -136,6 +140,11 @@ private:
     void applyCurveAppearance( RimWellLogCurve* curve );
     void applyCurveColor( RimWellLogCurve* curve );
 
+    void                        onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
+    RimWellRftEnsembleCurveSet* selectedEnsembleCurveSet() const;
+
+    void onLegendItemClicked( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex );
+
     void    updateFormationsOnPlot() const;
     QString associatedSimWellName() const;
 
@@ -173,7 +182,10 @@ private:
     std::map<QDateTime, RiuPlotCurveSymbol::PointSymbolEnum> m_timeStepSymbols;
     bool                                                     m_isOnLoad;
 
-    std::vector<RiuPlotCurve*> m_legendPlotCurves;
+    std::vector<RiuPlotCurve*>                           m_legendPlotCurves;
+    std::map<RiuPlotCurve*, RimWellRftEnsembleCurveSet*> m_legendCurveToEnsembleCurveSet;
+    QMetaObject::Connection                              m_legendClickedConnection;
+    RimWellRftEnsembleCurveSet*                          m_highlightedCurveSet = nullptr;
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
     bool                                m_isInitialized = false;
