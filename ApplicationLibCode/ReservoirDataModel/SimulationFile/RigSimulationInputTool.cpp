@@ -287,7 +287,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
 
         // Skip special keywords that aren't cell properties
         if ( keyword.startsWith( "DATES" ) || keyword == "SCHEDULE" || keyword == "GRID" || keyword == "PROPS" || keyword == "SOLUTION" ||
-             keyword == "RUNSPEC" || keyword == "SUMMARY" )
+             keyword == "RUNSPEC" || keyword == "SUMMARY" || keyword == "ACTNUM" )
         {
             continue;
         }
