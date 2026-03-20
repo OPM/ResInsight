@@ -20,6 +20,7 @@
 
 #include "RiaModelExportDefines.h"
 #include "RigModelPaddingSettings.h"
+#include "RigNonUniformRefinement.h"
 
 #include "cafAppEnum.h"
 #include "cafVecIjk.h"
@@ -60,6 +61,11 @@ public:
     cvf::Vec3st refinement() const;
     void        setRefinement( const cvf::Vec3st& refinement );
 
+    // Non-uniform refinement
+    const RigNonUniformRefinement& nonUniformRefinement() const;
+    void                           setNonUniformRefinement( const RigNonUniformRefinement& refinement );
+    bool                           hasNonUniformRefinement() const;
+
     // Keyword handling
     const std::vector<std::string>& keywordsToRemove() const;
     void                            setKeywordsToRemove( const std::vector<std::string>& keywords );
@@ -89,6 +95,7 @@ private:
     caf::VecIjk0                 m_min;
     caf::VecIjk0                 m_max;
     cvf::Vec3st                  m_refinement;
+    RigNonUniformRefinement      m_nonUniformRefinement;
     std::vector<std::string>     m_keywordsToRemove;
     std::vector<Opm::DeckRecord> m_bcpropKeywords;
     BoundaryConditionEnum        m_boundaryCondition;

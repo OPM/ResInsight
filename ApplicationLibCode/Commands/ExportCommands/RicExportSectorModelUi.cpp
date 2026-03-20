@@ -44,6 +44,17 @@
 
 #include <utility>
 
+namespace caf
+{
+template <>
+void AppEnum<RicExportSectorModelUi::RefinementMode>::setUp()
+{
+    addItem( RicExportSectorModelUi::UNIFORM, "UNIFORM", "Uniform" );
+    addItem( RicExportSectorModelUi::NON_UNIFORM, "NON_UNIFORM", "Non-Uniform" );
+    setDefault( RicExportSectorModelUi::UNIFORM );
+}
+} // namespace caf
+
 CAF_PDM_SOURCE_INIT( RicExportSectorModelUi, "RicExportSectorModelUi" );
 
 //--------------------------------------------------------------------------------------------------
@@ -98,6 +109,20 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     m_refinementCountI.setRange( 1, 10 );
     m_refinementCountJ.setRange( 1, 10 );
     m_refinementCountK.setRange( 1, 10 );
+
+    CAF_PDM_InitFieldNoDefault( &m_refinementMode, "RefinementMode", "Refinement Mode" );
+    m_refinementMode.uiCapability()->setUiEditorTypeName( caf::PdmUiRadioButtonEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_nonUniformDirection, "NonUniformDirection", 0, "Direction" );
+    m_nonUniformDirection.setRange( 0, 2 );
+
+    CAF_PDM_InitField( &m_nonUniformRangeStart, "NonUniformRangeStart", 1, "Cell Range Start" );
+    m_nonUniformRangeStart.setMinValue( 1 );
+
+    CAF_PDM_InitField( &m_nonUniformRangeEnd, "NonUniformRangeEnd", 1, "Cell Range End" );
+    m_nonUniformRangeEnd.setMinValue( 1 );
+
+    CAF_PDM_InitField( &m_nonUniformIntervals, "NonUniformIntervals", QString( "0.5, 0.5" ), "Fractional Widths" );
 
     CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
     m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -241,13 +266,35 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         uiOrdering.add( &m_refineGrid );
         uiOrdering.addNewLabel( "" );
 
-        uiOrdering.add( &m_refinementCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        uiOrdering.appendToRow( &m_refinementCountJ );
-        uiOrdering.appendToRow( &m_refinementCountK );
+        uiOrdering.add( &m_refinementMode );
+        uiOrdering.addNewLabel( "" );
 
-        m_refinementCountI.uiCapability()->setUiReadOnly( !m_refineGrid() );
-        m_refinementCountJ.uiCapability()->setUiReadOnly( !m_refineGrid() );
-        m_refinementCountK.uiCapability()->setUiReadOnly( !m_refineGrid() );
+        bool isEnabled = m_refineGrid();
+
+        if ( m_refinementMode() == UNIFORM )
+        {
+            uiOrdering.add( &m_refinementCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+            uiOrdering.appendToRow( &m_refinementCountJ );
+            uiOrdering.appendToRow( &m_refinementCountK );
+
+            m_refinementCountI.uiCapability()->setUiReadOnly( !isEnabled );
+            m_refinementCountJ.uiCapability()->setUiReadOnly( !isEnabled );
+            m_refinementCountK.uiCapability()->setUiReadOnly( !isEnabled );
+        }
+        else
+        {
+            uiOrdering.add( &m_nonUniformDirection );
+            uiOrdering.add( &m_nonUniformRangeStart );
+            uiOrdering.add( &m_nonUniformRangeEnd );
+            uiOrdering.add( &m_nonUniformIntervals );
+
+            m_nonUniformDirection.uiCapability()->setUiReadOnly( !isEnabled );
+            m_nonUniformRangeStart.uiCapability()->setUiReadOnly( !isEnabled );
+            m_nonUniformRangeEnd.uiCapability()->setUiReadOnly( !isEnabled );
+            m_nonUniformIntervals.uiCapability()->setUiReadOnly( !isEnabled );
+        }
+
+        m_refinementMode.uiCapability()->setUiReadOnly( !isEnabled );
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::BoundaryConditions] )
     {
@@ -466,11 +513,63 @@ void RicExportSectorModelUi::setMax( const caf::VecIjk0& max )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3st RicExportSectorModelUi::refinement() const
 {
-    if ( !m_refineGrid() )
+    if ( !m_refineGrid() || m_refinementMode() == NON_UNIFORM )
     {
         return cvf::Vec3st( 1, 1, 1 );
     }
     return cvf::Vec3st( m_refinementCountI(), m_refinementCountJ(), m_refinementCountK() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicExportSectorModelUi::RefinementMode RicExportSectorModelUi::refinementMode() const
+{
+    if ( !m_refineGrid() ) return UNIFORM;
+    return m_refinementMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
+{
+    cvf::Vec3st sectorSize( max().x() - min().x() + 1, max().y() - min().y() + 1, max().z() - min().z() + 1 );
+
+    RigNonUniformRefinement result( sectorSize );
+
+    if ( !m_refineGrid() || m_refinementMode() != NON_UNIFORM ) return result;
+
+    // Parse the fractional widths from the text field
+    QStringList         parts = m_nonUniformIntervals().split( ",", Qt::SkipEmptyParts );
+    std::vector<double> widths;
+    for ( const auto& part : parts )
+    {
+        bool   ok    = false;
+        double value = part.trimmed().toDouble( &ok );
+        if ( ok && value > 0.0 ) widths.push_back( value );
+    }
+
+    if ( widths.empty() ) return result;
+
+    auto dim   = static_cast<RigNonUniformRefinement::Dimension>( m_nonUniformDirection() );
+    int  start = std::max( 0, m_nonUniformRangeStart() - 1 ); // Convert to 0-based, clamp
+    int  end   = std::min( static_cast<int>( result.sectorSize( dim ) ) - 1, m_nonUniformRangeEnd() - 1 );
+
+    if ( start > end ) return result;
+
+    // Distribute the widths across the combined range of cells
+    result.distributeWidthsAcrossCells( dim, start, end, widths );
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportSectorModelUi::hasNonUniformRefinement() const
+{
+    return m_refineGrid() && m_refinementMode() == NON_UNIFORM;
 }
 
 //--------------------------------------------------------------------------------------------------
