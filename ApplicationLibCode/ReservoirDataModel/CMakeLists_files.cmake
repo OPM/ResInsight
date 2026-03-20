@@ -88,6 +88,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigDoglegTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridExportAdapter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigNonUniformRefinement.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -175,6 +176,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigDoglegTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridExportAdapter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigNonUniformRefinement.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
