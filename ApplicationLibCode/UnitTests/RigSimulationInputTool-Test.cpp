@@ -2185,3 +2185,363 @@ TEST( RigSimulationInputTool, ExportModel5_DataKeywordInsideBox )
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Test MULTIPLY record with no overlap - should return error
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessMultiplyRecord_NoOverlap )
+{
+    caf::VecIjk0 sectorMin( 0, 15, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // MULTIPLY record: PERMX 2.0 1 20 1 14 1 10 (1-based Eclipse)
+    // Converts to 0-based: I[0-19], J[0-13], K[0-9]
+    // Sector J is [15-29], so no overlap in J dimension
+    auto record = createMultiplyRecord( "PERMX", 2.0, 1, 20, 1, 14, 1, 10 );
+
+    auto result = RigSimulationInputTool::processMultiplyRecord( record, sectorMin, sectorMax, refinement );
+
+    EXPECT_FALSE( result.has_value() );
+    EXPECT_TRUE( result.error().contains( "does not overlap" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test MULTIPLY record with partial overlap requiring clamping
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessMultiplyRecord_PartialOverlapWithClamping )
+{
+    caf::VecIjk0 sectorMin( 0, 15, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // MULTIPLY record: PERMX 3.5 1 20 15 30 1 10 (1-based Eclipse)
+    // Converts to 0-based: I[0-19], J[14-29], K[0-9]
+    // Clamped to sector: I[0-19], J[15-29], K[0-9]
+    auto record = createMultiplyRecord( "PERMX", 3.5, 1, 20, 15, 30, 1, 10 );
+
+    auto result = RigSimulationInputTool::processMultiplyRecord( record, sectorMin, sectorMax, refinement );
+
+    ASSERT_TRUE( result.has_value() );
+
+    // Transformed to sector-relative (1-based):
+    //   I: 1 to 20, J: 1 to 15, K: 1 to 10
+    EXPECT_EQ( "PERMX", result->getItem( 0 ).get<std::string>( 0 ) );
+    EXPECT_DOUBLE_EQ( 3.5, result->getItem( 1 ).get<double>( 0 ) );
+    EXPECT_EQ( 1, result->getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 20, result->getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 1, result->getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 15, result->getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 10, result->getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test MULTIPLY record completely inside sector (no clamping)
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessMultiplyRecord_CompletelyInsideSector )
+{
+    caf::VecIjk0 sectorMin( 2, 2, 1 );
+    caf::VecIjk0 sectorMax( 7, 7, 4 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // MULTIPLY record: PORV 0.5 4 6 4 6 2 4 (1-based Eclipse)
+    // Converts to 0-based: I[3-5], J[3-5], K[1-3] — inside sector
+    auto record = createMultiplyRecord( "PORV", 0.5, 4, 6, 4, 6, 2, 4 );
+
+    auto result = RigSimulationInputTool::processMultiplyRecord( record, sectorMin, sectorMax, refinement );
+
+    ASSERT_TRUE( result.has_value() );
+
+    // Transformed to sector-relative (1-based):
+    //   I: (3-2)+1=2 to (5-2)+1=4, J: (3-2)+1=2 to (5-2)+1=4, K: (1-1)+1=1 to (3-1)+1=3
+    EXPECT_EQ( "PORV", result->getItem( 0 ).get<std::string>( 0 ) );
+    EXPECT_DOUBLE_EQ( 0.5, result->getItem( 1 ).get<double>( 0 ) );
+    EXPECT_EQ( 2, result->getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 4, result->getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 2, result->getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 4, result->getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 3, result->getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test ADD record with no overlap - should return error
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessAddRecord_NoOverlap )
+{
+    caf::VecIjk0 sectorMin( 0, 15, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // ADD record: PRESSURE 100.0 1 20 1 14 1 10 (1-based Eclipse)
+    // Converts to 0-based: I[0-19], J[0-13], K[0-9]
+    // Sector J is [15-29], so no overlap
+    auto record = createAddRecord( "PRESSURE", 100.0, 1, 20, 1, 14, 1, 10 );
+
+    auto result = RigSimulationInputTool::processAddRecord( record, sectorMin, sectorMax, refinement );
+
+    EXPECT_FALSE( result.has_value() );
+    EXPECT_TRUE( result.error().contains( "does not overlap" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test ADD record with partial overlap requiring clamping
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessAddRecord_PartialOverlapWithClamping )
+{
+    caf::VecIjk0 sectorMin( 0, 15, 0 );
+    caf::VecIjk0 sectorMax( 19, 29, 9 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // ADD record: PRESSURE -50.0 1 20 15 30 1 10 (1-based Eclipse)
+    // Converts to 0-based: I[0-19], J[14-29], K[0-9]
+    // Clamped to sector: I[0-19], J[15-29], K[0-9]
+    auto record = createAddRecord( "PRESSURE", -50.0, 1, 20, 15, 30, 1, 10 );
+
+    auto result = RigSimulationInputTool::processAddRecord( record, sectorMin, sectorMax, refinement );
+
+    ASSERT_TRUE( result.has_value() );
+
+    // Transformed to sector-relative (1-based):
+    //   I: 1 to 20, J: 1 to 15, K: 1 to 10
+    EXPECT_EQ( "PRESSURE", result->getItem( 0 ).get<std::string>( 0 ) );
+    EXPECT_DOUBLE_EQ( -50.0, result->getItem( 1 ).get<double>( 0 ) );
+    EXPECT_EQ( 1, result->getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 20, result->getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 1, result->getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 15, result->getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 10, result->getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test ADD record completely inside sector (no clamping)
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessAddRecord_CompletelyInsideSector )
+{
+    caf::VecIjk0 sectorMin( 2, 2, 1 );
+    caf::VecIjk0 sectorMax( 7, 7, 4 );
+    cvf::Vec3st  refinement( 1, 1, 1 );
+
+    // ADD record: PORO 0.01 4 6 4 6 2 4 (1-based Eclipse)
+    // Converts to 0-based: I[3-5], J[3-5], K[1-3] — inside sector
+    auto record = createAddRecord( "PORO", 0.01, 4, 6, 4, 6, 2, 4 );
+
+    auto result = RigSimulationInputTool::processAddRecord( record, sectorMin, sectorMax, refinement );
+
+    ASSERT_TRUE( result.has_value() );
+
+    // Transformed to sector-relative (1-based):
+    //   I: (3-2)+1=2 to (5-2)+1=4, J: (3-2)+1=2 to (5-2)+1=4, K: (1-1)+1=1 to (3-1)+1=3
+    EXPECT_EQ( "PORO", result->getItem( 0 ).get<std::string>( 0 ) );
+    EXPECT_DOUBLE_EQ( 0.01, result->getItem( 1 ).get<double>( 0 ) );
+    EXPECT_EQ( 2, result->getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 4, result->getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 2, result->getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 4, result->getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 3, result->getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test MULTIPLY inside BOX/ENDBOX context: coordinates are transformed correctly
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, MultiplyInsideBoxContext_NoIntersection )
+{
+    // Grid: 10x10x5. BOX covers I[1-10], J[1-10], K[5-5] (1-based = K=4 0-based).
+    // Sector: (2,2,0)-(7,7,2) => K[0-2], does NOT include K=4.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_multiply_box.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "PROPS\n\n" );
+        file.write( "BOX\n 1 10 1 10 5 5 /\n\n" );
+        file.write( "MULTIPLY\n PERMX 2.0 /\n/\n\n" );
+        file.write( "ENDBOX\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    // Sector (2,2,0)-(7,7,2) does NOT include K=4 (0-based)
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 2, 2, 0 ) );
+    settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+
+    // MULTIPLY record with box K=5 (0-based K=4) outside sector K[0-2] should be removed
+    auto multiplyAll = deckFile.findAllKeywordsWithIndices( "MULTIPLY" );
+    if ( !multiplyAll.empty() )
+    {
+        EXPECT_EQ( 0u, multiplyAll[0].second.size() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test MULTIPLY inside BOX/ENDBOX with intersection: coordinates transformed correctly
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, MultiplyInsideBoxContext_WithIntersection )
+{
+    // Grid: 10x10x5. BOX covers I[3-8], J[3-8], K[2-4] (1-based).
+    // Sector: (2,2,1)-(7,7,4) (0-based) => I[2-7], J[2-7], K[1-4]
+    // BOX 0-based: I[2-7], J[2-7], K[1-3]
+    // Intersection: I[2-7], J[2-7], K[1-3] => fully inside sector
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_multiply_box_intersect.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "PROPS\n\n" );
+        file.write( "BOX\n 3 8 3 8 2 4 /\n\n" );
+        file.write( "MULTIPLY\n PERMX 2.5 /\n/\n\n" );
+        file.write( "ENDBOX\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 2, 2, 1 ) );
+    settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+
+    auto multiplyAll = deckFile.findAllKeywordsWithIndices( "MULTIPLY" );
+    ASSERT_EQ( 1u, multiplyAll.size() );
+
+    const auto& kw = multiplyAll[0].second;
+    ASSERT_GE( kw.size(), 1u );
+
+    const auto& rec = kw.getRecord( 0 );
+    EXPECT_EQ( "PERMX", rec.getItem( 0 ).get<std::string>( 0 ) );
+    EXPECT_DOUBLE_EQ( 2.5, rec.getItem( 1 ).get<double>( 0 ) );
+
+    // BOX 0-based I[2-7], J[2-7], K[1-3], sector min (2,2,1)
+    // Sector-relative (1-based): I: 1-6, J: 1-6, K: 1-3
+    EXPECT_EQ( 1, rec.getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 6, rec.getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 1, rec.getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 6, rec.getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, rec.getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 3, rec.getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test ADD inside BOX/ENDBOX with intersection: coordinates transformed correctly
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, AddInsideBoxContext_WithIntersection )
+{
+    // Grid: 10x10x5. BOX covers I[3-8], J[3-8], K[2-4] (1-based).
+    // Sector: (2,2,1)-(7,7,4) (0-based)
+    // BOX 0-based: I[2-7], J[2-7], K[1-3] — fully inside sector
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_add_box_intersect.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "PROPS\n\n" );
+        file.write( "BOX\n 3 8 3 8 2 4 /\n\n" );
+        file.write( "ADD\n PRESSURE 100.0 /\n/\n\n" );
+        file.write( "ENDBOX\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 2, 2, 1 ) );
+    settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+
+    auto addAll = deckFile.findAllKeywordsWithIndices( "ADD" );
+    ASSERT_EQ( 1u, addAll.size() );
+
+    const auto& kw = addAll[0].second;
+    ASSERT_GE( kw.size(), 1u );
+
+    const auto& rec = kw.getRecord( 0 );
+    EXPECT_EQ( "PRESSURE", rec.getItem( 0 ).get<std::string>( 0 ) );
+    EXPECT_DOUBLE_EQ( 100.0, rec.getItem( 1 ).get<double>( 0 ) );
+
+    // Sector-relative (1-based): I: 1-6, J: 1-6, K: 1-3
+    EXPECT_EQ( 1, rec.getItem( 2 ).get<int>( 0 ) ); // I1
+    EXPECT_EQ( 6, rec.getItem( 3 ).get<int>( 0 ) ); // I2
+    EXPECT_EQ( 1, rec.getItem( 4 ).get<int>( 0 ) ); // J1
+    EXPECT_EQ( 6, rec.getItem( 5 ).get<int>( 0 ) ); // J2
+    EXPECT_EQ( 1, rec.getItem( 6 ).get<int>( 0 ) ); // K1
+    EXPECT_EQ( 3, rec.getItem( 7 ).get<int>( 0 ) ); // K2
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test ADD inside BOX/ENDBOX with no intersection: record should be removed
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, AddInsideBoxContext_NoIntersection )
+{
+    // Grid: 10x10x5. BOX covers K=5 (1-based), i.e. K-index 4 (0-based).
+    // Sector: (2,2,1)-(7,7,4) does NOT include K=4 (0-based is K[1-4], and K=4 is included)
+    // Actually sector max K=4 means K[1-4] inclusive (0-based), so K=4 IS included.
+    // Use sector (2,2,0)-(7,7,2) to NOT include K=4.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString dataFilePath = tempDir.path() + "/test_add_box_nointersect.DATA";
+    {
+        QFile file( dataFilePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( "RUNSPEC\n\n" );
+        file.write( "DIMENS\n 10 10 5 /\n\n" );
+        file.write( "GRID\n\n" );
+        file.write( "PROPS\n\n" );
+        file.write( "BOX\n 1 10 1 10 5 5 /\n\n" );
+        file.write( "ADD\n PRESSURE 100.0 /\n/\n\n" );
+        file.write( "ENDBOX\n\n" );
+        file.close();
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    auto               loadResult = deckFile.loadDeck( dataFilePath.toStdString() );
+    ASSERT_TRUE( loadResult.has_value() ) << loadResult.error();
+
+    // Sector (2,2,0)-(7,7,2) does NOT include K=4 (0-based)
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 2, 2, 0 ) );
+    settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
+    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+
+    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+
+    // ADD record with box K=5 (0-based K=4) outside sector K[0-2] should be removed
+    auto addAll = deckFile.findAllKeywordsWithIndices( "ADD" );
+    if ( !addAll.empty() )
+    {
+        EXPECT_EQ( 0u, addAll[0].second.size() );
+    }
+}
