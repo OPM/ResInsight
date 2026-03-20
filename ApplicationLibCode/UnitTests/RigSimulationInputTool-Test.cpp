@@ -2228,11 +2228,11 @@ TEST( RigSimulationInputTool, ProcessMultiplyRecord_PartialOverlapWithClamping )
     //   I: 1 to 20, J: 1 to 15, K: 1 to 10
     EXPECT_EQ( "PERMX", result->getItem( 0 ).get<std::string>( 0 ) );
     EXPECT_DOUBLE_EQ( 3.5, result->getItem( 1 ).get<double>( 0 ) );
-    EXPECT_EQ( 1, result->getItem( 2 ).get<int>( 0 ) );  // I1
+    EXPECT_EQ( 1, result->getItem( 2 ).get<int>( 0 ) ); // I1
     EXPECT_EQ( 20, result->getItem( 3 ).get<int>( 0 ) ); // I2
-    EXPECT_EQ( 1, result->getItem( 4 ).get<int>( 0 ) );  // J1
+    EXPECT_EQ( 1, result->getItem( 4 ).get<int>( 0 ) ); // J1
     EXPECT_EQ( 15, result->getItem( 5 ).get<int>( 0 ) ); // J2
-    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) );  // K1
+    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
     EXPECT_EQ( 10, result->getItem( 7 ).get<int>( 0 ) ); // K2
 }
 
@@ -2307,11 +2307,11 @@ TEST( RigSimulationInputTool, ProcessAddRecord_PartialOverlapWithClamping )
     //   I: 1 to 20, J: 1 to 15, K: 1 to 10
     EXPECT_EQ( "PRESSURE", result->getItem( 0 ).get<std::string>( 0 ) );
     EXPECT_DOUBLE_EQ( -50.0, result->getItem( 1 ).get<double>( 0 ) );
-    EXPECT_EQ( 1, result->getItem( 2 ).get<int>( 0 ) );  // I1
+    EXPECT_EQ( 1, result->getItem( 2 ).get<int>( 0 ) ); // I1
     EXPECT_EQ( 20, result->getItem( 3 ).get<int>( 0 ) ); // I2
-    EXPECT_EQ( 1, result->getItem( 4 ).get<int>( 0 ) );  // J1
+    EXPECT_EQ( 1, result->getItem( 4 ).get<int>( 0 ) ); // J1
     EXPECT_EQ( 15, result->getItem( 5 ).get<int>( 0 ) ); // J2
-    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) );  // K1
+    EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
     EXPECT_EQ( 10, result->getItem( 7 ).get<int>( 0 ) ); // K2
 }
 
