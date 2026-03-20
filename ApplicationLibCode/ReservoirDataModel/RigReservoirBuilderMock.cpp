@@ -384,6 +384,9 @@ void RigReservoirBuilderMock::enableWellData( bool enableWellData )
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::addNnc( RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, RigConnectionContainer& nncConnections )
 {
+    if ( i1 >= grid->cellCountI() || j1 >= grid->cellCountJ() || k1 >= grid->cellCountK() ) return;
+    if ( i2 >= grid->cellCountI() || j2 >= grid->cellCountJ() || k2 >= grid->cellCountK() ) return;
+
     size_t c1GlobalIndex = grid->cellIndexFromIJK( i1, j1, k1 );
     size_t c2GlobalIndex = grid->cellIndexFromIJK( i2, j2, k2 );
 

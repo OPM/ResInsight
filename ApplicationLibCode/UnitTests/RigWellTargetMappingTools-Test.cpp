@@ -283,7 +283,7 @@ TEST( RigWellTargetMappingToolsTest, IsSaturationSufficient_OilBelowThreshold_Re
     limits.saturationOil = 0.2;
     limits.saturationGas = 0.1;
 
-    EXPECT_FALSE( RigWellTargetMappingTools::isSaturationSufficient( VolumeType::OIL, data, limits, ActiveCellIndex( 1 ) ) );
+    EXPECT_FALSE( RigWellTargetMappingTools::isSaturationSufficient( VolumeType::OIL, data, limits, ActiveCellIndex( 0 ) ) );
 }
 
 TEST( RigWellTargetMappingToolsTest, IsSaturationSufficient_OilExactlyAtThreshold_ReturnsTrue )
