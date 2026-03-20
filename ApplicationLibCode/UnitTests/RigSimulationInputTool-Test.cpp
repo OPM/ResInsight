@@ -2637,18 +2637,15 @@ TEST( RigSimulationInputTool, ExportModel5_FipKeywordCropping )
             // k_s=0: all value 1
             for ( size_t j = 0; j < NJ; ++j )
                 for ( size_t i = 0; i < NI; ++i )
-                    EXPECT_EQ( 1, fipabcData[i + j * NI + 0 * NI * NJ] )
-                        << "FIPABC at k_s=0, j=" << j << ", i=" << i << " should be 1";
+                    EXPECT_EQ( 1, fipabcData[i + j * NI + 0 * NI * NJ] ) << "FIPABC at k_s=0, j=" << j << ", i=" << i << " should be 1";
 
             // k_s=1: j_s=0..4 -> value 1, j_s=5..9 -> value 2
             for ( size_t j = 0; j < 5; ++j )
                 for ( size_t i = 0; i < NI; ++i )
-                    EXPECT_EQ( 1, fipabcData[i + j * NI + 1 * NI * NJ] )
-                        << "FIPABC at k_s=1, j=" << j << ", i=" << i << " should be 1";
+                    EXPECT_EQ( 1, fipabcData[i + j * NI + 1 * NI * NJ] ) << "FIPABC at k_s=1, j=" << j << ", i=" << i << " should be 1";
             for ( size_t j = 5; j < NJ; ++j )
                 for ( size_t i = 0; i < NI; ++i )
-                    EXPECT_EQ( 2, fipabcData[i + j * NI + 1 * NI * NJ] )
-                        << "FIPABC at k_s=1, j=" << j << ", i=" << i << " should be 2";
+                    EXPECT_EQ( 2, fipabcData[i + j * NI + 1 * NI * NJ] ) << "FIPABC at k_s=1, j=" << j << ", i=" << i << " should be 2";
 
             // k_s=2..4: all value 2
             for ( size_t k = 2; k <= 4; ++k )
@@ -2660,8 +2657,7 @@ TEST( RigSimulationInputTool, ExportModel5_FipKeywordCropping )
             // k_s=5: all value 3
             for ( size_t j = 0; j < NJ; ++j )
                 for ( size_t i = 0; i < NI; ++i )
-                    EXPECT_EQ( 3, fipabcData[i + j * NI + 5 * NI * NJ] )
-                        << "FIPABC at k_s=5, j=" << j << ", i=" << i << " should be 3";
+                    EXPECT_EQ( 3, fipabcData[i + j * NI + 5 * NI * NJ] ) << "FIPABC at k_s=5, j=" << j << ", i=" << i << " should be 3";
         }
     }
 }
