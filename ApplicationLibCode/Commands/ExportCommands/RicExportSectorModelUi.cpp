@@ -543,7 +543,7 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
     if ( !m_refineGrid() || m_refinementMode() != NON_UNIFORM ) return result;
 
     // Parse the fractional widths from the text field
-    QStringList parts = m_nonUniformIntervals().split( ",", Qt::SkipEmptyParts );
+    QStringList         parts = m_nonUniformIntervals().split( ",", Qt::SkipEmptyParts );
     std::vector<double> widths;
     for ( const auto& part : parts )
     {
@@ -554,9 +554,9 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
 
     if ( widths.empty() ) return result;
 
-    auto dim  = static_cast<RigNonUniformRefinement::Dimension>( m_nonUniformDirection() );
-    int start = std::max( 0, m_nonUniformRangeStart() - 1 ); // Convert to 0-based, clamp
-    int end   = std::min( static_cast<int>( result.sectorSize( dim ) ) - 1, m_nonUniformRangeEnd() - 1 );
+    auto dim   = static_cast<RigNonUniformRefinement::Dimension>( m_nonUniformDirection() );
+    int  start = std::max( 0, m_nonUniformRangeStart() - 1 ); // Convert to 0-based, clamp
+    int  end   = std::min( static_cast<int>( result.sectorSize( dim ) ) - 1, m_nonUniformRangeEnd() - 1 );
 
     if ( start > end ) return result;
 

@@ -68,11 +68,11 @@ public:
                           const cvf::Vec3st&     refinement,
                           const cvf::UByteArray* cellVisibilityOverrideForActnum = nullptr );
 
-    RigGridExportAdapter( RigEclipseCaseData*              eclipseCase,
-                          const cvf::Vec3st&               min,
-                          const cvf::Vec3st&               max,
-                          const RigNonUniformRefinement&    nonUniformRefinement,
-                          const cvf::UByteArray*           cellVisibilityOverrideForActnum = nullptr );
+    RigGridExportAdapter( RigEclipseCaseData*            eclipseCase,
+                          const cvf::Vec3st&             min,
+                          const cvf::Vec3st&             max,
+                          const RigNonUniformRefinement& nonUniformRefinement,
+                          const cvf::UByteArray*         cellVisibilityOverrideForActnum = nullptr );
 
     // Grid dimensions (after refinement)
     size_t cellCountI() const;
@@ -111,8 +111,8 @@ public:
                                                                                  const caf::VecIjk0&            min,
                                                                                  const caf::VecIjk0&            max,
                                                                                  const RigNonUniformRefinement& nonUniformRefinement,
-                                                                                 bool                           applyRefinementCentering = false,
-                                                                                 bool                           isBoxMaxCoordinate       = false );
+                                                                                 bool applyRefinementCentering = false,
+                                                                                 bool isBoxMaxCoordinate       = false );
 
 private:
     // Internal methods to handle original vs refined cell access

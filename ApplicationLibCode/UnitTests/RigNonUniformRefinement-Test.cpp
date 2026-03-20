@@ -108,14 +108,16 @@ TEST( RigNonUniformRefinement, MapRefinedToOriginalRoundTrip )
     nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 0, RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0 } ) );
     // Cell 1: default (1 subcell)
     nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 2, RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0 } ) );
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 3, RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0, 1.0 } ) );
+    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI,
+                                  3,
+                                  RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0, 1.0 } ) );
 
     EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 10u ); // 3 + 1 + 2 + 4
 
     // Verify round-trip: for each original cell, cumulativeOffset should map back correctly
     for ( size_t origIdx = 0; origIdx < 4; ++origIdx )
     {
-        size_t offset = nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, origIdx );
+        size_t offset                = nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, origIdx );
         auto [mappedOrig, mappedSub] = nuRef.mapRefinedToOriginal( RigNonUniformRefinement::DimI, offset );
         EXPECT_EQ( mappedOrig, origIdx );
         EXPECT_EQ( mappedSub, 0u );
@@ -277,8 +279,14 @@ TEST( RigNonUniformRefinement, DistributeConcentratedWidths )
 //--------------------------------------------------------------------------------------------------
 TEST( RiaCellDividingTools, NonUniformEqualFractionsMatchUniform )
 {
-    std::array<cvf::Vec3d, 8> corners = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 1, 0, 0 ), cvf::Vec3d( 1, 1, 0 ), cvf::Vec3d( 0, 1, 0 ),
-                                           cvf::Vec3d( 0, 0, 1 ), cvf::Vec3d( 1, 0, 1 ), cvf::Vec3d( 1, 1, 1 ), cvf::Vec3d( 0, 1, 1 ) };
+    std::array<cvf::Vec3d, 8> corners = { cvf::Vec3d( 0, 0, 0 ),
+                                          cvf::Vec3d( 1, 0, 0 ),
+                                          cvf::Vec3d( 1, 1, 0 ),
+                                          cvf::Vec3d( 0, 1, 0 ),
+                                          cvf::Vec3d( 0, 0, 1 ),
+                                          cvf::Vec3d( 1, 0, 1 ),
+                                          cvf::Vec3d( 1, 1, 1 ),
+                                          cvf::Vec3d( 0, 1, 1 ) };
 
     size_t nx = 3, ny = 2, nz = 2;
 
@@ -307,8 +315,14 @@ TEST( RiaCellDividingTools, NonUniformEqualFractionsMatchUniform )
 //--------------------------------------------------------------------------------------------------
 TEST( RiaCellDividingTools, NonUniformFractionsGeometry )
 {
-    std::array<cvf::Vec3d, 8> corners = { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 10, 0, 0 ), cvf::Vec3d( 10, 10, 0 ), cvf::Vec3d( 0, 10, 0 ),
-                                           cvf::Vec3d( 0, 0, 10 ), cvf::Vec3d( 10, 0, 10 ), cvf::Vec3d( 10, 10, 10 ), cvf::Vec3d( 0, 10, 10 ) };
+    std::array<cvf::Vec3d, 8> corners = { cvf::Vec3d( 0, 0, 0 ),
+                                          cvf::Vec3d( 10, 0, 0 ),
+                                          cvf::Vec3d( 10, 10, 0 ),
+                                          cvf::Vec3d( 0, 10, 0 ),
+                                          cvf::Vec3d( 0, 0, 10 ),
+                                          cvf::Vec3d( 10, 0, 10 ),
+                                          cvf::Vec3d( 10, 10, 10 ),
+                                          cvf::Vec3d( 0, 10, 10 ) };
 
     // Non-uniform X: 20% and 80%
     std::vector<double> fracX = { 0.2, 1.0 };
@@ -321,11 +335,11 @@ TEST( RiaCellDividingTools, NonUniformFractionsGeometry )
     ASSERT_EQ( result.size(), 16u );
 
     // First subcell: x range [0, 2]
-    EXPECT_NEAR( result[0].x(), 0.0, 1e-10 );  // corner 0 x
-    EXPECT_NEAR( result[1].x(), 2.0, 1e-10 );  // corner 1 x
+    EXPECT_NEAR( result[0].x(), 0.0, 1e-10 ); // corner 0 x
+    EXPECT_NEAR( result[1].x(), 2.0, 1e-10 ); // corner 1 x
 
     // Second subcell: x range [2, 10]
-    EXPECT_NEAR( result[8].x(), 2.0, 1e-10 );  // corner 0 x
+    EXPECT_NEAR( result[8].x(), 2.0, 1e-10 ); // corner 0 x
     EXPECT_NEAR( result[9].x(), 10.0, 1e-10 ); // corner 1 x
 }
 
@@ -369,8 +383,7 @@ TEST( RigGridExportAdapter, TransformIjkNonUniform )
     EXPECT_EQ( result3->z(), 0u );
 
     // Test centering: cell (11, 20, 30) -> offset(1) + subcellCount(1)/2 = 2 + 1 = 3
-    auto result4 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( 11, 20, 30 ), sectorMin, sectorMax, nuRef, true );
+    auto result4 = RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( 11, 20, 30 ), sectorMin, sectorMax, nuRef, true );
     ASSERT_TRUE( result4.has_value() );
     EXPECT_EQ( result4->x(), 3u ); // offset(1)=2, subcellCount(1)=3, center=2+3/2=3
     EXPECT_EQ( result4->y(), 0u ); // offset(0)=0, subcellCount(0)=1, center=0+1/2=0

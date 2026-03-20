@@ -338,12 +338,11 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<std::vector<double>, std::string>
-    RifEclipseInputFileTools::extractKeywordData( RigEclipseCaseData*           eclipseCase,
-                                                  const QString&                keyword,
-                                                  const cvf::Vec3st&            min,
-                                                  const cvf::Vec3st&            maxIn,
-                                                  const RigNonUniformRefinement& nonUniformRefinement )
+std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extractKeywordData( RigEclipseCaseData* eclipseCase,
+                                                                                              const QString&      keyword,
+                                                                                              const cvf::Vec3st&  min,
+                                                                                              const cvf::Vec3st&  maxIn,
+                                                                                              const RigNonUniformRefinement& nonUniformRefinement )
 {
     RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
@@ -376,8 +375,7 @@ std::expected<std::vector<double>, std::string>
         return std::unexpected( "Keyword '" + keyword.toStdString() + "' result empty." );
 
     std::vector<double> resultValues = cellResultsData->cellScalarResults( resAddr )[0];
-    if ( resultValues.empty() )
-        return std::unexpected( "Keyword '" + keyword.toStdString() + "' has no data" );
+    if ( resultValues.empty() ) return std::unexpected( "Keyword '" + keyword.toStdString() + "' has no data" );
 
     double defaultExportValue = RiaResultNames::isCategoryResult( keyword ) ? 1.0 : 0.0;
 

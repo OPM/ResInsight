@@ -160,10 +160,7 @@ size_t RigNonUniformRefinement::sectorSize( Dimension dim ) const
 ///   Cell 1 [0.333, 0.667]: boundary 0.5 falls here -> local fracs [0.5, 1.0] -> 2 subcells
 ///   Cell 2 [0.667, 1.0]: no interior boundaries -> local fracs [1.0] -> 1 subcell
 //--------------------------------------------------------------------------------------------------
-void RigNonUniformRefinement::distributeWidthsAcrossCells( Dimension                  dim,
-                                                           size_t                     startIndex,
-                                                           size_t                     endIndex,
-                                                           const std::vector<double>& widths )
+void RigNonUniformRefinement::distributeWidthsAcrossCells( Dimension dim, size_t startIndex, size_t endIndex, const std::vector<double>& widths )
 {
     if ( startIndex > endIndex || endIndex >= m_sectorSize[dim] || widths.empty() ) return;
 
