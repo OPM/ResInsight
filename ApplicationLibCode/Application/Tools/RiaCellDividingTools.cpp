@@ -59,10 +59,10 @@ std::vector<std::vector<cvf::Vec3d>> calcFacePoints( const std::vector<cvf::Vec3
 /// Calculates face points using non-uniform X-direction fractions for interior rows
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::Vec3d>> calcFacePointsNonUniform( const std::vector<cvf::Vec3d>& edgeXPtsLow,
-                                                                const std::vector<cvf::Vec3d>& edgeXPtsHigh,
-                                                                const std::vector<cvf::Vec3d>& edgeYPtsLow,
-                                                                const std::vector<cvf::Vec3d>& edgeYPtsHigh,
-                                                                const std::vector<double>&     xCumulativeFractions );
+                                                               const std::vector<cvf::Vec3d>& edgeXPtsHigh,
+                                                               const std::vector<cvf::Vec3d>& edgeYPtsLow,
+                                                               const std::vector<cvf::Vec3d>& edgeYPtsHigh,
+                                                               const std::vector<double>&     xCumulativeFractions );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -241,10 +241,10 @@ std::vector<cvf::Vec3d> splitLineNonUniform( cvf::Vec3d ptStart, cvf::Vec3d ptEn
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::Vec3d>> calcFacePointsNonUniform( const std::vector<cvf::Vec3d>& edgeXPtsLow,
-                                                                const std::vector<cvf::Vec3d>& edgeXPtsHigh,
-                                                                const std::vector<cvf::Vec3d>& edgeYPtsLow,
-                                                                const std::vector<cvf::Vec3d>& edgeYPtsHigh,
-                                                                const std::vector<double>&     xCumulativeFractions )
+                                                               const std::vector<cvf::Vec3d>& edgeXPtsHigh,
+                                                               const std::vector<cvf::Vec3d>& edgeYPtsLow,
+                                                               const std::vector<cvf::Vec3d>& edgeYPtsHigh,
+                                                               const std::vector<double>&     xCumulativeFractions )
 {
     CVF_ASSERT( edgeYPtsLow.size() == edgeYPtsHigh.size() );
 
@@ -305,18 +305,12 @@ std::vector<cvf::Vec3d> RiaCellDividingTools::createHexCornerCoords( const std::
     std::vector<std::vector<std::vector<cvf::Vec3d>>> nodes;
     nodes.reserve( ( nx + 1 ) * ( ny + 1 ) * ( nz + 1 ) );
 
-    auto xyFacePtsLow =
-        calcFacePointsNonUniform( edgePoints[0], edgePoints[1], edgePoints[4], edgePoints[6], cumulativeFractionsX );
-    auto xyFacePtsHigh =
-        calcFacePointsNonUniform( edgePoints[2], edgePoints[3], edgePoints[5], edgePoints[7], cumulativeFractionsX );
-    auto yzFacePtsLow =
-        calcFacePointsNonUniform( edgePoints[4], edgePoints[5], edgePoints[8], edgePoints[10], cumulativeFractionsY );
-    auto yzFacePtsHigh =
-        calcFacePointsNonUniform( edgePoints[6], edgePoints[7], edgePoints[9], edgePoints[11], cumulativeFractionsY );
-    auto xzFacePtsLow =
-        calcFacePointsNonUniform( edgePoints[0], edgePoints[2], edgePoints[8], edgePoints[9], cumulativeFractionsX );
-    auto xzFacePtsHigh =
-        calcFacePointsNonUniform( edgePoints[1], edgePoints[3], edgePoints[10], edgePoints[11], cumulativeFractionsX );
+    auto xyFacePtsLow  = calcFacePointsNonUniform( edgePoints[0], edgePoints[1], edgePoints[4], edgePoints[6], cumulativeFractionsX );
+    auto xyFacePtsHigh = calcFacePointsNonUniform( edgePoints[2], edgePoints[3], edgePoints[5], edgePoints[7], cumulativeFractionsX );
+    auto yzFacePtsLow  = calcFacePointsNonUniform( edgePoints[4], edgePoints[5], edgePoints[8], edgePoints[10], cumulativeFractionsY );
+    auto yzFacePtsHigh = calcFacePointsNonUniform( edgePoints[6], edgePoints[7], edgePoints[9], edgePoints[11], cumulativeFractionsY );
+    auto xzFacePtsLow  = calcFacePointsNonUniform( edgePoints[0], edgePoints[2], edgePoints[8], edgePoints[9], cumulativeFractionsX );
+    auto xzFacePtsHigh = calcFacePointsNonUniform( edgePoints[1], edgePoints[3], edgePoints[10], edgePoints[11], cumulativeFractionsX );
 
     nodes.push_back( xyFacePtsLow );
 
