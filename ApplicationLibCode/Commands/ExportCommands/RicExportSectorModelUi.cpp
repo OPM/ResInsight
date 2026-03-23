@@ -19,6 +19,7 @@
 #include "RicExportSectorModelUi.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -585,24 +586,61 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
     // Sector min indices (1-based) for converting original grid coordinates to sector-relative
     int sectorMin[3] = { m_minI(), m_minJ(), m_minK() };
 
+    const QString dimLabels[3] = { "I", "J", "K" };
+
+    RiaLogging::info( QString( "Non-uniform refinement: sector size [%1, %2, %3], sector min [%4, %5, %6]" )
+                          .arg( sectorSize.x() )
+                          .arg( sectorSize.y() )
+                          .arg( sectorSize.z() )
+                          .arg( sectorMin[0] )
+                          .arg( sectorMin[1] )
+                          .arg( sectorMin[2] ) );
+
     for ( const auto& dc : dims )
     {
         if ( !dc.enabled ) continue;
 
         auto widths = parseWidths( dc.intervals );
-        if ( widths.empty() ) continue;
+        if ( widths.empty() )
+        {
+            RiaLogging::warning( QString( "Non-uniform refinement %1: no valid widths parsed from '%2'" )
+                                     .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                                     .arg( dc.intervals ) );
+            continue;
+        }
 
         // Convert from original grid coordinates (1-based) to sector-relative (0-based)
         int sectorStart = dc.rangeStart - sectorMin[static_cast<size_t>( dc.dim )];
         int sectorEnd   = dc.rangeEnd - sectorMin[static_cast<size_t>( dc.dim )];
 
+        RiaLogging::info( QString( "Non-uniform refinement %1: grid range [%2, %3] -> sector range [%4, %5] (sector size %6, %7 widths)" )
+                              .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                              .arg( dc.rangeStart )
+                              .arg( dc.rangeEnd )
+                              .arg( sectorStart )
+                              .arg( sectorEnd )
+                              .arg( result.sectorSize( dc.dim ) )
+                              .arg( widths.size() ) );
+
         // Clamp to sector bounds
         int sectorMax = static_cast<int>( result.sectorSize( dc.dim ) ) - 1;
         sectorStart   = std::max( 0, sectorStart );
         sectorEnd     = std::min( sectorMax, sectorEnd );
-        if ( sectorStart > sectorEnd ) continue;
+        if ( sectorStart > sectorEnd )
+        {
+            RiaLogging::warning( QString( "Non-uniform refinement %1: range [%2, %3] is outside sector after clamping, skipping" )
+                                     .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                                     .arg( sectorStart )
+                                     .arg( sectorEnd ) );
+            continue;
+        }
 
         result.distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
+
+        RiaLogging::info( QString( "Non-uniform refinement %1: total refined count = %2 (was %3)" )
+                              .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                              .arg( result.totalRefinedCount( dc.dim ) )
+                              .arg( result.sectorSize( dc.dim ) ) );
     }
 
     return result;
