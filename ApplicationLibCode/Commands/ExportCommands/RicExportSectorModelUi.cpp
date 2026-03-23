@@ -115,25 +115,25 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     CAF_PDM_InitField( &m_nonUniformEnableI, "NonUniformEnableI", false, "Enable I Refinement" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_nonUniformEnableI );
-    CAF_PDM_InitField( &m_nonUniformRangeStartI, "NonUniformRangeStartI", 1, "Cell Range Start" );
+    CAF_PDM_InitField( &m_nonUniformRangeStartI, "NonUniformRangeStartI", 1, "Grid Cell Start" );
     m_nonUniformRangeStartI.setMinValue( 1 );
-    CAF_PDM_InitField( &m_nonUniformRangeEndI, "NonUniformRangeEndI", 1, "Cell Range End" );
+    CAF_PDM_InitField( &m_nonUniformRangeEndI, "NonUniformRangeEndI", 1, "Grid Cell End" );
     m_nonUniformRangeEndI.setMinValue( 1 );
     CAF_PDM_InitField( &m_nonUniformIntervalsI, "NonUniformIntervalsI", QString( "0.5, 0.5" ), "Fractional Widths" );
 
     CAF_PDM_InitField( &m_nonUniformEnableJ, "NonUniformEnableJ", false, "Enable J Refinement" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_nonUniformEnableJ );
-    CAF_PDM_InitField( &m_nonUniformRangeStartJ, "NonUniformRangeStartJ", 1, "Cell Range Start" );
+    CAF_PDM_InitField( &m_nonUniformRangeStartJ, "NonUniformRangeStartJ", 1, "Grid Cell Start" );
     m_nonUniformRangeStartJ.setMinValue( 1 );
-    CAF_PDM_InitField( &m_nonUniformRangeEndJ, "NonUniformRangeEndJ", 1, "Cell Range End" );
+    CAF_PDM_InitField( &m_nonUniformRangeEndJ, "NonUniformRangeEndJ", 1, "Grid Cell End" );
     m_nonUniformRangeEndJ.setMinValue( 1 );
     CAF_PDM_InitField( &m_nonUniformIntervalsJ, "NonUniformIntervalsJ", QString( "0.5, 0.5" ), "Fractional Widths" );
 
     CAF_PDM_InitField( &m_nonUniformEnableK, "NonUniformEnableK", false, "Enable K Refinement" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_nonUniformEnableK );
-    CAF_PDM_InitField( &m_nonUniformRangeStartK, "NonUniformRangeStartK", 1, "Cell Range Start" );
+    CAF_PDM_InitField( &m_nonUniformRangeStartK, "NonUniformRangeStartK", 1, "Grid Cell Start" );
     m_nonUniformRangeStartK.setMinValue( 1 );
-    CAF_PDM_InitField( &m_nonUniformRangeEndK, "NonUniformRangeEndK", 1, "Cell Range End" );
+    CAF_PDM_InitField( &m_nonUniformRangeEndK, "NonUniformRangeEndK", 1, "Grid Cell End" );
     m_nonUniformRangeEndK.setMinValue( 1 );
     CAF_PDM_InitField( &m_nonUniformIntervalsK, "NonUniformIntervalsK", QString( "0.5, 0.5" ), "Fractional Widths" );
 
@@ -582,6 +582,9 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
         { m_nonUniformEnableK(), m_nonUniformRangeStartK(), m_nonUniformRangeEndK(), m_nonUniformIntervalsK(), RigNonUniformRefinement::DimK },
     };
 
+    // Sector min indices (1-based) for converting original grid coordinates to sector-relative
+    int sectorMin[3] = { m_minI(), m_minJ(), m_minK() };
+
     for ( const auto& dc : dims )
     {
         if ( !dc.enabled ) continue;
@@ -589,11 +592,17 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
         auto widths = parseWidths( dc.intervals );
         if ( widths.empty() ) continue;
 
-        int start = std::max( 0, dc.rangeStart - 1 );
-        int end   = std::min( static_cast<int>( result.sectorSize( dc.dim ) ) - 1, dc.rangeEnd - 1 );
-        if ( start > end ) continue;
+        // Convert from original grid coordinates (1-based) to sector-relative (0-based)
+        int sectorStart = dc.rangeStart - sectorMin[static_cast<size_t>( dc.dim )];
+        int sectorEnd   = dc.rangeEnd - sectorMin[static_cast<size_t>( dc.dim )];
 
-        result.distributeWidthsAcrossCells( dc.dim, start, end, widths );
+        // Clamp to sector bounds
+        int sectorMax = static_cast<int>( result.sectorSize( dc.dim ) ) - 1;
+        sectorStart   = std::max( 0, sectorStart );
+        sectorEnd     = std::min( sectorMax, sectorEnd );
+        if ( sectorStart > sectorEnd ) continue;
+
+        result.distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
     }
 
     return result;
@@ -944,13 +953,15 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
                     const caf::PdmField<int>&     rangeStart;
                     const caf::PdmField<int>&     rangeEnd;
                     const caf::PdmField<QString>& intervals;
+                    int                           sectorMin;
+                    int                           sectorMax;
                     QString                       label;
                 };
 
                 std::vector<DimValidation> dims = {
-                    { m_nonUniformEnableI, m_nonUniformRangeStartI, m_nonUniformRangeEndI, m_nonUniformIntervalsI, "I" },
-                    { m_nonUniformEnableJ, m_nonUniformRangeStartJ, m_nonUniformRangeEndJ, m_nonUniformIntervalsJ, "J" },
-                    { m_nonUniformEnableK, m_nonUniformRangeStartK, m_nonUniformRangeEndK, m_nonUniformIntervalsK, "K" },
+                    { m_nonUniformEnableI, m_nonUniformRangeStartI, m_nonUniformRangeEndI, m_nonUniformIntervalsI, m_minI(), m_maxI(), "I" },
+                    { m_nonUniformEnableJ, m_nonUniformRangeStartJ, m_nonUniformRangeEndJ, m_nonUniformIntervalsJ, m_minJ(), m_maxJ(), "J" },
+                    { m_nonUniformEnableK, m_nonUniformRangeStartK, m_nonUniformRangeEndK, m_nonUniformIntervalsK, m_minK(), m_maxK(), "K" },
                 };
 
                 for ( const auto& dv : dims )
@@ -960,7 +971,17 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
                     if ( dv.rangeStart() > dv.rangeEnd() )
                     {
                         fieldErrors[dv.rangeStart.keyword()] =
-                            QString( "%1 direction: Range Start cannot be larger than Range End." ).arg( dv.label );
+                            QString( "%1 direction: Grid Cell Start cannot be larger than Grid Cell End." ).arg( dv.label );
+                    }
+                    if ( dv.rangeStart() < dv.sectorMin || dv.rangeEnd() > dv.sectorMax )
+                    {
+                        fieldErrors[dv.rangeEnd.keyword()] =
+                            QString( "%1 direction: Refinement range [%2, %3] is outside the sector model range [%4, %5]." )
+                                .arg( dv.label )
+                                .arg( dv.rangeStart() )
+                                .arg( dv.rangeEnd() )
+                                .arg( dv.sectorMin )
+                                .arg( dv.sectorMax );
                     }
                     if ( parseWidths( dv.intervals() ).empty() )
                     {
