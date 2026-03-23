@@ -1967,7 +1967,7 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
 
         if ( computeDepth || isTemporaryGrid )
         {
-            depth[0][resultIndex] = cvf::Math::abs( cell.center().z() );
+            depth[0][resultIndex] = -cell.center().z();
         }
 
         if ( computeDx || isTemporaryGrid )
@@ -1990,12 +1990,12 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
 
         if ( computeTops || isTemporaryGrid )
         {
-            tops[0][resultIndex] = cvf::Math::abs( cell.faceCenter( cvf::StructGridInterface::NEG_K ).z() );
+            tops[0][resultIndex] = -cell.faceCenter( cvf::StructGridInterface::NEG_K ).z();
         }
 
         if ( computeBottom || isTemporaryGrid )
         {
-            bottom[0][resultIndex] = cvf::Math::abs( cell.faceCenter( cvf::StructGridInterface::POS_K ).z() );
+            bottom[0][resultIndex] = -cell.faceCenter( cvf::StructGridInterface::POS_K ).z();
         }
     }
 }
