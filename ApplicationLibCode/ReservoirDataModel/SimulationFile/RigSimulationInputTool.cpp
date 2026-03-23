@@ -357,7 +357,7 @@ std::set<std::string> RigSimulationInputTool::cropDataKeywordsInDeckFile( RimEcl
         hasNonUniform
             ? settings.nonUniformRefinement()
             : RigNonUniformRefinement::fromUniform( refinement,
-                                                      cvf::Vec3st( max.x() - min.x() + 1, max.y() - min.y() + 1, max.z() - min.z() + 1 ) );
+                                                    cvf::Vec3st( max.x() - min.x() + 1, max.y() - min.y() + 1, max.z() - min.z() + 1 ) );
 
     auto keywords = deckFile.keywords( false );
 

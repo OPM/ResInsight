@@ -103,7 +103,12 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
 
     if ( exportSettings->hasNonUniformRefinement() )
     {
-        settings.setNonUniformRefinement( exportSettings->nonUniformRefinement() );
+        auto nonUniform = exportSettings->nonUniformRefinement();
+        RiaLogging::info( QString( "Sector model export: non-uniform refinement enabled, refined grid dimensions [%1, %2, %3]" )
+                              .arg( nonUniform.totalRefinedCount( RigNonUniformRefinement::DimI ) )
+                              .arg( nonUniform.totalRefinedCount( RigNonUniformRefinement::DimJ ) )
+                              .arg( nonUniform.totalRefinedCount( RigNonUniformRefinement::DimK ) ) );
+        settings.setNonUniformRefinement( nonUniform );
     }
 
     std::vector<std::string> keywordsToRemove;
