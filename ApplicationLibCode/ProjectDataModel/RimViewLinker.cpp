@@ -295,7 +295,7 @@ void RimViewLinker::allViewsForCameraSync( const Rim3dView* source, std::vector<
 {
     if ( !isActive() ) return;
 
-    if ( source != m_masterView() )
+    if ( m_masterView() && source != m_masterView() )
     {
         views.push_back( m_masterView() );
     }
@@ -318,6 +318,7 @@ void RimViewLinker::allViewsForCameraSync( const Rim3dView* source, std::vector<
 void RimViewLinker::updateDependentViews()
 {
     if ( m_viewControllers.empty() ) return;
+    if ( !m_masterView ) return;
 
     updateOverrides();
     updateDuplicatedPropertyFilters();
@@ -379,7 +380,7 @@ std::vector<Rim3dView*> RimViewLinker::allViews() const
 {
     std::vector<Rim3dView*> views;
 
-    views.push_back( m_masterView() );
+    if ( m_masterView() ) views.push_back( m_masterView() );
 
     for ( const auto& viewController : m_viewControllers )
     {
@@ -424,7 +425,7 @@ void RimViewLinker::updateScaleZ( Rim3dView* sourceView, double scaleZ )
     // Make sure scale factors are identical
     for ( auto& view : views )
     {
-        view->setScaleZAndUpdate( scaleZ );
+        if ( view ) view->setScaleZAndUpdate( scaleZ );
     }
 }
 
