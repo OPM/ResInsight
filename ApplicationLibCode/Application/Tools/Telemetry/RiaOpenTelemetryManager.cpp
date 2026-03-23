@@ -327,7 +327,7 @@ static std::string extractRelevantPath( const std::string& fullPath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace& trace )
+void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace& trace, const std::map<std::string, std::string>& extraAttributes )
 {
     if ( !isEnabled() )
     {
@@ -377,6 +377,12 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     attributes["crash.parsed_stack_json"] = QString::fromUtf8( QJsonDocument( jsonFrames ).toJson( QJsonDocument::Compact ) ).toStdString();
     attributes["service.name"]            = RiaPreferencesOpenTelemetry::current()->serviceName().toStdString();
     attributes["service.version"]         = RiaPreferencesOpenTelemetry::current()->serviceVersion().toStdString();
+
+    // Merge platform-specific crash context (fault address, signal code, program counter)
+    for ( const auto& [key, value] : extraAttributes )
+    {
+        attributes[key] = value;
+    }
 
     // Add system information
     addOsInfo( attributes );

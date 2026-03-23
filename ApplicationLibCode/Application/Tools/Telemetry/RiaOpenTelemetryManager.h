@@ -88,7 +88,7 @@ public:
 
     // Event reporting
     void reportEventAsync( const std::string& eventName, const std::map<std::string, std::string>& attributes );
-    void reportCrash( int signalCode, const std::stacktrace& trace );
+    void reportCrash( int signalCode, const std::stacktrace& trace, const std::map<std::string, std::string>& extraAttributes = {} );
 
     // Configuration
     bool isEnabled() const;

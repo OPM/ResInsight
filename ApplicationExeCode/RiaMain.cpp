@@ -47,6 +47,9 @@
 #include <signal.h>
 
 void manageSegFailure( int signalCode );
+#ifndef WIN32
+void manageSegFailureSA( int signalCode, siginfo_t* info, void* ucontext );
+#endif
 
 RiaApplication* createApplication( int& argc, char* argv[] )
 {
@@ -137,12 +140,26 @@ int main( int argc, char* argv[] )
     setlocale( LC_NUMERIC, "C" );
 
     // Set up signal handlers
+#ifndef WIN32
+    // Use SA_SIGINFO on Linux to capture fault address, signal code, and program counter
+    struct sigaction sa{};
+    sa.sa_sigaction = manageSegFailureSA;
+    sa.sa_flags     = SA_SIGINFO;
+    sigemptyset( &sa.sa_mask );
+    sigaction( SIGINT, &sa, nullptr );
+    sigaction( SIGILL, &sa, nullptr );
+    sigaction( SIGFPE, &sa, nullptr );
+    sigaction( SIGSEGV, &sa, nullptr );
+    sigaction( SIGTERM, &sa, nullptr );
+    sigaction( SIGABRT, &sa, nullptr );
+#else
     signal( SIGINT, manageSegFailure );
     signal( SIGILL, manageSegFailure );
     signal( SIGFPE, manageSegFailure );
     signal( SIGSEGV, manageSegFailure );
     signal( SIGTERM, manageSegFailure );
     signal( SIGABRT, manageSegFailure );
+#endif
 
     // Handle the command line arguments.
     // Todo: Move to a one-shot timer, delaying the execution until we are inside the event loop.
