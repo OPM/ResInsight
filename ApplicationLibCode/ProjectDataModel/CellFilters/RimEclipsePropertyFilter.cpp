@@ -231,15 +231,13 @@ void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_name );
 
     uiOrdering.add( &m_linkedWithCellResult );
-    if ( m_linkedWithCellResult )
-    {
-        uiOrdering.skipRemainingFields( true );
-        return;
-    }
 
-    // Fields declared in Rimm_resultDefinition
-    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
-    m_resultDefinition->uiOrdering( uiConfigName, *group1 );
+    if ( !m_linkedWithCellResult )
+    {
+        // Fields declared in Rimm_resultDefinition
+        caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
+        m_resultDefinition->uiOrdering( uiConfigName, *group1 );
+    }
 
     caf::PdmUiGroup& group2 = *( uiOrdering.addNewGroup( "Filter Settings" ) );
 
