@@ -115,8 +115,9 @@ private:
         TotalPages         = 7
     };
 
-    void           applyBoundaryDefaults();
-    static QString defaultFolder();
+    void                       applyBoundaryDefaults();
+    static QString             defaultFolder();
+    static std::vector<double> parseWidths( const QString& text );
 
 private:
     caf::PdmField<caf::FilePath> m_exportFolder;
@@ -139,10 +140,21 @@ private:
     caf::PdmField<int>  m_refinementCountK;
 
     caf::PdmField<RefinementModeEnum> m_refinementMode;
-    caf::PdmField<int>                m_nonUniformDirection; // 0=I, 1=J, 2=K
-    caf::PdmField<int>                m_nonUniformRangeStart;
-    caf::PdmField<int>                m_nonUniformRangeEnd;
-    caf::PdmField<QString>            m_nonUniformIntervals;
+
+    caf::PdmField<bool>    m_nonUniformEnableI;
+    caf::PdmField<int>     m_nonUniformRangeStartI;
+    caf::PdmField<int>     m_nonUniformRangeEndI;
+    caf::PdmField<QString> m_nonUniformIntervalsI;
+
+    caf::PdmField<bool>    m_nonUniformEnableJ;
+    caf::PdmField<int>     m_nonUniformRangeStartJ;
+    caf::PdmField<int>     m_nonUniformRangeEndJ;
+    caf::PdmField<QString> m_nonUniformIntervalsJ;
+
+    caf::PdmField<bool>    m_nonUniformEnableK;
+    caf::PdmField<int>     m_nonUniformRangeStartK;
+    caf::PdmField<int>     m_nonUniformRangeEndK;
+    caf::PdmField<QString> m_nonUniformIntervalsK;
 
     caf::PdmField<BoundaryConditionEnum>       m_boundaryCondition;
     caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
