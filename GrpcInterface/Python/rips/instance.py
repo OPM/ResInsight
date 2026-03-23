@@ -44,6 +44,7 @@ class Instance:
     Attributes:
         launched (bool): Tells us whether the application was launched as a new process.
             If the application was launched we may need to close it when exiting the script.
+        port (int): The port number used to connect to this instance.
         commands (Commands): Command executor. Set when creating an instance.
         project (Project): Current project in ResInsight.
             Set when creating an instance and updated when opening/closing projects.
@@ -246,6 +247,7 @@ class Instance:
             port(int): port number
         """
         self.location: str = "localhost:" + str(port)
+        self.port: int = port
 
         self.channel = grpc.insecure_channel(
             self.location, options=[("grpc.enable_http_proxy", False)]
