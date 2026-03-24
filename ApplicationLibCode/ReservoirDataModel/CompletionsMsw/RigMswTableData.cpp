@@ -80,6 +80,22 @@ void RigMswTableData::addWsegsicdRow( const WsegsicdRow& row )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigMswTableData::addMswBranch( RigMswBranchExportData branch )
+{
+    m_mswBranches.push_back( std::move( branch ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigMswBranchExportData>& RigMswTableData::mswBranches() const
+{
+    return m_mswBranches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigMswTableData::hasLgrData() const
 {
     return std::any_of( m_compsegsData.begin(), m_compsegsData.end(), []( const CompsegsRow& row ) { return row.isLgrGrid(); } );

@@ -26,6 +26,7 @@
 #include "RicMswExportInfo.h"
 #include "RicMswTableDataTools.h"
 #include "RicMswValveAccumulators.h"
+#include "RicWellPathExportMswGeometryPath.h"
 
 #include "CompletionsMsw/RigMswTableData.h"
 #include "RigActiveCellInfo.h"
@@ -68,6 +69,57 @@ std::expected<RigMswTableData, std::string>
                                                              bool                            exportCompletionsAfterMainBoreSegments,
                                                              CompletionType                  completionType,
                                                              const std::optional<QDateTime>& exportDate )
+{
+    bool exportAsTree = true; // This can be made configurable if needed, but for now we will always export as tree structure to preserve
+                              // the hierarchy of the well path segments and completions
+
+    if ( exportAsTree )
+    {
+        return extractSingleWellMswDataTree( eclipseCase, wellPath, exportCompletionsAfterMainBoreSegments, completionType, exportDate );
+    }
+    else
+    {
+        return extractSingleWellMswDataFlatList( eclipseCase, wellPath, exportCompletionsAfterMainBoreSegments, completionType, exportDate );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RigMswTableData, std::string>
+    RicWellPathExportMswTableData::extractSingleWellMswDataFlatList( RimEclipseCase*                 eclipseCase,
+                                                                     RimWellPath*                    wellPath,
+                                                                     bool                            exportCompletionsAfterMainBoreSegments,
+                                                                     CompletionType                  completionType,
+                                                                     const std::optional<QDateTime>& exportDate )
+{
+    if ( !eclipseCase || !wellPath || eclipseCase->eclipseCaseData() == nullptr )
+        return std::unexpected( "Invalid eclipse case or well path provided" );
+
+    auto mswParameters = wellPath->mswCompletionParameters();
+    if ( !mswParameters ) return std::unexpected( "Missing MSW completion parameters" );
+
+    const std::vector<std::pair<double, double>> customSegmentIntervals = mswParameters->getSegmentIntervals();
+    auto                                         flatData = RicWellPathExportMswGeometryPath::buildMswFromGeometry( eclipseCase,
+                                                                            wellPath,
+                                                                            mswParameters->maxSegmentLength(),
+                                                                            customSegmentIntervals,
+                                                                            completionType,
+                                                                            exportDate );
+
+    auto unitSystem = eclipseCase->eclipseCaseData()->unitsType();
+    return RicWellPathExportMswGeometryPath::collectDataFromFlatList( flatData, unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RigMswTableData, std::string>
+    RicWellPathExportMswTableData::extractSingleWellMswDataTree( RimEclipseCase*                 eclipseCase,
+                                                                 RimWellPath*                    wellPath,
+                                                                 bool                            exportCompletionsAfterMainBoreSegments,
+                                                                 CompletionType                  completionType,
+                                                                 const std::optional<QDateTime>& exportDate )
 {
     if ( !eclipseCase || !wellPath || eclipseCase->eclipseCaseData() == nullptr )
     {
