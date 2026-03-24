@@ -79,8 +79,7 @@ double segmentMidpointMD( const std::vector<CellSegmentEntry>& cellSegMap, int s
 {
     for ( const auto& entry : cellSegMap )
     {
-        if ( entry.lastSubSegmentNumber == segmentNumber )
-            return 0.5 * ( entry.cellStartMD + entry.cellEndMD );
+        if ( entry.lastSubSegmentNumber == segmentNumber ) return 0.5 * ( entry.cellStartMD + entry.cellEndMD );
     }
     return 0.0;
 }
@@ -94,8 +93,7 @@ int findContainingSegmentForMD( const std::vector<CellSegmentEntry>& cellSegMap,
 
     for ( const auto& entry : cellSegMap )
     {
-        if ( md >= entry.cellStartMD && md < entry.cellEndMD )
-            return entry.lastSubSegmentNumber;
+        if ( md >= entry.cellStartMD && md < entry.cellEndMD ) return entry.lastSubSegmentNumber;
     }
 
     // Fallback: md is beyond all segments — return the last segment.
@@ -328,12 +326,12 @@ std::vector<RigMswBranchExportData> buildValveSegmentsFromGeometry( const RimWel
                     // One branch+segment per cell with area proportional to overlap length
                     for ( auto& entry : cells )
                     {
-                        const int    cellBranch  = ++branchNumber;
-                        const int    outletSeg   = findContainingSegmentForMD( cellSegMap, entry.ci.distanceStart );
-                        const double valveMD     = segmentMidpointMD( cellSegMap, outletSeg );
-                        const double valveEndMD  = valveMD + RicMswTableDataTools::valveSegmentLength;
-                        const double startTVD    = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, valveMD );
-                        const double endTVD      = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, valveEndMD );
+                        const int    cellBranch = ++branchNumber;
+                        const int    outletSeg  = findContainingSegmentForMD( cellSegMap, entry.ci.distanceStart );
+                        const double valveMD    = segmentMidpointMD( cellSegMap, outletSeg );
+                        const double valveEndMD = valveMD + RicMswTableDataTools::valveSegmentLength;
+                        const double startTVD   = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, valveMD );
+                        const double endTVD     = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, valveEndMD );
 
                         double length = 0.0, depth = 0.0;
                         if ( infoType == "INC" )
@@ -383,9 +381,7 @@ std::vector<RigMswBranchExportData> buildValveSegmentsFromGeometry( const RimWel
                     const auto aicdValues = aicdParams->doubleValues();
 
                     auto setOptional = []( double value ) -> std::optional<double>
-                    {
-                        return std::isinf( value ) ? std::nullopt : std::optional<double>{ value };
-                    };
+                    { return std::isinf( value ) ? std::nullopt : std::optional<double>{ value }; };
 
                     for ( size_t vi = 0; vi < valveLocations.size(); ++vi )
                     {
@@ -440,9 +436,8 @@ std::vector<RigMswBranchExportData> buildValveSegmentsFromGeometry( const RimWel
                             seg.diameter            = linerDiameter;
                             seg.roughness           = roughnessFactor;
                             seg.sourceWellName      = wellPath->name().toStdString();
-                            seg.description =
-                                QString( "%1 #%2" ).arg( valve->name() ).arg( vi + 1 ).toStdString();
-                            seg.intersections = { entry.ci };
+                            seg.description         = QString( "%1 #%2" ).arg( valve->name() ).arg( vi + 1 ).toStdString();
+                            seg.intersections       = { entry.ci };
 
                             WsegaicdRow wa;
                             wa.well                = wellNameForExport;
@@ -627,8 +622,8 @@ std::vector<RigMswBranchExportData> buildFractureSegmentsFromGeometry( RimEclips
         seg.outletSegmentNumber = outletSeg;
         seg.length              = length;
         seg.depth               = depth;
-        seg.diameter            = 0.15;    // RicMswSegment default (tree approach uses same value)
-        seg.roughness           = 5.0e-5;  // RicMswSegment default (tree approach uses same value)
+        seg.diameter            = 0.15; // RicMswSegment default (tree approach uses same value)
+        seg.roughness           = 5.0e-5; // RicMswSegment default (tree approach uses same value)
         seg.sourceWellName      = wellPath->name().toStdString();
         seg.description         = fracture->name().toStdString();
         seg.intersections       = std::move( compsegs );
@@ -833,8 +828,7 @@ std::vector<RigMswBranchExportData> buildFishbonesSegmentsFromGeometry( const Ri
                         latSeg.roughness           = subs->openHoleRoughnessFactor( unitSystem );
                         latSeg.sourceWellName      = wellPath->name().toStdString();
                         if ( firstLatSeg ) latSeg.description = lateralLabel;
-                        latSeg.intersections = isNewCell ? std::vector<RigMswCellIntersection>{ *mci }
-                                                         : std::vector<RigMswCellIntersection>{};
+                        latSeg.intersections = isNewCell ? std::vector<RigMswCellIntersection>{ *mci } : std::vector<RigMswCellIntersection>{};
 
                         latOutletSeg = latSeg.segmentNumber;
                         prevMD       = cellIntInfo.endMD;

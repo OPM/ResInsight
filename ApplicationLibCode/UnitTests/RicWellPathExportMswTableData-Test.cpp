@@ -169,7 +169,7 @@ TEST_P( MswTreeVsFlatListTest, CompareTreeAndFlatListModes )
         ASSERT_TRUE( flatResult.has_value() ) << "FlatList mode failed for well '" << wellPath->name().toStdString()
                                               << "': " << flatResult.error();
 
-        const std::string wellName    = treeResult->wellName();
+        const std::string wellName     = treeResult->wellName();
         const QString     wellFileName = QString::fromStdString( wellName ) + ".txt";
 
         // Export both modes to files for side-by-side comparison

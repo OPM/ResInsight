@@ -429,7 +429,6 @@ RigMswTableData collectDataFromFlatList( const RigMswFlatExportData& exportData,
 
         // WSEGSICD row
         if ( seg.wsegsicdData ) tableData.addWsegsicdRow( *seg.wsegsicdData );
-
     };
 
     for ( const auto& branch : exportData.branches )

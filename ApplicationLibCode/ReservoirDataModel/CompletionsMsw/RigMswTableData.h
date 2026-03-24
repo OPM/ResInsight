@@ -49,7 +49,7 @@ public:
     void addWsegsicdRow( const WsegsicdRow& row );
 
     // Branch list — the primary building block for the new MSW export approach
-    void                                    addMswBranch( RigMswBranchExportData branch );
+    void                                       addMswBranch( RigMswBranchExportData branch );
     const std::vector<RigMswBranchExportData>& mswBranches() const;
 
     // Metadata
