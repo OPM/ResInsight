@@ -19,6 +19,7 @@
 #include "RigNonUniformRefinement.h"
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 
 //--------------------------------------------------------------------------------------------------
@@ -185,8 +186,10 @@ void RigNonUniformRefinement::distributeWidthsAcrossCells( Dimension dim, size_t
         // Always add 1.0 as the final boundary (the cell end)
         localFractions.push_back( 1.0 );
 
-        setCumulativeFractions( dim, startIndex + c, localFractions );
+        m_fractions[dim][startIndex + c] = localFractions;
     }
+
+    rebuildOffsets( dim );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,6 +205,72 @@ bool RigNonUniformRefinement::hasNonUniformRefinement() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Generate N equal cumulative fractions: {1/N, 2/N, ..., 1.0}.
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigNonUniformRefinement::generateEqualFractions( size_t subcellCount )
+{
+    if ( subcellCount == 0 ) return { 1.0 };
+
+    std::vector<double> fractions;
+    fractions.reserve( subcellCount );
+    for ( size_t i = 1; i <= subcellCount; ++i )
+    {
+        fractions.push_back( static_cast<double>( i ) / static_cast<double>( subcellCount ) );
+    }
+    fractions.back() = 1.0;
+    return fractions;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Generate logarithmic widths with finer resolution near the center.
+/// Uses a geometric series with ratio ~2.0 for one half, then mirrors for symmetry.
+/// Center cells get the smallest widths, edge cells the largest.
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigNonUniformRefinement::generateLogarithmicWidths( size_t totalCells )
+{
+    if ( totalCells == 0 ) return {};
+    if ( totalCells == 1 ) return { 1.0 };
+
+    const double ratio = 2.0;
+
+    // Build widths for the first half (edge to center: large to small)
+    size_t halfCount = totalCells / 2;
+
+    std::vector<double> halfWidths;
+    halfWidths.reserve( halfCount );
+
+    for ( size_t i = 0; i < halfCount; ++i )
+    {
+        // Largest at index 0 (edge), smallest at index halfCount-1 (center)
+        halfWidths.push_back( std::pow( ratio, static_cast<double>( halfCount - 1 - i ) ) );
+    }
+
+    // Build full symmetric widths vector
+    std::vector<double> widths;
+    widths.reserve( totalCells );
+
+    // First half: edge to center
+    for ( size_t i = 0; i < halfCount; ++i )
+    {
+        widths.push_back( halfWidths[i] );
+    }
+
+    // If odd number of cells, add center cell with smallest width
+    if ( totalCells % 2 == 1 )
+    {
+        widths.push_back( 1.0 );
+    }
+
+    // Second half: center to edge (mirror)
+    for ( size_t i = halfCount; i > 0; --i )
+    {
+        widths.push_back( halfWidths[i - 1] );
+    }
+
+    return widths;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigNonUniformRefinement RigNonUniformRefinement::fromUniform( const cvf::Vec3st& refinement, const cvf::Vec3st& sectorSize )
@@ -214,14 +283,7 @@ RigNonUniformRefinement RigNonUniformRefinement::fromUniform( const cvf::Vec3st&
     {
         if ( refCount[dim] <= 1 ) continue;
 
-        // Create uniform cumulative fractions
-        std::vector<double> uniformFractions;
-        uniformFractions.reserve( refCount[dim] );
-        for ( size_t i = 1; i <= refCount[dim]; ++i )
-        {
-            uniformFractions.push_back( static_cast<double>( i ) / static_cast<double>( refCount[dim] ) );
-        }
-        uniformFractions.back() = 1.0;
+        auto uniformFractions = generateEqualFractions( refCount[dim] );
 
         for ( size_t idx = 0; idx < result.m_sectorSize[dim]; ++idx )
         {

@@ -76,6 +76,13 @@ public:
     // Each cell in the range occupies an equal share (1/numCells) of the global range.
     void distributeWidthsAcrossCells( Dimension dim, size_t startIndex, size_t endIndex, const std::vector<double>& widths );
 
+    // Generate N equal cumulative fractions, suitable for splitting a single cell into N equal subcells.
+    static std::vector<double> generateEqualFractions( size_t subcellCount );
+
+    // Generate logarithmic widths with finer resolution near the center of the range.
+    // Uses a geometric series (ratio ~2.0), mirrors for symmetry. Not normalized.
+    static std::vector<double> generateLogarithmicWidths( size_t totalCells );
+
     // Create a non-uniform refinement that is equivalent to uniform refinement
     static RigNonUniformRefinement fromUniform( const cvf::Vec3st& refinement, const cvf::Vec3st& sectorSize );
 

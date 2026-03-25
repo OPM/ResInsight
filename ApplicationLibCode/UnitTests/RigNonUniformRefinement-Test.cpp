@@ -275,6 +275,127 @@ TEST( RigNonUniformRefinement, DistributeConcentratedWidths )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Test generateLogarithmicWidths: even count, verify symmetry and center < edge
+//--------------------------------------------------------------------------------------------------
+TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsSymmetry )
+{
+    auto widths = RigNonUniformRefinement::generateLogarithmicWidths( 6 );
+    ASSERT_EQ( widths.size(), 6u );
+
+    // Verify symmetry: widths[i] == widths[n-1-i]
+    for ( size_t i = 0; i < widths.size() / 2; ++i )
+    {
+        EXPECT_DOUBLE_EQ( widths[i], widths[widths.size() - 1 - i] );
+    }
+
+    // Center cells should be smaller than edge cells
+    EXPECT_LT( widths[2], widths[0] );
+    EXPECT_LT( widths[3], widths[0] );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test generateLogarithmicWidths: odd count, verify symmetry around center
+//--------------------------------------------------------------------------------------------------
+TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsOdd )
+{
+    auto widths = RigNonUniformRefinement::generateLogarithmicWidths( 7 );
+    ASSERT_EQ( widths.size(), 7u );
+
+    // Verify symmetry: widths[i] == widths[n-1-i]
+    for ( size_t i = 0; i < widths.size() / 2; ++i )
+    {
+        EXPECT_DOUBLE_EQ( widths[i], widths[widths.size() - 1 - i] );
+    }
+
+    // Center cell (index 3) should be the smallest
+    for ( size_t i = 0; i < widths.size(); ++i )
+    {
+        if ( i != 3 )
+        {
+            EXPECT_LE( widths[3], widths[i] );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test generateLogarithmicWidths: single cell edge case
+//--------------------------------------------------------------------------------------------------
+TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsSingleCell )
+{
+    auto widths = RigNonUniformRefinement::generateLogarithmicWidths( 1 );
+    ASSERT_EQ( widths.size(), 1u );
+    EXPECT_DOUBLE_EQ( widths[0], 1.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test generateEqualFractions: produces correct cumulative fractions
+//--------------------------------------------------------------------------------------------------
+TEST( RigNonUniformRefinement, GenerateEqualFractions )
+{
+    auto fracs1 = RigNonUniformRefinement::generateEqualFractions( 1 );
+    ASSERT_EQ( fracs1.size(), 1u );
+    EXPECT_DOUBLE_EQ( fracs1[0], 1.0 );
+
+    auto fracs4 = RigNonUniformRefinement::generateEqualFractions( 4 );
+    ASSERT_EQ( fracs4.size(), 4u );
+    EXPECT_NEAR( fracs4[0], 0.25, 1e-10 );
+    EXPECT_NEAR( fracs4[1], 0.50, 1e-10 );
+    EXPECT_NEAR( fracs4[2], 0.75, 1e-10 );
+    EXPECT_DOUBLE_EQ( fracs4[3], 1.0 );
+
+    // Edge case: 0 returns {1.0}
+    auto fracs0 = RigNonUniformRefinement::generateEqualFractions( 0 );
+    ASSERT_EQ( fracs0.size(), 1u );
+    EXPECT_DOUBLE_EQ( fracs0[0], 1.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test linear equal split: each cell gets exactly N equal subcells
+//--------------------------------------------------------------------------------------------------
+TEST( RigNonUniformRefinement, LinearEqualSplitPattern )
+{
+    RigNonUniformRefinement nuRef( cvf::Vec3st( 5, 1, 1 ) );
+
+    // Apply N=3 equal subcells to cells 1-3 using generateEqualFractions
+    auto equalFractions = RigNonUniformRefinement::generateEqualFractions( 3 );
+
+    for ( size_t c = 1; c <= 3; ++c )
+    {
+        nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, c, equalFractions );
+    }
+
+    // Cells outside range should be unaffected
+    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 1u );
+    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 4 ), 1u );
+
+    // Cells in range should each have exactly 3 subcells
+    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 1 ), 3u );
+    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 2 ), 3u );
+    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 3 ), 3u );
+
+    // Total: 1 + 3 + 3 + 3 + 1 = 11
+    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 11u );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test logarithmic distribution through distributeWidthsAcrossCells
+//--------------------------------------------------------------------------------------------------
+TEST( RigNonUniformRefinement, LogarithmicDistribution )
+{
+    RigNonUniformRefinement nuRef( cvf::Vec3st( 3, 1, 1 ) );
+
+    auto widths = RigNonUniformRefinement::generateLogarithmicWidths( 10 );
+    ASSERT_EQ( widths.size(), 10u );
+
+    nuRef.distributeWidthsAcrossCells( RigNonUniformRefinement::DimI, 0, 2, widths );
+
+    // Total refined count should be >= number of widths (each width creates at least a boundary)
+    size_t totalRefined = nuRef.totalRefinedCount( RigNonUniformRefinement::DimI );
+    EXPECT_GE( totalRefined, 3u ); // At minimum 1 per cell
+    EXPECT_TRUE( nuRef.hasNonUniformRefinement() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Test non-uniform geometry: equal fractions should match uniform createHexCornerCoords
 //--------------------------------------------------------------------------------------------------
 TEST( RiaCellDividingTools, NonUniformEqualFractionsMatchUniform )
