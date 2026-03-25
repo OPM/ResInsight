@@ -1219,8 +1219,10 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processWelspecsR
         const auto& nuRef = settings.nonUniformRefinement();
         size_t      relI  = clampedI - settings.min().x();
         size_t      relJ  = clampedJ - settings.min().y();
-        sectorI = nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, relI ) + nuRef.subcellCount( RigNonUniformRefinement::DimI, relI ) / 2;
-        sectorJ = nuRef.cumulativeOffset( RigNonUniformRefinement::DimJ, relJ ) + nuRef.subcellCount( RigNonUniformRefinement::DimJ, relJ ) / 2;
+        sectorI =
+            nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, relI ) + ( nuRef.subcellCount( RigNonUniformRefinement::DimI, relI ) + 1 ) / 2;
+        sectorJ =
+            nuRef.cumulativeOffset( RigNonUniformRefinement::DimJ, relJ ) + ( nuRef.subcellCount( RigNonUniformRefinement::DimJ, relJ ) + 1 ) / 2;
     }
     else
     {
