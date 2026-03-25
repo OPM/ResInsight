@@ -133,6 +133,10 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaConnectorTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetMappingTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswGeometryPath-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicMswBranchBuilder-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigMswTableData-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswTableData-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
@@ -211,7 +215,9 @@ target_include_directories(
   ResInsight-tests
   PUBLIC ${CMAKE_BINARY_DIR}/Generated
          "$<TARGET_PROPERTY:ApplicationLibCode,PUBLIC_INCLUDE_DIRECTORIES>"
-         ${RI_PRIVATE_INCLUDES} ${PROJECT_SOURCE_DIR}/Commands
+         ${RI_PRIVATE_INCLUDES}
+         ${PROJECT_SOURCE_DIR}/Commands
+         ${PROJECT_SOURCE_DIR}/Commands/CompletionExportCommands
 )
 
 target_compile_features(ResInsight-tests PRIVATE cxx_std_20)
