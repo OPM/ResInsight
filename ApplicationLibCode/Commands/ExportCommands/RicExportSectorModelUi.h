@@ -50,9 +50,17 @@ class RicExportSectorModelUi : public caf::PdmObject
         NON_UNIFORM
     };
 
+    enum NonUniformSubMode
+    {
+        CUSTOM_WIDTHS,
+        LINEAR_EQUAL_SPLIT,
+        LOGARITHMIC_CENTER
+    };
+
     using GridBoxSelectionEnum  = caf::AppEnum<RiaModelExportDefines::GridBoxSelection>;
     using BoundaryConditionEnum = caf::AppEnum<RiaModelExportDefines::BoundaryCondition>;
     using RefinementModeEnum    = caf::AppEnum<RefinementMode>;
+    using NonUniformSubModeEnum = caf::AppEnum<NonUniformSubMode>;
 
 public:
     RicExportSectorModelUi();
@@ -155,6 +163,16 @@ private:
     caf::PdmField<int>     m_nonUniformRangeStartK;
     caf::PdmField<int>     m_nonUniformRangeEndK;
     caf::PdmField<QString> m_nonUniformIntervalsK;
+
+    caf::PdmField<NonUniformSubModeEnum> m_nonUniformSubMode;
+
+    caf::PdmField<int> m_nonUniformSubcellCountI;
+    caf::PdmField<int> m_nonUniformSubcellCountJ;
+    caf::PdmField<int> m_nonUniformSubcellCountK;
+
+    caf::PdmField<int> m_nonUniformTotalCellsI;
+    caf::PdmField<int> m_nonUniformTotalCellsJ;
+    caf::PdmField<int> m_nonUniformTotalCellsK;
 
     caf::PdmField<BoundaryConditionEnum>       m_boundaryCondition;
     caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
