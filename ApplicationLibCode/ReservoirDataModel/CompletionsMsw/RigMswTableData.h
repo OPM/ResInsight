@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RigMswSegment.h"
 #include "RigMswTableRows.h"
 
 #include <vector>
@@ -46,6 +47,10 @@ public:
     void addWsegvalvRow( const WsegvalvRow& row );
     void addWsegaicdRow( const WsegaicdRow& row );
     void addWsegsicdRow( const WsegsicdRow& row );
+
+    // Branch list — the primary building block for the new MSW export approach
+    void                             addMswBranch( RigMswBranch branch );
+    const std::vector<RigMswBranch>& mswBranches() const;
 
     // Metadata
     std::string                   wellName() const { return m_wellName; }
@@ -78,4 +83,6 @@ private:
     std::vector<WsegvalvRow> m_wsegvalvData;
     std::vector<WsegaicdRow> m_wsegaicdData;
     std::vector<WsegsicdRow> m_wsegsicdData;
+
+    std::vector<RigMswBranch> m_mswBranches;
 };
