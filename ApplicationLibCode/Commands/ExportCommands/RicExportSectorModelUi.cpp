@@ -634,12 +634,12 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
 
     struct DimensionConfig
     {
-        bool                              enabled;
-        int                               rangeStart;
-        int                               rangeEnd;
-        QString                           intervals;
-        int                               subcellCount;
-        int                               totalCells;
+        bool                               enabled;
+        int                                rangeStart;
+        int                                rangeEnd;
+        QString                            intervals;
+        int                                subcellCount;
+        int                                totalCells;
         RigNonUniformRefinement::Dimension dim;
     };
 
@@ -746,12 +746,11 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
         {
             auto widths = RigNonUniformRefinement::generateLogarithmicWidths( static_cast<size_t>( dc.totalCells ) );
 
-            RiaLogging::info(
-                QString( "Non-uniform refinement %1 (logarithmic): %2 total cells across range [%3, %4]" )
-                    .arg( dimLabels[static_cast<size_t>( dc.dim )] )
-                    .arg( dc.totalCells )
-                    .arg( sectorStart )
-                    .arg( sectorEnd ) );
+            RiaLogging::info( QString( "Non-uniform refinement %1 (logarithmic): %2 total cells across range [%3, %4]" )
+                                  .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                                  .arg( dc.totalCells )
+                                  .arg( sectorStart )
+                                  .arg( sectorEnd ) );
 
             result.distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
         }
@@ -861,8 +860,8 @@ void RicExportSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         applyBoundaryDefaults();
     }
     else if ( ( changedField == &m_boundaryCondition ) || ( changedField == &m_refineGrid ) || ( changedField == &m_enablePadding ) ||
-              ( changedField == &m_nonUniformEnableI ) || ( changedField == &m_nonUniformEnableJ ) || ( changedField == &m_nonUniformEnableK ) ||
-              ( changedField == &m_nonUniformSubMode ) )
+              ( changedField == &m_nonUniformEnableI ) || ( changedField == &m_nonUniformEnableJ ) ||
+              ( changedField == &m_nonUniformEnableK ) || ( changedField == &m_nonUniformSubMode ) )
     {
         updateConnectedEditors();
     }

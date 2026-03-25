@@ -57,10 +57,10 @@ class RicExportSectorModelUi : public caf::PdmObject
         LOGARITHMIC_CENTER
     };
 
-    using GridBoxSelectionEnum   = caf::AppEnum<RiaModelExportDefines::GridBoxSelection>;
-    using BoundaryConditionEnum  = caf::AppEnum<RiaModelExportDefines::BoundaryCondition>;
-    using RefinementModeEnum     = caf::AppEnum<RefinementMode>;
-    using NonUniformSubModeEnum  = caf::AppEnum<NonUniformSubMode>;
+    using GridBoxSelectionEnum  = caf::AppEnum<RiaModelExportDefines::GridBoxSelection>;
+    using BoundaryConditionEnum = caf::AppEnum<RiaModelExportDefines::BoundaryCondition>;
+    using RefinementModeEnum    = caf::AppEnum<RefinementMode>;
+    using NonUniformSubModeEnum = caf::AppEnum<NonUniformSubMode>;
 
 public:
     RicExportSectorModelUi();
@@ -123,8 +123,8 @@ private:
         TotalPages         = 7
     };
 
-    void                    applyBoundaryDefaults();
-    static QString          defaultFolder();
+    void                       applyBoundaryDefaults();
+    static QString             defaultFolder();
     static std::vector<double> parseWidths( const QString& text );
 
 private:
