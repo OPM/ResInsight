@@ -70,12 +70,39 @@ public:
                                                                                  CompletionType completionType = CompletionType::ALL,
                                                                                  const std::optional<QDateTime>& exportDate = std::nullopt );
 
+    static std::expected<RigMswTableData, std::string> extractSingleWellMswDataTree( RimEclipseCase* eclipseCase,
+                                                                                     RimWellPath*    wellPath,
+                                                                                     bool exportCompletionsAfterMainBoreSegments = true,
+                                                                                     CompletionType completionType = CompletionType::ALL,
+                                                                                     const std::optional<QDateTime>& exportDate = std::nullopt );
+
+    static std::expected<RigMswTableData, std::string>
+        extractSingleWellMswDataGeometry( RimEclipseCase*                 eclipseCase,
+                                          RimWellPath*                    wellPath,
+                                          bool                            exportCompletionsAfterMainBoreSegments = true,
+                                          CompletionType                  completionType                         = CompletionType::ALL,
+                                          const std::optional<QDateTime>& exportDate                             = std::nullopt );
+
     static CompletionType convertFromExportSettings( const class RicExportCompletionDataSettingsUi& settings );
 
     static void generateFishbonesMswExportInfoForWell( const RimEclipseCase* eclipseCase,
                                                        const RimWellPath*    wellPath,
                                                        RicMswExportInfo*     exportInfo,
                                                        RicMswBranch*         branch );
+
+    static std::vector<WellPathCellIntersectionInfo> generateCellSegments( const RimEclipseCase* eclipseCase, const RimWellPath* wellPath );
+
+    static std::vector<WellPathCellIntersectionInfo> filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
+                                                                          double                                           initialMD,
+                                                                          gsl::not_null<const RigWellPath*>                wellPathGeometry,
+                                                                          gsl::not_null<const RimEclipseCase*>             eclipseCase );
+
+    static std::vector<RimWellPath*> wellPathsWithTieIn( const RimWellPath* wellPath );
+
+    static double computeIntitialMeasuredDepth( const RimEclipseCase*                            eclipseCase,
+                                                const RimWellPath*                               wellPath,
+                                                const RimMswCompletionParameters*                mswParameters,
+                                                const std::vector<WellPathCellIntersectionInfo>& allIntersections );
 
 private:
     static void updateDataForMultipleItemsInSameGridCell( gsl::not_null<RicMswBranch*> branch );
@@ -102,18 +129,6 @@ private:
                                               const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
                                               gsl::not_null<RicMswExportInfo*>                 exportInfo,
                                               gsl::not_null<RicMswBranch*>                     branch );
-
-    static std::vector<WellPathCellIntersectionInfo> generateCellSegments( const RimEclipseCase* eclipseCase, const RimWellPath* wellPath );
-
-    static double computeIntitialMeasuredDepth( const RimEclipseCase*                            eclipseCase,
-                                                const RimWellPath*                               wellPath,
-                                                const RimMswCompletionParameters*                mswParameters,
-                                                const std::vector<WellPathCellIntersectionInfo>& allIntersections );
-
-    static std::vector<WellPathCellIntersectionInfo> filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
-                                                                          double                                           initialMD,
-                                                                          gsl::not_null<const RigWellPath*>                wellPathGeometry,
-                                                                          gsl::not_null<const RimEclipseCase*>             eclipseCase );
 
     static std::pair<double, double> calculateOverlapWithActiveCells( double startMD,
                                                                       double endMD,
@@ -184,8 +199,6 @@ private:
                                              gsl::not_null<int*>          branchNumber );
 
     static std::unique_ptr<RicMswBranch> createChildMswBranch( const RimWellPath* childWellPath );
-
-    static std::vector<RimWellPath*> wellPathsWithTieIn( const RimWellPath* wellPath );
 };
 
 ENABLE_BITMASK_OPERATORS( RicWellPathExportMswTableData::CompletionType )

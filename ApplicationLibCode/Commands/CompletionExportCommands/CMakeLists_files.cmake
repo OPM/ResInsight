@@ -20,6 +20,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForTemporaryLgrsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswTableData.h
+    ${CMAKE_CURRENT_LIST_DIR}/MswExport/RicWellPathExportMswGeometryPath.h
+    ${CMAKE_CURRENT_LIST_DIR}/MswExport/RicMswBranchBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/RicMswTableDataTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/RicTransmissibilityCalculator.h
@@ -47,6 +49,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForTemporaryLgrsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswTableData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/MswExport/RicWellPathExportMswGeometryPath.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/MswExport/RicMswBranchBuilder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicMswTableDataTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicTransmissibilityCalculator.cpp

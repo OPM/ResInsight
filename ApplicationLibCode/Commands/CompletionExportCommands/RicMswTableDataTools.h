@@ -205,4 +205,6 @@ std::vector<std::pair<double, double>> createSubSegmentMDPairs( double          
 
 double tvdFromMeasuredDepth( gsl::not_null<const RimWellPath*> wellPath, double measuredDepth );
 
+inline constexpr double valveSegmentLength = 0.1;
+
 } // namespace RicMswTableDataTools
