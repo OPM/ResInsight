@@ -228,32 +228,13 @@ std::array<cvf::Vec3d, 4> RigGridExportAdapter::getFaceCorners( size_t i, size_t
         applyCoordinateTransformation( originalCorners );
 
         // Generate refined cell corners using the appropriate refinement algorithm
-        std::array<cvf::Vec3d, 8> refinedCorners;
-        if ( m_nonUniformRefinement.hasNonUniformRefinement() )
-        {
-            size_t sectorI = mapping.originalI - m_min.x();
-            size_t sectorJ = mapping.originalJ - m_min.y();
-            size_t sectorK = mapping.originalK - m_min.z();
-
-            refinedCorners =
-                generateRefinedCellCornersNonUniform( originalCorners,
-                                                      m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimI, sectorI ),
-                                                      m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimJ, sectorJ ),
-                                                      m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimK, sectorK ),
-                                                      mapping.subI,
-                                                      mapping.subJ,
-                                                      mapping.subK );
-        }
-        else
-        {
-            refinedCorners = generateRefinedCellCorners( originalCorners,
-                                                         m_refinement.x(),
-                                                         m_refinement.y(),
-                                                         m_refinement.z(),
-                                                         mapping.subI,
-                                                         mapping.subJ,
-                                                         mapping.subK );
-        }
+        auto refinedCorners = computeRefinedCorners( originalCorners,
+                                                     mapping.originalI,
+                                                     mapping.originalJ,
+                                                     mapping.originalK,
+                                                     mapping.subI,
+                                                     mapping.subJ,
+                                                     mapping.subK );
 
         // Extract the 4 corners for the requested face from the refined corners
         std::array<cvf::Vec3d, 4> faceCorners;
@@ -389,7 +370,20 @@ std::array<cvf::Vec3d, 8>
     RigGridExportAdapter::getRefinedCellCorners( size_t origI, size_t origJ, size_t origK, size_t subI, size_t subJ, size_t subK ) const
 {
     std::array<cvf::Vec3d, 8> originalCorners = getOriginalCellCorners( origI, origJ, origK );
+    return computeRefinedCorners( originalCorners, origI, origJ, origK, subI, subJ, subK );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 8> RigGridExportAdapter::computeRefinedCorners( const std::array<cvf::Vec3d, 8>& originalCorners,
+                                                                       size_t                           origI,
+                                                                       size_t                           origJ,
+                                                                       size_t                           origK,
+                                                                       size_t                           subI,
+                                                                       size_t                           subJ,
+                                                                       size_t                           subK ) const
+{
     if ( m_nonUniformRefinement.hasNonUniformRefinement() )
     {
         size_t sectorI = origI - m_min.x();

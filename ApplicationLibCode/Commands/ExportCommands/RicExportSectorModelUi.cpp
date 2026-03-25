@@ -54,6 +54,14 @@ void AppEnum<RicExportSectorModelUi::RefinementMode>::setUp()
     addItem( RicExportSectorModelUi::NON_UNIFORM, "NON_UNIFORM", "Non-Uniform" );
     setDefault( RicExportSectorModelUi::UNIFORM );
 }
+template <>
+void AppEnum<RicExportSectorModelUi::NonUniformSubMode>::setUp()
+{
+    addItem( RicExportSectorModelUi::CUSTOM_WIDTHS, "CUSTOM_WIDTHS", "Custom Widths" );
+    addItem( RicExportSectorModelUi::LINEAR_EQUAL_SPLIT, "LINEAR_EQUAL_SPLIT", "Linear (Equal Split)" );
+    addItem( RicExportSectorModelUi::LOGARITHMIC_CENTER, "LOGARITHMIC_CENTER", "Logarithmic (Towards Center)" );
+    setDefault( RicExportSectorModelUi::CUSTOM_WIDTHS );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RicExportSectorModelUi, "RicExportSectorModelUi" );
@@ -137,6 +145,22 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     CAF_PDM_InitField( &m_nonUniformRangeEndK, "NonUniformRangeEndK", 1, "Grid Cell End" );
     m_nonUniformRangeEndK.setMinValue( 1 );
     CAF_PDM_InitField( &m_nonUniformIntervalsK, "NonUniformIntervalsK", QString( "0.5, 0.5" ), "Fractional Widths" );
+
+    CAF_PDM_InitFieldNoDefault( &m_nonUniformSubMode, "NonUniformSubMode", "Non-Uniform Mode" );
+
+    CAF_PDM_InitField( &m_nonUniformSubcellCountI, "NonUniformSubcellCountI", 2, "Subcells per Cell" );
+    m_nonUniformSubcellCountI.setRange( 2, 100 );
+    CAF_PDM_InitField( &m_nonUniformSubcellCountJ, "NonUniformSubcellCountJ", 2, "Subcells per Cell" );
+    m_nonUniformSubcellCountJ.setRange( 2, 100 );
+    CAF_PDM_InitField( &m_nonUniformSubcellCountK, "NonUniformSubcellCountK", 2, "Subcells per Cell" );
+    m_nonUniformSubcellCountK.setRange( 2, 100 );
+
+    CAF_PDM_InitField( &m_nonUniformTotalCellsI, "NonUniformTotalCellsI", 10, "Total Cells" );
+    m_nonUniformTotalCellsI.setRange( 2, 1000 );
+    CAF_PDM_InitField( &m_nonUniformTotalCellsJ, "NonUniformTotalCellsJ", 10, "Total Cells" );
+    m_nonUniformTotalCellsJ.setRange( 2, 1000 );
+    CAF_PDM_InitField( &m_nonUniformTotalCellsK, "NonUniformTotalCellsK", 10, "Total Cells" );
+    m_nonUniformTotalCellsK.setRange( 2, 1000 );
 
     CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
     m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -297,29 +321,69 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         }
         else
         {
-            auto addDimensionGroup = [&]( const QString&      label,
+            uiOrdering.add( &m_nonUniformSubMode );
+            m_nonUniformSubMode.uiCapability()->setUiReadOnly( !isEnabled );
+            uiOrdering.addNewLabel( "" );
+
+            auto subMode = m_nonUniformSubMode();
+
+            auto addDimensionGroup = [&]( const QString&          label,
                                           caf::PdmField<bool>&    enableField,
                                           caf::PdmField<int>&     rangeStartField,
                                           caf::PdmField<int>&     rangeEndField,
-                                          caf::PdmField<QString>& intervalsField )
+                                          caf::PdmField<QString>& intervalsField,
+                                          caf::PdmField<int>&     subcellCountField,
+                                          caf::PdmField<int>&     totalCellsField )
             {
                 auto* grp = uiOrdering.addNewGroup( label );
                 grp->setCollapsedByDefault();
                 grp->add( &enableField );
                 grp->add( &rangeStartField );
                 grp->add( &rangeEndField );
-                grp->add( &intervalsField );
+
+                if ( subMode == CUSTOM_WIDTHS )
+                {
+                    grp->add( &intervalsField );
+                }
+                else if ( subMode == LINEAR_EQUAL_SPLIT )
+                {
+                    grp->add( &subcellCountField );
+                }
+                else if ( subMode == LOGARITHMIC_CENTER )
+                {
+                    grp->add( &totalCellsField );
+                }
 
                 bool dimEnabled = isEnabled && enableField();
                 enableField.uiCapability()->setUiReadOnly( !isEnabled );
                 rangeStartField.uiCapability()->setUiReadOnly( !dimEnabled );
                 rangeEndField.uiCapability()->setUiReadOnly( !dimEnabled );
                 intervalsField.uiCapability()->setUiReadOnly( !dimEnabled );
+                subcellCountField.uiCapability()->setUiReadOnly( !dimEnabled );
+                totalCellsField.uiCapability()->setUiReadOnly( !dimEnabled );
             };
 
-            addDimensionGroup( "I Direction", m_nonUniformEnableI, m_nonUniformRangeStartI, m_nonUniformRangeEndI, m_nonUniformIntervalsI );
-            addDimensionGroup( "J Direction", m_nonUniformEnableJ, m_nonUniformRangeStartJ, m_nonUniformRangeEndJ, m_nonUniformIntervalsJ );
-            addDimensionGroup( "K Direction", m_nonUniformEnableK, m_nonUniformRangeStartK, m_nonUniformRangeEndK, m_nonUniformIntervalsK );
+            addDimensionGroup( "I Direction",
+                               m_nonUniformEnableI,
+                               m_nonUniformRangeStartI,
+                               m_nonUniformRangeEndI,
+                               m_nonUniformIntervalsI,
+                               m_nonUniformSubcellCountI,
+                               m_nonUniformTotalCellsI );
+            addDimensionGroup( "J Direction",
+                               m_nonUniformEnableJ,
+                               m_nonUniformRangeStartJ,
+                               m_nonUniformRangeEndJ,
+                               m_nonUniformIntervalsJ,
+                               m_nonUniformSubcellCountJ,
+                               m_nonUniformTotalCellsJ );
+            addDimensionGroup( "K Direction",
+                               m_nonUniformEnableK,
+                               m_nonUniformRangeStartK,
+                               m_nonUniformRangeEndK,
+                               m_nonUniformIntervalsK,
+                               m_nonUniformSubcellCountK,
+                               m_nonUniformTotalCellsK );
         }
 
         m_refinementMode.uiCapability()->setUiReadOnly( !isEnabled );
@@ -570,23 +634,45 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
 
     struct DimensionConfig
     {
-        bool                              enabled;
-        int                               rangeStart;
-        int                               rangeEnd;
-        QString                           intervals;
+        bool                               enabled;
+        int                                rangeStart;
+        int                                rangeEnd;
+        QString                            intervals;
+        int                                subcellCount;
+        int                                totalCells;
         RigNonUniformRefinement::Dimension dim;
     };
 
     std::vector<DimensionConfig> dims = {
-        { m_nonUniformEnableI(), m_nonUniformRangeStartI(), m_nonUniformRangeEndI(), m_nonUniformIntervalsI(), RigNonUniformRefinement::DimI },
-        { m_nonUniformEnableJ(), m_nonUniformRangeStartJ(), m_nonUniformRangeEndJ(), m_nonUniformIntervalsJ(), RigNonUniformRefinement::DimJ },
-        { m_nonUniformEnableK(), m_nonUniformRangeStartK(), m_nonUniformRangeEndK(), m_nonUniformIntervalsK(), RigNonUniformRefinement::DimK },
+        { m_nonUniformEnableI(),
+          m_nonUniformRangeStartI(),
+          m_nonUniformRangeEndI(),
+          m_nonUniformIntervalsI(),
+          m_nonUniformSubcellCountI(),
+          m_nonUniformTotalCellsI(),
+          RigNonUniformRefinement::DimI },
+        { m_nonUniformEnableJ(),
+          m_nonUniformRangeStartJ(),
+          m_nonUniformRangeEndJ(),
+          m_nonUniformIntervalsJ(),
+          m_nonUniformSubcellCountJ(),
+          m_nonUniformTotalCellsJ(),
+          RigNonUniformRefinement::DimJ },
+        { m_nonUniformEnableK(),
+          m_nonUniformRangeStartK(),
+          m_nonUniformRangeEndK(),
+          m_nonUniformIntervalsK(),
+          m_nonUniformSubcellCountK(),
+          m_nonUniformTotalCellsK(),
+          RigNonUniformRefinement::DimK },
     };
 
     // Sector min indices (1-based) for converting original grid coordinates to sector-relative
     int sectorMin[3] = { m_minI(), m_minJ(), m_minK() };
 
     const QString dimLabels[3] = { "I", "J", "K" };
+
+    auto subMode = m_nonUniformSubMode();
 
     RiaLogging::info( QString( "Non-uniform refinement: sector size [%1, %2, %3], sector min [%4, %5, %6]" )
                           .arg( sectorSize.x() )
@@ -600,32 +686,14 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
     {
         if ( !dc.enabled ) continue;
 
-        auto widths = parseWidths( dc.intervals );
-        if ( widths.empty() )
-        {
-            RiaLogging::warning( QString( "Non-uniform refinement %1: no valid widths parsed from '%2'" )
-                                     .arg( dimLabels[static_cast<size_t>( dc.dim )] )
-                                     .arg( dc.intervals ) );
-            continue;
-        }
-
         // Convert from original grid coordinates (1-based) to sector-relative (0-based)
         int sectorStart = dc.rangeStart - sectorMin[static_cast<size_t>( dc.dim )];
         int sectorEnd   = dc.rangeEnd - sectorMin[static_cast<size_t>( dc.dim )];
 
-        RiaLogging::info( QString( "Non-uniform refinement %1: grid range [%2, %3] -> sector range [%4, %5] (sector size %6, %7 widths)" )
-                              .arg( dimLabels[static_cast<size_t>( dc.dim )] )
-                              .arg( dc.rangeStart )
-                              .arg( dc.rangeEnd )
-                              .arg( sectorStart )
-                              .arg( sectorEnd )
-                              .arg( result.sectorSize( dc.dim ) )
-                              .arg( widths.size() ) );
-
         // Clamp to sector bounds
-        int sectorMax = static_cast<int>( result.sectorSize( dc.dim ) ) - 1;
-        sectorStart   = std::max( 0, sectorStart );
-        sectorEnd     = std::min( sectorMax, sectorEnd );
+        int sectorMaxIdx = static_cast<int>( result.sectorSize( dc.dim ) ) - 1;
+        sectorStart      = std::max( 0, sectorStart );
+        sectorEnd        = std::min( sectorMaxIdx, sectorEnd );
         if ( sectorStart > sectorEnd )
         {
             RiaLogging::warning( QString( "Non-uniform refinement %1: range [%2, %3] is outside sector after clamping, skipping" )
@@ -635,7 +703,57 @@ RigNonUniformRefinement RicExportSectorModelUi::nonUniformRefinement() const
             continue;
         }
 
-        result.distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
+        if ( subMode == CUSTOM_WIDTHS )
+        {
+            auto widths = parseWidths( dc.intervals );
+            if ( widths.empty() )
+            {
+                RiaLogging::warning( QString( "Non-uniform refinement %1: no valid widths parsed from '%2'" )
+                                         .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                                         .arg( dc.intervals ) );
+                continue;
+            }
+
+            RiaLogging::info(
+                QString( "Non-uniform refinement %1: grid range [%2, %3] -> sector range [%4, %5] (sector size %6, %7 widths)" )
+                    .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                    .arg( dc.rangeStart )
+                    .arg( dc.rangeEnd )
+                    .arg( sectorStart )
+                    .arg( sectorEnd )
+                    .arg( result.sectorSize( dc.dim ) )
+                    .arg( widths.size() ) );
+
+            result.distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
+        }
+        else if ( subMode == LINEAR_EQUAL_SPLIT )
+        {
+            // Each cell in the range gets exactly N equal subcells
+            auto equalFractions = RigNonUniformRefinement::generateEqualFractions( static_cast<size_t>( dc.subcellCount ) );
+
+            for ( int c = sectorStart; c <= sectorEnd; ++c )
+            {
+                result.setCumulativeFractions( dc.dim, static_cast<size_t>( c ), equalFractions );
+            }
+
+            RiaLogging::info( QString( "Non-uniform refinement %1 (linear): %2 subcells per cell in range [%3, %4]" )
+                                  .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                                  .arg( dc.subcellCount )
+                                  .arg( sectorStart )
+                                  .arg( sectorEnd ) );
+        }
+        else if ( subMode == LOGARITHMIC_CENTER )
+        {
+            auto widths = RigNonUniformRefinement::generateLogarithmicWidths( static_cast<size_t>( dc.totalCells ) );
+
+            RiaLogging::info( QString( "Non-uniform refinement %1 (logarithmic): %2 total cells across range [%3, %4]" )
+                                  .arg( dimLabels[static_cast<size_t>( dc.dim )] )
+                                  .arg( dc.totalCells )
+                                  .arg( sectorStart )
+                                  .arg( sectorEnd ) );
+
+            result.distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
+        }
 
         RiaLogging::info( QString( "Non-uniform refinement %1: total refined count = %2 (was %3)" )
                               .arg( dimLabels[static_cast<size_t>( dc.dim )] )
@@ -742,7 +860,8 @@ void RicExportSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         applyBoundaryDefaults();
     }
     else if ( ( changedField == &m_boundaryCondition ) || ( changedField == &m_refineGrid ) || ( changedField == &m_enablePadding ) ||
-              ( changedField == &m_nonUniformEnableI ) || ( changedField == &m_nonUniformEnableJ ) || ( changedField == &m_nonUniformEnableK ) )
+              ( changedField == &m_nonUniformEnableI ) || ( changedField == &m_nonUniformEnableJ ) ||
+              ( changedField == &m_nonUniformEnableK ) || ( changedField == &m_nonUniformSubMode ) )
     {
         updateConnectedEditors();
     }
@@ -1021,7 +1140,7 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
                                 .arg( dv.sectorMin )
                                 .arg( dv.sectorMax );
                     }
-                    if ( parseWidths( dv.intervals() ).empty() )
+                    if ( m_nonUniformSubMode() == CUSTOM_WIDTHS && parseWidths( dv.intervals() ).empty() )
                     {
                         fieldErrors[dv.intervals.keyword()] =
                             QString( "%1 direction: Fractional widths must contain at least one positive value." ).arg( dv.label );
