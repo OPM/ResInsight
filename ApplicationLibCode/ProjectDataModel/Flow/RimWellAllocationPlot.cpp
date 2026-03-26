@@ -377,8 +377,7 @@ void RimWellAllocationPlot::updateFromWell()
                     accFlow = ( m_flowType == ACCUMULATED ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
                                                           : wfCalculator->tracerFlowPrConnection( tracerName, brIdx ) );
 
-                    if ( m_flowType == ACCUMULATED && brIdx == 0 && !accFlow.empty() ) // Add fictitious point to -1
-                                                                                       // for first branch
+                    if ( !accFlow.empty() ) // Add fictitious point to extend the first bar (topmost connection)
                     {
                         accFlow.push_back( accFlow.back() );
                         curveDepthValues.push_back( -1.0 );
