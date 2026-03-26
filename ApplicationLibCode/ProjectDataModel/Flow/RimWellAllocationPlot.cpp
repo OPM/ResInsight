@@ -72,7 +72,7 @@ void AppEnum<RimWellAllocationPlot::FlowType>::setUp()
 {
     addItem( RimWellAllocationPlot::ACCUMULATED, "ACCUMULATED", "Accumulated" );
     addItem( RimWellAllocationPlot::INFLOW, "INFLOW", "Inflow Rates" );
-    setDefault( RimWellAllocationPlot::ACCUMULATED );
+    setDefault( RimWellAllocationPlot::INFLOW );
 }
 } // namespace caf
 
@@ -178,13 +178,6 @@ void RimWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
     m_wellName = simWell->simWellData()->m_wellName;
     m_timeStep = eclView->currentTimeStep();
 
-    // Use the active flow diag solutions, or the first one as default
-    m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
-    if ( ( m_flowDiagSolution == nullptr ) && ( m_case != nullptr ) )
-    {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-    }
-
     onLoadDataAndUpdate();
 }
 
@@ -233,8 +226,6 @@ void RimWellAllocationPlot::setCase( RimEclipseResultCase* eclipseCase )
 
     if ( m_case )
     {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-
         if ( emptyPreviousCase )
         {
             m_timeStep = (int)( m_case->timeStepDates().size() - 1 );
