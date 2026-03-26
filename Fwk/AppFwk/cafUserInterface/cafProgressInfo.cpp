@@ -43,6 +43,7 @@
 
 #include "cafAssert.h"
 #include "cafMemoryInspector.h"
+#include "cafPdmLogging.h"
 #include "cafScheduler.h"
 
 #include <QApplication>
@@ -53,7 +54,6 @@
 #include <QThread>
 
 #include <algorithm>
-#include <iostream>
 
 #ifdef _MSC_VER
 // Define this one to tell windows.h to not define min() and max() as macros
@@ -405,41 +405,17 @@ static QString currentComposedLabel()
     return labelText;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void openDebugWindow()
-{
-#ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4996 )
-    AllocConsole();
-
-    FILE* consoleFilePointer;
-
-    freopen_s( &consoleFilePointer, "conin$", "r", stdin );
-    freopen_s( &consoleFilePointer, "conout$", "w", stdout );
-    freopen_s( &consoleFilePointer, "conout$", "w", stderr );
-
-#pragma warning( pop )
-#endif
-}
-
 void reportError( const std::string& errorMsg )
 {
-    openDebugWindow();
-    std::cout << "Error in caf::ProgressInfo :" << std::endl;
-    std::cout << errorMsg << std::endl;
-    std::cout << "Current progress state:" << std::endl;
-    std::cout << "-------" << std::endl;
-    std::cout << currentComposedLabel().toStdString();
-    std::cout << std::endl;
-    std::cout << "-------" << std::endl;
-    std::cout << "Prog\tMax\tSpan" << std::endl;
-
     std::vector<size_t>& progressStack_v     = progressStack();
     std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
     std::vector<size_t>& progressSpanStack_v = progressSpanStack();
+
+    QString message = "Error in caf::ProgressInfo :\n";
+    message += QString::fromStdString( errorMsg ) + "\n";
+    message += "Current progress state:\n-------\n";
+    message += currentComposedLabel();
+    message += "\n-------\nProg\tMax\tSpan\n";
 
     size_t level             = 0;
     bool   hasMoreProgLevels = level < progressStack_v.size();
@@ -448,25 +424,18 @@ void reportError( const std::string& errorMsg )
 
     while ( hasMoreProgLevels || hasMoreMaxLevels || hasMoreSpanLevels )
     {
-        if ( hasMoreProgLevels )
-            std::cout << progressStack_v[level] << "\t";
-        else
-            std::cout << "--" << "\t";
-        if ( hasMoreMaxLevels )
-            std::cout << maxProgressStack_v[level] << "\t";
-        else
-            std::cout << "--" << "\t";
-        if ( hasMoreSpanLevels )
-            std::cout << progressSpanStack_v[level] << "\t";
-        else
-            std::cout << "--" << "\t";
+        message += hasMoreProgLevels ? QString::number( progressStack_v[level] ) + "\t" : "--\t";
+        message += hasMoreMaxLevels ? QString::number( maxProgressStack_v[level] ) + "\t" : "--\t";
+        message += hasMoreSpanLevels ? QString::number( progressSpanStack_v[level] ) + "\t" : "--\t";
+        message += "\n";
 
-        std::cout << std::endl;
         ++level;
         hasMoreProgLevels = level < progressStack_v.size();
         hasMoreMaxLevels  = level < maxProgressStack_v.size();
         hasMoreSpanLevels = level < progressSpanStack_v.size();
     }
+
+    CAF_PDM_LOG_DEBUG( message );
 }
 
 //==================================================================================================
