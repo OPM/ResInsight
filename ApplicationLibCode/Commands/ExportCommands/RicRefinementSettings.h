@@ -59,6 +59,7 @@ public:
     void setSectorBounds( const caf::VecIjk0& min, const caf::VecIjk0& max );
 
     // Data access
+    RigNonUniformRefinement     effectiveRefinement() const;
     cvf::Vec3st                 refinement() const;
     RefinementMode              refinementMode() const;
     RigNonUniformRefinement     nonUniformRefinement() const;

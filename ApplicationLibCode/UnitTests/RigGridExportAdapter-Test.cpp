@@ -25,6 +25,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
+#include "RigNonUniformRefinement.h"
 
 #include "RimEclipseResultCase.h"
 
@@ -34,6 +35,23 @@
 #include <QFile>
 
 #include <memory>
+
+//--------------------------------------------------------------------------------------------------
+/// Helper: convert uniform refinement (Vec3st) to RigNonUniformRefinement given bounds.
+/// For UNDEFINED max, pass the mainGrid pointer to resolve actual dimensions.
+//--------------------------------------------------------------------------------------------------
+static RigNonUniformRefinement makeUniformRef( const cvf::Vec3st&  min,
+                                               const cvf::Vec3st&  max,
+                                               const cvf::Vec3st&  refCounts,
+                                               const RigMainGrid*  mainGrid = nullptr )
+{
+    cvf::Vec3st resolvedMax = max;
+    if ( max.isUndefined() && mainGrid )
+        resolvedMax = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
+
+    cvf::Vec3st sectorSize( resolvedMax.x() - min.x() + 1, resolvedMax.y() - min.y() + 1, resolvedMax.z() - min.z() + 1 );
+    return RigNonUniformRefinement::fromUniform( refCounts, sectorSize );
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Helper function to load test grid
@@ -73,7 +91,7 @@ TEST( RigGridExportAdapterTest, BasicConstruction )
     cvf::Vec3st max( 2, 2, 2 ); // Small 3x3x3 subset
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement ) );
 
     EXPECT_EQ( 3, adapter.cellCountI() );
     EXPECT_EQ( 3, adapter.cellCountJ() );
@@ -82,7 +100,6 @@ TEST( RigGridExportAdapterTest, BasicConstruction )
     EXPECT_FALSE( adapter.hasRefinement() );
     EXPECT_EQ( min, adapter.originalMin() );
     EXPECT_EQ( max, adapter.originalMax() );
-    EXPECT_EQ( refinement, adapter.refinement() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +116,7 @@ TEST( RigGridExportAdapterTest, UndefinedMax )
     cvf::Vec3st max = cvf::Vec3st::UNDEFINED;
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, mainGrid ) );
 
     EXPECT_EQ( mainGrid->cellCountI(), adapter.cellCountI() );
     EXPECT_EQ( mainGrid->cellCountJ(), adapter.cellCountJ() );
@@ -119,7 +136,7 @@ TEST( RigGridExportAdapterTest, RefinementConstruction )
     cvf::Vec3st max( 1, 1, 1 ); // 2x2x2 original cells
     cvf::Vec3st refinement( 2, 2, 2 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     EXPECT_EQ( 4, adapter.cellCountI() ); // 2 * 2
     EXPECT_EQ( 4, adapter.cellCountJ() ); // 2 * 2
@@ -142,7 +159,7 @@ TEST( RigGridExportAdapterTest, CellCornersNoRefinement )
     cvf::Vec3st max( 0, 0, 0 ); // Just first cell
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     EXPECT_EQ( 1, adapter.cellCountI() );
     EXPECT_EQ( 1, adapter.cellCountJ() );
@@ -189,7 +206,7 @@ TEST( RigGridExportAdapterTest, CellActivity )
     cvf::Vec3st max( 2, 2, 2 ); // Small 3x3x3 subset
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     // Test a few cells
     for ( size_t k = 0; k < adapter.cellCountK(); ++k )
@@ -232,7 +249,7 @@ TEST( RigGridExportAdapterTest, CellActivityWithOverride )
     cvf::Vec3st max( 1, 1, 1 ); // 2x2x2 subset
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement, &visibilityOverride );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ), &visibilityOverride );
 
     // All cells should be inactive due to override
     for ( size_t k = 0; k < adapter.cellCountK(); ++k )
@@ -262,7 +279,7 @@ TEST( RigGridExportAdapterTest, RefinedCellCorners )
     cvf::Vec3st max( 0, 0, 0 ); // Just first cell
     cvf::Vec3st refinement( 2, 2, 2 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     EXPECT_EQ( 2, adapter.cellCountI() );
     EXPECT_EQ( 2, adapter.cellCountJ() );
@@ -340,7 +357,7 @@ TEST( RigGridExportAdapterTest, ReasonableCornerValues )
     cvf::Vec3st max( 1, 1, 1 );
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     bool hasNonZeroValues = false;
 
@@ -384,7 +401,7 @@ TEST( RigGridExportAdapterTest, MapAxes )
     cvf::Vec3st max( 1, 1, 1 );
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     // Should match main grid MAPAXES settings
     EXPECT_EQ( mainGrid->useMapAxes(), adapter.useMapAxes() );
@@ -428,7 +445,7 @@ TEST( RigGridExportAdapterTest, FaceCornersNoRefinement )
     cvf::Vec3st max( 0, 0, 0 ); // Just first cell
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     // Get face corners from adapter
     auto adapterTopFace    = adapter.getFaceCorners( 0, 0, 0, cvf::StructGridInterface::NEG_K );
@@ -484,8 +501,8 @@ TEST( RigGridExportAdapterTest, FaceCornersRefinedConsistency )
     cvf::Vec3st refinement( 2, 2, 2 );
     cvf::Vec3st noRefinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
-    RigGridExportAdapter adapterNoRefinement( caseData.p(), min, max, noRefinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
+    RigGridExportAdapter adapterNoRefinement( caseData.p(), min, max, makeUniformRef( min, max, noRefinement, caseData->mainGrid() ) );
 
     auto makeVector = []( const std::array<cvf::Vec3d, 4>& input1, const std::array<cvf::Vec3d, 4>& input2 )
     {
@@ -553,7 +570,7 @@ TEST( RigGridExportAdapterTest, AllFaceTypes )
     cvf::Vec3st max( 0, 0, 0 ); // Just first cell
     cvf::Vec3st refinement( 1, 1, 1 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     // Test all face types
     std::vector<cvf::StructGridInterface::FaceType> faceTypes = { cvf::StructGridInterface::NEG_K,
@@ -593,7 +610,7 @@ TEST( RigGridExportAdapterTest, RefinedCellsContainOriginalCorners )
     cvf::Vec3st max = cvf::Vec3st::UNDEFINED; //( 1, 0, 0 );
     cvf::Vec3st refinement( 2, 2, 2 );
 
-    RigGridExportAdapter adapter( caseData.p(), min, max, refinement );
+    RigGridExportAdapter adapter( caseData.p(), min, max, makeUniformRef( min, max, refinement, caseData->mainGrid() ) );
 
     // Get the original cell corners
     const RigMainGrid* mainGrid          = caseData->mainGrid();
@@ -670,7 +687,9 @@ TEST( RigGridExportAdapter, TransformIjkToSectorCoordinates_NoRefinement )
 {
     caf::VecIjk0 min( 3, 3, 1 );
     caf::VecIjk0 max( 10, 10, 5 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto refinement = RigNonUniformRefinement::fromUniform(
+        cvf::Vec3st( 1, 1, 1 ),
+        cvf::Vec3st( max.i() - min.i() + 1, max.j() - min.j() + 1, max.k() - min.k() + 1 ) );
 
     // Point at sector min should transform to (0,0,0)
     auto result1 = RigGridExportAdapter::transformIjkToSectorCoordinates( min, min, max, refinement );
@@ -702,7 +721,9 @@ TEST( RigGridExportAdapter, TransformIjkToSectorCoordinates_OutOfBounds )
 {
     caf::VecIjk0 min( 3, 3, 1 );
     caf::VecIjk0 max( 10, 10, 5 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto refinement = RigNonUniformRefinement::fromUniform(
+        cvf::Vec3st( 1, 1, 1 ),
+        cvf::Vec3st( max.i() - min.i() + 1, max.j() - min.j() + 1, max.k() - min.k() + 1 ) );
 
     // Point before sector min (X too small)
     caf::VecIjk0 point1( 2, 5, 3 );
@@ -734,7 +755,11 @@ TEST( RigGridExportAdapter, BoxTransformation_NoRefinement )
 {
     caf::VecIjk0 sectorMin( 3, 3, 1 );
     caf::VecIjk0 sectorMax( 10, 10, 5 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto refinement = RigNonUniformRefinement::fromUniform(
+        cvf::Vec3st( 1, 1, 1 ),
+        cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
+                     sectorMax.j() - sectorMin.j() + 1,
+                     sectorMax.k() - sectorMin.k() + 1 ) );
 
     // Test box from (5,5,2) to (7,7,3) in global coordinates
     // Expected in sector coordinates: (3,3,2) to (5,5,3)
@@ -773,7 +798,11 @@ TEST( RigGridExportAdapter, SingleCellBox_NoRefinement )
 {
     caf::VecIjk0 sectorMin( 3, 3, 1 );
     caf::VecIjk0 sectorMax( 10, 10, 5 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto refinement = RigNonUniformRefinement::fromUniform(
+        cvf::Vec3st( 1, 1, 1 ),
+        cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
+                     sectorMax.j() - sectorMin.j() + 1,
+                     sectorMax.k() - sectorMin.k() + 1 ) );
 
     // Single cell box at global position (5,5,2)
     caf::VecIjk0 singleCell( 5, 5, 2 );
@@ -797,7 +826,11 @@ TEST( RigGridExportAdapter, BoxAtSectorBoundaries_NoRefinement )
 {
     caf::VecIjk0 sectorMin( 3, 3, 1 );
     caf::VecIjk0 sectorMax( 10, 10, 5 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto refinement = RigNonUniformRefinement::fromUniform(
+        cvf::Vec3st( 1, 1, 1 ),
+        cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
+                     sectorMax.j() - sectorMin.j() + 1,
+                     sectorMax.k() - sectorMin.k() + 1 ) );
 
     // Box spanning entire sector
     auto minResult = RigGridExportAdapter::transformIjkToSectorCoordinates( sectorMin, sectorMin, sectorMax, refinement );

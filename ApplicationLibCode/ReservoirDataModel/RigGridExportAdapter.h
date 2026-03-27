@@ -62,16 +62,10 @@ class QString;
 class RigGridExportAdapter
 {
 public:
-    RigGridExportAdapter( RigEclipseCaseData*    eclipseCase,
-                          const cvf::Vec3st&     min,
-                          const cvf::Vec3st&     max,
-                          const cvf::Vec3st&     refinement,
-                          const cvf::UByteArray* cellVisibilityOverrideForActnum = nullptr );
-
     RigGridExportAdapter( RigEclipseCaseData*            eclipseCase,
                           const cvf::Vec3st&             min,
                           const cvf::Vec3st&             max,
-                          const RigNonUniformRefinement& nonUniformRefinement,
+                          const RigNonUniformRefinement& refinement,
                           const cvf::UByteArray*         cellVisibilityOverrideForActnum = nullptr );
 
     // Grid dimensions (after refinement)
@@ -93,24 +87,16 @@ public:
     // Grid bounds and refinement info
     cvf::Vec3st originalMin() const;
     cvf::Vec3st originalMax() const;
-    cvf::Vec3st refinement() const;
     bool        hasRefinement() const;
 
-    // Non-uniform refinement accessor
+    // Refinement accessor
     const RigNonUniformRefinement& nonUniformRefinement() const;
 
-    // Coordinate transformation utilities
-    static std::expected<caf::VecIjk0, QString> transformIjkToSectorCoordinates( const caf::VecIjk0& originalIjk,
-                                                                                 const caf::VecIjk0& min,
-                                                                                 const caf::VecIjk0& max,
-                                                                                 const cvf::Vec3st&  refinement,
-                                                                                 bool                applyRefinementCentering = false,
-                                                                                 bool                isBoxMaxCoordinate       = false );
-
+    // Coordinate transformation utility
     static std::expected<caf::VecIjk0, QString> transformIjkToSectorCoordinates( const caf::VecIjk0&            originalIjk,
                                                                                  const caf::VecIjk0&            min,
                                                                                  const caf::VecIjk0&            max,
-                                                                                 const RigNonUniformRefinement& nonUniformRefinement,
+                                                                                 const RigNonUniformRefinement& refinement,
                                                                                  bool applyRefinementCentering = false,
                                                                                  bool isBoxMaxCoordinate       = false );
 
@@ -142,7 +128,6 @@ private:
 
     cvf::Vec3st m_min;
     cvf::Vec3st m_max;
-    cvf::Vec3st m_refinement;
 
     RigNonUniformRefinement m_nonUniformRefinement;
 

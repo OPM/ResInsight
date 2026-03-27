@@ -57,11 +57,16 @@ public:
 
     std::expected<void, QString> validateBox() const;
 
-    // Grid refinement
+    // Unified refinement interface
+    RigNonUniformRefinement effectiveRefinement() const;
+    void                    setEffectiveRefinement( const RigNonUniformRefinement& refinement );
+    bool                    hasRefinement() const;
+
+    // Grid refinement (legacy)
     cvf::Vec3st refinement() const;
     void        setRefinement( const cvf::Vec3st& refinement );
 
-    // Non-uniform refinement
+    // Non-uniform refinement (legacy)
     const RigNonUniformRefinement& nonUniformRefinement() const;
     void                           setNonUniformRefinement( const RigNonUniformRefinement& refinement );
     bool                           hasNonUniformRefinement() const;

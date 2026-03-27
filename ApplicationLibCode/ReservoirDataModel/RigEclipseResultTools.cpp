@@ -237,27 +237,28 @@ std::pair<std::vector<int>, int> generateOperNumResult( RimEclipseCase*         
                     auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
                     if ( mainGrid )
                     {
-                        cvf::Vec3st originalMin = gridAdapter.originalMin();
-                        cvf::Vec3st refinement  = gridAdapter.refinement();
+                        cvf::Vec3st                     originalMin = gridAdapter.originalMin();
+                        const RigNonUniformRefinement& ref         = gridAdapter.nonUniformRefinement();
 
                         // Refine the OPERNUM data to match the refined grid
-                        // Each original cell is subdivided into refinement.x * refinement.y * refinement.z subcells
                         size_t refinedNI = gridAdapter.cellCountI();
                         size_t refinedNJ = gridAdapter.cellCountJ();
                         size_t refinedNK = gridAdapter.cellCountK();
 
                         for ( size_t rk = 0; rk < refinedNK; ++rk )
                         {
+                            auto [sectorK, subK] = ref.mapRefinedToOriginal( RigNonUniformRefinement::DimK, rk );
                             for ( size_t rj = 0; rj < refinedNJ; ++rj )
                             {
+                                auto [sectorJ, subJ] = ref.mapRefinedToOriginal( RigNonUniformRefinement::DimJ, rj );
                                 for ( size_t ri = 0; ri < refinedNI; ++ri )
                                 {
-                                    // Calculate which original cell this refined cell belongs to
-                                    size_t origI = originalMin.x() + ri / refinement.x();
-                                    size_t origJ = originalMin.y() + rj / refinement.y();
-                                    size_t origK = originalMin.z() + rk / refinement.z();
+                                    auto [sectorI, subI] = ref.mapRefinedToOriginal( RigNonUniformRefinement::DimI, ri );
 
                                     // Get the OPERNUM value from the original grid
+                                    size_t origI       = originalMin.x() + sectorI;
+                                    size_t origJ       = originalMin.y() + sectorJ;
+                                    size_t origK       = originalMin.z() + sectorK;
                                     size_t origCellIdx = mainGrid->cellIndexFromIJK( origI, origJ, origK );
 
                                     if ( origCellIdx < resultValues.size() )

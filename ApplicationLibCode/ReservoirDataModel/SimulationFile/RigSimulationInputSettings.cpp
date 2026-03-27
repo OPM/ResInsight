@@ -80,6 +80,39 @@ std::expected<void, QString> RigSimulationInputSettings::validateBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigNonUniformRefinement RigSimulationInputSettings::effectiveRefinement() const
+{
+    if ( hasNonUniformRefinement() ) return m_nonUniformRefinement;
+
+    auto sectorSize =
+        cvf::Vec3st( m_max.x() - m_min.x() + 1, m_max.y() - m_min.y() + 1, m_max.z() - m_min.z() + 1 );
+
+    if ( m_refinement.x() > 1 || m_refinement.y() > 1 || m_refinement.z() > 1 )
+        return RigNonUniformRefinement::fromUniform( m_refinement, sectorSize );
+
+    return RigNonUniformRefinement( sectorSize );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSimulationInputSettings::setEffectiveRefinement( const RigNonUniformRefinement& refinement )
+{
+    m_nonUniformRefinement = refinement;
+    m_refinement           = cvf::Vec3st( 1, 1, 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigSimulationInputSettings::hasRefinement() const
+{
+    return ( m_refinement.x() > 1 || m_refinement.y() > 1 || m_refinement.z() > 1 ) || hasNonUniformRefinement();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3st RigSimulationInputSettings::refinement() const
 {
     return m_refinement;

@@ -21,6 +21,7 @@
 #include "RiaTestDataDirectory.h"
 #include "RifEclipseInputFileTools.h"
 #include "RigGridExportAdapter.h"
+#include "RigNonUniformRefinement.h"
 #include "RigResdataGridConverter.h"
 
 #include "RigActiveCellInfo.h"
@@ -681,11 +682,11 @@ TEST( RigResdataGridConverterTest, CornerPointArrayConversion )
     // Test conversion for a small subset (first 2x2x2 cells)
     cvf::Vec3st min( 0, 0, 0 );
     cvf::Vec3st max( 1, 1, 1 );
-    cvf::Vec3st refinement( 1, 1, 1 );
 
     cvf::Mat4d mapAxisTransform = grid->mapAxisTransform();
 
-    // Create grid adapter with the test parameters
+    // Create grid adapter with the test parameters (no refinement: 1 subcell per cell)
+    RigNonUniformRefinement refinement( cvf::Vec3st( max.x() - min.x() + 1, max.y() - min.y() + 1, max.z() - min.z() + 1 ) );
     RigGridExportAdapter gridAdapter( testCaseData.p(), min, max, refinement, nullptr );
 
     RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );

@@ -35,37 +35,6 @@
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
-/// Generate refined cell corners using trilinear interpolation within the original cell
-/// This ensures refined cells are strictly contained within the original cell bounds
-//--------------------------------------------------------------------------------------------------
-static std::array<cvf::Vec3d, 8> generateRefinedCellCorners( const std::array<cvf::Vec3d, 8>& originalCorners,
-                                                             size_t                           refinementI,
-                                                             size_t                           refinementJ,
-                                                             size_t                           refinementK,
-                                                             size_t                           subI,
-                                                             size_t                           subJ,
-                                                             size_t                           subK )
-{
-    // Use ResInsight's proven face-based refinement approach
-    auto allRefinedCorners = RiaCellDividingTools::createHexCornerCoords( originalCorners, refinementI, refinementJ, refinementK );
-
-    // Calculate the linear index of the specific subcell we want
-    // createHexCornerCoords uses for(z) for(y) for(x) loops, so X is fastest changing (X-major)
-    // Linear index = z * (nx * ny) + y * nx + x
-    size_t subcellIndex     = subK * ( refinementI * refinementJ ) + subJ * refinementI + subI;
-    size_t cornerStartIndex = subcellIndex * 8;
-
-    // Extract the 8 corners for this specific subcell
-    std::array<cvf::Vec3d, 8> refinedCorners;
-    for ( size_t i = 0; i < 8; ++i )
-    {
-        refinedCorners[i] = allRefinedCorners[cornerStartIndex + i];
-    }
-
-    return refinedCorners;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Generate refined cell corners using non-uniform cumulative fractions
 //--------------------------------------------------------------------------------------------------
 static std::array<cvf::Vec3d, 8> generateRefinedCellCornersNonUniform( const std::array<cvf::Vec3d, 8>& originalCorners,
@@ -97,59 +66,17 @@ static std::array<cvf::Vec3d, 8> generateRefinedCellCornersNonUniform( const std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGridExportAdapter::RigGridExportAdapter( RigEclipseCaseData*    eclipseCase,
-                                            const cvf::Vec3st&     min,
-                                            const cvf::Vec3st&     max,
-                                            const cvf::Vec3st&     refinement,
-                                            const cvf::UByteArray* cellVisibilityOverrideForActnum )
-    : m_mainGrid( nullptr )
-    , m_activeCellInfo( nullptr )
-    , m_cellVisibilityOverride( cellVisibilityOverrideForActnum )
-    , m_min( min )
-    , m_max( max )
-    , m_refinement( refinement )
-    , m_refinedNI( 0 )
-    , m_refinedNJ( 0 )
-    , m_refinedNK( 0 )
-{
-    CVF_ASSERT( eclipseCase );
-
-    m_mainGrid       = eclipseCase->mainGrid();
-    m_activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-    CVF_ASSERT( m_mainGrid );
-    CVF_ASSERT( m_activeCellInfo );
-
-    // Calculate actual max if undefined
-    cvf::Vec3st maxActual =
-        max.isUndefined() ? cvf::Vec3st( m_mainGrid->cellCountI() - 1, m_mainGrid->cellCountJ() - 1, m_mainGrid->cellCountK() - 1 ) : max;
-    m_max = maxActual;
-
-    // Calculate refined grid dimensions
-    m_refinedNI = ( maxActual.x() - min.x() + 1 ) * refinement.x();
-    m_refinedNJ = ( maxActual.y() - min.y() + 1 ) * refinement.y();
-    m_refinedNK = ( maxActual.z() - min.z() + 1 ) * refinement.z();
-
-    // Create equivalent non-uniform refinement for internal use
-    cvf::Vec3st sectorSize( maxActual.x() - min.x() + 1, maxActual.y() - min.y() + 1, maxActual.z() - min.z() + 1 );
-    m_nonUniformRefinement = RigNonUniformRefinement::fromUniform( refinement, sectorSize );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigGridExportAdapter::RigGridExportAdapter( RigEclipseCaseData*            eclipseCase,
                                             const cvf::Vec3st&             min,
                                             const cvf::Vec3st&             max,
-                                            const RigNonUniformRefinement& nonUniformRefinement,
+                                            const RigNonUniformRefinement& refinement,
                                             const cvf::UByteArray*         cellVisibilityOverrideForActnum )
     : m_mainGrid( nullptr )
     , m_activeCellInfo( nullptr )
     , m_cellVisibilityOverride( cellVisibilityOverrideForActnum )
     , m_min( min )
     , m_max( max )
-    , m_refinement( 1, 1, 1 )
-    , m_nonUniformRefinement( nonUniformRefinement )
+    , m_nonUniformRefinement( refinement )
     , m_refinedNI( 0 )
     , m_refinedNJ( 0 )
     , m_refinedNK( 0 )
@@ -384,22 +311,17 @@ std::array<cvf::Vec3d, 8> RigGridExportAdapter::computeRefinedCorners( const std
                                                                        size_t                           subJ,
                                                                        size_t                           subK ) const
 {
-    if ( m_nonUniformRefinement.hasNonUniformRefinement() )
-    {
-        size_t sectorI = origI - m_min.x();
-        size_t sectorJ = origJ - m_min.y();
-        size_t sectorK = origK - m_min.z();
+    size_t sectorI = origI - m_min.x();
+    size_t sectorJ = origJ - m_min.y();
+    size_t sectorK = origK - m_min.z();
 
-        return generateRefinedCellCornersNonUniform( originalCorners,
-                                                     m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimI, sectorI ),
-                                                     m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimJ, sectorJ ),
-                                                     m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimK, sectorK ),
-                                                     subI,
-                                                     subJ,
-                                                     subK );
-    }
-
-    return generateRefinedCellCorners( originalCorners, m_refinement.x(), m_refinement.y(), m_refinement.z(), subI, subJ, subK );
+    return generateRefinedCellCornersNonUniform( originalCorners,
+                                                 m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimI, sectorI ),
+                                                 m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimJ, sectorJ ),
+                                                 m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimK, sectorK ),
+                                                 subI,
+                                                 subJ,
+                                                 subK );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -439,29 +361,16 @@ RigGridExportAdapter::CellMapping RigGridExportAdapter::mapRefinedToOriginal( si
 {
     CellMapping mapping;
 
-    if ( m_nonUniformRefinement.hasNonUniformRefinement() )
-    {
-        auto [origI, subI] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimI, refinedI );
-        auto [origJ, subJ] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimJ, refinedJ );
-        auto [origK, subK] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimK, refinedK );
+    auto [origI, subI] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimI, refinedI );
+    auto [origJ, subJ] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimJ, refinedJ );
+    auto [origK, subK] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimK, refinedK );
 
-        mapping.originalI = m_min.x() + origI;
-        mapping.originalJ = m_min.y() + origJ;
-        mapping.originalK = m_min.z() + origK;
-        mapping.subI      = subI;
-        mapping.subJ      = subJ;
-        mapping.subK      = subK;
-    }
-    else
-    {
-        mapping.originalI = m_min.x() + refinedI / m_refinement.x();
-        mapping.originalJ = m_min.y() + refinedJ / m_refinement.y();
-        mapping.originalK = m_min.z() + refinedK / m_refinement.z();
-
-        mapping.subI = refinedI % m_refinement.x();
-        mapping.subJ = refinedJ % m_refinement.y();
-        mapping.subK = refinedK % m_refinement.z();
-    }
+    mapping.originalI = m_min.x() + origI;
+    mapping.originalJ = m_min.y() + origJ;
+    mapping.originalK = m_min.z() + origK;
+    mapping.subI      = subI;
+    mapping.subJ      = subJ;
+    mapping.subK      = subK;
 
     return mapping;
 }
@@ -485,17 +394,9 @@ cvf::Vec3st RigGridExportAdapter::originalMax() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RigGridExportAdapter::refinement() const
-{
-    return m_refinement;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RigGridExportAdapter::hasRefinement() const
 {
-    return m_refinement.x() > 1 || m_refinement.y() > 1 || m_refinement.z() > 1 || m_nonUniformRefinement.hasNonUniformRefinement();
+    return m_nonUniformRefinement.hasNonUniformRefinement();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -531,54 +432,6 @@ size_t RigGridExportAdapter::totalCells() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Transform IJK coordinates from global grid space to sector-relative space with refinement
-/// Returns 0-based coordinates
-//--------------------------------------------------------------------------------------------------
-std::expected<caf::VecIjk0, QString> RigGridExportAdapter::transformIjkToSectorCoordinates( const caf::VecIjk0& ijk,
-                                                                                            const caf::VecIjk0& min,
-                                                                                            const caf::VecIjk0& max,
-                                                                                            const cvf::Vec3st&  refinement,
-                                                                                            bool                applyRefinementCentering,
-                                                                                            bool                isBoxMaxCoordinate )
-{
-    // Check if original IJK is within the sector bounds
-    RigBoundingBoxIjk<caf::VecIjk0> sectorBox( min, max );
-    if ( !sectorBox.contains( ijk ) )
-    {
-        return std::unexpected( QString( "IJK coordinates (%1) are outside sector bounds [(%2), (%3)]" )
-                                    .arg( QString::fromStdString( ijk.toString() ) )
-                                    .arg( QString::fromStdString( min.toString() ) )
-                                    .arg( QString::fromStdString( max.toString() ) ) );
-    }
-
-    // Transform to sector-relative coordinates with refinement
-    // Returns 0-based coordinates
-    if ( applyRefinementCentering )
-    {
-        // Center the coordinate in the refined cell block (for point coordinates like WELSPECS)
-        return caf::VecIjk0( ( ijk.x() - min.x() ) * refinement.x() + ( refinement.x() + 1 ) / 2 - 1,
-                             ( ijk.y() - min.y() ) * refinement.y() + ( refinement.y() + 1 ) / 2 - 1,
-                             ( ijk.z() - min.z() ) * refinement.z() + ( refinement.z() + 1 ) / 2 - 1 );
-    }
-    else if ( isBoxMaxCoordinate )
-    {
-        // Box maximum coordinate: map to end of last refined cell
-        // For a cell at index i (0-based), after refinement it becomes cells [i*r, i*r+r-1]
-        // So the max index of a box [min, max] becomes: (max-sector_min+1)*r - 1 (0-based)
-        return caf::VecIjk0( ( ijk.x() - min.x() + 1 ) * refinement.x() - 1,
-                             ( ijk.y() - min.y() + 1 ) * refinement.y() - 1,
-                             ( ijk.z() - min.z() + 1 ) * refinement.z() - 1 );
-    }
-    else
-    {
-        // Box minimum coordinate: map to start of first refined cell
-        return caf::VecIjk0( ( ijk.x() - min.x() ) * refinement.x(),
-                             ( ijk.y() - min.y() ) * refinement.y(),
-                             ( ijk.z() - min.z() ) * refinement.z() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 const RigNonUniformRefinement& RigGridExportAdapter::nonUniformRefinement() const
@@ -587,7 +440,7 @@ const RigNonUniformRefinement& RigGridExportAdapter::nonUniformRefinement() cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Transform IJK coordinates from global grid space to sector-relative space with non-uniform refinement
+/// Transform IJK coordinates from global grid space to sector-relative space with refinement
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::VecIjk0, QString> RigGridExportAdapter::transformIjkToSectorCoordinates( const caf::VecIjk0& ijk,
                                                                                             const caf::VecIjk0& min,

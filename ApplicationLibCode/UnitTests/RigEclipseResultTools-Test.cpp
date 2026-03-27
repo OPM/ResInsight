@@ -31,6 +31,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
+#include "RigNonUniformRefinement.h"
 #include "RigSimulationInputTool.h"
 #include "RimEclipseResultCase.h"
 
@@ -115,7 +116,7 @@ TEST( RigEclipseResultToolsTest, BorderCellBcconGeneration )
     // Step 3: Create grid adapter and generate refined border result
     caf::VecIjk0         min( startI, startJ, startK );
     caf::VecIjk0         max( endI - 1, endJ - 1, endK - 1 );
-    cvf::Vec3st          refinement( 1, 1, 1 ); // No refinement for this test
+    RigNonUniformRefinement refinement( cvf::Vec3st( max.i() - min.i() + 1, max.j() - min.j() + 1, max.k() - min.k() + 1 ) );
     RigGridExportAdapter gridAdapter( caseData.p(), min, max, refinement, customVisibility.p() );
 
     // Create refined visibility (same as original since refinement=1)
@@ -287,7 +288,7 @@ TEST( RigEclipseResultToolsTest, BcconResultWithFaceNumbering )
     }
 
     // Step 3: Create grid adapter and generate refined border result
-    cvf::Vec3st          refinement( 1, 1, 1 ); // No refinement for this test
+    RigNonUniformRefinement refinement( cvf::Vec3st( max.i() - min.i() + 1, max.j() - min.j() + 1, max.k() - min.k() + 1 ) );
     RigGridExportAdapter gridAdapter( caseData.p(), min, max, refinement, customVisibility.p() );
 
     // Create refined visibility (same as original since refinement=1)
