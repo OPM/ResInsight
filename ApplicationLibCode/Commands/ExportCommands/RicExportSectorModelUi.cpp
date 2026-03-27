@@ -460,6 +460,15 @@ RicRefinementSettings* RicExportSectorModelUi::refinementSettings() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigNonUniformRefinement RicExportSectorModelUi::effectiveRefinement() const
+{
+    m_refinementSettings->setSectorBounds( min(), max() );
+    return m_refinementSettings->effectiveRefinement();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3st RicExportSectorModelUi::refinement() const
 {
     m_refinementSettings->setSectorBounds( min(), max() );

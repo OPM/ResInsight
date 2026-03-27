@@ -128,6 +128,27 @@ void RicRefinementSettings::setSectorBounds( const caf::VecIjk0& min, const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigNonUniformRefinement RicRefinementSettings::effectiveRefinement() const
+{
+    size_t sectorSizeI = m_sectorMaxI - m_sectorMinI + 1;
+    size_t sectorSizeJ = m_sectorMaxJ - m_sectorMinJ + 1;
+    size_t sectorSizeK = m_sectorMaxK - m_sectorMinK + 1;
+
+    cvf::Vec3st sectorSize( sectorSizeI, sectorSizeJ, sectorSizeK );
+
+    if ( !m_refineGrid() ) return RigNonUniformRefinement( sectorSize );
+
+    if ( m_refinementMode() == UNIFORM )
+    {
+        return RigNonUniformRefinement::fromUniform( cvf::Vec3st( m_refinementCountI(), m_refinementCountJ(), m_refinementCountK() ), sectorSize );
+    }
+
+    return nonUniformRefinement();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3st RicRefinementSettings::refinement() const
 {
     if ( !m_refineGrid() || m_refinementMode() == NON_UNIFORM )

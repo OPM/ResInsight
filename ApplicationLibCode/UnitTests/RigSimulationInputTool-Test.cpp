@@ -28,6 +28,7 @@
 #include "RigEclipseCaseDataTools.h"
 #include "RigMainGrid.h"
 #include "RigModelPaddingSettings.h"
+#include "RigNonUniformRefinement.h"
 #include "RigSimulationInputSettings.h"
 #include "RimEclipseResultCase.h"
 
@@ -41,6 +42,12 @@
 #include <QString>
 #include <QTemporaryDir>
 #include <vector>
+
+static RigNonUniformRefinement makeRef( const caf::VecIjk0& sectorMin, const caf::VecIjk0& sectorMax, const cvf::Vec3st& refCounts )
+{
+    cvf::Vec3st sectorSize( sectorMax.i() - sectorMin.i() + 1, sectorMax.j() - sectorMin.j() + 1, sectorMax.k() - sectorMin.k() + 1 );
+    return RigNonUniformRefinement::fromUniform( refCounts, sectorSize );
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Helper to create an EQUALS DeckRecord
@@ -69,7 +76,7 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_NoOverlap )
     // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9) (inclusive, cells [0-19, 15-29, 0-9])
     caf::VecIjk0 sectorMin( 0, 15, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // EQUALS record: FIPNUM 1 1 20 1 14 1 10 (1-based Eclipse)
     // Converts to 0-based: I[0-19], J[0-13], K[0-9]
@@ -90,7 +97,7 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_PartialOverlapWithClamping )
     // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9) (inclusive, cells [0-19, 15-29, 0-9])
     caf::VecIjk0 sectorMin( 0, 15, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // EQUALS record: FIPNUM 2 1 20 15 30 1 10 (1-based Eclipse)
     // Converts to 0-based: I[0-19], J[14-29], K[0-9]
@@ -128,7 +135,7 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_CompletelyInside )
     // Sector: min=(0, 0, 0), max=(19, 19, 9) (inclusive, cells [0-19, 0-19, 0-9])
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 19, 19, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // EQUALS record completely inside: FIPNUM 3 5 15 5 15 2 8 (1-based Eclipse)
     // Converts to 0-based: I[4-14], J[4-14], K[1-7]
@@ -158,7 +165,7 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_CompletelyOutside )
     // Sector: min=(0, 0, 0), max=(9, 9, 9) (inclusive, cells [0-9, 0-9, 0-9])
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 9, 9, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // EQUALS record outside: FIPNUM 4 20 30 20 30 1 10 (1-based Eclipse)
     // Converts to 0-based: I[19-29], J[19-29], K[0-9]
@@ -178,7 +185,7 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_InvalidRecord )
 {
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 9, 9, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // Create a record with only 1 item (field name, missing value)
     std::vector<Opm::DeckItem> items;
@@ -200,7 +207,7 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_NoBoxDefinition )
 {
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 9, 9, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // Create a record with only field name and value (no box coordinates)
     std::vector<Opm::DeckItem> items;
@@ -225,7 +232,7 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_AtBoundary )
     // Sector: min=(5, 5, 5), max=(14, 14, 14) (inclusive, cells [5-14, 5-14, 5-14])
     caf::VecIjk0 sectorMin( 5, 5, 5 );
     caf::VecIjk0 sectorMax( 14, 14, 14 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // EQUALS record exactly matching sector: 6 15 6 15 6 15 (1-based Eclipse)
     // Converts to 0-based: I[5-14], J[5-14], K[5-14]
@@ -273,7 +280,7 @@ TEST( RigSimulationInputTool, ProcessAquconRecord_PartialOverlap )
     // This corresponds to a sector with cells [40-100, 27-72, 21-58]
     caf::VecIjk0 sectorMin( 40, 27, 21 );
     caf::VecIjk0 sectorMax( 100, 72, 58 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // AQUCON record from user data: 1 57 57 28 36 46 58 'I+' (1-based Eclipse)
     // Converts to 0-based: I[56-56], J[27-35], K[45-57]
@@ -309,7 +316,7 @@ TEST( RigSimulationInputTool, ProcessAquconRecord_PartialOverlapWithClamping )
     // Sector: min=(40, 27, 21), max=(100, 72, 58) (inclusive, 0-based)
     caf::VecIjk0 sectorMin( 40, 27, 21 );
     caf::VecIjk0 sectorMax( 100, 72, 58 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // AQUCON record: 1 79 79 41 67 5 11 'I+' (1-based Eclipse)
     // Converts to 0-based: I[78-78], J[40-66], K[4-10]
@@ -331,7 +338,7 @@ TEST( RigSimulationInputTool, ProcessAquconRecord_CompletelyInside )
     // Sector: min=(40, 27, 21), max=(100, 72, 58) (inclusive, 0-based)
     caf::VecIjk0 sectorMin( 40, 27, 21 );
     caf::VecIjk0 sectorMax( 100, 72, 58 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // AQUCON record: 1 61 61 48 72 12 17 'I+' (1-based Eclipse)
     // Converts to 0-based: I[60-60], J[47-71], K[11-16]
@@ -350,7 +357,7 @@ TEST( RigSimulationInputTool, ProcessAquconRecord_NoBoxDefinition )
 {
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 9, 9, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // Create a record with only aquifer ID (no box coordinates)
     std::vector<Opm::DeckItem> items;
@@ -815,7 +822,7 @@ TEST( RigSimulationInputTool, ProcessBoxRecord_LargeBox )
     // This means the sector spans exactly the same range as the BOX keyword
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 45, 111, 21 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // BOX record: 1 46 1 112 1 22 (1-based Eclipse)
     // Converts to 0-based: I[0-45], J[0-111], K[0-21]
@@ -847,7 +854,7 @@ TEST( RigSimulationInputTool, ProcessBoxRecord_LargeBoxWithRefinement )
     // BOX will be clamped to this sector and then refined
     caf::VecIjk0 sectorMin( 19, 59, 0 );
     caf::VecIjk0 sectorMax( 45, 111, 21 );
-    cvf::Vec3st  refinement( 3, 3, 1 ); // Refinement: I=3, J=3, K=1
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 3, 3, 1 ) ); // Refinement: I=3, J=3, K=1
 
     // BOX record: 1 46 1 112 1 22 (1-based Eclipse)
     // Converts to 0-based: I[0-45], J[0-111], K[0-21]
@@ -883,7 +890,7 @@ TEST( RigSimulationInputTool, ProcessBoxRecord_PartialOverlapWithClamping )
     // Sector: min=(10, 20, 5), max=(39, 99, 19) (inclusive, 0-based)
     caf::VecIjk0 sectorMin( 10, 20, 5 );
     caf::VecIjk0 sectorMax( 39, 99, 19 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // BOX record: 1 46 1 112 1 22 (1-based Eclipse)
     // Converts to 0-based: I[0-45], J[0-111], K[0-21]
@@ -917,7 +924,7 @@ TEST( RigSimulationInputTool, ProcessBoxRecord_CompletelyInside )
     // Sector: min=(0, 0, 0), max=(49, 119, 29) (inclusive, 0-based)
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 49, 119, 29 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // BOX record: 5 20 10 50 5 15 (1-based Eclipse)
     // Converts to 0-based: I[4-19], J[9-49], K[4-14]
@@ -948,7 +955,7 @@ TEST( RigSimulationInputTool, ProcessBoxRecord_NoOverlap )
     // Sector: min=(0, 0, 0), max=(19, 29, 9) (inclusive, 0-based)
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // BOX record: 30 50 40 60 1 10 (1-based Eclipse)
     // Converts to 0-based: I[29-49], J[39-59], K[0-9]
@@ -968,7 +975,7 @@ TEST( RigSimulationInputTool, ProcessBoxRecord_InvalidRecord )
 {
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 9, 9, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // Create a record with only 3 items (missing J2, K1, K2)
     std::vector<Opm::DeckItem> items;
@@ -992,7 +999,7 @@ TEST( RigSimulationInputTool, ProcessBoxRecord_AtBoundary )
     // Sector: min=(5, 10, 3), max=(24, 39, 12) (inclusive, 0-based)
     caf::VecIjk0 sectorMin( 5, 10, 3 );
     caf::VecIjk0 sectorMax( 24, 39, 12 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // BOX record exactly matching sector: 6 25 11 40 4 13 (1-based Eclipse)
     // Converts to 0-based: I[5-24], J[10-39], K[3-12]
@@ -1468,9 +1475,9 @@ TEST( RigSimulationInputTool, TransformNNCToSectorCoordinates_NoRefinement )
 
     RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 4.5 };
 
-    // Sector starts at (5,10,2)
+    // Sector starts at (5,10,2), grid is 20x30x10
     caf::VecIjk0 sectorMin( 5, 10, 2 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = RigNonUniformRefinement::fromUniform( cvf::Vec3st( 1, 1, 1 ), cvf::Vec3st( 20, 30, 10 ) );
 
     auto result = RigSimulationInputTool::transformNNCToSectorCoordinates( connection, *mainGrid, sectorMin, refinement );
 
@@ -1506,7 +1513,7 @@ TEST( RigSimulationInputTool, RefineEDITNNCConnection_CorrespondingSubcells )
     RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 2.5 }; // TRAN_MULT = 2.5
 
     caf::VecIjk0 sectorMin( 0, 0, 0 );
-    cvf::Vec3st  refinement( 2, 2, 1 ); // Refine by 2x2x1
+    auto         refinement = RigNonUniformRefinement::fromUniform( cvf::Vec3st( 2, 2, 1 ), cvf::Vec3st( 20, 30, 10 ) ); // Refine by 2x2x1, grid is 20x30x10
 
     auto refined = RigSimulationInputTool::refineEditNncConnection( connection, *mainGrid, sectorMin, refinement );
 
@@ -1730,7 +1737,7 @@ TEST( RigSimulationInputTool, ProcessAddRecord_NoBoxIndices )
 {
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     auto record = createAddRecordNoBox( "PORO", 0.1 );
 
@@ -1751,7 +1758,7 @@ TEST( RigSimulationInputTool, ProcessAddRecord_WithBoxIndices )
     // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9)
     caf::VecIjk0 sectorMin( 0, 15, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // ADD record with box fully inside sector (1-based Eclipse coords)
     auto record = createAddRecord( "PORO", 0.05, 1, 20, 16, 30, 1, 10 );
@@ -1779,7 +1786,7 @@ TEST( RigSimulationInputTool, ProcessMultiplyRecord_NoBoxIndices )
 {
     caf::VecIjk0 sectorMin( 0, 0, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     auto record = createMultiplyRecordNoBox( "PERMX", 2.0 );
 
@@ -1800,7 +1807,7 @@ TEST( RigSimulationInputTool, ProcessMultiplyRecord_WithBoxIndices )
     // Sector: sectorMin=(0, 15, 0), sectorMax=(19, 29, 9)
     caf::VecIjk0 sectorMin( 0, 15, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // MULTIPLY record with box fully inside sector
     auto record = createMultiplyRecord( "PERMX", 3.0, 1, 20, 16, 30, 1, 10 );
@@ -2193,7 +2200,7 @@ TEST( RigSimulationInputTool, ProcessMultiplyRecord_NoOverlap )
 {
     caf::VecIjk0 sectorMin( 0, 15, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // MULTIPLY record: PERMX 2.0 1 20 1 14 1 10 (1-based Eclipse)
     // Converts to 0-based: I[0-19], J[0-13], K[0-9]
@@ -2213,7 +2220,7 @@ TEST( RigSimulationInputTool, ProcessMultiplyRecord_PartialOverlapWithClamping )
 {
     caf::VecIjk0 sectorMin( 0, 15, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // MULTIPLY record: PERMX 3.5 1 20 15 30 1 10 (1-based Eclipse)
     // Converts to 0-based: I[0-19], J[14-29], K[0-9]
@@ -2243,7 +2250,7 @@ TEST( RigSimulationInputTool, ProcessMultiplyRecord_CompletelyInsideSector )
 {
     caf::VecIjk0 sectorMin( 2, 2, 1 );
     caf::VecIjk0 sectorMax( 7, 7, 4 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // MULTIPLY record: PORV 0.5 4 6 4 6 2 4 (1-based Eclipse)
     // Converts to 0-based: I[3-5], J[3-5], K[1-3] — inside sector
@@ -2272,7 +2279,7 @@ TEST( RigSimulationInputTool, ProcessAddRecord_NoOverlap )
 {
     caf::VecIjk0 sectorMin( 0, 15, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // ADD record: PRESSURE 100.0 1 20 1 14 1 10 (1-based Eclipse)
     // Converts to 0-based: I[0-19], J[0-13], K[0-9]
@@ -2292,7 +2299,7 @@ TEST( RigSimulationInputTool, ProcessAddRecord_PartialOverlapWithClamping )
 {
     caf::VecIjk0 sectorMin( 0, 15, 0 );
     caf::VecIjk0 sectorMax( 19, 29, 9 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // ADD record: PRESSURE -50.0 1 20 15 30 1 10 (1-based Eclipse)
     // Converts to 0-based: I[0-19], J[14-29], K[0-9]
@@ -2322,7 +2329,7 @@ TEST( RigSimulationInputTool, ProcessAddRecord_CompletelyInsideSector )
 {
     caf::VecIjk0 sectorMin( 2, 2, 1 );
     caf::VecIjk0 sectorMax( 7, 7, 4 );
-    cvf::Vec3st  refinement( 1, 1, 1 );
+    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
 
     // ADD record: PORO 0.01 4 6 4 6 2 4 (1-based Eclipse)
     // Converts to 0-based: I[3-5], J[3-5], K[1-3] — inside sector

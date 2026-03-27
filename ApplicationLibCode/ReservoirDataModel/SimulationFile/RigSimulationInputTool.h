@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigNonUniformRefinement.h"
+
 #include "cafVecIjk.h"
 #include "cvfArray.h"
 #include "cvfVector3.h"
@@ -77,29 +79,45 @@ public:
     static std::expected<void, QString>
         exportSimulationInput( RimEclipseCase& eclipseCase, const RigSimulationInputSettings& settings, cvf::UByteArray* visibility );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processEqualsRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+    static std::expected<Opm::DeckRecord, QString> processEqualsRecord( const Opm::DeckRecord&         record,
+                                                                        const caf::VecIjk0&           min,
+                                                                        const caf::VecIjk0&           max,
+                                                                        const RigNonUniformRefinement& refinement );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processMultiplyRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+    static std::expected<Opm::DeckRecord, QString> processMultiplyRecord( const Opm::DeckRecord&         record,
+                                                                          const caf::VecIjk0&           min,
+                                                                          const caf::VecIjk0&           max,
+                                                                          const RigNonUniformRefinement& refinement );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processBoxRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+    static std::expected<Opm::DeckRecord, QString> processBoxRecord( const Opm::DeckRecord&         record,
+                                                                      const caf::VecIjk0&           min,
+                                                                      const caf::VecIjk0&           max,
+                                                                      const RigNonUniformRefinement& refinement );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processCopyRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+    static std::expected<Opm::DeckRecord, QString> processCopyRecord( const Opm::DeckRecord&         record,
+                                                                       const caf::VecIjk0&           min,
+                                                                       const caf::VecIjk0&           max,
+                                                                       const RigNonUniformRefinement& refinement );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processAddRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+    static std::expected<Opm::DeckRecord, QString> processAddRecord( const Opm::DeckRecord&         record,
+                                                                      const caf::VecIjk0&           min,
+                                                                      const caf::VecIjk0&           max,
+                                                                      const RigNonUniformRefinement& refinement );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processAquconRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+    static std::expected<Opm::DeckRecord, QString> processAquconRecord( const Opm::DeckRecord&         record,
+                                                                         const caf::VecIjk0&           min,
+                                                                         const caf::VecIjk0&           max,
+                                                                         const RigNonUniformRefinement& refinement );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processAquanconRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+    static std::expected<Opm::DeckRecord, QString> processAquanconRecord( const Opm::DeckRecord&         record,
+                                                                           const caf::VecIjk0&           min,
+                                                                           const caf::VecIjk0&           max,
+                                                                           const RigNonUniformRefinement& refinement );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processAqunumRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const cvf::Vec3st& refinement );
+    static std::expected<Opm::DeckRecord, QString> processAqunumRecord( const Opm::DeckRecord&         record,
+                                                                         const caf::VecIjk0&           min,
+                                                                         const caf::VecIjk0&           max,
+                                                                         const RigNonUniformRefinement& refinement );
 
     static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
 
@@ -112,18 +130,18 @@ public:
                                                                        const RigMainGrid&                mainGrid,
                                                                        const caf::VecIjk0&               min,
                                                                        const caf::VecIjk0&               max );
-    static std::expected<TransformedNNCConnection, QString> transformNNCToSectorCoordinates( const NNCConnection& connection,
-                                                                                             const RigMainGrid&   mainGrid,
-                                                                                             const caf::VecIjk0&  min,
-                                                                                             const cvf::Vec3st&   refinement );
-    static std::vector<TransformedNNCConnection>            refineEditNncConnection( const NNCConnection& connection,
-                                                                                     const RigMainGrid&   mainGrid,
-                                                                                     const caf::VecIjk0&  min,
-                                                                                     const cvf::Vec3st&   refinement );
+    static std::expected<TransformedNNCConnection, QString> transformNNCToSectorCoordinates( const NNCConnection&           connection,
+                                                                                             const RigMainGrid&             mainGrid,
+                                                                                             const caf::VecIjk0&           min,
+                                                                                             const RigNonUniformRefinement& refinement );
+    static std::vector<TransformedNNCConnection>            refineEditNncConnection( const NNCConnection&           connection,
+                                                                                     const RigMainGrid&             mainGrid,
+                                                                                     const caf::VecIjk0&           min,
+                                                                                     const RigNonUniformRefinement& refinement );
 
     // Generic helper for processing keywords with box indices
     using RecordProcessorFunc =
-        std::function<std::expected<Opm::DeckRecord, QString>( const Opm::DeckRecord&, const caf::VecIjk0&, const caf::VecIjk0&, const cvf::Vec3st& )>;
+        std::function<std::expected<Opm::DeckRecord, QString>( const Opm::DeckRecord&, const caf::VecIjk0&, const caf::VecIjk0&, const RigNonUniformRefinement& )>;
 
 private:
     static std::expected<void, QString> updateCornerPointGridInDeckFile( RimEclipseCase*                   eclipseCase,
@@ -174,7 +192,7 @@ private:
     static std::expected<void, QString> applyModelPadding( RifOpmFlowDeckFile& deckFile, const RigModelPaddingSettings& paddingSettings );
 
     // Utility: Transform global IJK to sector-relative coordinates with refinement
-    static caf::VecIjk0 transformToSectorCoordinates( const caf::VecIjk0& globalIjk, const caf::VecIjk0& min, const cvf::Vec3st& refinement );
+    static caf::VecIjk0 transformToSectorCoordinates( const caf::VecIjk0& globalIjk, const caf::VecIjk0& min, const RigNonUniformRefinement& refinement );
 
     static std::expected<void, QString> addOperNumRegionAndOperater( RifOpmFlowDeckFile&         deckFile,
                                                                      const RigGridExportAdapter& gridAdapter,
@@ -207,7 +225,7 @@ private:
         transformBoxToSectorCoordinates( const RigBoundingBoxIjk<caf::VecIjk0>& inputBox,
                                          const caf::VecIjk0&                    sectorMin,
                                          const caf::VecIjk0&                    sectorMax,
-                                         const cvf::Vec3st&                     refinement,
+                                         const RigNonUniformRefinement&          refinement,
                                          const QString&                         keywordName,
                                          const QString&                         recordIdentifier );
 

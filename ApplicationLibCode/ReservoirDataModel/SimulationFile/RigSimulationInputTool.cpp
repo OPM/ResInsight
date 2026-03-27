@@ -194,16 +194,7 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
                                                                                       RifOpmFlowDeckFile&               deckFile )
 {
     // Get grid bounds for extraction
-    auto createGridAdapter = [&]()
-    {
-        if ( settings.hasNonUniformRefinement() )
-        {
-            return RigGridExportAdapter( eclipseCase->eclipseCaseData(), settings.min(), settings.max(), settings.nonUniformRefinement() );
-        }
-        return RigGridExportAdapter( eclipseCase->eclipseCaseData(), settings.min(), settings.max(), settings.refinement() );
-    };
-
-    RigGridExportAdapter gridAdapter = createGridAdapter();
+    RigGridExportAdapter gridAdapter( eclipseCase->eclipseCaseData(), settings.min(), settings.max(), settings.effectiveRefinement() );
 
     std::vector<float> coordArray;
     std::vector<float> zcornArray;
@@ -302,16 +293,11 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
         }
 
         // Try to extract keyword data
-        auto result = settings.hasNonUniformRefinement() ? RifEclipseInputFileTools::extractKeywordData( eclipseCase->eclipseCaseData(),
-                                                                                                         keyword,
-                                                                                                         settings.min(),
-                                                                                                         settings.max(),
-                                                                                                         settings.nonUniformRefinement() )
-                                                         : RifEclipseInputFileTools::extractKeywordData( eclipseCase->eclipseCaseData(),
-                                                                                                         keyword,
-                                                                                                         settings.min(),
-                                                                                                         settings.max(),
-                                                                                                         settings.refinement() );
+        auto result = RifEclipseInputFileTools::extractKeywordData( eclipseCase->eclipseCaseData(),
+                                                                    keyword,
+                                                                    settings.min(),
+                                                                    settings.max(),
+                                                                    settings.effectiveRefinement() );
         if ( result )
         {
             // Replace keyword values in deck with extracted data
@@ -347,17 +333,9 @@ std::set<std::string> RigSimulationInputTool::cropDataKeywordsInDeckFile( RimEcl
     const size_t fullNz        = mainGrid->cellCountK();
     const size_t fullCellCount = fullNx * fullNy * fullNz;
 
-    const auto min        = settings.min();
-    const auto max        = settings.max();
-    const auto refinement = settings.refinement();
-
-    // Build non-uniform refinement for cropping (handles both uniform and non-uniform cases)
-    const bool hasNonUniform = settings.hasNonUniformRefinement();
-    const auto nonUniformRef =
-        hasNonUniform
-            ? settings.nonUniformRefinement()
-            : RigNonUniformRefinement::fromUniform( refinement,
-                                                    cvf::Vec3st( max.x() - min.x() + 1, max.y() - min.y() + 1, max.z() - min.z() + 1 ) );
+    const auto min            = settings.min();
+    const auto max            = settings.max();
+    const auto nonUniformRef  = settings.effectiveRefinement();
 
     auto keywords = deckFile.keywords( false );
 
@@ -456,19 +434,11 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
     }
 
     // Create grid adapter for refined grid operations
-    auto createBorderGridAdapter = [&]()
-    {
-        if ( settings.hasNonUniformRefinement() )
-        {
-            return RigGridExportAdapter( eclipseCase->eclipseCaseData(),
-                                         settings.min(),
-                                         settings.max(),
-                                         settings.nonUniformRefinement(),
-                                         visibility.p() );
-        }
-        return RigGridExportAdapter( eclipseCase->eclipseCaseData(), settings.min(), settings.max(), settings.refinement(), visibility.p() );
-    };
-    RigGridExportAdapter gridAdapter = createBorderGridAdapter();
+    RigGridExportAdapter gridAdapter( eclipseCase->eclipseCaseData(),
+                                      settings.min(),
+                                      settings.max(),
+                                      settings.effectiveRefinement(),
+                                      visibility.p() );
 
     // Create refined visibility array matching refined grid dimensions
     std::vector<int> refinedVisibility = createRefinedVisibility( gridAdapter );
@@ -641,11 +611,11 @@ struct Modification
 /// Process a BOX keyword entry: update box state and return a modification for the BOX keyword.
 /// Returns std::unexpected on fatal exception.
 //--------------------------------------------------------------------------------------------------
-static std::expected<Modification, QString> processBoxKeywordEntry( const Opm::DeckKeyword&     kw,
-                                                                    const Opm::FileDeck::Index& index,
-                                                                    const caf::VecIjk0&         sectorMin,
-                                                                    const caf::VecIjk0&         sectorMax,
-                                                                    const cvf::Vec3st&          refinement,
+static std::expected<Modification, QString> processBoxKeywordEntry( const Opm::DeckKeyword&        kw,
+                                                                    const Opm::FileDeck::Index&    index,
+                                                                    const caf::VecIjk0&            sectorMin,
+                                                                    const caf::VecIjk0&            sectorMax,
+                                                                    const RigNonUniformRefinement& refinement,
                                                                     bool&                       insideBox,
                                                                     std::array<int, 6>&         activeBoxIndices,
                                                                     caf::VecIjk0&               boxMin,
@@ -712,8 +682,7 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
                                                                 const caf::VecIjk0&            boxMax,
                                                                 const caf::VecIjk0&            sectorMin,
                                                                 const caf::VecIjk0&            sectorMax,
-                                                                const cvf::Vec3st&             refinement,
-                                                                const RigNonUniformRefinement* nonUniformRef = nullptr )
+                                                                const RigNonUniformRefinement&  refinement )
 {
     const std::string& name = kw.name();
 
@@ -741,14 +710,12 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
 
         for ( size_t k = intMin.z(); k <= static_cast<size_t>( intMax.z() ); ++k )
         {
-            size_t subCountK = nonUniformRef ? nonUniformRef->subcellCount( RigNonUniformRefinement::DimK, k - sectorMin.z() )
-                                             : refinement.z();
+            size_t subCountK = refinement.subcellCount( RigNonUniformRefinement::DimK, k - sectorMin.z() );
             for ( size_t rk = 0; rk < subCountK; ++rk )
             {
                 for ( size_t j = intMin.y(); j <= static_cast<size_t>( intMax.y() ); ++j )
                 {
-                    size_t subCountJ = nonUniformRef ? nonUniformRef->subcellCount( RigNonUniformRefinement::DimJ, j - sectorMin.y() )
-                                                     : refinement.y();
+                    size_t subCountJ = refinement.subcellCount( RigNonUniformRefinement::DimJ, j - sectorMin.y() );
                     for ( size_t rj = 0; rj < subCountJ; ++rj )
                     {
                         for ( size_t i = intMin.x(); i <= static_cast<size_t>( intMax.x() ); ++i )
@@ -758,8 +725,7 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
                             size_t boxRelK = k - boxMin.z();
                             size_t srcIdx  = boxRelI + boxRelJ * boxNi + boxRelK * boxNi * boxNj;
 
-                            size_t subCountI = nonUniformRef ? nonUniformRef->subcellCount( RigNonUniformRefinement::DimI, i - sectorMin.x() )
-                                                             : refinement.x();
+                            size_t subCountI = refinement.subcellCount( RigNonUniformRefinement::DimI, i - sectorMin.x() );
                             for ( size_t ri = 0; ri < subCountI; ++ri )
                             {
                                 croppedData.push_back( sourceData[srcIdx] );
@@ -816,14 +782,14 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
 /// Process an EQUALS/COPY/ADD/MULTIPLY keyword: transform all records.
 /// Returns std::unexpected on fatal exception.
 //--------------------------------------------------------------------------------------------------
-static std::expected<Modification, QString> processRecordBasedKeyword( const Opm::DeckKeyword&     kw,
-                                                                       const Opm::FileDeck::Index& index,
-                                                                       const RecordProcessorFunc&  processorFunc,
-                                                                       bool                        insideBox,
-                                                                       const std::array<int, 6>&   activeBoxIndices,
-                                                                       const caf::VecIjk0&         sectorMin,
-                                                                       const caf::VecIjk0&         sectorMax,
-                                                                       const cvf::Vec3st&          refinement )
+static std::expected<Modification, QString> processRecordBasedKeyword( const Opm::DeckKeyword&        kw,
+                                                                       const Opm::FileDeck::Index&    index,
+                                                                       const RecordProcessorFunc&     processorFunc,
+                                                                       bool                           insideBox,
+                                                                       const std::array<int, 6>&      activeBoxIndices,
+                                                                       const caf::VecIjk0&            sectorMin,
+                                                                       const caf::VecIjk0&            sectorMax,
+                                                                       const RigNonUniformRefinement& refinement )
 {
     const std::string& name = kw.name();
 
@@ -897,10 +863,7 @@ std::expected<void, QString> RigSimulationInputTool::transformKeywordsInDeckFile
 
     const auto sectorMin  = settings.min();
     const auto sectorMax  = settings.max();
-    const auto refinement = settings.refinement();
-
-    // Build non-uniform refinement pointer for functions that support it
-    const RigNonUniformRefinement* nonUniformRefPtr = settings.hasNonUniformRefinement() ? &settings.nonUniformRefinement() : nullptr;
+    const auto refinement = settings.effectiveRefinement();
 
     // Map keyword names to their record processor functions
     const std::map<std::string, RecordProcessorFunc> recordProcessors = {
@@ -937,7 +900,7 @@ std::expected<void, QString> RigSimulationInputTool::transformKeywordsInDeckFile
         }
         else if ( insideBox && kw.isDataKeyword() )
         {
-            auto result = cropDataKeywordInBoxContext( kw, it, boxMin, boxMax, sectorMin, sectorMax, refinement, nonUniformRefPtr );
+            auto result = cropDataKeywordInBoxContext( kw, it, boxMin, boxMax, sectorMin, sectorMax, refinement );
             if ( result ) modifications.push_back( std::move( result.value() ) );
         }
         else if ( auto procIt = recordProcessors.find( name ); procIt != recordProcessors.end() )
@@ -997,7 +960,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndice
                 for ( size_t recordIdx = 0; recordIdx < kw.size(); ++recordIdx )
                 {
                     const auto& record = kw.getRecord( recordIdx );
-                    auto        result = processorFunc( record, settings.min(), settings.max(), settings.refinement() );
+                    auto        result = processorFunc( record, settings.min(), settings.max(), settings.effectiveRefinement() );
 
                     if ( result )
                     {
@@ -1072,27 +1035,18 @@ std::expected<void, QString> RigSimulationInputTool::updateWelldimsKeyword( RimE
     if ( wellDims.empty() ) return std::unexpected( QString( "Missing WELLDIMS keyword" ) );
 
     // Scale the max connections with the refinement
-    int refinementProduct = 1;
-    if ( settings.hasNonUniformRefinement() )
+    const auto& ref           = settings.effectiveRefinement();
+    size_t      maxProduct    = 1;
+    for ( auto dim : { RigNonUniformRefinement::DimI, RigNonUniformRefinement::DimJ, RigNonUniformRefinement::DimK } )
     {
-        const auto& nuRef = settings.nonUniformRefinement();
-        // Use the maximum subcell product across all cell combinations
-        size_t maxProduct = 1;
-        for ( auto dim : { RigNonUniformRefinement::DimI, RigNonUniformRefinement::DimJ, RigNonUniformRefinement::DimK } )
+        size_t maxSubcells = 1;
+        for ( size_t idx = 0; idx < ref.sectorSize( dim ); ++idx )
         {
-            size_t maxSubcells = 1;
-            for ( size_t idx = 0; idx < nuRef.sectorSize( dim ); ++idx )
-            {
-                maxSubcells = std::max( maxSubcells, nuRef.subcellCount( dim, idx ) );
-            }
-            maxProduct *= maxSubcells;
+            maxSubcells = std::max( maxSubcells, ref.subcellCount( dim, idx ) );
         }
-        refinementProduct = static_cast<int>( maxProduct );
+        maxProduct *= maxSubcells;
     }
-    else
-    {
-        refinementProduct = static_cast<int>( settings.refinement().x() * settings.refinement().y() * settings.refinement().z() );
-    }
+    int refinementProduct = static_cast<int>( maxProduct );
     int newMaxConnections = wellDims[1] * refinementProduct;
 
     deckFile.setWelldims( wellDims[0], newMaxConnections, wellDims[2], wellDims[3] );
@@ -1213,22 +1167,13 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processWelspecsR
 
     // Transform with clamped coordinates (this will always succeed)
     // Center the coordinate in the refined cell block
-    size_t sectorI, sectorJ;
-    if ( settings.hasNonUniformRefinement() )
-    {
-        const auto& nuRef = settings.nonUniformRefinement();
-        size_t      relI  = clampedI - settings.min().x();
-        size_t      relJ  = clampedJ - settings.min().y();
-        sectorI =
-            nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, relI ) + ( nuRef.subcellCount( RigNonUniformRefinement::DimI, relI ) + 1 ) / 2;
-        sectorJ =
-            nuRef.cumulativeOffset( RigNonUniformRefinement::DimJ, relJ ) + ( nuRef.subcellCount( RigNonUniformRefinement::DimJ, relJ ) + 1 ) / 2;
-    }
-    else
-    {
-        sectorI = ( clampedI - settings.min().x() ) * settings.refinement().x() + ( settings.refinement().x() + 1 ) / 2;
-        sectorJ = ( clampedJ - settings.min().y() ) * settings.refinement().y() + ( settings.refinement().y() + 1 ) / 2;
-    }
+    const auto& effRef = settings.effectiveRefinement();
+    size_t      relI   = clampedI - settings.min().x();
+    size_t      relJ   = clampedJ - settings.min().y();
+    size_t      sectorI =
+        effRef.cumulativeOffset( RigNonUniformRefinement::DimI, relI ) + ( effRef.subcellCount( RigNonUniformRefinement::DimI, relI ) + 1 ) / 2;
+    size_t sectorJ =
+        effRef.cumulativeOffset( RigNonUniformRefinement::DimJ, relJ ) + ( effRef.subcellCount( RigNonUniformRefinement::DimJ, relJ ) + 1 ) / 2;
 
     if ( origI < static_cast<int>( settings.min().x() ) || origI > static_cast<int>( settings.max().x() ) ||
          origJ < static_cast<int>( settings.min().y() ) || origJ > static_cast<int>( settings.max().y() ) )
@@ -1283,17 +1228,13 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompdatRe
 
     // Transform K1
     caf::VecIjk0 origIjkK1( origI, origJ, origK1 );
-    auto         transformResultK1 =
-        settings.hasNonUniformRefinement()
-                    ? RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1, settings.min(), settings.max(), settings.nonUniformRefinement(), true )
-                    : RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1, settings.min(), settings.max(), settings.refinement(), true );
+    auto          transformResultK1 =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1, settings.min(), settings.max(), settings.effectiveRefinement(), true );
 
     // Transform K2
     caf::VecIjk0 origIjkK2( origI, origJ, origK2 );
-    auto         transformResultK2 =
-        settings.hasNonUniformRefinement()
-                    ? RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2, settings.min(), settings.max(), settings.nonUniformRefinement(), true )
-                    : RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2, settings.min(), settings.max(), settings.refinement(), true );
+    auto          transformResultK2 =
+        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2, settings.min(), settings.max(), settings.effectiveRefinement(), true );
 
     if ( !transformResultK1 )
     {
@@ -1351,17 +1292,11 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsR
     // Transform I, J, K (first three items)
     caf::VecIjk1 origIjk = extractIjk( record, 0, 1, 2 );
 
-    auto transformResult = settings.hasNonUniformRefinement()
-                               ? RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk.toZeroBased(),
-                                                                                        settings.min(),
-                                                                                        settings.max(),
-                                                                                        settings.nonUniformRefinement(),
-                                                                                        true )
-                               : RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk.toZeroBased(),
-                                                                                        settings.min(),
-                                                                                        settings.max(),
-                                                                                        settings.refinement(),
-                                                                                        true );
+    auto transformResult = RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk.toZeroBased(),
+                                                                                  settings.min(),
+                                                                                  settings.max(),
+                                                                                  settings.effectiveRefinement(),
+                                                                                  true );
 
     if ( !transformResult )
     {
@@ -1401,7 +1336,7 @@ std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
     RigSimulationInputTool::transformBoxToSectorCoordinates( const RigBoundingBoxIjk<caf::VecIjk0>& inputBox,
                                                              const caf::VecIjk0&                    sectorMin,
                                                              const caf::VecIjk0&                    sectorMax,
-                                                             const cvf::Vec3st&                     refinement,
+                                                             const RigNonUniformRefinement&          refinement,
                                                              const QString&                         keywordName,
                                                              const QString&                         recordIdentifier )
 {
@@ -1475,10 +1410,10 @@ std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processEqualsRecord( const Opm::DeckRecord& record,
-                                                                                     const caf::VecIjk0&    min,
-                                                                                     const caf::VecIjk0&    max,
-                                                                                     const cvf::Vec3st&     refinement )
+std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processEqualsRecord( const Opm::DeckRecord&         record,
+                                                                                     const caf::VecIjk0&           min,
+                                                                                     const caf::VecIjk0&           max,
+                                                                                     const RigNonUniformRefinement& refinement )
 {
     // EQUALS format: FIELD VALUE I1 I2 J1 J2 K1 K2
     // Items: 0=FIELD, 1=VALUE, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
@@ -1533,7 +1468,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processEqualsRec
 std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processMultiplyRecord( const Opm::DeckRecord& record,
                                                                                        const caf::VecIjk0&    min,
                                                                                        const caf::VecIjk0&    max,
-                                                                                       const cvf::Vec3st&     refinement )
+                                                                                       const RigNonUniformRefinement& refinement )
 {
     // MULTIPLY format: FIELD FACTOR I1 I2 J1 J2 K1 K2
     // Items: 0=FIELD, 1=FACTOR, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
@@ -1588,7 +1523,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processMultiplyR
 std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAddRecord( const Opm::DeckRecord& record,
                                                                                   const caf::VecIjk0&    min,
                                                                                   const caf::VecIjk0&    max,
-                                                                                  const cvf::Vec3st&     refinement )
+                                                                                  const RigNonUniformRefinement& refinement )
 {
     // ADD format: FIELD SHIFT I1 I2 J1 J2 K1 K2
     // Items: 0=FIELD, 1=SHIFT, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
@@ -1643,7 +1578,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAddRecord
 std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquconRecord( const Opm::DeckRecord& record,
                                                                                      const caf::VecIjk0&    min,
                                                                                      const caf::VecIjk0&    max,
-                                                                                     const cvf::Vec3st&     refinement )
+                                                                                     const RigNonUniformRefinement& refinement )
 {
     // AQUCON format: ID I1 I2 J1 J2 K1 K2 CONNECT_FACE ...
     // Items: 0=ID, 1=I1, 2=I2, 3=J1, 4=J2, 5=K1, 6=K2, 7+=other parameters
@@ -1713,7 +1648,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquconRec
 std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquanconRecord( const Opm::DeckRecord& record,
                                                                                        const caf::VecIjk0&    min,
                                                                                        const caf::VecIjk0&    max,
-                                                                                       const cvf::Vec3st&     refinement )
+                                                                                       const RigNonUniformRefinement& refinement )
 {
     // AQUANCON format: ID I1 I2 J1 J2 K1 K2 AQU_FACE ...
     // Items: 0=ID, 1=I1, 2=I2, 3=J1, 4=J2, 5=K1, 6=K2, 7+=other parameters
@@ -1783,7 +1718,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquanconR
 std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAqunumRecord( const Opm::DeckRecord& record,
                                                                                      const caf::VecIjk0&    min,
                                                                                      const caf::VecIjk0&    max,
-                                                                                     const cvf::Vec3st&     refinement )
+                                                                                     const RigNonUniformRefinement& refinement )
 {
     // AQUNUM format: ID I J K AREA ...
     // Items: 0=ID, 1=I, 2=J, 3=K, 4+=other parameters
@@ -1848,7 +1783,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAqunumRec
 std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCopyRecord( const Opm::DeckRecord& record,
                                                                                    const caf::VecIjk0&    min,
                                                                                    const caf::VecIjk0&    max,
-                                                                                   const cvf::Vec3st&     refinement )
+                                                                                   const RigNonUniformRefinement& refinement )
 {
     // COPY format: SRC_ARRAY TARGET_ARRAY I1 I2 J1 J2 K1 K2
     // Items: 0=SRC_ARRAY, 1=TARGET_ARRAY, 2=I1, 3=I2, 4=J1, 5=J2, 6=K1, 7=K2
@@ -1914,7 +1849,7 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCopyRecor
 std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processBoxRecord( const Opm::DeckRecord& record,
                                                                                   const caf::VecIjk0&    min,
                                                                                   const caf::VecIjk0&    max,
-                                                                                  const cvf::Vec3st&     refinement )
+                                                                                  const RigNonUniformRefinement& refinement )
 {
     // BOX format: I1 I2 J1 J2 K1 K2
     // Items: 0=I1, 1=I2, 2=J1, 3=J2, 4=K1, 5=K2
@@ -2420,26 +2355,29 @@ std::vector<RigSimulationInputTool::NNCConnection>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::VecIjk0 RigSimulationInputTool::transformToSectorCoordinates( const caf::VecIjk0& globalIjk,
-                                                                   const caf::VecIjk0& min,
-                                                                   const cvf::Vec3st&  refinement )
+caf::VecIjk0 RigSimulationInputTool::transformToSectorCoordinates( const caf::VecIjk0&           globalIjk,
+                                                                   const caf::VecIjk0&           min,
+                                                                   const RigNonUniformRefinement& refinement )
 {
     // Transform global IJK to sector-relative coordinates with refinement
-    // Formula matches RigGridExportAdapter::transformIjkToSectorCoordinates for box minimum coordinates
     // Returns 0-based sector coordinates
-    return caf::VecIjk0( ( globalIjk.i() - min.i() ) * refinement.x(),
-                         ( globalIjk.j() - min.j() ) * refinement.y(),
-                         ( globalIjk.k() - min.k() ) * refinement.z() );
+    size_t sectorI = globalIjk.i() - min.i();
+    size_t sectorJ = globalIjk.j() - min.j();
+    size_t sectorK = globalIjk.k() - min.k();
+
+    return caf::VecIjk0( refinement.cumulativeOffset( RigNonUniformRefinement::DimI, sectorI ),
+                         refinement.cumulativeOffset( RigNonUniformRefinement::DimJ, sectorJ ),
+                         refinement.cumulativeOffset( RigNonUniformRefinement::DimK, sectorK ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<RigSimulationInputTool::TransformedNNCConnection, QString>
-    RigSimulationInputTool::transformNNCToSectorCoordinates( const NNCConnection& connection,
-                                                             const RigMainGrid&   mainGrid,
-                                                             const caf::VecIjk0&  min,
-                                                             const cvf::Vec3st&   refinement )
+    RigSimulationInputTool::transformNNCToSectorCoordinates( const NNCConnection&           connection,
+                                                             const RigMainGrid&             mainGrid,
+                                                             const caf::VecIjk0&           min,
+                                                             const RigNonUniformRefinement& refinement )
 {
     // Get global IJK for both cells
     auto gijk1 = mainGrid.ijkFromCellIndex( connection.c1GlobIdx );
@@ -2466,10 +2404,10 @@ std::expected<RigSimulationInputTool::TransformedNNCConnection, QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigSimulationInputTool::TransformedNNCConnection> RigSimulationInputTool::refineEditNncConnection( const NNCConnection& connection,
-                                                                                                               const RigMainGrid&  mainGrid,
-                                                                                                               const caf::VecIjk0& min,
-                                                                                                               const cvf::Vec3st& refinement )
+std::vector<RigSimulationInputTool::TransformedNNCConnection> RigSimulationInputTool::refineEditNncConnection( const NNCConnection&           connection,
+                                                                                                               const RigMainGrid&             mainGrid,
+                                                                                                               const caf::VecIjk0&           min,
+                                                                                                               const RigNonUniformRefinement& refinement )
 {
     // Get global IJK for both cells
     auto gijk1 = mainGrid.ijkFromCellIndex( connection.c1GlobIdx );
@@ -2492,12 +2430,21 @@ std::vector<RigSimulationInputTool::TransformedNNCConnection> RigSimulationInput
     caf::VecIjk0 baseCell1 = transformToSectorCoordinates( *gijk1, min, refinement );
     caf::VecIjk0 baseCell2 = transformToSectorCoordinates( *gijk2, min, refinement );
 
+    // Get subcell counts for each cell
+    size_t rel1I = gijk1->i() - min.i();
+    size_t rel1J = gijk1->j() - min.j();
+    size_t rel1K = gijk1->k() - min.k();
+
+    size_t subcellsI = refinement.subcellCount( RigNonUniformRefinement::DimI, rel1I );
+    size_t subcellsJ = refinement.subcellCount( RigNonUniformRefinement::DimJ, rel1J );
+    size_t subcellsK = refinement.subcellCount( RigNonUniformRefinement::DimK, rel1K );
+
     std::vector<TransformedNNCConnection> refined;
-    for ( size_t subI = 0; subI < refinement.x(); ++subI )
+    for ( size_t subI = 0; subI < subcellsI; ++subI )
     {
-        for ( size_t subJ = 0; subJ < refinement.y(); ++subJ )
+        for ( size_t subJ = 0; subJ < subcellsJ; ++subJ )
         {
-            for ( size_t subK = 0; subK < refinement.z(); ++subK )
+            for ( size_t subK = 0; subK < subcellsK; ++subK )
             {
                 // Add subcell offset to base coordinates
                 TransformedNNCConnection conn;
@@ -2547,8 +2494,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
         QString( "Found %1 internal EDITNNC connections in sector (out of %2 total)" ).arg( sectorConnections.size() ).arg( allConnections.size() ) );
 
     // Step 3: Transform and refine
-    bool hasRef = ( settings.refinement().x() != 1 || settings.refinement().y() != 1 || settings.refinement().z() != 1 ) ||
-                  settings.hasNonUniformRefinement();
+    bool hasRef = settings.hasRefinement();
 
     std::vector<TransformedNNCConnection> transformedConnections;
 
@@ -2557,7 +2503,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
         // Refine to subcells with corresponding positions
         for ( const auto& conn : sectorConnections )
         {
-            auto refined = refineEditNncConnection( conn, *mainGrid, settings.min(), settings.refinement() );
+            auto refined = refineEditNncConnection( conn, *mainGrid, settings.min(), settings.effectiveRefinement() );
             transformedConnections.insert( transformedConnections.end(), refined.begin(), refined.end() );
         }
     }
@@ -2566,7 +2512,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
         // Simple coordinate transformation, no refinement
         for ( const auto& conn : sectorConnections )
         {
-            auto result = transformNNCToSectorCoordinates( conn, *mainGrid, settings.min(), settings.refinement() );
+            auto result = transformNNCToSectorCoordinates( conn, *mainGrid, settings.min(), settings.effectiveRefinement() );
             if ( result )
             {
                 transformedConnections.push_back( *result );

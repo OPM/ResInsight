@@ -23,6 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
+#include "RigNonUniformRefinement.h"
 
 #include "RifReaderEclipseOutput.h"
 
@@ -50,7 +51,12 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
     if ( !eclipseCase ) return false;
 
     // Create grid export adapter that handles all the complexity
-    RigGridExportAdapter gridAdapter( eclipseCase, min, max, refinement, cellVisibilityOverrideForActnum );
+    // Compute sector size for creating non-uniform refinement (adapter resolves UNDEFINED max internally)
+    const auto* mainGrid = eclipseCase->mainGrid();
+    cvf::Vec3st resolvedMax =
+        max.isUndefined() ? cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 ) : max;
+    cvf::Vec3st sectorSize( resolvedMax.x() - min.x() + 1, resolvedMax.y() - min.y() + 1, resolvedMax.z() - min.z() + 1 );
+    RigGridExportAdapter gridAdapter( eclipseCase, min, max, RigNonUniformRefinement::fromUniform( refinement, sectorSize ), cellVisibilityOverrideForActnum );
 
     size_t ni = gridAdapter.cellCountI();
     size_t nj = gridAdapter.cellCountJ();

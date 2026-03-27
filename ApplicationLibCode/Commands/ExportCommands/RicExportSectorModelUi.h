@@ -66,6 +66,7 @@ public:
 
     RicRefinementSettings* refinementSettings() const;
 
+    RigNonUniformRefinement effectiveRefinement() const;
     cvf::Vec3st             refinement() const;
     RigNonUniformRefinement nonUniformRefinement() const;
     bool                    hasNonUniformRefinement() const;
