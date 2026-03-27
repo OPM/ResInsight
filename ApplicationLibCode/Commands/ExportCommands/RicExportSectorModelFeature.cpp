@@ -99,7 +99,7 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
     RigSimulationInputSettings settings;
     settings.setMin( exportSettings->min() );
     settings.setMax( exportSettings->max() );
-    settings.setEffectiveRefinement( exportSettings->effectiveRefinement() );
+    settings.setRefinement( exportSettings->effectiveRefinement() );
 
     std::vector<std::string> keywordsToRemove;
     for ( auto& s : exportSettings->keywordsToRemove() )

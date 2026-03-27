@@ -237,8 +237,8 @@ std::pair<std::vector<int>, int> generateOperNumResult( RimEclipseCase*         
                     auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
                     if ( mainGrid )
                     {
-                        cvf::Vec3st                     originalMin = gridAdapter.originalMin();
-                        const RigNonUniformRefinement& ref         = gridAdapter.nonUniformRefinement();
+                        cvf::Vec3st          originalMin = gridAdapter.originalMin();
+                        const RigRefinement& ref         = gridAdapter.refinement();
 
                         // Refine the OPERNUM data to match the refined grid
                         size_t refinedNI = gridAdapter.cellCountI();
@@ -247,13 +247,13 @@ std::pair<std::vector<int>, int> generateOperNumResult( RimEclipseCase*         
 
                         for ( size_t rk = 0; rk < refinedNK; ++rk )
                         {
-                            auto [sectorK, subK] = ref.mapRefinedToOriginal( RigNonUniformRefinement::DimK, rk );
+                            auto [sectorK, subK] = ref.mapRefinedToOriginal( RigRefinement::DimK, rk );
                             for ( size_t rj = 0; rj < refinedNJ; ++rj )
                             {
-                                auto [sectorJ, subJ] = ref.mapRefinedToOriginal( RigNonUniformRefinement::DimJ, rj );
+                                auto [sectorJ, subJ] = ref.mapRefinedToOriginal( RigRefinement::DimJ, rj );
                                 for ( size_t ri = 0; ri < refinedNI; ++ri )
                                 {
-                                    auto [sectorI, subI] = ref.mapRefinedToOriginal( RigNonUniformRefinement::DimI, ri );
+                                    auto [sectorI, subI] = ref.mapRefinedToOriginal( RigRefinement::DimI, ri );
 
                                     // Get the OPERNUM value from the original grid
                                     size_t origI       = originalMin.x() + sectorI;

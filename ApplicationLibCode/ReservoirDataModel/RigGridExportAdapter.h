@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigNonUniformRefinement.h"
+#include "RigRefinement.h"
 
 #include "cafVecIjk.h"
 
@@ -62,11 +62,11 @@ class QString;
 class RigGridExportAdapter
 {
 public:
-    RigGridExportAdapter( RigEclipseCaseData*            eclipseCase,
-                          const cvf::Vec3st&             min,
-                          const cvf::Vec3st&             max,
-                          const RigNonUniformRefinement& refinement,
-                          const cvf::UByteArray*         cellVisibilityOverrideForActnum = nullptr );
+    RigGridExportAdapter( RigEclipseCaseData*    eclipseCase,
+                          const cvf::Vec3st&     min,
+                          const cvf::Vec3st&     max,
+                          const RigRefinement&   refinement,
+                          const cvf::UByteArray* cellVisibilityOverrideForActnum = nullptr );
 
     // Grid dimensions (after refinement)
     size_t cellCountI() const;
@@ -90,15 +90,15 @@ public:
     bool        hasRefinement() const;
 
     // Refinement accessor
-    const RigNonUniformRefinement& nonUniformRefinement() const;
+    const RigRefinement& refinement() const;
 
     // Coordinate transformation utility
-    static std::expected<caf::VecIjk0, QString> transformIjkToSectorCoordinates( const caf::VecIjk0&            originalIjk,
-                                                                                 const caf::VecIjk0&            min,
-                                                                                 const caf::VecIjk0&            max,
-                                                                                 const RigNonUniformRefinement& refinement,
-                                                                                 bool applyRefinementCentering = false,
-                                                                                 bool isBoxMaxCoordinate       = false );
+    static std::expected<caf::VecIjk0, QString> transformIjkToSectorCoordinates( const caf::VecIjk0&  originalIjk,
+                                                                                 const caf::VecIjk0&  min,
+                                                                                 const caf::VecIjk0&  max,
+                                                                                 const RigRefinement& refinement,
+                                                                                 bool                 applyRefinementCentering = false,
+                                                                                 bool                 isBoxMaxCoordinate       = false );
 
 private:
     // Internal methods to handle original vs refined cell access
@@ -129,7 +129,7 @@ private:
     cvf::Vec3st m_min;
     cvf::Vec3st m_max;
 
-    RigNonUniformRefinement m_nonUniformRefinement;
+    std::unique_ptr<const RigRefinement> m_refinement;
 
     // Cached refined grid dimensions
     size_t m_refinedNI;

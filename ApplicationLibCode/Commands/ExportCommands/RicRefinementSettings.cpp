@@ -20,6 +20,10 @@
 
 #include "RiaLogging.h"
 
+#include "RigNoRefinement.h"
+#include "RigNonUniformRefinement.h"
+#include "RigUniformRefinement.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiRadioButtonEditor.h"
@@ -128,7 +132,7 @@ void RicRefinementSettings::setSectorBounds( const caf::VecIjk0& min, const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigNonUniformRefinement RicRefinementSettings::effectiveRefinement() const
+std::unique_ptr<RigRefinement> RicRefinementSettings::effectiveRefinement() const
 {
     size_t sectorSizeI = m_sectorMaxI - m_sectorMinI + 1;
     size_t sectorSizeJ = m_sectorMaxJ - m_sectorMinJ + 1;
@@ -136,11 +140,12 @@ RigNonUniformRefinement RicRefinementSettings::effectiveRefinement() const
 
     cvf::Vec3st sectorSize( sectorSizeI, sectorSizeJ, sectorSizeK );
 
-    if ( !m_refineGrid() ) return RigNonUniformRefinement( sectorSize );
+    if ( !m_refineGrid() ) return std::make_unique<RigNoRefinement>( sectorSize );
 
     if ( m_refinementMode() == UNIFORM )
     {
-        return RigNonUniformRefinement::fromUniform( cvf::Vec3st( m_refinementCountI(), m_refinementCountJ(), m_refinementCountK() ), sectorSize );
+        return std::make_unique<RigUniformRefinement>( cvf::Vec3st( m_refinementCountI(), m_refinementCountJ(), m_refinementCountK() ),
+                                                       sectorSize );
     }
 
     return nonUniformRefinement();
@@ -170,7 +175,7 @@ RicRefinementSettings::RefinementMode RicRefinementSettings::refinementMode() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigNonUniformRefinement RicRefinementSettings::nonUniformRefinement() const
+std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefinement() const
 {
     size_t sectorSizeI = m_sectorMaxI - m_sectorMinI + 1;
     size_t sectorSizeJ = m_sectorMaxJ - m_sectorMinJ + 1;
@@ -178,7 +183,7 @@ RigNonUniformRefinement RicRefinementSettings::nonUniformRefinement() const
 
     cvf::Vec3st sectorSize( sectorSizeI, sectorSizeJ, sectorSizeK );
 
-    RigNonUniformRefinement result( sectorSize );
+    auto result = std::make_unique<RigNonUniformRefinement>( sectorSize );
 
     if ( !m_refineGrid() || m_refinementMode() != NON_UNIFORM ) return result;
 
@@ -241,7 +246,7 @@ RigNonUniformRefinement RicRefinementSettings::nonUniformRefinement() const
         int sectorEnd   = dc.rangeEnd - sectorMin[static_cast<size_t>( dc.dim )];
 
         // Clamp to sector bounds
-        int sectorMaxIdx = static_cast<int>( result.sectorSize( dc.dim ) ) - 1;
+        int sectorMaxIdx = static_cast<int>( result->sectorSize( dc.dim ) ) - 1;
         sectorStart      = std::max( 0, sectorStart );
         sectorEnd        = std::min( sectorMaxIdx, sectorEnd );
         if ( sectorStart > sectorEnd )
@@ -271,19 +276,19 @@ RigNonUniformRefinement RicRefinementSettings::nonUniformRefinement() const
                     .arg( dc.rangeEnd )
                     .arg( sectorStart )
                     .arg( sectorEnd )
-                    .arg( result.sectorSize( dc.dim ) )
+                    .arg( result->sectorSize( dc.dim ) )
                     .arg( widths.size() ) );
 
-            result.distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
+            result->distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
         }
         else if ( subMode == LINEAR_EQUAL_SPLIT )
         {
             // Each cell in the range gets exactly N equal subcells
-            auto equalFractions = RigNonUniformRefinement::generateEqualFractions( static_cast<size_t>( dc.subcellCount ) );
+            auto equalFractions = RigRefinement::generateEqualFractions( static_cast<size_t>( dc.subcellCount ) );
 
             for ( int c = sectorStart; c <= sectorEnd; ++c )
             {
-                result.setCumulativeFractions( dc.dim, static_cast<size_t>( c ), equalFractions );
+                result->setCumulativeFractions( dc.dim, static_cast<size_t>( c ), equalFractions );
             }
 
             RiaLogging::info( QString( "Non-uniform refinement %1 (linear): %2 subcells per cell in range [%3, %4]" )
@@ -294,7 +299,7 @@ RigNonUniformRefinement RicRefinementSettings::nonUniformRefinement() const
         }
         else if ( subMode == LOGARITHMIC_CENTER )
         {
-            auto widths = RigNonUniformRefinement::generateLogarithmicWidths( static_cast<size_t>( dc.totalCells ) );
+            auto widths = RigRefinement::generateLogarithmicWidths( static_cast<size_t>( dc.totalCells ) );
 
             RiaLogging::info( QString( "Non-uniform refinement %1 (logarithmic): %2 total cells across range [%3, %4]" )
                                   .arg( dimLabels[static_cast<size_t>( dc.dim )] )
@@ -302,13 +307,13 @@ RigNonUniformRefinement RicRefinementSettings::nonUniformRefinement() const
                                   .arg( sectorStart )
                                   .arg( sectorEnd ) );
 
-            result.distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
+            result->distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
         }
 
         RiaLogging::info( QString( "Non-uniform refinement %1: total refined count = %2 (was %3)" )
                               .arg( dimLabels[static_cast<size_t>( dc.dim )] )
-                              .arg( result.totalRefinedCount( dc.dim ) )
-                              .arg( result.sectorSize( dc.dim ) ) );
+                              .arg( result->totalRefinedCount( dc.dim ) )
+                              .arg( result->sectorSize( dc.dim ) ) );
     }
 
     return result;

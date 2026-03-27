@@ -18,7 +18,10 @@
 
 #include "gtest/gtest.h"
 
+#include "RigNoRefinement.h"
 #include "RigNonUniformRefinement.h"
+#include "RigRefinement.h"
+#include "RigUniformRefinement.h"
 
 #include "RiaCellDividingTools.h"
 #include "RigGridExportAdapter.h"
@@ -26,49 +29,49 @@
 #include "cafVecIjk.h"
 
 //--------------------------------------------------------------------------------------------------
-/// Test fromUniform() matches expected uniform counts
+/// Test RigUniformRefinement matches expected uniform counts
 //--------------------------------------------------------------------------------------------------
-TEST( RigNonUniformRefinement, FromUniform )
+TEST( RigUniformRefinement, UniformCounts )
 {
-    auto nuRef = RigNonUniformRefinement::fromUniform( cvf::Vec3st( 3, 2, 1 ), cvf::Vec3st( 4, 5, 6 ) );
+    RigUniformRefinement uRef( cvf::Vec3st( 3, 2, 1 ), cvf::Vec3st( 4, 5, 6 ) );
 
     // Total refined count should match uniform: sectorSize * refinement
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 4u * 3 );
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimJ ), 5u * 2 );
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimK ), 6u * 1 );
+    EXPECT_EQ( uRef.totalRefinedCount( RigRefinement::DimI ), 4u * 3 );
+    EXPECT_EQ( uRef.totalRefinedCount( RigRefinement::DimJ ), 5u * 2 );
+    EXPECT_EQ( uRef.totalRefinedCount( RigRefinement::DimK ), 6u * 1 );
 
     // Each cell in dim 0 should have 3 subcells
     for ( size_t i = 0; i < 4; ++i )
     {
-        EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, i ), 3u );
+        EXPECT_EQ( uRef.subcellCount( RigRefinement::DimI, i ), 3u );
     }
 
     // Each cell in dim 1 should have 2 subcells
     for ( size_t j = 0; j < 5; ++j )
     {
-        EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimJ, j ), 2u );
+        EXPECT_EQ( uRef.subcellCount( RigRefinement::DimJ, j ), 2u );
     }
 
     // Each cell in dim 2 should have 1 subcell
     for ( size_t k = 0; k < 6; ++k )
     {
-        EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimK, k ), 1u );
+        EXPECT_EQ( uRef.subcellCount( RigRefinement::DimK, k ), 1u );
     }
 
-    EXPECT_TRUE( nuRef.hasNonUniformRefinement() );
+    EXPECT_TRUE( uRef.hasRefinement() );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Test no refinement case
 //--------------------------------------------------------------------------------------------------
-TEST( RigNonUniformRefinement, NoRefinement )
+TEST( RigNoRefinement, Identity )
 {
-    auto nuRef = RigNonUniformRefinement::fromUniform( cvf::Vec3st( 1, 1, 1 ), cvf::Vec3st( 3, 3, 3 ) );
+    RigNoRefinement noRef( cvf::Vec3st( 3, 3, 3 ) );
 
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 3u );
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimJ ), 3u );
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimK ), 3u );
-    EXPECT_FALSE( nuRef.hasNonUniformRefinement() );
+    EXPECT_EQ( noRef.totalRefinedCount( RigRefinement::DimI ), 3u );
+    EXPECT_EQ( noRef.totalRefinedCount( RigRefinement::DimJ ), 3u );
+    EXPECT_EQ( noRef.totalRefinedCount( RigRefinement::DimK ), 3u );
+    EXPECT_FALSE( noRef.hasRefinement() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,22 +82,22 @@ TEST( RigNonUniformRefinement, MixedRefinement )
     RigNonUniformRefinement nuRef( cvf::Vec3st( 3, 1, 1 ) );
 
     // Cell 0: 2 subcells, Cell 1: 5 subcells, Cell 2: 1 subcell (default)
-    auto fractions2 = RigNonUniformRefinement::widthsToCumulativeFractions( { 0.5, 0.5 } );
-    auto fractions5 = RigNonUniformRefinement::widthsToCumulativeFractions( { 0.2, 0.4, 0.5, 0.6, 0.8 } );
+    auto fractions2 = RigRefinement::widthsToCumulativeFractions( { 0.5, 0.5 } );
+    auto fractions5 = RigRefinement::widthsToCumulativeFractions( { 0.2, 0.4, 0.5, 0.6, 0.8 } );
 
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 0, fractions2 );
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 1, fractions5 );
+    nuRef.setCumulativeFractions( RigRefinement::DimI, 0, fractions2 );
+    nuRef.setCumulativeFractions( RigRefinement::DimI, 1, fractions5 );
 
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 2u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 1 ), 5u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 2 ), 1u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 0 ), 2u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 1 ), 5u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 2 ), 1u );
 
-    EXPECT_EQ( nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, 0 ), 0u );
-    EXPECT_EQ( nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, 1 ), 2u );
-    EXPECT_EQ( nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, 2 ), 7u );
+    EXPECT_EQ( nuRef.cumulativeOffset( RigRefinement::DimI, 0 ), 0u );
+    EXPECT_EQ( nuRef.cumulativeOffset( RigRefinement::DimI, 1 ), 2u );
+    EXPECT_EQ( nuRef.cumulativeOffset( RigRefinement::DimI, 2 ), 7u );
 
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 8u ); // 2 + 5 + 1
-    EXPECT_TRUE( nuRef.hasNonUniformRefinement() );
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 8u ); // 2 + 5 + 1
+    EXPECT_TRUE( nuRef.hasRefinement() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,42 +108,40 @@ TEST( RigNonUniformRefinement, MapRefinedToOriginalRoundTrip )
     RigNonUniformRefinement nuRef( cvf::Vec3st( 4, 1, 1 ) );
 
     // Cell 0: 3 subcells, Cell 1: 1 subcell, Cell 2: 2 subcells, Cell 3: 4 subcells
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 0, RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0 } ) );
+    nuRef.setCumulativeFractions( RigRefinement::DimI, 0, RigRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0 } ) );
     // Cell 1: default (1 subcell)
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 2, RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0 } ) );
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI,
-                                  3,
-                                  RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0, 1.0 } ) );
+    nuRef.setCumulativeFractions( RigRefinement::DimI, 2, RigRefinement::widthsToCumulativeFractions( { 1.0, 1.0 } ) );
+    nuRef.setCumulativeFractions( RigRefinement::DimI, 3, RigRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0, 1.0 } ) );
 
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 10u ); // 3 + 1 + 2 + 4
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 10u ); // 3 + 1 + 2 + 4
 
     // Verify round-trip: for each original cell, cumulativeOffset should map back correctly
     for ( size_t origIdx = 0; origIdx < 4; ++origIdx )
     {
-        size_t offset                = nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, origIdx );
-        auto [mappedOrig, mappedSub] = nuRef.mapRefinedToOriginal( RigNonUniformRefinement::DimI, offset );
+        size_t offset                = nuRef.cumulativeOffset( RigRefinement::DimI, origIdx );
+        auto [mappedOrig, mappedSub] = nuRef.mapRefinedToOriginal( RigRefinement::DimI, offset );
         EXPECT_EQ( mappedOrig, origIdx );
         EXPECT_EQ( mappedSub, 0u );
     }
 
     // Check specific refined indices
-    auto [orig0, sub0] = nuRef.mapRefinedToOriginal( RigNonUniformRefinement::DimI, 0 ); // First subcell of cell 0
+    auto [orig0, sub0] = nuRef.mapRefinedToOriginal( RigRefinement::DimI, 0 ); // First subcell of cell 0
     EXPECT_EQ( orig0, 0u );
     EXPECT_EQ( sub0, 0u );
 
-    auto [orig1, sub1] = nuRef.mapRefinedToOriginal( RigNonUniformRefinement::DimI, 2 ); // Last subcell of cell 0
+    auto [orig1, sub1] = nuRef.mapRefinedToOriginal( RigRefinement::DimI, 2 ); // Last subcell of cell 0
     EXPECT_EQ( orig1, 0u );
     EXPECT_EQ( sub1, 2u );
 
-    auto [orig2, sub2] = nuRef.mapRefinedToOriginal( RigNonUniformRefinement::DimI, 3 ); // Cell 1 (only subcell)
+    auto [orig2, sub2] = nuRef.mapRefinedToOriginal( RigRefinement::DimI, 3 ); // Cell 1 (only subcell)
     EXPECT_EQ( orig2, 1u );
     EXPECT_EQ( sub2, 0u );
 
-    auto [orig3, sub3] = nuRef.mapRefinedToOriginal( RigNonUniformRefinement::DimI, 4 ); // First subcell of cell 2
+    auto [orig3, sub3] = nuRef.mapRefinedToOriginal( RigRefinement::DimI, 4 ); // First subcell of cell 2
     EXPECT_EQ( orig3, 2u );
     EXPECT_EQ( sub3, 0u );
 
-    auto [orig4, sub4] = nuRef.mapRefinedToOriginal( RigNonUniformRefinement::DimI, 9 ); // Last subcell of cell 3
+    auto [orig4, sub4] = nuRef.mapRefinedToOriginal( RigRefinement::DimI, 9 ); // Last subcell of cell 3
     EXPECT_EQ( orig4, 3u );
     EXPECT_EQ( sub4, 3u );
 }
@@ -151,20 +152,20 @@ TEST( RigNonUniformRefinement, MapRefinedToOriginalRoundTrip )
 TEST( RigNonUniformRefinement, WidthsToCumulativeFractions )
 {
     // Equal widths
-    auto fractions = RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0 } );
+    auto fractions = RigRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0 } );
     EXPECT_EQ( fractions.size(), 3u );
     EXPECT_NEAR( fractions[0], 1.0 / 3.0, 1e-10 );
     EXPECT_NEAR( fractions[1], 2.0 / 3.0, 1e-10 );
     EXPECT_DOUBLE_EQ( fractions[2], 1.0 );
 
     // Non-equal widths
-    auto fractions2 = RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 3.0 } );
+    auto fractions2 = RigRefinement::widthsToCumulativeFractions( { 1.0, 3.0 } );
     EXPECT_EQ( fractions2.size(), 2u );
     EXPECT_NEAR( fractions2[0], 0.25, 1e-10 );
     EXPECT_DOUBLE_EQ( fractions2[1], 1.0 );
 
     // Empty input
-    auto fractions3 = RigNonUniformRefinement::widthsToCumulativeFractions( {} );
+    auto fractions3 = RigRefinement::widthsToCumulativeFractions( {} );
     EXPECT_EQ( fractions3.size(), 1u );
     EXPECT_DOUBLE_EQ( fractions3[0], 1.0 );
 }
@@ -176,11 +177,11 @@ TEST( RigNonUniformRefinement, SingleCell )
 {
     RigNonUniformRefinement nuRef( cvf::Vec3st( 1, 1, 1 ) );
 
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 1u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 1u );
-    EXPECT_EQ( nuRef.cumulativeOffset( RigNonUniformRefinement::DimI, 0 ), 0u );
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 1u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 0 ), 1u );
+    EXPECT_EQ( nuRef.cumulativeOffset( RigRefinement::DimI, 0 ), 0u );
 
-    auto [orig, sub] = nuRef.mapRefinedToOriginal( RigNonUniformRefinement::DimI, 0 );
+    auto [orig, sub] = nuRef.mapRefinedToOriginal( RigRefinement::DimI, 0 );
     EXPECT_EQ( orig, 0u );
     EXPECT_EQ( sub, 0u );
 }
@@ -194,12 +195,12 @@ TEST( RigNonUniformRefinement, DistributeEqualWidthsAcrossEqualCells )
 
     // 3 equal widths across 3 cells: each boundary lands on a cell boundary
     // so each cell gets exactly 1 subcell
-    nuRef.distributeWidthsAcrossCells( RigNonUniformRefinement::DimI, 0, 2, { 1.0, 1.0, 1.0 } );
+    nuRef.distributeWidthsAcrossCells( RigRefinement::DimI, 0, 2, { 1.0, 1.0, 1.0 } );
 
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 1u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 1 ), 1u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 2 ), 1u );
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 3u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 0 ), 1u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 1 ), 1u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 2 ), 1u );
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 3u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,12 +211,12 @@ TEST( RigNonUniformRefinement, DistributeDoubleWidthsAcrossCells )
     RigNonUniformRefinement nuRef( cvf::Vec3st( 3, 1, 1 ) );
 
     // 6 equal widths across 3 cells: 2 subcell boundaries per cell
-    nuRef.distributeWidthsAcrossCells( RigNonUniformRefinement::DimI, 0, 2, { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } );
+    nuRef.distributeWidthsAcrossCells( RigRefinement::DimI, 0, 2, { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } );
 
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 2u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 1 ), 2u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 2 ), 2u );
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 6u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 0 ), 2u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 1 ), 2u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 2 ), 2u );
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 6u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,12 +231,12 @@ TEST( RigNonUniformRefinement, DistributeUnevenWidthsAcrossCells )
     // Cell 0 [0, 0.333]: boundaries 0.1, 0.2, 0.3 fall inside → 4 subcells
     // Cell 1 [0.333, 0.667]: boundary 0.4 falls inside → 2 subcells
     // Cell 2 [0.667, 1.0]: no interior boundaries → 1 subcell
-    nuRef.distributeWidthsAcrossCells( RigNonUniformRefinement::DimI, 0, 2, { 0.1, 0.1, 0.1, 0.1, 0.6 } );
+    nuRef.distributeWidthsAcrossCells( RigRefinement::DimI, 0, 2, { 0.1, 0.1, 0.1, 0.1, 0.6 } );
 
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 4u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 1 ), 2u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 2 ), 1u );
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 7u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 0 ), 4u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 1 ), 2u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 2 ), 1u );
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 7u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,14 +247,14 @@ TEST( RigNonUniformRefinement, DistributeWidthsSingleCell )
     RigNonUniformRefinement nuRef( cvf::Vec3st( 5, 1, 1 ) );
 
     // Apply 3 widths to just cell 2
-    nuRef.distributeWidthsAcrossCells( RigNonUniformRefinement::DimI, 2, 2, { 0.2, 0.3, 0.5 } );
+    nuRef.distributeWidthsAcrossCells( RigRefinement::DimI, 2, 2, { 0.2, 0.3, 0.5 } );
 
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 1u ); // Unaffected
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 1 ), 1u ); // Unaffected
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 2 ), 3u ); // 3 subcells
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 3 ), 1u ); // Unaffected
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 4 ), 1u ); // Unaffected
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 7u ); // 1+1+3+1+1
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 0 ), 1u ); // Unaffected
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 1 ), 1u ); // Unaffected
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 2 ), 3u ); // 3 subcells
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 3 ), 1u ); // Unaffected
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 4 ), 1u ); // Unaffected
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 7u ); // 1+1+3+1+1
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,11 +268,11 @@ TEST( RigNonUniformRefinement, DistributeConcentratedWidths )
     // Cumulative fractions: [0.1, 0.2, 0.3, 1.0]
     // Cell 0 [0, 0.5]: boundaries 0.1, 0.2, 0.3 fall inside → 4 subcells
     // Cell 1 [0.5, 1.0]: no interior boundaries → 1 subcell
-    nuRef.distributeWidthsAcrossCells( RigNonUniformRefinement::DimI, 0, 1, { 0.1, 0.1, 0.1, 0.7 } );
+    nuRef.distributeWidthsAcrossCells( RigRefinement::DimI, 0, 1, { 0.1, 0.1, 0.1, 0.7 } );
 
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 4u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 1 ), 1u );
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 5u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 0 ), 4u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 1 ), 1u );
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 5u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -279,7 +280,7 @@ TEST( RigNonUniformRefinement, DistributeConcentratedWidths )
 //--------------------------------------------------------------------------------------------------
 TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsSymmetry )
 {
-    auto widths = RigNonUniformRefinement::generateLogarithmicWidths( 6 );
+    auto widths = RigRefinement::generateLogarithmicWidths( 6 );
     ASSERT_EQ( widths.size(), 6u );
 
     // Verify symmetry: widths[i] == widths[n-1-i]
@@ -298,7 +299,7 @@ TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsSymmetry )
 //--------------------------------------------------------------------------------------------------
 TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsOdd )
 {
-    auto widths = RigNonUniformRefinement::generateLogarithmicWidths( 7 );
+    auto widths = RigRefinement::generateLogarithmicWidths( 7 );
     ASSERT_EQ( widths.size(), 7u );
 
     // Verify symmetry: widths[i] == widths[n-1-i]
@@ -322,7 +323,7 @@ TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsOdd )
 //--------------------------------------------------------------------------------------------------
 TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsSingleCell )
 {
-    auto widths = RigNonUniformRefinement::generateLogarithmicWidths( 1 );
+    auto widths = RigRefinement::generateLogarithmicWidths( 1 );
     ASSERT_EQ( widths.size(), 1u );
     EXPECT_DOUBLE_EQ( widths[0], 1.0 );
 }
@@ -332,11 +333,11 @@ TEST( RigNonUniformRefinement, GenerateLogarithmicWidthsSingleCell )
 //--------------------------------------------------------------------------------------------------
 TEST( RigNonUniformRefinement, GenerateEqualFractions )
 {
-    auto fracs1 = RigNonUniformRefinement::generateEqualFractions( 1 );
+    auto fracs1 = RigRefinement::generateEqualFractions( 1 );
     ASSERT_EQ( fracs1.size(), 1u );
     EXPECT_DOUBLE_EQ( fracs1[0], 1.0 );
 
-    auto fracs4 = RigNonUniformRefinement::generateEqualFractions( 4 );
+    auto fracs4 = RigRefinement::generateEqualFractions( 4 );
     ASSERT_EQ( fracs4.size(), 4u );
     EXPECT_NEAR( fracs4[0], 0.25, 1e-10 );
     EXPECT_NEAR( fracs4[1], 0.50, 1e-10 );
@@ -344,7 +345,7 @@ TEST( RigNonUniformRefinement, GenerateEqualFractions )
     EXPECT_DOUBLE_EQ( fracs4[3], 1.0 );
 
     // Edge case: 0 returns {1.0}
-    auto fracs0 = RigNonUniformRefinement::generateEqualFractions( 0 );
+    auto fracs0 = RigRefinement::generateEqualFractions( 0 );
     ASSERT_EQ( fracs0.size(), 1u );
     EXPECT_DOUBLE_EQ( fracs0[0], 1.0 );
 }
@@ -357,24 +358,24 @@ TEST( RigNonUniformRefinement, LinearEqualSplitPattern )
     RigNonUniformRefinement nuRef( cvf::Vec3st( 5, 1, 1 ) );
 
     // Apply N=3 equal subcells to cells 1-3 using generateEqualFractions
-    auto equalFractions = RigNonUniformRefinement::generateEqualFractions( 3 );
+    auto equalFractions = RigRefinement::generateEqualFractions( 3 );
 
     for ( size_t c = 1; c <= 3; ++c )
     {
-        nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, c, equalFractions );
+        nuRef.setCumulativeFractions( RigRefinement::DimI, c, equalFractions );
     }
 
     // Cells outside range should be unaffected
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 0 ), 1u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 4 ), 1u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 0 ), 1u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 4 ), 1u );
 
     // Cells in range should each have exactly 3 subcells
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 1 ), 3u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 2 ), 3u );
-    EXPECT_EQ( nuRef.subcellCount( RigNonUniformRefinement::DimI, 3 ), 3u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 1 ), 3u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 2 ), 3u );
+    EXPECT_EQ( nuRef.subcellCount( RigRefinement::DimI, 3 ), 3u );
 
     // Total: 1 + 3 + 3 + 3 + 1 = 11
-    EXPECT_EQ( nuRef.totalRefinedCount( RigNonUniformRefinement::DimI ), 11u );
+    EXPECT_EQ( nuRef.totalRefinedCount( RigRefinement::DimI ), 11u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -384,15 +385,15 @@ TEST( RigNonUniformRefinement, LogarithmicDistribution )
 {
     RigNonUniformRefinement nuRef( cvf::Vec3st( 3, 1, 1 ) );
 
-    auto widths = RigNonUniformRefinement::generateLogarithmicWidths( 10 );
+    auto widths = RigRefinement::generateLogarithmicWidths( 10 );
     ASSERT_EQ( widths.size(), 10u );
 
-    nuRef.distributeWidthsAcrossCells( RigNonUniformRefinement::DimI, 0, 2, widths );
+    nuRef.distributeWidthsAcrossCells( RigRefinement::DimI, 0, 2, widths );
 
     // Total refined count should be >= number of widths (each width creates at least a boundary)
-    size_t totalRefined = nuRef.totalRefinedCount( RigNonUniformRefinement::DimI );
+    size_t totalRefined = nuRef.totalRefinedCount( RigRefinement::DimI );
     EXPECT_GE( totalRefined, 3u ); // At minimum 1 per cell
-    EXPECT_TRUE( nuRef.hasNonUniformRefinement() );
+    EXPECT_TRUE( nuRef.hasRefinement() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,12 +473,12 @@ TEST( RigGridExportAdapter, TransformIjkNonUniform )
     RigNonUniformRefinement nuRef( cvf::Vec3st( 3, 2, 1 ) );
 
     // I: cell 0 -> 2 subcells, cell 1 -> 3 subcells, cell 2 -> 1 subcell
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 0, RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0 } ) );
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimI, 1, RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0 } ) );
+    nuRef.setCumulativeFractions( RigRefinement::DimI, 0, RigRefinement::widthsToCumulativeFractions( { 1.0, 1.0 } ) );
+    nuRef.setCumulativeFractions( RigRefinement::DimI, 1, RigRefinement::widthsToCumulativeFractions( { 1.0, 1.0, 1.0 } ) );
     // Cell 2: default (1 subcell)
 
     // J: cell 0 -> 1 subcell, cell 1 -> 2 subcells
-    nuRef.setCumulativeFractions( RigNonUniformRefinement::DimJ, 1, RigNonUniformRefinement::widthsToCumulativeFractions( { 1.0, 1.0 } ) );
+    nuRef.setCumulativeFractions( RigRefinement::DimJ, 1, RigRefinement::widthsToCumulativeFractions( { 1.0, 1.0 } ) );
 
     caf::VecIjk0 sectorMin( 10, 20, 30 );
     caf::VecIjk0 sectorMax( 12, 21, 30 ); // 3 cells I, 2 cells J, 1 cell K

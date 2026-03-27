@@ -35,7 +35,7 @@
 #include "RigEclipseResultTools.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
-#include "RigNonUniformRefinement.h"
+#include "RigNoRefinement.h"
 #include "RigSimulationInputTool.h"
 #include "Well/RigSimWellData.h"
 
@@ -464,7 +464,7 @@ TEST( RigEclipseCaseDataToolsTest, GenerateBorderResultFromIjkBounds )
     ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
 
     // Generate border result using refined methods (no refinement: 1,1,1)
-    RigNonUniformRefinement refinement( cvf::Vec3st( maxIjk.i() - minIjk.i() + 1, maxIjk.j() - minIjk.j() + 1, maxIjk.k() - minIjk.k() + 1 ) );
+    RigNoRefinement      refinement( cvf::Vec3st( maxIjk.i() - minIjk.i() + 1, maxIjk.j() - minIjk.j() + 1, maxIjk.k() - minIjk.k() + 1 ) );
     RigGridExportAdapter gridAdapter( eclipseCase.p(), minIjk, maxIjk, refinement, visibility.p() );
 
     // Create refined visibility
@@ -553,7 +553,7 @@ TEST( RigEclipseCaseDataToolsTest, GenerateOperNumResultFromBorderResult )
     ASSERT_FALSE( visibility.isNull() ) << "Visibility should be created successfully";
 
     // Generate border result using refined methods (no refinement: 1,1,1)
-    RigNonUniformRefinement refinement( cvf::Vec3st( maxIjk.i() - minIjk.i() + 1, maxIjk.j() - minIjk.j() + 1, maxIjk.k() - minIjk.k() + 1 ) );
+    RigNoRefinement      refinement( cvf::Vec3st( maxIjk.i() - minIjk.i() + 1, maxIjk.j() - minIjk.j() + 1, maxIjk.k() - minIjk.k() + 1 ) );
     RigGridExportAdapter gridAdapter( eclipseCase.p(), minIjk, maxIjk, refinement, visibility.p() );
 
     // Create refined visibility

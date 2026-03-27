@@ -25,7 +25,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
-#include "RigNonUniformRefinement.h"
+#include "RigNoRefinement.h"
+#include "RigRefinement.h"
+#include "RigUniformRefinement.h"
 
 #include "RimEclipseResultCase.h"
 
@@ -37,20 +39,18 @@
 #include <memory>
 
 //--------------------------------------------------------------------------------------------------
-/// Helper: convert uniform refinement (Vec3st) to RigNonUniformRefinement given bounds.
+/// Helper: convert uniform refinement (Vec3st) to RigUniformRefinement given bounds.
 /// For UNDEFINED max, pass the mainGrid pointer to resolve actual dimensions.
 //--------------------------------------------------------------------------------------------------
-static RigNonUniformRefinement makeUniformRef( const cvf::Vec3st&  min,
-                                               const cvf::Vec3st&  max,
-                                               const cvf::Vec3st&  refCounts,
-                                               const RigMainGrid*  mainGrid = nullptr )
+static RigUniformRefinement
+    makeUniformRef( const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refCounts, const RigMainGrid* mainGrid = nullptr )
 {
     cvf::Vec3st resolvedMax = max;
     if ( max.isUndefined() && mainGrid )
         resolvedMax = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
 
     cvf::Vec3st sectorSize( resolvedMax.x() - min.x() + 1, resolvedMax.y() - min.y() + 1, resolvedMax.z() - min.z() + 1 );
-    return RigNonUniformRefinement::fromUniform( refCounts, sectorSize );
+    return RigUniformRefinement( refCounts, sectorSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -687,9 +687,8 @@ TEST( RigGridExportAdapter, TransformIjkToSectorCoordinates_NoRefinement )
 {
     caf::VecIjk0 min( 3, 3, 1 );
     caf::VecIjk0 max( 10, 10, 5 );
-    auto refinement = RigNonUniformRefinement::fromUniform(
-        cvf::Vec3st( 1, 1, 1 ),
-        cvf::Vec3st( max.i() - min.i() + 1, max.j() - min.j() + 1, max.k() - min.k() + 1 ) );
+    auto         refinement =
+        RigUniformRefinement( cvf::Vec3st( 1, 1, 1 ), cvf::Vec3st( max.i() - min.i() + 1, max.j() - min.j() + 1, max.k() - min.k() + 1 ) );
 
     // Point at sector min should transform to (0,0,0)
     auto result1 = RigGridExportAdapter::transformIjkToSectorCoordinates( min, min, max, refinement );
@@ -721,9 +720,8 @@ TEST( RigGridExportAdapter, TransformIjkToSectorCoordinates_OutOfBounds )
 {
     caf::VecIjk0 min( 3, 3, 1 );
     caf::VecIjk0 max( 10, 10, 5 );
-    auto refinement = RigNonUniformRefinement::fromUniform(
-        cvf::Vec3st( 1, 1, 1 ),
-        cvf::Vec3st( max.i() - min.i() + 1, max.j() - min.j() + 1, max.k() - min.k() + 1 ) );
+    auto         refinement =
+        RigUniformRefinement( cvf::Vec3st( 1, 1, 1 ), cvf::Vec3st( max.i() - min.i() + 1, max.j() - min.j() + 1, max.k() - min.k() + 1 ) );
 
     // Point before sector min (X too small)
     caf::VecIjk0 point1( 2, 5, 3 );
@@ -755,11 +753,10 @@ TEST( RigGridExportAdapter, BoxTransformation_NoRefinement )
 {
     caf::VecIjk0 sectorMin( 3, 3, 1 );
     caf::VecIjk0 sectorMax( 10, 10, 5 );
-    auto refinement = RigNonUniformRefinement::fromUniform(
-        cvf::Vec3st( 1, 1, 1 ),
-        cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
-                     sectorMax.j() - sectorMin.j() + 1,
-                     sectorMax.k() - sectorMin.k() + 1 ) );
+    auto         refinement = RigUniformRefinement( cvf::Vec3st( 1, 1, 1 ),
+                                            cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
+                                                         sectorMax.j() - sectorMin.j() + 1,
+                                                         sectorMax.k() - sectorMin.k() + 1 ) );
 
     // Test box from (5,5,2) to (7,7,3) in global coordinates
     // Expected in sector coordinates: (3,3,2) to (5,5,3)
@@ -798,11 +795,10 @@ TEST( RigGridExportAdapter, SingleCellBox_NoRefinement )
 {
     caf::VecIjk0 sectorMin( 3, 3, 1 );
     caf::VecIjk0 sectorMax( 10, 10, 5 );
-    auto refinement = RigNonUniformRefinement::fromUniform(
-        cvf::Vec3st( 1, 1, 1 ),
-        cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
-                     sectorMax.j() - sectorMin.j() + 1,
-                     sectorMax.k() - sectorMin.k() + 1 ) );
+    auto         refinement = RigUniformRefinement( cvf::Vec3st( 1, 1, 1 ),
+                                            cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
+                                                         sectorMax.j() - sectorMin.j() + 1,
+                                                         sectorMax.k() - sectorMin.k() + 1 ) );
 
     // Single cell box at global position (5,5,2)
     caf::VecIjk0 singleCell( 5, 5, 2 );
@@ -826,11 +822,10 @@ TEST( RigGridExportAdapter, BoxAtSectorBoundaries_NoRefinement )
 {
     caf::VecIjk0 sectorMin( 3, 3, 1 );
     caf::VecIjk0 sectorMax( 10, 10, 5 );
-    auto refinement = RigNonUniformRefinement::fromUniform(
-        cvf::Vec3st( 1, 1, 1 ),
-        cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
-                     sectorMax.j() - sectorMin.j() + 1,
-                     sectorMax.k() - sectorMin.k() + 1 ) );
+    auto         refinement = RigUniformRefinement( cvf::Vec3st( 1, 1, 1 ),
+                                            cvf::Vec3st( sectorMax.i() - sectorMin.i() + 1,
+                                                         sectorMax.j() - sectorMin.j() + 1,
+                                                         sectorMax.k() - sectorMin.k() + 1 ) );
 
     // Box spanning entire sector
     auto minResult = RigGridExportAdapter::transformIjkToSectorCoordinates( sectorMin, sectorMin, sectorMax, refinement );
