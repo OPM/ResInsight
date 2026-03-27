@@ -20,7 +20,7 @@
 
 #include "RiaModelExportDefines.h"
 #include "RigModelPaddingSettings.h"
-#include "RigNonUniformRefinement.h"
+#include "RigRefinement.h"
 
 #include "cafAppEnum.h"
 #include "cafVecIjk.h"
@@ -29,6 +29,7 @@
 #include <QString>
 
 #include <expected>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -58,18 +59,9 @@ public:
     std::expected<void, QString> validateBox() const;
 
     // Unified refinement interface
-    RigNonUniformRefinement effectiveRefinement() const;
-    void                    setEffectiveRefinement( const RigNonUniformRefinement& refinement );
-    bool                    hasRefinement() const;
-
-    // Grid refinement (legacy)
-    cvf::Vec3st refinement() const;
-    void        setRefinement( const cvf::Vec3st& refinement );
-
-    // Non-uniform refinement (legacy)
-    const RigNonUniformRefinement& nonUniformRefinement() const;
-    void                           setNonUniformRefinement( const RigNonUniformRefinement& refinement );
-    bool                           hasNonUniformRefinement() const;
+    const RigRefinement& refinement() const;
+    void                 setRefinement( std::unique_ptr<RigRefinement> refinement );
+    bool                 hasRefinement() const;
 
     // Keyword handling
     const std::vector<std::string>& keywordsToRemove() const;
@@ -97,15 +89,14 @@ public:
     void                           setPaddingSettings( const RigModelPaddingSettings& settings );
 
 private:
-    caf::VecIjk0                 m_min;
-    caf::VecIjk0                 m_max;
-    cvf::Vec3st                  m_refinement;
-    RigNonUniformRefinement      m_nonUniformRefinement;
-    std::vector<std::string>     m_keywordsToRemove;
-    std::vector<Opm::DeckRecord> m_bcpropKeywords;
-    BoundaryConditionEnum        m_boundaryCondition;
-    double                       m_porvMultiplier;
-    QString                      m_inputDeckFileName;
-    QString                      m_outputDeckFileName;
-    RigModelPaddingSettings      m_paddingSettings;
+    caf::VecIjk0                   m_min;
+    caf::VecIjk0                   m_max;
+    std::unique_ptr<RigRefinement> m_refinement;
+    std::vector<std::string>       m_keywordsToRemove;
+    std::vector<Opm::DeckRecord>   m_bcpropKeywords;
+    BoundaryConditionEnum          m_boundaryCondition;
+    double                         m_porvMultiplier;
+    QString                        m_inputDeckFileName;
+    QString                        m_outputDeckFileName;
+    RigModelPaddingSettings        m_paddingSettings;
 };

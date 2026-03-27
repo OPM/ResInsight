@@ -26,12 +26,13 @@
 #include "cafVecIjk.h"
 
 #include "RiaModelExportDefines.h"
-#include "RigNonUniformRefinement.h"
+#include "RigRefinement.h"
 
 #include <QString>
 #include <QStringList>
 
 #include <map>
+#include <memory>
 
 class RigModelPaddingSettings;
 class RimKeywordBcprop;
@@ -66,10 +67,9 @@ public:
 
     RicRefinementSettings* refinementSettings() const;
 
-    RigNonUniformRefinement effectiveRefinement() const;
-    cvf::Vec3st             refinement() const;
-    RigNonUniformRefinement nonUniformRefinement() const;
-    bool                    hasNonUniformRefinement() const;
+    std::unique_ptr<RigRefinement> effectiveRefinement() const;
+    cvf::Vec3st                    refinement() const;
+    bool                           hasNonUniformRefinement() const;
 
     std::vector<QString> keywordsToRemove() const;
 

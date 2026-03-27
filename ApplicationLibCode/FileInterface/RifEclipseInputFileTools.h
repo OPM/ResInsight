@@ -25,7 +25,7 @@
 
 #include "RiaDefines.h"
 #include "RigFault.h"
-#include "RigNonUniformRefinement.h"
+#include "RigRefinement.h"
 
 #include "ert/ecl/ecl_kw.h"
 
@@ -83,11 +83,11 @@ public:
                                                                                const cvf::Vec3st&  max        = cvf::Vec3st::UNDEFINED,
                                                                                const cvf::Vec3st&  refinement = cvf::Vec3st( 1, 1, 1 ) );
 
-    static std::expected<std::vector<double>, std::string> extractKeywordData( RigEclipseCaseData*            eclipseCase,
-                                                                               const QString&                 keyword,
-                                                                               const cvf::Vec3st&             min,
-                                                                               const cvf::Vec3st&             max,
-                                                                               const RigNonUniformRefinement& nonUniformRefinement );
+    static std::expected<std::vector<double>, std::string> extractKeywordData( RigEclipseCaseData*  eclipseCase,
+                                                                               const QString&       keyword,
+                                                                               const cvf::Vec3st&   min,
+                                                                               const cvf::Vec3st&   max,
+                                                                               const RigRefinement& refinement );
 
     static void saveFault( QString                                 completeFilename,
                            const RigMainGrid*                      mainGrid,
@@ -121,7 +121,7 @@ public:
                                                              const std::vector<RigFault::FaultFace>& faultFaces,
                                                              const cvf::Vec3st&                      min,
                                                              const cvf::Vec3st&                      max,
-                                                             const RigNonUniformRefinement&           refinement );
+                                                             const RigRefinement&                    refinement );
 
     static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
 

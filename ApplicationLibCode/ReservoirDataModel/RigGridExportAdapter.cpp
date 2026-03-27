@@ -26,7 +26,6 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigNonUniformRefinement.h"
 
 #include "cafVecIjk.h"
 #include "cvfAssert.h"
@@ -66,17 +65,17 @@ static std::array<cvf::Vec3d, 8> generateRefinedCellCornersNonUniform( const std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGridExportAdapter::RigGridExportAdapter( RigEclipseCaseData*            eclipseCase,
-                                            const cvf::Vec3st&             min,
-                                            const cvf::Vec3st&             max,
-                                            const RigNonUniformRefinement& refinement,
-                                            const cvf::UByteArray*         cellVisibilityOverrideForActnum )
+RigGridExportAdapter::RigGridExportAdapter( RigEclipseCaseData*    eclipseCase,
+                                            const cvf::Vec3st&     min,
+                                            const cvf::Vec3st&     max,
+                                            const RigRefinement&   refinement,
+                                            const cvf::UByteArray* cellVisibilityOverrideForActnum )
     : m_mainGrid( nullptr )
     , m_activeCellInfo( nullptr )
     , m_cellVisibilityOverride( cellVisibilityOverrideForActnum )
     , m_min( min )
     , m_max( max )
-    , m_nonUniformRefinement( refinement )
+    , m_refinement( refinement.clone() )
     , m_refinedNI( 0 )
     , m_refinedNJ( 0 )
     , m_refinedNK( 0 )
@@ -93,9 +92,9 @@ RigGridExportAdapter::RigGridExportAdapter( RigEclipseCaseData*            eclip
         max.isUndefined() ? cvf::Vec3st( m_mainGrid->cellCountI() - 1, m_mainGrid->cellCountJ() - 1, m_mainGrid->cellCountK() - 1 ) : max;
     m_max = maxActual;
 
-    m_refinedNI = m_nonUniformRefinement.totalRefinedCount( RigNonUniformRefinement::DimI );
-    m_refinedNJ = m_nonUniformRefinement.totalRefinedCount( RigNonUniformRefinement::DimJ );
-    m_refinedNK = m_nonUniformRefinement.totalRefinedCount( RigNonUniformRefinement::DimK );
+    m_refinedNI = m_refinement->totalRefinedCount( RigRefinement::DimI );
+    m_refinedNJ = m_refinement->totalRefinedCount( RigRefinement::DimJ );
+    m_refinedNK = m_refinement->totalRefinedCount( RigRefinement::DimK );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,9 +315,9 @@ std::array<cvf::Vec3d, 8> RigGridExportAdapter::computeRefinedCorners( const std
     size_t sectorK = origK - m_min.z();
 
     return generateRefinedCellCornersNonUniform( originalCorners,
-                                                 m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimI, sectorI ),
-                                                 m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimJ, sectorJ ),
-                                                 m_nonUniformRefinement.cumulativeFractions( RigNonUniformRefinement::DimK, sectorK ),
+                                                 m_refinement->cumulativeFractions( RigRefinement::DimI, sectorI ),
+                                                 m_refinement->cumulativeFractions( RigRefinement::DimJ, sectorJ ),
+                                                 m_refinement->cumulativeFractions( RigRefinement::DimK, sectorK ),
                                                  subI,
                                                  subJ,
                                                  subK );
@@ -361,9 +360,9 @@ RigGridExportAdapter::CellMapping RigGridExportAdapter::mapRefinedToOriginal( si
 {
     CellMapping mapping;
 
-    auto [origI, subI] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimI, refinedI );
-    auto [origJ, subJ] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimJ, refinedJ );
-    auto [origK, subK] = m_nonUniformRefinement.mapRefinedToOriginal( RigNonUniformRefinement::DimK, refinedK );
+    auto [origI, subI] = m_refinement->mapRefinedToOriginal( RigRefinement::DimI, refinedI );
+    auto [origJ, subJ] = m_refinement->mapRefinedToOriginal( RigRefinement::DimJ, refinedJ );
+    auto [origK, subK] = m_refinement->mapRefinedToOriginal( RigRefinement::DimK, refinedK );
 
     mapping.originalI = m_min.x() + origI;
     mapping.originalJ = m_min.y() + origJ;
@@ -396,7 +395,7 @@ cvf::Vec3st RigGridExportAdapter::originalMax() const
 //--------------------------------------------------------------------------------------------------
 bool RigGridExportAdapter::hasRefinement() const
 {
-    return m_nonUniformRefinement.hasNonUniformRefinement();
+    return m_refinement->hasRefinement();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -434,20 +433,20 @@ size_t RigGridExportAdapter::totalCells() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigNonUniformRefinement& RigGridExportAdapter::nonUniformRefinement() const
+const RigRefinement& RigGridExportAdapter::refinement() const
 {
-    return m_nonUniformRefinement;
+    return *m_refinement;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Transform IJK coordinates from global grid space to sector-relative space with refinement
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::VecIjk0, QString> RigGridExportAdapter::transformIjkToSectorCoordinates( const caf::VecIjk0& ijk,
-                                                                                            const caf::VecIjk0& min,
-                                                                                            const caf::VecIjk0& max,
-                                                                                            const RigNonUniformRefinement& nonUniformRefinement,
-                                                                                            bool applyRefinementCentering,
-                                                                                            bool isBoxMaxCoordinate )
+std::expected<caf::VecIjk0, QString> RigGridExportAdapter::transformIjkToSectorCoordinates( const caf::VecIjk0&  ijk,
+                                                                                            const caf::VecIjk0&  min,
+                                                                                            const caf::VecIjk0&  max,
+                                                                                            const RigRefinement& refinement,
+                                                                                            bool                 applyRefinementCentering,
+                                                                                            bool                 isBoxMaxCoordinate )
 {
     RigBoundingBoxIjk<caf::VecIjk0> sectorBox( min, max );
     if ( !sectorBox.contains( ijk ) )
@@ -464,23 +463,23 @@ std::expected<caf::VecIjk0, QString> RigGridExportAdapter::transformIjkToSectorC
 
     if ( applyRefinementCentering )
     {
-        return caf::VecIjk0( nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimI, sectorI ) +
-                                 nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimI, sectorI ) / 2,
-                             nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimJ, sectorJ ) +
-                                 nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimJ, sectorJ ) / 2,
-                             nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimK, sectorK ) +
-                                 nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimK, sectorK ) / 2 );
+        return caf::VecIjk0( refinement.cumulativeOffset( RigRefinement::DimI, sectorI ) +
+                                 refinement.subcellCount( RigRefinement::DimI, sectorI ) / 2,
+                             refinement.cumulativeOffset( RigRefinement::DimJ, sectorJ ) +
+                                 refinement.subcellCount( RigRefinement::DimJ, sectorJ ) / 2,
+                             refinement.cumulativeOffset( RigRefinement::DimK, sectorK ) +
+                                 refinement.subcellCount( RigRefinement::DimK, sectorK ) / 2 );
     }
     else if ( isBoxMaxCoordinate )
     {
-        return caf::VecIjk0( nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimI, sectorI + 1 ) - 1,
-                             nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimJ, sectorJ + 1 ) - 1,
-                             nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimK, sectorK + 1 ) - 1 );
+        return caf::VecIjk0( refinement.cumulativeOffset( RigRefinement::DimI, sectorI + 1 ) - 1,
+                             refinement.cumulativeOffset( RigRefinement::DimJ, sectorJ + 1 ) - 1,
+                             refinement.cumulativeOffset( RigRefinement::DimK, sectorK + 1 ) - 1 );
     }
     else
     {
-        return caf::VecIjk0( nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimI, sectorI ),
-                             nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimJ, sectorJ ),
-                             nonUniformRefinement.cumulativeOffset( RigNonUniformRefinement::DimK, sectorK ) );
+        return caf::VecIjk0( refinement.cumulativeOffset( RigRefinement::DimI, sectorI ),
+                             refinement.cumulativeOffset( RigRefinement::DimJ, sectorJ ),
+                             refinement.cumulativeOffset( RigRefinement::DimK, sectorK ) );
     }
 }

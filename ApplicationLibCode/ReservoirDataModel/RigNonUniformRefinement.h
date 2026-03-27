@@ -18,10 +18,10 @@
 
 #pragma once
 
+#include "RigRefinement.h"
+
 #include "cvfVector3.h"
 
-#include <cstddef>
-#include <utility>
 #include <vector>
 
 //==================================================================================================
@@ -39,52 +39,31 @@
 // and O(log n) reverse lookup via binary search.
 //
 //==================================================================================================
-class RigNonUniformRefinement
+class RigNonUniformRefinement : public RigRefinement
 {
 public:
-    enum Dimension : size_t
-    {
-        DimI = 0,
-        DimJ = 1,
-        DimK = 2
-    };
-
-    RigNonUniformRefinement();
     explicit RigNonUniformRefinement( const cvf::Vec3st& sectorSize );
+
+    std::unique_ptr<RigRefinement> clone() const override;
 
     // Set cumulative fractions for a specific cell index in a dimension.
     // The fractions must be strictly increasing and end at 1.0.
     void setCumulativeFractions( Dimension dim, size_t origIndex, const std::vector<double>& cumulativeFractions );
 
-    // Set fractional widths for a specific cell index in a dimension.
-    // Widths are normalized so they sum to 1.0, then converted to cumulative fractions.
-    static std::vector<double> widthsToCumulativeFractions( const std::vector<double>& widths );
-
-    // Query methods
-    size_t                     subcellCount( Dimension dim, size_t origIndex ) const;
-    size_t                     cumulativeOffset( Dimension dim, size_t origIndex ) const;
-    size_t                     totalRefinedCount( Dimension dim ) const;
-    std::pair<size_t, size_t>  mapRefinedToOriginal( Dimension dim, size_t refinedIndex ) const;
-    const std::vector<double>& cumulativeFractions( Dimension dim, size_t origIndex ) const;
-    size_t                     sectorSize( Dimension dim ) const;
-
-    bool hasNonUniformRefinement() const;
+    // Query methods (overrides from RigRefinement)
+    size_t                     subcellCount( Dimension dim, size_t origIndex ) const override;
+    size_t                     cumulativeOffset( Dimension dim, size_t origIndex ) const override;
+    size_t                     totalRefinedCount( Dimension dim ) const override;
+    std::pair<size_t, size_t>  mapRefinedToOriginal( Dimension dim, size_t refinedIndex ) const override;
+    const std::vector<double>& cumulativeFractions( Dimension dim, size_t origIndex ) const override;
+    size_t                     sectorSize( Dimension dim ) const override;
+    bool                       hasRefinement() const override;
 
     // Distribute fractional widths across a range of cells in a given dimension.
     // The widths span the combined range [startIndex, endIndex] — subdivision boundaries
     // are placed in the global fraction space and then assigned to individual cells.
     // Each cell in the range occupies an equal share (1/numCells) of the global range.
     void distributeWidthsAcrossCells( Dimension dim, size_t startIndex, size_t endIndex, const std::vector<double>& widths );
-
-    // Generate N equal cumulative fractions, suitable for splitting a single cell into N equal subcells.
-    static std::vector<double> generateEqualFractions( size_t subcellCount );
-
-    // Generate logarithmic widths with finer resolution near the center of the range.
-    // Uses a geometric series (ratio ~2.0), mirrors for symmetry. Not normalized.
-    static std::vector<double> generateLogarithmicWidths( size_t totalCells );
-
-    // Create a non-uniform refinement that is equivalent to uniform refinement
-    static RigNonUniformRefinement fromUniform( const cvf::Vec3st& refinement, const cvf::Vec3st& sectorSize );
 
 private:
     void rebuildOffsets( Dimension dim );

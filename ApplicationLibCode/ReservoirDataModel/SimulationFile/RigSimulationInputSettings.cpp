@@ -18,6 +18,8 @@
 
 #include "RigSimulationInputSettings.h"
 
+#include "RigNoRefinement.h"
+
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 
 //--------------------------------------------------------------------------------------------------
@@ -26,7 +28,7 @@
 RigSimulationInputSettings::RigSimulationInputSettings()
     : m_min( caf::VecIjk0::ZERO )
     , m_max( caf::VecIjk0::ZERO )
-    , m_refinement( 1, 1, 1 )
+    , m_refinement( std::make_unique<RigNoRefinement>( cvf::Vec3st( 0, 0, 0 ) ) )
     , m_boundaryCondition( RiaModelExportDefines::BoundaryCondition::OPERNUM_OPERATER )
     , m_porvMultiplier( 1.0e6 )
 {
@@ -80,26 +82,17 @@ std::expected<void, QString> RigSimulationInputSettings::validateBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigNonUniformRefinement RigSimulationInputSettings::effectiveRefinement() const
+const RigRefinement& RigSimulationInputSettings::refinement() const
 {
-    if ( hasNonUniformRefinement() ) return m_nonUniformRefinement;
-
-    auto sectorSize =
-        cvf::Vec3st( m_max.x() - m_min.x() + 1, m_max.y() - m_min.y() + 1, m_max.z() - m_min.z() + 1 );
-
-    if ( m_refinement.x() > 1 || m_refinement.y() > 1 || m_refinement.z() > 1 )
-        return RigNonUniformRefinement::fromUniform( m_refinement, sectorSize );
-
-    return RigNonUniformRefinement( sectorSize );
+    return *m_refinement;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setEffectiveRefinement( const RigNonUniformRefinement& refinement )
+void RigSimulationInputSettings::setRefinement( std::unique_ptr<RigRefinement> refinement )
 {
-    m_nonUniformRefinement = refinement;
-    m_refinement           = cvf::Vec3st( 1, 1, 1 );
+    m_refinement = std::move( refinement );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,47 +100,7 @@ void RigSimulationInputSettings::setEffectiveRefinement( const RigNonUniformRefi
 //--------------------------------------------------------------------------------------------------
 bool RigSimulationInputSettings::hasRefinement() const
 {
-    return ( m_refinement.x() > 1 || m_refinement.y() > 1 || m_refinement.z() > 1 ) || hasNonUniformRefinement();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3st RigSimulationInputSettings::refinement() const
-{
-    return m_refinement;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setRefinement( const cvf::Vec3st& refinement )
-{
-    m_refinement = refinement;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RigNonUniformRefinement& RigSimulationInputSettings::nonUniformRefinement() const
-{
-    return m_nonUniformRefinement;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigSimulationInputSettings::setNonUniformRefinement( const RigNonUniformRefinement& refinement )
-{
-    m_nonUniformRefinement = refinement;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigSimulationInputSettings::hasNonUniformRefinement() const
-{
-    return m_nonUniformRefinement.hasNonUniformRefinement();
+    return m_refinement && m_refinement->hasRefinement();
 }
 
 //--------------------------------------------------------------------------------------------------

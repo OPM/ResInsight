@@ -561,10 +561,7 @@ Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid, const cvf::Vec3st& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckKeyword faultsKeyword( const RigMainGrid*             mainGrid,
-                                const cvf::Vec3st&             min,
-                                const cvf::Vec3st&             max,
-                                const RigNonUniformRefinement& refinement )
+Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid, const cvf::Vec3st& min, const cvf::Vec3st& max, const RigRefinement& refinement )
 {
     if ( mainGrid == nullptr )
     {

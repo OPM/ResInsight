@@ -28,8 +28,9 @@
 #include "RigEclipseCaseDataTools.h"
 #include "RigMainGrid.h"
 #include "RigModelPaddingSettings.h"
-#include "RigNonUniformRefinement.h"
+#include "RigNoRefinement.h"
 #include "RigSimulationInputSettings.h"
+#include "RigUniformRefinement.h"
 #include "RimEclipseResultCase.h"
 
 #include "opm/input/eclipse/Deck/Deck.hpp"
@@ -43,10 +44,30 @@
 #include <QTemporaryDir>
 #include <vector>
 
-static RigNonUniformRefinement makeRef( const caf::VecIjk0& sectorMin, const caf::VecIjk0& sectorMax, const cvf::Vec3st& refCounts )
+static RigUniformRefinement makeRef( const caf::VecIjk0& sectorMin, const caf::VecIjk0& sectorMax, const cvf::Vec3st& refCounts )
 {
     cvf::Vec3st sectorSize( sectorMax.i() - sectorMin.i() + 1, sectorMax.j() - sectorMin.j() + 1, sectorMax.k() - sectorMin.k() + 1 );
-    return RigNonUniformRefinement::fromUniform( refCounts, sectorSize );
+    return RigUniformRefinement( refCounts, sectorSize );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Helper: set refinement on settings, computing sector size from min/max.
+/// If refCounts is (1,1,1), creates RigNoRefinement; otherwise RigUniformRefinement.
+//--------------------------------------------------------------------------------------------------
+static void setSettingsRefinement( RigSimulationInputSettings& settings, const cvf::Vec3st& refCounts )
+{
+    cvf::Vec3st sectorSize( settings.max().i() - settings.min().i() + 1,
+                            settings.max().j() - settings.min().j() + 1,
+                            settings.max().k() - settings.min().k() + 1 );
+
+    if ( refCounts.x() == 1 && refCounts.y() == 1 && refCounts.z() == 1 )
+    {
+        settings.setRefinement( std::make_unique<RigNoRefinement>( sectorSize ) );
+    }
+    else
+    {
+        settings.setRefinement( std::make_unique<RigUniformRefinement>( refCounts, sectorSize ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -414,7 +435,7 @@ TEST( RigSimulationInputTool, ExportModel5 )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive)
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) ); // No refinement
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
@@ -506,7 +527,7 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
     settings.setMax( caf::VecIjk0( 14, 14, 7 ) ); // Sector (0-based inclusive) - 10x10x6
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) ); // No refinement
     settings.setBoundaryCondition( RiaModelExportDefines::BCCON_BCPROP );
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
@@ -606,7 +627,7 @@ TEST( RigSimulationInputTool, ExportModel5_DataKeywordCropping )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
     settings.setMax( caf::VecIjk0( 14, 14, 7 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
@@ -715,7 +736,7 @@ TEST( RigSimulationInputTool, ExportModel5_DataKeywordCropping_4EqlnumRegions )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
     settings.setMax( caf::VecIjk0( 14, 14, 7 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
@@ -1061,7 +1082,7 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive)
-    settings.setRefinement( cvf::Vec3st( 1, 3, 5 ) ); // Refinement: I=1 (no refinement), J=3, K=5
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 3, 5 ) ); // Refinement: I=1 (no refinement), J=3, K=5
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
@@ -1248,7 +1269,7 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement_3_5_1 )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive)
-    settings.setRefinement( cvf::Vec3st( 3, 5, 1 ) ); // Refinement: I=3, J=5, K=1 (no refinement in K)
+    setSettingsRefinement( settings, cvf::Vec3st( 3, 5, 1 ) ); // Refinement: I=3, J=5, K=1 (no refinement in K)
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
@@ -1477,7 +1498,7 @@ TEST( RigSimulationInputTool, TransformNNCToSectorCoordinates_NoRefinement )
 
     // Sector starts at (5,10,2), grid is 20x30x10
     caf::VecIjk0 sectorMin( 5, 10, 2 );
-    auto         refinement = RigNonUniformRefinement::fromUniform( cvf::Vec3st( 1, 1, 1 ), cvf::Vec3st( 20, 30, 10 ) );
+    auto         refinement = RigUniformRefinement( cvf::Vec3st( 1, 1, 1 ), cvf::Vec3st( 20, 30, 10 ) );
 
     auto result = RigSimulationInputTool::transformNNCToSectorCoordinates( connection, *mainGrid, sectorMin, refinement );
 
@@ -1513,7 +1534,7 @@ TEST( RigSimulationInputTool, RefineEDITNNCConnection_CorrespondingSubcells )
     RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 2.5 }; // TRAN_MULT = 2.5
 
     caf::VecIjk0 sectorMin( 0, 0, 0 );
-    auto         refinement = RigNonUniformRefinement::fromUniform( cvf::Vec3st( 2, 2, 1 ), cvf::Vec3st( 20, 30, 10 ) ); // Refine by 2x2x1, grid is 20x30x10
+    auto refinement = RigUniformRefinement( cvf::Vec3st( 2, 2, 1 ), cvf::Vec3st( 20, 30, 10 ) ); // Refine by 2x2x1, grid is 20x30x10
 
     auto refined = RigSimulationInputTool::refineEditNncConnection( connection, *mainGrid, sectorMin, refinement );
 
@@ -1590,7 +1611,7 @@ TEST( RigSimulationInputTool, ExportModel5WithPadding )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive) -> 20x15x10
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) ); // No refinement
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
@@ -1870,7 +1891,7 @@ TEST( RigSimulationInputTool, ExpandBoxContext_EqualsInheritsBoxIndices )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -1920,7 +1941,7 @@ TEST( RigSimulationInputTool, ExpandBoxContext_ExplicitIndicesPreserved )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -1967,7 +1988,7 @@ TEST( RigSimulationInputTool, ExpandBoxContext_OutsideBoxNotModified )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -2023,7 +2044,7 @@ TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 2, 2, 1 ) );
     settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -2084,7 +2105,7 @@ TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext_NoIntersection )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 2, 2, 0 ) );
     settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -2141,7 +2162,7 @@ TEST( RigSimulationInputTool, ExportModel5_DataKeywordInsideBox )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
     settings.setMax( caf::VecIjk0( 14, 14, 9 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
@@ -2383,7 +2404,7 @@ TEST( RigSimulationInputTool, MultiplyInsideBoxContext_NoIntersection )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 2, 2, 0 ) );
     settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -2428,7 +2449,7 @@ TEST( RigSimulationInputTool, MultiplyInsideBoxContext_WithIntersection )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 2, 2, 1 ) );
     settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -2484,7 +2505,7 @@ TEST( RigSimulationInputTool, AddInsideBoxContext_WithIntersection )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 2, 2, 1 ) );
     settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -2541,7 +2562,7 @@ TEST( RigSimulationInputTool, AddInsideBoxContext_NoIntersection )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 2, 2, 0 ) );
     settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
     RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
 
@@ -2597,7 +2618,7 @@ TEST( RigSimulationInputTool, ExportModel5_FipKeywordCropping )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
     settings.setMax( caf::VecIjk0( 14, 14, 7 ) );
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) );
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 
@@ -2712,7 +2733,7 @@ TEST( RigSimulationInputTool, ExportModel5WithPadding_FipKeyword )
     RigSimulationInputSettings settings;
     settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
     settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive) -> 20x15x10
-    settings.setRefinement( cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) ); // No refinement
     settings.setInputDeckFileName( dataFilePath );
     settings.setOutputDeckFileName( exportFilePath );
 

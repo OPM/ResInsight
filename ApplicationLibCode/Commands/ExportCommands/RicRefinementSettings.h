@@ -22,11 +22,14 @@
 #include "cafPdmObject.h"
 #include "cafVecIjk.h"
 
-#include "RigNonUniformRefinement.h"
+#include "RigRefinement.h"
 
 #include <QString>
 
 #include <map>
+#include <memory>
+
+class RigNonUniformRefinement;
 
 //==================================================================================================
 ///
@@ -59,11 +62,11 @@ public:
     void setSectorBounds( const caf::VecIjk0& min, const caf::VecIjk0& max );
 
     // Data access
-    RigNonUniformRefinement     effectiveRefinement() const;
-    cvf::Vec3st                 refinement() const;
-    RefinementMode              refinementMode() const;
-    RigNonUniformRefinement     nonUniformRefinement() const;
-    bool                        hasNonUniformRefinement() const;
+    std::unique_ptr<RigRefinement>           effectiveRefinement() const;
+    cvf::Vec3st                              refinement() const;
+    RefinementMode                           refinementMode() const;
+    std::unique_ptr<RigNonUniformRefinement> nonUniformRefinement() const;
+    bool                                     hasNonUniformRefinement() const;
 
     // UI integration
     void                       addToUiOrdering( caf::PdmUiOrdering& uiOrdering );

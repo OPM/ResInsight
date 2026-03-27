@@ -42,6 +42,7 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+#include "RigUniformRefinement.h"
 
 #include "cafProgressInfo.h"
 
@@ -338,11 +339,11 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extractKeywordData( RigEclipseCaseData* eclipseCase,
-                                                                                              const QString&      keyword,
-                                                                                              const cvf::Vec3st&  min,
-                                                                                              const cvf::Vec3st&  maxIn,
-                                                                                              const RigNonUniformRefinement& nonUniformRefinement )
+std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extractKeywordData( RigEclipseCaseData*  eclipseCase,
+                                                                                              const QString&       keyword,
+                                                                                              const cvf::Vec3st&   min,
+                                                                                              const cvf::Vec3st&   maxIn,
+                                                                                              const RigRefinement& refinement )
 {
     RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
@@ -390,13 +391,13 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
     for ( size_t origK = 0; origK < sectorNk; ++origK )
     {
         size_t mainK     = min.z() + origK;
-        size_t subCountK = nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimK, origK );
+        size_t subCountK = refinement.subcellCount( RigRefinement::DimK, origK );
         for ( size_t rk = 0; rk < subCountK; ++rk )
         {
             for ( size_t origJ = 0; origJ < sectorNj; ++origJ )
             {
                 size_t mainJ     = min.y() + origJ;
-                size_t subCountJ = nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimJ, origJ );
+                size_t subCountJ = refinement.subcellCount( RigRefinement::DimJ, origJ );
                 for ( size_t rj = 0; rj < subCountJ; ++rj )
                 {
                     for ( size_t origI = 0; origI < sectorNi; ++origI )
@@ -404,7 +405,7 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
                         size_t mainI              = min.x() + origI;
                         size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
                         size_t resIndex           = activeCells->cellResultIndex( reservoirCellIndex );
-                        size_t subCountI          = nonUniformRefinement.subcellCount( RigNonUniformRefinement::DimI, origI );
+                        size_t subCountI          = refinement.subcellCount( RigRefinement::DimI, origI );
 
                         double value = ( resIndex != cvf::UNDEFINED_SIZE_T ) ? resultAcc->cellScalarGlobIdx( reservoirCellIndex )
                                                                              : defaultExportValue;
@@ -575,9 +576,9 @@ std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( cons
         max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
     }
 
-    auto sectorSize  = cvf::Vec3st( max.x() - min.x() + 1, max.y() - min.y() + 1, max.z() - min.z() + 1 );
-    auto nonUniform  = RigNonUniformRefinement::fromUniform( refinement, sectorSize );
-    return extractFaults( mainGrid, faultFaces, min, max, nonUniform );
+    auto sectorSize = cvf::Vec3st( max.x() - min.x() + 1, max.y() - min.y() + 1, max.z() - min.z() + 1 );
+    auto uniform    = RigUniformRefinement( refinement, sectorSize );
+    return extractFaults( mainGrid, faultFaces, min, max, uniform );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -587,9 +588,9 @@ std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( cons
                                                                             const std::vector<RigFault::FaultFace>& faultFaces,
                                                                             const cvf::Vec3st&                      min,
                                                                             const cvf::Vec3st&                      maxIn,
-                                                                            const RigNonUniformRefinement&           refinement )
+                                                                            const RigRefinement&                    refinement )
 {
-    using Dim = RigNonUniformRefinement::Dimension;
+    using Dim = RigRefinement::Dimension;
 
     std::vector<RigFault::CellAndFace> faultCellAndFaces;
 
@@ -615,7 +616,7 @@ std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( cons
         size_t shifted_j = refinement.cumulativeOffset( Dim::DimJ, sectorJ );
         size_t shifted_k = refinement.cumulativeOffset( Dim::DimK, sectorK );
 
-        if ( refinement.hasNonUniformRefinement() )
+        if ( refinement.hasRefinement() )
         {
             auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( faultCellAndFace.m_nativeFace );
 
