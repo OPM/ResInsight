@@ -1066,7 +1066,7 @@ std::expected<void, QString> RigSimulationInputTool::addFaultsToDeckFile( RimEcl
 
     // Create FAULTS keyword using the factory
     Opm::DeckKeyword faultsKw =
-        RimKeywordFactory::faultsKeyword( eclipseCase->mainGrid(), settings.min(), settings.max(), settings.refinement() );
+        RimKeywordFactory::faultsKeyword( eclipseCase->mainGrid(), settings.min(), settings.max(), settings.effectiveRefinement() );
 
     // Replace FAULTS keyword in GRID section
     if ( !deckFile.replaceKeyword( "GRID", faultsKw ) )
