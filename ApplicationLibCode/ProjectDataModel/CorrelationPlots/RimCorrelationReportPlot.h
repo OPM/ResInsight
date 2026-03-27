@@ -20,12 +20,12 @@
 #include "RimPlotWindow.h"
 
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include <QDateTime>
 #include <QObject>
-#include <QPointer>
 
 class RimAnalysisPlotDataEntry;
 class RimCorrelationMatrixPlot;
@@ -33,8 +33,14 @@ class RimParameterResultCrossPlot;
 class RimSummaryEnsemble;
 class RimCorrelationPlot;
 class RiaSummaryCurveDefinition;
+class RimSummaryPlot;
+class RimSummaryAddressSelector;
 
-class RiuMultiPlotPage;
+namespace ads
+{
+class CDockManager;
+class CDockWidget;
+} // namespace ads
 
 class RimCorrelationReportPlot : public QObject, public RimPlotWindow
 {
@@ -55,7 +61,6 @@ public:
     RimCorrelationPlot*          correlationPlot() const;
     RimParameterResultCrossPlot* crossPlot() const;
 
-    int columnCount() const override;
     int subTitleFontSize() const;
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
@@ -66,6 +71,7 @@ private:
     void    recreatePlotWidgets();
     void    cleanupBeforeClose();
 
+    void     setupBeforeSave() override;
     void     doRenderWindowContent( QPaintDevice* paintDevice ) override;
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
     void     deleteViewWidget() override;
@@ -76,6 +82,8 @@ private:
     void     doUpdateLayout() override;
 
     void onDataSelection( const caf::SignalEmitter* emitter, std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef );
+    void onSummaryPlotMousePressed( double xPlotCoordinate );
+    void onAddressSelectorChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmProxyValueField<QString> m_name;
@@ -88,5 +96,15 @@ private:
     RimFontSizeField                                 m_axisTitleFontSize;
     RimFontSizeField                                 m_axisValueFontSize;
 
-    QPointer<RiuMultiPlotPage> m_viewer;
+    caf::PdmField<bool>                            m_showSummaryPlot;
+    caf::PdmChildField<RimSummaryPlot*>            m_summaryPlot;
+    caf::PdmChildField<RimSummaryAddressSelector*> m_summaryAddressSelector;
+
+    caf::PdmField<QString> m_dockState;
+
+    ads::CDockManager* m_dockManager           = nullptr;
+    ads::CDockWidget*  m_matrixDockWidget      = nullptr;
+    ads::CDockWidget*  m_correlationDockWidget = nullptr;
+    ads::CDockWidget*  m_crossPlotDockWidget   = nullptr;
+    ads::CDockWidget*  m_summaryDockWidget     = nullptr;
 };

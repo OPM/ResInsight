@@ -642,6 +642,8 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                     return false;
                 };
 
+                emit plotMousePressedAt( m_plot->canvasMap( QwtAxis::XBottom ).invTransform( mouseEvent->pos().x() ) );
+
                 if ( !hasRecentlyBeenZoomed() )
                 {
                     // Avoid selecting the curve if a zoom operation has been performed recently

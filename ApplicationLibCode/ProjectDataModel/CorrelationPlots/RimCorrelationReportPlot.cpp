@@ -20,26 +20,33 @@
 
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryAddressSelector.h"
 #include "RimSummaryEnsemble.h"
+#include "RimSummaryPlot.h"
 
-#include "RiuMultiPlotPage.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
+
+#include "DockAreaWidget.h"
+#include "DockManager.h"
+#include "DockWidget.h"
 
 #include "cafAssert.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#include <QDebug>
 #include <QImage>
-#include <QPixmap>
 #include <QStringList>
+#include <QVBoxLayout>
 
 //==================================================================================================
 //
@@ -69,6 +76,13 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
     CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
 
+    CAF_PDM_InitField( &m_showSummaryPlot, "ShowSummaryPlot", false, "Show Summary Plot" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryPlot, "SummaryPlot", "Summary Plot" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryAddressSelector, "SummaryAddressSelector", "Summary Vector" );
+
+    CAF_PDM_InitField( &m_dockState, "DockState", QString(), "Dock State" );
+    m_dockState.uiCapability()->setUiHidden( true );
+
     setAsPlotMdiWindow();
 
     m_showWindow      = true;
@@ -82,14 +96,21 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     m_correlationMatrixPlot = new RimCorrelationMatrixPlot;
     m_correlationMatrixPlot->setLegendsVisible( false );
-    m_correlationMatrixPlot->setColSpan( RimPlot::TWO );
-    m_correlationMatrixPlot->setRowSpan( RimPlot::TWO );
 
     m_correlationPlot = new RimCorrelationPlot;
     m_correlationPlot->setLegendsVisible( false );
 
     m_parameterResultCrossPlot = new RimParameterResultCrossPlot;
     m_parameterResultCrossPlot->setLegendsVisible( true );
+
+    m_summaryPlot = new RimSummaryPlot();
+    m_summaryPlot->setLegendsVisible( false );
+    m_summaryPlot->ensembleCurveSetCollection()->addCurveSet( new RimEnsembleCurveSet() );
+
+    m_summaryAddressSelector = new RimSummaryAddressSelector();
+    m_summaryAddressSelector->setShowResampling( false );
+    m_summaryAddressSelector->setShowAxis( false );
+    m_summaryAddressSelector->addressChanged.connect( this, &RimCorrelationReportPlot::onAddressSelectorChanged );
 
     uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -111,7 +132,7 @@ RimCorrelationReportPlot::~RimCorrelationReportPlot()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimCorrelationReportPlot::viewWidget()
 {
-    return m_viewer;
+    return m_dockManager;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,16 +148,8 @@ QString RimCorrelationReportPlot::description() const
 //--------------------------------------------------------------------------------------------------
 QImage RimCorrelationReportPlot::snapshotWindowContent()
 {
-    QImage image;
-
-    if ( m_viewer )
-    {
-        QPixmap pix( m_viewer->size() );
-        m_viewer->renderTo( &pix );
-        image = pix.toImage();
-    }
-
-    return image;
+    if ( m_dockManager ) return m_dockManager->grab().toImage();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,14 +189,6 @@ RimCorrelationPlot* RimCorrelationReportPlot::correlationPlot() const
 RimParameterResultCrossPlot* RimCorrelationReportPlot::crossPlot() const
 {
     return m_parameterResultCrossPlot();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimCorrelationReportPlot::columnCount() const
-{
-    return 3;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,16 +248,61 @@ QString RimCorrelationReportPlot::createDescription() const
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::recreatePlotWidgets()
 {
-    CAF_ASSERT( m_viewer );
-    m_correlationMatrixPlot->createPlotWidget();
-    m_correlationPlot->createPlotWidget();
-    m_parameterResultCrossPlot->createPlotWidget();
+    CAF_ASSERT( m_dockManager );
 
-    m_viewer->addPlot( m_correlationMatrixPlot->viewer() );
-    m_viewer->addPlot( m_correlationPlot->viewer() );
-    m_viewer->addPlot( m_parameterResultCrossPlot->viewer() );
+    // Create plot widgets
+    m_correlationMatrixPlot->createPlotWidget( m_dockManager );
+    m_correlationPlot->createPlotWidget( m_dockManager );
+    m_parameterResultCrossPlot->createPlotWidget( m_dockManager );
+    m_summaryPlot->createPlotWidget( m_dockManager );
 
-    m_viewer->scheduleUpdate();
+    // Wrap each plot in a dock widget
+    m_matrixDockWidget = new ads::CDockWidget( "Matrix Plot", m_dockManager );
+    m_matrixDockWidget->setWidget( m_correlationMatrixPlot->viewer(), ads::CDockWidget::ForceNoScrollArea );
+    m_matrixDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
+
+    m_correlationDockWidget = new ads::CDockWidget( "Correlation Plot", m_dockManager );
+    m_correlationDockWidget->setWidget( m_correlationPlot->viewer(), ads::CDockWidget::ForceNoScrollArea );
+    m_correlationDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
+
+    m_crossPlotDockWidget = new ads::CDockWidget( "Cross Plot", m_dockManager );
+    m_crossPlotDockWidget->setWidget( m_parameterResultCrossPlot->viewer(), ads::CDockWidget::ForceNoScrollArea );
+    m_crossPlotDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
+
+    m_summaryDockWidget = new ads::CDockWidget( "Summary Plot", m_dockManager );
+    m_summaryDockWidget->setWidget( m_summaryPlot->plotWidget(), ads::CDockWidget::ForceNoScrollArea );
+    m_summaryDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
+
+    // Connect summary plot click → time step update
+    auto* summaryWidget = dynamic_cast<RiuQwtPlotWidget*>( m_summaryPlot->plotWidget() );
+    if ( summaryWidget )
+    {
+        connect( summaryWidget, &RiuQwtPlotWidget::plotMousePressedAt, this, &RimCorrelationReportPlot::onSummaryPlotMousePressed );
+    }
+
+    // Restore saved dock state if available; otherwise set up default layout
+    if ( !m_dockState().isEmpty() )
+    {
+        // Add all widgets to the manager first (required before restoreState)
+        m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_matrixDockWidget );
+        m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_correlationDockWidget );
+        m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_crossPlotDockWidget );
+        m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_summaryDockWidget );
+        m_dockManager->restoreState( QByteArray::fromBase64( m_dockState().toLatin1() ), 1 );
+    }
+    else
+    {
+        // Default layout: matrix on left, corr top-right, cross bottom-right, summary far right
+        auto* matrixArea = m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_matrixDockWidget );
+        auto* corrArea   = m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_correlationDockWidget );
+        auto* crossArea  = m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_crossPlotDockWidget, corrArea );
+        m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_summaryDockWidget, corrArea );
+
+        (void)matrixArea;
+        (void)crossArea;
+
+        m_summaryDockWidget->toggleView( m_showSummaryPlot() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,12 +313,29 @@ void RimCorrelationReportPlot::cleanupBeforeClose()
     m_correlationMatrixPlot->detachAllCurves();
     m_correlationPlot->detachAllCurves();
     m_parameterResultCrossPlot->detachAllCurves();
+    m_summaryPlot->detachAllCurves();
 
-    if ( m_viewer )
+    // Dock widget pointers are owned by the dock manager; nullify them before deletion
+    m_matrixDockWidget      = nullptr;
+    m_correlationDockWidget = nullptr;
+    m_crossPlotDockWidget   = nullptr;
+    m_summaryDockWidget     = nullptr;
+
+    if ( m_dockManager )
     {
-        m_viewer->setParent( nullptr );
-        delete m_viewer;
-        m_viewer = nullptr;
+        delete m_dockManager;
+        m_dockManager = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::setupBeforeSave()
+{
+    if ( m_dockManager )
+    {
+        m_dockState = QString::fromLatin1( m_dockManager->saveState( 1 ).toBase64() );
     }
 }
 
@@ -277,9 +344,9 @@ void RimCorrelationReportPlot::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 {
-    if ( m_viewer )
+    if ( m_dockManager )
     {
-        m_viewer->renderTo( paintDevice );
+        m_dockManager->render( paintDevice );
     }
 }
 
@@ -288,12 +355,11 @@ void RimCorrelationReportPlot::doRenderWindowContent( QPaintDevice* paintDevice 
 //--------------------------------------------------------------------------------------------------
 QWidget* RimCorrelationReportPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
-    m_viewer = new RiuMultiPlotPage( this, mainWindowParent );
-    m_viewer->setAutoAlignAxes( false );
-    m_viewer->setPlotTitle( createPlotWindowTitle() );
+    m_dockManager = new ads::CDockManager( mainWindowParent );
+    m_dockManager->setStyleSheet( "ads--CDockSplitter::handle { width: 1px; height: 1px; }" );
     recreatePlotWidgets();
 
-    return m_viewer;
+    return m_dockManager;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,10 +414,32 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_parameterResultCrossPlot->setAxisValueFontSize( m_axisValueFontSize() );
 
         m_correlationMatrixPlot->loadDataAndUpdate();
-        m_correlationPlot->loadDataAndUpdate();
-        m_parameterResultCrossPlot->loadDataAndUpdate();
+        if ( m_correlationMatrixPlot->viewer() ) m_correlationMatrixPlot->viewer()->setPlotTitleEnabled( true );
 
-        m_viewer->setPlotTitle( createDescription() );
+        m_correlationPlot->loadDataAndUpdate();
+        if ( m_correlationPlot->viewer() ) m_correlationPlot->viewer()->setPlotTitleEnabled( true );
+
+        m_parameterResultCrossPlot->loadDataAndUpdate();
+        if ( m_parameterResultCrossPlot->viewer() ) m_parameterResultCrossPlot->viewer()->setPlotTitleEnabled( true );
+
+        if ( m_showSummaryPlot() )
+        {
+            if ( !m_summaryAddressSelector->ensemble() )
+            {
+                auto ensembles = m_correlationMatrixPlot->ensembles();
+                if ( !ensembles.empty() ) m_summaryAddressSelector->setEnsemble( *ensembles.begin() );
+            }
+
+            auto curveSets = m_summaryPlot->ensembleCurveSetCollection()->curveSets();
+            if ( !curveSets.empty() )
+            {
+                curveSets[0]->setSummaryEnsemble( m_summaryAddressSelector->ensemble() );
+                curveSets[0]->setSummaryAddressY( m_summaryAddressSelector->summaryAddress() );
+            }
+
+            m_summaryPlot->loadDataAndUpdate();
+            if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->setPlotTitleEnabled( true );
+        }
     }
 
     updateLayout();
@@ -366,6 +454,13 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     auto filterGroup = uiOrdering.addNewGroup( "Filter" );
     m_parameterResultCrossPlot->appendFilterFields( *filterGroup );
+
+    auto summaryGroup = uiOrdering.addNewGroup( "Summary Plot" );
+    summaryGroup->add( &m_showSummaryPlot );
+    if ( m_showSummaryPlot() )
+    {
+        m_summaryAddressSelector->uiOrdering( "", *summaryGroup );
+    }
 
     auto plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->setCollapsedByDefault();
@@ -385,6 +480,10 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( changedField == &m_showSummaryPlot && m_summaryDockWidget )
+    {
+        m_summaryDockWidget->toggleView( m_showSummaryPlot() );
+    }
     loadDataAndUpdate();
 }
 
@@ -401,13 +500,6 @@ void RimCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::doUpdateLayout()
 {
-    if ( m_showWindow && m_viewer )
-    {
-        m_viewer->setTitleFontSizes( titleFontSize(), subTitleFontSize() );
-        m_viewer->setLegendFontSize( legendFontSize() );
-        m_viewer->setAxisFontSizes( axisTitleFontSize(), axisValueFontSize() );
-        m_viewer->setSubTitlesVisible( true );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,10 +516,31 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
     m_parameterResultCrossPlot->setCurveDefinitions( { curveDef } );
     m_parameterResultCrossPlot->setEnsembleParameter( paramName );
     m_parameterResultCrossPlot->loadDataAndUpdate();
-    if ( m_viewer )
-    {
-        m_viewer->updateSubTitles();
-    }
 
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::onSummaryPlotMousePressed( double xPlotCoordinate )
+{
+    auto clickedTime    = RiaTimeTTools::fromDouble( xPlotCoordinate );
+    auto availableSteps = m_correlationMatrixPlot->allAvailableTimeSteps();
+    if ( availableSteps.empty() ) return;
+
+    auto it = std::min_element( availableSteps.begin(),
+                                availableSteps.end(),
+                                [clickedTime]( time_t a, time_t b ) { return std::abs( a - clickedTime ) < std::abs( b - clickedTime ); } );
+
+    m_correlationMatrixPlot->setTimeStep( *it );
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::onAddressSelectorChanged( const caf::SignalEmitter* )
+{
+    loadDataAndUpdate();
 }
