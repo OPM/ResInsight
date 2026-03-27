@@ -81,7 +81,7 @@ public:
                               const std::vector<double>&             pipeBranchMeasuredDepths,
                               bool                                   totalFlowOnly );
 
-    const std::vector<double>& connectionNumbersFromTop( size_t branchIdx ) const;
+    std::vector<double> connectionNumbersFromTop( size_t branchIdx ) const;
     const std::vector<double>& accumulatedTracerFlowPrConnection( const QString& tracerName, size_t branchIdx ) const;
     const std::vector<double>& tracerFlowPrConnection( const QString& tracerName, size_t branchIdx ) const;
 

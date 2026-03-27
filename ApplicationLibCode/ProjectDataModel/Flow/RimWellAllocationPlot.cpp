@@ -359,7 +359,7 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addPlot( plotTrack );
 
-        const std::vector<double>& depthValues =
+        const std::vector<double> depthValues =
             depthType == RiaDefines::DepthType::CONNECTION_NUMBER     ? wfCalculator->connectionNumbersFromTop( brIdx )
             : depthType == RiaDefines::DepthType::PSEUDO_LENGTH       ? wfCalculator->pseudoLengthFromTop( brIdx )
             : depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth( brIdx )
@@ -377,10 +377,12 @@ void RimWellAllocationPlot::updateFromWell()
                     accFlow = ( m_flowType == ACCUMULATED ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
                                                           : wfCalculator->tracerFlowPrConnection( tracerName, brIdx ) );
 
-                    if ( !accFlow.empty() ) // Add fictitious point to extend the first bar (topmost connection)
+                    if ( !accFlow.empty() )
                     {
+                        // Add a dummy zero connection number at the end to make the curve reach the y-axis when showing in flow rate. The
+                        // lowest connection number is 1.0, so adding a zero value will not cause any issue when showing in accumulated flow.
                         accFlow.push_back( accFlow.back() );
-                        curveDepthValues.push_back( -1.0 );
+                        curveDepthValues.push_back( 0.0 );
                     }
 
                     // Shift the "bars" to make connection number tick at the midpoint of the constant value

@@ -186,9 +186,12 @@ void RigAccWellFlowCalculator::initializePipeBranchesMeasuredDepths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::connectionNumbersFromTop( size_t branchIdx ) const
+std::vector<double> RigAccWellFlowCalculator::connectionNumbersFromTop( size_t branchIdx ) const
 {
-    return m_connectionFlowPrBranch[branchIdx].depthValuesFromTop;
+    std::vector<double> result = m_connectionFlowPrBranch[branchIdx].depthValuesFromTop;
+    for ( double& v : result )
+        v += 1.0;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
