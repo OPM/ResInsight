@@ -117,6 +117,12 @@ public:
                                                              const cvf::Vec3st&                      max        = cvf::Vec3st::UNDEFINED,
                                                              const cvf::Vec3st&                      refinement = cvf::Vec3st( 1, 1, 1 ) );
 
+    static std::vector<RigFault::CellAndFace> extractFaults( const RigMainGrid*                      mainGrid,
+                                                             const std::vector<RigFault::FaultFace>& faultFaces,
+                                                             const cvf::Vec3st&                      min,
+                                                             const cvf::Vec3st&                      max,
+                                                             const RigNonUniformRefinement&           refinement );
+
     static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
 
     static void readFaultsInGridSection( const QString&             fileName,

@@ -569,6 +569,28 @@ std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( cons
                                                                             const cvf::Vec3st& maxIn /*= cvf::Vec3st::UNDEFINED*/,
                                                                             const cvf::Vec3st& refinement /*= cvf::Vec3st( 1, 1, 1 )*/ )
 {
+    cvf::Vec3st max = maxIn;
+    if ( max == cvf::Vec3st::UNDEFINED )
+    {
+        max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
+    }
+
+    auto sectorSize  = cvf::Vec3st( max.x() - min.x() + 1, max.y() - min.y() + 1, max.z() - min.z() + 1 );
+    auto nonUniform  = RigNonUniformRefinement::fromUniform( refinement, sectorSize );
+    return extractFaults( mainGrid, faultFaces, min, max, nonUniform );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( const RigMainGrid*                      mainGrid,
+                                                                            const std::vector<RigFault::FaultFace>& faultFaces,
+                                                                            const cvf::Vec3st&                      min,
+                                                                            const cvf::Vec3st&                      maxIn,
+                                                                            const RigNonUniformRefinement&           refinement )
+{
+    using Dim = RigNonUniformRefinement::Dimension;
+
     std::vector<RigFault::CellAndFace> faultCellAndFaces;
 
     cvf::Vec3st max = maxIn;
@@ -585,11 +607,15 @@ std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( cons
 
         if ( i < min.x() || i > max.x() || j < min.y() || j > max.y() || k < min.z() || k > max.z() ) continue;
 
-        size_t shifted_i = ( i - min.x() ) * refinement.x();
-        size_t shifted_j = ( j - min.y() ) * refinement.y();
-        size_t shifted_k = ( k - min.z() ) * refinement.z();
+        size_t sectorI = i - min.x();
+        size_t sectorJ = j - min.y();
+        size_t sectorK = k - min.z();
 
-        if ( refinement != cvf::Vec3st( 1, 1, 1 ) )
+        size_t shifted_i = refinement.cumulativeOffset( Dim::DimI, sectorI );
+        size_t shifted_j = refinement.cumulativeOffset( Dim::DimJ, sectorJ );
+        size_t shifted_k = refinement.cumulativeOffset( Dim::DimK, sectorK );
+
+        if ( refinement.hasNonUniformRefinement() )
         {
             auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( faultCellAndFace.m_nativeFace );
 
@@ -597,11 +623,11 @@ std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( cons
             {
                 if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_I )
                 {
-                    shifted_i += refinement.x() - 1;
+                    shifted_i += refinement.subcellCount( Dim::DimI, sectorI ) - 1;
                 }
-                for ( size_t refineK = 0; refineK < refinement.z(); ++refineK )
+                for ( size_t refineK = 0; refineK < refinement.subcellCount( Dim::DimK, sectorK ); ++refineK )
                 {
-                    for ( size_t refineJ = 0; refineJ < refinement.y(); ++refineJ )
+                    for ( size_t refineJ = 0; refineJ < refinement.subcellCount( Dim::DimJ, sectorJ ); ++refineJ )
                     {
                         faultCellAndFaces.push_back(
                             std::make_tuple( shifted_i, shifted_j + refineJ, shifted_k + refineK, faultCellAndFace.m_nativeFace ) );
@@ -612,12 +638,12 @@ std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( cons
             {
                 if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_J )
                 {
-                    shifted_j += refinement.y() - 1;
+                    shifted_j += refinement.subcellCount( Dim::DimJ, sectorJ ) - 1;
                 }
 
-                for ( size_t refineK = 0; refineK < refinement.z(); ++refineK )
+                for ( size_t refineK = 0; refineK < refinement.subcellCount( Dim::DimK, sectorK ); ++refineK )
                 {
-                    for ( size_t refineI = 0; refineI < refinement.x(); ++refineI )
+                    for ( size_t refineI = 0; refineI < refinement.subcellCount( Dim::DimI, sectorI ); ++refineI )
                     {
                         faultCellAndFaces.push_back(
                             std::make_tuple( shifted_i + refineI, shifted_j, shifted_k + refineK, faultCellAndFace.m_nativeFace ) );
@@ -628,12 +654,12 @@ std::vector<RigFault::CellAndFace> RifEclipseInputFileTools::extractFaults( cons
             {
                 if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_K )
                 {
-                    shifted_k += refinement.z() - 1;
+                    shifted_k += refinement.subcellCount( Dim::DimK, sectorK ) - 1;
                 }
 
-                for ( size_t refineJ = 0; refineJ < refinement.y(); ++refineJ )
+                for ( size_t refineJ = 0; refineJ < refinement.subcellCount( Dim::DimJ, sectorJ ); ++refineJ )
                 {
-                    for ( size_t refineI = 0; refineI < refinement.x(); ++refineI )
+                    for ( size_t refineI = 0; refineI < refinement.subcellCount( Dim::DimI, sectorI ); ++refineI )
                     {
                         faultCellAndFaces.push_back(
                             std::make_tuple( shifted_i + refineI, shifted_j + refineJ, shifted_k, faultCellAndFace.m_nativeFace ) );

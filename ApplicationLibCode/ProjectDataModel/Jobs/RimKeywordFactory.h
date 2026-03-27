@@ -22,6 +22,8 @@
 
 #include "cvfVector3.h"
 
+#include "RigNonUniformRefinement.h"
+
 #include <QDateTime>
 #include <QString>
 
@@ -68,6 +70,10 @@ Opm::DeckKeyword faultsKeyword( const RigMainGrid* mainGrid,
                                 const cvf::Vec3st& min        = cvf::Vec3st::ZERO,
                                 const cvf::Vec3st& max        = cvf::Vec3st::UNDEFINED,
                                 const cvf::Vec3st& refinement = cvf::Vec3st( 1, 1, 1 ) );
+Opm::DeckKeyword faultsKeyword( const RigMainGrid*             mainGrid,
+                                const cvf::Vec3st&             min,
+                                const cvf::Vec3st&             max,
+                                const RigNonUniformRefinement& refinement );
 Opm::DeckKeyword bcconKeyword( const std::vector<RigEclipseResultTools::BorderCellFace>& borderCellFaces );
 Opm::DeckKeyword bcpropKeyword( const std::vector<RigEclipseResultTools::BorderCellFace>& boundaryConditions,
                                 const std::vector<Opm::DeckRecord>&                       boundaryConditionProperties );
