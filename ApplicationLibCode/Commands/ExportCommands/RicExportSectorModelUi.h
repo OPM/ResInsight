@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafFilePath.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -36,6 +37,7 @@ class RigModelPaddingSettings;
 class RimKeywordBcprop;
 class RimEclipseCase;
 class RimEclipseView;
+class RicRefinementSettings;
 
 //==================================================================================================
 ///
@@ -44,23 +46,8 @@ class RicExportSectorModelUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
-    enum RefinementMode
-    {
-        UNIFORM,
-        NON_UNIFORM
-    };
-
-    enum NonUniformSubMode
-    {
-        CUSTOM_WIDTHS,
-        LINEAR_EQUAL_SPLIT,
-        LOGARITHMIC_CENTER
-    };
-
     using GridBoxSelectionEnum  = caf::AppEnum<RiaModelExportDefines::GridBoxSelection>;
     using BoundaryConditionEnum = caf::AppEnum<RiaModelExportDefines::BoundaryCondition>;
-    using RefinementModeEnum    = caf::AppEnum<RefinementMode>;
-    using NonUniformSubModeEnum = caf::AppEnum<NonUniformSubMode>;
 
 public:
     RicExportSectorModelUi();
@@ -77,9 +64,9 @@ public:
     void         setMin( const caf::VecIjk0& min );
     void         setMax( const caf::VecIjk0& max );
 
-    cvf::Vec3st refinement() const;
+    RicRefinementSettings* refinementSettings() const;
 
-    RefinementMode          refinementMode() const;
+    cvf::Vec3st             refinement() const;
     RigNonUniformRefinement nonUniformRefinement() const;
     bool                    hasNonUniformRefinement() const;
 
@@ -123,9 +110,8 @@ private:
         TotalPages         = 7
     };
 
-    void                       applyBoundaryDefaults();
-    static QString             defaultFolder();
-    static std::vector<double> parseWidths( const QString& text );
+    void           applyBoundaryDefaults();
+    static QString defaultFolder();
 
 private:
     caf::PdmField<caf::FilePath> m_exportFolder;
@@ -142,37 +128,7 @@ private:
     caf::PdmField<int> m_minK;
     caf::PdmField<int> m_maxK;
 
-    caf::PdmField<bool> m_refineGrid;
-    caf::PdmField<int>  m_refinementCountI;
-    caf::PdmField<int>  m_refinementCountJ;
-    caf::PdmField<int>  m_refinementCountK;
-
-    caf::PdmField<RefinementModeEnum> m_refinementMode;
-
-    caf::PdmField<bool>    m_nonUniformEnableI;
-    caf::PdmField<int>     m_nonUniformRangeStartI;
-    caf::PdmField<int>     m_nonUniformRangeEndI;
-    caf::PdmField<QString> m_nonUniformIntervalsI;
-
-    caf::PdmField<bool>    m_nonUniformEnableJ;
-    caf::PdmField<int>     m_nonUniformRangeStartJ;
-    caf::PdmField<int>     m_nonUniformRangeEndJ;
-    caf::PdmField<QString> m_nonUniformIntervalsJ;
-
-    caf::PdmField<bool>    m_nonUniformEnableK;
-    caf::PdmField<int>     m_nonUniformRangeStartK;
-    caf::PdmField<int>     m_nonUniformRangeEndK;
-    caf::PdmField<QString> m_nonUniformIntervalsK;
-
-    caf::PdmField<NonUniformSubModeEnum> m_nonUniformSubMode;
-
-    caf::PdmField<int> m_nonUniformSubcellCountI;
-    caf::PdmField<int> m_nonUniformSubcellCountJ;
-    caf::PdmField<int> m_nonUniformSubcellCountK;
-
-    caf::PdmField<int> m_nonUniformTotalCellsI;
-    caf::PdmField<int> m_nonUniformTotalCellsJ;
-    caf::PdmField<int> m_nonUniformTotalCellsK;
+    caf::PdmChildField<RicRefinementSettings*> m_refinementSettings;
 
     caf::PdmField<BoundaryConditionEnum>       m_boundaryCondition;
     caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
