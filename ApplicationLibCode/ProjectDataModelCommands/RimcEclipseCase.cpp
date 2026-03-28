@@ -250,7 +250,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_exportCornerPointG
     // Export the full grid (no min/max bounds, no refinement, no visibility override)
     const auto*          mainGrid = eclipseCaseData->mainGrid();
     cvf::Vec3st          fullSize( mainGrid->cellCountI(), mainGrid->cellCountJ(), mainGrid->cellCountK() );
-    RigGridExportAdapter gridAdapter( eclipseCaseData, cvf::Vec3st::ZERO, cvf::Vec3st::UNDEFINED, RigNoRefinement( fullSize ), nullptr );
+    cvf::Vec3st          fullMax( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
+    RigGridExportAdapter gridAdapter( eclipseCaseData, cvf::Vec3st::ZERO, fullMax, RigNoRefinement( fullSize ), nullptr );
 
     // Use the existing conversion utility to get the arrays in the correct format
     std::vector<float> coordArray;
