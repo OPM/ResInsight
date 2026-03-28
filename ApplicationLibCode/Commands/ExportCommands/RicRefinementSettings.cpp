@@ -403,7 +403,6 @@ void RicRefinementSettings::addToUiOrdering( caf::PdmUiOrdering& uiOrdering )
                            m_nonUniformSubcellCountK,
                            m_nonUniformTotalCellsK );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
