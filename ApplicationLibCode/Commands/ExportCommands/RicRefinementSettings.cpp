@@ -33,9 +33,10 @@ namespace caf
 template <>
 void AppEnum<RicRefinementSettings::RefinementMode>::setUp()
 {
+    addItem( RicRefinementSettings::NONE, "NONE", "None" );
     addItem( RicRefinementSettings::UNIFORM, "UNIFORM", "Uniform" );
     addItem( RicRefinementSettings::NON_UNIFORM, "NON_UNIFORM", "Non-Uniform" );
-    setDefault( RicRefinementSettings::UNIFORM );
+    setDefault( RicRefinementSettings::NONE );
 }
 template <>
 void AppEnum<RicRefinementSettings::NonUniformSubMode>::setUp()
@@ -62,8 +63,6 @@ RicRefinementSettings::RicRefinementSettings()
 {
     CAF_PDM_InitObject( "Refinement Settings" );
 
-    CAF_PDM_InitField( &m_refineGrid, "RefineGrid", false, "Enable Grid Refinement" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_refineGrid );
     CAF_PDM_InitField( &m_refinementCountI, "RefinementCountI", 1, "Cell Count I, J, K" );
     CAF_PDM_InitField( &m_refinementCountJ, "RefinementCountJ", 1, "" );
     CAF_PDM_InitField( &m_refinementCountK, "RefinementCountK", 1, "" );
@@ -140,7 +139,7 @@ std::unique_ptr<RigRefinement> RicRefinementSettings::effectiveRefinement() cons
 
     cvf::Vec3st sectorSize( sectorSizeI, sectorSizeJ, sectorSizeK );
 
-    if ( !m_refineGrid() ) return std::make_unique<RigNoRefinement>( sectorSize );
+    if ( m_refinementMode() == NONE ) return std::make_unique<RigNoRefinement>( sectorSize );
 
     if ( m_refinementMode() == UNIFORM )
     {
@@ -156,7 +155,7 @@ std::unique_ptr<RigRefinement> RicRefinementSettings::effectiveRefinement() cons
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3st RicRefinementSettings::refinement() const
 {
-    if ( !m_refineGrid() || m_refinementMode() == NON_UNIFORM )
+    if ( m_refinementMode() != UNIFORM )
     {
         return cvf::Vec3st( 1, 1, 1 );
     }
@@ -168,7 +167,6 @@ cvf::Vec3st RicRefinementSettings::refinement() const
 //--------------------------------------------------------------------------------------------------
 RicRefinementSettings::RefinementMode RicRefinementSettings::refinementMode() const
 {
-    if ( !m_refineGrid() ) return UNIFORM;
     return m_refinementMode();
 }
 
@@ -185,7 +183,7 @@ std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefine
 
     auto result = std::make_unique<RigNonUniformRefinement>( sectorSize );
 
-    if ( !m_refineGrid() || m_refinementMode() != NON_UNIFORM ) return result;
+    if ( m_refinementMode() != NON_UNIFORM ) return result;
 
     struct DimensionConfig
     {
@@ -324,7 +322,7 @@ std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefine
 //--------------------------------------------------------------------------------------------------
 bool RicRefinementSettings::hasNonUniformRefinement() const
 {
-    return m_refineGrid() && m_refinementMode() == NON_UNIFORM && ( m_nonUniformEnableI() || m_nonUniformEnableJ() || m_nonUniformEnableK() );
+    return m_refinementMode() == NON_UNIFORM && ( m_nonUniformEnableI() || m_nonUniformEnableJ() || m_nonUniformEnableK() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,28 +330,18 @@ bool RicRefinementSettings::hasNonUniformRefinement() const
 //--------------------------------------------------------------------------------------------------
 void RicRefinementSettings::addToUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_refineGrid );
-    uiOrdering.addNewLabel( "" );
-
     uiOrdering.add( &m_refinementMode );
     uiOrdering.addNewLabel( "" );
-
-    bool isEnabled = m_refineGrid();
 
     if ( m_refinementMode() == UNIFORM )
     {
         uiOrdering.add( &m_refinementCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
         uiOrdering.appendToRow( &m_refinementCountJ );
         uiOrdering.appendToRow( &m_refinementCountK );
-
-        m_refinementCountI.uiCapability()->setUiReadOnly( !isEnabled );
-        m_refinementCountJ.uiCapability()->setUiReadOnly( !isEnabled );
-        m_refinementCountK.uiCapability()->setUiReadOnly( !isEnabled );
     }
-    else
+    else if ( m_refinementMode() == NON_UNIFORM )
     {
         uiOrdering.add( &m_nonUniformSubMode );
-        m_nonUniformSubMode.uiCapability()->setUiReadOnly( !isEnabled );
         uiOrdering.addNewLabel( "" );
 
         auto subMode = m_nonUniformSubMode();
@@ -385,8 +373,7 @@ void RicRefinementSettings::addToUiOrdering( caf::PdmUiOrdering& uiOrdering )
                 grp->add( &totalCellsField );
             }
 
-            bool dimEnabled = isEnabled && enableField();
-            enableField.uiCapability()->setUiReadOnly( !isEnabled );
+            bool dimEnabled = enableField();
             rangeStartField.uiCapability()->setUiReadOnly( !dimEnabled );
             rangeEndField.uiCapability()->setUiReadOnly( !dimEnabled );
             intervalsField.uiCapability()->setUiReadOnly( !dimEnabled );
@@ -416,8 +403,6 @@ void RicRefinementSettings::addToUiOrdering( caf::PdmUiOrdering& uiOrdering )
                            m_nonUniformSubcellCountK,
                            m_nonUniformTotalCellsK );
     }
-
-    m_refinementMode.uiCapability()->setUiReadOnly( !isEnabled );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -427,7 +412,7 @@ std::map<QString, QString> RicRefinementSettings::validateSettings() const
 {
     std::map<QString, QString> fieldErrors;
 
-    if ( !m_refineGrid() ) return fieldErrors;
+    if ( m_refinementMode() == NONE ) return fieldErrors;
 
     if ( m_refinementMode() == UNIFORM )
     {
@@ -503,7 +488,7 @@ void RicRefinementSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 void RicRefinementSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_refineGrid ) || ( changedField == &m_nonUniformEnableI ) || ( changedField == &m_nonUniformEnableJ ) ||
+    if ( ( changedField == &m_refinementMode ) || ( changedField == &m_nonUniformEnableI ) || ( changedField == &m_nonUniformEnableJ ) ||
          ( changedField == &m_nonUniformEnableK ) || ( changedField == &m_nonUniformSubMode ) )
     {
         updateConnectedEditors();

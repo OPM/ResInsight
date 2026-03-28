@@ -43,6 +43,7 @@ class RicRefinementSettings : public caf::PdmObject
 public:
     enum RefinementMode
     {
+        NONE,
         UNIFORM,
         NON_UNIFORM
     };
@@ -80,10 +81,9 @@ private:
     static std::vector<double> parseWidths( const QString& text );
 
 private:
-    caf::PdmField<bool> m_refineGrid;
-    caf::PdmField<int>  m_refinementCountI;
-    caf::PdmField<int>  m_refinementCountJ;
-    caf::PdmField<int>  m_refinementCountK;
+    caf::PdmField<int> m_refinementCountI;
+    caf::PdmField<int> m_refinementCountJ;
+    caf::PdmField<int> m_refinementCountK;
 
     caf::PdmField<RefinementModeEnum> m_refinementMode;
 
