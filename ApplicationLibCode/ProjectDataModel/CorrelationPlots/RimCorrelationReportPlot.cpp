@@ -28,12 +28,16 @@
 #include "RimCorrelationPlotCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleStatistics.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddressSelector.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTimeAxisProperties.h"
+#include "RimTimeAxisAnnotation.h"
 
+#include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -42,11 +46,131 @@
 #include "DockWidget.h"
 
 #include "cafAssert.h"
+#include "cafPdmPointer.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafSelectionManager.h"
 
+#include "qwt_picker_machine.h"
+#include "qwt_plot.h"
+#include "qwt_plot_picker.h"
+#include "qwt_text.h"
+
+#include <QContextMenuEvent>
+#include <QFrame>
 #include <QImage>
+#include <QSettings>
 #include <QStringList>
 #include <QVBoxLayout>
+
+static const char* DOCK_LAYOUT_REGISTRY_KEY = "CorrelationReportPlot/defaultDockLayout";
+
+//--------------------------------------------------------------------------------------------------
+/// Thin wrapper around CDockManager that implements RiuInterfaceToViewWindow so that
+/// activeViewWindow() / viewWindowFromWidget() can resolve the owning RimViewWindow.
+//--------------------------------------------------------------------------------------------------
+class RiuCorrelationReportPlotWidget : public QFrame, public RiuInterfaceToViewWindow
+{
+public:
+    RiuCorrelationReportPlotWidget( RimCorrelationReportPlot* plot, QWidget* parent = nullptr )
+        : QFrame( parent )
+        , m_plot( plot )
+    {
+        setLayout( new QVBoxLayout );
+        layout()->setContentsMargins( 0, 0, 0, 0 );
+        layout()->setSpacing( 0 );
+    }
+
+    RimViewWindow* ownerViewWindow() const override { return m_plot; }
+
+private:
+    RimCorrelationReportPlot* m_plot;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Local picker for time tracking readout — draws a dashed vertical line following the mouse cursor.
+/// Manages only its own annotation so the static selected-time annotation is preserved.
+//--------------------------------------------------------------------------------------------------
+class TimeReadoutPicker : public QwtPlotPicker
+{
+public:
+    TimeReadoutPicker( RimSummaryPlot* summaryPlot, QwtPlot* plot )
+        : QwtPlotPicker( plot->canvas() )
+        , m_summaryPlot( summaryPlot )
+    {
+        setTrackerMode( QwtPlotPicker::AlwaysOn );
+        plot->canvas()->setMouseTracking( true );
+        setStateMachine( new QwtPickerTrackerMachine );
+    }
+
+    QwtText trackerText( const QPoint& screenPixelCoordinates ) const override
+    {
+        if ( !plot() || !m_summaryPlot ) return {};
+
+        const auto timeTValue    = RiaTimeTTools::fromDouble( invTransform( screenPixelCoordinates ).x() );
+        auto*      timeAxisProps = m_summaryPlot->timeAxisProperties();
+        if ( timeAxisProps )
+        {
+            if ( m_trackingAnnotation )
+            {
+                timeAxisProps->removeAnnotation( m_trackingAnnotation );
+                m_trackingAnnotation = nullptr;
+            }
+            auto* anno = RimTimeAxisAnnotation::createTimeAnnotation( timeTValue, cvf::Color3f( 0.6f, 0.4f, 0.08f ) );
+            anno->setPenStyle( Qt::DashLine );
+            timeAxisProps->appendAnnotation( anno );
+            m_trackingAnnotation = anno;
+        }
+
+        m_summaryPlot->updateAnnotationsInPlotWidget();
+        m_summaryPlot->updatePlotWidgetFromAxisRanges();
+
+        return {};
+    }
+
+    void widgetLeaveEvent( QEvent* ) override
+    {
+        if ( m_trackingAnnotation && m_summaryPlot )
+        {
+            auto* timeAxisProps = m_summaryPlot->timeAxisProperties();
+            if ( timeAxisProps )
+            {
+                timeAxisProps->removeAnnotation( m_trackingAnnotation );
+                m_trackingAnnotation = nullptr;
+            }
+            m_summaryPlot->updateAnnotationsInPlotWidget();
+            m_summaryPlot->updatePlotWidgetFromAxisRanges();
+        }
+    }
+
+private:
+    caf::PdmPointer<RimSummaryPlot>                m_summaryPlot;
+    mutable caf::PdmPointer<RimTimeAxisAnnotation> m_trackingAnnotation;
+};
+
+namespace
+{
+// Ensures the correlation report plot is selected in CAF whenever a context menu event is dispatched
+// anywhere within the dock manager — so feature availability checks in RiuContextMenuLauncher
+// see the correct item (mirrors what RiuMultiPlotPage::contextMenuEvent did explicitly).
+class ReportPlotContextMenuFilter : public QObject
+{
+public:
+    ReportPlotContextMenuFilter( RimCorrelationReportPlot* plot, QObject* parent )
+        : QObject( parent )
+        , m_plot( plot )
+    {
+    }
+
+    bool eventFilter( QObject*, QEvent* event ) override
+    {
+        if ( event->type() == QEvent::ContextMenu ) caf::SelectionManager::instance()->setSelectedItem( m_plot );
+        return false; // never consume the event
+    }
+
+private:
+    RimCorrelationReportPlot* m_plot;
+};
+} // namespace
 
 //==================================================================================================
 //
@@ -76,7 +200,7 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
     CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
 
-    CAF_PDM_InitField( &m_showSummaryPlot, "ShowSummaryPlot", false, "Show Summary Plot" );
+    CAF_PDM_InitField( &m_showSummaryPlot, "ShowSummaryPlot", true, "Show Summary Plot" );
     CAF_PDM_InitFieldNoDefault( &m_summaryPlot, "SummaryPlot", "Summary Plot" );
     CAF_PDM_InitFieldNoDefault( &m_summaryAddressSelector, "SummaryAddressSelector", "Summary Vector" );
 
@@ -105,7 +229,12 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     m_summaryPlot = new RimSummaryPlot();
     m_summaryPlot->setLegendsVisible( false );
-    m_summaryPlot->ensembleCurveSetCollection()->addCurveSet( new RimEnsembleCurveSet() );
+
+    auto* curveSet = new RimEnsembleCurveSet();
+    curveSet->setColorMode( RimEnsembleCurveSet::ColorMode::SINGLE_COLOR );
+    curveSet->setColor( cvf::Color3f( 0.6f, 0.4f, 0.08f ) );
+    const_cast<RimEnsembleStatistics*>( curveSet->statisticsOptions() )->enableCurveLabels( false );
+    m_summaryPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
 
     m_summaryAddressSelector = new RimSummaryAddressSelector();
     m_summaryAddressSelector->setShowResampling( false );
@@ -132,7 +261,7 @@ RimCorrelationReportPlot::~RimCorrelationReportPlot()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimCorrelationReportPlot::viewWidget()
 {
-    return m_dockManager;
+    return m_viewWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +277,7 @@ QString RimCorrelationReportPlot::description() const
 //--------------------------------------------------------------------------------------------------
 QImage RimCorrelationReportPlot::snapshotWindowContent()
 {
-    if ( m_dockManager ) return m_dockManager->grab().toImage();
+    if ( m_viewWidget ) return m_viewWidget->grab().toImage();
     return {};
 }
 
@@ -256,6 +385,14 @@ void RimCorrelationReportPlot::recreatePlotWidgets()
     m_parameterResultCrossPlot->createPlotWidget( m_dockManager );
     m_summaryPlot->createPlotWidget( m_dockManager );
 
+    // Install selection fixer on each plot widget (runs first due to LIFO filter order), so that
+    // RiuContextMenuLauncher sees the correct CAF selection when building the context menu.
+    auto* filter = new ReportPlotContextMenuFilter( this, m_dockManager );
+    if ( m_correlationMatrixPlot->viewer() ) m_correlationMatrixPlot->viewer()->installEventFilter( filter );
+    if ( m_correlationPlot->viewer() ) m_correlationPlot->viewer()->installEventFilter( filter );
+    if ( m_parameterResultCrossPlot->viewer() ) m_parameterResultCrossPlot->viewer()->installEventFilter( filter );
+    if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->installEventFilter( filter );
+
     // Wrap each plot in a dock widget
     m_matrixDockWidget = new ads::CDockWidget( "Matrix Plot", m_dockManager );
     m_matrixDockWidget->setWidget( m_correlationMatrixPlot->viewer(), ads::CDockWidget::ForceNoScrollArea );
@@ -273,26 +410,37 @@ void RimCorrelationReportPlot::recreatePlotWidgets()
     m_summaryDockWidget->setWidget( m_summaryPlot->plotWidget(), ads::CDockWidget::ForceNoScrollArea );
     m_summaryDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
 
-    // Connect summary plot click → time step update
+    // Connect summary plot click → time step update; add time tracking readout
     auto* summaryWidget = dynamic_cast<RiuQwtPlotWidget*>( m_summaryPlot->plotWidget() );
     if ( summaryWidget )
     {
         connect( summaryWidget, &RiuQwtPlotWidget::plotMousePressedAt, this, &RimCorrelationReportPlot::onSummaryPlotMousePressed );
+        new TimeReadoutPicker( m_summaryPlot(), summaryWidget->qwtPlot() );
     }
 
-    // Restore saved dock state if available; otherwise set up default layout
+    // Restore saved dock state: project state takes priority, then registry default, then hard-coded layout
+    QByteArray stateToRestore;
     if ( !m_dockState().isEmpty() )
+        stateToRestore = QByteArray::fromBase64( m_dockState().toLatin1() );
+    else
+    {
+        QSettings settings;
+        QVariant  v = settings.value( DOCK_LAYOUT_REGISTRY_KEY );
+        if ( v.isValid() ) stateToRestore = v.toByteArray();
+    }
+
+    if ( !stateToRestore.isEmpty() )
     {
         // Add all widgets to the manager first (required before restoreState)
         m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_matrixDockWidget );
         m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_correlationDockWidget );
         m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_crossPlotDockWidget );
         m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_summaryDockWidget );
-        m_dockManager->restoreState( QByteArray::fromBase64( m_dockState().toLatin1() ), 1 );
+        m_dockManager->restoreState( stateToRestore, 1 );
     }
     else
     {
-        // Default layout: matrix on left, corr top-right, cross bottom-right, summary far right
+        // Hard-coded default: matrix on left, corr top-right, cross bottom-right, summary far right
         auto* matrixArea = m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_matrixDockWidget );
         auto* corrArea   = m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_correlationDockWidget );
         auto* crossArea  = m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_crossPlotDockWidget, corrArea );
@@ -326,6 +474,13 @@ void RimCorrelationReportPlot::cleanupBeforeClose()
         delete m_dockManager;
         m_dockManager = nullptr;
     }
+
+    if ( m_viewWidget )
+    {
+        m_viewWidget->setParent( nullptr );
+        delete m_viewWidget;
+        m_viewWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -344,9 +499,9 @@ void RimCorrelationReportPlot::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 {
-    if ( m_dockManager )
+    if ( m_viewWidget )
     {
-        m_dockManager->render( paintDevice );
+        m_viewWidget->render( paintDevice );
     }
 }
 
@@ -355,11 +510,14 @@ void RimCorrelationReportPlot::doRenderWindowContent( QPaintDevice* paintDevice 
 //--------------------------------------------------------------------------------------------------
 QWidget* RimCorrelationReportPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
-    m_dockManager = new ads::CDockManager( mainWindowParent );
+    auto* wrapper = new RiuCorrelationReportPlotWidget( this, mainWindowParent );
+    m_viewWidget  = wrapper;
+    m_dockManager = new ads::CDockManager( wrapper );
     m_dockManager->setStyleSheet( "ads--CDockSplitter::handle { width: 1px; height: 1px; }" );
+    wrapper->layout()->addWidget( m_dockManager );
     recreatePlotWidgets();
 
-    return m_dockManager;
+    return m_viewWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,8 +584,12 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         {
             if ( !m_summaryAddressSelector->ensemble() )
             {
-                auto ensembles = m_correlationMatrixPlot->ensembles();
-                if ( !ensembles.empty() ) m_summaryAddressSelector->setEnsemble( *ensembles.begin() );
+                auto curveDefs = m_correlationMatrixPlot->curveDefinitions();
+                if ( !curveDefs.empty() )
+                {
+                    m_summaryAddressSelector->setEnsemble( curveDefs.front().ensemble() );
+                    m_summaryAddressSelector->setAddress( curveDefs.front().summaryAddressY() );
+                }
             }
 
             auto curveSets = m_summaryPlot->ensembleCurveSetCollection()->curveSets();
@@ -439,6 +601,15 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 
             m_summaryPlot->loadDataAndUpdate();
             if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->setPlotTitleEnabled( true );
+
+            // Add static line for the currently selected time step.
+            // Must be done after loadDataAndUpdate() since that clears all annotations internally.
+            auto* timeAxisProps = m_summaryPlot->timeAxisProperties();
+            if ( timeAxisProps )
+            {
+                timeAxisProps->appendAnnotation( RimTimeAxisAnnotation::createTimeAnnotation( timeStep, cvf::Color3f( 0.6f, 0.4f, 0.08f ) ) );
+                m_summaryPlot->updateAnnotationsInPlotWidget();
+            }
         }
     }
 
@@ -471,6 +642,11 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
     m_correlationMatrixPlot->legendConfig()->uiOrdering( "ColorsOnly", *plotGroup );
+
+    auto layoutGroup = uiOrdering.addNewGroup( "Dock Layout" );
+    layoutGroup->setCollapsedByDefault();
+    layoutGroup->addNewButton( "Save as Default Layout", [this]() { onSaveDefaultDockLayout(); } );
+    layoutGroup->addNewButton( "Restore Default Layout", [this]() { onRestoreDefaultDockLayout(); } );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -543,4 +719,28 @@ void RimCorrelationReportPlot::onSummaryPlotMousePressed( double xPlotCoordinate
 void RimCorrelationReportPlot::onAddressSelectorChanged( const caf::SignalEmitter* )
 {
     loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::onSaveDefaultDockLayout()
+{
+    if ( m_dockManager )
+    {
+        QSettings settings;
+        settings.setValue( DOCK_LAYOUT_REGISTRY_KEY, m_dockManager->saveState( 1 ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::onRestoreDefaultDockLayout()
+{
+    if ( !m_dockManager ) return;
+
+    QSettings settings;
+    QVariant  v = settings.value( DOCK_LAYOUT_REGISTRY_KEY );
+    if ( v.isValid() ) m_dockManager->restoreState( v.toByteArray(), 1 );
 }

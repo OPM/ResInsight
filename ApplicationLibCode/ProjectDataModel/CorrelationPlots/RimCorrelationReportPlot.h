@@ -84,6 +84,8 @@ private:
     void onDataSelection( const caf::SignalEmitter* emitter, std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef );
     void onSummaryPlotMousePressed( double xPlotCoordinate );
     void onAddressSelectorChanged( const caf::SignalEmitter* emitter );
+    void onSaveDefaultDockLayout();
+    void onRestoreDefaultDockLayout();
 
 private:
     caf::PdmProxyValueField<QString> m_name;
@@ -102,6 +104,7 @@ private:
 
     caf::PdmField<QString> m_dockState;
 
+    QWidget*           m_viewWidget            = nullptr;
     ads::CDockManager* m_dockManager           = nullptr;
     ads::CDockWidget*  m_matrixDockWidget      = nullptr;
     ads::CDockWidget*  m_correlationDockWidget = nullptr;
