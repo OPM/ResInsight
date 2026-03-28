@@ -87,10 +87,7 @@ RigGridExportAdapter::RigGridExportAdapter( RigEclipseCaseData*    eclipseCase,
 
     CVF_ASSERT( m_mainGrid );
     CVF_ASSERT( m_activeCellInfo );
-
-    cvf::Vec3st maxActual =
-        max.isUndefined() ? cvf::Vec3st( m_mainGrid->cellCountI() - 1, m_mainGrid->cellCountJ() - 1, m_mainGrid->cellCountK() - 1 ) : max;
-    m_max = maxActual;
+    CVF_ASSERT( !max.isUndefined() );
 
     m_refinedNI = m_refinement->totalRefinedCount( RigRefinement::DimI );
     m_refinedNJ = m_refinement->totalRefinedCount( RigRefinement::DimJ );
