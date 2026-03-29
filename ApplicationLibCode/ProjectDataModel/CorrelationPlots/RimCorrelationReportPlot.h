@@ -105,6 +105,7 @@ private:
     caf::PdmField<QString> m_dockState;
 
     QWidget*           m_viewWidget            = nullptr;
+    QObject*           m_contextMenuFilter     = nullptr;
     ads::CDockManager* m_dockManager           = nullptr;
     ads::CDockWidget*  m_matrixDockWidget      = nullptr;
     ads::CDockWidget*  m_correlationDockWidget = nullptr;

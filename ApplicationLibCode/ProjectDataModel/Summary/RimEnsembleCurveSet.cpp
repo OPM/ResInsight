@@ -2589,6 +2589,14 @@ const RimEnsembleStatistics* RimEnsembleCurveSet::statisticsOptions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEnsembleStatistics* RimEnsembleCurveSet::statisticsOptions()
+{
+    return m_statistics();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateEnsembleLegendItem()
 {
     if ( !m_plotCurveForLegendText ) return;

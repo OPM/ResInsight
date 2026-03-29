@@ -174,12 +174,13 @@ public:
 
     RimSummaryPlotSourceStepping* sourceSteppingObjectForKeyEventHandling() const;
 
-    void           setAutoScaleXEnabled( bool enabled ) override;
-    void           setAutoScaleYEnabled( bool enabled ) override;
-    RiuPlotWidget* plotWidget() override;
-    void           zoomAll() override;
-    void           updatePlotWidgetFromAxisRanges() override;
-    void           updateAxisRangesFromPlotWidget() override;
+    void            setAutoScaleXEnabled( bool enabled ) override;
+    void            setAutoScaleYEnabled( bool enabled ) override;
+    RiuPlotWidget*  plotWidget() override;
+    RiuSummaryPlot* summaryPlotWidget() const;
+    void            zoomAll() override;
+    void            updatePlotWidgetFromAxisRanges() override;
+    void            updateAxisRangesFromPlotWidget() override;
 
     void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
 

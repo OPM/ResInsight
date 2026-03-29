@@ -38,6 +38,8 @@
 #include "RimTimeAxisAnnotation.h"
 
 #include "RiuInterfaceToViewWindow.h"
+
+#include "RimViewWindow.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -62,7 +64,8 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
-static const char* DOCK_LAYOUT_REGISTRY_KEY = "CorrelationReportPlot/defaultDockLayout";
+static const char*        DOCK_LAYOUT_REGISTRY_KEY  = "CorrelationReportPlot/defaultDockLayout";
+static const cvf::Color3f TRACKING_ANNOTATION_COLOR = cvf::Color3f( 0.6f, 0.4f, 0.08f );
 
 //--------------------------------------------------------------------------------------------------
 /// Thin wrapper around CDockManager that implements RiuInterfaceToViewWindow so that
@@ -71,19 +74,19 @@ static const char* DOCK_LAYOUT_REGISTRY_KEY = "CorrelationReportPlot/defaultDock
 class RiuCorrelationReportPlotWidget : public QFrame, public RiuInterfaceToViewWindow
 {
 public:
-    RiuCorrelationReportPlotWidget( RimCorrelationReportPlot* plot, QWidget* parent = nullptr )
+    RiuCorrelationReportPlotWidget( RimViewWindow* viewWindow, QWidget* parent = nullptr )
         : QFrame( parent )
-        , m_plot( plot )
+        , m_viewWindow( viewWindow )
     {
         setLayout( new QVBoxLayout );
         layout()->setContentsMargins( 0, 0, 0, 0 );
         layout()->setSpacing( 0 );
     }
 
-    RimViewWindow* ownerViewWindow() const override { return m_plot; }
+    RimViewWindow* ownerViewWindow() const override { return m_viewWindow; }
 
 private:
-    RimCorrelationReportPlot* m_plot;
+    RimViewWindow* m_viewWindow;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +118,7 @@ public:
                 timeAxisProps->removeAnnotation( m_trackingAnnotation );
                 m_trackingAnnotation = nullptr;
             }
-            auto* anno = RimTimeAxisAnnotation::createTimeAnnotation( timeTValue, cvf::Color3f( 0.6f, 0.4f, 0.08f ) );
+            auto* anno = RimTimeAxisAnnotation::createTimeAnnotation( timeTValue, TRACKING_ANNOTATION_COLOR );
             anno->setPenStyle( Qt::DashLine );
             timeAxisProps->appendAnnotation( anno );
             m_trackingAnnotation = anno;
@@ -152,23 +155,23 @@ namespace
 // Ensures the correlation report plot is selected in CAF whenever a context menu event is dispatched
 // anywhere within the dock manager — so feature availability checks in RiuContextMenuLauncher
 // see the correct item (mirrors what RiuMultiPlotPage::contextMenuEvent did explicitly).
-class ReportPlotContextMenuFilter : public QObject
+class SelectionFixerOnContextMenu : public QObject
 {
 public:
-    ReportPlotContextMenuFilter( RimCorrelationReportPlot* plot, QObject* parent )
+    SelectionFixerOnContextMenu( caf::PdmObject* item, QObject* parent )
         : QObject( parent )
-        , m_plot( plot )
+        , m_item( item )
     {
     }
 
     bool eventFilter( QObject*, QEvent* event ) override
     {
-        if ( event->type() == QEvent::ContextMenu ) caf::SelectionManager::instance()->setSelectedItem( m_plot );
+        if ( event->type() == QEvent::ContextMenu ) caf::SelectionManager::instance()->setSelectedItem( m_item );
         return false; // never consume the event
     }
 
 private:
-    RimCorrelationReportPlot* m_plot;
+    caf::PdmObject* m_item;
 };
 } // namespace
 
@@ -232,8 +235,8 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     auto* curveSet = new RimEnsembleCurveSet();
     curveSet->setColorMode( RimEnsembleCurveSet::ColorMode::SINGLE_COLOR );
-    curveSet->setColor( cvf::Color3f( 0.6f, 0.4f, 0.08f ) );
-    const_cast<RimEnsembleStatistics*>( curveSet->statisticsOptions() )->enableCurveLabels( false );
+    curveSet->setColor( TRACKING_ANNOTATION_COLOR );
+    curveSet->statisticsOptions()->enableCurveLabels( false );
     m_summaryPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
 
     m_summaryAddressSelector = new RimSummaryAddressSelector();
@@ -385,13 +388,17 @@ void RimCorrelationReportPlot::recreatePlotWidgets()
     m_parameterResultCrossPlot->createPlotWidget( m_dockManager );
     m_summaryPlot->createPlotWidget( m_dockManager );
 
-    // Install selection fixer on each plot widget (runs first due to LIFO filter order), so that
-    // RiuContextMenuLauncher sees the correct CAF selection when building the context menu.
-    auto* filter = new ReportPlotContextMenuFilter( this, m_dockManager );
-    if ( m_correlationMatrixPlot->viewer() ) m_correlationMatrixPlot->viewer()->installEventFilter( filter );
-    if ( m_correlationPlot->viewer() ) m_correlationPlot->viewer()->installEventFilter( filter );
-    if ( m_parameterResultCrossPlot->viewer() ) m_parameterResultCrossPlot->viewer()->installEventFilter( filter );
-    if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->installEventFilter( filter );
+    // Install selection fixer on each plot widget.
+    // Filter runs first (LIFO order) so RiuContextMenuLauncher sees the correct CAF selection.
+    delete m_contextMenuFilter;
+    m_contextMenuFilter = new SelectionFixerOnContextMenu( this, this );
+    for ( RiuPlotWidget* w : std::initializer_list<RiuPlotWidget*>{ m_correlationMatrixPlot->viewer(),
+                                                                    m_correlationPlot->viewer(),
+                                                                    m_parameterResultCrossPlot->viewer(),
+                                                                    m_summaryPlot->plotWidget() } )
+    {
+        if ( w ) w->installEventFilter( m_contextMenuFilter );
+    }
 
     // Wrap each plot in a dock widget
     m_matrixDockWidget = new ads::CDockWidget( "Matrix Plot", m_dockManager );
@@ -409,6 +416,9 @@ void RimCorrelationReportPlot::recreatePlotWidgets()
     m_summaryDockWidget = new ads::CDockWidget( "Summary Plot", m_dockManager );
     m_summaryDockWidget->setWidget( m_summaryPlot->plotWidget(), ads::CDockWidget::ForceNoScrollArea );
     m_summaryDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
+
+    // Disable zoom — clicks are used for time step selection, not zooming
+    if ( m_summaryPlot->summaryPlotWidget() ) m_summaryPlot->summaryPlotWidget()->setZoomEnabled( false );
 
     // Connect summary plot click → time step update; add time tracking readout
     auto* summaryWidget = dynamic_cast<RiuQwtPlotWidget*>( m_summaryPlot->plotWidget() );
@@ -440,14 +450,12 @@ void RimCorrelationReportPlot::recreatePlotWidgets()
     }
     else
     {
-        // Hard-coded default: matrix on left, corr top-right, cross bottom-right, summary far right
-        auto* matrixArea = m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_matrixDockWidget );
-        auto* corrArea   = m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_correlationDockWidget );
-        auto* crossArea  = m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_crossPlotDockWidget, corrArea );
-        m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_summaryDockWidget, corrArea );
-
-        (void)matrixArea;
-        (void)crossArea;
+        // Hard-coded default: matrix left (full height), corr top-right, cross bottom-right,
+        // summary spanning full width at bottom
+        auto* corrArea = m_dockManager->addDockWidget( ads::CenterDockWidgetArea, m_correlationDockWidget );
+        m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_matrixDockWidget );
+        m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_crossPlotDockWidget, corrArea );
+        m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_summaryDockWidget );
 
         m_summaryDockWidget->toggleView( m_showSummaryPlot() );
     }
@@ -607,7 +615,7 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
             auto* timeAxisProps = m_summaryPlot->timeAxisProperties();
             if ( timeAxisProps )
             {
-                timeAxisProps->appendAnnotation( RimTimeAxisAnnotation::createTimeAnnotation( timeStep, cvf::Color3f( 0.6f, 0.4f, 0.08f ) ) );
+                timeAxisProps->appendAnnotation( RimTimeAxisAnnotation::createTimeAnnotation( timeStep, TRACKING_ANNOTATION_COLOR ) );
                 m_summaryPlot->updateAnnotationsInPlotWidget();
             }
         }

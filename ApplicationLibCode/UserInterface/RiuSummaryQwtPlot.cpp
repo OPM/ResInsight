@@ -298,6 +298,21 @@ void RiuSummaryQwtPlot::enableCurvePointTracking( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::setZoomEnabled( bool enable )
+{
+    if ( m_plotZoomer ) m_plotZoomer->setEnabled( enable );
+    if ( m_wheelZoomer && m_plotWidget && m_plotWidget->qwtPlot() )
+    {
+        if ( enable )
+            m_plotWidget->qwtPlot()->canvas()->installEventFilter( m_wheelZoomer );
+        else
+            m_plotWidget->qwtPlot()->canvas()->removeEventFilter( m_wheelZoomer );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::clearAnnotationObjects()
 {
     m_annotationTool->detachAllAnnotations();

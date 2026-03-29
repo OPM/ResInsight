@@ -61,6 +61,7 @@ public:
     RiuPlotWidget* plotWidget() const override;
 
     void enableCurvePointTracking( bool enable ) override;
+    void setZoomEnabled( bool enable ) override;
 
 protected:
     void setDefaults();

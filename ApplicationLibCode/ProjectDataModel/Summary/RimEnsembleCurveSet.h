@@ -166,6 +166,7 @@ public:
     bool hasPercentileData( int p ) const override;
 
     const RimEnsembleStatistics* statisticsOptions() const;
+    RimEnsembleStatistics*       statisticsOptions();
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
     void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryEnsemble* summaryCaseGroup );
