@@ -31,7 +31,6 @@
 
 #include "RicfCommandObject.h"
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -39,6 +38,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+#include "RigTypeSafeIndex.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"

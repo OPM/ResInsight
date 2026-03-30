@@ -25,12 +25,12 @@
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -339,13 +339,15 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
             if ( activeM[gridLocalCellIndex] != 0 )
             {
-                m_unionOfMatrixActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ), ActiveCellIndex( globalActiveMatrixIndex++ ) );
+                m_unionOfMatrixActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ),
+                                                                ActiveCellIndex( globalActiveMatrixIndex++ ) );
                 activeMatrixIndex++;
             }
 
             if ( activeF[gridLocalCellIndex] != 0 )
             {
-                m_unionOfFractureActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ), ActiveCellIndex( globalActiveFractureIndex++ ) );
+                m_unionOfFractureActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ),
+                                                                  ActiveCellIndex( globalActiveFractureIndex++ ) );
                 activeFractureIndex++;
             }
         }

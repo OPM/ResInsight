@@ -37,9 +37,9 @@
 #include "RifThermalToStimPlanFractureXmlOutput.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 #include "Well/RigWellLogExtractor.h"
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathIntersectionTools.h"

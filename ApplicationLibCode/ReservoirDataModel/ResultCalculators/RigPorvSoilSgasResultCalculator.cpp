@@ -20,10 +20,10 @@
 #include "RiaDefines.h"
 #include "RiaResultNames.h"
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 //==================================================================================================
 ///

@@ -38,11 +38,11 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseResultAddress.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+#include "RigTypeSafeIndex.h"
 #include "RigUniformRefinement.h"
 
 #include "cafProgressInfo.h"

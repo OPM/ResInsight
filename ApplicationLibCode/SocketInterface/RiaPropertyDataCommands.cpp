@@ -24,7 +24,6 @@
 #include "RiaSocketTools.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
@@ -32,6 +31,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"

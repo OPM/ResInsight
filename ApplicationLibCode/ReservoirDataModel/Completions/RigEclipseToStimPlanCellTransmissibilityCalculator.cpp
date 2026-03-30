@@ -19,7 +19,6 @@
 #include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
@@ -29,6 +28,7 @@
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimEclipseCase.h"
 #include "RimFracture.h"

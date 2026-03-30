@@ -23,13 +23,13 @@
 #include "RifReaderEclipseOutput.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigEquil.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+#include "RigTypeSafeIndex.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigSimulationWellCenterLineCalculator.h"
@@ -757,7 +757,8 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
                 {
                     size_t globalCellIndex = localGrid->reservoirCellIndex( localCellIndex );
 
-                    if ( globalCellIndex < activeInfos[acIdx]->reservoirCellCount() && activeInfos[acIdx]->isActive( ReservoirCellIndex( globalCellIndex ) ) )
+                    if ( globalCellIndex < activeInfos[acIdx]->reservoirCellCount() &&
+                         activeInfos[acIdx]->isActive( ReservoirCellIndex( globalCellIndex ) ) )
                     {
                         std::array<cvf::Vec3d, 8> hexCorners = localGrid->cellCornerVertices( localCellIndex );
                         for ( const auto& corner : hexCorners )

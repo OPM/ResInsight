@@ -19,9 +19,9 @@
 #include "RivEclipseIntersectionGrid.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigFemPart.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

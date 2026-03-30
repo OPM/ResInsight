@@ -22,7 +22,6 @@
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -31,6 +30,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+#include "RigTypeSafeIndex.h"
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"

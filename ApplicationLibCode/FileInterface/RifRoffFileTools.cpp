@@ -27,9 +27,9 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
@@ -229,7 +229,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
             int matrixActiveIndex = activeCells[gridLocalCellIndex];
             if ( matrixActiveIndex != -1 )
             {
-                activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ), ActiveCellIndex( matrixActiveIndex ) );
+                activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ),
+                                                    ActiveCellIndex( matrixActiveIndex ) );
             }
 
             cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );

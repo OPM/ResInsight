@@ -22,10 +22,10 @@
 #include "RicMswTableDataTools.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 #include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimEclipseCase.h"

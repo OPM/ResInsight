@@ -24,12 +24,12 @@
 #include "RifReaderMockModel.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 #include "Well/RigWellPath.h"
 

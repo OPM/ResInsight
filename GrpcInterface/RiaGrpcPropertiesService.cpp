@@ -23,7 +23,6 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
-#include "RigTypeSafeIndex.h"
 #include "RigAllGridCellsResultAccessor.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -34,6 +33,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
+#include "RigTypeSafeIndex.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
@@ -271,7 +271,8 @@ protected:
             size_t              reservoirCellCount = activeCellInfo->reservoirCellCount();
             for ( size_t cellIdx = 0; cellIdx < reservoirCellCount; cellIdx++ )
             {
-                size_t activeCellIdx = caseData->activeCellInfo( m_porosityModel )->cellResultIndex( ReservoirCellIndex( cellIdx ) ).value();
+                size_t activeCellIdx =
+                    caseData->activeCellInfo( m_porosityModel )->cellResultIndex( ReservoirCellIndex( cellIdx ) ).value();
                 if ( activeCellIdx != cvf::UNDEFINED_SIZE_T )
                     activeCellResultValues[activeCellIdx] = ( *m_resultValues )[cellIdx];
             }

@@ -30,10 +30,10 @@
 
 #include "CompletionsMsw/RigMswTableData.h"
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 #include "Well/RigWellLogExtractor.h"
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathIntersectionTools.h"
@@ -1703,7 +1703,8 @@ std::pair<double, double>
 {
     for ( const WellPathCellIntersectionInfo& intersection : wellPathIntersections )
     {
-        if ( intersection.globCellIndex < activeCellInfo->reservoirCellCount() && activeCellInfo->isActive( ReservoirCellIndex( intersection.globCellIndex ) ) )
+        if ( intersection.globCellIndex < activeCellInfo->reservoirCellCount() &&
+             activeCellInfo->isActive( ReservoirCellIndex( intersection.globCellIndex ) ) )
         {
             double overlapStart = std::max( startMD, intersection.startMD );
             double overlapEnd   = std::min( endMD, intersection.endMD );

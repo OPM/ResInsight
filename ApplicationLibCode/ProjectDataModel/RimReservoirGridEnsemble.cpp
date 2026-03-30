@@ -23,11 +23,11 @@
 
 #include "RifReaderOpmCommon.h"
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 #include "ContourMap/RimStatisticsContourMap.h"
 #include "ContourMap/RimStatisticsContourMapView.h"
@@ -426,13 +426,15 @@ void RimReservoirGridEnsemble::computeUnionOfActiveCells()
 
             if ( activeM[gridLocalCellIndex] != 0 )
             {
-                m_unionOfMatrixActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ), ActiveCellIndex( globalActiveMatrixIndex++ ) );
+                m_unionOfMatrixActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ),
+                                                                ActiveCellIndex( globalActiveMatrixIndex++ ) );
                 activeMatrixIndex++;
             }
 
             if ( activeF[gridLocalCellIndex] != 0 )
             {
-                m_unionOfFractureActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ), ActiveCellIndex( globalActiveFractureIndex++ ) );
+                m_unionOfFractureActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ),
+                                                                  ActiveCellIndex( globalActiveFractureIndex++ ) );
                 activeFractureIndex++;
             }
         }

@@ -32,8 +32,8 @@
 #include "RiuViewer.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
+#include "RigTypeSafeIndex.h"
 
 #include "Riu3DMainWindowTools.h"
 

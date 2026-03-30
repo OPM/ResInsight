@@ -41,11 +41,11 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseResultInfo.h"
 #include "RigEquil.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
+#include "RigTypeSafeIndex.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
@@ -185,13 +185,15 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
         int matrixActiveIndex = ecl_grid_get_active_index1( localEclGrid, gridLocalCellIndex );
         if ( matrixActiveIndex != -1 )
         {
-            activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ), ActiveCellIndex( matrixActiveStartIndex + matrixActiveIndex ) );
+            activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ),
+                                                ActiveCellIndex( matrixActiveStartIndex + matrixActiveIndex ) );
         }
 
         int fractureActiveIndex = ecl_grid_get_active_fracture_index1( localEclGrid, gridLocalCellIndex );
         if ( fractureActiveIndex != -1 )
         {
-            fractureActiveCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ), ActiveCellIndex( fractureActiveStartIndex + fractureActiveIndex ) );
+            fractureActiveCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ),
+                                                        ActiveCellIndex( fractureActiveStartIndex + fractureActiveIndex ) );
         }
 
         // Parent cell index

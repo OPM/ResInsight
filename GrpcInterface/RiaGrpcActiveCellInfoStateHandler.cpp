@@ -23,10 +23,10 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"

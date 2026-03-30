@@ -35,12 +35,12 @@
 #include "RifInputPropertyLoader.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
+#include "RigTypeSafeIndex.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"

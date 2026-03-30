@@ -4,11 +4,11 @@
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseInputPropertyLoader.h"
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 #include <QDebug>
 #include <QDir>
@@ -774,8 +774,9 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
             {
                 for ( size_t i = 0; i < originalGrid->cellCountI(); ++i )
                 {
-                    size_t originalCellIndex   = originalGrid->cellIndexFromIJK( i, j, k );
-                    size_t originalResultIndex = originalResultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( originalCellIndex ) ).value();
+                    size_t originalCellIndex = originalGrid->cellIndexFromIJK( i, j, k );
+                    size_t originalResultIndex =
+                        originalResultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( originalCellIndex ) ).value();
 
                     if ( originalResultIndex != cvf::UNDEFINED_SIZE_T && originalResultIndex < originalData.size() )
                     {

@@ -27,12 +27,12 @@
 #include "RicDeleteTemporaryLgrsFeature.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"

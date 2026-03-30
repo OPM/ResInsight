@@ -23,10 +23,10 @@
 #include "RicfCommandObject.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 #include "Well/RigMswCenterLineCalculator.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigSimulationWellCenterLineCalculator.h"

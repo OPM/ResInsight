@@ -32,10 +32,10 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseResultAddress.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_grid.h"

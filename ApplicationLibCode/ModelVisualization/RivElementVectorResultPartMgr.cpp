@@ -24,13 +24,13 @@
 #include "RimRegularLegendConfig.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
+#include "RigTypeSafeIndex.h"
 
 #include "cafDisplayCoordTransform.h"
 

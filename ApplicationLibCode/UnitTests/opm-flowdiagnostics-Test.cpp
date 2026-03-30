@@ -5,11 +5,11 @@
 #include "RiaDefines.h"
 #include "RifReaderEclipseOutput.h"
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagDefines.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 #include "RimEclipseResultCase.h"
 
 #include <QFileInfo>

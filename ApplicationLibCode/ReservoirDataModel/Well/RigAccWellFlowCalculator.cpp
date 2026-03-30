@@ -21,11 +21,11 @@
 #include "RiaWellFlowDefines.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
 #include "RigSimulationWellCoordsAndMD.h"
+#include "RigTypeSafeIndex.h"
 #include "RigWellResultPoint.h"
 
 #include <cmath>

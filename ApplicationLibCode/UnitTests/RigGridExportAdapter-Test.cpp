@@ -22,12 +22,12 @@
 #include "RifEclipseInputFileTools.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
 #include "RigNoRefinement.h"
 #include "RigRefinement.h"
+#include "RigTypeSafeIndex.h"
 #include "RigUniformRefinement.h"
 
 #include "RimEclipseResultCase.h"

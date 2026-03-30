@@ -30,7 +30,6 @@
 #include "RifReaderEclipseOutput.h"
 
 #include "RigAllanDiagramData.h"
-#include "RigTypeSafeIndex.h"
 #include "RigAllanUtil.h"
 #include "RigCaseCellResultCalculator.h"
 #include "RigCellVolumeResultCalculator.h"
@@ -51,6 +50,7 @@
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
 #include "RigSwatResultCalculator.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimCompletionCellIntersectionCalc.h"
 #include "RimEclipseCase.h"

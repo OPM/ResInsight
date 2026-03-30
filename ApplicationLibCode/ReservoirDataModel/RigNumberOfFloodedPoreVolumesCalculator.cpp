@@ -352,7 +352,8 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
         {
             size_t gridLocalCellIndexPosINeighbour = hostGrid->cellIndexFromIJK( i + 1, j, k );
             size_t reservoirCellIndexPosINeighbour = hostGrid->reservoirCellIndex( gridLocalCellIndexPosINeighbour );
-            size_t cellResultIndexPosINeighbour    = actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosINeighbour ) ).value();
+            size_t cellResultIndexPosINeighbour =
+                actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosINeighbour ) ).value();
 
             if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndexPosINeighbour ) ) ) continue;
 
@@ -380,7 +381,8 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
         {
             size_t gridLocalCellIndexPosJNeighbour = hostGrid->cellIndexFromIJK( i, j + 1, k );
             size_t reservoirCellIndexPosJNeighbour = hostGrid->reservoirCellIndex( gridLocalCellIndexPosJNeighbour );
-            size_t cellResultIndexPosJNeighbour    = actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosJNeighbour ) ).value();
+            size_t cellResultIndexPosJNeighbour =
+                actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosJNeighbour ) ).value();
 
             if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndexPosJNeighbour ) ) ) continue;
 
@@ -408,7 +410,8 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
         {
             size_t gridLocalCellIndexPosKNeighbour = hostGrid->cellIndexFromIJK( i, j, k + 1 );
             size_t reservoirCellIndexPosKNeighbour = hostGrid->reservoirCellIndex( gridLocalCellIndexPosKNeighbour );
-            size_t cellResultIndexPosKNeighbour    = actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosKNeighbour ) ).value();
+            size_t cellResultIndexPosKNeighbour =
+                actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosKNeighbour ) ).value();
 
             if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndexPosKNeighbour ) ) ) continue;
 

@@ -21,8 +21,8 @@
 #include "RiaLogging.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RigActiveCellInfo.h"
-#include "RigTypeSafeIndex.h"
 #include "RigFractureTransmissibilityEquations.h"
+#include "RigTypeSafeIndex.h"
 
 #include "cvfAssert.h"
 

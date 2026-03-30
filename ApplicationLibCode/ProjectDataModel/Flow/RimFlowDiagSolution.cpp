@@ -22,8 +22,8 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
-#include "RigTypeSafeIndex.h"
 #include "RigMainGrid.h"
+#include "RigTypeSafeIndex.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
@@ -203,7 +203,8 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
                         RigGridBase* grid               = mainGrid->gridByIndex( wrp.gridIndex() );
                         size_t       reservoirCellIndex = grid->reservoirCellIndex( wrp.cellIndex() );
 
-                        int cellActiveIndex = static_cast<int>( activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value() );
+                        int cellActiveIndex =
+                            static_cast<int>( activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value() );
 
                         if ( useInjectors == isInjectorWell )
                         {
