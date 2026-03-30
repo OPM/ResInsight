@@ -62,14 +62,6 @@ bool RigActiveCellInfo::isActive( ReservoirCellIndex reservoirCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigActiveCellInfo::isActive( size_t reservoirCellIndex ) const
-{
-    return isActive( ReservoirCellIndex( reservoirCellIndex ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 ActiveCellIndex RigActiveCellInfo::cellResultIndex( ReservoirCellIndex reservoirCellIndex ) const
 {
     CVF_TIGHT_ASSERT( reservoirCellIndex.value() < m_reservoirCellToActiveCell.size() );
@@ -80,27 +72,11 @@ ActiveCellIndex RigActiveCellInfo::cellResultIndex( ReservoirCellIndex reservoir
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::cellResultIndex( size_t reservoirCellIndex ) const
-{
-    return cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::setCellResultIndex( ReservoirCellIndex reservoirCellIndex, ActiveCellIndex reservoirCellResultIndex )
 {
     CVF_TIGHT_ASSERT( reservoirCellResultIndex.value() < m_reservoirCellToActiveCell.size() );
 
     m_reservoirCellToActiveCell[reservoirCellIndex.value()] = reservoirCellResultIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setCellResultIndex( size_t reservoirCellIndex, size_t reservoirCellResultIndex )
-{
-    setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ), ActiveCellIndex( reservoirCellResultIndex ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -773,8 +773,9 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
             {
                 for ( size_t i = 0; i < originalGrid->cellCountI(); ++i )
                 {
-                    size_t originalCellIndex   = originalGrid->cellIndexFromIJK( i, j, k );
-                    size_t originalResultIndex = originalResultsData->activeCellInfo()->cellResultIndex( originalCellIndex );
+                    size_t originalCellIndex = originalGrid->cellIndexFromIJK( i, j, k );
+                    size_t originalResultIndex =
+                        originalResultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( originalCellIndex ) ).value();
 
                     if ( originalResultIndex != cvf::UNDEFINED_SIZE_T && originalResultIndex < originalData.size() )
                     {
@@ -791,7 +792,7 @@ TEST( RifEclipseInputFileToolsTest, ExportKeywordsWithRefinement )
     ASSERT_FALSE( testCell.isUndefined() ) << "Should find at least one active cell with PORO data to test refinement mapping";
 
     size_t originalCellIndex   = originalGrid->cellIndexFromIJK( testCell.x(), testCell.y(), testCell.z() );
-    size_t originalResultIndex = originalResultsData->activeCellInfo()->cellResultIndex( originalCellIndex );
+    size_t originalResultIndex = originalResultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( originalCellIndex ) ).value();
     double originalPoroValue   = originalData[originalResultIndex];
 
     // Check all 4 refined cells (2x2x1) that correspond to this original cell

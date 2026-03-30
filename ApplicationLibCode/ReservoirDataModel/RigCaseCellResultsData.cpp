@@ -50,6 +50,7 @@
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
 #include "RigSwatResultCalculator.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimCompletionCellIntersectionCalc.h"
 #include "RimEclipseCase.h"
@@ -908,7 +909,7 @@ const std::vector<double>* RigCaseCellResultsData::getResultIndexableStaticResul
 
         for ( size_t globalCellIndex = 0; globalCellIndex < reservoirCellCount; globalCellIndex++ )
         {
-            size_t resultIdx = actCellInfo->cellResultIndex( globalCellIndex );
+            size_t resultIdx = actCellInfo->cellResultIndex( ReservoirCellIndex( globalCellIndex ) ).value();
             if ( resultIdx != cvf::UNDEFINED_SIZE_T )
             {
                 activeCellsResultsTempContainer[resultIdx] = porvResults->at( globalCellIndex );
@@ -1959,7 +1960,7 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
         const RigCell& cell = m_ownerMainGrid->cell( cellIdx );
         if ( cell.isInvalid() ) continue;
 
-        size_t resultIndex = activeCellInfo()->cellResultIndex( cellIdx );
+        size_t resultIndex = activeCellInfo()->cellResultIndex( ReservoirCellIndex( cellIdx ) ).value();
         if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
         if ( resultIndex >= actCellCount ) continue;
 
@@ -2118,7 +2119,7 @@ size_t directReservoirCellIndex( const RigActiveCellInfo* activeCellinfo, size_t
 
 size_t reservoirActiveCellIndex( const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex )
 {
-    return activeCellinfo->cellResultIndex( reservoirCellIndex );
+    return activeCellinfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
 }
 } // namespace RigTransmissibilityCalcTools
 
@@ -3031,8 +3032,8 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs( const QString& resultN
                 size_t mainGridCellIndex  = cell.mainGridCellIndex();
                 size_t reservoirCellIndex = grid->reservoirCellIndex( localCellIdx );
 
-                size_t mainGridCellResultIndex = m_activeCellInfo->cellResultIndex( mainGridCellIndex );
-                size_t cellResultIndex         = m_activeCellInfo->cellResultIndex( reservoirCellIndex );
+                size_t mainGridCellResultIndex = m_activeCellInfo->cellResultIndex( ReservoirCellIndex( mainGridCellIndex ) ).value();
+                size_t cellResultIndex         = m_activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
 
                 if ( mainGridCellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex != cvf::UNDEFINED_SIZE_T )
                 {

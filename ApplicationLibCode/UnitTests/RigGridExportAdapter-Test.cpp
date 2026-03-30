@@ -216,7 +216,7 @@ TEST( RigGridExportAdapterTest, CellActivity )
                 size_t origJ          = min.y() + j;
                 size_t origK          = min.z() + k;
                 size_t mainIndex      = mainGrid->cellIndexFromIJK( origI, origJ, origK );
-                bool   expectedActive = activeCellInfo->isActive( mainIndex );
+                bool   expectedActive = activeCellInfo->isActive( ReservoirCellIndex( mainIndex ) );
 
                 EXPECT_EQ( expectedActive, adapterActive ) << "Activity mismatch at (" << i << "," << j << "," << k << ")";
             }

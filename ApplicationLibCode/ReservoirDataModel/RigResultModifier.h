@@ -72,7 +72,7 @@ public:
     void setCellScalar( size_t gridLocalCellIndex, double scalarValue ) override
     {
         size_t reservoirCellIndex = m_grid->reservoirCellIndex( gridLocalCellIndex );
-        size_t resultValueIndex   = m_activeCellInfo->cellResultIndex( reservoirCellIndex );
+        size_t resultValueIndex   = m_activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
 
         CVF_TIGHT_ASSERT( m_reservoirResultValues != nullptr && resultValueIndex < m_reservoirResultValues->size() );
 

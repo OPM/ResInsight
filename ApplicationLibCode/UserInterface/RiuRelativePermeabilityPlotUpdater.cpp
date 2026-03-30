@@ -119,7 +119,7 @@ size_t mapToActiveCellIndex( const RigEclipseCaseData* eclipseCaseData, size_t g
         CVF_ASSERT( activeCellInfo );
 
         const size_t reservoirCellIndex = grid->reservoirCellIndex( gridLocalCellIndex );
-        const size_t activeCellIndex    = activeCellInfo->cellResultIndex( reservoirCellIndex );
+        const size_t activeCellIndex    = activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
 
         return activeCellIndex;
     }

@@ -723,7 +723,7 @@ void RigGriddedPart3d::postProcessElementSets( const RigMainGrid* mainGrid, cons
         {
             cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
 
-            bActive = ( cellIdx != cvf::UNDEFINED_SIZE_T ) && ( cellInfo->isActive( cellIdx ) );
+            bActive = ( cellIdx != cvf::UNDEFINED_SIZE_T ) && ( cellInfo->isActive( ReservoirCellIndex( cellIdx ) ) );
             if ( bActive ) break;
         }
 
@@ -772,7 +772,7 @@ void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
                 {
                     cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
 
-                    if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) && ( cellInfo->isActive( cellIdx ) ) )
+                    if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) && ( cellInfo->isActive( ReservoirCellIndex( cellIdx ) ) ) )
                     {
                         bStop = true;
                         break;

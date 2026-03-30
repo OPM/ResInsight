@@ -62,7 +62,7 @@ std::vector<double> RigDepthResultAccessor::resultValues( RigEclipseCaseData*   
                 size_t tmpCellIdx = grid->cellIndexFromIJK( i, j, k );
                 double tmpVal     = 0.0;
 
-                if ( !activeCellInfo->isActive( tmpCellIdx ) )
+                if ( !activeCellInfo->isActive( ReservoirCellIndex( tmpCellIdx ) ) )
                 {
                     tmpVal = nan;
                 }

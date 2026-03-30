@@ -304,10 +304,10 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow( const RigConnec
         double        connectionValue = flowrateNNC->at( connectionIndex );
 
         size_t cell1Index       = connection.c1GlobIdx();
-        size_t cell1ResultIndex = actCellInfo->cellResultIndex( cell1Index );
+        size_t cell1ResultIndex = actCellInfo->cellResultIndex( ReservoirCellIndex( cell1Index ) ).value();
 
         size_t cell2Index       = connection.c2GlobIdx();
-        size_t cell2ResultIndex = actCellInfo->cellResultIndex( cell2Index );
+        size_t cell2ResultIndex = actCellInfo->cellResultIndex( ReservoirCellIndex( cell2Index ) ).value();
 
         if ( connectionValue > 0 )
         {
@@ -337,13 +337,13 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
 
     for ( size_t globalCellIndex = 0; globalCellIndex < mainGrid->totalCellCount(); globalCellIndex++ )
     {
-        if ( !actCellInfo->isActive( globalCellIndex ) ) continue;
+        if ( !actCellInfo->isActive( ReservoirCellIndex( globalCellIndex ) ) ) continue;
 
         const RigCell& cell               = mainGrid->cell( globalCellIndex );
         RigGridBase*   hostGrid           = cell.hostGrid();
         size_t         gridLocalCellIndex = cell.gridLocalCellIndex();
 
-        size_t cellResultIndex = actCellInfo->cellResultIndex( globalCellIndex );
+        size_t cellResultIndex = actCellInfo->cellResultIndex( ReservoirCellIndex( globalCellIndex ) ).value();
 
         size_t i, j, k;
         hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
@@ -352,9 +352,10 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
         {
             size_t gridLocalCellIndexPosINeighbour = hostGrid->cellIndexFromIJK( i + 1, j, k );
             size_t reservoirCellIndexPosINeighbour = hostGrid->reservoirCellIndex( gridLocalCellIndexPosINeighbour );
-            size_t cellResultIndexPosINeighbour    = actCellInfo->cellResultIndex( reservoirCellIndexPosINeighbour );
+            size_t cellResultIndexPosINeighbour =
+                actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosINeighbour ) ).value();
 
-            if ( !actCellInfo->isActive( reservoirCellIndexPosINeighbour ) ) continue;
+            if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndexPosINeighbour ) ) ) continue;
 
             if ( hostGrid->cell( gridLocalCellIndexPosINeighbour ).subGrid() != nullptr )
             {
@@ -380,9 +381,10 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
         {
             size_t gridLocalCellIndexPosJNeighbour = hostGrid->cellIndexFromIJK( i, j + 1, k );
             size_t reservoirCellIndexPosJNeighbour = hostGrid->reservoirCellIndex( gridLocalCellIndexPosJNeighbour );
-            size_t cellResultIndexPosJNeighbour    = actCellInfo->cellResultIndex( reservoirCellIndexPosJNeighbour );
+            size_t cellResultIndexPosJNeighbour =
+                actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosJNeighbour ) ).value();
 
-            if ( !actCellInfo->isActive( reservoirCellIndexPosJNeighbour ) ) continue;
+            if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndexPosJNeighbour ) ) ) continue;
 
             if ( hostGrid->cell( gridLocalCellIndexPosJNeighbour ).subGrid() != nullptr )
             {
@@ -408,9 +410,10 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
         {
             size_t gridLocalCellIndexPosKNeighbour = hostGrid->cellIndexFromIJK( i, j, k + 1 );
             size_t reservoirCellIndexPosKNeighbour = hostGrid->reservoirCellIndex( gridLocalCellIndexPosKNeighbour );
-            size_t cellResultIndexPosKNeighbour    = actCellInfo->cellResultIndex( reservoirCellIndexPosKNeighbour );
+            size_t cellResultIndexPosKNeighbour =
+                actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndexPosKNeighbour ) ).value();
 
-            if ( !actCellInfo->isActive( reservoirCellIndexPosKNeighbour ) ) continue;
+            if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndexPosKNeighbour ) ) ) continue;
 
             if ( hostGrid->cell( gridLocalCellIndexPosKNeighbour ).subGrid() != nullptr )
             {

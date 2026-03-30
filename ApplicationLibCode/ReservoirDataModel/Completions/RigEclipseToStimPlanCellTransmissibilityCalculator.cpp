@@ -280,7 +280,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
             const RigCell& cell                   = mainGrid->cell( reservoirCellIndex );
             size_t         mainGridReservoirIndex = cell.mainGridCellIndex();
 
-            if ( !activeCellInfo->isActive( mainGridReservoirIndex ) )
+            if ( !activeCellInfo->isActive( ReservoirCellIndex( mainGridReservoirIndex ) ) )
             {
                 isActive = false;
             }

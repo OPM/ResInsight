@@ -254,10 +254,10 @@ RigGridBase* RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, Ri
                     auto   gridCell  = localGrid->cell( cellIndex );
                     if ( gridCell.parentCellIndex() != cvf::UNDEFINED_SIZE_T )
                     {
-                        auto resultIndex = activeInfo->cellResultIndex( gridCell.parentCellIndex() );
-                        if ( resultIndex != cvf::UNDEFINED_SIZE_T )
+                        auto resultIndex = activeInfo->cellResultIndex( ReservoirCellIndex( gridCell.parentCellIndex() ) );
+                        if ( resultIndex.value() != cvf::UNDEFINED_SIZE_T )
                         {
-                            activeInfo->setCellResultIndex( cellIndex + mainGridCellCount, resultIndex );
+                            activeInfo->setCellResultIndex( ReservoirCellIndex( cellIndex + mainGridCellCount ), resultIndex );
                             activeCellCount++;
                         }
                     }

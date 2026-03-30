@@ -656,7 +656,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 
                 for ( size_t i = 0; i < visibleCells.size(); ++i )
                 {
-                    size_t cellIndex = activeCellInfo->cellResultIndex( i );
+                    size_t cellIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( i ) ).value();
                     if ( cellIndex != cvf::UNDEFINED_SIZE_T )
                     {
                         visibleActiveCells[cellIndex] = visibleCells[i];

@@ -43,10 +43,6 @@ public:
     void                            setCellResultIndex( ReservoirCellIndex reservoirCellIndex, ActiveCellIndex globalResultCellIndex );
     std::vector<ReservoirCellIndex> activeReservoirCellIndices() const;
 
-    [[deprecated( "Use ReservoirCellIndex overload" )]] bool   isActive( size_t reservoirCellIndex ) const;
-    [[deprecated( "Use ReservoirCellIndex overload" )]] size_t cellResultIndex( size_t reservoirCellIndex ) const;
-    [[deprecated( "Use ReservoirCellIndex overload" )]] void setCellResultIndex( size_t reservoirCellIndex, size_t globalResultCellIndex );
-
     void   setGridCount( size_t gridCount );
     void   setGridActiveCellCounts( size_t gridIndex, size_t activeCellCount );
     size_t gridActiveCellCounts( size_t gridIndex ) const;

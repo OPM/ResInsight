@@ -52,7 +52,7 @@ void RigWeightedMeanCalc::weightedMeanOverCells( const std::vector<double>* weig
             if ( !( *cellVisibilities )[cIdx] ) continue;
         }
 
-        size_t cellResultIndex = actCellInfo->cellResultIndex( cIdx );
+        size_t cellResultIndex = actCellInfo->cellResultIndex( ReservoirCellIndex( cIdx ) ).value();
         if ( cellResultIndex == cvf::UNDEFINED_SIZE_T || cellResultIndex > weights->size() )
         {
             continue;

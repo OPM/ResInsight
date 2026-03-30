@@ -270,7 +270,8 @@ protected:
             size_t              reservoirCellCount = activeCellInfo->reservoirCellCount();
             for ( size_t cellIdx = 0; cellIdx < reservoirCellCount; cellIdx++ )
             {
-                size_t activeCellIdx = caseData->activeCellInfo( m_porosityModel )->cellResultIndex( cellIdx );
+                size_t activeCellIdx =
+                    caseData->activeCellInfo( m_porosityModel )->cellResultIndex( ReservoirCellIndex( cellIdx ) ).value();
                 if ( activeCellIdx != cvf::UNDEFINED_SIZE_T )
                     activeCellResultValues[activeCellIdx] = ( *m_resultValues )[cellIdx];
             }

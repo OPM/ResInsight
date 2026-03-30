@@ -207,7 +207,7 @@ public:
 
             for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->totalCellCount(); reservoirCellIndex++ )
             {
-                if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
+                if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) ) ) continue;
 
                 cvf::Vec3d center = mainGrid->cell( reservoirCellIndex ).center();
 
@@ -379,7 +379,7 @@ public:
 
                 for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->totalCellCount(); reservoirCellIndex++ )
                 {
-                    if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
+                    if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) ) ) continue;
 
                     std::array<cvf::Vec3d, 8> cornerVerts = mainGrid->cellCornerVertices( reservoirCellIndex );
                     doubleValues[valueIndex++]            = getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );

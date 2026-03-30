@@ -1170,7 +1170,7 @@ std::vector<RigCompletionData>
 
             for ( auto& cell : intersectedCells )
             {
-                bool cellIsActive = activeCellInfo->isActive( cell.globCellIndex );
+                bool cellIsActive = activeCellInfo->isActive( ReservoirCellIndex( cell.globCellIndex ) );
                 if ( !cellIsActive ) continue;
 
                 RigCompletionData completion( wellPath->completionSettings()->wellNameForExport(),
@@ -1313,7 +1313,7 @@ std::pair<double, cvf::Vec2i>
         size_t             gridLocalCellIndex = 0;
         const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( intersection.globCellIndex, &gridLocalCellIndex );
 
-        if ( grid->gridId() == gridId && activeCellInfo->isActive( intersection.globCellIndex ) )
+        if ( grid->gridId() == gridId && activeCellInfo->isActive( ReservoirCellIndex( intersection.globCellIndex ) ) )
         {
             size_t i, j, k;
             if ( grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )

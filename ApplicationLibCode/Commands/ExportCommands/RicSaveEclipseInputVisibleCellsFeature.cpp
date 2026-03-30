@@ -77,7 +77,7 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
     values.resize( visibleCells.size() );
     for ( size_t i = 0; i < visibleCells.size(); ++i )
     {
-        if ( activeCellInfo->isActive( i ) )
+        if ( activeCellInfo->isActive( ReservoirCellIndex( i ) ) )
         {
             if ( visibleCells[i] )
             {

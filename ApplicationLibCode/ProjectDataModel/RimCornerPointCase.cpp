@@ -292,7 +292,8 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
         int matrixActiveIndex = activeCells[gridLocalCellIndex];
         if ( matrixActiveIndex != -1 )
         {
-            activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
+            activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ),
+                                                ActiveCellIndex( matrixActiveIndex ) );
         }
 
         cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );

@@ -184,13 +184,15 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
         int matrixActiveIndex = ecl_grid_get_active_index1( localEclGrid, gridLocalCellIndex );
         if ( matrixActiveIndex != -1 )
         {
-            activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveStartIndex + matrixActiveIndex );
+            activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ),
+                                                ActiveCellIndex( matrixActiveStartIndex + matrixActiveIndex ) );
         }
 
         int fractureActiveIndex = ecl_grid_get_active_fracture_index1( localEclGrid, gridLocalCellIndex );
         if ( fractureActiveIndex != -1 )
         {
-            fractureActiveCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, fractureActiveStartIndex + fractureActiveIndex );
+            fractureActiveCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ),
+                                                        ActiveCellIndex( fractureActiveStartIndex + fractureActiveIndex ) );
         }
 
         // Parent cell index

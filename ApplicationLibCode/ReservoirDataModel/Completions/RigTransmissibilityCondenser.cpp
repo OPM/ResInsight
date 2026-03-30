@@ -162,7 +162,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByM
                 if ( jt->first.m_cellIndexSpace == CellAddress::ECLIPSE )
                 {
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
-                    size_t eclipseResultIndex  = actCellInfo->cellResultIndex( globalMatrixCellIdx );
+                    size_t eclipseResultIndex  = actCellInfo->cellResultIndex( ReservoirCellIndex( globalMatrixCellIdx ) ).value();
                     CVF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
                     double unsignedDeltaPressure = std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
                     double nonZeroDeltaPressure  = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
@@ -182,7 +182,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByM
                 if ( jt->first.m_cellIndexSpace == CellAddress::ECLIPSE )
                 {
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
-                    size_t eclipseResultIndex  = actCellInfo->cellResultIndex( globalMatrixCellIdx );
+                    size_t eclipseResultIndex  = actCellInfo->cellResultIndex( ReservoirCellIndex( globalMatrixCellIdx ) ).value();
                     CVF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
 
                     originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;

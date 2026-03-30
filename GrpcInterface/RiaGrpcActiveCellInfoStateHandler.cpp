@@ -102,7 +102,7 @@ grpc::Status RiaGrpcActiveCellInfoStateHandler::assignNextActiveCellInfoData( ri
     while ( m_currentCellIdx < reservoirCells.size() )
     {
         size_t cellIdxToTry = m_currentCellIdx++;
-        if ( m_activeCellInfo->isActive( cellIdxToTry ) )
+        if ( m_activeCellInfo->isActive( ReservoirCellIndex( cellIdxToTry ) ) )
         {
             assignCellInfoData( cellInfo, reservoirCells, cellIdxToTry );
             return grpc::Status::OK;
@@ -231,7 +231,7 @@ grpc::Status RiaGrpcActiveCellInfoStateHandler::assignNextActiveCellCenter( rips
     while ( m_currentCellIdx < reservoirCells.size() )
     {
         size_t cellIdxToTry = m_currentCellIdx++;
-        if ( m_activeCellInfo->isActive( cellIdxToTry ) )
+        if ( m_activeCellInfo->isActive( ReservoirCellIndex( cellIdxToTry ) ) )
         {
             assignCellCenter( cellCenter, reservoirCells, cellIdxToTry );
             return grpc::Status::OK;
@@ -296,7 +296,7 @@ Status RiaGrpcActiveCellInfoStateHandler::assignNextActiveCellCorners( rips::Cel
     while ( m_currentCellIdx < reservoirCells.size() )
     {
         size_t cellIdxToTry = m_currentCellIdx++;
-        if ( m_activeCellInfo->isActive( cellIdxToTry ) )
+        if ( m_activeCellInfo->isActive( ReservoirCellIndex( cellIdxToTry ) ) )
         {
             assignCellCorners( cellCorners, reservoirCells, cellIdxToTry );
             return grpc::Status::OK;

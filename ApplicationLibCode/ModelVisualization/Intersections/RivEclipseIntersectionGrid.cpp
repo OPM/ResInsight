@@ -70,7 +70,7 @@ bool RivEclipseIntersectionGrid::useCell( size_t cellIndex ) const
         if ( m_showInactiveCells )
             return !cell.isInvalid() && ( cell.subGrid() == nullptr );
         else
-            return m_activeCellInfo->isActive( cellIndex ) && ( cell.subGrid() == nullptr );
+            return m_activeCellInfo->isActive( ReservoirCellIndex( cellIndex ) ) && ( cell.subGrid() == nullptr );
     }
     return false;
 }

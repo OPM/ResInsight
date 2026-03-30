@@ -228,7 +228,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
             int matrixActiveIndex = activeCells[gridLocalCellIndex];
             if ( matrixActiveIndex != -1 )
             {
-                activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
+                activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ),
+                                                    ActiveCellIndex( matrixActiveIndex ) );
             }
 
             cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
@@ -710,7 +711,7 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
     size_t cellCount      = mainGrid->cellCount();
     for ( size_t i = 0; i < cellCount; i++ )
     {
-        if ( !activeCellInfo->isActive( mainGrid->reservoirCellIndex( i ) ) )
+        if ( !activeCellInfo->isActive( ReservoirCellIndex( mainGrid->reservoirCellIndex( i ) ) ) )
         {
             values[i] = HUGE_VAL;
         }

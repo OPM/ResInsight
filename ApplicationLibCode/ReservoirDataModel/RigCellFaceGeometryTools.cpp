@@ -170,8 +170,8 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
             bool atLeastOneCellActive = true;
             if ( !includeInactiveCells && activeCellInfo && activeCellInfo->reservoirActiveCellCount() > 0u )
             {
-                atLeastOneCellActive = activeCellInfo->isActive( f.m_nativeReservoirCellIndex ) ||
-                                       activeCellInfo->isActive( f.m_oppositeReservoirCellIndex );
+                atLeastOneCellActive = activeCellInfo->isActive( ReservoirCellIndex( f.m_nativeReservoirCellIndex ) ) ||
+                                       activeCellInfo->isActive( ReservoirCellIndex( f.m_oppositeReservoirCellIndex ) );
             }
 
             if ( atLeastOneCellActive ) activeFaceIndices.push_back( faceIdx );

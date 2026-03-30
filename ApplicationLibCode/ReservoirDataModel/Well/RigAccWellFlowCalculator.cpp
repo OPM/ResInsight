@@ -41,7 +41,7 @@ size_t RigEclCellIndexCalculator::resultCellIndex( size_t gridIndex, size_t grid
 {
     size_t reservoirCellIndex = m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex( gridIndex, gridCellIndex );
 
-    return m_activeCellInfo->cellResultIndex( reservoirCellIndex );
+    return m_activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -629,7 +629,7 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
     {
         const RigCell& cell               = grid->cell( cellIndex );
         size_t         reservoirCellIndex = grid->reservoirCellIndex( cellIndex );
-        bool           isCellActive       = activeCellInfo->isActive( reservoirCellIndex );
+        bool           isCellActive       = activeCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) );
 
         if ( ( !invalidCellsIsVisible && cell.isInvalid() ) || ( !inactiveCellsIsVisible && !isCellActive ) ||
              ( !activeCellsIsVisible && isCellActive ) || ( *cellIsInWellStatuses )[cellIndex] )

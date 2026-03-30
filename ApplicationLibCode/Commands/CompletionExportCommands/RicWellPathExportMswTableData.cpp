@@ -737,7 +737,7 @@ double RicWellPathExportMswTableData::computeIntitialMeasuredDepth( const RimEcl
     {
         for ( const WellPathCellIntersectionInfo& intersection : allIntersections )
         {
-            if ( activeCellInfo->isActive( intersection.globCellIndex ) )
+            if ( activeCellInfo->isActive( ReservoirCellIndex( intersection.globCellIndex ) ) )
             {
                 candidateMeasuredDepth = intersection.startMD;
                 break;
@@ -1512,7 +1512,7 @@ std::vector<RigCompletionData>
 
         for ( auto& cell : intersectedCells )
         {
-            bool cellIsActive = activeCellInfo->isActive( cell.globCellIndex );
+            bool cellIsActive = activeCellInfo->isActive( ReservoirCellIndex( cell.globCellIndex ) );
             if ( !cellIsActive ) continue;
 
             RigCompletionData completion( wellPath->completionSettings()->wellNameForExport(),
@@ -1702,7 +1702,8 @@ std::pair<double, double>
 {
     for ( const WellPathCellIntersectionInfo& intersection : wellPathIntersections )
     {
-        if ( intersection.globCellIndex < activeCellInfo->reservoirCellCount() && activeCellInfo->isActive( intersection.globCellIndex ) )
+        if ( intersection.globCellIndex < activeCellInfo->reservoirCellCount() &&
+             activeCellInfo->isActive( ReservoirCellIndex( intersection.globCellIndex ) ) )
         {
             double overlapStart = std::max( startMD, intersection.startMD );
             double overlapEnd   = std::min( endMD, intersection.endMD );

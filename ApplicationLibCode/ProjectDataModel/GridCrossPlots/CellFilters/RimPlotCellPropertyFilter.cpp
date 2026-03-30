@@ -188,12 +188,12 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepI
 
         for ( size_t reservoirCellIndex = 0; reservoirCellIndex < totalReservoirCellCount; ++reservoirCellIndex )
         {
-            if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
+            if ( !actCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) ) ) continue;
 
             cellResultIndex = reservoirCellIndex;
             if ( isUsingGlobalActiveIndex )
             {
-                cellResultIndex = actCellInfo->cellResultIndex( reservoirCellIndex );
+                cellResultIndex = actCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
             }
 
             if ( cellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex < cellResultValues.size() )

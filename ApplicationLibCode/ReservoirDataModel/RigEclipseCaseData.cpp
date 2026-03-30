@@ -438,12 +438,12 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
 
             if ( !m_mainGrid->isCellValid( i, j, k ) ) continue;
 
-            if ( m_activeCellInfo->isActive( idx ) )
+            if ( m_activeCellInfo->isActive( ReservoirCellIndex( idx ) ) )
             {
                 matrixModelActiveBB.add( i, j, k );
             }
 
-            if ( m_fractureActiveCellInfo->isActive( idx ) )
+            if ( m_fractureActiveCellInfo->isActive( ReservoirCellIndex( idx ) ) )
             {
                 fractureModelActiveBB.add( i, j, k );
             }
@@ -666,7 +666,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
         {
             for ( size_t i = 0; i < m_mainGrid->cellCount(); i++ )
             {
-                if ( activeInfos[acIdx]->isActive( i ) )
+                if ( activeInfos[acIdx]->isActive( ReservoirCellIndex( i ) ) )
                 {
                     std::array<cvf::Vec3d, 8> hexCorners = m_mainGrid->cellCornerVertices( i );
                     for ( const auto& corner : hexCorners )
@@ -756,7 +756,8 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
                 {
                     size_t globalCellIndex = localGrid->reservoirCellIndex( localCellIndex );
 
-                    if ( globalCellIndex < activeInfos[acIdx]->reservoirCellCount() && activeInfos[acIdx]->isActive( globalCellIndex ) )
+                    if ( globalCellIndex < activeInfos[acIdx]->reservoirCellCount() &&
+                         activeInfos[acIdx]->isActive( ReservoirCellIndex( globalCellIndex ) ) )
                     {
                         std::array<cvf::Vec3d, 8> hexCorners = localGrid->cellCornerVertices( localCellIndex );
                         for ( const auto& corner : hexCorners )

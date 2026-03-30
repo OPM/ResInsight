@@ -310,7 +310,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
                     if ( caseCollection->reservoirs[caseIdx]
                              ->eclipseCaseData()
                              ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                             ->isActive( reservoirCellIndex ) )
+                             ->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                     {
                         activeM[gridLocalCellIndex] = 1;
                     }
@@ -321,7 +321,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
                     if ( caseCollection->reservoirs[caseIdx]
                              ->eclipseCaseData()
                              ->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )
-                             ->isActive( reservoirCellIndex ) )
+                             ->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                     {
                         activeF[gridLocalCellIndex] = 1;
                     }
@@ -338,13 +338,15 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
             if ( activeM[gridLocalCellIndex] != 0 )
             {
-                m_unionOfMatrixActiveCells->setCellResultIndex( reservoirCellIndex, globalActiveMatrixIndex++ );
+                m_unionOfMatrixActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ),
+                                                                ActiveCellIndex( globalActiveMatrixIndex++ ) );
                 activeMatrixIndex++;
             }
 
             if ( activeF[gridLocalCellIndex] != 0 )
             {
-                m_unionOfFractureActiveCells->setCellResultIndex( reservoirCellIndex, globalActiveFractureIndex++ );
+                m_unionOfFractureActiveCells->setCellResultIndex( ReservoirCellIndex( reservoirCellIndex ),
+                                                                  ActiveCellIndex( globalActiveFractureIndex++ ) );
                 activeFractureIndex++;
             }
         }

@@ -68,7 +68,7 @@ private:
         {
             if ( !( *m_cellVisibilities )[cIdx] ) continue;
 
-            size_t cellResultIndex = actCellInfo->cellResultIndex( cIdx );
+            size_t cellResultIndex = actCellInfo->cellResultIndex( ReservoirCellIndex( cIdx ) ).value();
 
             if ( cellResultIndex != cvf::UNDEFINED_SIZE_T ) accumulator.addValue( ( *values )[cellResultIndex] );
         }

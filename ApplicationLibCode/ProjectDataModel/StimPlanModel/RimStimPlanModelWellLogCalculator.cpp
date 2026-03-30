@@ -799,7 +799,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                     while ( !isFound && neighborK >= minK && neighborK <= maxK )
                     {
                         size_t neighborCellIdx = mainGrid->cellIndexFromIJK( i, j, neighborK );
-                        size_t resultIdx       = activeCellInfo->cellResultIndex( neighborCellIdx );
+                        size_t resultIdx       = activeCellInfo->cellResultIndex( ReservoirCellIndex( neighborCellIdx ) ).value();
 
                         if ( neighborCellIdx != cvf::UNDEFINED_SIZE_T && resultIdx < cellValues.size() )
                         {

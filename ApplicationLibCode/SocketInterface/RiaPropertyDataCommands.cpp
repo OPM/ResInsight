@@ -31,6 +31,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -158,7 +159,7 @@ public:
                 std::vector<double>& doubleValues = scalarResultFrames->at( requestedTimesteps[tIdx] );
                 for ( size_t gcIdx = 0; gcIdx < reservoirCellCount; ++gcIdx )
                 {
-                    size_t resultIdx = activeInfo->cellResultIndex( gcIdx );
+                    size_t resultIdx = activeInfo->cellResultIndex( ReservoirCellIndex( gcIdx ) ).value();
                     if ( resultIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
                     if ( resultIdx < doubleValues.size() )

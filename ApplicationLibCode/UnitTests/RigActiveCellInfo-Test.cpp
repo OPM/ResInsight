@@ -37,12 +37,12 @@ TEST( RigActiveCellInfo, BasicTest )
 
     for ( size_t i = 0; i < globalActiveCellCount; i++ )
     {
-        EXPECT_TRUE( rigActiveCellInfo.cellResultIndex( i ) == cvf::UNDEFINED_SIZE_T );
-        EXPECT_FALSE( rigActiveCellInfo.isActive( i ) );
+        EXPECT_TRUE( rigActiveCellInfo.cellResultIndex( ReservoirCellIndex( i ) ).value() == cvf::UNDEFINED_SIZE_T );
+        EXPECT_FALSE( rigActiveCellInfo.isActive( ReservoirCellIndex( i ) ) );
     }
 
-    rigActiveCellInfo.setCellResultIndex( 3, 1 );
-    EXPECT_TRUE( rigActiveCellInfo.cellResultIndex( 3 ) == 1 );
+    rigActiveCellInfo.setCellResultIndex( ReservoirCellIndex( 3 ), ActiveCellIndex( 1 ) );
+    EXPECT_TRUE( rigActiveCellInfo.cellResultIndex( ReservoirCellIndex( 3 ) ).value() == 1 );
 }
 
 //--------------------------------------------------------------------------------------------------

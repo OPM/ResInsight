@@ -83,7 +83,7 @@ void RigCellsWithNncsCalculator::calculate( const RigEclipseResultAddress& resVa
 
     for ( auto reservoirCellIndex : uniqueReservoirIndices )
     {
-        size_t resultIndex        = m_resultsData->activeCellInfo()->cellResultIndex( reservoirCellIndex );
+        size_t resultIndex        = m_resultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
         resultValues[resultIndex] = 1.0;
     }
 }

@@ -62,9 +62,9 @@ TEST( FlowDiagnosticsTest, calculateRelPermCurves_Oil_in_Oil_Gas )
 
         // Convert grid index to active cell index
         auto activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        if ( activeCellInfo->isActive( gridIndex ) )
+        if ( activeCellInfo->isActive( ReservoirCellIndex( gridIndex ) ) )
         {
-            gridLocalActiveCellIndex = activeCellInfo->cellResultIndex( gridIndex );
+            gridLocalActiveCellIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( gridIndex ) ).value();
         }
         else
         {
