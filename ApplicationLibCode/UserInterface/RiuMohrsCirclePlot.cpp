@@ -409,8 +409,14 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
     {
         int elmId = femPart->elmId( elmIndex );
 
-        MohrsCirclesInfo mohrsCircle(
-            principals, gridIndex, elmIndex, elmId, caf::VecIjk0( i, j, k ), geomResDef, calculateFOS( principals, frictionAngleDeg, cohesion ), color );
+        MohrsCirclesInfo mohrsCircle( principals,
+                                      gridIndex,
+                                      elmIndex,
+                                      elmId,
+                                      caf::VecIjk0( i, j, k ),
+                                      geomResDef,
+                                      calculateFOS( principals, frictionAngleDeg, cohesion ),
+                                      color );
 
         m_mohrsCiclesInfos.push_back( mohrsCircle );
 
