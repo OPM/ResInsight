@@ -72,3 +72,57 @@ TEST( RiaWeightedHarmonicMeanCalculator, WeightedValues )
         EXPECT_NEAR( expectedValue, calc.weightedMean(), 1.0e-8 );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaWeightedHarmonicMeanCalculator, ZeroWeight )
+{
+    {
+        // Zero weight only - no valid data, no crash
+        RiaWeightedHarmonicMeanCalculator calc;
+        calc.addValueAndWeight( 5.0, 0.0 );
+        EXPECT_FALSE( calc.validAggregatedWeight() );
+        EXPECT_DOUBLE_EQ( 0.0, calc.weightedMean() );
+    }
+
+    {
+        // Zero weight mixed with valid data - zero weight is ignored
+        RiaWeightedHarmonicMeanCalculator calc;
+        calc.addValueAndWeight( 100.0, 0.0 );
+        calc.addValueAndWeight( 1.0, 1.0 );
+        calc.addValueAndWeight( 4.0, 1.0 );
+        calc.addValueAndWeight( 4.0, 1.0 );
+        calc.addValueAndWeight( 200.0, 0.0 );
+
+        EXPECT_DOUBLE_EQ( 3.0, calc.aggregatedWeight() );
+        EXPECT_NEAR( 2.0, calc.weightedMean(), 1e-10 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaWeightedHarmonicMeanCalculator, ZeroValue )
+{
+    // Zero value is skipped (would cause division by zero)
+    RiaWeightedHarmonicMeanCalculator calc;
+    calc.addValueAndWeight( 0.0, 1.0 );
+    calc.addValueAndWeight( 1.0, 1.0 );
+    calc.addValueAndWeight( 4.0, 1.0 );
+    calc.addValueAndWeight( 4.0, 1.0 );
+
+    EXPECT_DOUBLE_EQ( 3.0, calc.aggregatedWeight() );
+    EXPECT_NEAR( 2.0, calc.weightedMean(), 1e-10 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaWeightedHarmonicMeanCalculator, NoValidData )
+{
+    // No valid data added - weightedMean returns 0.0 without asserting
+    RiaWeightedHarmonicMeanCalculator calc;
+    EXPECT_FALSE( calc.validAggregatedWeight() );
+    EXPECT_DOUBLE_EQ( 0.0, calc.weightedMean() );
+}
