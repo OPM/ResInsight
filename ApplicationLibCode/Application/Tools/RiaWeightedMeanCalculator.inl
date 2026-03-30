@@ -16,8 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "cvfAssert.h"
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -34,7 +32,7 @@ RiaWeightedMeanCalculator<T>::RiaWeightedMeanCalculator()
 template <class T>
 void RiaWeightedMeanCalculator<T>::addValueAndWeight( T value, double weight )
 {
-    CVF_ASSERT( weight >= 0.0 );
+    if ( weight <= 0.0 ) return;
 
     m_aggregatedValue = m_aggregatedValue + value * weight;
     m_aggregatedWeight += weight;
@@ -46,9 +44,7 @@ void RiaWeightedMeanCalculator<T>::addValueAndWeight( T value, double weight )
 template <class T>
 T RiaWeightedMeanCalculator<T>::weightedMean() const
 {
-    bool validWeights = validAggregatedWeight();
-    CVF_TIGHT_ASSERT( validWeights );
-    if ( validWeights )
+    if ( validAggregatedWeight() )
     {
         return m_aggregatedValue * ( 1.0 / m_aggregatedWeight );
     }

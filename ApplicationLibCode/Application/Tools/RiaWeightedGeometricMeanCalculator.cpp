@@ -18,8 +18,6 @@
 
 #include "RiaWeightedGeometricMeanCalculator.h"
 
-#include "cvfAssert.h"
-
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -36,7 +34,7 @@ RiaWeightedGeometricMeanCalculator::RiaWeightedGeometricMeanCalculator()
 //--------------------------------------------------------------------------------------------------
 void RiaWeightedGeometricMeanCalculator::addValueAndWeight( double value, double weight )
 {
-    CVF_ASSERT( weight >= 0.0 );
+    if ( weight <= 0.0 ) return;
 
     // This can be a very big number, consider other algorithms if that becomes a problem
     m_aggregatedWeightedValue += ( std::log( value ) * weight );

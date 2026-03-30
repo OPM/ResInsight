@@ -18,8 +18,6 @@
 
 #include "RiaWeightedHarmonicMeanCalculator.h"
 
-#include "cvfAssert.h"
-
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -36,7 +34,7 @@ RiaWeightedHarmonicMeanCalculator::RiaWeightedHarmonicMeanCalculator()
 //--------------------------------------------------------------------------------------------------
 void RiaWeightedHarmonicMeanCalculator::addValueAndWeight( double value, double weight )
 {
-    CVF_ASSERT( weight > 1.0e-12 && std::abs( value ) > 1.0e-12 );
+    if ( weight <= 0.0 || std::abs( value ) < 1.0e-12 ) return;
 
     m_aggregatedWeightedValue += weight / value;
     m_aggregatedWeight += weight;
@@ -51,7 +49,6 @@ double RiaWeightedHarmonicMeanCalculator::weightedMean() const
     {
         return m_aggregatedWeight / m_aggregatedWeightedValue;
     }
-    CVF_ASSERT( false );
     return 0.0;
 }
 
