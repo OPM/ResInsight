@@ -22,6 +22,19 @@ python -m ruff format test_polygons.py
 python -m ruff check --fix test_polygons.py
 ```
 
+## Copyright Headers
+
+- New files must use the **current year** (the year the file is created) in the copyright header
+- Never change the copyright year in existing files — the year reflects when the file was originally created
+- Example header for a file created in 2026:
+
+```cpp
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026-     Equinor ASA
+//
+```
+
 ## Language Standards
 
 - **C++**: C++23 standard
