@@ -115,7 +115,7 @@ jobs:
           arch: x64
 
       - name: Setup buildcache
-        uses: CeetronSolutions/setup-buildcache-action@v1.0
+        uses: CeetronSolutions/setup-buildcache-action@v1.1
 
       - name: Get current date
         id: current-time
