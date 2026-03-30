@@ -120,7 +120,6 @@ private:
     void     onLoadDataAndUpdate() override;
     void     zoomAll() override {}
 
-
     // RimPlotWindow overrides
 
     void doUpdateLayout() override {}

@@ -86,7 +86,7 @@ public:
     // RimViewWindow implementations
     QWidget* viewWidget() override;
 
-    void     zoomAll() override {};
+    void zoomAll() override {};
 
 private:
     // RimPlot implementations

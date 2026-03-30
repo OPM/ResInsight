@@ -246,8 +246,6 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
 
-
-
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
 
 private slots:

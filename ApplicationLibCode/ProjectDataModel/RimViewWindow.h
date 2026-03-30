@@ -80,7 +80,7 @@ public:
     virtual QWidget* viewWidget() = 0;
 
     virtual QImage snapshotWindowContent();
-    virtual void   zoomAll()               = 0;
+    virtual void   zoomAll() = 0;
 
     void viewNavigationChanged();
 

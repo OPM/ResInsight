@@ -99,7 +99,6 @@ protected:
     void     deleteViewWidget() override;
     void     zoomAll() override {}
 
-
     // RimPlotWindow overrides
     QString description() const override;
     void    doUpdateLayout() override {}

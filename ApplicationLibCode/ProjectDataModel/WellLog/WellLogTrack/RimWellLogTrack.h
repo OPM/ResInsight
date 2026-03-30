@@ -95,7 +95,7 @@ public:
     RiuQwtPlotWidget* viewer();
     RiuPlotWidget*    plotWidget() override;
 
-    void              zoomAll() override;
+    void zoomAll() override;
 
     QString description() const override;
     void    setDescription( const QString& description );

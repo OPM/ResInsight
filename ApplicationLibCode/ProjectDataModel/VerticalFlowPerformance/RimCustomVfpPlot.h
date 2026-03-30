@@ -90,7 +90,7 @@ public:
     // RimViewWindow implementations
     QWidget* viewWidget() override;
 
-    void     zoomAll() override;
+    void zoomAll() override;
 
 private:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
