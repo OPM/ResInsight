@@ -640,22 +640,6 @@ void RimHistogramPlot::updateStackedCurveData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimHistogramPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( plotWidget() )
-    {
-        QPixmap pix = plotWidget()->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     if ( !m_isValid ) return;

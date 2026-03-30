@@ -98,7 +98,6 @@ protected:
     QWidget* viewWidget() override;
     void     deleteViewWidget() override;
     void     zoomAll() override {}
-    QImage   snapshotWindowContent() override;
 
     // RimPlotWindow overrides
     QString description() const override;

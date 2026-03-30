@@ -73,7 +73,6 @@ public:
     QWidget*       viewWidget() override;
     RiuPlotWidget* plotWidget() override;
 
-    QImage  snapshotWindowContent() override;
     void    zoomAll() override;
     void    calculateZoomRangeAndUpdateQwt();
     QString createAutoName() const override;

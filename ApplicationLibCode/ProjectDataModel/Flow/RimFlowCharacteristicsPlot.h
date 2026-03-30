@@ -86,11 +86,6 @@ public:
     void updateFonts() override;
 
 protected:
-    // RimViewWindow overrides
-
-    QImage snapshotWindowContent() override;
-
-    // Overridden PDM methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

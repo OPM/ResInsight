@@ -110,7 +110,7 @@ private:
 
     // Inherited via RimViewWindow
     QWidget* viewWidget() override;
-    QImage   snapshotWindowContent() override;
+
     void     zoomAll() override;
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;

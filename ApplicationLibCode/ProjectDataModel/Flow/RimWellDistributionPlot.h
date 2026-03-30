@@ -66,8 +66,8 @@ public:
 
     // RimViewWindow implementations
     QWidget* viewWidget() override;
-    QImage   snapshotWindowContent() override;
-    void     zoomAll() override;
+
+    void zoomAll() override;
 
 private:
     // RimViewWindow implementations

@@ -94,8 +94,8 @@ public:
     QWidget*          viewWidget() override;
     RiuQwtPlotWidget* viewer();
     RiuPlotWidget*    plotWidget() override;
-    QImage            snapshotWindowContent() override;
-    void              zoomAll() override;
+
+    void zoomAll() override;
 
     QString description() const override;
     void    setDescription( const QString& description );

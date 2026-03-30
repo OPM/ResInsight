@@ -181,8 +181,6 @@ protected:
 
     void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
-    QImage snapshotWindowContent() override;
-
     void initAfterRead() override;
 
 private slots:

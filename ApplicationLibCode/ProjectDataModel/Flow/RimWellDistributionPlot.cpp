@@ -231,24 +231,6 @@ QWidget* RimWellDistributionPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellDistributionPlot::snapshotWindowContent()
-{
-    // cvf::Trace::show("RimWellDistributionPlot::snapshotWindowContent()");
-
-    QImage image;
-
-    if ( m_plotWidget )
-    {
-        QPixmap pix = m_plotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlot::zoomAll()
 {
     // cvf::Trace::show("RimWellDistributionPlot::zoomAll()");

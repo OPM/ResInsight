@@ -52,7 +52,6 @@ public:
 
     QWidget* viewWidget() override;
     QString  description() const override;
-    QImage   snapshotWindowContent() override;
     void     zoomAll() override;
 
     caf::PdmFieldHandle* userDescriptionField() override;

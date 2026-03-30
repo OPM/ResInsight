@@ -818,22 +818,6 @@ std::set<QString> RimWellAllocationPlot::findSortedWellNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellAllocationPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_wellAllocationPlotWidget )
-    {
-        QPixmap pix = m_wellAllocationPlotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_userName );
