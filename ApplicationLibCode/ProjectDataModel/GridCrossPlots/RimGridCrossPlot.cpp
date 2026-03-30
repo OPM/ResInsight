@@ -148,22 +148,6 @@ RiuPlotWidget* RimGridCrossPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimGridCrossPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_plotWidget )
-    {
-        QPixmap pix = m_plotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::zoomAll()
 {
     setAutoScaleXEnabled( true );

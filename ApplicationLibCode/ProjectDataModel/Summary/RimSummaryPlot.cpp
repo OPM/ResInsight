@@ -1731,22 +1731,6 @@ bool RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimSummaryPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( plotWidget() )
-    {
-        QPixmap pix = plotWidget()->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     if ( !m_isValid ) return;

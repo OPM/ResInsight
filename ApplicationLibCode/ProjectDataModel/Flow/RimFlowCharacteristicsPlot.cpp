@@ -583,22 +583,6 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimFlowCharacteristicsPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_flowCharPlotWidget )
-    {
-        QPixmap pix = m_flowCharPlotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();

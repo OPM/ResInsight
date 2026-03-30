@@ -238,22 +238,6 @@ QWidget* RimWellAllocationOverTimePlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellAllocationOverTimePlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_plotWidget )
-    {
-        QPixmap pix = m_plotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RimWellAllocationOverTimePlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // If called multiple times?

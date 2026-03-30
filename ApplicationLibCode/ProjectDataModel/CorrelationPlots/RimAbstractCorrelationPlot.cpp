@@ -539,22 +539,6 @@ void RimAbstractCorrelationPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimAbstractCorrelationPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_plotWidget )
-    {
-        QPixmap pix = m_plotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimAbstractCorrelationPlot::description() const
 {
     return m_description();

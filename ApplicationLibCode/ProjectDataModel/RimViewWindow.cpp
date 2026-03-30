@@ -33,6 +33,8 @@
 #include "cafPdmUiTreeViewEditor.h"
 
 #include <QDebug>
+#include <QImage>
+#include <QPixmap>
 #include <QWidget>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. Abstract class
@@ -204,6 +206,23 @@ RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
         return m_windowController()->mdiWindowGeometry();
     else
         return RimMdiWindowGeometry();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RimViewWindow::snapshotWindowContent()
+{
+    QImage image;
+
+    QWidget* widget = viewWidget();
+    if ( widget )
+    {
+        QPixmap pix = widget->grab();
+        image       = pix.toImage();
+    }
+
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------
