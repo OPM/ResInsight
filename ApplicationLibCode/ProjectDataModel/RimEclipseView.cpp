@@ -31,6 +31,7 @@
 
 #include "RicfCommandObject.h"
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -1866,7 +1867,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence( cvf::UByteArray* visible
                                     size_t fenceCellIndex     = grid->cellIndexFromIJK( *pI, *pJ, *pK );
                                     size_t reservoirCellIndex = grid->reservoirCellIndex( fenceCellIndex );
 
-                                    if ( activeCellInfo && activeCellInfo->isActive( reservoirCellIndex ) )
+                                    if ( activeCellInfo && activeCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                                     {
                                         ( *visibleCells )[fenceCellIndex] = true;
                                     }

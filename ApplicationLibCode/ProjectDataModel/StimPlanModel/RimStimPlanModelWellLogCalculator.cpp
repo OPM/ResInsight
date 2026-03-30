@@ -29,6 +29,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+#include "RigTypeSafeIndex.h"
 #include "Well/RigEclipseWellLogExtractor.h"
 #include "Well/RigWellLogCurveData.h"
 #include "Well/RigWellPath.h"
@@ -799,7 +800,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                     while ( !isFound && neighborK >= minK && neighborK <= maxK )
                     {
                         size_t neighborCellIdx = mainGrid->cellIndexFromIJK( i, j, neighborK );
-                        size_t resultIdx       = activeCellInfo->cellResultIndex( neighborCellIdx );
+                        size_t resultIdx       = activeCellInfo->cellResultIndex( ReservoirCellIndex( neighborCellIdx ) ).value();
 
                         if ( neighborCellIdx != cvf::UNDEFINED_SIZE_T && resultIdx < cellValues.size() )
                         {

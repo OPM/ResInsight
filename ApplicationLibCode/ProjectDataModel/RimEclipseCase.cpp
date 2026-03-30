@@ -35,6 +35,7 @@
 #include "RifInputPropertyLoader.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
@@ -1083,7 +1084,7 @@ bool RimEclipseCase::openReservoirCase()
             std::vector<size_t> reservoirCellIndices;
             for ( size_t i = 0; i < mainGrid->cellCount(); i++ )
             {
-                if ( activeCellInfo->isActive( i ) )
+                if ( activeCellInfo->isActive( ReservoirCellIndex( i ) ) )
                 {
                     reservoirCellIndices.push_back( i );
                 }

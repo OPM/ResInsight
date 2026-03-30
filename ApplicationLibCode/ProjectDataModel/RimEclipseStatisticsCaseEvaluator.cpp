@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
@@ -220,7 +221,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
                     if ( visibility.notNull() && !visibility->val( reservoirCellIndex ) ) continue;
 
-                    if ( destinationActiveCellInfo->isActive( reservoirCellIndex ) )
+                    if ( destinationActiveCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector
 
@@ -232,7 +233,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                             // Replace huge_val with zero in the statistical computation for the following case
                             if ( m_useZeroAsInactiveCellValue || resultName.toUpper() == "ACTNUM" )
                             {
-                                if ( unionActiveCells && unionActiveCells->isActive( reservoirCellIndex ) && val == HUGE_VAL )
+                                if ( unionActiveCells && unionActiveCells->isActive( ReservoirCellIndex( reservoirCellIndex ) ) && val == HUGE_VAL )
                                 {
                                     val = 0.0;
                                 }

@@ -22,6 +22,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
+#include "RigTypeSafeIndex.h"
 #include "Surface/RigSurface.h"
 
 #include "RimCase.h"
@@ -315,7 +316,7 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
 
                 bool skipInactiveCells = !m_includeInactiveCells();
                 if ( m_watertight ) skipInactiveCells = false;
-                if ( skipInactiveCells && activeCells && !activeCells->isActive( currentCellIndex ) ) continue;
+                if ( skipInactiveCells && activeCells && !activeCells->isActive( ReservoirCellIndex( currentCellIndex ) ) ) continue;
 
                 std::array<cvf::Vec3d, 8> currentCornerVerts = grid->cellCornerVertices( currentCellIndex );
 

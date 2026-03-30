@@ -37,6 +37,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigTypeSafeIndex.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
@@ -464,13 +465,13 @@ void RifReaderOpmCommon::transferActiveCells( Opm::EclIO::EGrid&  opmGrid,
         int matrixActiveIndex = active_indexes[opmCellIndex];
         if ( matrixActiveIndex != -1 )
         {
-            activeCellInfo->setCellResultIndex( cellStartIndex + opmCellIndex, matrixActiveStartIndex + matrixActiveIndex );
+            activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + opmCellIndex ), ActiveCellIndex( matrixActiveStartIndex + matrixActiveIndex ) );
         }
 
         int fractureActiveIndex = active_frac_indexes[opmCellIndex];
         if ( fractureActiveIndex != -1 )
         {
-            fractureActiveCellInfo->setCellResultIndex( cellStartIndex + opmCellIndex, fractureActiveStartIndex + fractureActiveIndex );
+            fractureActiveCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + opmCellIndex ), ActiveCellIndex( fractureActiveStartIndex + fractureActiveIndex ) );
         }
     }
 }

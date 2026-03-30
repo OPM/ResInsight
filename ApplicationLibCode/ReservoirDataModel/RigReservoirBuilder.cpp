@@ -144,7 +144,7 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
     activeCellInfo->setReservoirCellCount( eclipseCase->mainGrid()->totalCellCount() );
     for ( size_t i = 0; i < eclipseCase->mainGrid()->totalCellCount(); i++ )
     {
-        activeCellInfo->setCellResultIndex( i, i );
+        activeCellInfo->setCellResultIndex( ReservoirCellIndex( i ), ActiveCellIndex( i ) );
     }
 
     activeCellInfo->setGridCount( 1 );

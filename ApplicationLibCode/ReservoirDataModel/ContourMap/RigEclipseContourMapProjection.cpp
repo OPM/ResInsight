@@ -326,7 +326,7 @@ double RigEclipseContourMapProjection::getParameterWeightForCell( size_t cellRes
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseContourMapProjection::gridResultIndex( size_t globalCellIdx ) const
 {
-    if ( m_useActiveCellInfo ) return m_activeCellInfo->cellResultIndex( globalCellIdx );
+    if ( m_useActiveCellInfo ) return m_activeCellInfo->cellResultIndex( ReservoirCellIndex( globalCellIdx ) ).value();
 
     return globalCellIdx;
 }
@@ -338,7 +338,7 @@ bool RigEclipseContourMapProjection::isCellActive( size_t globalCellIdx ) const
 {
     if ( m_useActiveCellInfo && m_activeCellInfo != nullptr )
     {
-        return m_activeCellInfo->isActive( globalCellIdx );
+        return m_activeCellInfo->isActive( ReservoirCellIndex( globalCellIdx ) );
     }
 
     return true;

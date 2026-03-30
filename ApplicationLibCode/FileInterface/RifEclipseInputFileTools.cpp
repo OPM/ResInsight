@@ -38,6 +38,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigTypeSafeIndex.h"
 #include "RigEclipseResultAddress.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
@@ -319,7 +320,7 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
 
                 size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
 
-                size_t resIndex = activeCells->cellResultIndex( reservoirCellIndex );
+                size_t resIndex = activeCells->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
                 if ( resIndex != cvf::UNDEFINED_SIZE_T )
                 {
                     auto value = resultAcc->cellScalarGlobIdx( reservoirCellIndex );
@@ -404,7 +405,7 @@ std::expected<std::vector<double>, std::string> RifEclipseInputFileTools::extrac
                     {
                         size_t mainI              = min.x() + origI;
                         size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
-                        size_t resIndex           = activeCells->cellResultIndex( reservoirCellIndex );
+                        size_t resIndex           = activeCells->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
                         size_t subCountI          = refinement.subcellCount( RigRefinement::DimI, origI );
 
                         double value = ( resIndex != cvf::UNDEFINED_SIZE_T ) ? resultAcc->cellScalarGlobIdx( reservoirCellIndex )

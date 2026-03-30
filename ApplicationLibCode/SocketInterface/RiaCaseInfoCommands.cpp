@@ -25,6 +25,7 @@
 #include "RiaSocketTools.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPart.h"
@@ -208,7 +209,7 @@ public:
 
         for ( size_t cIdx = 0; cIdx < mainGrid->totalCellCount(); ++cIdx )
         {
-            if ( actCellInfo->isActive( cIdx ) )
+            if ( actCellInfo->isActive( ReservoirCellIndex( cIdx ) ) )
             {
                 auto&        cell = mainGrid->cell( cIdx );
                 RigGridBase* grid = cell.hostGrid();

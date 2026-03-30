@@ -21,6 +21,7 @@
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
@@ -83,7 +84,7 @@ void RigCellsWithNncsCalculator::calculate( const RigEclipseResultAddress& resVa
 
     for ( auto reservoirCellIndex : uniqueReservoirIndices )
     {
-        size_t resultIndex        = m_resultsData->activeCellInfo()->cellResultIndex( reservoirCellIndex );
+        size_t resultIndex        = m_resultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
         resultValues[resultIndex] = 1.0;
     }
 }

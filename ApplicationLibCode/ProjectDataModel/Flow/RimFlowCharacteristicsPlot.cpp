@@ -25,6 +25,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
+#include "RigTypeSafeIndex.h"
 
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
@@ -656,7 +657,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 
                 for ( size_t i = 0; i < visibleCells.size(); ++i )
                 {
-                    size_t cellIndex = activeCellInfo->cellResultIndex( i );
+                    size_t cellIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( i ) ).value();
                     if ( cellIndex != cvf::UNDEFINED_SIZE_T )
                     {
                         visibleActiveCells[cellIndex] = visibleCells[i];

@@ -23,6 +23,7 @@
 #include "RicfCommandObject.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -239,7 +240,7 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
         k                         = 0;
 
         size_t topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK( i, j, k );
-        while ( k < kIndexWellHeadCell && !rimReservoirView->currentActiveCellInfo()->isActive( topActiveCellIndex ) )
+        while ( k < kIndexWellHeadCell && !rimReservoirView->currentActiveCellInfo()->isActive( ReservoirCellIndex( topActiveCellIndex ) ) )
         {
             k++;
             topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK( i, j, k );

@@ -32,6 +32,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigTypeSafeIndex.h"
 #include "RigEclipseResultAddress.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
@@ -697,13 +698,13 @@ bool RifEclipseOutputFileTools::assignActiveCellData( std::vector<std::vector<in
         {
             if ( actnumValue == matrixActive || actnumValue == matrixAndFractureActive )
             {
-                activeCellInfo->setCellResultIndex( cellIdx, globalActiveMatrixIndex++ );
+                activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellIdx ), ActiveCellIndex( globalActiveMatrixIndex++ ) );
                 activeMatrixIndex++;
             }
 
             if ( actnumValue == fractureActive || actnumValue == matrixAndFractureActive )
             {
-                fractureActiveCellInfo->setCellResultIndex( cellIdx, globalActiveFractureIndex++ );
+                fractureActiveCellInfo->setCellResultIndex( ReservoirCellIndex( cellIdx ), ActiveCellIndex( globalActiveFractureIndex++ ) );
                 activeFractureIndex++;
             }
 

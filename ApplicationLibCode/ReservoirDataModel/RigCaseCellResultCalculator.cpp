@@ -186,7 +186,7 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
             for ( long localGridCellIdx = 0; localGridCellIdx < static_cast<long>( grid->cellCount() ); localGridCellIdx++ )
             {
                 size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
-                if ( activeCellInfo->isActive( reservoirCellIndex ) )
+                if ( activeCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                 {
                     double sourceVal = sourceResultAccessor->cellScalar( localGridCellIdx );
                     double baseVal   = baseResultAccessor->cellScalar( localGridCellIdx );
@@ -291,7 +291,7 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
             for ( int localGridCellIdx = 0; localGridCellIdx < static_cast<int>( grid->cellCount() ); localGridCellIdx++ )
             {
                 const size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
-                if ( activeCellInfo->isActive( reservoirCellIndex ) )
+                if ( activeCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                 {
                     double sourceVal = sourceResultAccessor->cellScalar( localGridCellIdx );
 

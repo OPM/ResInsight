@@ -242,7 +242,7 @@ bool RigGridExportAdapter::isCellActive( size_t i, size_t j, size_t k ) const
     size_t originalCellIndex = m_mainGrid->cellIndexFromIJK( mapping.originalI, mapping.originalJ, mapping.originalK );
 
     // Check if original cell is active
-    bool isActive = m_activeCellInfo->isActive( originalCellIndex );
+    bool isActive = m_activeCellInfo->isActive( ReservoirCellIndex( originalCellIndex ) );
 
     // Apply visibility override if present
     if ( isActive && m_cellVisibilityOverride )

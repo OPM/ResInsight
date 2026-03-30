@@ -24,6 +24,7 @@
 #include "RimRegularLegendConfig.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
@@ -168,9 +169,9 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
         for ( int gcIdx = 0; gcIdx < static_cast<int>( mainGrid->totalCellCount() ); ++gcIdx )
         {
             auto& cell = mainGrid->cell( gcIdx );
-            if ( !cell.isInvalid() && activeCellInfo->isActive( gcIdx ) )
+            if ( !cell.isInvalid() && activeCellInfo->isActive( ReservoirCellIndex( gcIdx ) ) )
             {
-                size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
+                size_t resultIdx = activeCellInfo->cellResultIndex( ReservoirCellIndex( gcIdx ) ).value();
                 if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
                 {
                     for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )

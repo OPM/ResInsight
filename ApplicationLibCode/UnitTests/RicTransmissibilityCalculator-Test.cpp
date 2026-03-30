@@ -24,6 +24,7 @@
 #include "RifReaderMockModel.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -184,7 +185,7 @@ static void enableDualPorosity( RigEclipseCaseData* caseData )
     fractureActiveCellInfo->setReservoirCellCount( cellCount );
     for ( size_t i = 0; i < cellCount; i++ )
     {
-        fractureActiveCellInfo->setCellResultIndex( i, i );
+        fractureActiveCellInfo->setCellResultIndex( ReservoirCellIndex( i ), ActiveCellIndex( i ) );
     }
     fractureActiveCellInfo->setGridCount( 1 );
     fractureActiveCellInfo->setGridActiveCellCounts( 0, cellCount );

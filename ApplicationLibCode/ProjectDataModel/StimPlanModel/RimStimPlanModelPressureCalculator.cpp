@@ -29,6 +29,7 @@
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 #include "RigStatisticsMath.h"
+#include "RigTypeSafeIndex.h"
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathGeometryTools.h"
 
@@ -536,9 +537,9 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
 
     for ( size_t cellIndex = 0; cellIndex < eqlNumCellCount; cellIndex++ )
     {
-        size_t resultIdx         = eqlNumActiveCellInfo->cellResultIndex( cellIndex );
+        size_t resultIdx         = eqlNumActiveCellInfo->cellResultIndex( ReservoirCellIndex( cellIndex ) ).value();
         int    eqlNum            = static_cast<int>( eqlNumValues[resultIdx] );
-        size_t pressureResultIdx = pressureActiveCellInfo->cellResultIndex( cellIndex );
+        size_t pressureResultIdx = pressureActiveCellInfo->cellResultIndex( ReservoirCellIndex( cellIndex ) ).value();
         double pressure          = pressureValues[pressureResultIdx];
         if ( presentEqlNums.count( eqlNum ) > 0 && !std::isinf( pressure ) )
         {

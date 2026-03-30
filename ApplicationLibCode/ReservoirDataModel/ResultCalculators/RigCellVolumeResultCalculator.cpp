@@ -76,7 +76,7 @@ void RigCellVolumeResultCalculator::calculate( const RigEclipseResultAddress& re
     for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_resultsData->m_ownerMainGrid->totalCellCount() );
           nativeResvCellIndex++ )
     {
-        size_t resultIndex = m_resultsData->activeCellInfo()->cellResultIndex( nativeResvCellIndex );
+        size_t resultIndex = m_resultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( nativeResvCellIndex ) ).value();
         if ( ( resultIndex != cvf::UNDEFINED_SIZE_T ) && ( resultIndex < cellResultCount ) )
         {
             const RigCell& cell = m_resultsData->m_ownerMainGrid->cell( nativeResvCellIndex );

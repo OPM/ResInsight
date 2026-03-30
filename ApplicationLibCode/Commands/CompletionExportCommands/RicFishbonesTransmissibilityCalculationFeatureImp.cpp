@@ -23,6 +23,7 @@
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCompletionData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -62,7 +63,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
         size_t                                       globalCellIndex = cellAndWellBoreParts.first;
         const std::vector<WellBorePartForTransCalc>& wellBoreParts   = cellAndWellBoreParts.second;
 
-        bool cellIsActive = activeCellInfo->isActive( globalCellIndex );
+        bool cellIsActive = activeCellInfo->isActive( ReservoirCellIndex( globalCellIndex ) );
         if ( !cellIsActive ) continue;
 
         // Find main bore and number of laterals

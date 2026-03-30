@@ -26,6 +26,7 @@
 #include "RifRoffFileTools.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -292,7 +293,7 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
         int matrixActiveIndex = activeCells[gridLocalCellIndex];
         if ( matrixActiveIndex != -1 )
         {
-            activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
+            activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + gridLocalCellIndex ), ActiveCellIndex( matrixActiveIndex ) );
         }
 
         cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );

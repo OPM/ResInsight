@@ -22,6 +22,7 @@
 #include "RicMswTableDataTools.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
@@ -179,7 +180,7 @@ RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                
             if ( overlapEnd > overlapStart )
             {
                 if ( activeCellInfo && cellInfo.globCellIndex < mainGrid->totalCellCount() &&
-                     !activeCellInfo->isActive( cellInfo.globCellIndex ) )
+                     !activeCellInfo->isActive( ReservoirCellIndex( cellInfo.globCellIndex ) ) )
                     continue;
                 if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) ) cellCompsegs.push_back( *ci );
             }

@@ -562,7 +562,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                 hostGrid = gridAndGridLocalIdxFromGlobalCellIdx( gcIdx, &gridLocalCellIndex );
 
                 hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
-                isCellActive = activeCellInfo->isActive( gcIdx );
+                isCellActive = activeCellInfo->isActive( ReservoirCellIndex( gcIdx ) );
 
                 firstNO_FAULTFaceForCell = false;
             }
@@ -578,7 +578,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                 continue;
             }
 
-            bool isNeighborCellActive = activeCellInfo->isActive( neighborReservoirCellIdx );
+            bool isNeighborCellActive = activeCellInfo->isActive( ReservoirCellIndex( neighborReservoirCellIdx ) );
 
             double tolerance = 1e-6;
 

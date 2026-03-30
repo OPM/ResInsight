@@ -20,6 +20,7 @@
 #include "RiaDefines.h"
 #include "RiaResultNames.h"
 #include "RigActiveCellInfo.h"
+#include "RigTypeSafeIndex.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
@@ -132,7 +133,7 @@ void RigPorvSoilSgasResultCalculator::calculate( const RigEclipseResultAddress& 
         for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_resultsData->m_ownerMainGrid->totalCellCount() );
               nativeResvCellIndex++ )
         {
-            size_t resultIndex = m_resultsData->activeCellInfo()->cellResultIndex( nativeResvCellIndex );
+            size_t resultIndex = m_resultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( nativeResvCellIndex ) ).value();
             if ( resultIndex != cvf::UNDEFINED_SIZE_T )
             {
                 size_t idx1             = res1ActiveOnly ? resultIndex : nativeResvCellIndex;

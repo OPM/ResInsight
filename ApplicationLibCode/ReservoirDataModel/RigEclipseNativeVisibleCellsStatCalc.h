@@ -82,7 +82,7 @@ private:
             size_t cellResultIndex = cIdx;
             if ( isUsingGlobalActiveIndex )
             {
-                cellResultIndex = actCellInfo->cellResultIndex( cIdx );
+                cellResultIndex = actCellInfo->cellResultIndex( ReservoirCellIndex( cIdx ) ).value();
             }
 
             if ( cellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex < values.size() )

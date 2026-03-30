@@ -28,6 +28,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigResultAccessorFactory.h"
+#include "RigTypeSafeIndex.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -629,7 +630,7 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
     {
         const RigCell& cell               = grid->cell( cellIndex );
         size_t         reservoirCellIndex = grid->reservoirCellIndex( cellIndex );
-        bool           isCellActive       = activeCellInfo->isActive( reservoirCellIndex );
+        bool           isCellActive       = activeCellInfo->isActive( ReservoirCellIndex( reservoirCellIndex ) );
 
         if ( ( !invalidCellsIsVisible && cell.isInvalid() ) || ( !inactiveCellsIsVisible && !isCellActive ) ||
              ( !activeCellsIsVisible && isCellActive ) || ( *cellIsInWellStatuses )[cellIndex] )
