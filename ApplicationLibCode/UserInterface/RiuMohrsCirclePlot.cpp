@@ -233,11 +233,12 @@ void RiuMohrsCirclePlot::addOrUpdateMohrCircleCurves( const MohrsCirclesInfo& mo
             QString textBuilder;
             textBuilder.append( QString( "<b>FOS</b>: %1, " ).arg( QString::number( mohrsCirclesInfo.factorOfSafety, 'f', 2 ) ) );
 
+            auto ijk1 = mohrsCirclesInfo.ijk.toOneBased();
             textBuilder.append( QString( "<b>Element Id</b>: %1, <b>ijk</b>[%2, %3, %4]," )
                                     .arg( mohrsCirclesInfo.elmId )
-                                    .arg( mohrsCirclesInfo.i )
-                                    .arg( mohrsCirclesInfo.j )
-                                    .arg( mohrsCirclesInfo.k ) );
+                                    .arg( ijk1.x() )
+                                    .arg( ijk1.y() )
+                                    .arg( ijk1.z() ) );
 
             textBuilder.append( QString( "<b>&sigma;<sub>1</sub></b>: %1, " ).arg( principals[0] ) );
             textBuilder.append( QString( "<b>&sigma;<sub>2</sub></b>: %1, " ).arg( principals[1] ) );
@@ -408,8 +409,14 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
     {
         int elmId = femPart->elmId( elmIndex );
 
-        MohrsCirclesInfo
-            mohrsCircle( principals, gridIndex, elmIndex, elmId, i, j, k, geomResDef, calculateFOS( principals, frictionAngleDeg, cohesion ), color );
+        MohrsCirclesInfo mohrsCircle( principals,
+                                      gridIndex,
+                                      elmIndex,
+                                      elmId,
+                                      caf::VecIjk0( i, j, k ),
+                                      geomResDef,
+                                      calculateFOS( principals, frictionAngleDeg, cohesion ),
+                                      color );
 
         m_mohrsCiclesInfos.push_back( mohrsCircle );
 
