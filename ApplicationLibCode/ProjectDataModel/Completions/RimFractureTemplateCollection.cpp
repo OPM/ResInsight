@@ -34,6 +34,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
 
+#include <algorithm>
+
 CAF_PDM_SOURCE_INIT( RimFractureTemplateCollection, "FractureTemplateCollection", "FractureDefinitionCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -50,8 +52,9 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_fractureDefinitions, "FractureDefinitions", "" );
 
-    CAF_PDM_InitField( &m_nextValidFractureTemplateId, "NextValidFractureTemplateId", 0, "" );
-    m_nextValidFractureTemplateId.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_nextValidFractureTemplateId_OBSOLETE, "NextValidFractureTemplateId", 0, "" );
+    m_nextValidFractureTemplateId_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_nextValidFractureTemplateId_OBSOLETE.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,10 +291,12 @@ void RimFractureTemplateCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 int RimFractureTemplateCollection::nextFractureTemplateId()
 {
-    int newId                     = m_nextValidFractureTemplateId;
-    m_nextValidFractureTemplateId = m_nextValidFractureTemplateId + 1;
-
-    return newId;
+    int nextValidId = 0;
+    for ( const auto& templ : m_fractureDefinitions )
+    {
+        nextValidId = std::max( nextValidId, templ->id() + 1 );
+    }
+    return nextValidId;
 }
 
 //--------------------------------------------------------------------------------------------------

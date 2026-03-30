@@ -119,12 +119,6 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject::RimProject()
-    : m_nextValidCaseId( 0 )
-    , m_nextValidCaseGroupId( 0 )
-    , m_nextValidViewId( -1 )
-    , m_nextValidPlotId( -1 )
-    , m_nextValidSummaryCaseId( 1 )
-    , m_nextValidEnsembleId( 1 )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
@@ -279,13 +273,6 @@ void RimProject::close()
     mainWindowTreeViewStates         = "";
     plotWindowCurrentModelIndexPaths = "";
     plotWindowTreeViewStates         = "";
-
-    m_nextValidCaseId        = 0;
-    m_nextValidCaseGroupId   = 0;
-    m_nextValidViewId        = -1;
-    m_nextValidPlotId        = -1;
-    m_nextValidSummaryCaseId = 1;
-    m_nextValidEnsembleId    = 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -588,12 +575,13 @@ void RimProject::assignCaseIdToSummaryCase( RimSummaryCase* summaryCase )
 {
     if ( summaryCase )
     {
+        int nextValidId = 1;
         for ( RimSummaryCase* s : allSummaryCases() )
         {
-            m_nextValidSummaryCaseId = std::max( m_nextValidSummaryCaseId, s->caseId() + 1 );
+            nextValidId = std::max( nextValidId, s->caseId() + 1 );
         }
 
-        summaryCase->setCaseId( m_nextValidSummaryCaseId++ );
+        summaryCase->setCaseId( nextValidId );
     }
 }
 
@@ -604,12 +592,13 @@ void RimProject::assignIdToEnsemble( RimSummaryEnsemble* summaryCaseCollection )
 {
     if ( summaryCaseCollection )
     {
+        int nextValidId = 1;
         for ( RimSummaryEnsemble* ensemble : summaryEnsembles() )
         {
-            m_nextValidEnsembleId = std::max( m_nextValidEnsembleId, ensemble->ensembleId() + 1 );
+            nextValidId = std::max( nextValidId, ensemble->ensembleId() + 1 );
         }
 
-        summaryCaseCollection->setEnsembleId( m_nextValidEnsembleId );
+        summaryCaseCollection->setEnsembleId( nextValidId );
     }
 }
 
@@ -688,13 +677,13 @@ void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
     {
-        std::vector<RimCase*> cases = descendantsIncludingThisOfType<RimCase>();
-        for ( RimCase* rimCase : cases )
+        int nextValidId = 0;
+        for ( RimCase* rimCase : descendantsIncludingThisOfType<RimCase>() )
         {
-            m_nextValidCaseId = std::max( m_nextValidCaseId, rimCase->caseId() + 1 );
+            nextValidId = std::max( nextValidId, rimCase->caseId() + 1 );
         }
 
-        reservoirCase->setCaseId( m_nextValidCaseId++ );
+        reservoirCase->setCaseId( nextValidId );
     }
 }
 
@@ -705,14 +694,14 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 {
     if ( caseGroup )
     {
-        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups = descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
+        int nextValidId = 0;
 
-        for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
+        for ( RimIdenticalGridCaseGroup* existingCaseGroup : descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>() )
         {
-            m_nextValidCaseGroupId = std::max( m_nextValidCaseGroupId, existingCaseGroup->groupId() + 1 );
+            nextValidId = std::max( nextValidId, existingCaseGroup->groupId() + 1 );
         }
 
-        caseGroup->groupId = m_nextValidCaseGroupId++;
+        caseGroup->groupId = nextValidId;
     }
 }
 
@@ -723,20 +712,19 @@ void RimProject::assignIdToCaseGroup( RimReservoirGridEnsemble* gridEnsemble )
 {
     if ( gridEnsemble )
     {
-        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups = descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
-        std::vector<RimReservoirGridEnsemble*>  gridEnsembles       = descendantsIncludingThisOfType<RimReservoirGridEnsemble>();
+        int nextValidId = 0;
 
-        for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
+        for ( RimIdenticalGridCaseGroup* existingCaseGroup : descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>() )
         {
-            m_nextValidCaseGroupId = std::max( m_nextValidCaseGroupId, existingCaseGroup->groupId() + 1 );
+            nextValidId = std::max( nextValidId, existingCaseGroup->groupId() + 1 );
         }
 
-        for ( RimReservoirGridEnsemble* existingEnsemble : gridEnsembles )
+        for ( RimReservoirGridEnsemble* existingEnsemble : descendantsIncludingThisOfType<RimReservoirGridEnsemble>() )
         {
-            m_nextValidCaseGroupId = std::max( m_nextValidCaseGroupId, existingEnsemble->groupId() + 1 );
+            nextValidId = std::max( nextValidId, existingEnsemble->groupId() + 1 );
         }
 
-        gridEnsemble->setGroupId( m_nextValidCaseGroupId++ );
+        gridEnsemble->setGroupId( nextValidId );
     }
 }
 
@@ -747,17 +735,13 @@ void RimProject::assignViewIdToView( Rim3dView* view )
 {
     if ( view )
     {
-        if ( m_nextValidViewId < 0 )
+        int nextValidId = 0;
+        for ( Rim3dView* existingView : descendantsIncludingThisOfType<Rim3dView>() )
         {
-            std::vector<Rim3dView*> views = descendantsIncludingThisOfType<Rim3dView>();
-
-            for ( Rim3dView* existingView : views )
-            {
-                m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
-            }
+            nextValidId = std::max( nextValidId, existingView->id() + 1 );
         }
 
-        view->setId( m_nextValidViewId++ );
+        view->setId( nextValidId );
     }
 }
 
@@ -768,17 +752,13 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
 {
     if ( plotWindow )
     {
-        if ( m_nextValidPlotId < 0 )
+        int nextValidId = 0;
+        for ( RimPlotWindow* existingPlotWindow : descendantsIncludingThisOfType<RimPlotWindow>() )
         {
-            std::vector<RimPlotWindow*> plotWindows = descendantsIncludingThisOfType<RimPlotWindow>();
-
-            for ( RimPlotWindow* existingPlotWindow : plotWindows )
-            {
-                m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
-            }
+            nextValidId = std::max( nextValidId, existingPlotWindow->id() + 1 );
         }
 
-        plotWindow->setId( m_nextValidPlotId++ );
+        plotWindow->setId( nextValidId );
     }
 }
 

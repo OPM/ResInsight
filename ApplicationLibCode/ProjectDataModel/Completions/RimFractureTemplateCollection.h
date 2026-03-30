@@ -69,6 +69,5 @@ private:
 
     caf::PdmChildArrayField<RimFractureTemplate*>              m_fractureDefinitions;
     caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_defaultUnitsForFracTemplates;
-    caf::PdmField<int> m_nextValidFractureTemplateId; // Unique fracture template ID within a project, used to identify
-                                                      // a fracture template
+    caf::PdmField<int>                                         m_nextValidFractureTemplateId_OBSOLETE;
 };

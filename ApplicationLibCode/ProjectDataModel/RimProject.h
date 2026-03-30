@@ -228,13 +228,6 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::WindowTileMode>> m_subWindowsTileMode3DWindow;
     caf::PdmField<caf::AppEnum<RiaDefines::WindowTileMode>> m_subWindowsTileModePlotWindow;
 
-    int m_nextValidCaseId;
-    int m_nextValidCaseGroupId;
-    int m_nextValidViewId;
-    int m_nextValidPlotId;
-    int m_nextValidSummaryCaseId;
-    int m_nextValidEnsembleId;
-
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete
 };

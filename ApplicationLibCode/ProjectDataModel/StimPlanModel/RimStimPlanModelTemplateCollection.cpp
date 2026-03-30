@@ -21,13 +21,14 @@
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimFracture.h"
 #include "RimProject.h"
 #include "RimStimPlanModelTemplate.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimStimPlanModelTemplateCollection, "StimPlanModelTemplateCollection" );
 
@@ -40,8 +41,9 @@ RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelTemplates, "StimPlanModelTemplates", "StimPlan Model Templates" );
 
-    CAF_PDM_InitField( &m_nextValidId, "NextValidId", 0, "" );
-    m_nextValidId.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_nextValidId_OBSOLETE, "NextValidId", 0, "" );
+    m_nextValidId_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_nextValidId_OBSOLETE.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,10 +108,12 @@ void RimStimPlanModelTemplateCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 int RimStimPlanModelTemplateCollection::nextFractureTemplateId()
 {
-    int newId     = m_nextValidId;
-    m_nextValidId = m_nextValidId + 1;
-
-    return newId;
+    int nextValidId = 0;
+    for ( const auto& templ : m_stimPlanModelTemplates )
+    {
+        nextValidId = std::max( nextValidId, templ->id() + 1 );
+    }
+    return nextValidId;
 }
 
 //--------------------------------------------------------------------------------------------------

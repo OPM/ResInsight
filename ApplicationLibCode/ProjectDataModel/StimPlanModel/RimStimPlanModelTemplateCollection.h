@@ -50,5 +50,5 @@ private:
     int nextFractureTemplateId();
 
     caf::PdmChildArrayField<RimStimPlanModelTemplate*> m_stimPlanModelTemplates;
-    caf::PdmField<int>                                 m_nextValidId; // Unique fracture template ID within a project
+    caf::PdmField<int>                                 m_nextValidId_OBSOLETE;
 };
