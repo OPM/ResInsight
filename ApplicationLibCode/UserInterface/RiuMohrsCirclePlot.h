@@ -21,6 +21,7 @@
 #include "RiuDockedQwtPlot.h"
 
 #include "cafTensor3.h"
+#include "cafVecIjk.h"
 #include "cvfColor3.h"
 
 #include <array>
@@ -60,9 +61,7 @@ private:
                           size_t                            gridIndex,
                           size_t                            elmIndex,
                           int                               elmId,
-                          size_t                            i,
-                          size_t                            j,
-                          size_t                            k,
+                          caf::VecIjk0                      ijk,
                           const RimGeoMechResultDefinition* geomResDef,
                           double                            factorOfSafety,
                           cvf::Color3ub                     color )
@@ -70,9 +69,7 @@ private:
             , gridIndex( gridIndex )
             , elmIndex( elmIndex )
             , elmId( elmId )
-            , i( i )
-            , j( j )
-            , k( k )
+            , ijk( ijk )
             , geomResDef( geomResDef )
             , factorOfSafety( factorOfSafety )
             , color( color )
@@ -83,7 +80,7 @@ private:
         size_t                            gridIndex;
         size_t                            elmIndex;
         int                               elmId;
-        size_t                            i, j, k;
+        caf::VecIjk0                      ijk;
         const RimGeoMechResultDefinition* geomResDef;
         double                            factorOfSafety;
         cvf::Color3ub                     color;
