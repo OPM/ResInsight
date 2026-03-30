@@ -769,22 +769,6 @@ QWidget* RimWellConnectivityTable::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellConnectivityTable::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_matrixPlotWidget )
-    {
-        QPixmap pix = m_matrixPlotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellConnectivityTable::zoomAll()
 {
 }

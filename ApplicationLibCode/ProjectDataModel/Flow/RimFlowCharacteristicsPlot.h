@@ -88,7 +88,7 @@ public:
 protected:
     // RimViewWindow overrides
 
-    QImage snapshotWindowContent() override;
+
 
     // Overridden PDM methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

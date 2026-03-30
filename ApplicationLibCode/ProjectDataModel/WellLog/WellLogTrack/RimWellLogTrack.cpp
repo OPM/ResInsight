@@ -1751,22 +1751,6 @@ RiuPlotWidget* RimWellLogTrack::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellLogTrack::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_plotWidget )
-    {
-        QPixmap pix = m_plotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::zoomAll()
 {
     RimDepthTrackPlot* plot = firstAncestorOrThisOfType<RimDepthTrackPlot>();

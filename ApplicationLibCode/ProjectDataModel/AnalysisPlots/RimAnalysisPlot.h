@@ -119,7 +119,7 @@ private:
     void     deleteViewWidget() override;
     void     onLoadDataAndUpdate() override;
     void     zoomAll() override {}
-    QImage   snapshotWindowContent() override;
+
 
     // RimPlotWindow overrides
 

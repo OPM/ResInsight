@@ -103,7 +103,7 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    QImage snapshotWindowContent() override;
+
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;

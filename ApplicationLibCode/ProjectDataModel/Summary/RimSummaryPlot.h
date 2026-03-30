@@ -246,7 +246,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
 
-    QImage snapshotWindowContent() override;
+
 
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
 

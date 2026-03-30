@@ -59,7 +59,6 @@
 
 #include <QContextMenuEvent>
 #include <QFrame>
-#include <QImage>
 #include <QSettings>
 #include <QStringList>
 #include <QVBoxLayout>
@@ -280,22 +279,6 @@ QWidget* RimCorrelationReportPlot::viewWidget()
 QString RimCorrelationReportPlot::description() const
 {
     return createDescription();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QImage RimCorrelationReportPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_viewWidget )
-    {
-        QPixmap pix = m_viewWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
 }
 
 //--------------------------------------------------------------------------------------------------
