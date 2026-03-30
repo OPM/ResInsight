@@ -662,7 +662,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
     if ( m_plotWidget )
     {
         m_plotWidget->setPlotTitle( m_description );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
         if ( isMdiWindow() )
         {
             m_plotWidget->setPlotTitleFontSize( titleFontSize() );

@@ -658,6 +658,6 @@ void RimParameterResultCrossPlot::updatePlotTitle()
             QString( "%1 x %2, %3 at %4" ).arg( vectorName ).arg( m_ensembleParameter ).arg( ensemble->name() ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
     m_plotWidget->setPlotTitleFontSize( titleFontSize() );
 }

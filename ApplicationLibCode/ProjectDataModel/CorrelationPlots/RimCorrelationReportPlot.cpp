@@ -113,15 +113,10 @@ public:
         auto*      timeAxisProps = m_summaryPlot->timeAxisProperties();
         if ( timeAxisProps )
         {
-            if ( m_trackingAnnotation )
-            {
-                timeAxisProps->removeAnnotation( m_trackingAnnotation );
-                m_trackingAnnotation = nullptr;
-            }
+            removeTrackingAnnotation( timeAxisProps );
             auto* anno = RimTimeAxisAnnotation::createTimeAnnotation( timeTValue, TRACKING_ANNOTATION_COLOR );
             anno->setPenStyle( Qt::DashLine );
             timeAxisProps->appendAnnotation( anno );
-            m_trackingAnnotation = anno;
         }
 
         m_summaryPlot->updateAnnotationsInPlotWidget();
@@ -132,22 +127,34 @@ public:
 
     void widgetLeaveEvent( QEvent* ) override
     {
-        if ( m_trackingAnnotation && m_summaryPlot )
+        if ( !m_summaryPlot ) return;
+
+        auto* timeAxisProps = m_summaryPlot->timeAxisProperties();
+        if ( timeAxisProps && removeTrackingAnnotation( timeAxisProps ) )
         {
-            auto* timeAxisProps = m_summaryPlot->timeAxisProperties();
-            if ( timeAxisProps )
-            {
-                timeAxisProps->removeAnnotation( m_trackingAnnotation );
-                m_trackingAnnotation = nullptr;
-            }
             m_summaryPlot->updateAnnotationsInPlotWidget();
             m_summaryPlot->updatePlotWidgetFromAxisRanges();
         }
     }
 
 private:
-    caf::PdmPointer<RimSummaryPlot>                m_summaryPlot;
-    mutable caf::PdmPointer<RimTimeAxisAnnotation> m_trackingAnnotation;
+    static bool removeTrackingAnnotation( RimSummaryTimeAxisProperties* timeAxisProps )
+    {
+        if ( !timeAxisProps ) return false;
+        for ( auto* anno : timeAxisProps->annotations() )
+        {
+            // Identify the tracking annotation by its pen style, which is unique among time axis annotations. This way we don't interfere
+            // with the selected-time annotation, which is also on the time axis.
+            if ( anno->penStyle() == Qt::DashLine )
+            {
+                timeAxisProps->removeAnnotation( dynamic_cast<RimTimeAxisAnnotation*>( anno ) );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    caf::PdmPointer<RimSummaryPlot> m_summaryPlot;
 };
 
 namespace
@@ -280,8 +287,15 @@ QString RimCorrelationReportPlot::description() const
 //--------------------------------------------------------------------------------------------------
 QImage RimCorrelationReportPlot::snapshotWindowContent()
 {
-    if ( m_viewWidget ) return m_viewWidget->grab().toImage();
-    return {};
+    QImage image;
+
+    if ( m_viewWidget )
+    {
+        QPixmap pix = m_viewWidget->grab();
+        image       = pix.toImage();
+    }
+
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -580,13 +594,8 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_parameterResultCrossPlot->setAxisValueFontSize( m_axisValueFontSize() );
 
         m_correlationMatrixPlot->loadDataAndUpdate();
-        if ( m_correlationMatrixPlot->viewer() ) m_correlationMatrixPlot->viewer()->setPlotTitleEnabled( true );
-
         m_correlationPlot->loadDataAndUpdate();
-        if ( m_correlationPlot->viewer() ) m_correlationPlot->viewer()->setPlotTitleEnabled( true );
-
         m_parameterResultCrossPlot->loadDataAndUpdate();
-        if ( m_parameterResultCrossPlot->viewer() ) m_parameterResultCrossPlot->viewer()->setPlotTitleEnabled( true );
 
         if ( m_showSummaryPlot() )
         {

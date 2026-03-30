@@ -268,7 +268,7 @@ void RimCorrelationPlot::updatePlotTitle()
         m_description = QString( "%1, %2 at %3" ).arg( vectorName ).arg( ensemble->name() ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
     m_plotWidget->setPlotTitleFontSize( titleFontSize() );
 }
 
