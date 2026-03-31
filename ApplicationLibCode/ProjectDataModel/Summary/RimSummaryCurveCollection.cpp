@@ -32,7 +32,7 @@
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
-#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
@@ -55,9 +55,6 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &m_editPlot, "EditPlot", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPlot );
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
@@ -364,30 +361,6 @@ void RimSummaryCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         loadDataAndUpdate( true );
     }
-    else if ( changedField == &m_editPlot )
-    {
-        auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
-        if ( plot )
-        {
-            RicEditSummaryPlotFeature::editSummaryPlot( plot );
-        }
-        m_editPlot = false;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( &m_editPlot == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Edit Plot";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,6 +385,13 @@ void RimSummaryCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.addNewButton( "Edit Plot",
+                             [this]()
+                             {
+                                 auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
+                                 if ( plot ) RicEditSummaryPlotFeature::editSummaryPlot( plot );
+                             } );
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
