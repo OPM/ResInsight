@@ -91,16 +91,11 @@ private:
 
     caf::PdmField<bool> m_includeDiffCurves;
 
-    caf::PdmField<bool> m_pushButtonReplace;
-    caf::PdmField<bool> m_pushButtonNewPlot;
-    caf::PdmField<bool> m_pushButtonAppend;
-
     caf::PdmField<bool> m_individualPlotPerVector;
     caf::PdmField<bool> m_individualPlotPerDataSource;
     caf::PdmField<bool> m_individualPlotPerObject;
     caf::PdmField<bool> m_createMultiPlot;
 
-    caf::PdmField<QString> m_labelA;
     caf::PdmField<QString> m_labelB;
 
     QStringList m_previousDataSourceText;

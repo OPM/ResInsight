@@ -53,9 +53,9 @@
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafAssert.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryCurve, "SummaryCurve" );
@@ -78,10 +78,6 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address" );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_yPushButtonSelectSummaryAddress );
-    m_yPushButtonSelectSummaryAddress = false;
 
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
@@ -107,10 +103,6 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryAddress, "SummaryAddressX", "Summary Address" );
     m_xValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_xPushButtonSelectSummaryAddress, "SelectAddressX", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_xPushButtonSelectSummaryAddress );
-    m_xPushButtonSelectSummaryAddress = false;
 
     m_xValuesSummaryAddress = new RimSummaryAddress;
 
@@ -847,14 +839,6 @@ double RimSummaryCurve::computeCurveZValue()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( &m_yPushButtonSelectSummaryAddress == field || &m_xPushButtonSelectSummaryAddress == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "...";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -877,7 +861,6 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     m_xValuesSummaryCase.uiCapability()->setUiHidden( isSummaryXHidden );
     m_xValuesSummaryAddress.uiCapability()->setUiHidden( isSummaryXHidden );
     m_xValuesSummaryAddressUiField.uiCapability()->setUiHidden( isSummaryXHidden );
-    m_xPushButtonSelectSummaryAddress.uiCapability()->setUiHidden( isSummaryXHidden );
     m_xPlotAxisProperties.uiCapability()->setUiHidden( isSummaryXHidden );
 
     {
@@ -885,7 +868,9 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         caf::PdmUiGroup* curveDataGroup     = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "curveDataGroupName" );
         curveDataGroup->add( &m_yValuesSummaryCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+        curveDataGroup->addNewButton( "...",
+                                      [this]() { selectYSummaryAddress(); },
+                                      { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
         curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
 
         caf::PdmUiGroup* detailGroup = curveDataGroup->addNewGroup( "Advanced Properties" );
@@ -903,7 +888,10 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_xAxisType, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_xValuesSummaryCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_xValuesSummaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+        auto* xButton = curveDataGroup->addNewButton( "...",
+                                                      [this]() { selectXSummaryAddress(); },
+                                                      { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+        xButton->setUiHidden( isSummaryXHidden );
         curveDataGroup->add( &m_xPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
     }
 
@@ -1100,8 +1088,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    bool loadAndUpdate                     = false;
-    bool crossPlotTestForMatchingTimeSteps = false;
+    bool loadAndUpdate = false;
 
     if ( changedField == &m_yValuesSummaryAddressUiField )
     {
@@ -1176,137 +1163,144 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         onLoadDataAndUpdate( true );
         dataChanged.send();
     }
-    else if ( changedField == &m_yPushButtonSelectSummaryAddress )
-    {
-        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
-        RimSummaryCase*                 candidateCase    = m_yValuesSummaryCase();
-        RifEclipseSummaryAddress        candicateAddress = m_yValuesSummaryAddress->address();
-
-        if ( candidateCase == nullptr )
-        {
-            candidateCase = m_xValuesSummaryCase();
-        }
-
-        if ( !candicateAddress.isValid() )
-        {
-            candicateAddress = m_xValuesSummaryAddress->address();
-        }
-
-        dlg.hideEnsembles();
-        dlg.setCaseAndAddress( candidateCase, candicateAddress );
-
-        if ( dlg.exec() == QDialog::Accepted )
-        {
-            auto curveSelection = dlg.curveSelection();
-            if ( !curveSelection.empty() )
-            {
-                m_yValuesSummaryCase = curveSelection[0].summaryCaseY();
-                m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
-
-                crossPlotTestForMatchingTimeSteps = true;
-                loadAndUpdate                     = true;
-            }
-        }
-
-        m_yPushButtonSelectSummaryAddress = false;
-    }
-    else if ( changedField == &m_xPushButtonSelectSummaryAddress )
-    {
-        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
-        RimSummaryCase*                 candidateCase    = m_xValuesSummaryCase();
-        RifEclipseSummaryAddress        candicateAddress = m_xValuesSummaryAddress->address();
-
-        if ( candidateCase == nullptr )
-        {
-            candidateCase = m_yValuesSummaryCase();
-        }
-
-        if ( !candicateAddress.isValid() )
-        {
-            candicateAddress = m_yValuesSummaryAddress->address();
-        }
-
-        dlg.hideEnsembles();
-        dlg.setCaseAndAddress( candidateCase, candicateAddress );
-
-        if ( dlg.exec() == QDialog::Accepted )
-        {
-            auto curveSelection = dlg.curveSelection();
-            if ( !curveSelection.empty() )
-            {
-                m_xValuesSummaryCase = curveSelection[0].summaryCaseY();
-                m_xValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
-
-                crossPlotTestForMatchingTimeSteps = true;
-                loadAndUpdate                     = true;
-            }
-        }
-
-        m_xPushButtonSelectSummaryAddress = false;
-    }
     else if ( changedField == &m_yCurveTypeMode || changedField == &m_yCurveType )
     {
         calculateCurveInterpolationFromAddress();
     }
 
-    if ( crossPlotTestForMatchingTimeSteps )
-    {
-        auto curveValuesX    = valuesX();
-        auto curveTimeStepsX = timeStepsX();
-
-        auto curveValuesY    = valuesY();
-        auto curveTimeStepsY = timeStepsY();
-
-        if ( !curveValuesX.empty() && !curveValuesY.empty() )
-        {
-            RiaTimeHistoryCurveMerger curveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
-            curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
-            curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
-
-            bool includeValuesFromPartialCurves = true;
-            curveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
-
-            if ( curveMerger.validIntervalsForAllXValues().empty() )
-            {
-                QString description;
-
-                {
-                    QDateTime first = QDateTime::fromSecsSinceEpoch( curveTimeStepsX.front() );
-                    QDateTime last  = QDateTime::fromSecsSinceEpoch( curveTimeStepsX.back() );
-
-                    std::vector<QDateTime> timeSteps;
-                    timeSteps.push_back( first );
-                    timeSteps.push_back( last );
-
-                    QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( timeSteps );
-
-                    description +=
-                        QString( "Time step range for X : '%1' - '%2'" ).arg( first.toString( formatString ) ).arg( last.toString( formatString ) );
-                }
-
-                {
-                    QDateTime first = QDateTime::fromSecsSinceEpoch( curveTimeStepsY.front() );
-                    QDateTime last  = QDateTime::fromSecsSinceEpoch( curveTimeStepsY.back() );
-
-                    std::vector<QDateTime> timeSteps;
-                    timeSteps.push_back( first );
-                    timeSteps.push_back( last );
-
-                    QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( timeSteps );
-
-                    description += "\n";
-                    description +=
-                        QString( "Time step range for Y : '%1' - '%2'" ).arg( first.toString( formatString ) ).arg( last.toString( formatString ) );
-                }
-
-                RiaLogging::errorInMessageBox( nullptr, "Detected no overlapping time steps", description );
-            }
-        }
-    }
-
     if ( loadAndUpdate )
     {
         loadAndUpdateDataAndPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::selectYSummaryAddress()
+{
+    RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
+    RimSummaryCase*                 candidateCase    = m_yValuesSummaryCase();
+    RifEclipseSummaryAddress        candicateAddress = m_yValuesSummaryAddress->address();
+
+    if ( candidateCase == nullptr )
+    {
+        candidateCase = m_xValuesSummaryCase();
+    }
+
+    if ( !candicateAddress.isValid() )
+    {
+        candicateAddress = m_xValuesSummaryAddress->address();
+    }
+
+    dlg.hideEnsembles();
+    dlg.setCaseAndAddress( candidateCase, candicateAddress );
+
+    if ( dlg.exec() == QDialog::Accepted )
+    {
+        auto curveSelection = dlg.curveSelection();
+        if ( !curveSelection.empty() )
+        {
+            m_yValuesSummaryCase = curveSelection[0].summaryCaseY();
+            m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
+
+            checkForMatchingCrossPlotTimeSteps();
+            loadAndUpdateDataAndPlot();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::selectXSummaryAddress()
+{
+    RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
+    RimSummaryCase*                 candidateCase    = m_xValuesSummaryCase();
+    RifEclipseSummaryAddress        candicateAddress = m_xValuesSummaryAddress->address();
+
+    if ( candidateCase == nullptr )
+    {
+        candidateCase = m_yValuesSummaryCase();
+    }
+
+    if ( !candicateAddress.isValid() )
+    {
+        candicateAddress = m_yValuesSummaryAddress->address();
+    }
+
+    dlg.hideEnsembles();
+    dlg.setCaseAndAddress( candidateCase, candicateAddress );
+
+    if ( dlg.exec() == QDialog::Accepted )
+    {
+        auto curveSelection = dlg.curveSelection();
+        if ( !curveSelection.empty() )
+        {
+            m_xValuesSummaryCase = curveSelection[0].summaryCaseY();
+            m_xValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
+
+            checkForMatchingCrossPlotTimeSteps();
+            loadAndUpdateDataAndPlot();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::checkForMatchingCrossPlotTimeSteps()
+{
+    auto curveValuesX    = valuesX();
+    auto curveTimeStepsX = timeStepsX();
+
+    auto curveValuesY    = valuesY();
+    auto curveTimeStepsY = timeStepsY();
+
+    if ( !curveValuesX.empty() && !curveValuesY.empty() )
+    {
+        RiaTimeHistoryCurveMerger curveMerger( RiaCurveDefines::InterpolationMethod::LINEAR );
+        curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
+        curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
+
+        bool includeValuesFromPartialCurves = true;
+        curveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
+
+        if ( curveMerger.validIntervalsForAllXValues().empty() )
+        {
+            QString description;
+
+            {
+                QDateTime first = QDateTime::fromSecsSinceEpoch( curveTimeStepsX.front() );
+                QDateTime last  = QDateTime::fromSecsSinceEpoch( curveTimeStepsX.back() );
+
+                std::vector<QDateTime> timeSteps;
+                timeSteps.push_back( first );
+                timeSteps.push_back( last );
+
+                QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( timeSteps );
+
+                description +=
+                    QString( "Time step range for X : '%1' - '%2'" ).arg( first.toString( formatString ) ).arg( last.toString( formatString ) );
+            }
+
+            {
+                QDateTime first = QDateTime::fromSecsSinceEpoch( curveTimeStepsY.front() );
+                QDateTime last  = QDateTime::fromSecsSinceEpoch( curveTimeStepsY.back() );
+
+                std::vector<QDateTime> timeSteps;
+                timeSteps.push_back( first );
+                timeSteps.push_back( last );
+
+                QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( timeSteps );
+
+                description += "\n";
+                description +=
+                    QString( "Time step range for Y : '%1' - '%2'" ).arg( first.toString( formatString ) ).arg( last.toString( formatString ) );
+            }
+
+            RiaLogging::errorInMessageBox( nullptr, "Detected no overlapping time steps", description );
+        }
     }
 }
 

@@ -46,11 +46,11 @@
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmObjectHandle.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafSelectionManager.h"
@@ -92,20 +92,6 @@ RimSummaryPlotManager::RimSummaryPlotManager()
                        "Difference between simulated and observed(history) curve",
                        "" );
     m_includeDiffCurves.uiCapability()->setUiEditorTypeName( caf::PdmUiNativeCheckBoxEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonReplace, "PushButtonReplace", "Replace (CTRL + Enter)" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonReplace );
-
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonNewPlot, "PushButtonNewPlot", "New (Alt + Enter)" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonNewPlot );
-
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonAppend, "PushButtonAppend", "Append (Shift + Enter)" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonAppend );
-
-    CAF_PDM_InitFieldNoDefault( &m_labelA, "LabelA", "" );
-    m_labelA.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
-    m_labelA.xmlCapability()->disableIO();
-    m_labelA.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_labelB, "LabelB", "" );
     m_labelB.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
@@ -158,24 +144,6 @@ void RimSummaryPlotManager::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         updateSelectionFromUiChange();
         updateCurveCandidates();
-    }
-    else if ( changedField == &m_pushButtonReplace )
-    {
-        replaceCurves();
-        m_pushButtonReplace = false;
-        updateFilterTextHistory();
-    }
-    else if ( changedField == &m_pushButtonNewPlot )
-    {
-        createNewPlot();
-        m_pushButtonNewPlot = false;
-        updateFilterTextHistory();
-    }
-    else if ( changedField == &m_pushButtonAppend )
-    {
-        appendCurves();
-        m_pushButtonAppend = false;
-        updateFilterTextHistory();
     }
 }
 
@@ -299,25 +267,6 @@ std::vector<QString> RimSummaryPlotManager::dataSourceDisplayNames() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    {
-        auto attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attr )
-        {
-            if ( field == &m_pushButtonReplace )
-            {
-                attr->m_buttonText = "Replace Curves \n(Ctrl + Enter)";
-            }
-            if ( field == &m_pushButtonNewPlot )
-            {
-                attr->m_buttonText = "Create New Plot \n(Enter)";
-            }
-            if ( field == &m_pushButtonAppend )
-            {
-                attr->m_buttonText = "Append Curves \n(Shift + Enter)";
-            }
-        }
-    }
-
     if ( field == &m_filterText )
     {
         auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
@@ -349,10 +298,27 @@ void RimSummaryPlotManager::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_individualPlotPerObject );
     uiOrdering.appendToRow( &m_createMultiPlot );
 
-    uiOrdering.add( &m_pushButtonAppend );
-    uiOrdering.appendToRow( &m_pushButtonReplace );
-    uiOrdering.appendToRow( &m_labelB );
-    uiOrdering.appendToRow( &m_pushButtonNewPlot );
+    uiOrdering.addNewButton( "Append Curves \n(Shift + Enter)",
+                             [this]()
+                             {
+                                 appendCurves();
+                                 updateFilterTextHistory();
+                             } );
+    uiOrdering.addNewButton( "Replace Curves \n(Ctrl + Enter)",
+                             [this]()
+                             {
+                                 replaceCurves();
+                                 updateFilterTextHistory();
+                             },
+                             { .newRow = false } );
+    uiOrdering.add( &m_labelB, { .newRow = false } );
+    uiOrdering.addNewButton( "Create New Plot \n(Enter)",
+                             [this]()
+                             {
+                                 createNewPlot();
+                                 updateFilterTextHistory();
+                             },
+                             { .newRow = false } );
 }
 
 //--------------------------------------------------------------------------------------------------

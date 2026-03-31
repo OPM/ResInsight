@@ -135,6 +135,10 @@ protected:
 
     void hideXAxisGroup();
 
+    void selectYSummaryAddress();
+    void selectXSummaryAddress();
+    void checkForMatchingCrossPlotTimeSteps();
+
 private:
     RifSummaryReaderInterface* valuesSummaryReaderX() const;
     RifSummaryReaderInterface* valuesSummaryReaderY() const;
@@ -149,7 +153,6 @@ private:
     caf::PdmPtrField<RimSummaryCase*>                 m_yValuesSummaryCase;
     caf::PdmChildField<RimSummaryAddress*>            m_yValuesSummaryAddress;
     caf::PdmField<RifEclipseSummaryAddress>           m_yValuesSummaryAddressUiField;
-    caf::PdmField<bool>                               m_yPushButtonSelectSummaryAddress;
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;
     caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_yValuesResampling;
 
@@ -161,7 +164,6 @@ private:
     caf::PdmPtrField<RimSummaryCase*>                           m_xValuesSummaryCase;
     caf::PdmChildField<RimSummaryAddress*>                      m_xValuesSummaryAddress;
     caf::PdmField<RifEclipseSummaryAddress>                     m_xValuesSummaryAddressUiField;
-    caf::PdmField<bool>                                         m_xPushButtonSelectSummaryAddress;
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*>           m_xPlotAxisProperties;
 
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
