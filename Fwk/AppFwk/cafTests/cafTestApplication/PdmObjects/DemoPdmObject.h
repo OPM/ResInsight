@@ -32,6 +32,10 @@ protected:
     void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
 
 private:
+    void applyAutoValues();
+    void updateAutoValues();
+
+private:
     caf::PdmField<bool>    m_boolField;
     caf::PdmField<double>  m_doubleField;
     caf::PdmField<int>     m_intField;
@@ -50,8 +54,6 @@ private:
     caf::PdmPtrField<SmallDemoPdmObjectA*>         m_ptrField;
 
     caf::PdmField<bool> m_toggleField;
-    caf::PdmField<bool> m_applyAutoOnChildObjectFields;
-    caf::PdmField<bool> m_updateAutoValues;
 
     MenuItemProducer* m_menuItemProducer;
 };

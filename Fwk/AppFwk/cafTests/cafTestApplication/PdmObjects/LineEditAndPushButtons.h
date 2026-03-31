@@ -29,10 +29,4 @@ private:
     caf::PdmField<QString> m_labelLongTextField;
 
     caf::PdmField<std::vector<QString>> m_textListField;
-
-    caf::PdmField<bool> m_pushButton_a;
-
-    caf::PdmField<bool> m_pushButtonReplace;
-    caf::PdmField<bool> m_pushButtonClear;
-    caf::PdmField<bool> m_pushButtonAppend;
 };

@@ -1,9 +1,9 @@
 #include "LineEditAndPushButtons.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QGuiApplication>
@@ -40,24 +40,6 @@ LineEditAndPushButtons::LineEditAndPushButtons()
     m_textListField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_textListField.uiCapability()->setAttribute( caf::PdmUiListEditor::Keys::HEIGHT_HINT, 150 );
 
-    CAF_PDM_InitFieldNoDefault( &m_pushButton_a, "PushButtonA", "Rotate", "", "", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButton_a );
-    m_pushButton_a.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "&Push Me" );
-
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonReplace, "PushButtonB", "Replace (CTRL + Enter)", "", "", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonReplace );
-    m_pushButtonReplace.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
-                                                      "Replace (Ctrl + Enter)" );
-
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonClear, "PushButtonC", "Clear (Alt + Enter)", "", "", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonClear );
-    m_pushButtonClear.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "Clear (Alt + Enter)" );
-
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonAppend, "PushButtonD", "Append (Shift + Enter)", "", "", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonAppend );
-    m_pushButtonAppend.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
-                                                     "Append (Shift + Enter)" );
-
     std::vector<QString> items;
     items.push_back( "sldkfj" );
     items.push_back( "annet sldkfj" );
@@ -75,11 +57,6 @@ void LineEditAndPushButtons::fieldChangedByUi( const caf::PdmFieldHandle* change
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue )
 {
-    if ( changedField == &m_pushButton_a )
-    {
-        rotateContent();
-    }
-
     if ( changedField == &m_textField )
     {
         auto mods = QGuiApplication::keyboardModifiers();
@@ -97,24 +74,6 @@ void LineEditAndPushButtons::fieldChangedByUi( const caf::PdmFieldHandle* change
             m_statusTextField = m_textField;
         }
     }
-
-    if ( changedField == &m_pushButtonReplace )
-    {
-        replaceText();
-    }
-    if ( changedField == &m_pushButtonClear )
-    {
-        clearText();
-    }
-    if ( changedField == &m_pushButtonAppend )
-    {
-        appendText();
-    }
-
-    m_pushButton_a      = false;
-    m_pushButtonReplace = false;
-    m_pushButtonClear   = false;
-    m_pushButtonAppend  = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,6 +81,15 @@ void LineEditAndPushButtons::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void LineEditAndPushButtons::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_statusTextField );
+    uiOrdering.add( &m_textField );
+    uiOrdering.add( &m_labelField );
+    uiOrdering.add( &m_labelLongTextField );
+    uiOrdering.add( &m_textListField );
+    uiOrdering.addNewButton( "&Push Me", [this]() { rotateContent(); } );
+    uiOrdering.addNewButton( "Replace (Ctrl + Enter)", [this]() { replaceText(); } );
+    uiOrdering.addNewButton( "Clear (Alt + Enter)", [this]() { clearText(); } );
+    uiOrdering.addNewButton( "Append (Shift + Enter)", [this]() { appendText(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,6 +118,8 @@ void LineEditAndPushButtons::rotateContent()
     tmp.insert( tmp.begin(), newContent.begin(), newContent.end() );
 
     m_textListField = tmp;
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,6 +131,8 @@ void LineEditAndPushButtons::appendText()
     original.push_back( m_textField );
 
     m_textListField = original;
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,4 +150,6 @@ void LineEditAndPushButtons::replaceText()
 void LineEditAndPushButtons::clearText()
 {
     m_textListField = std::vector<QString>();
+
+    updateConnectedEditors();
 }

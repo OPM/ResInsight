@@ -4,9 +4,9 @@
 
 #include "SmallDemoPdmObject.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableView.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTextEditor.h"
@@ -22,15 +22,6 @@ DemoPdmObject::DemoPdmObject()
                         "This object is a demo of the CAF framework" );
 
     CAF_PDM_InitField( &m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis" );
-
-    CAF_PDM_InitField( &m_applyAutoOnChildObjectFields, "ApplyAutoValue", false, "Apply Auto Values" );
-    m_applyAutoOnChildObjectFields.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_applyAutoOnChildObjectFields.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT,
-                                                                 "Apply Auto Values" );
-
-    CAF_PDM_InitField( &m_updateAutoValues, "UpdateAutoValue", false, "Update Auto Values" );
-    m_updateAutoValues.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_updateAutoValues.uiCapability()->setAttribute( caf::PdmUiPushButtonEditor::Keys::BUTTON_TEXT, "Update Auto Values" );
 
     CAF_PDM_InitField( &m_doubleField,
                        "BigNumber",
@@ -130,8 +121,8 @@ void DemoPdmObject::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add( &m_sizeField );
 
-    uiOrdering.add( &m_applyAutoOnChildObjectFields );
-    uiOrdering.add( &m_updateAutoValues );
+    uiOrdering.addNewButton( "Apply Auto Values", [this]() { applyAutoValues(); } );
+    uiOrdering.addNewButton( "Update Auto Values", [this]() { updateAutoValues(); } );
 
     uiOrdering.add( &m_minMaxSlider );
 
@@ -187,37 +178,45 @@ void DemoPdmObject::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         std::cout << "Toggle Field changed" << std::endl;
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void DemoPdmObject::applyAutoValues()
+{
     static int counter = 0;
     counter++;
     double doubleValue = 1.23456 + counter;
     int    intValue    = -1213141516 + counter;
     auto   enumValue   = SmallDemoPdmObjectA::TestEnumType::T2;
 
-    if ( changedField == &m_applyAutoOnChildObjectFields )
+    auto objs = descendantsIncludingThisOfType<SmallDemoPdmObjectA>();
+    for ( auto obj : objs )
     {
-        auto objs = descendantsIncludingThisOfType<SmallDemoPdmObjectA>();
-        for ( auto obj : objs )
-        {
-            obj->enableAutoValueForDouble( doubleValue );
-            obj->enableAutoValueForInt( intValue );
-            obj->enableAutoValueForTestEnum( enumValue );
-        }
-
-        m_applyAutoOnChildObjectFields = false;
+        obj->enableAutoValueForDouble( doubleValue );
+        obj->enableAutoValueForInt( intValue );
+        obj->enableAutoValueForTestEnum( enumValue );
     }
+}
 
-    if ( changedField == &m_updateAutoValues )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void DemoPdmObject::updateAutoValues()
+{
+    static int counter = 0;
+    counter++;
+    double doubleValue = 1.23456 + counter;
+    int    intValue    = -1213141516 + counter;
+    auto   enumValue   = SmallDemoPdmObjectA::TestEnumType::T2;
+
+    auto objs = descendantsIncludingThisOfType<SmallDemoPdmObjectA>();
+    for ( auto obj : objs )
     {
-        auto objs = descendantsIncludingThisOfType<SmallDemoPdmObjectA>();
-        for ( auto obj : objs )
-        {
-            obj->setAutoValueForDouble( doubleValue );
-            obj->setAutoValueForInt( intValue );
-            obj->setAutoValueForTestEnum( enumValue );
-        }
-
-        m_updateAutoValues = false;
+        obj->setAutoValueForDouble( doubleValue );
+        obj->setAutoValueForInt( intValue );
+        obj->setAutoValueForTestEnum( enumValue );
     }
 }
 
