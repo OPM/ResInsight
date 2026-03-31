@@ -18,9 +18,10 @@
 
 #pragma once
 
+#include "RimCheckableNamedObject.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
@@ -41,7 +42,7 @@ class RimCase;
 ///
 ///
 //==================================================================================================
-class RimCellFilter : public caf::PdmObject
+class RimCellFilter : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -63,9 +64,6 @@ public:
 
     RimCellFilter( FilterDefinitionType defType );
     ~RimCellFilter() override;
-
-    QString name() const;
-    void    setName( QString filtername );
 
     bool isActive() const;
     void setActive( bool active );
@@ -97,7 +95,6 @@ public:
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     bool                 isFilterControlled() const;
 
@@ -108,9 +105,7 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    caf::PdmField<QString>                      m_name;
     caf::PdmProxyValueField<QString>            m_nameProxy;
-    caf::PdmField<bool>                         m_isActive;
     caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
     caf::PdmField<int>                          m_gridIndex;
     caf::PdmField<bool>                         m_propagateToSubGrids;

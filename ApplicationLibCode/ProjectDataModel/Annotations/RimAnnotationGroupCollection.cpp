@@ -45,10 +45,10 @@ RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 {
     CAF_PDM_InitObject( "Annotations", ":/WellCollection.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
-    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations" );
+    m_isChecked.registerKeywordAlias( "IsActive" );
+    m_isChecked.uiCapability()->setUiHidden( true );
 
-    m_isActive.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ RimAnnotationGroupCollection::~RimAnnotationGroupCollection()
 //--------------------------------------------------------------------------------------------------
 bool RimAnnotationGroupCollection::isActive() const
 {
-    return m_isActive();
+    return isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ bool RimAnnotationGroupCollection::isVisible() const
 
     bool visible = true;
     if ( coll ) visible = coll->isActive();
-    if ( visible ) visible = m_isActive;
+    if ( visible ) visible = isChecked();
     return visible;
 }
 
@@ -108,19 +108,11 @@ std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationGroupCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_isActive )
+    if ( changedField == objectToggleField() )
     {
         updateUiIconFromToggleField();
         updateViews();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimAnnotationGroupCollection::objectToggleField()
-{
-    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------

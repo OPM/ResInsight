@@ -87,7 +87,7 @@ void RimUserDefinedIndexFilter::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedIndexFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField != &m_name )
+    if ( changedField != nameField() )
     {
         filterChanged.send();
         updateIconState();

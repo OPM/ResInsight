@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimCheckableObject.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmProxyValueField.h"
@@ -42,7 +42,7 @@ class RimAnnotationTextAppearance;
 ///
 ///
 //==================================================================================================
-class RimTextAnnotation : public caf::PdmObject
+class RimTextAnnotation : public RimCheckableObject
 {
     friend class RimTextAnnotationInView;
 
@@ -70,7 +70,6 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
@@ -83,7 +82,6 @@ private:
     caf::PdmField<Vec3d>   m_labelPointXyd;
     caf::PdmField<bool>    m_labelPointPickEnabledButtonField;
     caf::PdmField<QString> m_text;
-    caf::PdmField<bool>    m_isActive;
 
     caf::PdmChildField<RimAnnotationTextAppearance*> m_textAppearance;
 

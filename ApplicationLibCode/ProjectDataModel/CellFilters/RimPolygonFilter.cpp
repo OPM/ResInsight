@@ -170,7 +170,7 @@ void RimPolygonFilter::setPolygon( RimPolygon* polygon )
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonFilter::isFilterEnabled() const
 {
-    return m_isActive() && m_enableFiltering;
+    return isActive() && m_enableFiltering;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,7 +248,7 @@ void RimPolygonFilter::childFieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_name );
+    uiOrdering.add( nameField() );
 
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
@@ -352,7 +352,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         updateAllRequiredEditors();
     }
 
-    if ( changedField != &m_name )
+    if ( changedField != nameField() )
     {
         updateCells();
         filterChanged.send();

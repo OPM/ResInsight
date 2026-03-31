@@ -53,9 +53,10 @@ RimCellFilter::RimCellFilter( FilterDefinitionType defType )
 {
     CAF_PDM_InitObject( "Cell Filter" );
 
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "New filter" ), "Name" );
-    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
-    m_isActive.uiCapability()->setUiHidden( true );
+    // The base class uses "UserDescription" as field keyword - no alias needed for m_name
+    setName( "New filter" );
+
+    m_isChecked.registerKeywordAlias( "Active" );
 
     CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case" );
     m_srcCase.uiCapability()->setUiHidden( true );
@@ -93,23 +94,7 @@ caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 QString RimCellFilter::fullName() const
 {
-    return QString( "%1" ).arg( m_name );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimCellFilter::name() const
-{
-    return m_name();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCellFilter::setName( QString filtername )
-{
-    m_name = filtername;
+    return name();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +102,7 @@ void RimCellFilter::setName( QString filtername )
 //--------------------------------------------------------------------------------------------------
 void RimCellFilter::setActive( bool active )
 {
-    m_isActive = active;
+    m_isChecked = active;
     updateIconState();
 }
 
@@ -126,7 +111,7 @@ void RimCellFilter::setActive( bool active )
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilter::isActive() const
 {
-    return m_isActive();
+    return m_isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +130,7 @@ void RimCellFilter::triggerFilterChanged() const
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilter::isFilterEnabled() const
 {
-    return m_isActive();
+    return m_isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,7 +178,7 @@ RimGeoMechCase* RimCellFilter::geoMechCase() const
 //--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateActiveState( bool isControlled )
 {
-    m_isActive.uiCapability()->setUiReadOnly( isControlled );
+    m_isChecked.uiCapability()->setUiReadOnly( isControlled );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +231,7 @@ void RimCellFilter::updateIconState()
         iconProvider.setOverlayResourceString( ":/Minus.png" );
     }
 
-    iconProvider.setActive( m_isActive && !m_isActive.uiCapability()->isUiReadOnly() );
+    iconProvider.setActive( m_isChecked && !m_isChecked.uiCapability()->isUiReadOnly() );
 
     setUiIcon( iconProvider );
 }
@@ -254,17 +239,9 @@ void RimCellFilter::updateIconState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCellFilter::objectToggleField()
-{
-    return &m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_name );
+    uiOrdering.add( nameField() );
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
 

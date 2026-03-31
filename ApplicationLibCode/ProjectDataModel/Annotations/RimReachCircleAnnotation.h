@@ -18,14 +18,14 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
+#include "RimCheckableNamedObject.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmPointer.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -41,7 +41,7 @@ class RimReachCircleLineAppearance;
 ///
 ///
 //==================================================================================================
-class RimReachCircleAnnotation : public caf::PdmObject
+class RimReachCircleAnnotation : public RimCheckableNamedObject
 {
     friend class RimReachCircleAnnotationInView;
 
@@ -59,23 +59,17 @@ public:
 
     Vec3d                         centerPoint() const;
     double                        radius() const;
-    QString                       name() const;
     RimReachCircleLineAppearance* appearance() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    caf::PdmField<bool> m_isActive;
-
     caf::PdmField<Vec3d>                              m_centerPointXyd;
     caf::PdmField<bool>                               m_centerPointPickEnabled;
     caf::PdmField<double>                             m_radius;
-    caf::PdmField<QString>                            m_name;
     caf::PdmChildField<RimReachCircleLineAppearance*> m_appearance;
 
     std::shared_ptr<RicVec3dPickEventHandler> m_centerPointEventHandler;

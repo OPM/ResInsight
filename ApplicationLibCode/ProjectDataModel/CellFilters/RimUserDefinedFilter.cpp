@@ -70,7 +70,7 @@ void RimUserDefinedFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField != &m_name )
+    if ( changedField != nameField() )
     {
         filterChanged.send();
         updateIconState();

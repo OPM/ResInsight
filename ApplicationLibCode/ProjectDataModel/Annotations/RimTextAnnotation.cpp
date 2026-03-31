@@ -62,8 +62,8 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitField( &m_text, "Text", QString( "(New text)" ), "Text" );
     m_text.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
-    m_isActive.uiCapability()->setUiHidden( true );
+    m_isChecked.registerKeywordAlias( "IsActive" );
+    m_isChecked.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_textAppearance, "TextAppearance", "Text Appearance" );
     m_textAppearance = new RimAnnotationTextAppearance();
@@ -199,7 +199,7 @@ caf::PdmFieldHandle* RimTextAnnotation::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 bool RimTextAnnotation::isActive()
 {
-    return m_isActive();
+    return isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,7 +211,7 @@ bool RimTextAnnotation::isVisible() const
 
     bool visible = true;
     if ( coll ) visible = coll->isVisible();
-    if ( visible ) visible = m_isActive;
+    if ( visible ) visible = isChecked();
 
     return visible;
 }
@@ -230,14 +230,6 @@ void RimTextAnnotation::enablePicking( bool enable )
 RimAnnotationTextAppearance* RimTextAnnotation::appearance() const
 {
     return m_textAppearance();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimTextAnnotation::objectToggleField()
-{
-    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------

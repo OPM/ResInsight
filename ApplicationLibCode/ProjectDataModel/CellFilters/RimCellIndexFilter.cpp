@@ -99,7 +99,7 @@ void RimCellIndexFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         m_setId = 0;
     }
 
-    if ( changedField != &m_name )
+    if ( changedField != nameField() )
     {
         updateCells();
         filterChanged.send();
@@ -161,11 +161,11 @@ void RimCellIndexFilter::updateCells()
         auto part = parts->part( m_gridIndex() );
 
         auto setNames = part->elementSetNames();
-        m_name        = QString::fromStdString( part->name() );
+        setName( QString::fromStdString( part->name() ) );
 
         if ( m_setId() < (int)setNames.size() )
         {
-            m_name = m_name + " : " + QString::fromStdString( part->elementSetNames()[m_setId] );
+            setName( name() + " : " + QString::fromStdString( part->elementSetNames()[m_setId] ) );
         }
 
         auto cells = part->elementSet( m_setId() );

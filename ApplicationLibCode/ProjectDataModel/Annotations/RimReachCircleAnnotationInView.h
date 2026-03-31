@@ -18,10 +18,9 @@
 
 #pragma once
 
-#include "RimAnnotationLineAppearance.h"
+#include "RimCheckableObject.h"
 
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
 // Include to make Pdm work for cvf::Color
@@ -42,7 +41,7 @@ class RimReachCircleAnnotation;
 ///
 ///
 //==================================================================================================
-class RimReachCircleAnnotationInView : public caf::PdmObject
+class RimReachCircleAnnotationInView : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -59,10 +58,8 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle* objectToggleField() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    caf::PdmField<bool>                         m_isActive;
     caf::PdmPtrField<RimReachCircleAnnotation*> m_sourceAnnotation;
 };
