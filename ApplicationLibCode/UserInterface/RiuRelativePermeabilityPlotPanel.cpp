@@ -193,7 +193,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
 
     QCheckBox* showCurveSelection = new QCheckBox( "Show Curve Selection" );
     showCurveSelection->setCheckState( Qt::Unchecked );
-    connect( showCurveSelection, SIGNAL( stateChanged( int ) ), SLOT( slotShowCurveSelectionWidgets( int ) ) );
+    connect( showCurveSelection, &QCheckBox::checkStateChanged, this, &RiuRelativePermeabilityPlotPanel::slotShowCurveSelectionWidgets );
 
     QVBoxLayout* leftLayout = new QVBoxLayout;
     leftLayout->addWidget( m_curveSetGroupBox );
@@ -214,13 +214,13 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
     setLayout( mainLayout );
 
     connect( m_selectedCurvesButtonGroup, SIGNAL( idClicked( int ) ), SLOT( slotButtonInButtonGroupClicked( int ) ) );
-    connect( m_showDrainageCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
-    connect( m_showImbibitionCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
-    connect( m_logarithmicScaleKrAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
-    connect( m_showUnscaledCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
-    connect( m_showScaledCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
-    connect( m_fixedXAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
-    connect( m_fixedLeftYAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
+    connect( m_showDrainageCheckBox, &QCheckBox::checkStateChanged, this, &RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged );
+    connect( m_showImbibitionCheckBox, &QCheckBox::checkStateChanged, this, &RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged );
+    connect( m_logarithmicScaleKrAxisCheckBox, &QCheckBox::checkStateChanged, this, &RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged );
+    connect( m_showUnscaledCheckBox, &QCheckBox::checkStateChanged, this, &RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged );
+    connect( m_showScaledCheckBox, &QCheckBox::checkStateChanged, this, &RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged );
+    connect( m_fixedXAxisCheckBox, &QCheckBox::checkStateChanged, this, &RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged );
+    connect( m_fixedLeftYAxisCheckBox, &QCheckBox::checkStateChanged, this, &RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged );
 
     slotShowCurveSelectionWidgets( showCurveSelection->checkState() );
 
@@ -900,7 +900,7 @@ void RiuRelativePermeabilityPlotPanel::slotCurrentPlotDataInTextDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::slotShowCurveSelectionWidgets( int state )
+void RiuRelativePermeabilityPlotPanel::slotShowCurveSelectionWidgets( Qt::CheckState state )
 {
     bool setVisible = ( state != Qt::CheckState::Unchecked );
 
@@ -923,7 +923,7 @@ void RiuRelativePermeabilityPlotPanel::slotButtonInButtonGroupClicked( int )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged( int )
+void RiuRelativePermeabilityPlotPanel::slotSomeCheckBoxStateChanged( Qt::CheckState )
 {
     plotUiSelectedCurves();
 }

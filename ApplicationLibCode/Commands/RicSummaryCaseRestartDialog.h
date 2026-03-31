@@ -89,7 +89,7 @@ private:
     QString fullFileName( const QString& shortOrFullFileName );
 
 private slots:
-    void slotShowFullPathToggled( int state );
+    void slotShowFullPathToggled( Qt::CheckState state );
     void slotDialogButtonClicked( QAbstractButton* button );
     void slotFileNameCopyCustomMenuRequested( const QPoint& point );
     void slotCopyFileNameToClipboard();

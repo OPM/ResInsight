@@ -107,7 +107,7 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog( QWidget* parent )
     m_buttons                 = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply );
 
     // Connect to signals
-    connect( m_showFullPathCheckBox, SIGNAL( stateChanged( int ) ), this, SLOT( slotShowFullPathToggled( int ) ) );
+    connect( m_showFullPathCheckBox, &QCheckBox::checkStateChanged, this, &RicSummaryCaseRestartDialog::slotShowFullPathToggled );
     connect( m_buttons, SIGNAL( clicked( QAbstractButton* ) ), this, SLOT( slotDialogButtonClicked( QAbstractButton* ) ) );
 
     // Set widget properties
@@ -576,7 +576,7 @@ QString RicSummaryCaseRestartDialog::fullFileName( const QString& shortOrFullFil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::slotShowFullPathToggled( int state )
+void RicSummaryCaseRestartDialog::slotShowFullPathToggled( Qt::CheckState state )
 {
     // Update file list widgets
     updateFileListWidget( m_currentFilesLayout, CURRENT_FILES_LIST_INDEX );

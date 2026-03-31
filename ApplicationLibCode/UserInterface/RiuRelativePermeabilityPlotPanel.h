@@ -123,9 +123,9 @@ private:
 
 private slots:
     void slotButtonInButtonGroupClicked( int );
-    void slotSomeCheckBoxStateChanged( int );
+    void slotSomeCheckBoxStateChanged( Qt::CheckState );
     void slotCurrentPlotDataInTextDialog();
-    void slotShowCurveSelectionWidgets( int state );
+    void slotShowCurveSelectionWidgets( Qt::CheckState state );
     void slotPickerActivated( bool );
     void slotPickerPointChanged( const QPoint& pt );
     void showEvent( QShowEvent* event ) override;
